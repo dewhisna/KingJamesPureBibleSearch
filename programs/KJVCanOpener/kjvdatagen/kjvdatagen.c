@@ -46,7 +46,7 @@
 //	$$$Gen.1.3
 //	@
 //	And God said, Let there be light: and there was light.@
-//	@And God said, Let there be light: and there was light.@
+//	@¶And God said, Let there be light: and there was light.@
 //	$$$Gen.1.4
 //	@And God saw the light, that it was good: and God divided the light from the darkness.@
 //	@And God saw the light, that <i>it was</i> good: and God divided the light from the darkness.@
@@ -55,16 +55,23 @@
 //	@And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.@
 //
 // Output Format (for LAYOUT):
-//	{nBk|nChp},countVrs,countWrd,Footnotes$,BkAbbr$,Chp
+//	{nBk|nChp},countVrs,countWrd,BkAbbr$,nChp
 //
 // Example:
-//	257,31,797,,Gen,1
-//	258,25,632,,Gen,2
-//	259,24,695,,Gen,3
-//	260,26,632,,Gen,4
-//	261,32,504,,Gen,5
-//	262,22,579,,Gen,6
-//	263,24,584,,Gen,7
+//	257,31,797,Gen,1
+//	258,25,632,Gen,2
+//	259,24,695,Gen,3
+//	260,26,632,Gen,4
+//	261,32,504,Gen,5
+//	262,22,579,Gen,6
+//	263,24,584,Gen,7
+//
+// Output Format (for BOOK):
+//	{nChp|nVrs},countWrd,bPilcrow,PlainText$,RichText$,Footnote$
+//
+// Example:
+//
+//
 //
 
 #include <stdlib.h>
@@ -76,6 +83,11 @@
 #ifndef BOOL
 #define BOOL int
 #endif
+
+// PILCROW_SUMMARY : Set to 1 to output Pilcrow report summary to <stderr> or 0 to suppress
+#define PILCROW_SUMMARY 0
+// OUTPUT_HEBREW_PS119 : Set to 1 to output Hebrew characters in addition to English for Psalm119 in Rich text
+#define OUTPUT_HEBREW_PS119 1
 
 #define NUM_BK 66
 #define NUM_BK_OT 39
@@ -178,9 +190,54 @@ int fgetcUTF8(FILE *file)
 	return cResult;
 }
 
+int sputcUTF8(int c, char *outbuf)
+{
+	unsigned int c1 = c;
+	unsigned int c2;
+	char buff[10];
+	int n;
+	int m;
+
+	if (c1 < 0x80) {
+		outbuf[0] = c1;
+		outbuf[1] = 0;
+		return 1;
+	}
+
+	buff[6] = 0;
+	n = 5;
+	m = 32;
+	c2 = 0x1F80;
+	while (c1) {
+		buff[n] = (c1 & 0x3f) | 0x80;
+		c1 = c1 >> 6;
+		c2 = c2 >> 1;
+		if (c1 < m) {
+			n--;
+			buff[n] = ((c2 & 0xFF) | c1);
+			c1 = 0;
+		} else {
+			n--;
+			m /= 2;
+		}
+	}
+	strcpy(outbuf, &buff[n]);
+	return strlen(&buff[n]);
+}
+
+void fputcUTF8(int c, FILE *file)
+{
+	char buff[10];
+
+	sputcUTF8(c, buff);
+	fprintf(file, "%s", buff);
+}
+
 int main(int argc, const char *argv[])
 {
-	char buffPlain[10000];
+	char buffPlain[10000];		// Plain Text version
+	char buffRich[10000];		// Rich Text version
+	char buffFootnote[2000];	// Footnote Text
 	char word[50];
 	int countChp[NUM_BK];		// # of Chapters in books
 	int countVrs[NUM_BK];		// # of Verses in entire book for Book mode or # of Verses in current Chapter for Layout mode
@@ -199,7 +256,13 @@ int main(int argc, const char *argv[])
 	int nVrs;			// Verse counter
 	int nWrd;			// Word counter
 	int ndx;			// Index into buffer;
-	BOOL bIsPilcrow;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE
+	BOOL bIsPilcrow;		// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (either Plain/Rich)
+	BOOL bIsPilcrowPlain;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Plain Text)
+	BOOL bIsPilcrowRich;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Rich Text)
+	BOOL bPilcrowMismatch;	// Set to TRUE if the plain specifies a pilcrow and the rich doesn't or vice versa
+	int nPilcrowPlain = 0;	// Number of Pilcrows in Plain
+	int nPilcrowRich = 0;	// Number of Pilcrows in Rich
+	int nPilcrowTotal = 0;	// Total Number of Pilcrows
 	int i;
 	int c;				// Character from input file
 	char *pTemp;
@@ -253,6 +316,20 @@ int main(int argc, const char *argv[])
 		return -1;
 	}
 
+/////////////////////////////////////
+// Preprocessing:
+/////////////////////////////////////
+
+	if (bDoingBook) {
+		// Excel will normally try to treat the file as Latin-1, but since we
+		//		have some embedded UTF-8, we need to output a BOM:
+		fputcUTF8(0x0FEFF, stdout);
+	}
+
+/////////////////////////////////////
+// Main Processing Loop
+/////////////////////////////////////
+
 	// Initialize total counts for the book
 	for (nBk = 0; nBk < NUM_BK; ++nBk) {
 		countChp[nBk] = 0;
@@ -261,12 +338,16 @@ int main(int argc, const char *argv[])
 	}
 
 	nBk = nChp = nVrs = 0;		// Start with 0.0 and set with parsed data when parsing OSIS
-	ndx = 0;
 	if (bDoingLayout) {
 		nCurChp = 1;				// For layout mode, pretend we're currently on chapter 1 already
 		nCurBk = 1;					//	and in book 1
 	}
 	while (!feof(stdin)) {
+
+/////////////////////////////////////
+// Find and Parse Bk/Chp/Vrs Header
+/////////////////////////////////////
+
 		for (i=0; i<3; ++i) {		// looking for 3 '$' symbols
 			do {
 				c = fgetcUTF8(stdin);
@@ -308,24 +389,28 @@ int main(int argc, const char *argv[])
 		if (nChp > countChp[nBk-1]) countChp[nBk-1] = nChp;
 		if (nVrs > countVrs[nBk-1]) countVrs[nBk-1] = nVrs;
 
+/////////////////////////////////////
+// Find and Parse Plain Text
+/////////////////////////////////////
+
 		do {							// Find "@" marker
 			c = fgetcUTF8(stdin);
 		} while ((c != '@') && (c != EOF));
 		if (c == EOF) break;
 
 		// Read and fill buffPlain with verse text up to final "@" marker:
-		bIsPilcrow = FALSE;
+		bIsPilcrowPlain = FALSE;
 		ndx = 0;
 		do {
 			c = fgetcUTF8(stdin);
 			if ((c != '@') && (c != EOF)) {
 				if (c == 0x0a) {
 					if (ndx > 0) break;			// A newline after text means footnote marker!  So skip the rest!!
-					bIsPilcrow = TRUE;			// A newline at the start denotes a Pilcrow (¶) mark
+					bIsPilcrowPlain = TRUE;		// A newline at the start denotes a Pilcrow (¶) mark
 					continue;					// We set the flag, but we'll exclude writing the newline to the output
 				}
 				if (c == 0xb6) {				// Translate Pilcrow
-					bIsPilcrow = TRUE;
+					bIsPilcrowPlain = TRUE;
 					continue;
 				}
 				if (c == 0x2013) c = '-';		// Translate "en dash" to (-)
@@ -345,18 +430,283 @@ int main(int argc, const char *argv[])
 					c = 'e';
 				}
 				if (c > 127) {
-					fprintf(stderr, "Unexpected UTF-8 symbol (%04lx) at position %d [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+					fprintf(stderr, "Unexpected UTF-8 symbol in Plain Text (%04lx) at position %d [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
 				}
 				buffPlain[ndx] = c;
 				ndx++;
 			}
 		} while ((!feof(stdin)) && (ndx < sizeof(buffPlain)-1) && (c != '@'));
-		buffPlain[ndx] = 0;
+		buffPlain[ndx] = 0;			// End main text
+		if (c != '@') {				// If we didn't find the end marker, we must be in a footnote
+			ndx = 0;
+			do {
+				c = fgetcUTF8(stdin);
+				if ((c != '@') && (c != EOF)) {
+					if (c == 0xb6) continue;			// Translate Pilcrow (ignore them in footnote, shouldn't be here anyway)
+					if (c == 0x2013) c = '-';		// Translate "en dash" to (-)
+					if (c == 0x2015) {				// Translate "Horizontal Bar" to (--) TODO : Figure out what to do with this one!
+						buffFootnote[ndx] = '-';
+						ndx++;
+						c = '-';
+					}
+					if (c == 0xe6) {				// Translate "æ" to "ae":
+						buffFootnote[ndx] = 'a';
+						ndx++;
+						c = 'e';
+					}
+					if (c == 0xc6) {				// Translate "Æ" to "Ae":
+						buffFootnote[ndx] = 'A';
+						ndx++;
+						c = 'e';
+					}
+					if (c > 127) {
+						fprintf(stderr, "Unexpected UTF-8 symbol in Footnote Text (%04lx) at position %d [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+					}
+					buffFootnote[ndx] = c;
+					ndx++;
+				}
+			} while ((!feof(stdin)) && (ndx < sizeof(buffFootnote)-1) && (c != '@'));
+			buffFootnote[ndx] = 0;			// End footnote
+		}
+
+/////////////////////////////////////
+// Find and Parse Rich Text
+/////////////////////////////////////
+
+		do {							// Find "@" marker
+			c = fgetcUTF8(stdin);
+		} while ((c != '@') && (c != EOF));
+		if (c == EOF) break;
+
+		// Read and fill buffRich with verse text up to final "@" marker:
+		bIsPilcrowRich = FALSE;
+		ndx = 0;
+
+		// First, fill in missing Hebrew alphabet in Psalm 119 in both Hebrew and English for text to be rendered:
+		if ((nBk == 19) && (nChp == 119) && (((nVrs-1)%8) == 0)) {
+
+#if (OUTPUT_HEBREW_PS119)
+			switch ((nVrs-1)/8) {
+				case 0:
+					// ALEPH
+					ndx += sputcUTF8(0x005D0, &buffRich[ndx]);
+					break;
+				case 1:
+					// BETH
+					ndx += sputcUTF8(0x005D1, &buffRich[ndx]);
+					break;
+				case 2:
+					// GIMEL
+					ndx += sputcUTF8(0x005D2, &buffRich[ndx]);
+					break;
+				case 3:
+					// DALETH
+					ndx += sputcUTF8(0x005D3, &buffRich[ndx]);
+					break;
+				case 4:
+					// HE
+					ndx += sputcUTF8(0x005D4, &buffRich[ndx]);
+					break;
+				case 5:
+					// VAU
+					ndx += sputcUTF8(0x005D5, &buffRich[ndx]);
+					break;
+				case 6:
+					// ZAIN
+					ndx += sputcUTF8(0x005D6, &buffRich[ndx]);
+					break;
+				case 7:
+					// CHETH
+					ndx += sputcUTF8(0x005D7, &buffRich[ndx]);
+					break;
+				case 8:
+					// TETH
+					ndx += sputcUTF8(0x005D8, &buffRich[ndx]);
+					break;
+				case 9:
+					// JOD
+					ndx += sputcUTF8(0x005D9, &buffRich[ndx]);
+					break;
+				case 10:
+					// CAPH
+					ndx += sputcUTF8(0x005DB, &buffRich[ndx]);		// Using nonfinal-CAPH
+					break;
+				case 11:
+					// LAMED
+					ndx += sputcUTF8(0x005DC, &buffRich[ndx]);
+					break;
+				case 12:
+					// MEM
+					ndx += sputcUTF8(0x005DE, &buffRich[ndx]);		// Using nonfinal-Mem
+					break;
+				case 13:
+					// NUN
+					ndx += sputcUTF8(0x005E0, &buffRich[ndx]);		// Using nonfinal-Nun
+					break;
+				case 14:
+					// SAMECH
+					ndx += sputcUTF8(0x005E1, &buffRich[ndx]);
+					break;
+				case 15:
+					// AIN
+					ndx += sputcUTF8(0x005E2, &buffRich[ndx]);
+					break;
+				case 16:
+					// PE
+					ndx += sputcUTF8(0x005E4, &buffRich[ndx]);		// Using nonfinal-Pe
+					break;
+				case 17:
+					// TZADDI
+					ndx += sputcUTF8(0x005E6, &buffRich[ndx]);		// Using nonfinal-Tzaddi
+					break;
+				case 18:
+					// KOPH
+					ndx += sputcUTF8(0x005E7, &buffRich[ndx]);
+					break;
+				case 19:
+					// RESH
+					ndx += sputcUTF8(0x005E8, &buffRich[ndx]);
+					break;
+				case 20:
+					// SCHIN
+					ndx += sputcUTF8(0x005E9, &buffRich[ndx]);
+					break;
+				case 21:
+					// TAU
+					ndx += sputcUTF8(0x005EA, &buffRich[ndx]);
+					break;
+			}
+			strcpy(&buffRich[ndx], " ");
+			ndx += strlen(&buffRich[ndx]);
+#endif
+
+			switch ((nVrs-1)/8) {
+				case 0:
+					strcpy(&buffRich[ndx], "(ALEPH). ");
+					break;
+				case 1:
+					strcpy(&buffRich[ndx], "(BETH). ");
+					break;
+				case 2:
+					strcpy(&buffRich[ndx], "(GIMEL). ");
+					break;
+				case 3:
+					strcpy(&buffRich[ndx], "(DALETH). ");
+					break;
+				case 4:
+					strcpy(&buffRich[ndx], "(HE). ");
+					break;
+				case 5:
+					strcpy(&buffRich[ndx], "(VAU). ");
+					break;
+				case 6:
+					strcpy(&buffRich[ndx], "(ZAIN). ");
+					break;
+				case 7:
+					strcpy(&buffRich[ndx], "(CHETH). ");
+					break;
+				case 8:
+					strcpy(&buffRich[ndx], "(TETH). ");
+					break;
+				case 9:
+					strcpy(&buffRich[ndx], "(JOD). ");
+					break;
+				case 10:
+					strcpy(&buffRich[ndx], "(CAPH). ");
+					break;
+				case 11:
+					strcpy(&buffRich[ndx], "(LAMED). ");
+					break;
+				case 12:
+					strcpy(&buffRich[ndx], "(MEM). ");
+					break;
+				case 13:
+					strcpy(&buffRich[ndx], "(NUN). ");
+					break;
+				case 14:
+					strcpy(&buffRich[ndx], "(SAMECH). ");
+					break;
+				case 15:
+					strcpy(&buffRich[ndx], "(AIN). ");
+					break;
+				case 16:
+					strcpy(&buffRich[ndx], "(PE). ");
+					break;
+				case 17:
+					strcpy(&buffRich[ndx], "(TZADDI). ");
+					break;
+				case 18:
+					strcpy(&buffRich[ndx], "(KOPH). ");
+					break;
+				case 19:
+					strcpy(&buffRich[ndx], "(RESH). ");
+					break;
+				case 20:
+					strcpy(&buffRich[ndx], "(SCHIN). ");
+					break;
+				case 21:
+					strcpy(&buffRich[ndx], "(TAU). ");
+					break;
+				default:
+					buffRich[ndx] = 0;		// Safeguard in case something's wrong with the text
+					break;
+			}
+			ndx += strlen(&buffRich[ndx]);
+		}
+
+		do {
+			c = fgetcUTF8(stdin);
+			if ((c != '@') && (c != EOF)) {
+				if (ndx == 0) {
+					if (c == 0xb6) {				// Translate Pilcrow (but only at start of verse!)
+						bIsPilcrowRich = TRUE;
+					} else {
+						// Source text tends to have mismatches of pilcrows between plain and rich.  So
+						//		we'll make our rich output the combined pilcrows so it's complete:
+						if (bIsPilcrowPlain) ndx += sputcUTF8(0x00b6, &buffRich[ndx]);
+					}
+				}
+				if (c == '\"') {				// Escape " with "" by adding one more to our buffer
+					buffRich[ndx] = '\"';
+					ndx++;
+				}
+
+// Can't do this or else we'll lose our special hyphens and such.  Replaced with BOM output above.  Left here for reference:
+//				// Excel apparently expects Latin-1 for CSV files, so we won't output UTF-8
+//				if (c > 255) {
+//					fprintf(stderr, "Unexpected UTF-8 symbol in Rich Text (%04lx) at position %d [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+//				} else {
+//					buffRich[ndx] = c;
+//					ndx++;
+//				}
+
+				ndx += sputcUTF8(c, &buffRich[ndx]);	// UTF8 transfer character
+
+			}
+		} while ((!feof(stdin)) && (ndx < sizeof(buffRich)-1) && (c != '@'));
+		buffRich[ndx] = 0;
+
+/////////////////////////////////////
+// Parse and Write Output File
+/////////////////////////////////////
+
+		bIsPilcrow = (bIsPilcrowPlain || bIsPilcrowRich);
+		bPilcrowMismatch = ((bIsPilcrowPlain != bIsPilcrowRich) ? TRUE : FALSE);
+
+		if (bIsPilcrow) ++nPilcrowTotal;
+		if (bIsPilcrowPlain) ++nPilcrowPlain;
+		if (bIsPilcrowRich) ++nPilcrowRich;
+
+#if (PILCROW_SUMMARY)
+		if (bPilcrowMismatch) {
+			fprintf(stderr, "Pilcrow Mismatch in file: %s %0d.%0d  (%s)\n", g_arrstrBkAbbr[nBk-1], nChp, nVrs, (bIsPilcrowPlain ? "Plain" : "Rich"));
+		}
+#endif
 
 		if (bDoingLayout) {
 			// Output the current one we were processing just before transitioning:
 			if ((nCurBk != nBk) || (nCurChp != nChp)) {
-				fprintf(stdout, "%d,%d,%d,,%s,%d\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
+				fprintf(stdout, "%d,%d,%d,%s,%d\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
 				countVrs[nCurBk-1] = 0;				// For Layout mode, these are counts for the chapter only, so reset them
 				countWrd[nCurBk-1] = 0;
 				nCurBk = nBk;
@@ -385,14 +735,22 @@ int main(int argc, const char *argv[])
 			pTemp = strpbrk(pTemp2, g_strCharset);
 		}		// Here, nWrd = Number of words in this verse
 		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
+
+		if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
+			fprintf(stdout, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
+		}
+
 	}
 
 	if (bDoingLayout) {
 		if ((nChp != 0) && (nBk != 0)) {			// Output our final entry if one was still pending
-			fprintf(stdout, "%d,%d,%d,,%s,%d\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
+			fprintf(stdout, "%d,%d,%d,%s,%d\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
 		}
 	}
 
+#if (PILCROW_SUMMARY)
+	fprintf(stderr, "Pilcrows:  Plain: %d,  Rich: %d,  Total: %d\n", nPilcrowPlain, nPilcrowRich, nPilcrowTotal);
+#endif
 
 	return 0;
 }
