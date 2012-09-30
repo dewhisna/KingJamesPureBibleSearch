@@ -44,27 +44,32 @@ int fgetcUTF8(FILE *file)
 
 void fputcUTF8(int c, FILE *file)
 {
-	int c2;
+	unsigned int c1 = c;
+	unsigned int c2;
 	char buff[10];
 	int n;
+	int m;
 
-	if (c < 0x80) {
-		fputc(c, file);
+	if (c1 < 0x80) {
+		fputc(c1, file);
 		return;
 	}
 
 	buff[6] = 0;
 	n = 5;
-	c2 = 0x0FF80;
-	while (c) {
-		buff[n] = (c & 0x3f) | 0x80;
-		c = c >> 6;
+	m = 32;
+	c2 = 0x1F80;
+	while (c1) {
+		buff[n] = (c1 & 0x3f) | 0x80;
+		c1 = c1 >> 6;
 		c2 = c2 >> 1;
-		if (c < (2^n)) {
-			c = ((c2 & 0xFF) | c);
+		if (c1 < m) {
 			n--;
-			buff[n] = c;
-			c = 0;
+			buff[n] = ((c2 & 0xFF) | c1);
+			c1 = 0;
+		} else {
+			n--;
+			m /= 2;
 		}
 	}
 	fprintf(file, "%s", &buff[n]);
