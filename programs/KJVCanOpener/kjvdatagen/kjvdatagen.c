@@ -77,6 +77,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+#include <io.h>
 
 #define FALSE (0)
 #define TRUE (!FALSE)
@@ -267,6 +269,8 @@ int main(int argc, const char *argv[])
 	int c;				// Character from input file
 	char *pTemp;
 	char *pTemp2;
+
+	_setmode(_fileno(stdout), _O_BINARY);
 
 	if (argc < 2) {
 		bNeedUsage = TRUE;
@@ -706,7 +710,7 @@ int main(int argc, const char *argv[])
 		if (bDoingLayout) {
 			// Output the current one we were processing just before transitioning:
 			if ((nCurBk != nBk) || (nCurChp != nChp)) {
-				fprintf(stdout, "%d,%d,%d,%s,%d\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
+				fprintf(stdout, "%d,%d,%d,%s,%d\r\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
 				countVrs[nCurBk-1] = 0;				// For Layout mode, these are counts for the chapter only, so reset them
 				countWrd[nCurBk-1] = 0;
 				nCurBk = nBk;
@@ -715,7 +719,7 @@ int main(int argc, const char *argv[])
 		}
 
 		if ((bDoingBookDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(stdout, "%s\n", buffPlain);
+			fprintf(stdout, "%s\r\n", buffPlain);
 		}
 
 		// Do this after the printing because either we are on the same
@@ -731,20 +735,20 @@ int main(int argc, const char *argv[])
 			while ((*pTemp2 != 0) && (strchr(g_strCharset, *pTemp2) != NULL)) ++pTemp2;
 			memcpy(word, pTemp, pTemp2-pTemp);
 			word[pTemp2-pTemp] = 0;
-			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(stdout, "%s\n", word);
+			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(stdout, "%s\r\n", word);
 			pTemp = strpbrk(pTemp2, g_strCharset);
 		}		// Here, nWrd = Number of words in this verse
 		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
 
 		if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(stdout, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
+			fprintf(stdout, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
 		}
 
 	}
 
 	if (bDoingLayout) {
 		if ((nChp != 0) && (nBk != 0)) {			// Output our final entry if one was still pending
-			fprintf(stdout, "%d,%d,%d,%s,%d\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
+			fprintf(stdout, "%d,%d,%d,%s,%d\r\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
 		}
 	}
 
