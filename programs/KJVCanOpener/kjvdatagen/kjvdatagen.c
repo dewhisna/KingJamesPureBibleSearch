@@ -324,10 +324,19 @@ int main(int argc, const char *argv[])
 // Preprocessing:
 /////////////////////////////////////
 
+//	if (bDoingTOC) {
+//		fprintf(stdout, "BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n");
+//	}
+
+	if (bDoingLayout) {
+		fprintf(stdout, "BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n");
+	}
+
 	if (bDoingBook) {
 		// Excel will normally try to treat the file as Latin-1, but since we
 		//		have some embedded UTF-8, we need to output a BOM:
 		fputcUTF8(0x0FEFF, stdout);
+		fprintf(stdout, "ChpVrsNdx,NumWrd,bPilcrow,PText,RText,Footnote\r\n");
 	}
 
 /////////////////////////////////////

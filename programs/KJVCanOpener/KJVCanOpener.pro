@@ -4,15 +4,17 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 TARGET = KJVCanOpener
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        KJVCanOpener.cpp
+        KJVCanOpener.cpp \
+    CSV.cpp
 
-HEADERS  += KJVCanOpener.h
+HEADERS  += KJVCanOpener.h \
+    CSV.h
 
 FORMS    += KJVCanOpener.ui
