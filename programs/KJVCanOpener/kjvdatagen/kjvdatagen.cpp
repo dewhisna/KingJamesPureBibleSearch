@@ -8,7 +8,7 @@
 //				and can create word and book dumps.
 //
 //	Reads a specialized (with '@' symbols) Sword OutPlain dump file with OSIS
-//		Key names and text from <stdin>.  Sends the following to <stdout>
+//		Key names and text from <Filename-In>.  Sends the following to <Filename-Out>
 //		depending on the specified mode:
 //		layout :	Writes the LAYOUT table (sans footnotes)
 //		book :		Writes the BOOK table for the specified book name
@@ -79,16 +79,26 @@
 #include <string.h>
 #include <fcntl.h>
 #include <io.h>
+//#include <string>
+//#include <list>
+//#include <map>
+//#include <locale>
+//using namespace std;
 
 #ifndef stricmp
 #define stricmp _stricmp
 #endif
 
+/*
 #define FALSE (0)
 #define TRUE (!FALSE)
 #ifndef BOOL
 #define BOOL int
 #endif
+*/
+#define BOOL bool
+#define FALSE false
+#define TRUE true
 
 // PILCROW_SUMMARY : Set to 1 to output Pilcrow report summary to <stderr> or 0 to suppress
 #define PILCROW_SUMMARY 0
@@ -273,45 +283,55 @@ int main(int argc, const char *argv[])
 	int c;				// Character from input file
 	char *pTemp;
 	char *pTemp2;
+	FILE *fileIn = NULL;
+	FILE *fileOut = NULL;
+	const char *strInFilename = NULL;
+	const char *strOutFilename = NULL;
 
-	_setmode(_fileno(stdout), _O_BINARY);
-
-	if (argc < 2) {
+	if ((argc != 4) && (argc != 5)) {
 		bNeedUsage = TRUE;
 	} else if (stricmp(argv[1], "layout") == 0) {
 		bDoingLayout = TRUE;
+		// Book name is ignored
 	} else if (stricmp(argv[1], "book") == 0) {
+		if (argc != 5) bNeedUsage = TRUE;		// Must have book name for this one
 		bDoingBook = TRUE;
-		if (argc < 3) bNeedUsage = TRUE;		// Must have book name for this one
 	} else if (stricmp(argv[1], "words") == 0) {
 		bDoingWords = TRUE;
+		// Book name is ignored
 	} else if (stricmp(argv[1], "worddump") == 0) {
 		bDoingWordDump = TRUE;
+		// Book name is optional -- used if specified, or "all" of not
 	} else if (stricmp(argv[1], "bookdump") == 0) {
 		bDoingBookDump = TRUE;
+		// Book name is optional -- used if specified, or "all" of not
 	} else {
 		bNeedUsage = TRUE;
 	}
 
-	if (argc > 2) {
-		for (nBk = 0; nBk < NUM_BK; ++nBk) {
-			if (stricmp(g_arrstrBkAbbr[nBk], argv[2]) == 0) {
-				nBkNdx = nBk + 1;
-				break;
-			}
-		}
-		if (nBkNdx == 0) {
-			fprintf(stderr, "Invalid book name.  Valid books are:\n\n");
+	if (argc >= 5) {				// Must have at least 5 to have a bookname.  If less, it's invalid or they omitted it
+		nBkNdx = 0;					// 0 = All books for modes that allow it
+		if (stricmp(argv[2], "all") != 0) {			// Allow special keyword "all" for all books
 			for (nBk = 0; nBk < NUM_BK; ++nBk) {
-				fprintf(stderr, "    %s\n", g_arrstrBkAbbr[nBk]);
+				if (stricmp(g_arrstrBkAbbr[nBk], argv[2]) == 0) {
+					nBkNdx = nBk + 1;
+					break;
+				}
 			}
-			return -1;
+			if (nBkNdx == 0) {
+				fprintf(stderr, "Invalid book name.  Valid books are:\n\n");
+				fprintf(stderr, "    ALL\n");
+				for (nBk = 0; nBk < NUM_BK; ++nBk) {
+					fprintf(stderr, "    %s\n", g_arrstrBkAbbr[nBk]);
+				}
+				return -1;
+			}
 		}
 	}
 	// By here, nBkNum = Book number to output, or 0 for all books on modes that allow it
 
 	if (bNeedUsage) {
-		fprintf(stderr, "Usage:  KJVDataGen <mode> [<bookname>]\n\n");
+		fprintf(stderr, "Usage:  kjvdatagen <mode> [<bookname>] <Filename-In> <Filename-Out>\n\n");
 		fprintf(stderr, "  Where <mode> is one of:\n\n");
 		fprintf(stderr, "      layout   -- Dump LAYOUT table data (book name not used)\n");
 		fprintf(stderr, "      book     -- Dump BOOK table data for the specified book\n");
@@ -319,9 +339,37 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "      worddump -- Dumps all words (book name optional)\n");
 		fprintf(stderr, "      bookdump -- Dumps the content of specified book (Verse per line)\n");
 		fprintf(stderr, "\n\n");
-		fprintf(stderr, "  I/O is from/to stdin/stdout.  Input should be specialized\n");
-		fprintf(stderr, "  Sword outplain dump file.\n");
+		fprintf(stderr, "  Input should be specialized Sword dump file with both plain\n");
+		fprintf(stderr, "    and rich text.  Use '-' for filename for <stdin>/<stdout>.\n");
+		fprintf(stderr, "\n");
 		return -1;
+	}
+
+	strInFilename = argv[((argc == 4) ? 2 : 3)];
+	strOutFilename = argv[((argc == 4) ? 3 : 4)];
+
+	if (strcmp(strInFilename, "-") != 0) {
+		fileIn = fopen(strInFilename, "rb");
+	} else {
+		fileIn = stdin;
+		strInFilename = "<stdin>";
+	}
+	if (fileIn == NULL) {
+		fprintf(stderr, "Error: Can't open '%s' for reading.\n", strInFilename);
+		return -2;
+	}
+
+	if (strcmp(strOutFilename, "-") != 0) {
+		fileOut = fopen(strOutFilename, "wb");
+	} else {
+		_setmode(_fileno(stdout), _O_BINARY);
+		fileOut = stdout;
+		strOutFilename = "<stdout>";
+	}
+	if (fileOut == NULL) {
+		fprintf(stderr, "Error: Can't open '%s' for writing.\n", strOutFilename);
+		if ((fileIn != NULL) && (fileIn != stdin)) fclose(fileIn);
+		return -3;
 	}
 
 /////////////////////////////////////
@@ -329,18 +377,18 @@ int main(int argc, const char *argv[])
 /////////////////////////////////////
 
 //	if (bDoingTOC) {
-//		fprintf(stdout, "BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n");
+//		fprintf(fileOut, "BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n");
 //	}
 
 	if (bDoingLayout) {
-		fprintf(stdout, "BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n");
+		fprintf(fileOut, "BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n");
 	}
 
 	if (bDoingBook) {
 		// Excel will normally try to treat the file as Latin-1, but since we
 		//		have some embedded UTF-8, we need to output a BOM:
-		fputcUTF8(0x0FEFF, stdout);
-		fprintf(stdout, "ChpVrsNdx,NumWrd,bPilcrow,PText,RText,Footnote\r\n");
+		fputcUTF8(0x0FEFF, fileOut);
+		fprintf(fileOut, "ChpVrsNdx,NumWrd,bPilcrow,PText,RText,Footnote\r\n");
 	}
 
 /////////////////////////////////////
@@ -359,7 +407,7 @@ int main(int argc, const char *argv[])
 		nCurChp = 1;				// For layout mode, pretend we're currently on chapter 1 already
 		nCurBk = 1;					//	and in book 1
 	}
-	while (!feof(stdin)) {
+	while (!feof(fileIn)) {
 
 /////////////////////////////////////
 // Find and Parse Bk/Chp/Vrs Header
@@ -367,13 +415,13 @@ int main(int argc, const char *argv[])
 
 		for (i=0; i<3; ++i) {		// looking for 3 '$' symbols
 			do {
-				c = fgetcUTF8(stdin);
+				c = fgetcUTF8(fileIn);
 			} while ((c != '$') && (c != EOF));
 			if (c == EOF) break;
 		}
 		if (c == EOF) break;
 
-		fgets(buffPlain, sizeof(buffPlain), stdin);	// Note: The reference shouldn't be UTF-8, so we can just use fgets
+		fgets(buffPlain, sizeof(buffPlain), fileIn);	// Note: The reference shouldn't be UTF-8, so we can just use fgets
 		nBk = nChp = nVrs = 0;
 		pTemp = strchr(buffPlain, '.');			// Find book name
 		if (pTemp) {
@@ -411,7 +459,7 @@ int main(int argc, const char *argv[])
 /////////////////////////////////////
 
 		do {							// Find "@" marker
-			c = fgetcUTF8(stdin);
+			c = fgetcUTF8(fileIn);
 		} while ((c != '@') && (c != EOF));
 		if (c == EOF) break;
 
@@ -419,7 +467,7 @@ int main(int argc, const char *argv[])
 		bIsPilcrowPlain = FALSE;
 		ndx = 0;
 		do {
-			c = fgetcUTF8(stdin);
+			c = fgetcUTF8(fileIn);
 			if ((c != '@') && (c != EOF)) {
 				if (c == 0x0a) {
 					if (ndx > 0) break;			// A newline after text means footnote marker!  So skip the rest!!
@@ -447,17 +495,17 @@ int main(int argc, const char *argv[])
 					c = 'e';
 				}
 				if (c > 127) {
-					fprintf(stderr, "Unexpected UTF-8 symbol in Plain Text (%04x) at position %ld [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+					fprintf(stderr, "Unexpected UTF-8 symbol in Plain Text (%04x) at position %ld [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(fileIn), ftell(fileIn), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
 				}
 				buffPlain[ndx] = c;
 				ndx++;
 			}
-		} while ((!feof(stdin)) && (ndx < sizeof(buffPlain)-1) && (c != '@'));
+		} while ((!feof(fileIn)) && (ndx < sizeof(buffPlain)-1) && (c != '@'));
 		buffPlain[ndx] = 0;			// End main text
 		if (c != '@') {				// If we didn't find the end marker, we must be in a footnote
 			ndx = 0;
 			do {
-				c = fgetcUTF8(stdin);
+				c = fgetcUTF8(fileIn);
 				if ((c != '@') && (c != EOF)) {
 					if (c == 0xb6) continue;			// Translate Pilcrow (ignore them in footnote, shouldn't be here anyway)
 					if (c == 0x2013) c = '-';		// Translate "en dash" to (-)
@@ -477,12 +525,12 @@ int main(int argc, const char *argv[])
 						c = 'e';
 					}
 					if (c > 127) {
-						fprintf(stderr, "Unexpected UTF-8 symbol in Footnote Text (%04x) at position %ld [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+						fprintf(stderr, "Unexpected UTF-8 symbol in Footnote Text (%04x) at position %ld [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(fileIn), ftell(fileIn), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
 					}
 					buffFootnote[ndx] = c;
 					ndx++;
 				}
-			} while ((!feof(stdin)) && (ndx < sizeof(buffFootnote)-1) && (c != '@'));
+			} while ((!feof(fileIn)) && (ndx < sizeof(buffFootnote)-1) && (c != '@'));
 			buffFootnote[ndx] = 0;			// End footnote
 		}
 
@@ -491,7 +539,7 @@ int main(int argc, const char *argv[])
 /////////////////////////////////////
 
 		do {							// Find "@" marker
-			c = fgetcUTF8(stdin);
+			c = fgetcUTF8(fileIn);
 		} while ((c != '@') && (c != EOF));
 		if (c == EOF) break;
 
@@ -672,7 +720,7 @@ int main(int argc, const char *argv[])
 		}
 
 		do {
-			c = fgetcUTF8(stdin);
+			c = fgetcUTF8(fileIn);
 			if ((c != '@') && (c != EOF)) {
 				if (ndx == 0) {
 					if (c == 0xb6) {				// Translate Pilcrow (but only at start of verse!)
@@ -691,7 +739,7 @@ int main(int argc, const char *argv[])
 // Can't do this or else we'll lose our special hyphens and such.  Replaced with BOM output above.  Left here for reference:
 //				// Excel apparently expects Latin-1 for CSV files, so we won't output UTF-8
 //				if (c > 255) {
-//					fprintf(stderr, "Unexpected UTF-8 symbol in Rich Text (%04lx) at position %d [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(stdin), ftell(stdin), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
+//					fprintf(stderr, "Unexpected UTF-8 symbol in Rich Text (%04x) at position %ld [0x%04lx] in file: %s %0d.%0d [%0d]\n", c, ftell(fileIn), ftell(fileIn), g_arrstrBkAbbr[nBk-1], nChp, nVrs, ndx);
 //				} else {
 //					buffRich[ndx] = c;
 //					ndx++;
@@ -700,7 +748,7 @@ int main(int argc, const char *argv[])
 				ndx += sputcUTF8(c, &buffRich[ndx]);	// UTF8 transfer character
 
 			}
-		} while ((!feof(stdin)) && (ndx < sizeof(buffRich)-1) && (c != '@'));
+		} while ((!feof(fileIn)) && (ndx < sizeof(buffRich)-1) && (c != '@'));
 		buffRich[ndx] = 0;
 
 /////////////////////////////////////
@@ -723,7 +771,7 @@ int main(int argc, const char *argv[])
 		if (bDoingLayout) {
 			// Output the current one we were processing just before transitioning:
 			if ((nCurBk != nBk) || (nCurChp != nChp)) {
-				fprintf(stdout, "%d,%d,%d,%s,%d\r\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
+				fprintf(fileOut, "%d,%d,%d,%s,%d\r\n", nCurBk*256+nCurChp, countVrs[nCurBk-1], countWrd[nCurBk-1], g_arrstrBkAbbr[nCurBk-1], nCurChp);
 				countVrs[nCurBk-1] = 0;				// For Layout mode, these are counts for the chapter only, so reset them
 				countWrd[nCurBk-1] = 0;
 				nCurBk = nBk;
@@ -732,7 +780,7 @@ int main(int argc, const char *argv[])
 		}
 
 		if ((bDoingBookDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(stdout, "%s\r\n", buffPlain);
+			fprintf(fileOut, "%s\r\n", buffPlain);
 		}
 
 		// Do this after the printing because either we are on the same
@@ -748,26 +796,29 @@ int main(int argc, const char *argv[])
 			while ((*pTemp2 != 0) && (strchr(g_strCharset, *pTemp2) != NULL)) ++pTemp2;
 			memcpy(word, pTemp, pTemp2-pTemp);
 			word[pTemp2-pTemp] = 0;
-			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(stdout, "%s\r\n", word);
+			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(fileOut, "%s\r\n", word);
 			pTemp = strpbrk(pTemp2, g_strCharset);
 		}		// Here, nWrd = Number of words in this verse
 		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
 
 		if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(stdout, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
+			fprintf(fileOut, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
 		}
 
 	}
 
 	if (bDoingLayout) {
 		if ((nChp != 0) && (nBk != 0)) {			// Output our final entry if one was still pending
-			fprintf(stdout, "%d,%d,%d,%s,%d\r\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
+			fprintf(fileOut, "%d,%d,%d,%s,%d\r\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
 		}
 	}
 
 #if (PILCROW_SUMMARY)
 	fprintf(stderr, "Pilcrows:  Plain: %d,  Rich: %d,  Total: %d\n", nPilcrowPlain, nPilcrowRich, nPilcrowTotal);
 #endif
+
+	if ((fileIn != NULL) && (fileIn != stdin)) fclose(fileIn);
+	if ((fileOut != NULL) && (fileOut != stdout)) fclose(fileOut);
 
 	return 0;
 }
