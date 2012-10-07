@@ -79,26 +79,27 @@
 #include <string.h>
 #include <fcntl.h>
 #include <io.h>
-//#include <string>
-//#include <list>
-//#include <map>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
 //#include <locale>
-//using namespace std;
+
+//#include <boost/multi_index_container.hpp>
+//#include <boost/multi_index/identity.hpp>
+//#include <boost/multi_index/member.hpp>
+//#include <boost/multi_index/ordered_index.hpp>
+//
+//using boost::multi_index_container;
+//using namespace boost::multi_index;
 
 #ifndef stricmp
 #define stricmp _stricmp
 #endif
 
-/*
-#define FALSE (0)
-#define TRUE (!FALSE)
-#ifndef BOOL
-#define BOOL int
+#ifndef uint32
+#define uint32 unsigned int
 #endif
-*/
-#define BOOL bool
-#define FALSE false
-#define TRUE true
 
 // PILCROW_SUMMARY : Set to 1 to output Pilcrow report summary to <stderr> or 0 to suppress
 #define PILCROW_SUMMARY 0
@@ -108,6 +109,9 @@
 #define NUM_BK 66
 #define NUM_BK_OT 39
 #define NUM_BK_NT 27
+
+// ============================================================================
+// Global Constants
 
 const char *g_arrstrBkAbbr[NUM_BK] =
 		{	"Gen",
@@ -178,7 +182,156 @@ const char *g_arrstrBkAbbr[NUM_BK] =
 			"Rev"
 		};
 
+const char *g_arrstrBkNames[NUM_BK] =
+		{	"Genesis",
+			"Exodus",
+			"Leviticus",
+			"Numbers",
+			"Deuteronomy",
+			"Joshua",
+			"Judges",
+			"Ruth",
+			"1 Samuel",
+			"2 Samuel",
+			"1 Kings",
+			"2 Kings",
+			"1 Chronicles",
+			"2 Chronicles",
+			"Ezra",
+			"Nehemiah",
+			"Esther",
+			"Job",
+			"Psalms",
+			"Proverbs",
+			"Ecclesiastes",
+			"Song of Solomon",
+			"Isaiah",
+			"Jeremiah",
+			"Lamentaions",
+			"Ezekiel",
+			"Daniel",
+			"Hosea",
+			"Joel",
+			"Amos",
+			"Obadiah",
+			"Jonah",
+			"Micah",
+			"Nahum",
+			"Habakkuk",
+			"Zephaniah",
+			"Haggai",
+			"Zechariah",
+			"Malachi",
+			"Matthew",
+			"Mark",
+			"Luke",
+			"John",
+			"Acts",
+			"Romans",
+			"1 Corinthians",
+			"2 Corinthians",
+			"Galatians",
+			"Ephesians",
+			"Philippians",
+			"Colossians",
+			"1 Thessalonians",
+			"2 Thessalonians",
+			"1 Timothy",
+			"2 Timothy",
+			"Titus",
+			"Philemon",
+			"Hebrews",
+			"James",
+			"1 Peter",
+			"2 Peter",
+			"1 John",
+			"2 John",
+			"3 John",
+			"Jude",
+			"Revelation"
+		};
+
+
 const char *g_strCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-";		// Accept: [alphanumeric, -, '], we'll handle UTF-8 conversion and translate those to ASCII as appropriate
+
+// ============================================================================
+// Special Types
+
+typedef std::vector<uint32> TIndexList;			// Index List for words into book/chapter/verse/word
+
+class CWordEntry
+{
+public:
+	CWordEntry()
+		: m_bCasePreserve(true)
+	{
+		for (int i=0; i<NUM_BK; ++i) m_arrUsage[i] = 0;
+	}
+
+	std::string m_strWord;		// Word Text
+	std::string m_strAltWords;	// CSV of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
+	bool m_bCasePreserve;		// True if we should preserve the case of the word in list, like "Lord" vs "lord" or "God" vs "god"
+	TIndexList m_ndxlstOT;		// Old Testament Indexes
+	TIndexList m_ndxlstNT;		// New Testament Indexes
+	int m_arrUsage[NUM_BK];		// Word usage count by book.  Sum of this should match sum of OT/NT index count above
+
+	struct SortPredicate {
+//		bool operator() (const CWordEntry& d1, const CWordEntry& d2) const
+//		{
+//			if ((d1.m_bCasePreserve) || (d2.m_bCasePreserve)) {
+//				return (strcmp(d1.m_strWord.c_str(), d2.m_strWord.c_str()) < 0);
+//			}
+//
+//			return (stricmp(d1.m_strWord.c_str(), d2.m_strWord.c_str()) < 0);
+//		}
+
+		bool operator() (const std::string &s1, const std::string &s2) const
+		{
+			return (strcmp(s1.c_str(), s2.c_str()) < 0);
+		}
+
+
+	};
+
+};
+
+//// Tags for accessing indices of CWordEntry
+//struct WordTag{};
+//
+//typedef multi_index_container<
+//		CWordEntry,
+//		indexed_by<
+//			ordered_unique< tag<WordTag>, BOOST_MULTI_INDEX_MEMBER(CWordEntry, std::string, m_strWord) > >
+//> TWordList;
+
+
+typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordList;
+
+
+struct XformLower {
+	int operator()(int c)
+	{
+		return std::tolower(c);
+	}
+};
+
+
+
+// ============================================================================
+// Global Variables
+
+TWordList g_WordList;			// Our one and only master word list
+
+
+// ============================================================================
+
+uint32 MakeIndex(uint32 nBook, uint32 nChapter, uint32 nVerse, uint32 nWord)
+{
+	return (((nBook & 0xFF) << 24) | ((nChapter & 0xFF) << 16) | ((nVerse & 0xFF) << 8) | (nWord & 0xFF));
+}
+
+
+// ============================================================================
 
 int fgetcUTF8(FILE *file)
 {
@@ -249,6 +402,8 @@ void fputcUTF8(int c, FILE *file)
 	fprintf(file, "%s", buff);
 }
 
+// ============================================================================
+
 int main(int argc, const char *argv[])
 {
 	char buffPlain[10000];		// Plain Text version
@@ -258,12 +413,14 @@ int main(int argc, const char *argv[])
 	int countChp[NUM_BK];		// # of Chapters in books
 	int countVrs[NUM_BK];		// # of Verses in entire book for Book mode or # of Verses in current Chapter for Layout mode
 	int countWrd[NUM_BK];		// # of Words in entire book for Book mode or # of Words in current Chapter for Layout mode
-	BOOL bDoingLayout = FALSE;		// TRUE if outputing LAYOUT table
-	BOOL bDoingBook = FALSE;		// TRUE if outputing BOOK table (nBkNdx = book to output)
-	BOOL bDoingWords = FALSE;		// TRUE if outputing WORDS table
-	BOOL bDoingWordDump = FALSE;	// TRUE if dumping words used (nBkNdx = book to output or 0 for all)
-	BOOL bDoingBookDump = FALSE;	// TRUE if dumping book content (nBkNdx = book to output or 0 for all)
-	BOOL bNeedUsage = FALSE;		// TRUE if user needs usage info
+	bool bDoingLayout = false;		// TRUE if outputing LAYOUT table
+	bool bDoingBook = false;		// TRUE if outputing BOOK table (nBkNdx = book to output)
+	bool bDoingWords = false;		// TRUE if outputing WORDS table
+	bool bDoingWordDump = false;	// TRUE if dumping words used (nBkNdx = book to output or 0 for all)
+	bool bDoingWordDumpUnique = false;	// TRUE if dumping unique words used (nBkNdx = book to output or 0 for all)
+	bool bDoingBookDump = false;	// TRUE if dumping book content (nBkNdx = book to output or 0 for all)
+	bool bDoingSummary = false;		// TRUE if dumping word usage summary (always for all books)
+	bool bNeedUsage = false;		// TRUE if user needs usage info
 	int nBkNdx = 0;		// Index of Book to Output (Book Mode)
 	int nCurBk = 0;		// Current book output (Layout Mode)
 	int nCurChp = 0;	// Current chapter output (Layout Mode)
@@ -272,10 +429,10 @@ int main(int argc, const char *argv[])
 	int nVrs;			// Verse counter
 	int nWrd;			// Word counter
 	unsigned int ndx;	// Index into buffer;
-	BOOL bIsPilcrow;		// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (either Plain/Rich)
-	BOOL bIsPilcrowPlain;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Plain Text)
-	BOOL bIsPilcrowRich;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Rich Text)
-	BOOL bPilcrowMismatch;	// Set to TRUE if the plain specifies a pilcrow and the rich doesn't or vice versa
+	bool bIsPilcrow;		// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (either Plain/Rich)
+	bool bIsPilcrowPlain;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Plain Text)
+	bool bIsPilcrowRich;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Rich Text)
+	bool bPilcrowMismatch;	// Set to TRUE if the plain specifies a pilcrow and the rich doesn't or vice versa
 	int nPilcrowPlain = 0;	// Number of Pilcrows in Plain
 	int nPilcrowRich = 0;	// Number of Pilcrows in Rich
 	int nPilcrowTotal = 0;	// Total Number of Pilcrows
@@ -289,24 +446,30 @@ int main(int argc, const char *argv[])
 	const char *strOutFilename = NULL;
 
 	if ((argc != 4) && (argc != 5)) {
-		bNeedUsage = TRUE;
+		bNeedUsage = true;
 	} else if (stricmp(argv[1], "layout") == 0) {
-		bDoingLayout = TRUE;
+		bDoingLayout = true;
 		// Book name is ignored
 	} else if (stricmp(argv[1], "book") == 0) {
-		if (argc != 5) bNeedUsage = TRUE;		// Must have book name for this one
-		bDoingBook = TRUE;
+		if (argc != 5) bNeedUsage = true;		// Must have book name for this one
+		bDoingBook = true;
 	} else if (stricmp(argv[1], "words") == 0) {
-		bDoingWords = TRUE;
+		bDoingWords = true;
 		// Book name is ignored
 	} else if (stricmp(argv[1], "worddump") == 0) {
-		bDoingWordDump = TRUE;
+		bDoingWordDump = true;
+		// Book name is optional -- used if specified, or "all" of not
+	} else if (stricmp(argv[1], "worddumpunique") == 0) {
+		bDoingWordDumpUnique = true;
 		// Book name is optional -- used if specified, or "all" of not
 	} else if (stricmp(argv[1], "bookdump") == 0) {
-		bDoingBookDump = TRUE;
+		bDoingBookDump = true;
 		// Book name is optional -- used if specified, or "all" of not
+	} else if (stricmp(argv[1], "summary") == 0) {
+		bDoingSummary = true;
+		// Book name is ignored
 	} else {
-		bNeedUsage = TRUE;
+		bNeedUsage = true;
 	}
 
 	if (argc >= 5) {				// Must have at least 5 to have a bookname.  If less, it's invalid or they omitted it
@@ -333,11 +496,13 @@ int main(int argc, const char *argv[])
 	if (bNeedUsage) {
 		fprintf(stderr, "Usage:  kjvdatagen <mode> [<bookname>] <Filename-In> <Filename-Out>\n\n");
 		fprintf(stderr, "  Where <mode> is one of:\n\n");
-		fprintf(stderr, "      layout   -- Dump LAYOUT table data (book name not used)\n");
-		fprintf(stderr, "      book     -- Dump BOOK table data for the specified book\n");
-		fprintf(stderr, "      words    -- Dump WORDS table data (book name not used)\n");
-		fprintf(stderr, "      worddump -- Dumps all words (book name optional)\n");
-		fprintf(stderr, "      bookdump -- Dumps the content of specified book (Verse per line)\n");
+		fprintf(stderr, "      layout         -- Dump LAYOUT table data (book name not used)\n");
+		fprintf(stderr, "      book           -- Dump BOOK table data for the specified book\n");
+		fprintf(stderr, "      words          -- Dump WORDS table data (book name not used)\n");
+		fprintf(stderr, "      worddump       -- Dumps all words (book name optional)\n");
+		fprintf(stderr, "      worddumpunique -- Dumps all unique words (book name optional)\n");
+		fprintf(stderr, "      bookdump       -- Dumps the content of specified book (Verse per line)\n");
+		fprintf(stderr, "      summary        -- Dump word usage Summary CSV (book name ignored)\n");
 		fprintf(stderr, "\n\n");
 		fprintf(stderr, "  Input should be specialized Sword dump file with both plain\n");
 		fprintf(stderr, "    and rich text.  Use '-' for filename for <stdin>/<stdout>.\n");
@@ -464,18 +629,18 @@ int main(int argc, const char *argv[])
 		if (c == EOF) break;
 
 		// Read and fill buffPlain with verse text up to final "@" marker:
-		bIsPilcrowPlain = FALSE;
+		bIsPilcrowPlain = false;
 		ndx = 0;
 		do {
 			c = fgetcUTF8(fileIn);
 			if ((c != '@') && (c != EOF)) {
 				if (c == 0x0a) {
 					if (ndx > 0) break;			// A newline after text means footnote marker!  So skip the rest!!
-					bIsPilcrowPlain = TRUE;		// A newline at the start denotes a Pilcrow (¶) mark
+					bIsPilcrowPlain = true;		// A newline at the start denotes a Pilcrow (¶) mark
 					continue;					// We set the flag, but we'll exclude writing the newline to the output
 				}
 				if (c == 0xb6) {				// Translate Pilcrow
-					bIsPilcrowPlain = TRUE;
+					bIsPilcrowPlain = true;
 					continue;
 				}
 				if (c == 0x2013) c = '-';		// Translate "en dash" to (-)
@@ -544,7 +709,7 @@ int main(int argc, const char *argv[])
 		if (c == EOF) break;
 
 		// Read and fill buffRich with verse text up to final "@" marker:
-		bIsPilcrowRich = FALSE;
+		bIsPilcrowRich = false;
 		ndx = 0;
 
 		// First, fill in missing Hebrew alphabet in Psalm 119 in both Hebrew and English for text to be rendered:
@@ -724,7 +889,7 @@ int main(int argc, const char *argv[])
 			if ((c != '@') && (c != EOF)) {
 				if (ndx == 0) {
 					if (c == 0xb6) {				// Translate Pilcrow (but only at start of verse!)
-						bIsPilcrowRich = TRUE;
+						bIsPilcrowRich = true;
 					} else {
 						// Source text tends to have mismatches of pilcrows between plain and rich.  So
 						//		we'll make our rich output the combined pilcrows so it's complete:
@@ -756,7 +921,7 @@ int main(int argc, const char *argv[])
 /////////////////////////////////////
 
 		bIsPilcrow = (bIsPilcrowPlain || bIsPilcrowRich);
-		bPilcrowMismatch = ((bIsPilcrowPlain != bIsPilcrowRich) ? TRUE : FALSE);
+		bPilcrowMismatch = ((bIsPilcrowPlain != bIsPilcrowRich) ? true : false);
 
 		if (bIsPilcrow) ++nPilcrowTotal;
 		if (bIsPilcrowPlain) ++nPilcrowPlain;
@@ -797,6 +962,38 @@ int main(int argc, const char *argv[])
 			memcpy(word, pTemp, pTemp2-pTemp);
 			word[pTemp2-pTemp] = 0;
 			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(fileOut, "%s\r\n", word);
+			if ((nBkNdx == 0) || (nBk == nBkNdx)) {
+				std::string strWordKey(word);
+				bool bPreserve = false;
+				if ((stricmp(word, "Lord") != 0) &&
+					(stricmp(word, "Lord's") != 0) &&
+					(stricmp(word, "God") != 0)) {
+					std::transform(strWordKey.begin(), strWordKey.end(), strWordKey.begin(), XformLower());
+					bPreserve = true;
+				}
+
+				CWordEntry &wrdEntry = g_WordList[strWordKey];
+
+				// If this is a brandnew entry, set the word as-is.  We'll preserve case as it could
+				//		be a proper name.  Note for ones to always preserve and have multiple case
+				//		resolution, like Lord/lord, the 'key' above is mixed case otherwise the key
+				//		is always lowercase.  If the word we are looking at is bigger than the
+				//		previous entry (in other words, if it is now "more lowercase than before",
+				//		we'll use the new word as-is, because the word has now been used multiple ways.
+				//		In theory, proper names won't always start at the beginning of a sentence, yet
+				//		will always have initial caps, and words that beginning a sentence will all
+				//		appear somewhere else in the text not at the beginning of a sentence.
+				if ((wrdEntry.m_strWord.empty()) ||
+					(strcmp(word, wrdEntry.m_strWord.c_str()) > 0)) wrdEntry.m_strWord = word;
+
+				wrdEntry.m_arrUsage[nBk-1]++;
+
+				if (nBk <= NUM_BK_OT) {
+					wrdEntry.m_ndxlstOT.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
+				} else {
+					wrdEntry.m_ndxlstNT.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
+				}
+			}
 			pTemp = strpbrk(pTemp2, g_strCharset);
 		}		// Here, nWrd = Number of words in this verse
 		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
@@ -810,6 +1007,61 @@ int main(int argc, const char *argv[])
 	if (bDoingLayout) {
 		if ((nChp != 0) && (nBk != 0)) {			// Output our final entry if one was still pending
 			fprintf(fileOut, "%d,%d,%d,%s,%d\r\n", nBk*256+nChp, countVrs[nBk-1], countWrd[nBk-1], g_arrstrBkAbbr[nBk-1], nChp);
+		}
+	}
+
+	if (bDoingWordDumpUnique) {
+		for (TWordList::const_iterator itr = g_WordList.begin(); itr != g_WordList.end(); ++itr) {
+			fprintf(fileOut, "%s\r\n", itr->second.m_strWord.c_str());
+		}
+	}
+
+	if (bDoingWords) {
+		fprintf(fileOut, "WrdNdx,Word,NumOT,NumNT,AltWords,MapOT,MapNT\r\n");
+		nWrd = 0;
+		for (TWordList::const_iterator itrWrd = g_WordList.begin(); itrWrd != g_WordList.end(); ++itrWrd) {
+			std::string strOTMap;
+			std::string strNTMap;
+			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxlstOT.begin();
+					itrNdx != itrWrd->second.m_ndxlstOT.end(); ++itrNdx) {
+				if (!strOTMap.empty()) strOTMap += ",";
+				sprintf(word, "%d", *itrNdx);
+				strOTMap += word;
+			}
+			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxlstNT.begin();
+					itrNdx != itrWrd->second.m_ndxlstNT.end(); ++itrNdx) {
+				if (!strNTMap.empty()) strNTMap += ",";
+				sprintf(word, "%d", *itrNdx);
+				strNTMap += word;
+			}
+			++nWrd;
+			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\"\r\n",
+								nWrd,
+								itrWrd->second.m_strWord.c_str(),
+								itrWrd->second.m_ndxlstOT.size(),
+								itrWrd->second.m_ndxlstNT.size(),
+								"",
+								strOTMap.c_str(),
+								strNTMap.c_str());
+		}
+	}
+
+	if (bDoingSummary) {
+		fprintf(fileOut, "\"Word\",\"Whole\nBible\",\"Old\nTestament\",\"New\nTestament\"");
+		for (nBk=0; nBk<NUM_BK; ++nBk) {
+			fprintf(fileOut, ",\"%s\"", g_arrstrBkNames[nBk]);
+		}
+		fprintf(fileOut, "\r\n");
+		for (TWordList::const_iterator itr = g_WordList.begin(); itr != g_WordList.end(); ++itr) {
+			fprintf(fileOut, "\"%s\",%d,%d,%d",
+								itr->second.m_strWord.c_str(),
+								itr->second.m_ndxlstOT.size()+itr->second.m_ndxlstNT.size(),
+								itr->second.m_ndxlstOT.size(),
+								itr->second.m_ndxlstNT.size());
+			for (nBk=0; nBk<NUM_BK; ++nBk) {
+				fprintf(fileOut, ",%d", itr->second.m_arrUsage[nBk]);
+			}
+			fprintf(fileOut, "\r\n");
 		}
 	}
 
