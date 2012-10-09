@@ -83,6 +83,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <stdint.h>
 //#include <locale>
 
 //#include <boost/multi_index_container.hpp>
@@ -97,8 +98,8 @@
 #define stricmp _stricmp
 #endif
 
-#ifndef uint32
-#define uint32 unsigned int
+#ifndef uint32_t
+#define uint32_t unsigned int
 #endif
 
 // PILCROW_SUMMARY : Set to 1 to output Pilcrow report summary to <stderr> or 0 to suppress
@@ -257,23 +258,24 @@ const char *g_strCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 // ============================================================================
 // Special Types
 
-typedef std::vector<uint32> TIndexList;			// Index List for words into book/chapter/verse/word
+typedef std::vector<uint32_t> TIndexList;			// Index List for words into book/chapter/verse/word
 
 class CWordEntry
 {
 public:
 	CWordEntry()
-		: m_bCasePreserve(true)
+//		: m_bCasePreserve(true)
 	{
 		for (int i=0; i<NUM_BK; ++i) m_arrUsage[i] = 0;
 	}
 
 	std::string m_strWord;		// Word Text
 	std::string m_strAltWords;	// CSV of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
-	bool m_bCasePreserve;		// True if we should preserve the case of the word in list, like "Lord" vs "lord" or "God" vs "god"
+//	bool m_bCasePreserve;		// True if we should preserve the case of the word in list, like "Lord" vs "lord" or "God" vs "god"
 	TIndexList m_ndxlstOT;		// Old Testament Indexes
 	TIndexList m_ndxlstNT;		// New Testament Indexes
 	int m_arrUsage[NUM_BK];		// Word usage count by book.  Sum of this should match sum of OT/NT index count above
+	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match combined count of two testament indexes above)
 
 	struct SortPredicate {
 //		bool operator() (const CWordEntry& d1, const CWordEntry& d2) const
@@ -302,16 +304,15 @@ public:
 //		CWordEntry,
 //		indexed_by<
 //			ordered_unique< tag<WordTag>, BOOST_MULTI_INDEX_MEMBER(CWordEntry, std::string, m_strWord) > >
-//> TWordList;
+//> TWordListMap;
 
 
-typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordList;
-
+typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
 
 struct XformLower {
 	int operator()(int c)
 	{
-		return std::tolower(c);
+		return tolower(c);
 	}
 };
 
@@ -320,14 +321,15 @@ struct XformLower {
 // ============================================================================
 // Global Variables
 
-TWordList g_WordList;			// Our one and only master word list
+TWordListMap g_mapWordList;			// Our one and only master word list
+TIndexList g_NormalizationVerification;		// Mapping of normalized indexes to Bk/Chp/Vrs/Wrd index.  Used to verify the normalization process
 
 
 // ============================================================================
 
-uint32 MakeIndex(uint32 nBook, uint32 nChapter, uint32 nVerse, uint32 nWord)
+uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0)
 {
-	return (((nBook & 0xFF) << 24) | ((nChapter & 0xFF) << 16) | ((nVerse & 0xFF) << 8) | (nWord & 0xFF));
+	return (((nN3 & 0xFF) << 24) | ((nN2 & 0xFF) << 16) | ((nN1 & 0xFF) << 8) | (nN0 & 0xFF));
 }
 
 
@@ -429,6 +431,7 @@ int main(int argc, const char *argv[])
 	int nVrs;			// Verse counter
 	int nWrd;			// Word counter
 	unsigned int ndx;	// Index into buffer;
+	uint32_t nNormalizedNdx = 0;	// Normalized index -- incremented for each word processed and added to collection
 	bool bIsPilcrow;		// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (either Plain/Rich)
 	bool bIsPilcrowPlain;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Plain Text)
 	bool bIsPilcrowRich;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Rich Text)
@@ -972,7 +975,7 @@ int main(int argc, const char *argv[])
 					bPreserve = true;
 				}
 
-				CWordEntry &wrdEntry = g_WordList[strWordKey];
+				CWordEntry &wrdEntry = g_mapWordList[strWordKey];
 
 				// If this is a brandnew entry, set the word as-is.  We'll preserve case as it could
 				//		be a proper name.  Note for ones to always preserve and have multiple case
@@ -993,6 +996,11 @@ int main(int argc, const char *argv[])
 				} else {
 					wrdEntry.m_ndxlstNT.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
 				}
+
+				++nNormalizedNdx;
+				wrdEntry.m_ndxNormalized.push_back(nNormalizedNdx);
+
+				g_NormalizationVerification.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
 			}
 			pTemp = strpbrk(pTemp2, g_strCharset);
 		}		// Here, nWrd = Number of words in this verse
@@ -1011,17 +1019,18 @@ int main(int argc, const char *argv[])
 	}
 
 	if (bDoingWordDumpUnique) {
-		for (TWordList::const_iterator itr = g_WordList.begin(); itr != g_WordList.end(); ++itr) {
+		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
 			fprintf(fileOut, "%s\r\n", itr->second.m_strWord.c_str());
 		}
 	}
 
 	if (bDoingWords) {
-		fprintf(fileOut, "WrdNdx,Word,NumOT,NumNT,AltWords,MapOT,MapNT\r\n");
+		fprintf(fileOut, "WrdNdx,Word,NumOT,NumNT,AltWords,MapOT,MapNT,NormalMap\r\n");
 		nWrd = 0;
-		for (TWordList::const_iterator itrWrd = g_WordList.begin(); itrWrd != g_WordList.end(); ++itrWrd) {
+		for (TWordListMap::const_iterator itrWrd = g_mapWordList.begin(); itrWrd != g_mapWordList.end(); ++itrWrd) {
 			std::string strOTMap;
 			std::string strNTMap;
+			std::string strNormalMap;
 			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxlstOT.begin();
 					itrNdx != itrWrd->second.m_ndxlstOT.end(); ++itrNdx) {
 				if (!strOTMap.empty()) strOTMap += ",";
@@ -1034,15 +1043,27 @@ int main(int argc, const char *argv[])
 				sprintf(word, "%d", *itrNdx);
 				strNTMap += word;
 			}
+			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxNormalized.begin();
+					itrNdx != itrWrd->second.m_ndxNormalized.end(); ++itrNdx) {
+				if (!strNormalMap.empty()) strNormalMap += ",";
+				sprintf(word, "%d", *itrNdx);
+				strNormalMap += word;
+			}
 			++nWrd;
-			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\"\r\n",
+			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
 								nWrd,
 								itrWrd->second.m_strWord.c_str(),
 								itrWrd->second.m_ndxlstOT.size(),
 								itrWrd->second.m_ndxlstNT.size(),
-								"",
+								itrWrd->second.m_strAltWords.c_str(),
 								strOTMap.c_str(),
-								strNTMap.c_str());
+								strNTMap.c_str(),
+								strNormalMap.c_str());
+		}
+		for (int i=0; i<(g_NormalizationVerification.size()-1); ++i) {
+			if (g_NormalizationVerification[i+1] <= g_NormalizationVerification[i]) {
+				fprintf(stderr, "Normalization Verification Failure: %d=%d, %d=%d\n", i, g_NormalizationVerification[i], i+1, g_NormalizationVerification[i+1]);
+			}
 		}
 	}
 
@@ -1052,7 +1073,7 @@ int main(int argc, const char *argv[])
 			fprintf(fileOut, ",\"%s\"", g_arrstrBkNames[nBk]);
 		}
 		fprintf(fileOut, "\r\n");
-		for (TWordList::const_iterator itr = g_WordList.begin(); itr != g_WordList.end(); ++itr) {
+		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
 			fprintf(fileOut, "\"%s\",%d,%d,%d",
 								itr->second.m_strWord.c_str(),
 								itr->second.m_ndxlstOT.size()+itr->second.m_ndxlstNT.size(),
