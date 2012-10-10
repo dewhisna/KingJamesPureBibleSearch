@@ -11,10 +11,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        KJVCanOpener.cpp \
-    CSV.cpp
+	KJVCanOpener.cpp \
+    CSV.cpp \
+    dbstruct.cpp \
+    BuildDB.cpp \
+    ReadDB.cpp
 
 HEADERS  += KJVCanOpener.h \
-    CSV.h
+    CSV.h \
+    dbstruct.h
 
 FORMS    += KJVCanOpener.ui

@@ -1025,7 +1025,7 @@ int main(int argc, const char *argv[])
 	}
 
 	if (bDoingWords) {
-		fprintf(fileOut, "WrdNdx,Word,NumOT,NumNT,AltWords,MapOT,MapNT,NormalMap\r\n");
+		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumOT,NumNT,AltWords,MapOT,MapNT,NormalMap\r\n");
 		nWrd = 0;
 		for (TWordListMap::const_iterator itrWrd = g_mapWordList.begin(); itrWrd != g_mapWordList.end(); ++itrWrd) {
 			std::string strOTMap;
@@ -1050,9 +1050,10 @@ int main(int argc, const char *argv[])
 				strNormalMap += word;
 			}
 			++nWrd;
-			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
+			fprintf(fileOut, "%d,\"%s\",%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
 								nWrd,
 								itrWrd->second.m_strWord.c_str(),
+								((strcmp(itrWrd->first.c_str(), itrWrd->second.m_strWord.c_str()) == 0) ? 1 : 0),
 								itrWrd->second.m_ndxlstOT.size(),
 								itrWrd->second.m_ndxlstNT.size(),
 								itrWrd->second.m_strAltWords.c_str(),
