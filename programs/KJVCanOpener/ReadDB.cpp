@@ -154,6 +154,8 @@ static bool ReadBookTables(QSqlDatabase &myDatabase)
 {
     // Read the BOOK tables:
 
+    assert(g_lstTOC.size() != 0);       // Must read TOC before BOOKS
+
     g_lstBooks.clear();
     g_lstBooks.resize(g_lstTOC.size());
     for (unsigned int i=0; i<g_lstTOC.size(); ++i) {
@@ -314,11 +316,93 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
 
 bool ValidateData()
 {
-//TTOCList g_lstTOC;
-//TLayoutMap g_mapLayout;
-//TBookList g_lstBooks;
-//TWordListMap g_mapWordList;
+    int ncntTstTot = 0;             // Total number of Testaments
+    unsigned int ncntBkTot = 0;     // Total number of Books (all Testaments)
+    unsigned int ncntChpTot = 0;    // Total number of Chapters (all Books)
+    unsigned int ncntVrsTot = 0;    // Total number of Verses (all Chapters)
+    unsigned int ncntWrdTot = 0;    // Total number of Words (all verses)
 
+    int ncntChp_Bk = 0;             // Chapter count in current Book
+    int ncntVrs_Bk = 0;             // Verse count in current Book
+    int ncntWrd_Bk = 0;             // Word count in current Book
+
+    int ncntVrs_Chp = 0;            // Verse count in current Chapter
+    int ncntWrd_Chp = 0;            // Word count in current Chapter
+
+    unsigned int ncntWrd_Vrs = 0;   // Word count in current Verse
+
+    if (g_lstBooks.size() != g_lstTOC.size()) {
+        QMessageBox::warning(0, "Database", "Error: Book List and Table of Contents have different sizes!\nCheck the database!");
+        return false;
+    }
+
+    ncntTstTot = g_lstTestaments.size();
+    for (unsigned int nBk=0; nBk<g_lstTOC.size(); ++ nBk) {     // Books
+        if ((g_lstTOC[nBk].m_nTstNdx < 1) || (g_lstTOC[nBk].m_nTstNdx > ncntTstTot)) {
+            QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) References Invalid Testament %3")
+                                .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(g_lstTOC[nBk].m_nTstNdx));
+            return false;
+        }
+        ncntChp_Bk = 0;
+        ncntVrs_Bk = 0;
+        ncntWrd_Bk = 0;
+        ncntBkTot++;
+        for (int nChp=0; nChp<g_lstTOC[nBk].m_nNumChp; ++nChp) {
+            ncntVrs_Chp = 0;
+            ncntWrd_Chp = 0;
+            TLayoutMap::const_iterator itrLayout = g_mapLayout.find(MakeIndex(0,0,nBk+1,nChp+1));
+            if (itrLayout == g_mapLayout.end()) continue;
+            ncntChpTot++;
+            ncntChp_Bk++;
+            for (int nVrs=0; nVrs<itrLayout->second.m_nNumVrs; ++nVrs) {
+                ncntWrd_Vrs = 0;
+                const TBookEntryMap &aBook = g_lstBooks[nBk];
+                TBookEntryMap::const_iterator itrBook = aBook.find(MakeIndex(0,0,nChp+1,nVrs+1));
+                if (itrBook == aBook.end()) continue;
+                ncntVrsTot++;
+                ncntVrs_Chp++;
+                ncntVrs_Bk++;
+                ncntWrdTot += itrBook->second.m_nNumWrd;
+                ncntWrd_Vrs += itrBook->second.m_nNumWrd;
+                ncntWrd_Chp += itrBook->second.m_nNumWrd;
+                ncntWrd_Bk += itrBook->second.m_nNumWrd;
+            }
+            if (ncntVrs_Chp != itrLayout->second.m_nNumVrs) {
+                QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
+                                    .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
+                return false;
+            }
+            if (ncntWrd_Chp != itrLayout->second.m_nNumWrd) {
+                QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
+                                    .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
+                return false;
+            }
+        }
+        if (ncntChp_Bk != g_lstTOC[nBk].m_nNumChp) {
+            QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
+                                    .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntChp_Bk).arg(g_lstTOC[nBk].m_nNumChp));
+            return false;
+        }
+        if (ncntVrs_Bk != g_lstTOC[nBk].m_nNumVrs) {
+            QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
+                                    .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntVrs_Bk).arg(g_lstTOC[nBk].m_nNumVrs));
+            return false;
+        }
+        if (ncntWrd_Bk != g_lstTOC[nBk].m_nNumWrd) {
+            QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
+                                    .arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntWrd_Bk).arg(g_lstTOC[nBk].m_nNumWrd));
+            return false;
+        }
+    }
+
+    unsigned int nWordListTot = 0;
+    for (TWordListMap::const_iterator itrWords = g_mapWordList.begin(); itrWords != g_mapWordList.end(); ++itrWords) {
+        nWordListTot += itrWords->second.m_ndxMapping.size();
+    }
+    if (nWordListTot != ncntWrdTot) {
+        QMessageBox::warning(0, "Database", QString("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
+        return false;
+    }
 
     return true;
 }
