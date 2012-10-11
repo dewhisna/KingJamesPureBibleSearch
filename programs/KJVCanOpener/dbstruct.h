@@ -8,9 +8,6 @@
 #include <algorithm>
 #include <stdint.h>
 
-#define NUM_BK 66
-#define NUM_BK_OT 39
-#define NUM_BK_NT 27
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -19,8 +16,8 @@
 
 // ============================================================================
 
-extern void BuildDatabase();
-extern bool ReadDatabase();
+extern void BuildDatabase(const char *pstrDatabaseFilename);
+extern bool ReadDatabase(const char *pstrDatabaseFilename);
 extern uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0);
 
 // ============================================================================
@@ -45,6 +42,23 @@ struct XformLower {
 
 // ============================================================================
 
+// TESTAMENT -- Table of Testaments:
+//
+class CTestamentEntry
+{
+public:
+    CTestamentEntry() { }
+    ~CTestamentEntry() { }
+
+    std::string m_strTstName;   // Name of testament (display name)
+};
+
+typedef std::vector<CTestamentEntry> TTestamentList;        // Index by nTst-1
+
+extern TTestamentList g_lstTestaments;      // Global Testament List
+
+// ============================================================================
+
 // TOC -- Table of Contents:
 //
 class CTOCEntry
@@ -60,7 +74,7 @@ public:
     ~CTOCEntry() { }
 
     int m_nTstBkNdx;            // Testament Book Index (Index within the books of the testament) 1-39 or 1-27
-    int m_nTstNdx;              // Testament Index (1=Old, 2=New)
+    int m_nTstNdx;              // Testament Index (1=Old, 2=New, etc)
     std::string m_strBkName;    // Name of book (display name)
     std::string m_strBkAbbr;    // Book Abbreviation
     std::string m_strTblName;   // Name of Table for this book

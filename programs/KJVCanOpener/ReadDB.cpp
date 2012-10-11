@@ -16,8 +16,42 @@
 #include <QByteArray>
 
 #include <QString>
+
+// Used for debugging:
+#ifdef NEVER
 #include <QFile>
 #include <QTextStream>
+#endif
+
+static bool ReadTestamentTable(QSqlDatabase &myDatabase)
+{
+    // Read the Testament Table
+
+    QSqlQuery query(myDatabase);
+
+    // Check to see if the table exists:
+    if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
+        QMessageBox::warning(0, "Database", QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(query.lastError().text()));
+        return false;
+    }
+    query.next();
+    if (!query.value(0).toInt()) {
+        QMessageBox::warning(0, "Database", "Unable to find \"TESTAMENT\" Table in database!");
+        return false;
+    }
+
+    g_lstTestaments.clear();
+    query.setForwardOnly(true);
+    query.exec("SELECT * FROM TESTAMENT");
+    while (query.next()) {
+        unsigned int nTstNdx = query.value(0).toUInt();
+        if (nTstNdx > g_lstTestaments.size()) g_lstTestaments.resize(nTstNdx);
+        CTestamentEntry &entryTestament = g_lstTestaments[nTstNdx-1];
+        entryTestament.m_strTstName = query.value(1).toString().toStdString();
+    }
+
+    return true;
+}
 
 static bool ReadTOCTable(QSqlDatabase &myDatabase)
 {
@@ -37,13 +71,11 @@ static bool ReadTOCTable(QSqlDatabase &myDatabase)
     }
 
     g_lstTOC.clear();
-    g_lstTOC.resize(NUM_BK);
     query.setForwardOnly(true);
     query.exec("SELECT * FROM TOC");
     while (query.next()) {
-        int nBkNdx = query.value(0).toInt();
-        assert((nBkNdx > 0) && (nBkNdx <= NUM_BK));
-        if ((nBkNdx<= 0) || (nBkNdx > NUM_BK)) continue;
+        unsigned int nBkNdx = query.value(0).toUInt();
+        if (nBkNdx > g_lstTOC.size()) g_lstTOC.resize(nBkNdx);
         CTOCEntry &entryTOC = g_lstTOC[nBkNdx-1];
         entryTOC.m_nTstBkNdx = query.value(1).toInt();
         entryTOC.m_nTstNdx = query.value(2).toInt();
@@ -57,18 +89,19 @@ static bool ReadTOCTable(QSqlDatabase &myDatabase)
         entryTOC.m_strDesc = query.value(10).toString().toStdString();
     }
 
-/*
-QFile fileTest("testit.txt");
-if (fileTest.open(QIODevice::WriteOnly)) {
-    QTextStream ts(&fileTest);
-    for (TTOCList::const_iterator itr = g_lstTOC.begin(); itr != g_lstTOC.end(); ++itr) {
-        QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(QString::fromStdString(itr->m_strBkName)).arg(QString::fromStdString(itr->m_strBkAbbr))
-                                .arg(QString::fromStdString(itr->m_strTblName)).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(QString::fromStdString(itr->m_strCat)).arg(QString::fromStdString(itr->m_strDesc));
-        ts << strTemp;
+// Used for debugging:
+#ifdef NEVER
+    QFile fileTest("testit.txt");
+    if (fileTest.open(QIODevice::WriteOnly)) {
+        QTextStream ts(&fileTest);
+        for (TTOCList::const_iterator itr = g_lstTOC.begin(); itr != g_lstTOC.end(); ++itr) {
+            QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(QString::fromStdString(itr->m_strBkName)).arg(QString::fromStdString(itr->m_strBkAbbr))
+                                    .arg(QString::fromStdString(itr->m_strTblName)).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(QString::fromStdString(itr->m_strCat)).arg(QString::fromStdString(itr->m_strDesc));
+            ts << strTemp;
+        }
+        fileTest.close();
     }
-    fileTest.close();
-}
-*/
+#endif
 
     return true;
 }
@@ -101,17 +134,18 @@ static bool ReadLAYOUTTable(QSqlDatabase &myDatabase)
         entryLayout.m_nNumWrd = query.value(2).toInt();
     }
 
-/*
-QFile fileTest("testit.txt");
-if (fileTest.open(QIODevice::WriteOnly)) {
-    QTextStream ts(&fileTest);
-    for (TLayoutMap::const_iterator itr = g_mapLayout.begin(); itr != g_mapLayout.end(); ++itr) {
-        QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
-        ts << strTemp;
+// Used for debugging:
+#ifdef NEVER
+    QFile fileTest("testit.txt");
+    if (fileTest.open(QIODevice::WriteOnly)) {
+        QTextStream ts(&fileTest);
+        for (TLayoutMap::const_iterator itr = g_mapLayout.begin(); itr != g_mapLayout.end(); ++itr) {
+            QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
+            ts << strTemp;
+        }
+        fileTest.close();
     }
-    fileTest.close();
-}
-*/
+#endif
 
     return true;
 }
@@ -120,10 +154,9 @@ static bool ReadBookTables(QSqlDatabase &myDatabase)
 {
     // Read the BOOK tables:
 
-    assert(g_lstTOC.size() == NUM_BK);
     g_lstBooks.clear();
-    g_lstBooks.resize(NUM_BK);
-    for (int i=0; i<std::min<int>(g_lstTOC.size(), NUM_BK); ++i) {
+    g_lstBooks.resize(g_lstTOC.size());
+    for (unsigned int i=0; i<g_lstTOC.size(); ++i) {
         QSqlQuery query(myDatabase);
 
         // Check to see if the table exists:
@@ -152,22 +185,23 @@ static bool ReadBookTables(QSqlDatabase &myDatabase)
             entryBook.m_strFootnote = query.value(5).toString().toStdString();
         }
 
-/*
-QFile fileTest(QString("testit%1.txt").arg(i, 2, 10, QChar('0')));
-if (fileTest.open(QIODevice::WriteOnly)) {
-    CSVstream csv(&fileTest);
-    for (TBookEntryMap::const_iterator itr = mapBook.begin(); itr != mapBook.end(); ++itr) {
-        QStringList sl;
-        sl.push_back(QString("%1").arg(itr->first));
-        sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
-        sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
-        sl.push_back(QString::fromStdString(itr->second.GetRichText()));
-        sl.push_back(QString::fromStdString(itr->second.m_strFootnote));
-        csv << sl;
-    }
-    fileTest.close();
-}
-*/
+// Used for debugging:
+#ifdef NEVER
+        QFile fileTest(QString("testit%1.txt").arg(i, 2, 10, QChar('0')));
+        if (fileTest.open(QIODevice::WriteOnly)) {
+            CSVstream csv(&fileTest);
+            for (TBookEntryMap::const_iterator itr = mapBook.begin(); itr != mapBook.end(); ++itr) {
+                QStringList sl;
+                sl.push_back(QString("%1").arg(itr->first));
+                sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
+                sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
+                sl.push_back(QString::fromStdString(itr->second.GetRichText()));
+                sl.push_back(QString::fromStdString(itr->second.m_strFootnote));
+                csv << sl;
+            }
+            fileTest.close();
+        }
+#endif
 
     }
 
@@ -239,64 +273,69 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
         }
     }
 
-
-/*
-QFile fileTest("testit.txt");
-if (fileTest.open(QIODevice::WriteOnly)) {
-    QTextStream ts(&fileTest);
-    int cnt = 0;
-    for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
-        cnt++;
-        ts << QString("%1,").arg(cnt);
-//        ts << "\"" + QString::fromStdString(itr->first) + "\",";
-        ts << "\"" + QString::fromStdString(itr->second.m_strWord) + "\",";
-        if (strcmp(itr->first.c_str(), itr->second.m_strWord.c_str()) == 0) {
-            ts << "1,";
-        } else {
-            ts << "0,";
+// Used for debugging:
+#ifdef NEVER
+    QFile fileTest("testit.txt");
+    if (fileTest.open(QIODevice::WriteOnly)) {
+        QTextStream ts(&fileTest);
+        int cnt = 0;
+        for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
+            cnt++;
+            ts << QString("%1,").arg(cnt);
+//            ts << "\"" + QString::fromStdString(itr->first) + "\",";
+            ts << "\"" + QString::fromStdString(itr->second.m_strWord) + "\",";
+            if (strcmp(itr->first.c_str(), itr->second.m_strWord.c_str()) == 0) {
+                ts << "1,";
+            } else {
+                ts << "0,";
+            }
+            ts << QString("%1,").arg(itr->second.m_ndxlstOT.size());
+            ts << QString("%1,").arg(itr->second.m_ndxlstNT.size());
+            ts << "\"";
+            for (unsigned int i=0; i<itr->second.m_lstAltWords.size(); ++i) {
+                if (i!=0) ts << ",";
+                ts << QString::fromStdString(itr->second.m_lstAltWords.at(i));
+            }
+            ts << "\",\"";
+            for (unsigned int i=0; i<itr->second.m_ndxlstOT.size(); ++i) {
+                if (i!=0) ts << ",";
+                ts << QString("%1").arg(itr->second.m_ndxlstOT.at(i));
+            }
+            ts << "\",\"";
+            for (unsigned int i=0; i<itr->second.m_ndxlstNT.size(); ++i) {
+                if (i!=0) ts << ",";
+                ts << QString("%1").arg(itr->second.m_ndxlstNT.at(i));
+            }
+            ts << "\",\"";
+            for (unsigned int i=0; i<itr->second.m_ndxNormalized.size(); ++i) {
+                if (i!=0) ts << ",";
+                ts << QString("%1").arg(itr->second.m_ndxNormalized.at(i));
+            }
+            ts << "\"\n";
         }
-        ts << QString("%1,").arg(itr->second.m_ndxlstOT.size());
-        ts << QString("%1,").arg(itr->second.m_ndxlstNT.size());
-        ts << "\"";
-        for (unsigned int i=0; i<itr->second.m_lstAltWords.size(); ++i) {
-            if (i!=0) ts << ",";
-            ts << QString::fromStdString(itr->second.m_lstAltWords.at(i));
-        }
-        ts << "\",\"";
-        for (unsigned int i=0; i<itr->second.m_ndxlstOT.size(); ++i) {
-            if (i!=0) ts << ",";
-            ts << QString("%1").arg(itr->second.m_ndxlstOT.at(i));
-        }
-        ts << "\",\"";
-        for (unsigned int i=0; i<itr->second.m_ndxlstNT.size(); ++i) {
-            if (i!=0) ts << ",";
-            ts << QString("%1").arg(itr->second.m_ndxlstNT.at(i));
-        }
-        ts << "\",\"";
-        for (unsigned int i=0; i<itr->second.m_ndxNormalized.size(); ++i) {
-            if (i!=0) ts << ",";
-            ts << QString("%1").arg(itr->second.m_ndxNormalized.at(i));
-        }
-        ts << "\"\n";
+        fileTest.close();
     }
-    fileTest.close();
+#endif
+
+    return true;
 }
-*/
+
+bool ValidateData()
+{
+//TTOCList g_lstTOC;
+//TLayoutMap g_mapLayout;
+//TBookList g_lstBooks;
+//TWordListMap g_mapWordList;
 
 
     return true;
 }
 
-
-
-
-
-bool ReadDatabase()
+bool ReadDatabase(const char *pstrDatabaseFilename)
 {
     QSqlDatabase myDatabase;
     myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-    myDatabase.setDatabaseName("../KJVCanOpener/db/kjvtext.s3db");
-//    myDatabase.setDatabaseName("C:/MyData/programs/KJVCanOpener/db/kjvtext.s3db");
+    myDatabase.setDatabaseName(pstrDatabaseFilename);
 
 //    QMessageBox::information(0,"Database",myDatabase.databaseName());
 
@@ -307,12 +346,12 @@ bool ReadDatabase()
 
     bool bSuccess = true;
 
-    if ((!ReadTOCTable(myDatabase)) ||
+    if ((!ReadTestamentTable(myDatabase)) ||
+        (!ReadTOCTable(myDatabase)) ||
         (!ReadLAYOUTTable(myDatabase)) ||
         (!ReadBookTables(myDatabase)) ||
-        (!ReadWORDSTable(myDatabase))) bSuccess = false;
-
-
+        (!ReadWORDSTable(myDatabase)) ||
+        (!ValidateData())) bSuccess = false;
 
     myDatabase.close();
 

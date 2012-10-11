@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <QLocale>
 
+const char *g_constrDatabaseFilename = "../KJVCanOpener/db/kjvtext.s3db";
+
 
 int main(int argc, char *argv[])
 {
@@ -15,8 +17,8 @@ int main(int argc, char *argv[])
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-//BuildDatabase();
-ReadDatabase();
+//BuildDatabase(g_constrDatabaseFilename);
+ReadDatabase(g_constrDatabaseFilename);
 return 0;
 
 //    if (argc > 1) {

@@ -15,6 +15,13 @@
 #include <QStringList>
 #include <QByteArray>
 
+// Book counts are here only on the building process as
+//  the reading side gets this data entirely from the
+//  database
+#define NUM_BK 66
+#define NUM_BK_OT 39
+#define NUM_BK_NT 27
+
 const char *g_arrstrBkTblNames[NUM_BK] =
         {	"GEN",
             "EXOD",
@@ -85,6 +92,65 @@ const char *g_arrstrBkTblNames[NUM_BK] =
         };
 
 // ============================================================================
+
+static bool BuildTestamentTable(QSqlDatabase &myDatabase)
+{
+    // Build the TESTAMENT table:
+
+    QString strCmd;
+    QSqlQuery queryCreate(myDatabase);
+
+    // Check to see if the table exists already:
+    if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
+        if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryCreate.lastError().text()),
+                                QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+    } else {
+        queryCreate.next();
+        if (!queryCreate.value(0).toInt()) {
+
+            // Create the table in the database:
+            strCmd = QString("create table TESTAMENT "
+                            "(TstNdx INTEGER PRIMARY KEY, TstName TEXT)");
+
+            if (!queryCreate.exec(strCmd)) {
+                if (QMessageBox::warning(0, "Database",
+                        QString("Failed to create table for TESTAMENT\n%1").arg(queryCreate.lastError().text()),
+                        QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+            } else {
+                // Populate table:
+                QSqlQuery queryInsert(myDatabase);
+                bool bSuccess = true;
+                bSuccess = queryInsert.exec("BEGIN TRANSACTION");
+                strCmd = QString("INSERT INTO TESTAMENT "
+                                    "(TstNdx, TstName) "
+                                    "VALUES (:TstNdx, :TstName)");
+
+                if (bSuccess) {
+                    queryInsert.prepare(strCmd);
+                    queryInsert.bindValue(":TstNdx", 1);
+                    queryInsert.bindValue(":TstName", QString("Old Testament"));
+                    bSuccess = queryInsert.exec();
+                }
+
+                if (bSuccess) {
+                    queryInsert.prepare(strCmd);
+                    queryInsert.bindValue(":TstNdx", 2);
+                    queryInsert.bindValue(":TstName", QString("New Testament"));
+                    bSuccess = queryInsert.exec();
+                }
+
+                bSuccess = bSuccess && queryInsert.exec("COMMIT");
+
+                if (!bSuccess) {
+                    QMessageBox::warning(0, "Database", QString("Insert Failed for TESTAMENT!\n%1").arg(queryInsert.lastError().text()));
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 static bool BuildTOCTable(QSqlDatabase &myDatabase)
 {
@@ -495,12 +561,11 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
     return true;
 }
 
-void BuildDatabase()
+void BuildDatabase(const char *pstrDatabaseFilename)
 {
     QSqlDatabase myDatabase;
     myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-    myDatabase.setDatabaseName("../KJVCanOpener/db/kjvtext.s3db");
-//    myDatabase.setDatabaseName("C:/MyData/programs/KJVCanOpener/db/kjvtext.s3db");
+    myDatabase.setDatabaseName(pstrDatabaseFilename);
 
 //    QMessageBox::information(0,"Database",myDatabase.databaseName());
 
@@ -511,7 +576,8 @@ void BuildDatabase()
 
     bool bSuccess = true;
 
-    if ((!BuildTOCTable(myDatabase)) ||
+    if ((!BuildTestamentTable(myDatabase)) ||
+        (!BuildTOCTable(myDatabase)) ||
         (!BuildLAYOUTTable(myDatabase)) ||
         (!BuildBookTables(myDatabase)) ||
         (!BuildWORDSTable(myDatabase))) bSuccess = false;

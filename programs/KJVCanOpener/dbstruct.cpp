@@ -3,6 +3,9 @@
 
 #include "dbstruct.h"
 
+// Global Testament List:
+TTestamentList g_lstTestaments;
+
 // Global Table of Contents:
 TTOCList g_lstTOC;
 
