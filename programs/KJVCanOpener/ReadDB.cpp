@@ -252,22 +252,20 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
         if (query.value(2).toInt() == 0) strKey = strKey.toLower();
         CWordEntry &entryWord = g_mapWordList[strKey.toStdString()];
         entryWord.m_strWord = strWord.toStdString();
-        QString strAltWords = query.value(5).toString() + '\n';
+        QString strAltWords = query.value(4).toString() + '\n';
         CSVstream csvWord(&strAltWords, QIODevice::ReadOnly);
         while (!csvWord.atEnd()) {
             QString strTemp;
             csvWord >> strTemp;
             if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.toStdString());
         }
-        if ((!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxlstOT)) ||
-            (!IndexBlobToIndexList(query.value(7).toByteArray(), entryWord.m_ndxlstNT)) ||
-            (!IndexBlobToIndexList(query.value(8).toByteArray(), entryWord.m_ndxNormalized))) {
+        if ((!IndexBlobToIndexList(query.value(5).toByteArray(), entryWord.m_ndxMapping)) ||
+            (!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalized))) {
             QMessageBox::warning(0, "Database", QString("Bad word indexes for \"%1\"").arg(strWord));
             return false;
         }
-        if ((entryWord.m_ndxlstOT.size() != query.value(3).toUInt()) ||
-            (entryWord.m_ndxlstNT.size() != query.value(4).toUInt()) ||
-            (entryWord.m_ndxNormalized.size() != (query.value(3).toUInt()+query.value(4).toUInt()))) {
+        if ((entryWord.m_ndxMapping.size() != query.value(3).toUInt()) ||
+            (entryWord.m_ndxNormalized.size() != query.value(3).toUInt())) {
             QMessageBox::warning(0, "Database", "Index/Count consistency error in WORDS table!");
             return false;
         }
@@ -289,22 +287,16 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
             } else {
                 ts << "0,";
             }
-            ts << QString("%1,").arg(itr->second.m_ndxlstOT.size());
-            ts << QString("%1,").arg(itr->second.m_ndxlstNT.size());
+            ts << QString("%1,").arg(itr->second.m_ndxMapping.size());
             ts << "\"";
             for (unsigned int i=0; i<itr->second.m_lstAltWords.size(); ++i) {
                 if (i!=0) ts << ",";
                 ts << QString::fromStdString(itr->second.m_lstAltWords.at(i));
             }
             ts << "\",\"";
-            for (unsigned int i=0; i<itr->second.m_ndxlstOT.size(); ++i) {
+            for (unsigned int i=0; i<itr->second.m_ndxMapping.size(); ++i) {
                 if (i!=0) ts << ",";
-                ts << QString("%1").arg(itr->second.m_ndxlstOT.at(i));
-            }
-            ts << "\",\"";
-            for (unsigned int i=0; i<itr->second.m_ndxlstNT.size(); ++i) {
-                if (i!=0) ts << ",";
-                ts << QString("%1").arg(itr->second.m_ndxlstNT.at(i));
+                ts << QString("%1").arg(itr->second.m_ndxMapping.at(i));
             }
             ts << "\",\"";
             for (unsigned int i=0; i<itr->second.m_ndxNormalized.size(); ++i) {

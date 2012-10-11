@@ -492,7 +492,7 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 
             // Create the table in the database:
             strCmd = QString("create table WORDS "
-                            "(WrdNdx INTEGER PRIMARY KEY, Word TEXT, bIndexCasePreserve NUMERIC, NumOT NUMERIC, NumNT NUMERIC, AltWords TEXT, MapOT BLOB, MapNT BLOB, NormalMap BLOB)");
+                            "(WrdNdx INTEGER PRIMARY KEY, Word TEXT, bIndexCasePreserve NUMERIC, NumTotal NUMERIC, AltWords TEXT, Mapping BLOB, NormalMap BLOB)");
 
             if (!queryCreate.exec(strCmd)) {
                 fileBook.close();
@@ -506,16 +506,14 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
                 QStringList slHeaders;
                 csv >> slHeaders;              // Read Headers (verify and discard)
 
-                if ((slHeaders.size()!=9) ||
+                if ((slHeaders.size()!=7) ||
                     (slHeaders.at(0).compare("WrdNdx") != 0) ||
                     (slHeaders.at(1).compare("Word") != 0) ||
                     (slHeaders.at(2).compare("bIndexCasePreserve") != 0) ||
-                    (slHeaders.at(3).compare("NumOT") != 0) ||
-                    (slHeaders.at(4).compare("NumNT") != 0) ||
-                    (slHeaders.at(5).compare("AltWords") != 0) ||
-                    (slHeaders.at(6).compare("MapOT") != 0) ||
-                    (slHeaders.at(7).compare("MapNT") != 0) ||
-                    (slHeaders.at(8).compare("NormalMap") != 0)) {
+                    (slHeaders.at(3).compare("NumTotal") != 0) ||
+                    (slHeaders.at(4).compare("AltWords") != 0) ||
+                    (slHeaders.at(5).compare("Mapping") != 0) ||
+                    (slHeaders.at(6).compare("NormalMap") != 0)) {
                     if (QMessageBox::warning(0, "Database", QString("Unexpected Header Layout for WORDS data file!"),
                                         QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
                         fileBook.close();
@@ -529,22 +527,20 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
                     QStringList sl;
                     csv >> sl;
 
-                    assert(sl.count() == 9);
-                    if (sl.count() < 9) continue;
+                    assert(sl.count() == 7);
+                    if (sl.count() < 7) continue;
 
                     strCmd = QString("INSERT INTO WORDS "
-                                    "(WrdNdx, Word, bIndexCasePreserve, NumOT, NumNT, AltWords, MapOT, MapNT, NormalMap) "
-                                    "VALUES (:WrdNdx, :Word, :bIndexCasePreserve, :NumOT, :NumNT, :AltWords, :MapOT, :MapNT, :NormalMap)");
+                                    "(WrdNdx, Word, bIndexCasePreserve, NumTotal, AltWords, Mapping, NormalMap) "
+                                    "VALUES (:WrdNdx, :Word, :bIndexCasePreserve, :NumTotal, :AltWords, :Mapping, :NormalMap)");
                     queryInsert.prepare(strCmd);
                     queryInsert.bindValue(":WrdNdx", sl.at(0).toUInt());
                     queryInsert.bindValue(":Word", sl.at(1));
                     queryInsert.bindValue(":bIndexCasePreserve", sl.at(2).toInt());
-                    queryInsert.bindValue(":NumOT", sl.at(3).toInt());
-                    queryInsert.bindValue(":NumNT", sl.at(4).toInt());
-                    queryInsert.bindValue(":AltWords", sl.at(5));
-                    queryInsert.bindValue(":MapOT", CSVStringToIndexBlob(sl.at(6)), QSql::In | QSql::Binary);
-                    queryInsert.bindValue(":MapNT", CSVStringToIndexBlob(sl.at(7)), QSql::In | QSql::Binary);
-                    queryInsert.bindValue(":NormalMap", CSVStringToIndexBlob(sl.at(8)), QSql::In | QSql::Binary);
+                    queryInsert.bindValue(":NumTotal", sl.at(3).toInt());
+                    queryInsert.bindValue(":AltWords", sl.at(4));
+                    queryInsert.bindValue(":Mapping", CSVStringToIndexBlob(sl.at(5)), QSql::In | QSql::Binary);
+                    queryInsert.bindValue(":NormalMap", CSVStringToIndexBlob(sl.at(6)), QSql::In | QSql::Binary);
 
                     if (!queryInsert.exec()) {
                         if (QMessageBox::warning(0, "Database", QString("Insert Failed for WORDS!\n%1\n  %2  (%3)").arg(queryInsert.lastError().text()).arg(sl.at(1)).arg(sl.at(4)),

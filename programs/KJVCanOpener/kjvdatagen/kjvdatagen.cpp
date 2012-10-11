@@ -1,5 +1,5 @@
 //
-// KJVDataGen.c
+// KJVDataGen.cpp
 //
 //	Generates the Bk/Chp Keys and Data for the KJVCanOpener LAYOUT Table,
 //				Chp/Vrs Keys and Data for individual KJVCanOpener BOOK Tables,
@@ -85,14 +85,6 @@
 #include <algorithm>
 #include <stdint.h>
 //#include <locale>
-
-//#include <boost/multi_index_container.hpp>
-//#include <boost/multi_index/identity.hpp>
-//#include <boost/multi_index/member.hpp>
-//#include <boost/multi_index/ordered_index.hpp>
-//
-//using boost::multi_index_container;
-//using namespace boost::multi_index;
 
 #ifndef stricmp
 #define stricmp _stricmp
@@ -264,48 +256,24 @@ class CWordEntry
 {
 public:
 	CWordEntry()
-//		: m_bCasePreserve(true)
 	{
 		for (int i=0; i<NUM_BK; ++i) m_arrUsage[i] = 0;
 	}
 
 	std::string m_strWord;		// Word Text
 	std::string m_strAltWords;	// CSV of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
-//	bool m_bCasePreserve;		// True if we should preserve the case of the word in list, like "Lord" vs "lord" or "God" vs "god"
-	TIndexList m_ndxlstOT;		// Old Testament Indexes
-	TIndexList m_ndxlstNT;		// New Testament Indexes
-	int m_arrUsage[NUM_BK];		// Word usage count by book.  Sum of this should match sum of OT/NT index count above
-	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match combined count of two testament indexes above)
+	TIndexList m_ndxMapping;	// Indexes into text
+	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of entries in index above)
+	int m_arrUsage[NUM_BK];		// Word usage count by book.  Sum of the values in this array should match size of index above
 
 	struct SortPredicate {
-//		bool operator() (const CWordEntry& d1, const CWordEntry& d2) const
-//		{
-//			if ((d1.m_bCasePreserve) || (d2.m_bCasePreserve)) {
-//				return (strcmp(d1.m_strWord.c_str(), d2.m_strWord.c_str()) < 0);
-//			}
-//
-//			return (stricmp(d1.m_strWord.c_str(), d2.m_strWord.c_str()) < 0);
-//		}
-
 		bool operator() (const std::string &s1, const std::string &s2) const
 		{
 			return (strcmp(s1.c_str(), s2.c_str()) < 0);
 		}
-
-
 	};
 
 };
-
-//// Tags for accessing indices of CWordEntry
-//struct WordTag{};
-//
-//typedef multi_index_container<
-//		CWordEntry,
-//		indexed_by<
-//			ordered_unique< tag<WordTag>, BOOST_MULTI_INDEX_MEMBER(CWordEntry, std::string, m_strWord) > >
-//> TWordListMap;
-
 
 typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
 
@@ -315,7 +283,6 @@ struct XformLower {
 		return tolower(c);
 	}
 };
-
 
 
 // ============================================================================
@@ -991,12 +958,7 @@ int main(int argc, const char *argv[])
 
 				wrdEntry.m_arrUsage[nBk-1]++;
 
-				if (nBk <= NUM_BK_OT) {
-					wrdEntry.m_ndxlstOT.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
-				} else {
-					wrdEntry.m_ndxlstNT.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
-				}
-
+				wrdEntry.m_ndxMapping.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
 				++nNormalizedNdx;
 				wrdEntry.m_ndxNormalized.push_back(nNormalizedNdx);
 
@@ -1025,23 +987,16 @@ int main(int argc, const char *argv[])
 	}
 
 	if (bDoingWords) {
-		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumOT,NumNT,AltWords,MapOT,MapNT,NormalMap\r\n");
+		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,Mapping,NormalMap\r\n");
 		nWrd = 0;
 		for (TWordListMap::const_iterator itrWrd = g_mapWordList.begin(); itrWrd != g_mapWordList.end(); ++itrWrd) {
-			std::string strOTMap;
-			std::string strNTMap;
+			std::string strMapping;
 			std::string strNormalMap;
-			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxlstOT.begin();
-					itrNdx != itrWrd->second.m_ndxlstOT.end(); ++itrNdx) {
-				if (!strOTMap.empty()) strOTMap += ",";
+			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxMapping.begin();
+					itrNdx != itrWrd->second.m_ndxMapping.end(); ++itrNdx) {
+				if (!strMapping.empty()) strMapping += ",";
 				sprintf(word, "%d", *itrNdx);
-				strOTMap += word;
-			}
-			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxlstNT.begin();
-					itrNdx != itrWrd->second.m_ndxlstNT.end(); ++itrNdx) {
-				if (!strNTMap.empty()) strNTMap += ",";
-				sprintf(word, "%d", *itrNdx);
-				strNTMap += word;
+				strMapping += word;
 			}
 			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxNormalized.begin();
 					itrNdx != itrWrd->second.m_ndxNormalized.end(); ++itrNdx) {
@@ -1050,15 +1005,13 @@ int main(int argc, const char *argv[])
 				strNormalMap += word;
 			}
 			++nWrd;
-			fprintf(fileOut, "%d,\"%s\",%d,%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
+			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\"\r\n",
 								nWrd,
 								itrWrd->second.m_strWord.c_str(),
 								((strcmp(itrWrd->first.c_str(), itrWrd->second.m_strWord.c_str()) == 0) ? 1 : 0),
-								itrWrd->second.m_ndxlstOT.size(),
-								itrWrd->second.m_ndxlstNT.size(),
+								itrWrd->second.m_ndxMapping.size(),
 								itrWrd->second.m_strAltWords.c_str(),
-								strOTMap.c_str(),
-								strNTMap.c_str(),
+								strMapping.c_str(),
 								strNormalMap.c_str());
 		}
 		for (int i=0; i<(g_NormalizationVerification.size()-1); ++i) {
@@ -1075,11 +1028,20 @@ int main(int argc, const char *argv[])
 		}
 		fprintf(fileOut, "\r\n");
 		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
+			int nOTCount = 0;
+			int nNTCount = 0;
+			for (nBk=0; nBk<NUM_BK; ++nBk) {
+				if (nBk < NUM_BK_OT) {
+					nOTCount += itr->second.m_arrUsage[nBk];
+				} else {
+					nNTCount += itr->second.m_arrUsage[nBk];
+				}
+			}
 			fprintf(fileOut, "\"%s\",%d,%d,%d",
 								itr->second.m_strWord.c_str(),
-								itr->second.m_ndxlstOT.size()+itr->second.m_ndxlstNT.size(),
-								itr->second.m_ndxlstOT.size(),
-								itr->second.m_ndxlstNT.size());
+								itr->second.m_ndxMapping.size(),
+								nOTCount,
+								nNTCount);
 			for (nBk=0; nBk<NUM_BK; ++nBk) {
 				fprintf(fileOut, ",%d", itr->second.m_arrUsage[nBk]);
 			}

@@ -157,9 +157,8 @@ public:
 
     std::string m_strWord;		// Word Text
     TStringList m_lstAltWords;  // List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
-    TIndexList m_ndxlstOT;		// Old Testament Indexes
-    TIndexList m_ndxlstNT;		// New Testament Indexes
-    TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match combined count of two testament indexes above)
+    TIndexList m_ndxMapping;    // Indexes
+    TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of indexes in Mapping above)
 
     struct SortPredicate {
         bool operator() (const std::string &s1, const std::string &s2) const
