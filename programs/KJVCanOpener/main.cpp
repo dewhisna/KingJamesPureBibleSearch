@@ -12,11 +12,11 @@ const char *g_constrDatabaseFilename = "../KJVCanOpener/db/kjvtext.s3db";
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    CKJVCanOpener w;
-    w.show();
+	QApplication a(argc, argv);
+	CKJVCanOpener w;
+	w.show();
 
-    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
 //BuildDatabase(g_constrDatabaseFilename);
 //return 0;
@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
 //        }
 //    }
 
-    if (!ReadDatabase(g_constrDatabaseFilename)) {
-        QMessageBox::warning(0, "Database", "Failed to Read and Validate KJV Database!\nCheck Installation!");
-        return -1;
-    }
+	if (!ReadDatabase(g_constrDatabaseFilename)) {
+		QMessageBox::warning(0, "Database", "Failed to Read and Validate KJV Database!\nCheck Installation!");
+		return -1;
+	}
 
 
-    return a.exec();
+	return a.exec();
 }

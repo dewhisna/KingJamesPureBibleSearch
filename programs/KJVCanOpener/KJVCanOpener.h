@@ -9,14 +9,14 @@ class CKJVCanOpener;
 
 class CKJVCanOpener : public QMainWindow
 {
-    Q_OBJECT
-    
+	Q_OBJECT
+
 public:
-    explicit CKJVCanOpener(QWidget *parent = 0);
-    ~CKJVCanOpener();
-    
+	explicit CKJVCanOpener(QWidget *parent = 0);
+	~CKJVCanOpener();
+
 private:
-    Ui::CKJVCanOpener *ui;
+	Ui::CKJVCanOpener *ui;
 };
 
 #endif // KJVCANOPENER_H
