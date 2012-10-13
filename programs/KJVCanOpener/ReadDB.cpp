@@ -1,6 +1,7 @@
 // ReadDB.cpp -- Code to read out database into our working variables
 //
 
+#include "ReadDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
 
@@ -23,20 +24,26 @@
 #include <QTextStream>
 #endif
 
-static bool ReadTestamentTable(QSqlDatabase &myDatabase)
+namespace {
+	const char *g_constrReadDatabase = "Reading Database";
+}		// Namespace
+
+// ============================================================================
+
+bool CReadDatabase::ReadTestamentTable()
 {
 	// Read the Testament Table
 
-	QSqlQuery query(myDatabase);
+	QSqlQuery query(m_myDatabase);
 
 	// Check to see if the table exists:
 	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
-		QMessageBox::warning(0, "Database", QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(query.lastError().text()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(query.lastError().text()));
 		return false;
 	}
 	query.next();
 	if (!query.value(0).toInt()) {
-		QMessageBox::warning(0, "Database", "Unable to find \"TESTAMENT\" Table in database!");
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"TESTAMENT\" Table in database!");
 		return false;
 	}
 
@@ -53,20 +60,20 @@ static bool ReadTestamentTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool ReadTOCTable(QSqlDatabase &myDatabase)
+bool CReadDatabase::ReadTOCTable()
 {
 	// Read the TOC Table
 
-	QSqlQuery query(myDatabase);
+	QSqlQuery query(m_myDatabase);
 
 	// Check to see if the table exists:
 	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TOC'")) {
-		QMessageBox::warning(0, "Database", QString("Table Lookup for \"TOC\" Failed!\n%1").arg(query.lastError().text()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"TOC\" Failed!\n%1").arg(query.lastError().text()));
 		return false;
 	}
 	query.next();
 	if (!query.value(0).toInt()) {
-		QMessageBox::warning(0, "Database", "Unable to find \"TOC\" Table in database!");
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"TOC\" Table in database!");
 		return false;
 	}
 
@@ -77,14 +84,14 @@ static bool ReadTOCTable(QSqlDatabase &myDatabase)
 		unsigned int nBkNdx = query.value(0).toUInt();
 		if (nBkNdx > g_lstTOC.size()) g_lstTOC.resize(nBkNdx);
 		CTOCEntry &entryTOC = g_lstTOC[nBkNdx-1];
-		entryTOC.m_nTstBkNdx = query.value(1).toInt();
-		entryTOC.m_nTstNdx = query.value(2).toInt();
+		entryTOC.m_nTstBkNdx = query.value(1).toUInt();
+		entryTOC.m_nTstNdx = query.value(2).toUInt();
 		entryTOC.m_strBkName = query.value(3).toString().toStdString();
 		entryTOC.m_strBkAbbr = query.value(4).toString().toStdString();
 		entryTOC.m_strTblName = query.value(5).toString().toStdString();
-		entryTOC.m_nNumChp = query.value(6).toInt();
-		entryTOC.m_nNumVrs = query.value(7).toInt();
-		entryTOC.m_nNumWrd = query.value(8).toInt();
+		entryTOC.m_nNumChp = query.value(6).toUInt();
+		entryTOC.m_nNumVrs = query.value(7).toUInt();
+		entryTOC.m_nNumWrd = query.value(8).toUInt();
 		entryTOC.m_strCat = query.value(9).toString().toStdString();
 		entryTOC.m_strDesc = query.value(10).toString().toStdString();
 	}
@@ -106,20 +113,20 @@ static bool ReadTOCTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool ReadLAYOUTTable(QSqlDatabase &myDatabase)
+bool CReadDatabase::ReadLAYOUTTable()
 {
 	// Read the LAYOUT table:
 
-	QSqlQuery query(myDatabase);
+	QSqlQuery query(m_myDatabase);
 
 	// Check to see if the table exists:
 	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LAYOUT'")) {
-		QMessageBox::warning(0, "Database", QString("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(query.lastError().text()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(query.lastError().text()));
 		return false;
 	}
 	query.next();
 	if (!query.value(0).toInt()) {
-		QMessageBox::warning(0, "Database", "Unable to find \"LAYOUT\" Table in database!");
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"LAYOUT\" Table in database!");
 		return false;
 	}
 
@@ -130,8 +137,8 @@ static bool ReadLAYOUTTable(QSqlDatabase &myDatabase)
 	while (query.next()) {
 		uint32_t nBkChpNdx = query.value(0).toUInt();
 		CLayoutEntry &entryLayout = g_mapLayout[nBkChpNdx];
-		entryLayout.m_nNumVrs = query.value(1).toInt();
-		entryLayout.m_nNumWrd = query.value(2).toInt();
+		entryLayout.m_nNumVrs = query.value(1).toUInt();
+		entryLayout.m_nNumWrd = query.value(2).toUInt();
 	}
 
 // Used for debugging:
@@ -150,25 +157,25 @@ static bool ReadLAYOUTTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool ReadBookTables(QSqlDatabase &myDatabase)
+bool CReadDatabase::ReadBookTables()
 {
 	// Read the BOOK tables:
 
-	assert(g_lstTOC.size() != 0);       // Must read TOC before BOOKS
+	assert(g_lstTOC.size() != 0);		// Must read TOC before BOOKS
 
 	g_lstBooks.clear();
 	g_lstBooks.resize(g_lstTOC.size());
 	for (unsigned int i=0; i<g_lstTOC.size(); ++i) {
-		QSqlQuery query(myDatabase);
+		QSqlQuery query(m_myDatabase);
 
 		// Check to see if the table exists:
 		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)))) {
-			QMessageBox::warning(0, "Database", QString("Table Lookup for \"%1\" Failed!\n%2").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)).arg(query.lastError().text()));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)).arg(query.lastError().text()));
 			return false;
 		}
 		query.next();
 		if (!query.value(0).toInt()) {
-			QMessageBox::warning(0, "Database", QString("Unable to find \"%1\" Table in database!").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)));
 			return false;
 		}
 
@@ -181,7 +188,7 @@ static bool ReadBookTables(QSqlDatabase &myDatabase)
 		while (query.next()) {
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
 			CBookEntry &entryBook = mapBook[nChpVrsNdx];
-			entryBook.m_nNumWrd = query.value(1).toInt();
+			entryBook.m_nNumWrd = query.value(1).toUInt();
 			entryBook.m_bPilcrow = ((query.value(2).toInt() != 0) ? true : false);
 			entryBook.SetRichText(query.value(4).toString().toStdString());
 			entryBook.m_strFootnote = query.value(5).toString().toStdString();
@@ -210,7 +217,7 @@ static bool ReadBookTables(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList)
+bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList)
 {
 	if ((baBlob.size() % sizeof(uint32_t)) != 0) return false;
 
@@ -227,20 +234,20 @@ static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexLi
 	return true;
 }
 
-static bool ReadWORDSTable(QSqlDatabase &myDatabase)
+bool CReadDatabase::ReadWORDSTable()
 {
 	// Read the WORDS table:
 
-	QSqlQuery query(myDatabase);
+	QSqlQuery query(m_myDatabase);
 
 	// Check to see if the table exists:
 	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='WORDS'")) {
-		QMessageBox::warning(0, "Database", QString("Table Lookup for \"WORDS\" Failed!\n%1").arg(query.lastError().text()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"WORDS\" Failed!\n%1").arg(query.lastError().text()));
 		return false;
 	}
 	query.next();
 	if (!query.value(0).toInt()) {
-		QMessageBox::warning(0, "Database", "Unable to find \"WORDS\" Table in database!");
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"WORDS\" Table in database!");
 		return false;
 	}
 
@@ -263,12 +270,12 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
 		}
 		if ((!IndexBlobToIndexList(query.value(5).toByteArray(), entryWord.m_ndxMapping)) ||
 			(!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalized))) {
-			QMessageBox::warning(0, "Database", QString("Bad word indexes for \"%1\"").arg(strWord));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}
 		if ((entryWord.m_ndxMapping.size() != query.value(3).toUInt()) ||
 			(entryWord.m_ndxNormalized.size() != query.value(3).toUInt())) {
-			QMessageBox::warning(0, "Database", "Index/Count consistency error in WORDS table!");
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, "Index/Count consistency error in WORDS table!");
 			return false;
 		}
 	}
@@ -282,7 +289,7 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
 		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
 			cnt++;
 			ts << QString("%1,").arg(cnt);
-//            ts << "\"" + QString::fromStdString(itr->first) + "\",";
+//			ts << "\"" + QString::fromStdString(itr->first) + "\",";
 			ts << "\"" + QString::fromStdString(itr->second.m_strWord) + "\",";
 			if (strcmp(itr->first.c_str(), itr->second.m_strWord.c_str()) == 0) {
 				ts << "1,";
@@ -314,32 +321,32 @@ static bool ReadWORDSTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-bool ValidateData()
+bool CReadDatabase::ValidateData()
 {
-	int ncntTstTot = 0;             // Total number of Testaments
-	unsigned int ncntBkTot = 0;     // Total number of Books (all Testaments)
-	unsigned int ncntChpTot = 0;    // Total number of Chapters (all Books)
-	unsigned int ncntVrsTot = 0;    // Total number of Verses (all Chapters)
-	unsigned int ncntWrdTot = 0;    // Total number of Words (all verses)
+	unsigned int ncntTstTot = 0;	// Total number of Testaments
+	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
+	unsigned int ncntChpTot = 0;	// Total number of Chapters (all Books)
+	unsigned int ncntVrsTot = 0;	// Total number of Verses (all Chapters)
+	unsigned int ncntWrdTot = 0;	// Total number of Words (all verses)
 
-	int ncntChp_Bk = 0;             // Chapter count in current Book
-	int ncntVrs_Bk = 0;             // Verse count in current Book
-	int ncntWrd_Bk = 0;             // Word count in current Book
+	unsigned int ncntChp_Bk = 0;	// Chapter count in current Book
+	unsigned int ncntVrs_Bk = 0;	// Verse count in current Book
+	unsigned int ncntWrd_Bk = 0;	// Word count in current Book
 
-	int ncntVrs_Chp = 0;            // Verse count in current Chapter
-	int ncntWrd_Chp = 0;            // Word count in current Chapter
+	unsigned int ncntVrs_Chp = 0;	// Verse count in current Chapter
+	unsigned int ncntWrd_Chp = 0;	// Word count in current Chapter
 
-	unsigned int ncntWrd_Vrs = 0;   // Word count in current Verse
+	unsigned int ncntWrd_Vrs = 0;	// Word count in current Verse
 
 	if (g_lstBooks.size() != g_lstTOC.size()) {
-		QMessageBox::warning(0, "Database", "Error: Book List and Table of Contents have different sizes!\nCheck the database!");
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Error: Book List and Table of Contents have different sizes!\nCheck the database!");
 		return false;
 	}
 
 	ncntTstTot = g_lstTestaments.size();
-	for (unsigned int nBk=0; nBk<g_lstTOC.size(); ++ nBk) {     // Books
+	for (unsigned int nBk=0; nBk<g_lstTOC.size(); ++ nBk) {		// Books
 		if ((g_lstTOC[nBk].m_nTstNdx < 1) || (g_lstTOC[nBk].m_nTstNdx > ncntTstTot)) {
-			QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) References Invalid Testament %3")
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) References Invalid Testament %3")
 								.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(g_lstTOC[nBk].m_nTstNdx));
 			return false;
 		}
@@ -347,14 +354,14 @@ bool ValidateData()
 		ncntVrs_Bk = 0;
 		ncntWrd_Bk = 0;
 		ncntBkTot++;
-		for (int nChp=0; nChp<g_lstTOC[nBk].m_nNumChp; ++nChp) {
+		for (unsigned int nChp=0; nChp<g_lstTOC[nBk].m_nNumChp; ++nChp) {	// Chapters
 			ncntVrs_Chp = 0;
 			ncntWrd_Chp = 0;
 			TLayoutMap::const_iterator itrLayout = g_mapLayout.find(MakeIndex(0,0,nBk+1,nChp+1));
 			if (itrLayout == g_mapLayout.end()) continue;
 			ncntChpTot++;
 			ncntChp_Bk++;
-			for (int nVrs=0; nVrs<itrLayout->second.m_nNumVrs; ++nVrs) {
+			for (unsigned int nVrs=0; nVrs<itrLayout->second.m_nNumVrs; ++nVrs) {	// Verses
 				ncntWrd_Vrs = 0;
 				const TBookEntryMap &aBook = g_lstBooks[nBk];
 				TBookEntryMap::const_iterator itrBook = aBook.find(MakeIndex(0,0,nChp+1,nVrs+1));
@@ -362,34 +369,34 @@ bool ValidateData()
 				ncntVrsTot++;
 				ncntVrs_Chp++;
 				ncntVrs_Bk++;
-				ncntWrdTot += itrBook->second.m_nNumWrd;
+				ncntWrdTot += itrBook->second.m_nNumWrd;			// Words
 				ncntWrd_Vrs += itrBook->second.m_nNumWrd;
 				ncntWrd_Chp += itrBook->second.m_nNumWrd;
 				ncntWrd_Bk += itrBook->second.m_nNumWrd;
 			}
 			if (ncntVrs_Chp != itrLayout->second.m_nNumVrs) {
-				QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
+				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
 									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
 				return false;
 			}
 			if (ncntWrd_Chp != itrLayout->second.m_nNumWrd) {
-				QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
+				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
 									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
 				return false;
 			}
 		}
 		if (ncntChp_Bk != g_lstTOC[nBk].m_nNumChp) {
-			QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
 									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntChp_Bk).arg(g_lstTOC[nBk].m_nNumChp));
 			return false;
 		}
 		if (ncntVrs_Bk != g_lstTOC[nBk].m_nNumVrs) {
-			QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
 									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntVrs_Bk).arg(g_lstTOC[nBk].m_nNumVrs));
 			return false;
 		}
 		if (ncntWrd_Bk != g_lstTOC[nBk].m_nNumWrd) {
-			QMessageBox::warning(0, "Database", QString("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
 									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntWrd_Bk).arg(g_lstTOC[nBk].m_nNumWrd));
 			return false;
 		}
@@ -398,38 +405,75 @@ bool ValidateData()
 	unsigned int nWordListTot = 0;
 	for (TWordListMap::const_iterator itrWords = g_mapWordList.begin(); itrWords != g_mapWordList.end(); ++itrWords) {
 		nWordListTot += itrWords->second.m_ndxMapping.size();
+
+		if (itrWords->second.m_ndxMapping.size() != itrWords->second.m_ndxNormalized.size()) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error:  Word \"%1\" has %2 indexes and %3 normalized indexes!")
+									.arg(QString::fromStdString(itrWords->second.m_strWord)).arg(itrWords->second.m_ndxMapping.size()).arg(itrWords->second.m_ndxNormalized.size()));
+			return false;
+		}
+
+		// Make sure normalized and relative indexes match.  This will
+		//		also verify/debug the normalize/denormalize functions:
+		for (unsigned int ndx=0; ndx<itrWords->second.m_ndxMapping.size(); ++ndx) {
+			uint32_t nCalcNormal = NormalizeIndex(itrWords->second.m_ndxMapping[ndx]);
+			uint32_t nCalcRelative = DenormalizeIndex(itrWords->second.m_ndxNormalized[ndx]);
+			if (nCalcNormal != itrWords->second.m_ndxNormalized[ndx]) {
+				TRelIndex relIndex = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
+				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Mapping of 0x%2 (%3:%4:%5:%6) and Normal Mapping of 0x%7\nCalculated Normal Mapping is: 0x%8")
+											.arg(QString::fromStdString(itrWords->second.m_strWord))
+											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndex.m_nN3).arg(relIndex.m_nN2).arg(relIndex.m_nN1).arg(relIndex.m_nN0)
+											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
+											.arg(nCalcNormal, 8, 16, QChar('0')),
+											"Next Index", "Next Word", "Abort", 0, 2);
+				if (nAction == 2) return false;
+				if (nAction == 1) break;
+			}
+			if (nCalcRelative != itrWords->second.m_ndxMapping[ndx]) {
+				TRelIndex relIndexWord = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
+				TRelIndex relIndexCalc = DecomposeIndex(nCalcRelative);
+				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Normal Mapping of 0x%2 and Mapping of 0x%3 (%4:%5:%6:%7)\nCalculated Mapping is: 0x%8 (%9:%10:%11:%12)")
+											.arg(QString::fromStdString(itrWords->second.m_strWord))
+											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
+											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndexWord.m_nN3).arg(relIndexWord.m_nN2).arg(relIndexWord.m_nN1).arg(relIndexWord.m_nN0)
+											.arg(nCalcRelative, 8, 16, QChar('0')).arg(relIndexCalc.m_nN3).arg(relIndexCalc.m_nN2).arg(relIndexCalc.m_nN1).arg(relIndexCalc.m_nN0),
+											"Next Index", "Next Word", "Abort", 0, 2);
+				if (nAction == 2) return false;
+				if (nAction == 1) break;
+			}
+		}
 	}
 	if (nWordListTot != ncntWrdTot) {
-		QMessageBox::warning(0, "Database", QString("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
 		return false;
 	}
 
 	return true;
 }
 
-bool ReadDatabase(const char *pstrDatabaseFilename)
+// ============================================================================
+
+bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
 {
-	QSqlDatabase myDatabase;
-	myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	myDatabase.setDatabaseName(pstrDatabaseFilename);
+	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
 
-//    QMessageBox::information(0,"Database",myDatabase.databaseName());
+//	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
-	if (!myDatabase.open()) {
-		QMessageBox::warning(0,"Error","Couldn't open database file.");
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
 		return false;
 	}
 
 	bool bSuccess = true;
 
-	if ((!ReadTestamentTable(myDatabase)) ||
-		(!ReadTOCTable(myDatabase)) ||
-		(!ReadLAYOUTTable(myDatabase)) ||
-		(!ReadBookTables(myDatabase)) ||
-		(!ReadWORDSTable(myDatabase)) ||
+	if ((!ReadTestamentTable()) ||
+		(!ReadTOCTable()) ||
+		(!ReadLAYOUTTable()) ||
+		(!ReadBookTables()) ||
+		(!ReadWORDSTable()) ||
 		(!ValidateData())) bSuccess = false;
 
-	myDatabase.close();
+	m_myDatabase.close();
 
 	return bSuccess;
 }

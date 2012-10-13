@@ -19,6 +19,8 @@ SOURCES += main.cpp\
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
-    dbstruct.h
+    dbstruct.h \
+    ReadDB.h \
+    BuildDB.h
 
 FORMS    += KJVCanOpener.ui

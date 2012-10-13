@@ -1,6 +1,7 @@
 // BuildDB.cpp -- Code to build the initial database from csv data files
 //
 
+#include "BuildDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
 
@@ -15,94 +16,99 @@
 #include <QStringList>
 #include <QByteArray>
 
-// Book counts are here only on the building process as
-//  the reading side gets this data entirely from the
-//  database
-#define NUM_BK 66
-#define NUM_BK_OT 39
-#define NUM_BK_NT 27
+namespace {
+	const char *g_constrBuildDatabase = "Building Database";
 
-const char *g_arrstrBkTblNames[NUM_BK] =
-		{	"GEN",
-			"EXOD",
-			"LEV",
-			"NUM",
-			"DEUT",
-			"JOSH",
-			"JUDG",
-			"RUTH",
-			"SAM1",
-			"SAM2",
-			"KGS1",
-			"KGS2",
-			"CHR1",
-			"CHR2",
-			"EZRA",
-			"NEH",
-			"ESTH",
-			"JOB",
-			"PS",
-			"PROV",
-			"ECCL",
-			"SONG",
-			"ISA",
-			"JER",
-			"LAM",
-			"EZEK",
-			"DAN",
-			"HOS",
-			"JOEL",
-			"AMOS",
-			"OBAD",
-			"JONAH",
-			"MIC",
-			"NAH",
-			"HAB",
-			"ZEPH",
-			"HAG",
-			"ZECH",
-			"MAL",
-			"MATT",
-			"MARK",
-			"LUKE",
-			"JOHN",
-			"ACTS",
-			"ROM",
-			"COR1",
-			"COR2",
-			"GAL",
-			"EPH",
-			"PHIL",
-			"COL",
-			"THESS1",
-			"THESS2",
-			"TIM1",
-			"TIM2",
-			"TITUS",
-			"PHLM",
-			"HEB",
-			"JAS",
-			"PET1",
-			"PET2",
-			"JOHN1",
-			"JOHN2",
-			"JOHN3",
-			"JUDE",
-			"REV"
-		};
+	// Book counts are here only on the building process as
+	//  the reading side gets this data entirely from the
+	//  database
+	#define NUM_BK 66
+	#define NUM_BK_OT 39
+	#define NUM_BK_NT 27
+
+	const char *g_arrstrBkTblNames[NUM_BK] =
+			{	"GEN",
+				"EXOD",
+				"LEV",
+				"NUM",
+				"DEUT",
+				"JOSH",
+				"JUDG",
+				"RUTH",
+				"SAM1",
+				"SAM2",
+				"KGS1",
+				"KGS2",
+				"CHR1",
+				"CHR2",
+				"EZRA",
+				"NEH",
+				"ESTH",
+				"JOB",
+				"PS",
+				"PROV",
+				"ECCL",
+				"SONG",
+				"ISA",
+				"JER",
+				"LAM",
+				"EZEK",
+				"DAN",
+				"HOS",
+				"JOEL",
+				"AMOS",
+				"OBAD",
+				"JONAH",
+				"MIC",
+				"NAH",
+				"HAB",
+				"ZEPH",
+				"HAG",
+				"ZECH",
+				"MAL",
+				"MATT",
+				"MARK",
+				"LUKE",
+				"JOHN",
+				"ACTS",
+				"ROM",
+				"COR1",
+				"COR2",
+				"GAL",
+				"EPH",
+				"PHIL",
+				"COL",
+				"THESS1",
+				"THESS2",
+				"TIM1",
+				"TIM2",
+				"TITUS",
+				"PHLM",
+				"HEB",
+				"JAS",
+				"PET1",
+				"PET2",
+				"JOHN1",
+				"JOHN2",
+				"JOHN3",
+				"JUDE",
+				"REV"
+			};
+
+}		// Namespace
 
 // ============================================================================
 
-static bool BuildTestamentTable(QSqlDatabase &myDatabase)
+bool CBuildDatabase::BuildTestamentTable()
 {
 	// Build the TESTAMENT table:
 
 	QString strCmd;
-	QSqlQuery queryCreate(myDatabase);
+	QSqlQuery queryCreate(m_myDatabase);
 
 	// Check to see if the table exists already:
 	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
-		if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryCreate.lastError().text()),
+		if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryCreate.lastError().text()),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	} else {
 		queryCreate.next();
@@ -113,12 +119,12 @@ static bool BuildTestamentTable(QSqlDatabase &myDatabase)
 							"(TstNdx INTEGER PRIMARY KEY, TstName TEXT)");
 
 			if (!queryCreate.exec(strCmd)) {
-				if (QMessageBox::warning(0, "Database",
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 						QString("Failed to create table for TESTAMENT\n%1").arg(queryCreate.lastError().text()),
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
 				// Populate table:
-				QSqlQuery queryInsert(myDatabase);
+				QSqlQuery queryInsert(m_myDatabase);
 				bool bSuccess = true;
 				bSuccess = queryInsert.exec("BEGIN TRANSACTION");
 				strCmd = QString("INSERT INTO TESTAMENT "
@@ -142,7 +148,7 @@ static bool BuildTestamentTable(QSqlDatabase &myDatabase)
 				bSuccess = bSuccess && queryInsert.exec("COMMIT");
 
 				if (!bSuccess) {
-					QMessageBox::warning(0, "Database", QString("Insert Failed for TESTAMENT!\n%1").arg(queryInsert.lastError().text()));
+					QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for TESTAMENT!\n%1").arg(queryInsert.lastError().text()));
 					return false;
 				}
 			}
@@ -152,16 +158,16 @@ static bool BuildTestamentTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool BuildTOCTable(QSqlDatabase &myDatabase)
+bool CBuildDatabase::BuildTOCTable()
 {
 	// Build the TOC table:
 
 	QString strCmd;
-	QSqlQuery queryCreate(myDatabase);
+	QSqlQuery queryCreate(m_myDatabase);
 
 	// Check to see if the table exists already:
 	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TOC'")) {
-		if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"TOC\" Failed!\n%1").arg(queryCreate.lastError().text()),
+		if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"TOC\" Failed!\n%1").arg(queryCreate.lastError().text()),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	} else {
 		queryCreate.next();
@@ -170,7 +176,7 @@ static bool BuildTOCTable(QSqlDatabase &myDatabase)
 			QFile fileBook(QString("../KJVCanOpener/db/data/TOC.csv"));
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
-					if (QMessageBox::warning(0, "Database",
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 							QString("Failed to open %1 for reading.").arg(fileBook.fileName()),
 							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 				} else break;
@@ -185,7 +191,7 @@ static bool BuildTOCTable(QSqlDatabase &myDatabase)
 
 			if (!queryCreate.exec(strCmd)) {
 				fileBook.close();
-				if (QMessageBox::warning(0, "Database",
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 						QString("Failed to create table for TOC\n%1").arg(queryCreate.lastError().text()),
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
@@ -207,14 +213,14 @@ static bool BuildTOCTable(QSqlDatabase &myDatabase)
 					(slHeaders.at(8).compare("NumWrd") != 0) ||
 					(slHeaders.at(9).compare("Cat") != 0) ||
 					(slHeaders.at(10).compare("Desc") != 0)) {
-					if (QMessageBox::warning(0, "Database", QString("Unexpected Header Layout for TOC data file!"),
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for TOC data file!"),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 						fileBook.close();
 						return false;
 					}
 				}
 
-				QSqlQuery queryInsert(myDatabase);
+				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
 				while (!csv.atEnd()) {
 					QStringList sl;
@@ -229,20 +235,20 @@ static bool BuildTOCTable(QSqlDatabase &myDatabase)
 									"VALUES (:BkNdx, :TstBkNdx, :TstNdx, :BkName, :BkAbbr, :TblName, "
 									":NumChp, :NumVrs, :NumWrd, :Cat, :Desc)");
 					queryInsert.prepare(strCmd);
-					queryInsert.bindValue(":BkNdx", sl.at(0).toInt());
-					queryInsert.bindValue(":TstBkNdx", sl.at(1).toInt());
-					queryInsert.bindValue(":TstNdx", sl.at(2).toInt());
+					queryInsert.bindValue(":BkNdx", sl.at(0).toUInt());
+					queryInsert.bindValue(":TstBkNdx", sl.at(1).toUInt());
+					queryInsert.bindValue(":TstNdx", sl.at(2).toUInt());
 					queryInsert.bindValue(":BkName", sl.at(3));
 					queryInsert.bindValue(":BkAbbr", sl.at(4));
 					queryInsert.bindValue(":TblName", sl.at(5));
-					queryInsert.bindValue(":NumChp", sl.at(6).toInt());
-					queryInsert.bindValue(":NumVrs", sl.at(7).toInt());
-					queryInsert.bindValue(":NumWrd", sl.at(8).toInt());
+					queryInsert.bindValue(":NumChp", sl.at(6).toUInt());
+					queryInsert.bindValue(":NumVrs", sl.at(7).toUInt());
+					queryInsert.bindValue(":NumWrd", sl.at(8).toUInt());
 					queryInsert.bindValue(":Cat", sl.at(9));
 					queryInsert.bindValue(":Desc", sl.at(10));
 
 					if (!queryInsert.exec()) {
-						if (QMessageBox::warning(0, "Database", QString("Insert Failed for TOC!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
+						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for TOC!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
 												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 					}
 				}
@@ -256,16 +262,16 @@ static bool BuildTOCTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
+bool CBuildDatabase::BuildLAYOUTTable()
 {
 	// Build the LAYOUT table:
 
 	QString strCmd;
-	QSqlQuery queryCreate(myDatabase);
+	QSqlQuery queryCreate(m_myDatabase);
 
 	// Check to see if the table exists already:
 	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LAYOUT'")) {
-		if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(queryCreate.lastError().text()),
+		if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(queryCreate.lastError().text()),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	} else {
 		queryCreate.next();
@@ -274,7 +280,7 @@ static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
 			QFile fileBook(QString("../KJVCanOpener/db/data/LAYOUT.csv"));
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
-					if (QMessageBox::warning(0, "Database",
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 							QString("Failed to open %1 for reading.").arg(fileBook.fileName()),
 							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 				} else break;
@@ -286,7 +292,7 @@ static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
 
 			if (!queryCreate.exec(strCmd)) {
 				fileBook.close();
-				if (QMessageBox::warning(0, "Database",
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 						QString("Failed to create table for LAYOUT\n%1").arg(queryCreate.lastError().text()),
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
@@ -302,14 +308,14 @@ static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
 					(slHeaders.at(2).compare("NumWrd") != 0) ||
 					(slHeaders.at(3).compare("BkAbbr") != 0) ||
 					(slHeaders.at(4).compare("ChNdx") != 0)) {
-					if (QMessageBox::warning(0, "Database", QString("Unexpected Header Layout for LAYOUT data file!"),
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for LAYOUT data file!"),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 						fileBook.close();
 						return false;
 					}
 				}
 
-				QSqlQuery queryInsert(myDatabase);
+				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
 				while (!csv.atEnd()) {
 					QStringList sl;
@@ -323,13 +329,13 @@ static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
 									"VALUES (:BkChpNdx, :NumVrs, :NumWrd, :BkAbbr, :ChNdx)");
 					queryInsert.prepare(strCmd);
 					queryInsert.bindValue(":BkChpNdx", sl.at(0).toUInt());
-					queryInsert.bindValue(":NumVrs", sl.at(1).toInt());
-					queryInsert.bindValue(":NumWrd", sl.at(2).toInt());
+					queryInsert.bindValue(":NumVrs", sl.at(1).toUInt());
+					queryInsert.bindValue(":NumWrd", sl.at(2).toUInt());
 					queryInsert.bindValue(":BkAbbr", sl.at(3));
-					queryInsert.bindValue(":ChNdx", sl.at(4).toInt());
+					queryInsert.bindValue(":ChNdx", sl.at(4).toUInt());
 
 					if (!queryInsert.exec()) {
-						if (QMessageBox::warning(0, "Database", QString("Insert Failed for LAYOUT!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(3)).arg(sl.at(4)),
+						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for LAYOUT!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(3)).arg(sl.at(4)),
 												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 					}
 				}
@@ -343,19 +349,19 @@ static bool BuildLAYOUTTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static bool BuildBookTables(QSqlDatabase &myDatabase)
+bool CBuildDatabase::BuildBookTables()
 {
 	QString strCmd;
 
 	// Build the BOOK tables:
 	for (int i=0; i<NUM_BK; ++i) {
-		QSqlQuery queryCreate(myDatabase);
+		QSqlQuery queryCreate(m_myDatabase);
 
 		// Check to see if the table exists already:
 		queryCreate.prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=:table_name");
 		queryCreate.bindValue(":table_name", g_arrstrBkTblNames[i]);
 		if (!queryCreate.exec()) {
-			if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"%1\" Failed!\n%2").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
+			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
 									QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			continue;
 		}
@@ -366,7 +372,7 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 		QFile fileBook(QString("../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i]));
 		while (1) {
 			if (!fileBook.open(QIODevice::ReadOnly)) {
-				if (QMessageBox::warning(0, "Database",
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 						QString("Failed to open %1 for reading.").arg(fileBook.fileName()),
 						QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else break;
@@ -378,7 +384,7 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 
 		if (!queryCreate.exec(strCmd)) {
 			fileBook.close();
-			if (QMessageBox::warning(0, "Database",
+			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 					QString("Failed to create table for %1\n%2").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
 					QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			continue;
@@ -397,7 +403,7 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 			(slHeaders.at(3).compare("PText") != 0) ||
 			(slHeaders.at(4).compare("RText") != 0) ||
 			(slHeaders.at(5).compare("Footnote") != 0)) {
-			if (QMessageBox::warning(0, "Database", QString("Unexpected Header Layout for %1 data file!").arg(g_arrstrBkTblNames[i]),
+			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for %1 data file!").arg(g_arrstrBkTblNames[i]),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 				fileBook.close();
 				return false;
@@ -406,7 +412,7 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 			continue;
 		}
 
-		QSqlQuery queryInsert(myDatabase);
+		QSqlQuery queryInsert(m_myDatabase);
 		queryInsert.exec("BEGIN TRANSACTION");
 		while (!csv.atEnd()) {
 			QStringList sl;
@@ -421,13 +427,13 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 
 			queryInsert.prepare(strCmd);
 			queryInsert.bindValue(":ChpVrsNdx", sl.at(0).toUInt());
-			queryInsert.bindValue(":NumWrd", sl.at(1).toInt());
+			queryInsert.bindValue(":NumWrd", sl.at(1).toUInt());
 			queryInsert.bindValue(":bPilcrow", sl.at(2).toInt());
 			queryInsert.bindValue(":PText", sl.at(3));
 			queryInsert.bindValue(":RText", sl.at(4));
 			queryInsert.bindValue(":Footnote", sl.at(5));
 			if (!queryInsert.exec()) {
-				if (QMessageBox::warning(0, "Database", QString("Insert Failed!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 			}
 		}
@@ -439,7 +445,7 @@ static bool BuildBookTables(QSqlDatabase &myDatabase)
 	return true;
 }
 
-static QByteArray CSVStringToIndexBlob(const QString &str)
+QByteArray CBuildDatabase::CSVStringToIndexBlob(const QString &str)
 {
 	QString strBuff = str + '\n';
 	CSVstream csv(&strBuff, QIODevice::ReadOnly);
@@ -466,16 +472,16 @@ static QByteArray CSVStringToIndexBlob(const QString &str)
 	return baBlob;
 }
 
-static bool BuildWORDSTable(QSqlDatabase &myDatabase)
+bool CBuildDatabase::BuildWORDSTable()
 {
 	// Build the WORDS table:
 
 	QString strCmd;
-	QSqlQuery queryCreate(myDatabase);
+	QSqlQuery queryCreate(m_myDatabase);
 
 	// Check to see if the table exists already:
 	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='WORDS'")) {
-		if (QMessageBox::warning(0, "Database", QString("Table Lookup for \"WORDS\" Failed!\n%1").arg(queryCreate.lastError().text()),
+		if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"WORDS\" Failed!\n%1").arg(queryCreate.lastError().text()),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	} else {
 		queryCreate.next();
@@ -484,7 +490,7 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 			QFile fileBook(QString("../KJVCanOpener/db/data/WORDS.csv"));
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
-					if (QMessageBox::warning(0, "Database",
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 							QString("Failed to open %1 for reading.").arg(fileBook.fileName()),
 							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 				} else break;
@@ -496,7 +502,7 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 
 			if (!queryCreate.exec(strCmd)) {
 				fileBook.close();
-				if (QMessageBox::warning(0, "Database",
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 						QString("Failed to create table for WORDS\n%1").arg(queryCreate.lastError().text()),
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
@@ -514,14 +520,14 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 					(slHeaders.at(4).compare("AltWords") != 0) ||
 					(slHeaders.at(5).compare("Mapping") != 0) ||
 					(slHeaders.at(6).compare("NormalMap") != 0)) {
-					if (QMessageBox::warning(0, "Database", QString("Unexpected Header Layout for WORDS data file!"),
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for WORDS data file!"),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 						fileBook.close();
 						return false;
 					}
 				}
 
-				QSqlQuery queryInsert(myDatabase);
+				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
 				while (!csv.atEnd()) {
 					QStringList sl;
@@ -537,13 +543,13 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 					queryInsert.bindValue(":WrdNdx", sl.at(0).toUInt());
 					queryInsert.bindValue(":Word", sl.at(1));
 					queryInsert.bindValue(":bIndexCasePreserve", sl.at(2).toInt());
-					queryInsert.bindValue(":NumTotal", sl.at(3).toInt());
+					queryInsert.bindValue(":NumTotal", sl.at(3).toUInt());
 					queryInsert.bindValue(":AltWords", sl.at(4));
 					queryInsert.bindValue(":Mapping", CSVStringToIndexBlob(sl.at(5)), QSql::In | QSql::Binary);
 					queryInsert.bindValue(":NormalMap", CSVStringToIndexBlob(sl.at(6)), QSql::In | QSql::Binary);
 
 					if (!queryInsert.exec()) {
-						if (QMessageBox::warning(0, "Database", QString("Insert Failed for WORDS!\n%1\n  %2  (%3)").arg(queryInsert.lastError().text()).arg(sl.at(1)).arg(sl.at(4)),
+						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for WORDS!\n%1\n  %2  (%3)").arg(queryInsert.lastError().text()).arg(sl.at(1)).arg(sl.at(4)),
 												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 					}
 				}
@@ -557,29 +563,29 @@ static bool BuildWORDSTable(QSqlDatabase &myDatabase)
 	return true;
 }
 
-void BuildDatabase(const char *pstrDatabaseFilename)
+bool CBuildDatabase::BuildDatabase(const char *pstrDatabaseFilename)
 {
-	QSqlDatabase myDatabase;
-	myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	myDatabase.setDatabaseName(pstrDatabaseFilename);
+	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
 
-//    QMessageBox::information(0,"Database",myDatabase.databaseName());
+//	QMessageBox::information(m_pParent, g_constrBuildDatabase, m_myDatabase.databaseName());
 
-	if (!myDatabase.open()) {
-		QMessageBox::warning(0,"Error","Couldn't open database file.");
-		return;
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
+		return false;
 	}
 
 	bool bSuccess = true;
 
-	if ((!BuildTestamentTable(myDatabase)) ||
-		(!BuildTOCTable(myDatabase)) ||
-		(!BuildLAYOUTTable(myDatabase)) ||
-		(!BuildBookTables(myDatabase)) ||
-		(!BuildWORDSTable(myDatabase))) bSuccess = false;
+	if ((!BuildTestamentTable()) ||
+		(!BuildTOCTable()) ||
+		(!BuildLAYOUTTable()) ||
+		(!BuildBookTables()) ||
+		(!BuildWORDSTable())) bSuccess = false;
 
-	myDatabase.close();
+	m_myDatabase.close();
 
-	if (bSuccess) QMessageBox::information(0, "Database", "Build Complete!");
+	if (bSuccess) QMessageBox::information(m_pParent, g_constrBuildDatabase, "Build Complete!");
+	return bSuccess;
 }
 

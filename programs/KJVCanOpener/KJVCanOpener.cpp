@@ -14,9 +14,9 @@ CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QSqlDatabase *pDatabase = new QSqlDatabase();
 	*pDatabase = QSqlDatabase::addDatabase("QSQLITE");
 	pDatabase->setDatabaseName("../KJVCanOpener/db/kjvtext.s3db");
-//    pDatabase->setDatabaseName("C:/MyData/programs/KJVCanOpener/db/kjvtext.s3db");
+//	pDatabase->setDatabaseName("C:/MyData/programs/KJVCanOpener/db/kjvtext.s3db");
 
-//    QMessageBox::information(0,"Database",pDatabase->databaseName());
+//	QMessageBox::information(0,"Database",pDatabase->databaseName());
 
 	if (!pDatabase->open()) {
 		QMessageBox::warning(0,"Error","Couldn't open database file.");
