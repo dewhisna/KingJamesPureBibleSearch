@@ -28,6 +28,7 @@ HEADERS  += KJVCanOpener.h \
 FORMS    += KJVCanOpener.ui \
     KJVBrowser.ui
 
-RESOURCES +=
+RESOURCES += \
+    KJVCanOpener.qrc
 
 

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/can-of-KJV.png</file>
+    </qresource>
+</RCC>
