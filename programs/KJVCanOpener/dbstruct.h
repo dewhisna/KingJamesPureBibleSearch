@@ -7,6 +7,7 @@
 #include <map>
 #include <algorithm>
 #include <stdint.h>
+#include <QString>
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -38,7 +39,7 @@ struct IndexSortPredicate {
 	}
 };
 
-typedef std::vector<std::string> TStringList;
+typedef std::vector<QString> TStringList;
 
 struct XformLower {
 	int operator()(int c)
@@ -57,7 +58,7 @@ public:
 	CTestamentEntry() { }
 	~CTestamentEntry() { }
 
-	std::string m_strTstName;   // Name of testament (display name)
+	QString  m_strTstName;		// Name of testament (display name)
 };
 
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
@@ -82,14 +83,14 @@ public:
 
 	unsigned int m_nTstBkNdx;	// Testament Book Index (Index within the books of the testament) 1-39 or 1-27
 	unsigned int m_nTstNdx;		// Testament Index (1=Old, 2=New, etc)
-	std::string m_strBkName;	// Name of book (display name)
-	std::string m_strBkAbbr;	// Book Abbreviation
-	std::string m_strTblName;	// Name of Table for this book
+	QString m_strBkName;		// Name of book (display name)
+	QString m_strBkAbbr;		// Book Abbreviation
+	QString m_strTblName;		// Name of Table for this book
 	unsigned int m_nNumChp;		// Number of chapters in this book
 	unsigned int m_nNumVrs;		// Number of verses in this book
 	unsigned int m_nNumWrd;		// Number of words in this book
-	std::string m_strCat;		// Category name
-	std::string m_strDesc;		// Description (subtitle)
+	QString m_strCat;			// Category name
+	QString m_strDesc;			// Description (subtitle)
 };
 
 typedef std::vector<CTOCEntry> TTOCList;	// Index by nBk-1
@@ -132,18 +133,18 @@ public:
 
 	unsigned int m_nNumWrd;		// Number of words in this verse
 	bool m_bPilcrow;			// Start of verse Pilcrow Flag
-	std::string GetRichText() const		// We'll use a function to fetch the rich text (on mobile this will be a database lookup)
+	QString GetRichText() const		// We'll use a function to fetch the rich text (on mobile this will be a database lookup)
 	{
 		return m_strRichText;
 	}
-	void SetRichText(const std::string &strRichText)		// This will be a noop on mobile
+	void SetRichText(const QString &strRichText)		// This will be a noop on mobile
 	{
 		m_strRichText = strRichText;
 	}
-	std::string m_strFootnote;	// Footnote text for this verse (if any)
+	QString m_strFootnote;		// Footnote text for this verse (if any)
 
 private:
-	std::string m_strRichText;	// Rich text for the verse (Note: for mobile versions, this element will be removed and fetched from the database)
+	QString m_strRichText;		// Rich text for the verse (Note: for mobile versions, this element will be removed and fetched from the database)
 };
 
 typedef std::map<uint32_t, CBookEntry, IndexSortPredicate> TBookEntryMap;		// Index by [nChp|nVrs]
@@ -162,20 +163,20 @@ public:
 	CWordEntry() { }
 	~CWordEntry() { }
 
-	std::string m_strWord;		// Word Text
+	QString m_strWord;			// Word Text
 	TStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	TIndexList m_ndxMapping;	// Indexes
 	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of indexes in Mapping above)
 
 	struct SortPredicate {
-		bool operator() (const std::string &s1, const std::string &s2) const
+		bool operator() (const QString &s1, const QString &s2) const
 		{
-			return (strcmp(s1.c_str(), s2.c_str()) < 0);
+			return (s1.compare(s2) < 0);
 		}
 	};
 };
 
-typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
+typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
 
 extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed by lowercase word except those that case-preserve)
 

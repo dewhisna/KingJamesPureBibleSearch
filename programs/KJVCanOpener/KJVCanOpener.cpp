@@ -70,7 +70,7 @@ void CKJVCanOpener::FillBookList(uint32_t nRelIndex)
 	ui->comboBook->clear();
 
 	for (unsigned int ndxBk=0; ndxBk<g_lstTOC.size(); ++ndxBk) {
-		ui->comboBook->addItem(QString::fromStdString(g_lstTOC[ndxBk].m_strBkName), ndxBk+1);
+		ui->comboBook->addItem(g_lstTOC[ndxBk].m_strBkName, ndxBk+1);
 	}
 	ui->comboBook->setCurrentIndex(ui->comboBook->findData(ndx.m_nN3));
 	ui->comboChapter->setCurrentIndex(ui->comboChapter->findData(ndx.m_nN2));
@@ -129,7 +129,7 @@ void CKJVCanOpener::setChapter(uint32_t nChp)
 	}
 
 //	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
-	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
+	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
 	uint32_t nFirstWordNormal = NormalizeIndex(MakeIndex(m_nCurrentBook, m_nCurrentChapter, 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
@@ -142,14 +142,14 @@ void CKJVCanOpener::setChapter(uint32_t nChp)
 		TRelIndex relPrev = DecomposeIndex(nRelPrevChapter);
 		strHTML += "<p>";
 		strHTML += QString("<bold> %1 </bold>").arg(relPrev.m_nN1);
-		strHTML += QString::fromStdString((g_lstBooks[relPrev.m_nN3-1])[MakeIndex(0,0,relPrev.m_nN2,relPrev.m_nN1)].GetRichText()) + "\n";
+		strHTML += (g_lstBooks[relPrev.m_nN3-1])[MakeIndex(0,0,relPrev.m_nN2,relPrev.m_nN1)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
 
 	strHTML += "<hr/>\n";
 
 	// Print Heading for this Book/Chapter:
-	strHTML += QString("<h1>%1</h1>\n").arg(QString::fromStdString(toc.m_strBkName));
+	strHTML += QString("<h1>%1</h1>\n").arg(toc.m_strBkName);
 	strHTML += QString("<h2>Chapter %1</h2>\n").arg(m_nCurrentChapter);
 
 	// Print this Chapter Text:
@@ -173,7 +173,7 @@ void CKJVCanOpener::setChapter(uint32_t nChp)
 			bParagraph = true;
 		}
 		strHTML += QString("<bold> %1 </bold>").arg(ndxVrs+1);
-		strHTML += QString::fromStdString(verse.GetRichText()) + "\n";
+		strHTML += verse.GetRichText() + "\n";
 	}
 	if (bParagraph) {
 		strHTML += "</p>";
@@ -188,12 +188,12 @@ void CKJVCanOpener::setChapter(uint32_t nChp)
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.m_nN3 != m_nCurrentBook)
-			strHTML += QString("<h1>%1</h1>\n").arg(QString::fromStdString(g_lstTOC[relNext.m_nN3-1].m_strBkName));
+			strHTML += QString("<h1>%1</h1>\n").arg(g_lstTOC[relNext.m_nN3-1].m_strBkName);
 		strHTML += QString("<h2>Chapter %1</h2>\n").arg(relNext.m_nN2);
 
 		strHTML += "<p>";
 		strHTML += QString("<bold> %1 </bold>").arg(relNext.m_nN1);
-		strHTML += QString::fromStdString((g_lstBooks[relNext.m_nN3-1])[MakeIndex(0,0,relNext.m_nN2,relNext.m_nN1)].GetRichText()) + "\n";
+		strHTML += (g_lstBooks[relNext.m_nN3-1])[MakeIndex(0,0,relNext.m_nN2,relNext.m_nN1)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
 

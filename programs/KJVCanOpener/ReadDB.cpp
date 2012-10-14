@@ -54,7 +54,7 @@ bool CReadDatabase::ReadTestamentTable()
 		unsigned int nTstNdx = query.value(0).toUInt();
 		if (nTstNdx > g_lstTestaments.size()) g_lstTestaments.resize(nTstNdx);
 		CTestamentEntry &entryTestament = g_lstTestaments[nTstNdx-1];
-		entryTestament.m_strTstName = query.value(1).toString().toStdString();
+		entryTestament.m_strTstName = query.value(1).toString();
 	}
 
 	return true;
@@ -86,14 +86,14 @@ bool CReadDatabase::ReadTOCTable()
 		CTOCEntry &entryTOC = g_lstTOC[nBkNdx-1];
 		entryTOC.m_nTstBkNdx = query.value(1).toUInt();
 		entryTOC.m_nTstNdx = query.value(2).toUInt();
-		entryTOC.m_strBkName = query.value(3).toString().toStdString();
-		entryTOC.m_strBkAbbr = query.value(4).toString().toStdString();
-		entryTOC.m_strTblName = query.value(5).toString().toStdString();
+		entryTOC.m_strBkName = query.value(3).toString();
+		entryTOC.m_strBkAbbr = query.value(4).toString();
+		entryTOC.m_strTblName = query.value(5).toString();
 		entryTOC.m_nNumChp = query.value(6).toUInt();
 		entryTOC.m_nNumVrs = query.value(7).toUInt();
 		entryTOC.m_nNumWrd = query.value(8).toUInt();
-		entryTOC.m_strCat = query.value(9).toString().toStdString();
-		entryTOC.m_strDesc = query.value(10).toString().toStdString();
+		entryTOC.m_strCat = query.value(9).toString();
+		entryTOC.m_strDesc = query.value(10).toString();
 	}
 
 // Used for debugging:
@@ -102,8 +102,8 @@ bool CReadDatabase::ReadTOCTable()
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
 		for (TTOCList::const_iterator itr = g_lstTOC.begin(); itr != g_lstTOC.end(); ++itr) {
-			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(QString::fromStdString(itr->m_strBkName)).arg(QString::fromStdString(itr->m_strBkAbbr))
-									.arg(QString::fromStdString(itr->m_strTblName)).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(QString::fromStdString(itr->m_strCat)).arg(QString::fromStdString(itr->m_strDesc));
+			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_strBkAbbr)
+									.arg(itr->m_strTblName).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(itr->m_strCat).arg(itr->m_strDesc);
 			ts << strTemp;
 		}
 		fileTest.close();
@@ -169,13 +169,13 @@ bool CReadDatabase::ReadBookTables()
 		QSqlQuery query(m_myDatabase);
 
 		// Check to see if the table exists:
-		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)))) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)).arg(query.lastError().text()));
+		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(g_lstTOC[i].m_strTblName))) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(g_lstTOC[i].m_strTblName).arg(query.lastError().text()));
 			return false;
 		}
 		query.next();
 		if (!query.value(0).toInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(g_lstTOC[i].m_strTblName));
 			return false;
 		}
 
@@ -184,14 +184,14 @@ bool CReadDatabase::ReadBookTables()
 		mapBook.clear();
 
 		query.setForwardOnly(true);
-		query.exec(QString("SELECT * FROM %1").arg(QString::fromStdString(g_lstTOC[i].m_strTblName)));
+		query.exec(QString("SELECT * FROM %1").arg(g_lstTOC[i].m_strTblName));
 		while (query.next()) {
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
 			CBookEntry &entryBook = mapBook[nChpVrsNdx];
 			entryBook.m_nNumWrd = query.value(1).toUInt();
 			entryBook.m_bPilcrow = ((query.value(2).toInt() != 0) ? true : false);
-			entryBook.SetRichText(query.value(4).toString().toStdString());
-			entryBook.m_strFootnote = query.value(5).toString().toStdString();
+			entryBook.SetRichText(query.value(4).toString());
+			entryBook.m_strFootnote = query.value(5).toString();
 		}
 
 // Used for debugging:
@@ -204,8 +204,8 @@ bool CReadDatabase::ReadBookTables()
 				sl.push_back(QString("%1").arg(itr->first));
 				sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
 				sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
-				sl.push_back(QString::fromStdString(itr->second.GetRichText()));
-				sl.push_back(QString::fromStdString(itr->second.m_strFootnote));
+				sl.push_back(itr->second.GetRichText());
+				sl.push_back(itr->second.m_strFootnote);
 				csv << sl;
 			}
 			fileTest.close();
@@ -259,14 +259,14 @@ bool CReadDatabase::ReadWORDSTable()
 		QString strWord = query.value(1).toString();
 		QString strKey = strWord;
 		if (query.value(2).toInt() == 0) strKey = strKey.toLower();
-		CWordEntry &entryWord = g_mapWordList[strKey.toStdString()];
-		entryWord.m_strWord = strWord.toStdString();
+		CWordEntry &entryWord = g_mapWordList[strKey];
+		entryWord.m_strWord = strWord;
 		QString strAltWords = query.value(4).toString() + '\n';
 		CSVstream csvWord(&strAltWords, QIODevice::ReadOnly);
 		while (!csvWord.atEnd()) {
 			QString strTemp;
 			csvWord >> strTemp;
-			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.toStdString());
+			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp);
 		}
 		if ((!IndexBlobToIndexList(query.value(5).toByteArray(), entryWord.m_ndxMapping)) ||
 			(!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalized))) {
@@ -289,8 +289,8 @@ bool CReadDatabase::ReadWORDSTable()
 		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
 			cnt++;
 			ts << QString("%1,").arg(cnt);
-//			ts << "\"" + QString::fromStdString(itr->first) + "\",";
-			ts << "\"" + QString::fromStdString(itr->second.m_strWord) + "\",";
+//			ts << "\"" + itr->first + "\",";
+			ts << "\"" + itr->second.m_strWord + "\",";
 			if (strcmp(itr->first.c_str(), itr->second.m_strWord.c_str()) == 0) {
 				ts << "1,";
 			} else {
@@ -300,7 +300,7 @@ bool CReadDatabase::ReadWORDSTable()
 			ts << "\"";
 			for (unsigned int i=0; i<itr->second.m_lstAltWords.size(); ++i) {
 				if (i!=0) ts << ",";
-				ts << QString::fromStdString(itr->second.m_lstAltWords.at(i));
+				ts << itr->second.m_lstAltWords.at(i);
 			}
 			ts << "\",\"";
 			for (unsigned int i=0; i<itr->second.m_ndxMapping.size(); ++i) {
@@ -347,7 +347,7 @@ bool CReadDatabase::ValidateData()
 	for (unsigned int nBk=0; nBk<g_lstTOC.size(); ++ nBk) {		// Books
 		if ((g_lstTOC[nBk].m_nTstNdx < 1) || (g_lstTOC[nBk].m_nTstNdx > ncntTstTot)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) References Invalid Testament %3")
-								.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(g_lstTOC[nBk].m_nTstNdx));
+								.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(g_lstTOC[nBk].m_nTstNdx));
 			return false;
 		}
 		ncntChp_Bk = 0;
@@ -376,28 +376,28 @@ bool CReadDatabase::ValidateData()
 			}
 			if (ncntVrs_Chp != itrLayout->second.m_nNumVrs) {
 				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
-									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
+									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
 				return false;
 			}
 			if (ncntWrd_Chp != itrLayout->second.m_nNumWrd) {
 				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
-									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
+									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
 				return false;
 			}
 		}
 		if (ncntChp_Bk != g_lstTOC[nBk].m_nNumChp) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
-									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntChp_Bk).arg(g_lstTOC[nBk].m_nNumChp));
+									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntChp_Bk).arg(g_lstTOC[nBk].m_nNumChp));
 			return false;
 		}
 		if (ncntVrs_Bk != g_lstTOC[nBk].m_nNumVrs) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
-									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntVrs_Bk).arg(g_lstTOC[nBk].m_nNumVrs));
+									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntVrs_Bk).arg(g_lstTOC[nBk].m_nNumVrs));
 			return false;
 		}
 		if (ncntWrd_Bk != g_lstTOC[nBk].m_nNumWrd) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
-									.arg(QString::fromStdString(g_lstTOC[nBk].m_strBkName)).arg(nBk+1).arg(ncntWrd_Bk).arg(g_lstTOC[nBk].m_nNumWrd));
+									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntWrd_Bk).arg(g_lstTOC[nBk].m_nNumWrd));
 			return false;
 		}
 	}
@@ -408,7 +408,7 @@ bool CReadDatabase::ValidateData()
 
 		if (itrWords->second.m_ndxMapping.size() != itrWords->second.m_ndxNormalized.size()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error:  Word \"%1\" has %2 indexes and %3 normalized indexes!")
-									.arg(QString::fromStdString(itrWords->second.m_strWord)).arg(itrWords->second.m_ndxMapping.size()).arg(itrWords->second.m_ndxNormalized.size()));
+									.arg(itrWords->second.m_strWord).arg(itrWords->second.m_ndxMapping.size()).arg(itrWords->second.m_ndxNormalized.size()));
 			return false;
 		}
 
@@ -420,7 +420,7 @@ bool CReadDatabase::ValidateData()
 			if (nCalcNormal != itrWords->second.m_ndxNormalized[ndx]) {
 				TRelIndex relIndex = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
 				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Mapping of 0x%2 (%3:%4:%5:%6) and Normal Mapping of 0x%7\nCalculated Normal Mapping is: 0x%8")
-											.arg(QString::fromStdString(itrWords->second.m_strWord))
+											.arg(itrWords->second.m_strWord)
 											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndex.m_nN3).arg(relIndex.m_nN2).arg(relIndex.m_nN1).arg(relIndex.m_nN0)
 											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
 											.arg(nCalcNormal, 8, 16, QChar('0')),
@@ -432,7 +432,7 @@ bool CReadDatabase::ValidateData()
 				TRelIndex relIndexWord = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
 				TRelIndex relIndexCalc = DecomposeIndex(nCalcRelative);
 				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Normal Mapping of 0x%2 and Mapping of 0x%3 (%4:%5:%6:%7)\nCalculated Mapping is: 0x%8 (%9:%10:%11:%12)")
-											.arg(QString::fromStdString(itrWords->second.m_strWord))
+											.arg(itrWords->second.m_strWord)
 											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
 											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndexWord.m_nN3).arg(relIndexWord.m_nN2).arg(relIndexWord.m_nN1).arg(relIndexWord.m_nN0)
 											.arg(nCalcRelative, 8, 16, QChar('0')).arg(relIndexCalc.m_nN3).arg(relIndexCalc.m_nN2).arg(relIndexCalc.m_nN1).arg(relIndexCalc.m_nN0),
