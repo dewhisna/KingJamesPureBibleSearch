@@ -251,7 +251,15 @@ bool CReadDatabase::ReadWORDSTable()
 		return false;
 	}
 
+	unsigned int nNumWordsInText = 0;
+	for (unsigned int ndxTOC=0; ndxTOC<g_lstTOC.size(); ++ndxTOC) {
+		nNumWordsInText += g_lstTOC[ndxTOC].m_nNumWrd;
+	}
+
 	g_mapWordList.clear();
+	g_lstConcordanceMapping.clear();
+	g_lstConcordance.clear();
+	g_lstConcordance.resize(nNumWordsInText);			// Preallocate our concordance as we know how many words the text contains
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
@@ -277,6 +285,12 @@ bool CReadDatabase::ReadWORDSTable()
 			(entryWord.m_ndxNormalized.size() != query.value(3).toUInt())) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, "Index/Count consistency error in WORDS table!");
 			return false;
+		}
+		// Add this word to our concordance, and set all normalized indices that refer it to point to this
+		//	specific word:
+		g_lstConcordanceMapping.push_back(strKey);
+		for (unsigned int ndxMapping=0; ndxMapping<entryWord.m_ndxNormalized.size(); ++ndxMapping) {
+			g_lstConcordance[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceMapping.size();
 		}
 	}
 
@@ -445,6 +459,15 @@ bool CReadDatabase::ValidateData()
 	if (nWordListTot != ncntWrdTot) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
 		return false;
+	}
+
+	// Check concordance:
+	if (nWordListTot != g_lstConcordance.size()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance contains %2 entries!").arg(nWordListTot).arg(g_lstConcordance.size()));
+		return false;
+	}
+	if (g_mapWordList.size() != static_cast<unsigned int>(g_lstConcordanceMapping.size())) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 words, but Concordance contains %2 words!").arg(g_mapWordList.size()).arg(g_lstConcordanceMapping.size()));
 	}
 
 	return true;

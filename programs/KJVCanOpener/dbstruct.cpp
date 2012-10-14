@@ -18,6 +18,12 @@ TBookList g_lstBooks;
 // Our one and only master word list:
 TWordListMap g_mapWordList;
 
+// List of all Unique Words in the order for the concordance with names of the TWordListMap key:
+TConcordanceList g_lstConcordanceMapping;
+
+// List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text:
+TIndexList g_lstConcordance;
+
 // ============================================================================
 
 uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0)
