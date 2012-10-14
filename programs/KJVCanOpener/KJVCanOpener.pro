@@ -15,12 +15,19 @@ SOURCES += main.cpp\
     CSV.cpp \
     dbstruct.cpp \
     BuildDB.cpp \
-    ReadDB.cpp
+    ReadDB.cpp \
+    KJVBrowser.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
     dbstruct.h \
     ReadDB.h \
-    BuildDB.h
+    BuildDB.h \
+    KJVBrowser.h
 
-FORMS    += KJVCanOpener.ui
+FORMS    += KJVCanOpener.ui \
+    KJVBrowser.ui
+
+RESOURCES +=
+
+

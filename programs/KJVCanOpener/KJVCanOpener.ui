@@ -16,69 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="lblBook">
-            <property name="text">
-             <string>Book:</string>
-            </property>
-            <property name="buddy">
-             <cstring>comboBook</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBook"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="lblChapter">
-            <property name="text">
-             <string>Chapter:</string>
-            </property>
-            <property name="buddy">
-             <cstring>comboChapter</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboChapter"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>13</width>
-            <height>13</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QTextBrowser" name="textBrowserMainText">
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOn</enum>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="CKJVBrowser" name="widgetKJVBrowser" native="true"/>
     </item>
    </layout>
   </widget>
@@ -103,6 +41,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CKJVBrowser</class>
+   <extends>QWidget</extends>
+   <header location="global">KJVBrowser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
