@@ -852,6 +852,8 @@ int main(int argc, const char *argv[])
 					break;
 			}
 			ndx += strlen(&buffRich[ndx]);
+
+			bIsPilcrowRich = true;			// Add Pilcrow break for these as it looks best on output since each letter should start new paragraph
 		}
 
 		do {
