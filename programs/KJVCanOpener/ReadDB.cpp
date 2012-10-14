@@ -470,8 +470,8 @@ bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
 		(!ReadTOCTable()) ||
 		(!ReadLAYOUTTable()) ||
 		(!ReadBookTables()) ||
-		(!ReadWORDSTable()) ||
-		(!ValidateData())) bSuccess = false;
+		(!ReadWORDSTable()) /* ||
+		(!ValidateData()) */ ) bSuccess = false;
 
 	m_myDatabase.close();
 

@@ -44,5 +44,7 @@ int main(int argc, char *argv[])
 		return -2;
 	}
 
+	wMain.Initialize();
+
 	return a.exec();
 }

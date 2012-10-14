@@ -52,7 +52,10 @@ uint32_t NormalizeIndex(uint32_t nRelIndex)
 	unsigned int nVrs = ((nRelIndex >> 8) & 0xFF);
 	unsigned int nWrd = (nRelIndex & 0xFF);
 
+	if (nRelIndex == 0) return 0;
+
 	// Add the number of words for all books prior to the target book:
+	if (nBk < 1) return 0;
 	if (nBk > g_lstTOC.size()) return 0;
 	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
 		nNormalIndex += g_lstTOC[ndxBk-1].m_nNumWrd;
@@ -80,6 +83,8 @@ uint32_t DenormalizeIndex(uint32_t nNormalIndex)
 	unsigned int nChp = 1;
 	unsigned int nVrs = 1;
 	unsigned int nWrd = nNormalIndex;
+
+	if (nNormalIndex == 0) return 0;
 
 	while (nBk < g_lstTOC.size()) {
 		if (g_lstTOC[nBk].m_nNumWrd >= nWrd) break;

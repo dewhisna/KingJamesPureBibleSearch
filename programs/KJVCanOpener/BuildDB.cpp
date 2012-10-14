@@ -206,7 +206,7 @@ bool CBuildDatabase::BuildTOCTable()
 					(slHeaders.at(1).compare("TstBkNdx") != 0) ||
 					(slHeaders.at(2).compare("TstNdx") != 0) ||
 					(slHeaders.at(3).compare("BkName") != 0) ||
-					(slHeaders.at(4).compare("BkAddr") != 0) ||
+					(slHeaders.at(4).compare("BkAbbr") != 0) ||
 					(slHeaders.at(5).compare("TblName") != 0) ||
 					(slHeaders.at(6).compare("NumChp") != 0) ||
 					(slHeaders.at(7).compare("NumVrs") != 0) ||
