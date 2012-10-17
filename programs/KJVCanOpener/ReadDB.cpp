@@ -257,9 +257,9 @@ bool CReadDatabase::ReadWORDSTable()
 	}
 
 	g_mapWordList.clear();
+	g_lstConcordanceWords.clear();
 	g_lstConcordanceMapping.clear();
-	g_lstConcordance.clear();
-	g_lstConcordance.resize(nNumWordsInText);			// Preallocate our concordance as we know how many words the text contains
+	g_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
@@ -288,9 +288,9 @@ bool CReadDatabase::ReadWORDSTable()
 		}
 		// Add this word to our concordance, and set all normalized indices that refer it to point to this
 		//	specific word:
-		g_lstConcordanceMapping.push_back(strKey);
+		g_lstConcordanceWords.push_back(strKey);
 		for (unsigned int ndxMapping=0; ndxMapping<entryWord.m_ndxNormalized.size(); ++ndxMapping) {
-			g_lstConcordance[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceMapping.size();
+			g_lstConcordanceMapping[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceWords.size();
 		}
 	}
 
@@ -462,12 +462,12 @@ bool CReadDatabase::ValidateData()
 	}
 
 	// Check concordance:
-	if (nWordListTot != g_lstConcordance.size()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance contains %2 entries!").arg(nWordListTot).arg(g_lstConcordance.size()));
+	if ((nWordListTot+1) != g_lstConcordanceMapping.size()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(g_lstConcordanceMapping.size()));
 		return false;
 	}
-	if (g_mapWordList.size() != static_cast<unsigned int>(g_lstConcordanceMapping.size())) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 words, but Concordance contains %2 words!").arg(g_mapWordList.size()).arg(g_lstConcordanceMapping.size()));
+	if (g_mapWordList.size() != static_cast<unsigned int>(g_lstConcordanceWords.size())) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 words, but Concordance contains %2 words!").arg(g_mapWordList.size()).arg(g_lstConcordanceWords.size()));
 	}
 
 	return true;

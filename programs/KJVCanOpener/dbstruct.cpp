@@ -19,10 +19,10 @@ TBookList g_lstBooks;
 TWordListMap g_mapWordList;
 
 // List of all Unique Words in the order for the concordance with names of the TWordListMap key:
-TConcordanceList g_lstConcordanceMapping;
+TConcordanceList g_lstConcordanceWords;
 
 // List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text:
-TIndexList g_lstConcordance;
+TIndexList g_lstConcordanceMapping;
 
 // ============================================================================
 

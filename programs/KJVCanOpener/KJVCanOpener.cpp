@@ -34,7 +34,12 @@ CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	ui->searchResultsView->setModel(pAllModel);
 */
 
+	CPhraseEditListWidgetItem *pPhraseEdit = new CPhraseEditListWidgetItem();
+	ui->listWidgetSearchPhrases->addItem(pPhraseEdit);
+	ui->listWidgetSearchPhrases->setItemWidget(pPhraseEdit, pPhraseEdit->m_widgetPhraseEdit);
+//	new CPhraseEditListWidgetItem(ui->listWidgetSearchPhrases);
 
+ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
 
 }
 

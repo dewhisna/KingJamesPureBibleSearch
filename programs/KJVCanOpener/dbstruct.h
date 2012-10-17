@@ -188,7 +188,7 @@ extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed
 
 typedef QStringList TConcordanceList;
 
-extern TConcordanceList g_lstConcordanceMapping;	// List of all Unique Words in the order for the concordance with names of the TWordListMap key
-extern TIndexList g_lstConcordance;					// List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text
+extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key
+extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text
 
 #endif // DBSTRUCT_H

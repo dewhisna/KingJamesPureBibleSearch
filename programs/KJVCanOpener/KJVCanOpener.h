@@ -2,8 +2,36 @@
 #define KJVCANOPENER_H
 
 #include <QMainWindow>
+#include <QListWidget>
+#include <QListWidgetItem>
+
+#include <assert.h>
 
 #include "dbstruct.h"
+#include "KJVSearchPhraseEdit.h"
+
+class CPhraseEditListWidgetItem : public QListWidgetItem
+{
+public:
+	CPhraseEditListWidgetItem(QListWidget *pParentView = NULL)
+		:	QListWidgetItem(pParentView),
+			m_widgetPhraseEdit(NULL)
+	{
+//		pParentView->addItem(this);
+//		pParentView->setItemWidget(this, &m_widgetPhraseEdit);
+		m_widgetPhraseEdit = new CKJVSearchPhraseEdit(pParentView);
+	}
+
+	~CPhraseEditListWidgetItem()
+	{
+
+	}
+
+	CKJVSearchPhraseEdit *m_widgetPhraseEdit;
+};
+
+
+// ============================================================================
 
 namespace Ui {
 class CKJVCanOpener;

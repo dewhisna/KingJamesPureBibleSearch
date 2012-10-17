@@ -16,17 +16,20 @@ SOURCES += main.cpp\
     dbstruct.cpp \
     BuildDB.cpp \
     ReadDB.cpp \
-    KJVBrowser.cpp
+    KJVBrowser.cpp \
+    KJVSearchPhraseEdit.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
     dbstruct.h \
     ReadDB.h \
     BuildDB.h \
-    KJVBrowser.h
+    KJVBrowser.h \
+    KJVSearchPhraseEdit.h
 
 FORMS    += KJVCanOpener.ui \
-    KJVBrowser.ui
+    KJVBrowser.ui \
+    KJVSearchPhraseEdit.ui
 
 RESOURCES += \
     KJVCanOpener.qrc

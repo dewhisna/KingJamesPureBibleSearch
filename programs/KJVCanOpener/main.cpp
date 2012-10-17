@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
 	Q_INIT_RESOURCE(KJVCanOpener);
-	CKJVCanOpener wMain;
+//	CKJVCanOpener wMain;
 
 /*
 //	QImage splashScrImage("res/can-of-KJV.png");
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 
 
-//CBuildDatabase adb(wMain);
+//CBuildDatabase adb(splash);
 //adb.BuildDatabase(g_constrDatabaseFilename);
 //return 0;
 
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 		return -2;
 	}
 
+	CKJVCanOpener wMain;
 	wMain.show();
 	splash->finish(&wMain);
 	delete splash;
