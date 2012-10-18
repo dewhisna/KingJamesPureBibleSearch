@@ -13,8 +13,6 @@
 #include <QStatusBar>
 #include <utility>
 
-class CPhraseLineEdit;		// Forward reference
-
 class CParsedPhrase
 {
 public:
@@ -23,15 +21,14 @@ public:
 	~CParsedPhrase()
 	{ }
 
-	void UpdateCompleter(QCompleter &aCompleter);
 	TIndexList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
 
+protected:
+	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 
-private:
-	friend class CPhraseLineEdit;
-
+protected:
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstNextMapping (at 0 mapping is ALL words)
 	TIndexList m_lstNextMapping;	// Next Mapping for search -- This is the search result, but with each entry offset by the search level
 	QStringList m_lstNextWords;	// List of words mapping next for this phrase
@@ -44,7 +41,9 @@ private:
 	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves
 };
 
-class CPhraseLineEdit : public QTextEdit
+// ============================================================================
+
+class CPhraseLineEdit : public QTextEdit, CParsedPhrase
 {
 	Q_OBJECT
 
@@ -73,8 +72,6 @@ private:
 	QCompleter *m_pCompleter;
 	int m_nCompleterLevel;			// Level of completer: 0=Whole List, 1=One Word Complete, 2=Two Words, etc.
 };
-
-
 
 // ============================================================================
 
