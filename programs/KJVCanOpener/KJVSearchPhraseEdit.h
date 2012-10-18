@@ -17,6 +17,8 @@ class CParsedPhrase
 {
 public:
 	CParsedPhrase()
+		:	m_nLevel(0),
+			m_nCursorWord(-1)
 	{ }
 	~CParsedPhrase()
 	{ }
@@ -25,20 +27,25 @@ public:
 	uint32_t GetMatchLevel() const;
 
 protected:
+	QString GetCursorWord() const;
 	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 
+	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
+private:
+	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMapping, and m_nLevel
+
 protected:
-	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstNextMapping (at 0 mapping is ALL words)
-	TIndexList m_lstNextMapping;	// Next Mapping for search -- This is the search result, but with each entry offset by the search level
-	QStringList m_lstNextWords;	// List of words mapping next for this phrase
+	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstNextMapping (at 0 mapping is ALL words) (Set by FindWords())
+	TIndexList m_lstMapping;	// Mapping for search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
+	QStringList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords())
 
-	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point.
-	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word
+	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
+	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
 
-	QStringList m_lstLeftWords;		// Raw Left-hand Words list from extraction.  Punctionation appears clustered in separate entities
-	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities
-	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves
+	QStringList m_lstLeftWords;		// Raw Left-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
+	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
+	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
 };
 
 // ============================================================================
@@ -60,8 +67,10 @@ private slots:
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
 
-	std::pair<QStringList, int> ParsePhrase();		// Parses the phrase in the editor.  Returns a word list and index of the word the cursor is on
 	void UpdateCompleter();
+
+	// TODO : Remove this and set parent to non-virtual after done debugging!
+	virtual void ParsePhrase(const QTextCursor &curInsert);
 
 private:
 	void keyPressEvent(QKeyEvent* event);
@@ -70,7 +79,6 @@ private:
 // Data Private:
 private:
 	QCompleter *m_pCompleter;
-	int m_nCompleterLevel;			// Level of completer: 0=Whole List, 1=One Word Complete, 2=Two Words, etc.
 };
 
 // ============================================================================
