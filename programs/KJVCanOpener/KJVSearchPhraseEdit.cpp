@@ -210,7 +210,7 @@ std::pair<QStringList, int> CPhraseLineEdit::ParsePhrase()
 			if (i<(lstCombinedWords.size()-1)) {
 				lstCombinedWords[i-1] += lstCombinedWords.at(i+1).trimmed();
 				lstCombinedWords.removeAt(i+1);
-				if (i<ndxCursor) ndxCursor--;
+				if (i<=ndxCursor) ndxCursor--;
 			}
 			lstCombinedWords.removeAt(i);
 			i--;
@@ -222,7 +222,7 @@ std::pair<QStringList, int> CPhraseLineEdit::ParsePhrase()
 			if ((i<(lstCombinedWords.size()-1)) && (lstCombinedWords.at(i+1).trimmed().compare("s", Qt::CaseInsensitive) == 0)) {
 				lstCombinedWords[i-1] += lstCombinedWords.at(i+1).trimmed();
 				lstCombinedWords.removeAt(i+1);
-				if (i<ndxCursor) ndxCursor--;
+				if (i<=ndxCursor) ndxCursor--;
 			}
 			lstCombinedWords.removeAt(i);
 			i--;
