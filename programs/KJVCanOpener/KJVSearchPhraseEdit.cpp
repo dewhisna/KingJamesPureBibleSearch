@@ -17,9 +17,9 @@ TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 {
 	TIndexList lstResults;
 
-	lstResults.resize(m_lstMapping.size());
-	for (unsigned int ndxWord=0; ndxWord<m_lstMapping.size(); ++ndxWord) {
-		lstResults[ndxWord] = m_lstMapping.at(ndxWord) + m_nLevel;
+	lstResults.resize(m_lstMatchMapping.size());
+	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) + m_nLevel;
 	}
 
 	return lstResults;
@@ -30,9 +30,19 @@ uint32_t CParsedPhrase::GetMatchLevel() const
 	return m_nLevel;
 }
 
+uint32_t CParsedPhrase::GetCursorMatchLevel() const
+{
+	return m_nCursorLevel;
+}
+
 QString CParsedPhrase::GetCursorWord() const
 {
 	return m_strCursorWord;
+}
+
+int CParsedPhrase::GetCursorWordPos() const
+{
+	return m_nCursorWord;
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
@@ -47,17 +57,35 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aC
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
 {
-	QTextCursor cursor = curInsert;
-//	int extra = completion.length() - m_pCompleter->completionPrefix().length();
-//	cursor.movePosition(QTextCursor::Left);
-//	cursor.movePosition(QTextCursor::EndOfWord);
-//	cursor.insertText(completion.right(extra));
-//	setTextCursor(cursor);
 
+//	QTextCursor cursor = curInsert;
+////	int extra = completion.length() - m_pCompleter->completionPrefix().length();
+////	cursor.movePosition(QTextCursor::Left);
+////	cursor.movePosition(QTextCursor::EndOfWord);
+////	cursor.insertText(completion.right(extra));
+////	setTextCursor(cursor);
+
+//	cursor.clearSelection();
+///*
+//	if (((m_strCursorWord.compare("-", Qt::CaseInsensitive) == 0) && (completion.contains('-', Qt::CaseInsensitive))) ||
+//		((m_strCursorWord.compare("'", Qt::CaseInsensitive) == 0) && (completion.contains('\'', Qt::CaseInsensitive)))) {
+//		cursor.movePosition(QTextCursor::WordLeft);
+//		cursor.movePosition(QTextCursor::WordLeft);
+//		cursor.selectionStart();
+//		cursor.movePosition(QTextCursor::WordRight);
+//		cursor.movePosition(QTextCursor::WordRight);
+//	}
+//*/
+////	cursor.movePosition(QTextCursor::WordLeft);			// TODO : Find proper movement based on word arrays!
+
+//	cursor.select(QTextCursor::WordUnderCursor);
+//	cursor.insertText(completion);
+
+
+	CPhraseCursor cursor(curInsert);
 	cursor.clearSelection();
-//	cursor.movePosition(QTextCursor::WordLeft);			// TODO : Find proper movement based on word arrays!
-	cursor.select(QTextCursor::WordUnderCursor);
-	cursor.insertText(completion);
+	cursor.selectWordUnderCursor();							// Select word under the cursor
+	cursor.insertText(completion);							// Replace with completed word
 
 	return cursor;
 }
@@ -68,6 +96,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 	m_lstRightWords.clear();
 	m_strCursorWord.clear();
 
+/*
 	QTextCursor curCursor = curInsert;
 	bool bCurAtEnd = curCursor.atEnd();
 	curCursor.select(QTextCursor::WordUnderCursor);
@@ -100,6 +129,19 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 		if (m_lstRightWords.size() != 0) m_lstRightWords.removeFirst();
 		if (m_lstLeftWords.size() != 0) m_lstLeftWords.removeLast();
 	}
+*/
+
+	CPhraseCursor curLeft(curInsert);
+	while (curLeft.moveCursorWordLeft()) {
+		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
+	}
+
+	CPhraseCursor curRight(curInsert);
+	m_strCursorWord = curRight.wordUnderCursor();
+	while (curRight.moveCursorWordRight()) {
+		m_lstRightWords.push_back(curRight.wordUnderCursor());
+	}
+
 
 	// The QTextCursor parses symbols, like "'" and "-" as individual words.  We
 	//		want to treat them as part of the word, so find them and combine
@@ -132,6 +174,8 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 	assert(m_lstWords.size() >= lstAllWords.size());
 */
 
+/*
+
 	for (int i=1; i<m_lstWords.size(); ++i) {
 		if (m_lstWords.at(i).compare("-", Qt::CaseInsensitive) == 0) {
 			m_lstWords[i-1] = m_lstWords.at(i-1).trimmed() + m_lstWords.at(i).trimmed();
@@ -159,19 +203,27 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 		}
 	}
 
+
+*/
+
+
 	// Make sure our cursor is within the index range of the list.  If we're adding
 	//	things to the end of the list, we're at an empty string:
 	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
+
+
 }
 
 void CParsedPhrase::FindWords()
 {
 	assert(m_nCursorWord < m_lstWords.size());
 
+	m_lstMatchMapping.clear();
 	m_lstMapping.clear();
 	m_lstNextWords = g_lstConcordanceWords;
 	m_nLevel = 0;
-	for (int ndx=0; ndx<m_nCursorWord; ++ndx) {
+	m_nCursorLevel = 0;
+	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
 
 		TWordListMap::const_iterator itrWordMap;
@@ -182,38 +234,204 @@ void CParsedPhrase::FindWords()
 		const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
 		if (m_nLevel == 0) {
 			// If this is our first word, set its mapping to all possible next words:
-			m_lstMapping = wordEntry.m_ndxNormalized;
+			m_lstMatchMapping = wordEntry.m_ndxNormalized;
 		} else {
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			TIndexList lstNextMapping;
-			for (unsigned int ndxWord=0; ndxWord<m_lstMapping.size(); ++ndxWord) {
-				if (((m_lstMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMapping[ndxWord]+1]-1], Qt::CaseInsensitive) == 0)) {
-					lstNextMapping.push_back(m_lstMapping[ndxWord]+1);
+			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+				QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
+//				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
+//					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], Qt::CaseInsensitive) == 0)) {
+				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
+					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
+					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
 				}
 			}
-			m_lstMapping = lstNextMapping;
+			m_lstMatchMapping = lstNextMapping;
 		}
-
-		m_lstNextWords.clear();
-		for (unsigned int ndxWord=0; ndxWord<m_lstMapping.size(); ++ndxWord) {
-			if ((m_lstMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) {
-				m_lstNextWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMapping[ndxWord]+1]-1]);
-			}
-		}
-		m_lstNextWords.removeDuplicates();
-		m_lstNextWords.sort();
 
 		m_nLevel++;
+
+		if (ndx == (m_nCursorWord-1)) {
+			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possbilities is calculated at the word right before it
+			m_nCursorLevel = m_nLevel;
+
+			m_lstNextWords.clear();
+			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+				if ((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) {
+					m_lstNextWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]);
+				}
+			}
+			m_lstNextWords.removeDuplicates();
+			m_lstNextWords.sort();
+		}
+
+		if (m_lstMatchMapping.size() == 0) break;
 	}
+}
+
+// ============================================================================
+
+CPhraseCursor::CPhraseCursor(const QTextCursor &aCursor)
+	:	QTextCursor(aCursor)
+{
+}
+
+CPhraseCursor::~CPhraseCursor()
+{
+}
+
+bool CPhraseCursor::moveCursorCharLeft(MoveMode mode)
+{
+	return movePosition(PreviousCharacter, mode);
+}
+
+bool CPhraseCursor::moveCursorCharRight(MoveMode mode)
+{
+	return movePosition(NextCharacter, mode);
+}
+
+QChar CPhraseCursor::charUnderCursor()
+{
+	int nSelStart = anchor();
+	int nSelEnd = position();
+	clearSelection();
+	movePosition(NextCharacter, KeepAnchor);
+	QString strTemp = selectedText();
+	setPosition(nSelStart, MoveAnchor);
+	setPosition(nSelEnd, KeepAnchor);
+	return ((strTemp.size()>0) ? strTemp[0] : QChar());
+}
+
+bool CPhraseCursor::moveCursorWordLeft(MoveMode mode)
+{
+	// Try going left one in case we are at the end of the current word
+	moveCursorCharLeft(mode);
+	// If we are inside the "current word under the cursor", move left past it:
+	while (!charUnderCursor().isSpace()) {
+		if (!moveCursorCharLeft(mode)) return false;
+	}
+	// We should now be between words, move left until we hit previous word:
+	while (charUnderCursor().isSpace()) {
+		if (!moveCursorCharLeft(mode)) return false;
+	}
+	// While in previous word, keep moving:
+	while (!charUnderCursor().isSpace()) {
+		if (!moveCursorCharLeft(mode)) return true;		// If we hit the left edge, we have the final left word
+	}
+	// Here, we went one character too far.  So move back one:
+	moveCursorCharRight(mode);
+	return true;
+}
+
+bool CPhraseCursor::moveCursorWordRight(MoveMode mode)
+{
+	// Try going left one in case we are at the end of the current word
+	moveCursorCharLeft(mode);
+	// If we are in the space between words, move right past it:
+	while (charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return false;
+	}
+	// If we are inside the "current word under the cursor", move right past it:
+	while (!charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return false;
+	}
+	// We should now be between word, move right until we hit next word:
+	while (charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return false;
+	}
+	return true;
+}
+
+bool CPhraseCursor::moveCursorWordStart(MoveMode mode)
+{
+	// Try going left one in case we are at the end of the current word
+	moveCursorCharLeft(mode);
+	// If we're between words, move right until we get to the start of the word.
+	//		Otherwise we're already somewhere inside the current word:
+	while (charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return false;	// Yes, move to right as current word is the one on the righthand side
+	}
+	// We should now be inside the current word, move left until we find the left side:
+	while (!charUnderCursor().isSpace()) {
+		if (!moveCursorCharLeft(mode)) return true;		// If we hit the left edge, we are at start of word already
+	}
+	// Here, we went one character too far.  So move back one:
+	moveCursorCharRight(mode);
+	return true;
+}
+
+bool CPhraseCursor::moveCursorWordEnd(MoveMode mode)
+{
+	// Try going left one in case we are at the end of the current word already
+	moveCursorCharLeft(mode);
+	// If we're between words, the current word is to the right.  So move through
+	//	the space until we find the word.  Otherwise, we should already be in
+	//	the current word:
+	while (charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return false;	// Move right here (not opposite of WordStart above), as current word is the one on the righthand side
+	}
+	// We're now inside the current word, move right until we hit the end:
+	while (!charUnderCursor().isSpace()) {
+		if (!moveCursorCharRight(mode)) return true;	// If we hit the right edge, we are at the end of the word
+	}
+	return true;
+}
+
+QString CPhraseCursor::wordUnderCursor()
+{
+	QString strRetVal;
+	int nSelStart = anchor();
+	int nSelEnd = position();
+	clearSelection();
+
+	// Return empty string if between words:
+//	if (charUnderCursor().isSpace()) {
+//		moveCursorCharLeft(MoveAnchor);
+//		if (charUnderCursor().isSpace()) {
+//			setPosition(nSelStart, MoveAnchor);
+//			setPosition(nSelEnd, KeepAnchor);
+//			return QString();
+//		}
+//		moveCursorCharRight(MoveAnchor);
+//	}
+
+	// Find and return word we're on or just to our right:
+	if (moveCursorWordStart(MoveAnchor)) {
+		if (moveCursorWordEnd(KeepAnchor)) {
+			strRetVal = selectedText();
+		}
+	}
+	setPosition(nSelStart, MoveAnchor);
+	setPosition(nSelEnd, KeepAnchor);
+	return strRetVal;
+}
+
+void CPhraseCursor::selectWordUnderCursor()
+{
+	moveCursorWordStart(MoveAnchor);
+	moveCursorWordEnd(KeepAnchor);
+}
+
+void CPhraseCursor::selectCursorToLineStart()
+{
+	clearSelection();
+	movePosition(StartOfLine, KeepAnchor);
+}
+
+void CPhraseCursor::selectCursorToLineEnd()
+{
+	clearSelection();
+	movePosition(EndOfLine, KeepAnchor);
 }
 
 // ============================================================================
 
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	QTextEdit(pParent),
-		m_pCompleter(NULL)
+		m_pCompleter(NULL),
+		m_nLastCursorWord(-1)
 {
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
@@ -261,6 +479,35 @@ void CPhraseLineEdit::on_cursorPositionChanged()
 void CPhraseLineEdit::UpdateCompleter()
 {
 	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
+return;
+	CParsedPhrase phraseTemp;
+
+	QTextCursor saveCursor = textCursor();
+	saveCursor.clearSelection();
+
+	QTextCursor cursor = textCursor();
+	QTextCharFormat fmt = cursor.charFormat();
+	fmt.setFontStrikeOut(false);
+
+	cursor.select(QTextCursor::LineUnderCursor);
+	textCursor().setCharFormat(fmt);
+	cursor.clearSelection();
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	bool bDoingStrikeout = false;
+	while (!cursor.atEnd()) {
+		phraseTemp.ParsePhrase(cursor);
+		if ((phraseTemp.GetCursorMatchLevel() < phraseTemp.GetMatchLevel()) && (!bDoingStrikeout)) {
+			bDoingStrikeout = true;
+			fmt.setFontStrikeOut(true);
+		}
+		cursor.movePosition(QTextCursor::WordRight, (bDoingStrikeout ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor));
+	}
+	if (bDoingStrikeout) {
+		cursor.setCharFormat(fmt);
+		setTextCursor(cursor);
+		setTextCursor(saveCursor);
+	}
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
@@ -284,6 +531,8 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 {
+	bool bForceCompleter = false;
+
 //	if (m_pCompleter->popup()->isVisible())
 //	{
 		switch (event->key()) {
@@ -293,6 +542,10 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 			case Qt::Key_Tab:
 				event->ignore();
 				return;
+
+			case Qt::Key_Down:
+				bForceCompleter = true;
+				break;
 		}
 //	}
 
@@ -318,10 +571,14 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 	if (m_strCursorWord != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(m_strCursorWord);
 		UpdateCompleter();
+		if (m_nLastCursorWord != m_nCursorWord) {
+			m_pCompleter->popup()->close();
+			m_nLastCursorWord = m_nCursorWord;
+		}
 		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index(0, 0));
 	}
 
-	if ((!event->text().isEmpty() && ((m_strCursorWord.length() > 0) || (textCursor().atEnd()))))
+	if (bForceCompleter || (!event->text().isEmpty() && ((m_strCursorWord.length() > 0) || (textCursor().atEnd()))))
 		m_pCompleter->complete();
 
 }
