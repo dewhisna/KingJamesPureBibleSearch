@@ -112,6 +112,7 @@ private:
 private:
 	QCompleter *m_pCompleter;
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
+	bool m_bUpdateInProgress;	// Completer update in progress (to guard against re-entrance)
 };
 
 // ============================================================================

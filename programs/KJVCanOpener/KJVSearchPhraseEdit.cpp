@@ -229,7 +229,28 @@ void CParsedPhrase::FindWords()
 		TWordListMap::const_iterator itrWordMap;
 		itrWordMap = g_mapWordList.find(m_lstWords.at(ndx));
 		if (itrWordMap==g_mapWordList.end()) itrWordMap = g_mapWordList.find(m_lstWords.at(ndx).toLower());
-		if (itrWordMap==g_mapWordList.end()) break;		// If we can't find this word, break out at this level and stop searching
+		if (itrWordMap==g_mapWordList.end()) {
+			if (m_nCursorWord > ndx) {
+				// If we've stopped matching before the cursor, we're done:
+				m_lstMatchMapping.clear();
+				m_lstMapping.clear();
+				m_lstNextWords.clear();
+			} else if (m_nCursorWord == ndx) {
+				// At the cursor, see if the word at the cursor starts with something in
+				//	our list.  If so, we'll bump our CursorLevel, before we bailout.  That
+				//	will signify that we're matching through the cursor, but haven't matched
+				//	full words yet to this point.  In any case, we still need the word list
+				//	to return so that we can show completions for this word and beyond:
+				QRegExp exp(m_lstWords[ndx]+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+				for (int ndxWord=0; ndxWord<m_lstNextWords.size(); ++ndxWord) {
+					if (exp.exactMatch(m_lstNextWords.at(ndxWord))) {
+						m_nCursorLevel++;
+						break;
+					}
+				}
+			}
+			break;		// If we can't find this word, break out at this level and stop searching
+		}
 
 		const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
 		if (m_nLevel == 0) {
@@ -251,9 +272,9 @@ void CParsedPhrase::FindWords()
 			m_lstMatchMapping = lstNextMapping;
 		}
 
-		m_nLevel++;
+		if (m_lstMatchMapping.size()) m_nLevel++;
 
-		if (ndx == (m_nCursorWord-1)) {
+		if (ndx < m_nCursorWord) {
 			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possbilities is calculated at the word right before it
 			m_nCursorLevel = m_nLevel;
 
@@ -431,7 +452,8 @@ void CPhraseCursor::selectCursorToLineEnd()
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	QTextEdit(pParent),
 		m_pCompleter(NULL),
-		m_nLastCursorWord(-1)
+		m_nLastCursorWord(-1),
+		m_bUpdateInProgress(false)
 {
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
@@ -468,46 +490,63 @@ QString CPhraseLineEdit::textUnderCursor() const
 
 void CPhraseLineEdit::on_textChanged()
 {
-	UpdateCompleter();
+	if (!m_bUpdateInProgress) UpdateCompleter();
 }
 
 void CPhraseLineEdit::on_cursorPositionChanged()
 {
-	UpdateCompleter();
+	if (!m_bUpdateInProgress) UpdateCompleter();
 }
 
 void CPhraseLineEdit::UpdateCompleter()
 {
 	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
-return;
-	CParsedPhrase phraseTemp;
+
+	if (m_bUpdateInProgress) return;
+	m_bUpdateInProgress = true;
 
 	QTextCursor saveCursor = textCursor();
 	saveCursor.clearSelection();
 
-	QTextCursor cursor = textCursor();
+	CPhraseCursor cursor(textCursor());
 	QTextCharFormat fmt = cursor.charFormat();
 	fmt.setFontStrikeOut(false);
+	fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
 
-	cursor.select(QTextCursor::LineUnderCursor);
-	textCursor().setCharFormat(fmt);
-	cursor.clearSelection();
-	cursor.movePosition(QTextCursor::StartOfLine);
+	int nSelStart = cursor.anchor();
+	int nSelEnd = cursor.position();
+	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+	cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+	cursor.setCharFormat(fmt);
+	cursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
+	cursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
 
-	bool bDoingStrikeout = false;
-	while (!cursor.atEnd()) {
-		phraseTemp.ParsePhrase(cursor);
-		if ((phraseTemp.GetCursorMatchLevel() < phraseTemp.GetMatchLevel()) && (!bDoingStrikeout)) {
-			bDoingStrikeout = true;
+	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+	int nWord = 0;
+	do {
+		cursor.selectWordUnderCursor();
+		if (/* (GetCursorWordPos() != nWord) && */
+			(static_cast<int>(GetMatchLevel()) <= nWord) &&
+			(static_cast<int>(GetCursorMatchLevel()) <= nWord) &&
+			((nWord != GetCursorWordPos()) ||
+			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
+			 )
+			) {
 			fmt.setFontStrikeOut(true);
+			fmt.setUnderlineColor(QColor(255,0,0));
+			fmt.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+			cursor.setCharFormat(fmt);
 		}
-		cursor.movePosition(QTextCursor::WordRight, (bDoingStrikeout ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor));
-	}
-	if (bDoingStrikeout) {
-		cursor.setCharFormat(fmt);
-		setTextCursor(cursor);
-		setTextCursor(saveCursor);
-	}
+
+		nWord++;
+	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
+
+	cursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
+	cursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
+
+	m_bUpdateInProgress = false;
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
@@ -525,6 +564,7 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 		if (n==m_nCursorWord) strTemp += ")";
 		strTemp += " ";
 	}
+	strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
 	pStatusBar->showMessage(strTemp);
 }
 
