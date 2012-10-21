@@ -17,6 +17,20 @@
 // ============================================================================
 
 typedef struct TRelIndex {
+	TRelIndex(uint32_t ndx = 0) :
+		m_nN3((ndx >> 24) & 0xFF),
+		m_nN2((ndx >> 16) & 0xFF),
+		m_nN1((ndx >> 8) & 0xFF),
+		m_nN0(ndx & 0xFF)
+	{
+	}
+	bool isSet() const {
+		return ((m_nN3 != 0) || (m_nN2 != 0) || (m_nN1 != 0) || (m_nN0 != 0));
+	}
+	uint32_t compose() const {
+		return (((m_nN3 & 0xFF) << 24) | ((m_nN2 & 0xFF) << 16) | ((m_nN1 & 0xFF) << 8) | (m_nN0 & 0xFF));
+	}
+
 	uint32_t m_nN3;
 	uint32_t m_nN2;
 	uint32_t m_nN1;
@@ -188,7 +202,7 @@ extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed
 
 typedef QStringList TConcordanceList;
 
-extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key
-extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text
+extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
+extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 
 #endif // DBSTRUCT_H

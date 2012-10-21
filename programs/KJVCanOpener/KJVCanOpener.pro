@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     BuildDB.cpp \
     ReadDB.cpp \
     KJVBrowser.cpp \
-    KJVSearchPhraseEdit.cpp
+    KJVSearchPhraseEdit.cpp \
+    VerseListModel.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
@@ -25,7 +26,8 @@ HEADERS  += KJVCanOpener.h \
     ReadDB.h \
     BuildDB.h \
     KJVBrowser.h \
-    KJVSearchPhraseEdit.h
+    KJVSearchPhraseEdit.h \
+    VerseListModel.h
 
 FORMS    += KJVCanOpener.ui \
     KJVBrowser.ui \
