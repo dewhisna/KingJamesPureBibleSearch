@@ -10,6 +10,7 @@
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
 
+/*
 class CPhraseEditListWidgetItem : public QListWidgetItem
 {
 public:
@@ -29,7 +30,7 @@ public:
 
 	CKJVSearchPhraseEdit *m_widgetPhraseEdit;
 };
-
+*/
 
 // ============================================================================
 
@@ -46,6 +47,9 @@ public:
 	~CKJVCanOpener();
 
 	void Initialize(uint32_t nInitialIndex = MakeIndex(1,1,1,1));	// Default initial location is the first word of Genesis 1:1)
+
+protected slots:
+	void on_phraseChanged(const CParsedPhrase &phrase);
 
 // UI Private:
 private:

@@ -13,13 +13,18 @@
 
 // ============================================================================
 
+uint32_t CParsedPhrase::GetNumberOfMatches() const
+{
+	return m_lstMatchMapping.size();
+}
+
 TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 {
 	TIndexList lstResults;
 
 	lstResults.resize(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) + m_nLevel;
+		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
 	}
 
 	return lstResults;
@@ -260,12 +265,12 @@ void CParsedPhrase::FindWords()
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			TIndexList lstNextMapping;
+			QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
 			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-				QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
-//				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-//					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], Qt::CaseInsensitive) == 0)) {
 				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
+					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], Qt::CaseInsensitive) == 0)) {
+//				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
+//					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
 					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
 				}
 			}
@@ -491,6 +496,8 @@ QString CPhraseLineEdit::textUnderCursor() const
 void CPhraseLineEdit::on_textChanged()
 {
 	if (!m_bUpdateInProgress) UpdateCompleter();
+
+	emit phraseChanged(*this);
 }
 
 void CPhraseLineEdit::on_cursorPositionChanged()
@@ -655,20 +662,7 @@ pStatusBar(NULL),
 {
 	ui->setupUi(this);
 
-/*
-	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
-	m_pCompleter = new QCompleter(pModel, this);
-	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
-//	m_pCompleter->setCompletionMode(QCompleter::InlineCompletion);
-	m_pCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-	m_pCompleter->setWidget(ui->editPhrase);
-
-//	ui->editPhrase->setCompleter(m_pCompleter);
-	ui->editPhrase->installEventFilter(this);
-	connect(ui->editPhrase, SIGNAL(textEdited(const QString &)), this, SLOT(on_textEdited(const QString&)));
-	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
-*/
-
+	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
@@ -676,70 +670,10 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 	delete ui;
 }
 
-/*
-
-void CKJVSearchPhraseEdit::insertCompletion(const QString& completion)
+void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
 {
-	QTextCursor cursor = ui->editPhrase->textCursor();
-	int extra = completion.length() - m_pCompleter->completionPrefix().length();
-	cursor.movePosition(QTextCursor::Left);
-	cursor.movePosition(QTextCursor::EndOfWord);
-	cursor.insertText(completion.right(extra));
-	ui->editPhrase->setTextCursor(cursor);
+	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(phrase.GetNumberOfMatches()));
+
+	emit phraseChanged(phrase);
 }
-
-QString CKJVSearchPhraseEdit::textUnderCursor() const
-{
-	QTextCursor cursor = ui->editPhrase->textCursor();
-	cursor.select(QTextCursor::WordUnderCursor);
-	return cursor.selectedText();
-}
-
-void CKJVSearchPhraseEdit::on_textEdited(const QString &text)
-{
-	QStringListModel *pModel = (QStringListModel *)(m_pCompleter->model());
-	pModel->setStringList(g_lstConcordanceWords);
-//	pModel->setStringList();
-}
-
-//void CKJVSearchPhraseEdit::keyPressEvent(QKeyEvent* event)
-bool CKJVSearchPhraseEdit::eventFilter(QObject *obj, QEvent *event)
-{
-	bool bRetVal = true;
-
-	if ((obj == ui->editPhrase) && (event->type() == QEvent::KeyPress)) {
-		QKeyEvent *keyevent = (QKeyEvent *)(event);
-
-		if (m_pCompleter->popup()->isVisible())
-		{
-			switch (keyevent->key()) {
-				case Qt::Key_Enter:
-				case Qt::Key_Return:
-				case Qt::Key_Escape:
-				case Qt::Key_Tab:
-					keyevent->ignore();
-					return true;
-			}
-		}
-
-		bRetVal = QWidget::eventFilter(obj, event);
-
-		const QString completionPrefix = textUnderCursor();
-
-		if (completionPrefix != m_pCompleter->completionPrefix()) {
-			m_pCompleter->setCompletionPrefix(completionPrefix);
-			m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index( 0, 0 ));
-		}
-
-		if (!keyevent->text().isEmpty() && completionPrefix.length() > 2)
-			m_pCompleter->complete();
-	} else {
-		bRetVal = QWidget::eventFilter(obj, event);
-	}
-
-	return bRetVal;
-}
-
-
-*/
 

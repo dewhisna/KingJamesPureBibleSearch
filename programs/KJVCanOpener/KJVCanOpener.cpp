@@ -9,6 +9,9 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QTextBrowser>
+#include <QListView>
+#include <QStringList>
+#include <QStringListModel>
 
 CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QMainWindow(parent),
@@ -34,13 +37,17 @@ CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	ui->searchResultsView->setModel(pAllModel);
 */
 
-	CPhraseEditListWidgetItem *pPhraseEdit = new CPhraseEditListWidgetItem();
-	ui->listWidgetSearchPhrases->addItem(pPhraseEdit);
-	ui->listWidgetSearchPhrases->setItemWidget(pPhraseEdit, pPhraseEdit->m_widgetPhraseEdit);
-//	new CPhraseEditListWidgetItem(ui->listWidgetSearchPhrases);
+	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit(ui->scrollAreaSearchPhrases);
+
 
 ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
+pPhraseEdit->pStatusBar = ui->statusBar;
 
+
+	ui->listViewSearchResults->setModel(new QStringListModel());
+
+	connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -51,5 +58,54 @@ CKJVCanOpener::~CKJVCanOpener()
 void CKJVCanOpener::Initialize(uint32_t nInitialIndex)
 {
 	ui->widgetKJVBrowser->Initialize(nInitialIndex);
+}
+
+void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
+{
+	TIndexList lstResults = phrase.GetNormalizedSearchResults();
+	QStringList lstReferences;
+
+	if (lstResults.size() <= 5000) {		// This check keep the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+			int nCount = 1;
+			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults]);
+			TRelIndex ndxRelative = DecomposeIndex(ndxDenormal);
+
+			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
+				lstReferences.push_back(QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal));
+				continue;
+			}
+
+			if (ndxResults<(lstResults.size()-1)) {
+				bool bNextIsSameReference=false;
+				TRelIndex ndxNextRelative;
+				do {
+					ndxNextRelative = DecomposeIndex(DenormalizeIndex(lstResults[ndxResults+1]));
+					if ((ndxRelative.m_nN3 == ndxNextRelative.m_nN3) &&
+						(ndxRelative.m_nN2 == ndxNextRelative.m_nN2) &&
+						(ndxRelative.m_nN1 == ndxNextRelative.m_nN1)) {
+						bNextIsSameReference=true;
+						nCount++;
+						ndxResults++;
+					} else {
+						bNextIsSameReference=false;
+					}
+				} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+			}
+			if ((lstResults[ndxResults] != 0) && (ndxDenormal != 0)) {
+				lstReferences.push_back(QString("%1 %2:%3 [%4] (%5)").arg(g_lstTOC[ndxRelative.m_nN3-1].m_strBkName).arg(ndxRelative.m_nN2).arg(ndxRelative.m_nN1).arg(ndxRelative.m_nN0).arg(nCount));
+			}
+		}
+//		lstReferences.removeDuplicates();
+	}
+
+	QStringListModel *pModel = static_cast<QStringListModel *>(ui->listViewSearchResults->model());
+	if (pModel) {
+		if (lstReferences.size() <= 2000) {
+			pModel->setStringList(lstReferences);
+		} else {
+			pModel->setStringList(QStringList());
+		}
+	}
 }
 

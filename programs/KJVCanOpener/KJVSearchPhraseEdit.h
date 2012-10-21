@@ -25,6 +25,7 @@ public:
 	~CParsedPhrase()
 	{ }
 
+	uint32_t GetNumberOfMatches() const;
 	TIndexList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
 	uint32_t GetCursorMatchLevel() const;
@@ -96,6 +97,9 @@ private slots:
 	void on_textChanged();
 	void on_cursorPositionChanged();
 
+signals:
+	void phraseChanged(const CParsedPhrase &phrase);
+
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
 
@@ -131,23 +135,13 @@ public:
 
 QStatusBar *pStatusBar;
 
-/*
-private slots:
-	void on_textEdited(const QString &text);
-	void insertCompletion(const QString &completion);
 
-protected:
-	bool eventFilter(QObject *obj, QEvent *event);
+signals:
+	void phraseChanged(const CParsedPhrase &phrase);
 
-private:
-//	void keyPressEvent(QKeyEvent* event);
+protected slots:
+	void on_phraseChanged(const CParsedPhrase &phrase);
 
-	QString textUnderCursor() const;
-
-// Data Private:
-private:
-	QCompleter *m_pCompleter;
-*/
 
 // UI Private:
 private:
