@@ -17,12 +17,13 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	~CKJVBrowser();
 
-	void Initialize(uint32_t nInitialIndex = MakeIndex(1,1,1,1));	// Default initial location is the first word of Genesis 1:1)
+	void Initialize(uint32_t nInitialIndex = CRelIndex(1,1,1,1).index());	// Default initial location is the first word of Genesis 1:1)
 
 private:
-	void FillBookList(uint32_t nRelIndex = MakeIndex(1,1,1,1));		// Fill book list and goto RelIndex, which by default is the first word of Genesis 1:1
+	void FillBookList(uint32_t nRelIndex = CRelIndex(1,1,1,1).index());		// Fill book list and goto RelIndex, which by default is the first word of Genesis 1:1
 
 public slots:
+	void gotoIndex(CRelIndex ndx);
 	void setBook(uint32_t nBk);
 	void setChapter(uint32_t nChp);
 	void setVerse(uint32_t nVrs);

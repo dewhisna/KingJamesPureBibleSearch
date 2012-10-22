@@ -10,7 +10,7 @@
 class CVerseListItem
 {
 public:
-	explicit CVerseListItem(const TRelIndex &ndx = TRelIndex(),
+	explicit CVerseListItem(const CRelIndex &ndx = CRelIndex(),
 							const QString &strHeading = QString(),
 							const QString &strToolTip = QString())
 		:	m_ndxRelative(ndx),
@@ -30,21 +30,22 @@ public:
 		return (m_ndxRelative.isSet());
 	}
 
-	uint32_t getBook() const { return m_ndxRelative.m_nN3; }		// Book Number (1-n)
-	uint32_t getChapter() const { return m_ndxRelative.m_nN2; }		// Chapter Number within Book (1-n)
-	uint32_t getVerse() const { return m_ndxRelative.m_nN1; }		// Verse Number within Chapter (1-n)
-	uint32_t getWord() const { return m_ndxRelative.m_nN0; }		// Word Number within Verse (1-n)
-	void setIndexNormalized(uint32_t ndx) { m_ndxRelative = DecomposeIndex(DenormalizeIndex(ndx)); }
-	void setIndexDenormalized(uint32_t ndx) { m_ndxRelative = DecomposeIndex(ndx); }
-	uint32_t getIndexNormalized() const { return NormalizeIndex(m_ndxRelative.compose()); }
-	uint32_t getIndexDenormalized() const { return m_ndxRelative.compose(); }
+	uint32_t getBook() const { return m_ndxRelative.book(); }			// Book Number (1-n)
+	uint32_t getChapter() const { return m_ndxRelative.chapter(); }		// Chapter Number within Book (1-n)
+	uint32_t getVerse() const { return m_ndxRelative.verse(); }			// Verse Number within Chapter (1-n)
+	uint32_t getWord() const { return m_ndxRelative.word(); }			// Word Number within Verse (1-n)
+	void setIndexNormalized(uint32_t ndx) { m_ndxRelative = CRelIndex(DenormalizeIndex(ndx)); }
+	void setIndexDenormalized(uint32_t ndx) { m_ndxRelative = CRelIndex(ndx); }
+	uint32_t getIndexNormalized() const { return NormalizeIndex(m_ndxRelative.index()); }
+	uint32_t getIndexDenormalized() const { return m_ndxRelative.index(); }
+	CRelIndex getIndex() const { return m_ndxRelative; }
 
 	QStringList getWordList() const
 	{
 		if (!isSet()) return QStringList();
 		QStringList strWords;
-		unsigned int nNumWords = (g_lstBooks[getBook()-1])[MakeIndex(0,0,getChapter(),getVerse())].m_nNumWrd;
-		uint32_t ndxNormal = NormalizeIndex(m_ndxRelative.compose());
+		unsigned int nNumWords = (g_lstBooks[getBook()-1])[CRelIndex(0,getChapter(),getVerse(),0)].m_nNumWrd;
+		uint32_t ndxNormal = NormalizeIndex(m_ndxRelative.index());
 		while (nNumWords) {
 			strWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[ndxNormal]-1]);
 			ndxNormal++;
@@ -59,11 +60,11 @@ public:
 	QString getVerseRichText() const
 	{
 		if (!isSet()) return QString();
-		return (g_lstBooks[m_ndxRelative.m_nN3-1])[MakeIndex(0,0,m_ndxRelative.m_nN2,m_ndxRelative.m_nN1)].GetRichText();
+		return (g_lstBooks[m_ndxRelative.book()-1])[CRelIndex(0,m_ndxRelative.chapter(),m_ndxRelative.verse(),0)].GetRichText();
 	}
 
 private:
-	TRelIndex m_ndxRelative;		// Relative Index
+	CRelIndex m_ndxRelative;		// Relative Index
 	QString m_strHeading;
 	QString m_strToolTip;
 };

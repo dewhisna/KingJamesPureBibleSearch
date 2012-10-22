@@ -16,30 +16,49 @@
 
 // ============================================================================
 
-typedef struct TRelIndex {
-	TRelIndex(uint32_t ndx = 0) :
-		m_nN3((ndx >> 24) & 0xFF),
-		m_nN2((ndx >> 16) & 0xFF),
-		m_nN1((ndx >> 8) & 0xFF),
-		m_nN0(ndx & 0xFF)
+class CRelIndex {
+public:
+	CRelIndex(uint32_t ndx = 0) :
+		m_ndx(ndx)
 	{
 	}
-	bool isSet() const {
-		return ((m_nN3 != 0) || (m_nN2 != 0) || (m_nN1 != 0) || (m_nN0 != 0));
+	CRelIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd)
+	{
+		setIndex(nBk, nChp, nVrs, nWrd);
 	}
-	uint32_t compose() const {
-		return (((m_nN3 & 0xFF) << 24) | ((m_nN2 & 0xFF) << 16) | ((m_nN1 & 0xFF) << 8) | (m_nN0 & 0xFF));
+	~CRelIndex() { }
+
+	uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
+	void setBook(uint32_t nBk) {
+		m_ndx = ((m_ndx & 0x00FFFFFF) | ((nBk & 0xFF) << 24));
+	}
+	uint32_t chapter() const { return ((m_ndx >> 16) & 0xFF); }
+	void setChapter(uint32_t nChp) {
+		m_ndx = ((m_ndx & 0xFF00FFFF) | ((nChp & 0xFF) << 16));
+	}
+	uint32_t verse() const { return ((m_ndx >> 8) & 0xFF); }
+	void setVerse(uint32_t nVrs) {
+		m_ndx = ((m_ndx & 0xFFFF00FF) | ((nVrs & 0xFF) << 8));
+	}
+	uint32_t word() const { return (m_ndx & 0xFF); }
+	void setWord(uint32_t nWrd) {
+		m_ndx = ((m_ndx & 0xFFFFFF00) | (nWrd & 0xFF));
+	}
+	bool isSet() const { return (m_ndx != 0); }
+
+	uint32_t index() const { return m_ndx; }
+	void setIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd) {
+		m_ndx = (((nBk & 0xFF) << 24) | ((nChp & 0xFF) << 16) | ((nVrs & 0xFF) << 8) | (nWrd & 0xFF));
 	}
 
-	uint32_t m_nN3;
-	uint32_t m_nN2;
-	uint32_t m_nN1;
-	uint32_t m_nN0;
-} TRelIndex;
+private:
+	uint32_t m_ndx;
+};
 
-extern uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0);
-extern uint32_t MakeIndex(const TRelIndex &relIndex);
-extern TRelIndex DecomposeIndex(uint32_t nIndex);
+//extern uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0);
+//extern uint32_t MakeIndex(const TRelIndex &relIndex);
+//extern TRelIndex DecomposeIndex(uint32_t nIndex);
+extern uint32_t NormalizeIndex(const CRelIndex &nRelIndex);
 extern uint32_t NormalizeIndex(uint32_t nRelIndex);
 extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);
 
@@ -48,9 +67,9 @@ extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);
 typedef std::vector<uint32_t> TIndexList;			// Index List for words into book/chapter/verse/word
 
 struct IndexSortPredicate {
-	bool operator() (const uint32_t &v1, const uint32_t &v2) const
+	bool operator() (const CRelIndex &v1, const CRelIndex &v2) const
 	{
-		return (v1 < v2);
+		return (v1.index() < v2.index());
 	}
 };
 
@@ -129,7 +148,7 @@ public:
 	unsigned int m_nNumWrd;		// Number of words in this chapter
 };
 
-typedef std::map<uint32_t, CLayoutEntry, IndexSortPredicate> TLayoutMap;	// Index by [nBk|nChp]
+typedef std::map<CRelIndex, CLayoutEntry, IndexSortPredicate> TLayoutMap;	// Index by [nBk|nChp|0|0]
 
 extern TLayoutMap g_mapLayout;	// Global Layout
 
@@ -162,7 +181,7 @@ private:
 	QString m_strRichText;		// Rich text for the verse (Note: for mobile versions, this element will be removed and fetched from the database)
 };
 
-typedef std::map<uint32_t, CBookEntry, IndexSortPredicate> TBookEntryMap;		// Index by [nChp|nVrs]
+typedef std::map<CRelIndex, CBookEntry, IndexSortPredicate> TBookEntryMap;		// Index by [0|nChp|nVrs|0]
 
 typedef std::vector<TBookEntryMap> TBookList;	// Index by nBk-1
 

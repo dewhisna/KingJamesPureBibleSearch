@@ -136,7 +136,7 @@ bool CReadDatabase::ReadLAYOUTTable()
 	query.exec("SELECT * FROM LAYOUT");
 	while (query.next()) {
 		uint32_t nBkChpNdx = query.value(0).toUInt();
-		CLayoutEntry &entryLayout = g_mapLayout[nBkChpNdx];
+		CLayoutEntry &entryLayout = g_mapLayout[CRelIndex(nBkChpNdx << 16)];
 		entryLayout.m_nNumVrs = query.value(1).toUInt();
 		entryLayout.m_nNumWrd = query.value(2).toUInt();
 	}
@@ -147,7 +147,7 @@ bool CReadDatabase::ReadLAYOUTTable()
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
 		for (TLayoutMap::const_iterator itr = g_mapLayout.begin(); itr != g_mapLayout.end(); ++itr) {
-			QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
+			QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first.index()>>16).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
 			ts << strTemp;
 		}
 		fileTest.close();
@@ -187,7 +187,7 @@ bool CReadDatabase::ReadBookTables()
 		query.exec(QString("SELECT * FROM %1").arg(g_lstTOC[i].m_strTblName));
 		while (query.next()) {
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
-			CBookEntry &entryBook = mapBook[nChpVrsNdx];
+			CBookEntry &entryBook = mapBook[CRelIndex(nChpVrsNdx << 8)];
 			entryBook.m_nNumWrd = query.value(1).toUInt();
 			entryBook.m_bPilcrow = ((query.value(2).toInt() != 0) ? true : false);
 			entryBook.SetRichText(query.value(4).toString());
@@ -201,7 +201,7 @@ bool CReadDatabase::ReadBookTables()
 			CSVstream csv(&fileTest);
 			for (TBookEntryMap::const_iterator itr = mapBook.begin(); itr != mapBook.end(); ++itr) {
 				QStringList sl;
-				sl.push_back(QString("%1").arg(itr->first));
+				sl.push_back(QString("%1").arg(itr->first.index()>>8));
 				sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
 				sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
 				sl.push_back(itr->second.GetRichText());
@@ -371,14 +371,14 @@ bool CReadDatabase::ValidateData()
 		for (unsigned int nChp=0; nChp<g_lstTOC[nBk].m_nNumChp; ++nChp) {	// Chapters
 			ncntVrs_Chp = 0;
 			ncntWrd_Chp = 0;
-			TLayoutMap::const_iterator itrLayout = g_mapLayout.find(MakeIndex(0,0,nBk+1,nChp+1));
+			TLayoutMap::const_iterator itrLayout = g_mapLayout.find(CRelIndex(nBk+1,nChp+1,0,0));
 			if (itrLayout == g_mapLayout.end()) continue;
 			ncntChpTot++;
 			ncntChp_Bk++;
 			for (unsigned int nVrs=0; nVrs<itrLayout->second.m_nNumVrs; ++nVrs) {	// Verses
 				ncntWrd_Vrs = 0;
 				const TBookEntryMap &aBook = g_lstBooks[nBk];
-				TBookEntryMap::const_iterator itrBook = aBook.find(MakeIndex(0,0,nChp+1,nVrs+1));
+				TBookEntryMap::const_iterator itrBook = aBook.find(CRelIndex(0,nChp+1,nVrs+1,0));
 				if (itrBook == aBook.end()) continue;
 				ncntVrsTot++;
 				ncntVrs_Chp++;
@@ -432,10 +432,10 @@ bool CReadDatabase::ValidateData()
 			uint32_t nCalcNormal = NormalizeIndex(itrWords->second.m_ndxMapping[ndx]);
 			uint32_t nCalcRelative = DenormalizeIndex(itrWords->second.m_ndxNormalized[ndx]);
 			if (nCalcNormal != itrWords->second.m_ndxNormalized[ndx]) {
-				TRelIndex relIndex = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
+				CRelIndex relIndex(itrWords->second.m_ndxMapping[ndx]);
 				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Mapping of 0x%2 (%3:%4:%5:%6) and Normal Mapping of 0x%7\nCalculated Normal Mapping is: 0x%8")
 											.arg(itrWords->second.m_strWord)
-											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndex.m_nN3).arg(relIndex.m_nN2).arg(relIndex.m_nN1).arg(relIndex.m_nN0)
+											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndex.book()).arg(relIndex.chapter()).arg(relIndex.verse()).arg(relIndex.word())
 											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
 											.arg(nCalcNormal, 8, 16, QChar('0')),
 											"Next Index", "Next Word", "Abort", 0, 2);
@@ -443,13 +443,13 @@ bool CReadDatabase::ValidateData()
 				if (nAction == 1) break;
 			}
 			if (nCalcRelative != itrWords->second.m_ndxMapping[ndx]) {
-				TRelIndex relIndexWord = DecomposeIndex(itrWords->second.m_ndxMapping[ndx]);
-				TRelIndex relIndexCalc = DecomposeIndex(nCalcRelative);
+				CRelIndex relIndexWord(itrWords->second.m_ndxMapping[ndx]);
+				CRelIndex relIndexCalc(nCalcRelative);
 				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Normal Mapping of 0x%2 and Mapping of 0x%3 (%4:%5:%6:%7)\nCalculated Mapping is: 0x%8 (%9:%10:%11:%12)")
 											.arg(itrWords->second.m_strWord)
 											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
-											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndexWord.m_nN3).arg(relIndexWord.m_nN2).arg(relIndexWord.m_nN1).arg(relIndexWord.m_nN0)
-											.arg(nCalcRelative, 8, 16, QChar('0')).arg(relIndexCalc.m_nN3).arg(relIndexCalc.m_nN2).arg(relIndexCalc.m_nN1).arg(relIndexCalc.m_nN0),
+											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndexWord.book()).arg(relIndexWord.chapter()).arg(relIndexWord.verse()).arg(relIndexWord.word())
+											.arg(nCalcRelative, 8, 16, QChar('0')).arg(relIndexCalc.book()).arg(relIndexCalc.chapter()).arg(relIndexCalc.verse()).arg(relIndexCalc.word()),
 											"Next Index", "Next Word", "Abort", 0, 2);
 				if (nAction == 2) return false;
 				if (nAction == 1) break;
@@ -493,8 +493,8 @@ bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
 		(!ReadTOCTable()) ||
 		(!ReadLAYOUTTable()) ||
 		(!ReadBookTables()) ||
-		(!ReadWORDSTable()) /* ||
-		(!ValidateData()) */ ) bSuccess = false;
+		(!ReadWORDSTable())  ||
+		(!ValidateData())  ) bSuccess = false;
 
 	m_myDatabase.close();
 

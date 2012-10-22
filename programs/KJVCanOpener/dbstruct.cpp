@@ -26,6 +26,9 @@ TIndexList g_lstConcordanceMapping;
 
 // ============================================================================
 
+/*
+TODO : CLEAN
+
 uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0)
 {
 	return (((nN3 & 0xFF) << 24) | ((nN2 & 0xFF) << 16) | ((nN1 & 0xFF) << 8) | (nN0 & 0xFF));
@@ -48,7 +51,14 @@ TRelIndex DecomposeIndex(uint32_t nIndex)
 	return relIndex;
 }
 
+*/
+
 // ============================================================================
+
+uint32_t NormalizeIndex(const CRelIndex &nRelIndex)
+{
+	return NormalizeIndex(nRelIndex.index());
+}
 
 uint32_t NormalizeIndex(uint32_t nRelIndex)
 {
@@ -69,15 +79,15 @@ uint32_t NormalizeIndex(uint32_t nRelIndex)
 	// Add the number of words for all chapters in this book prior to the target chapter:
 	if (nChp > g_lstTOC[nBk-1].m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
-		nNormalIndex += g_mapLayout[MakeIndex(0,0,nBk,ndxChp)].m_nNumWrd;
+		nNormalIndex += g_mapLayout[CRelIndex(nBk,ndxChp,0,0)].m_nNumWrd;
 	}
 	// Add the number of words for all verses in this book prior to the target verse:
-	if (nVrs > g_mapLayout[MakeIndex(0,0,nBk,nChp)].m_nNumVrs) return 0;
+	if (nVrs > g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) return 0;
 	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
-		nNormalIndex += (g_lstBooks[nBk-1])[MakeIndex(0,0,nChp,ndxVrs)].m_nNumWrd;
+		nNormalIndex += (g_lstBooks[nBk-1])[CRelIndex(0,nChp,ndxVrs,0)].m_nNumWrd;
 	}
 	// Add the target word:
-	if (nWrd > (g_lstBooks[nBk-1])[MakeIndex(0,0,nChp,nVrs)].m_nNumWrd) return 0;
+	if (nWrd > (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd) return 0;
 	nNormalIndex += nWrd;
 
 	return nNormalIndex;
@@ -101,22 +111,22 @@ uint32_t DenormalizeIndex(uint32_t nNormalIndex)
 	nBk++;
 
 	while (nChp <= g_lstTOC[nBk-1].m_nNumChp) {
-		if (g_mapLayout[MakeIndex(0,0,nBk,nChp)].m_nNumWrd >= nWrd) break;
-		nWrd -= g_mapLayout[MakeIndex(0,0,nBk,nChp)].m_nNumWrd;
+		if (g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumWrd >= nWrd) break;
+		nWrd -= g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumWrd;
 		nChp++;
 	}
 	if (nChp > g_lstTOC[nBk-1].m_nNumChp) return 0;
 
-	while (nVrs <= g_mapLayout[MakeIndex(0,0,nBk,nChp)].m_nNumVrs) {
-		if ((g_lstBooks[nBk-1])[MakeIndex(0,0,nChp,nVrs)].m_nNumWrd >= nWrd) break;
-		nWrd -= (g_lstBooks[nBk-1])[MakeIndex(0,0,nChp,nVrs)].m_nNumWrd;
+	while (nVrs <= g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) {
+		if ((g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd >= nWrd) break;
+		nWrd -= (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd;
 		nVrs++;
 	}
-	if (nVrs > g_mapLayout[MakeIndex(0,0,nBk,nChp)].m_nNumVrs) return 0;
+	if (nVrs > g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) return 0;
 
-	if (nWrd > (g_lstBooks[nBk-1])[MakeIndex(0,0,nChp,nVrs)].m_nNumWrd) return 0;
+	if (nWrd > (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd) return 0;
 
-	return MakeIndex(nBk, nChp, nVrs, nWrd);
+	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
 }
 
 // ============================================================================
