@@ -55,9 +55,6 @@ private:
 	uint32_t m_ndx;
 };
 
-//extern uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0);
-//extern uint32_t MakeIndex(const TRelIndex &relIndex);
-//extern TRelIndex DecomposeIndex(uint32_t nIndex);
 extern uint32_t NormalizeIndex(const CRelIndex &nRelIndex);
 extern uint32_t NormalizeIndex(uint32_t nRelIndex);
 extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);

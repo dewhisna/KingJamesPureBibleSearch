@@ -26,35 +26,6 @@ TIndexList g_lstConcordanceMapping;
 
 // ============================================================================
 
-/*
-TODO : CLEAN
-
-uint32_t MakeIndex(uint32_t nN3, uint32_t nN2, uint32_t nN1, uint32_t nN0)
-{
-	return (((nN3 & 0xFF) << 24) | ((nN2 & 0xFF) << 16) | ((nN1 & 0xFF) << 8) | (nN0 & 0xFF));
-}
-
-uint32_t MakeIndex(const TRelIndex &relIndex)
-{
-	return MakeIndex(relIndex.m_nN3, relIndex.m_nN2, relIndex.m_nN1, relIndex.m_nN0);
-}
-
-TRelIndex DecomposeIndex(uint32_t nIndex)
-{
-	TRelIndex relIndex;
-
-	relIndex.m_nN3 = ((nIndex >> 24) & 0xFF);
-	relIndex.m_nN2 = ((nIndex >> 16) & 0xFF);
-	relIndex.m_nN1 = ((nIndex >> 8) & 0xFF);
-	relIndex.m_nN0 = (nIndex & 0xFF);
-
-	return relIndex;
-}
-
-*/
-
-// ============================================================================
-
 uint32_t NormalizeIndex(const CRelIndex &nRelIndex)
 {
 	return NormalizeIndex(nRelIndex.index());

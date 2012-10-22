@@ -13,10 +13,7 @@
 
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	QWidget(parent),
-	m_nCurrentBook(0),
-	m_nCurrentChapter(0),
-	m_nCurrentVerse(0),
-	m_nCurrentWord(0),
+	m_ndxCurrent(0),
 	ui(new Ui::CKJVBrowser)
 {
 	ui->setupUi(this);
@@ -42,22 +39,20 @@ CKJVBrowser::~CKJVBrowser()
 }
 
 
-void CKJVBrowser::Initialize(uint32_t nInitialIndex)
+void CKJVBrowser::Initialize(CRelIndex nInitialIndex)
 {
 	FillBookList(nInitialIndex);
 }
 
-void CKJVBrowser::FillBookList(uint32_t nRelIndex)
+void CKJVBrowser::FillBookList(CRelIndex nRelIndex)
 {
-	CRelIndex ndx(nRelIndex);
-
 	ui->comboBook->clear();
 
 	for (unsigned int ndxBk=0; ndxBk<g_lstTOC.size(); ++ndxBk) {
 		ui->comboBook->addItem(g_lstTOC[ndxBk].m_strBkName, ndxBk+1);
 	}
-	ui->comboBook->setCurrentIndex(ui->comboBook->findData(ndx.book()));
-	ui->comboChapter->setCurrentIndex(ui->comboChapter->findData(ndx.chapter()));
+	ui->comboBook->setCurrentIndex(ui->comboBook->findData(nRelIndex.book()));
+	ui->comboChapter->setCurrentIndex(ui->comboChapter->findData(nRelIndex.chapter()));
 	// TODO : Add verse and word
 }
 
@@ -70,10 +65,7 @@ void CKJVBrowser::gotoIndex(CRelIndex ndx)
 
 void CKJVBrowser::setBook(uint32_t nBk)
 {
-	m_nCurrentBook = nBk;
-	m_nCurrentChapter = 0;
-	m_nCurrentVerse = 0;
-	m_nCurrentWord = 0;
+	m_ndxCurrent.setIndex(nBk, 0, 0, 0);
 
 	emit BookSelectionChanged(nBk);
 
@@ -89,32 +81,30 @@ void CKJVBrowser::setBook(uint32_t nBk)
 
 void CKJVBrowser::setChapter(uint32_t nChp)
 {
-	m_nCurrentChapter = nChp;
-	m_nCurrentVerse = 0;
-	m_nCurrentWord = 0;
+	m_ndxCurrent.setIndex(m_ndxCurrent.book(), nChp, 0, 0);
 
 	emit ChapterSelectionChanged(nChp);
 
 	ui->textBrowserMainText->clear();
 
-	if ((m_nCurrentBook == 0) || (m_nCurrentChapter == 0)) return;
+	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) return;
 
-	if (m_nCurrentBook > g_lstTOC.size()) {
+	if (m_ndxCurrent.book() > g_lstTOC.size()) {
 		assert(false);
 		return;
 	}
 
-	const CTOCEntry &toc = g_lstTOC[m_nCurrentBook-1];
-	const TBookEntryMap &book = g_lstBooks[m_nCurrentBook-1];
+	const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
+	const TBookEntryMap &book = g_lstBooks[m_ndxCurrent.book()-1];
 
-	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(m_nCurrentBook,m_nCurrentChapter,0,0));
+	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(m_ndxCurrent.book(),m_ndxCurrent.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
 		return;
 	}
 	const CLayoutEntry &layout(mapLookupLayout->second);
 
-	if (m_nCurrentChapter > toc.m_nNumChp) {
+	if (m_ndxCurrent.chapter() > toc.m_nNumChp) {
 		assert(false);
 		return;
 	}
@@ -123,7 +113,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
-	uint32_t nFirstWordNormal = NormalizeIndex(CRelIndex(m_nCurrentBook, m_nCurrentChapter, 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
+	uint32_t nFirstWordNormal = NormalizeIndex(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
 	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + layout.m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
 	uint32_t nRelPrevChapter = DenormalizeIndex(nFirstWordNormal - 1);				// Find previous book/chapter/verse (and word)
 	uint32_t nRelNextChapter = DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
@@ -141,12 +131,12 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 	// Print Heading for this Book/Chapter:
 	strHTML += QString("<h1>%1</h1>\n").arg(toc.m_strBkName);
-	strHTML += QString("<h2>Chapter %1</h2>\n").arg(m_nCurrentChapter);
+	strHTML += QString("<h2>Chapter %1</h2>\n").arg(m_ndxCurrent.chapter());
 
 	// Print this Chapter Text:
 	bool bParagraph = false;
 	for (unsigned int ndxVrs=0; ndxVrs<layout.m_nNumVrs; ++ndxVrs) {
-		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,m_nCurrentChapter,ndxVrs+1,0));
+		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,m_ndxCurrent.chapter(),ndxVrs+1,0));
 		if (mapLookupVerse == book.end()) {
 			assert(false);
 			continue;
@@ -178,7 +168,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 		CRelIndex relNext(nRelNextChapter);
 
 		// Print Heading for this Book/Chapter:
-		if (relNext.book() != m_nCurrentBook)
+		if (relNext.book() != m_ndxCurrent.book())
 			strHTML += QString("<h1>%1</h1>\n").arg(g_lstTOC[relNext.book()-1].m_strBkName);
 		strHTML += QString("<h2>Chapter %1</h2>\n").arg(relNext.chapter());
 
@@ -194,7 +184,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 void CKJVBrowser::setVerse(uint32_t nVrs)
 {
-//	m_nCurrentVerse = nVrs;
+	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), nVrs, 0);
 
 	emit VerseSelectionChanged(nVrs);
 
