@@ -94,6 +94,11 @@ bool CReadDatabase::ReadTOCTable()
 		entryTOC.m_nNumWrd = query.value(8).toUInt();
 		entryTOC.m_strCat = query.value(9).toString();
 		entryTOC.m_strDesc = query.value(10).toString();
+
+		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumBk++;
+		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumChp += entryTOC.m_nNumChp;
+		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumVrs += entryTOC.m_nNumVrs;
+		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumWrd += entryTOC.m_nNumWrd;
 	}
 
 // Used for debugging:

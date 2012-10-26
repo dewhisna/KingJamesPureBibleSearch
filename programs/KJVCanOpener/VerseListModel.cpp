@@ -43,7 +43,11 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	}
 
 	if (role == Qt::ToolTipRole) {
-		return m_lstVerses.at(index.row()).getToolTip();
+		const CVerseListItem &refVerse = m_lstVerses[index.row()];
+		QString strToolTip;
+		if (!refVerse.getToolTip().isEmpty()) strToolTip = refVerse.getToolTip() + "\n\n";
+		strToolTip += CRefCountCalc::SearchResultToolTip(refVerse.getIndex());
+		return strToolTip;
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {

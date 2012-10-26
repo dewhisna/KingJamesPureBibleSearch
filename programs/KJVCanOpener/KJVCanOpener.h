@@ -5,11 +5,25 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QModelIndex>
+#include <QScrollArea>
 
 #include <assert.h>
 
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
+
+class CSearchPhraseScrollArea : public QScrollArea
+{
+public:
+	CSearchPhraseScrollArea( QWidget *parent=NULL)
+		: QScrollArea(parent)
+	{ }
+	virtual ~CSearchPhraseScrollArea() { }
+
+	virtual QSize minimumSizeHint() const;
+	virtual QSize sizeHint() const;
+};
+
 
 /*
 class CPhraseEditListWidgetItem : public QListWidgetItem

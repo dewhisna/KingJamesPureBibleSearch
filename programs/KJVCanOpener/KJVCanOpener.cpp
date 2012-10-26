@@ -12,35 +12,59 @@
 #include <QTextBrowser>
 #include <QListView>
 #include <QStringList>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QScrollBar>
+
+// ============================================================================
+
+QSize CSearchPhraseScrollArea::minimumSizeHint() const
+{
+	return QScrollArea::minimumSizeHint();
+}
+
+QSize CSearchPhraseScrollArea::sizeHint() const
+{
+	return QScrollArea::sizeHint();
+}
+
+// ============================================================================
 
 CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
-/*
 
-	QSqlDatabase *pDatabase = new QSqlDatabase();
-	*pDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	pDatabase->setDatabaseName("../KJVCanOpener/db/kjvtext.s3db");
-//	pDatabase->setDatabaseName("C:/MyData/programs/KJVCanOpener/db/kjvtext.s3db");
+	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit();
 
-//	QMessageBox::information(0,"Database",pDatabase->databaseName());
+	QVBoxLayout *pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
+	pLayoutPhrases->setSpacing(0);
+	pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
+	pLayoutPhrases->addWidget(pPhraseEdit);
 
-	if (!pDatabase->open()) {
-		QMessageBox::warning(0,"Error","Couldn't open database file.");
-	}
+	ui->scrollAreaWidgetContents->setMinimumSize(/* pLayoutPhrases->sizeHint() */ pPhraseEdit->sizeHint() );
 
-	QSqlTableModel *pAllModel = new QSqlTableModel(this, *pDatabase);
-	pAllModel->setTable("TOC");
-	pAllModel->select();
-	ui->searchResultsView->setModel(pAllModel);
-*/
-
-	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit(ui->scrollAreaSearchPhrases);
+	ui->scrollAreaSearchPhrases->setMinimumSize(pLayoutPhrases->sizeHint().width() +
+							ui->scrollAreaSearchPhrases->verticalScrollBar()->sizeHint().width() +
+							ui->scrollAreaSearchPhrases->frameWidth() * 2,
+							pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
 
 
-ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
+
+ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
+
+
+
+//ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
 pPhraseEdit->pStatusBar = ui->statusBar;
 
 
@@ -48,7 +72,7 @@ pPhraseEdit->pStatusBar = ui->statusBar;
 	model->setDisplayMode(CVerseListModel::VDME_HEADING);
 	ui->listViewSearchResults->setModel(model);
 
-	connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+//connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 
 	connect(ui->listViewSearchResults, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(on_SearchResultDoubleClick(const QModelIndex &)));
@@ -61,7 +85,7 @@ CKJVCanOpener::~CKJVCanOpener()
 
 void CKJVCanOpener::Initialize(uint32_t nInitialIndex)
 {
-	ui->widgetKJVBrowser->Initialize(nInitialIndex);
+	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
 }
 
 void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
@@ -104,7 +128,7 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 //				lstReferences.push_back(QString("%1 %2:%3 [%4] (%5)").arg(g_lstTOC[ndxRelative.m_nN3-1].m_strBkName).arg(ndxRelative.m_nN2).arg(ndxRelative.m_nN1).arg(ndxRelative.m_nN0).arg(nCount));
 				lstReferences.push_back(CVerseListItem(
 						ndxRelative,
-						QString("%1 %2:%3 [%4] (%5)").arg(g_lstTOC[ndxRelative.book()-1].m_strBkName).arg(ndxRelative.chapter()).arg(ndxRelative.verse()).arg(ndxRelative.word()).arg(nCount),
+						QString("%1 (%2)").arg(CRefCountCalc::PassageReferenceText(ndxRelative)).arg(nCount),
 						QString("TODO : TOOLTIP")));
 			}
 		}

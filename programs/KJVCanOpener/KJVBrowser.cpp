@@ -14,23 +14,22 @@
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	QWidget(parent),
 	m_ndxCurrent(0),
+	m_bDoingUpdate(false),
 	ui(new Ui::CKJVBrowser)
 {
 	ui->setupUi(this);
 
-
 	ui->textBrowserMainText->setStyleSheet("font: 12pt \"Times New Roman\";");
 
+	Initialize();
 
 // UI Connections:
-	connect(ui->comboBook, SIGNAL(currentIndexChanged(int)), this, SLOT(BookComboIndexChanged(int)));
-	connect(ui->comboChapter, SIGNAL(currentIndexChanged(int)), this, SLOT(ChapterComboIndexChanged(int)));
-
-// Text Navigation Connections:
-//	connect(this, SIGNAL(BookSelectionChanged(uint32_t)), this, SLOT(setBook(uint32_t)));
-//	connect(this, SIGNAL(ChapterSelectionChanged(uint32_t)), this, SLOT(setChapter(uint32_t)));
-//	connect(this, SIGNAL(VerseSelectionChanged(uint32_t)), this, SLOT(setVerse(uint32_t)));
-
+	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
+	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BkChpComboIndexChanged(int)));
+	connect(ui->comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(TstBkComboIndexChanged(int)));
+	connect(ui->comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(TstChpComboIndexChanged(int)));
+	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleBkComboIndexChanged(int)));
+	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleChpComboIndexChanged(int)));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -38,22 +37,26 @@ CKJVBrowser::~CKJVBrowser()
 	delete ui;
 }
 
-
 void CKJVBrowser::Initialize(CRelIndex nInitialIndex)
 {
-	FillBookList(nInitialIndex);
-}
+	begin_update();
 
-void CKJVBrowser::FillBookList(CRelIndex nRelIndex)
-{
-	ui->comboBook->clear();
-
+	unsigned int nBibleChp = 0;
+	ui->comboBk->clear();
+	ui->comboBibleBk->clear();
 	for (unsigned int ndxBk=0; ndxBk<g_lstTOC.size(); ++ndxBk) {
-		ui->comboBook->addItem(g_lstTOC[ndxBk].m_strBkName, ndxBk+1);
+		ui->comboBk->addItem(g_lstTOC[ndxBk].m_strBkName, ndxBk+1);
+		ui->comboBibleBk->addItem(QString("%1").arg(ndxBk+1), ndxBk+1);
+		nBibleChp += g_lstTOC[ndxBk].m_nNumChp;
 	}
-	ui->comboBook->setCurrentIndex(ui->comboBook->findData(nRelIndex.book()));
-	ui->comboChapter->setCurrentIndex(ui->comboChapter->findData(nRelIndex.chapter()));
-	// TODO : Add verse and word
+	ui->comboBibleChp->clear();
+	for (unsigned int ndxBibleChp=0; ndxBibleChp<nBibleChp; ++ ndxBibleChp) {
+		ui->comboBibleChp->addItem(QString("%1").arg(ndxBibleChp+1), ndxBibleChp+1);
+	}
+
+	end_update();
+
+	gotoIndex(nInitialIndex);
 }
 
 void CKJVBrowser::gotoIndex(CRelIndex ndx)
@@ -61,41 +64,88 @@ void CKJVBrowser::gotoIndex(CRelIndex ndx)
 	setBook(ndx.book());
 	setChapter(ndx.chapter());
 	setVerse(ndx.verse());
+
+	emit IndexChanged(ndx);
 }
 
 void CKJVBrowser::setBook(uint32_t nBk)
 {
+	if (nBk == 0) return;
+
+	begin_update();
+
 	m_ndxCurrent.setIndex(nBk, 0, 0, 0);
 
-	emit BookSelectionChanged(nBk);
-
-	ui->comboChapter->clear();
-
-	if (nBk > 0) {
-		for (unsigned int ndxChp=0; ndxChp<g_lstTOC[nBk-1].m_nNumChp; ++ndxChp) {
-			ui->comboChapter->addItem(QString("%1").arg(ndxChp+1), ndxChp+1);
-		}
+	if (m_ndxCurrent.book() > g_lstTOC.size()) {
+		assert(false);
+		end_update();
+		return;
 	}
-//	setChapter(0);
+
+	const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
+
+	ui->comboBk->setCurrentIndex(ui->comboBk->findData(m_ndxCurrent.book()));
+	ui->comboBibleBk->setCurrentIndex(ui->comboBibleBk->findData(m_ndxCurrent.book()));
+
+	unsigned int nTst = toc.m_nTstNdx;
+	ui->lblTestament->setText(g_lstTestaments[nTst-1].m_strTstName + ":");
+	ui->comboTstBk->clear();
+	for (unsigned int ndxTstBk=0; ndxTstBk<g_lstTestaments[nTst-1].m_nNumBk; ++ndxTstBk) {
+		ui->comboTstBk->addItem(QString("%1").arg(ndxTstBk+1), ndxTstBk+1);
+	}
+	ui->comboTstBk->setCurrentIndex(ui->comboTstBk->findData(toc.m_nTstBkNdx));
+
+	ui->comboBkChp->clear();
+	for (unsigned int ndxBkChp=0; ndxBkChp<toc.m_nNumChp; ++ndxBkChp) {
+		ui->comboBkChp->addItem(QString("%1").arg(ndxBkChp+1), ndxBkChp+1);
+	}
+	ui->comboTstChp->clear();
+	for (unsigned int ndxTstChp=0; ndxTstChp<g_lstTestaments[nTst-1].m_nNumChp; ++ndxTstChp) {
+		ui->comboTstChp->addItem(QString("%1").arg(ndxTstChp+1), ndxTstChp+1);
+	}
+
+	end_update();
 }
 
 void CKJVBrowser::setChapter(uint32_t nChp)
 {
+	begin_update();
+
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), nChp, 0, 0);
 
-	emit ChapterSelectionChanged(nChp);
+	ui->comboBkChp->setCurrentIndex(ui->comboBkChp->findData(nChp));
 
 	ui->textBrowserMainText->clear();
 
-	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) return;
+	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) {
+		end_update();
+		return;
+	}
 
 	if (m_ndxCurrent.book() > g_lstTOC.size()) {
 		assert(false);
+		end_update();
 		return;
 	}
 
 	const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
 	const TBookEntryMap &book = g_lstBooks[m_ndxCurrent.book()-1];
+
+	unsigned int nTstChp = 0;
+	unsigned int nBibleChp = 0;
+	for (unsigned int ndxBk=0; ndxBk<(m_ndxCurrent.book()-1); ++ndxBk) {
+		if (g_lstTOC[ndxBk].m_nTstNdx == toc.m_nTstNdx)
+			nTstChp += g_lstTOC[ndxBk].m_nNumChp;
+		nBibleChp += g_lstTOC[ndxBk].m_nNumChp;
+	}
+	nTstChp += m_ndxCurrent.chapter();
+	nBibleChp += m_ndxCurrent.chapter();
+
+	ui->comboTstChp->setCurrentIndex(ui->comboTstChp->findData(nTstChp));
+	ui->comboBibleChp->setCurrentIndex(ui->comboBibleChp->findData(nBibleChp));
+
+	end_update();
+
 
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(m_ndxCurrent.book(),m_ndxCurrent.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
@@ -186,25 +236,68 @@ void CKJVBrowser::setVerse(uint32_t nVrs)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), nVrs, 0);
 
-	emit VerseSelectionChanged(nVrs);
+	// TODO : Scroll to verse index in text
 
 }
 
-void CKJVBrowser::BookComboIndexChanged(int index)
+void CKJVBrowser::BkComboIndexChanged(int index)
 {
-	if (ui->comboBook->currentIndex() != -1) {
-		setBook(ui->comboBook->itemData(ui->comboBook->currentIndex()).toUInt());
+	if (m_bDoingUpdate) return;
+
+	if (index != -1) {
+		setBook(ui->comboBk->itemData(index).toUInt());
+		setChapter(1);
+		setVerse(1);
 	} else {
 		setBook(0);
+		setChapter(0);
+		setVerse(0);
 	}
 }
 
-void CKJVBrowser::ChapterComboIndexChanged(int index)
+void CKJVBrowser::BkChpComboIndexChanged(int index)
 {
-	if (ui->comboChapter->currentIndex() != -1) {
-		setChapter(ui->comboChapter->itemData(ui->comboChapter->currentIndex()).toUInt());
+	if (m_bDoingUpdate) return;
+
+	if (index != -1) {
+		setChapter(ui->comboBkChp->itemData(index).toUInt());
+		setVerse(1);
 	} else {
 		setChapter(0);
+		setVerse(0);
 	}
+}
+
+void CKJVBrowser::TstBkComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+
+}
+
+void CKJVBrowser::TstChpComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+
+}
+
+void CKJVBrowser::BibleBkComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+
+	if (index != -1) {
+		setBook(ui->comboBibleBk->itemData(index).toUInt());
+		setChapter(1);
+		setVerse(1);
+	} else {
+		setBook(0);
+		setChapter(0);
+		setVerse(0);
+	}
+}
+
+void CKJVBrowser::BibleChpComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+
 }
 

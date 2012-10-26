@@ -19,23 +19,26 @@ public:
 
 	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,1,1));	// Default initial location is the first word of Genesis 1:1)
 
-private:
-	void FillBookList(CRelIndex nRelIndex = CRelIndex(1,1,1,1));	// Fill book list and goto RelIndex, which by default is the first word of Genesis 1:1
-
 public slots:
 	void gotoIndex(CRelIndex ndx);
-	void setBook(uint32_t nBk);
-	void setChapter(uint32_t nChp);
-	void setVerse(uint32_t nVrs);
 
 signals:
-	void BookSelectionChanged(uint32_t nBk);
-	void ChapterSelectionChanged(uint32_t nChp);
-	void VerseSelectionChanged(uint32_t nVrs);
+	void IndexChanged(const CRelIndex &index);
 
 private slots:
-	void BookComboIndexChanged(int index);
-	void ChapterComboIndexChanged(int index);
+	void BkComboIndexChanged(int index);
+	void BkChpComboIndexChanged(int index);
+	void TstBkComboIndexChanged(int index);
+	void TstChpComboIndexChanged(int index);
+	void BibleBkComboIndexChanged(int index);
+	void BibleChpComboIndexChanged(int index);
+
+private:
+	// These should be used in order:
+	void setBook(uint32_t nBk);				// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
+	void setChapter(uint32_t nChp);			// Fills in the main browser text for the desired chapter
+	void setVerse(uint32_t nVrs);			// Scrolls browser to the specified verse for the curret Bk/Tst/Chp, etc.
+
 
 // Data Private:
 private:
@@ -43,6 +46,15 @@ private:
 
 // UI Private:
 private:
+	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
+
+#define begin_update()							\
+			bool bUpdateSave = m_bDoingUpdate;	\
+			m_bDoingUpdate = true;
+#define end_update()							\
+			m_bDoingUpdate = bUpdateSave;
+
+
 	Ui::CKJVBrowser *ui;
 };
 

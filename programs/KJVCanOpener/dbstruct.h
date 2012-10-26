@@ -14,6 +14,7 @@
 #define uint32_t unsigned int
 #endif
 
+
 // ============================================================================
 
 class CRelIndex {
@@ -28,6 +29,10 @@ public:
 	}
 	~CRelIndex() { }
 
+	QString testamentName() const;
+	uint32_t testament() const;
+
+	QString bookName() const;
 	uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
 	void setBook(uint32_t nBk) {
 		m_ndx = ((m_ndx & 0x00FFFFFF) | ((nBk & 0xFF) << 24));
@@ -61,6 +66,48 @@ extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);
 
 // ============================================================================
 
+class CRefCountCalc			// Calculates the reference count information for creating ToolTips and indices
+{
+public:
+	enum REF_TYPE_ENUM {
+		RTE_TESTAMENT = 0,
+		RTE_BOOK = 1,
+		RTE_CHAPTER = 2,
+		RTE_VERSE = 3,
+		RTE_WORD = 4
+	};
+
+	CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex);
+	~CRefCountCalc() { }
+
+	static QString SearchResultToolTip(const CRelIndex &refIndex);		// Create complete reference statistics report
+	static QString PassageReferenceText(const CRelIndex &refIndex);		// Creates a reference text string like "Genesis 1:1 [5]"
+
+	REF_TYPE_ENUM refType() const { return m_nRefType; }
+	CRelIndex refIndex() const { return m_ndxRef; }
+
+	unsigned int ofBible() const { return m_nOfBible; }
+	unsigned int ofTestament() const { return m_nOfTst; }
+	unsigned int ofBook() const { return m_nOfBk; }
+	unsigned int ofChapter() const { return m_nOfChp; }
+	unsigned int ofVerse() const { return m_nOfVrs; }
+
+private:
+	CRelIndex m_ndxRef;			// Relative Index
+
+	REF_TYPE_ENUM m_nRefType;	// Type of Reference these counts are for
+
+	// All entries above the type specified will be valid:
+	unsigned int m_nOfBible;	// Testament, Book, Chapter, Verse, Word of the whole Bible
+	unsigned int m_nOfTst;		// Book, Chapter, Verse, Word of the Testament
+	unsigned int m_nOfBk;		// Chapter, Verse, Word of the Book
+	unsigned int m_nOfChp;		// Verse, Word of the Chapter
+	unsigned int m_nOfVrs;		// Word of the Verse
+};
+
+
+// ============================================================================
+
 typedef std::vector<uint32_t> TIndexList;			// Index List for words into book/chapter/verse/word
 
 struct IndexSortPredicate {
@@ -86,10 +133,19 @@ struct XformLower {
 class CTestamentEntry
 {
 public:
-	CTestamentEntry() { }
+	CTestamentEntry()
+	:	m_nNumBk(0),
+		m_nNumChp(0),
+		m_nNumVrs(0),
+		m_nNumWrd(0)
+	{ }
 	~CTestamentEntry() { }
 
 	QString  m_strTstName;		// Name of testament (display name)
+	unsigned int m_nNumBk;		// Number of Books in this testament
+	unsigned int m_nNumChp;		// Number of Chapters in this testament
+	unsigned int m_nNumVrs;		// Number of Verses in this testament
+	unsigned int m_nNumWrd;		// Number of Words in this testament
 };
 
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
@@ -220,5 +276,6 @@ typedef QStringList TConcordanceList;
 
 extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
 extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+
 
 #endif // DBSTRUCT_H

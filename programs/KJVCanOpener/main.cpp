@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
 		return -2;
 	}
 
+	// Must have database read above before we create main or else the
+	//		data won't be available for the browser objects and such:
 	CKJVCanOpener wMain;
 	wMain.show();
 	splash->finish(&wMain);

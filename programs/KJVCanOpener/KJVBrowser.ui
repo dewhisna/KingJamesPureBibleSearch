@@ -6,49 +6,35 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
-    <height>308</height>
+    <width>402</width>
+    <height>291</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLabel" name="lblBook">
+          <widget class="QLabel" name="lblBkChp">
            <property name="text">
-            <string>Book:</string>
+            <string>Book/Chapter:</string>
            </property>
            <property name="buddy">
-            <cstring>comboBook</cstring>
+            <cstring>comboBk</cstring>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBook"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="lblChapter">
-           <property name="text">
-            <string>Chapter:</string>
-           </property>
-           <property name="buddy">
-            <cstring>comboChapter</cstring>
-           </property>
-          </widget>
+          <widget class="QComboBox" name="comboBk"/>
          </item>
          <item>
-          <widget class="QComboBox" name="comboChapter"/>
+          <widget class="QComboBox" name="comboBkChp"/>
          </item>
         </layout>
        </item>
@@ -65,9 +51,106 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="lblTestament">
+           <property name="text">
+            <string>Testament:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="lblTstBk">
+             <property name="text">
+              <string>Book:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboTstBk"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="lblTstChp">
+             <property name="text">
+              <string>Chapter:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboTstChp"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>13</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="lblBible">
+           <property name="text">
+            <string>Entire Bible:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="lblBibleBk">
+             <property name="text">
+              <string>Book:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBibleBk"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="lblBibleChp">
+             <property name="text">
+              <string>Chapter:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBibleChp"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
       </layout>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QTextBrowser" name="textBrowserMainText">
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -81,6 +164,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBk</tabstop>
+  <tabstop>comboBkChp</tabstop>
+  <tabstop>textBrowserMainText</tabstop>
+  <tabstop>comboTstBk</tabstop>
+  <tabstop>comboTstChp</tabstop>
+  <tabstop>comboBibleBk</tabstop>
+  <tabstop>comboBibleChp</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
