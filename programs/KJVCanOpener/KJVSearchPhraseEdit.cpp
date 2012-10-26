@@ -2,6 +2,7 @@
 #include "ui_KJVSearchPhraseEdit.h"
 
 #include "dbstruct.h"
+#include "PhraseListModel.h"
 
 #include <QTextEdit>
 #include <QModelIndex>
@@ -457,8 +458,10 @@ void CPhraseCursor::selectCursorToLineEnd()
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	QTextEdit(pParent),
 		m_pCompleter(NULL),
+		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
-		m_bUpdateInProgress(false)
+		m_bUpdateInProgress(false),
+		m_icoDroplist(":/res/droplist.png")
 {
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
@@ -467,9 +470,24 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 //	m_pCompleter->setCompletionMode(QCompleter::InlineCompletion);
 	m_pCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 
+	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
+	m_pButtonDroplist->setFlat(true);
+	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
+
+	CPhraseList phrases = g_lstCommonPhrases;
+	phrases.append(g_lstUserPhrases);
+	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases);
+	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
+	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
+	m_pCommonPhrasesCompleter->setWidget(this);
+	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
+	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
+	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
+	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 }
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
@@ -485,6 +503,15 @@ void CPhraseLineEdit::insertCompletion(const QString& completion)
 
 	CParsedPhrase::insertCompletion(textCursor(), completion);
 }
+
+void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
+{
+	CPhraseCursor cursor(textCursor());
+	cursor.clearSelection();
+	cursor.select(QTextCursor::LineUnderCursor);
+	cursor.insertText(completion);							// Replace with completed word
+}
+
 
 QString CPhraseLineEdit::textUnderCursor() const
 {
@@ -651,6 +678,24 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 */
 
 
+void CPhraseLineEdit::resizeEvent(QResizeEvent *event)
+{
+	m_pButtonDroplist->move(width()-m_pButtonDroplist->width(),0);
+}
+
+void CPhraseLineEdit::on_dropCommonPhrasesClicked()
+{
+//	CPhraseCursor cursor(textCursor());
+//
+//	cursor.clearSelection();
+//	cursor.select(QTextCursor::LineUnderCursor);
+//
+//	QString strPhrase = cursor.selectedText();
+//
+//	m_pCommonPhrasesCompleter->setCompletionPrefix(strPhrase);
+
+	m_pCommonPhrasesCompleter->complete();
+}
 
 
 // ============================================================================

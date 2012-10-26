@@ -9,6 +9,8 @@
 #include <QKeyEvent>
 #include <QCompleter>
 #include <QStringList>
+#include <QIcon>
+#include <QPushButton>
 
 #include <QStatusBar>
 #include <utility>
@@ -94,8 +96,10 @@ public:
 
 private slots:
 	void insertCompletion(const QString &completion);
+	void insertCommonPhraseCompletion(const QString &completion);
 	void on_textChanged();
 	void on_cursorPositionChanged();
+	void on_dropCommonPhrasesClicked();
 
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
@@ -108,15 +112,22 @@ protected:
 	// TODO : Remove this and set parent to non-virtual after done debugging!
 	virtual void ParsePhrase(const QTextCursor &curInsert);
 
-private:
-	void keyPressEvent(QKeyEvent* event);
+protected:
+	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void resizeEvent(QResizeEvent *event);
 	QString textUnderCursor() const;
 
 // Data Private:
 private:
-	QCompleter *m_pCompleter;
+	QCompleter *m_pCompleter;					// Word completer
+	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
 	bool m_bUpdateInProgress;	// Completer update in progress (to guard against re-entrance)
+
+// UI Private:
+private:
+	QIcon m_icoDroplist;
+	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
 };
 
 // ============================================================================

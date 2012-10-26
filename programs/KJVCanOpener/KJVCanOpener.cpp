@@ -14,7 +14,6 @@
 #include <QStringList>
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include <QGridLayout>
 #include <QScrollBar>
 
 // ============================================================================

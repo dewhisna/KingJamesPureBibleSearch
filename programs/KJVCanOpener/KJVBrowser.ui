@@ -31,10 +31,18 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBk"/>
+          <widget class="QComboBox" name="comboBk">
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBkChp"/>
+          <widget class="QComboBox" name="comboBkChp">
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -73,7 +81,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboTstBk"/>
+            <widget class="QComboBox" name="comboTstBk">
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -87,7 +99,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboTstChp"/>
+            <widget class="QComboBox" name="comboTstChp">
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -128,7 +144,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBibleBk"/>
+            <widget class="QComboBox" name="comboBibleBk">
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -142,7 +162,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBibleChp"/>
+            <widget class="QComboBox" name="comboBibleChp">
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

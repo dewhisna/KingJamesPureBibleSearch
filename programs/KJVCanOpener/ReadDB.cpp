@@ -340,6 +340,47 @@ bool CReadDatabase::ReadWORDSTable()
 	return true;
 }
 
+bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
+{
+	// Read the PHRASES table:
+
+	QSqlQuery query(m_myDatabase);
+
+	// Check to see if the table exists:
+	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PHRASES'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"PHRASES\" Failed!\n%1").arg(query.lastError().text()));
+		return false;
+	}
+	query.next();
+	if (!query.value(0).toInt()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"PHRASES\" Table in database!");
+		return false;
+	}
+
+	if (bUserPhrases) {
+		g_lstUserPhrases.clear();
+	} else {
+		g_lstCommonPhrases.clear();
+	}
+
+	query.setForwardOnly(true);
+	query.exec("SELECT * FROM PHRASES");
+	while (query.next()) {
+		CPhraseEntry phrase;
+		phrase.m_strPhrase = query.value(1).toString();
+		phrase.m_bCaseSensitive = ((query.value(2).toInt() != 0) ? true : false);
+		if (!phrase.m_strPhrase.isEmpty()) {
+			if (bUserPhrases) {
+				g_lstUserPhrases.push_back(phrase);
+			} else {
+				g_lstCommonPhrases.push_back(phrase);
+			}
+		}
+	}
+
+	return true;
+}
+
 bool CReadDatabase::ValidateData()
 {
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
@@ -498,8 +539,28 @@ bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
 		(!ReadTOCTable()) ||
 		(!ReadLAYOUTTable()) ||
 		(!ReadBookTables()) ||
-		(!ReadWORDSTable()) /* ||
+		(!ReadWORDSTable()) ||
+		(!ReadPHRASESTable(false)) /* ||
 		(!ValidateData()) */ ) bSuccess = false;
+
+	m_myDatabase.close();
+
+	return bSuccess;
+}
+
+bool CReadDatabase::ReadUserDatabase(const char *pstrDatabaseFilename)
+{
+	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
+
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
+		return false;
+	}
+
+	bool bSuccess = true;
+
+	if (!ReadPHRASESTable(true)) bSuccess = false;
 
 	m_myDatabase.close();
 

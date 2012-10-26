@@ -15,6 +15,7 @@ public:
 	~CReadDatabase() { }
 
 	bool ReadDatabase(const char *pstrDatabaseFilename);
+	bool ReadUserDatabase(const char *pstrDatabaseFilename);
 
 	static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList);
 
@@ -24,6 +25,7 @@ protected:
 	bool ReadLAYOUTTable();
 	bool ReadBookTables();
 	bool ReadWORDSTable();
+	bool ReadPHRASESTable(bool bUserPhrases = false);
 	bool ValidateData();
 
 private:

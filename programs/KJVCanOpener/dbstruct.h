@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <QString>
 #include <QStringList>
+#include <QList>
+#include <QVariant>
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -277,5 +279,28 @@ typedef QStringList TConcordanceList;
 extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
 extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 
+// ============================================================================
+
+// Phrases -- Common and Saved Search Phrase Lists:
+//
+
+class CPhraseEntry
+{
+public:
+	CPhraseEntry()
+		:	m_bCaseSensitive(false)
+	{ }
+	~CPhraseEntry() { }
+
+	bool m_bCaseSensitive;
+	QString m_strPhrase;
+};
+
+Q_DECLARE_METATYPE(CPhraseEntry)
+
+typedef QList<CPhraseEntry> CPhraseList;
+
+extern CPhraseList g_lstCommonPhrases;			// Common phrases read from database
+extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database
 
 #endif // DBSTRUCT_H

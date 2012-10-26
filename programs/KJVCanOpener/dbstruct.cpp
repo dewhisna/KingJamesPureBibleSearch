@@ -24,6 +24,12 @@ TConcordanceList g_lstConcordanceWords;
 // List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text:
 TIndexList g_lstConcordanceMapping;
 
+// Common phrases read from database:
+CPhraseList g_lstCommonPhrases;
+
+// User-defined phrases read from optional user database:
+CPhraseList g_lstUserPhrases;
+
 // ============================================================================
 
 uint32_t NormalizeIndex(const CRelIndex &nRelIndex)
