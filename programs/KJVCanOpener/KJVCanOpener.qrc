@@ -6,5 +6,7 @@
         <file>res/bible.ico</file>
         <file>res/list_add.png</file>
         <file>res/droplist.png</file>
+        <file>res/go_jump.png</file>
+        <file>res/go_jump2.png</file>
     </qresource>
 </RCC>

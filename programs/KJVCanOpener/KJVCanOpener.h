@@ -6,6 +6,7 @@
 #include <QListWidgetItem>
 #include <QModelIndex>
 #include <QScrollArea>
+#include <QAction>
 
 #include <assert.h>
 
@@ -67,8 +68,11 @@ protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);
 	void on_SearchResultDoubleClick(const QModelIndex &index);
 
+	void on_PassageNavigatorTriggered();
+
 // UI Private:
 private:
+	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	Ui::CKJVCanOpener *ui;
 };
 

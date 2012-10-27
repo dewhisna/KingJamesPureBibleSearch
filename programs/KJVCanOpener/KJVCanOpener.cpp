@@ -3,6 +3,7 @@
 
 #include "dbstruct.h"
 #include "VerseListModel.h"
+#include "KJVPassageNavigatorDlg.h"
 
 #include <assert.h>
 
@@ -32,9 +33,14 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QMainWindow(parent),
+	m_pActionJump(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
+
+	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
+	ui->mainToolBar->addAction(m_pActionJump);
+	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(on_PassageNavigatorTriggered()));
 
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit();
@@ -152,3 +158,11 @@ void CKJVCanOpener::on_SearchResultDoubleClick(const QModelIndex &index)
 	ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
 }
 
+void CKJVCanOpener::on_PassageNavigatorTriggered()
+{
+	CKJVPassageNavigatorDlg dlg(this);
+
+	if (dlg.exec() == QDialog::Accepted) {
+		// TODO : Jump to passage
+	}
+}

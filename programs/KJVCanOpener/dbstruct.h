@@ -31,6 +31,9 @@ public:
 	}
 	~CRelIndex() { }
 
+	QString SearchResultToolTip() const;		// Create complete reference statistics report
+	QString PassageReferenceText() const;		// Creates a reference text string like "Genesis 1:1 [5]"
+
 	QString testamentName() const;
 	uint32_t testament() const;
 
@@ -93,6 +96,19 @@ public:
 	unsigned int ofBook() const { return m_nOfBk; }
 	unsigned int ofChapter() const { return m_nOfChp; }
 	unsigned int ofVerse() const { return m_nOfVrs; }
+
+	// calcRelIndex - Calculates a relative index from counts.  For example:
+	//			calcRelIndex(1, 1, 666, 0, 0, 1);					// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
+	//			calcRelIndex(1, 393, 0, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 393 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 1);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Old Testament
+	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+	static CRelIndex calcRelIndex(	unsigned int nWord,
+									unsigned int nVerse,
+									unsigned int nChapter,
+									unsigned int nBook,
+									unsigned int nTestament);
 
 private:
 	CRelIndex m_ndxRef;			// Relative Index

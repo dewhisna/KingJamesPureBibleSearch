@@ -3,6 +3,8 @@
 
 #include "dbstruct.h"
 
+#include <assert.h>
+
 // Global Testament List:
 TTestamentList g_lstTestaments;
 
@@ -131,6 +133,62 @@ QString CRelIndex::bookName() const
 	return toc.m_strBkName;
 }
 
+QString CRelIndex::SearchResultToolTip() const
+{
+//	CRefCountCalc Tst(CRefCountCalc::RTE_TESTAMENT, *this);
+	CRefCountCalc Bk(CRefCountCalc::RTE_BOOK, *this);
+	CRefCountCalc Chp(CRefCountCalc::RTE_CHAPTER, *this);
+	CRefCountCalc Vrs(CRefCountCalc::RTE_VERSE, *this);
+	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, *this);
+
+//	return	QString("%1\n\n").arg(PassageReferenceText()) +
+//			QString("Book \n"
+//					"    of Bible: %1\n"
+//					"    of %2: %3\n").arg(Bk.ofBible()).arg(testamentName()).arg(Bk.ofTestament()) +
+//			QString("Chapter \n"
+//					"    of Bible: %1\n"
+//					"    of %2: %3\n"
+//					"    of Book: %4\n").arg(Chp.ofBible()).arg(testamentName()).arg(Chp.ofTestament()).arg(Chp.ofBook()) +
+//			QString("Verse \n"
+//					"    of Bible: %1\n"
+//					"    of %2: %3\n"
+//					"    of Book: %4\n"
+//					"    of Chapter: %5\n").arg(Vrs.ofBible()).arg(testamentName()).arg(Vrs.ofTestament()).arg(Vrs.ofBook()).arg(Vrs.ofChapter()) +
+//			QString("Word/Phrase\n"
+//					"    of Bible: %1\n"
+//					"    of %2: %3\n"
+//					"    of Book: %4\n"
+//					"    of Chapter: %5\n"
+//					"    of Verse: %6\n").arg(Wrd.ofBible()).arg(testamentName()).arg(Wrd.ofTestament()).arg(Wrd.ofBook()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
+
+	return	QString("%1\n\n").arg(PassageReferenceText()) +
+			QString("Book \n"
+					"    %1 of Bible\n"
+					"    %2 of %3\n").arg(Bk.ofBible()).arg(Bk.ofTestament()).arg(testamentName()) +
+			QString("Chapter \n"
+					"    %1 of Bible\n"
+					"    %2 of %3\n"
+					"    %4 of %5\n").arg(Chp.ofBible()).arg(Chp.ofTestament()).arg(testamentName()).arg(Chp.ofBook()).arg(bookName()) +
+			QString("Verse \n"
+					"    %1 of Bible\n"
+					"    %2 of %3\n"
+					"    %4 of %5\n"
+					"    %6 of Chapter\n").arg(Vrs.ofBible()).arg(Vrs.ofTestament()).arg(testamentName()).arg(Vrs.ofBook()).arg(bookName()).arg(Vrs.ofChapter()) +
+			QString("Word/Phrase\n"
+					"    %1 of Bible\n"
+					"    %2 of %3\n"
+					"    %4 of %5\n"
+					"    %6 of Chapter\n"
+					"    %7 of Verse\n").arg(Wrd.ofBible()).arg(Wrd.ofTestament()).arg(testamentName()).arg(Wrd.ofBook()).arg(bookName()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
+
+}
+
+QString CRelIndex::PassageReferenceText() const
+{
+	if (!isSet()) return "<Invalid Reference>";
+	return QString("%1 %2:%3 [%4]").arg(bookName()).arg(chapter()).arg(verse()).arg(word());
+}
+
 // ============================================================================
 
 CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
@@ -234,56 +292,153 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 
 QString CRefCountCalc::SearchResultToolTip(const CRelIndex &refIndex)
 {
-	CRefCountCalc Tst(RTE_TESTAMENT, refIndex);
-	CRefCountCalc Bk(RTE_BOOK, refIndex);
-	CRefCountCalc Chp(RTE_CHAPTER, refIndex);
-	CRefCountCalc Vrs(RTE_VERSE, refIndex);
-	CRefCountCalc Wrd(RTE_WORD, refIndex);
-
-//	return	QString("%1\n\n").arg(PassageReferenceText(refIndex)) +
-//			QString("Book \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n").arg(Bk.ofBible()).arg(refIndex.testamentName()).arg(Bk.ofTestament()) +
-//			QString("Chapter \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n").arg(Chp.ofBible()).arg(refIndex.testamentName()).arg(Chp.ofTestament()).arg(Chp.ofBook()) +
-//			QString("Verse \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n"
-//					"    of Chapter: %5\n").arg(Vrs.ofBible()).arg(refIndex.testamentName()).arg(Vrs.ofTestament()).arg(Vrs.ofBook()).arg(Vrs.ofChapter()) +
-//			QString("Word/Phrase\n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n"
-//					"    of Chapter: %5\n"
-//					"    of Verse: %6\n").arg(Wrd.ofBible()).arg(refIndex.testamentName()).arg(Wrd.ofTestament()).arg(Wrd.ofBook()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
-
-	return	QString("%1\n\n").arg(PassageReferenceText(refIndex)) +
-			QString("Book \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n").arg(Bk.ofBible()).arg(Bk.ofTestament()).arg(refIndex.testamentName()) +
-			QString("Chapter \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n").arg(Chp.ofBible()).arg(Chp.ofTestament()).arg(refIndex.testamentName()).arg(Chp.ofBook()).arg(refIndex.bookName()) +
-			QString("Verse \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n"
-					"    %6 of Chapter\n").arg(Vrs.ofBible()).arg(Vrs.ofTestament()).arg(refIndex.testamentName()).arg(Vrs.ofBook()).arg(refIndex.bookName()).arg(Vrs.ofChapter()) +
-			QString("Word/Phrase\n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n"
-					"    %6 of Chapter\n"
-					"    %7 of Verse\n").arg(Wrd.ofBible()).arg(Wrd.ofTestament()).arg(refIndex.testamentName()).arg(Wrd.ofBook()).arg(refIndex.bookName()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
+	return refIndex.SearchResultToolTip();
 }
 
 QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)
 {
-	return QString("%1 %2:%3 [%4]").arg(refIndex.bookName()).arg(refIndex.chapter()).arg(refIndex.verse()).arg(refIndex.word());
+	return refIndex.PassageReferenceText();
+}
+
+	// calcRelIndex - Calculates a relative index from counts.  For example:
+	//			calcRelIndex(1, 1, 666, 0, 0, 1);					// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
+	//			calcRelIndex(1, 393, 0, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 393 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 1);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Old Testament
+	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+CRelIndex CRefCountCalc::calcRelIndex(	unsigned int nWord, unsigned int nVerse,
+									unsigned int nChapter, unsigned int nBook, unsigned int nTestament)
+{
+	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
+
+	if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
+	if (nBook > g_lstTOC.size()) return CRelIndex();
+	if (nTestament != 0) {		// Whole Bible starts at Testament[0], Testament 1 is Testament[0], Testament 2 is Testament[1], etc
+		nTestament--;
+		if (nBook > g_lstTestaments[nTestament].m_nNumBk) return CRelIndex();
+	}
+
+	// Testament of Bible:
+	for (unsigned int ndx=0; ndx<nTestament; ++ndx) {
+		if (nBook) {
+			nBook += g_lstTestaments[ndx].m_nNumBk;				// Keep book at correct index, we'll calculate word relative to book below
+		} else {
+			ndxWord += g_lstTestaments[ndx].m_nNumWrd;			// Add words for testaments prior, otherwise, we're working off of testament only
+		}
+	}	// At this point, nBook will be relative to the Bible, nTestament isn't needed beyond this
+
+	if (nBook) {
+		// Book of Bible/Testament:
+		for (unsigned int ndx=1; ndx<nBook; ++ndx)
+			ndxWord += g_lstTOC[ndx-1].m_nNumWrd;					// Add words for Books prior to target
+	}
+
+	if (nChapter) {
+		if (nBook == 0) {
+			// Chapter of Bible/Testament:
+			while (nChapter > g_lstTOC[nBook].m_nNumChp) {		// Resolve nBook -- NOTE: nBook starts at 0 here!! (no -1!!)
+				ndxWord += g_lstTOC[nBook].m_nNumWrd;			// Add words for books prior to target book
+				nChapter -= g_lstTOC[nBook].m_nNumChp;
+				nBook++;
+				if (nBook >= g_lstTOC.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
+			}
+			nBook++;
+		}
+		// Chapter of Book:
+		if (nChapter>g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
+		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
+			ndxWord += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumWrd;	// Add words for chapters prior to target chapter in target book
+		}
+	}
+	// At this point, if we have nChapter, we will have a definite nBook set, and nChapter will be relative to nBook
+	//			However, if nBook is set, we don't necessarily have nChapter, as we could be referencing a verse or word of a book instead of a chapter
+
+	if (nVerse) {
+		if (nChapter) {
+			// Verse of Chapter (we already have the book, calculated above)
+			assert(nBook > 0);		// We should have nBook set above!
+			const CLayoutEntry &bkLayout = g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)];
+			if (nVerse>bkLayout.m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
+			for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
+				ndxWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Add words for verses prior to target verse in target chapter of target book
+			}
+		} else {
+			// Verse of Bible/Testament/Book
+			if (nBook == 0) {
+				// Verse of Bible/Testament:
+				while (nVerse > g_lstTOC[nBook].m_nNumVrs) {	// Resolve nBook -- NOTE: nBook starts at 0 here!! (no -1!!)
+					ndxWord += g_lstTOC[nBook].m_nNumWrd;		// Add words for books prior to target book
+					nVerse -= g_lstTOC[nBook].m_nNumVrs;
+					nBook++;
+					if (nBook >= g_lstTOC.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
+				}
+				nBook++;
+			}
+			// Verse of Book:
+			if (nVerse>g_lstTOC[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
+			nChapter++;
+			while (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) {		// Resolve nChapter -- NOTE: nChapter starts at 1 here!! (no +1!!)
+				ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;			// Add words for chapters prior to target chapter in target book
+				nVerse -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs;
+				nChapter++;
+				if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
+			}
+		}
+	}
+	// At this point, if we have nVerse, we will have a definite nBook and nChapter set, and nVerse will be relative to nBook/nChapter
+	//			However, if either nBook or nChapter is set, we don't necessarily have nVerse, as we could be referencing a word of a book or chapter instead of a verse
+
+	if (nWord == 0) nWord = 1;			// Assume 1st word of target
+	if (nVerse) {
+		// Word of Verse (we already have the book and chapter calculated above)
+		assert(nBook > 0);		// We should have nBook set above!
+		assert(nChapter > 0);	// We should have nChapter set above!
+		const CBookEntry &verse = (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)];
+		if (nWord>verse.m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
+	} else {
+		// Word of Bible/Testament/Book/Chapter:
+		if (nChapter == 0) {
+			// Verse of Bible/Testament/Book:
+			if (nBook == 0) {
+				// Word of Bible/Testament:
+				while (nWord > g_lstTOC[nBook].m_nNumWrd) {		// Resolve nBook  -- NOTE: nBook starts at 0 here!! (no -1!!)
+					ndxWord += g_lstTOC[nBook].m_nNumWrd;
+					nWord -= g_lstTOC[nBook].m_nNumWrd;
+					nBook++;
+					if (nBook >= g_lstTOC.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
+				}
+				nBook++;
+			}
+			// Word of Book
+			if (nWord>g_lstTOC[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
+			nChapter++;
+			while (nWord > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) {	// Resolve nChapter -- NOTE: nChapter starts at 1 here!! (no +1!!)
+				ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
+				nWord -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
+				nChapter++;
+				if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
+			}
+		}
+		// Word of Chapter:
+		if (nWord>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
+		const TBookEntryMap &book = g_lstBooks[nBook-1];
+		nVerse++;
+		while (nWord > book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse -- NOTE: nVerse starts at 1 here!! (no +1!!)
+			ndxWord += book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
+			nWord -= book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
+			nVerse++;
+			if (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
+		}
+	}
+	ndxWord += nWord;		// Add up to include target word
+
+	// At this point, either nBook/nChapter/nVerse/nWord is completely resolved.
+	//		As a cross-check, ndxWord should be the Normalized index:
+	CRelIndex ndxResult(nBook, nChapter, nVerse, nWord);
+//	assert(ndxWord == NormalizeIndex((ndxResult)));
+
+	return ndxResult;
 }
 
 // ============================================================================
