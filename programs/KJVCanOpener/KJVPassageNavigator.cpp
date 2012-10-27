@@ -27,6 +27,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 //	setPassage(CRelIndex(1, 1, 1, 1));
 	setPassage(CRelIndex());
 
+	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
 	connect(ui->editWord, SIGNAL(textEdited(const QString &)), this, SLOT(WordChanged(const QString &)));
 	connect(ui->editVerse, SIGNAL(textEdited(const QString &)), this, SLOT(VerseChanged(const QString &)));
 	connect(ui->editChapter, SIGNAL(textEdited(const QString &)), this, SLOT(ChapterChanged(const QString &)));
@@ -94,7 +95,7 @@ void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
 	m_nVerse = ndx.verse();
 	ui->editWord->setText(QString("%1").arg(ndx.word()));
 	m_nWord = ndx.word();
-	ui->editResolved->setText(ndx.PassageReferenceText());
+	CalcPassage();
 
 	end_update();
 }

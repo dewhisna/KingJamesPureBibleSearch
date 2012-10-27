@@ -300,34 +300,31 @@ QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)
 	return refIndex.PassageReferenceText();
 }
 
-	// calcRelIndex - Calculates a relative index from counts.  For example:
-	//			calcRelIndex(1, 1, 666, 0, 0, 1);					// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
-	//			calcRelIndex(1, 393, 0, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 393 of Book 5 of the Bible
-	//			calcRelIndex(1, 13, 13, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Bible
-	//			calcRelIndex(1, 13, 13, 5, 1);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Old Testament
-	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
-	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
 CRelIndex CRefCountCalc::calcRelIndex(	unsigned int nWord, unsigned int nVerse,
 									unsigned int nChapter, unsigned int nBook, unsigned int nTestament)
 {
 	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
 
-	if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
-	if (nBook > g_lstTOC.size()) return CRelIndex();
-	if (nTestament != 0) {		// Whole Bible starts at Testament[0], Testament 1 is Testament[0], Testament 2 is Testament[1], etc
-		nTestament--;
-		if (nBook > g_lstTestaments[nTestament].m_nNumBk) return CRelIndex();
-	}
+	if (nWord == 0) nWord = 1;			// Assume 1st word of target
 
 	// Testament of Bible:
-	for (unsigned int ndx=0; ndx<nTestament; ++ndx) {
-		if (nBook) {
-			nBook += g_lstTestaments[ndx].m_nNumBk;				// Keep book at correct index, we'll calculate word relative to book below
-		} else {
-			ndxWord += g_lstTestaments[ndx].m_nNumWrd;			// Add words for testaments prior, otherwise, we're working off of testament only
+	if (nTestament) {
+		if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
+		for (unsigned int ndx=1; ndx<nTestament; ++ndx) {
+			// Ripple down to children:
+			if (nBook) {
+				nBook += g_lstTestaments[ndx-1].m_nNumBk;
+			} else if (nChapter) {
+				nChapter += g_lstTestaments[ndx-1].m_nNumChp;
+			} else if (nVerse) {
+				nVerse += g_lstTestaments[ndx-1].m_nNumVrs;
+			} else {
+				nWord += g_lstTestaments[ndx-1].m_nNumWrd;
+			}
 		}
-	}	// At this point, nBook will be relative to the Bible, nTestament isn't needed beyond this
+	}	// At this point, top specified index will be relative to the Bible, nTestament isn't needed beyond this point
 
+	if (nBook > g_lstTOC.size()) return CRelIndex();
 	if (nBook) {
 		// Book of Bible/Testament:
 		for (unsigned int ndx=1; ndx<nBook; ++ndx)
@@ -355,16 +352,8 @@ CRelIndex CRefCountCalc::calcRelIndex(	unsigned int nWord, unsigned int nVerse,
 	//			However, if nBook is set, we don't necessarily have nChapter, as we could be referencing a verse or word of a book instead of a chapter
 
 	if (nVerse) {
-		if (nChapter) {
-			// Verse of Chapter (we already have the book, calculated above)
-			assert(nBook > 0);		// We should have nBook set above!
-			const CLayoutEntry &bkLayout = g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)];
-			if (nVerse>bkLayout.m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
-			for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
-				ndxWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Add words for verses prior to target verse in target chapter of target book
-			}
-		} else {
-			// Verse of Bible/Testament/Book
+		if (nChapter == 0) {
+			// Verse of Bible/Testament/Book:
 			if (nBook == 0) {
 				// Verse of Bible/Testament:
 				while (nVerse > g_lstTOC[nBook].m_nNumVrs) {	// Resolve nBook -- NOTE: nBook starts at 0 here!! (no -1!!)
@@ -385,18 +374,18 @@ CRelIndex CRefCountCalc::calcRelIndex(	unsigned int nWord, unsigned int nVerse,
 				if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
 			}
 		}
+		// Verse of Chapter (we already have the book, calculated above):
+		assert(nBook > 0);		// We should have nBook set above!
+		const CLayoutEntry &bkLayout = g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)];
+		if (nVerse>bkLayout.m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
+		for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
+			ndxWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Add words for verses prior to target verse in target chapter of target book
+		}
 	}
 	// At this point, if we have nVerse, we will have a definite nBook and nChapter set, and nVerse will be relative to nBook/nChapter
 	//			However, if either nBook or nChapter is set, we don't necessarily have nVerse, as we could be referencing a word of a book or chapter instead of a verse
 
-	if (nWord == 0) nWord = 1;			// Assume 1st word of target
-	if (nVerse) {
-		// Word of Verse (we already have the book and chapter calculated above)
-		assert(nBook > 0);		// We should have nBook set above!
-		assert(nChapter > 0);	// We should have nChapter set above!
-		const CBookEntry &verse = (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)];
-		if (nWord>verse.m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
-	} else {
+	if (nVerse == 0) {
 		// Word of Bible/Testament/Book/Chapter:
 		if (nChapter == 0) {
 			// Verse of Bible/Testament/Book:
@@ -431,12 +420,19 @@ CRelIndex CRefCountCalc::calcRelIndex(	unsigned int nWord, unsigned int nVerse,
 			if (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
 		}
 	}
+	// Word of Verse (we already have the book and chapter calculated above):
+	assert(nBook > 0);		// We should have nBook set above!
+	assert(nChapter > 0);	// We should have nChapter set above!
+	assert(nVerse > 0);		// We should have nVerse set above!
+	assert(nWord > 0);		// We should have nWord set above (or defaulted to 1)!
+	const CBookEntry &verse = (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)];
+	if (nWord>verse.m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
 	ndxWord += nWord;		// Add up to include target word
 
 	// At this point, either nBook/nChapter/nVerse/nWord is completely resolved.
 	//		As a cross-check, ndxWord should be the Normalized index:
 	CRelIndex ndxResult(nBook, nChapter, nVerse, nWord);
-//	assert(ndxWord == NormalizeIndex((ndxResult)));
+	assert(ndxWord == NormalizeIndex((ndxResult)));
 
 	return ndxResult;
 }
