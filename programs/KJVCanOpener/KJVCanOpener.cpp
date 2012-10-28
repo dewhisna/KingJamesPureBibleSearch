@@ -57,7 +57,7 @@ CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 							ui->scrollAreaSearchPhrases->frameWidth() * 2,
 							pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
 
-
+/*
 pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
@@ -66,7 +66,9 @@ pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 
 ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
+*/
 
+ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
 
 
 //ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
@@ -148,6 +150,8 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 			pModel->setVerseList(CVerseList());
 		}
 	}
+
+	ui->lblSearchResultsCount->setText(QString("Found: %1").arg(lstReferences.count()));
 }
 
 void CKJVCanOpener::on_SearchResultDoubleClick(const QModelIndex &index)
