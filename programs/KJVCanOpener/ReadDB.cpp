@@ -312,11 +312,15 @@ bool CReadDatabase::ReadWORDSTable()
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, "Index/Count consistency error in WORDS table!");
 			return false;
 		}
-		// Add this word to our concordance, and set all normalized indices that refer it to point to this
-		//	specific word:
-		g_lstConcordanceWords.push_back(strKey);
-		for (unsigned int ndxMapping=0; ndxMapping<entryWord.m_ndxNormalized.size(); ++ndxMapping) {
-			g_lstConcordanceMapping[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceWords.size();
+		// Add this word and alternates to our concordance, and set all normalized indices that refer it to
+		//	point to the the specific word:
+		unsigned int ndxMapping=0;
+		for (unsigned int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+			g_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
+			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
+				g_lstConcordanceMapping[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceWords.size();
+				ndxMapping++;
+			}
 		}
 	}
 
