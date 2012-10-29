@@ -498,7 +498,7 @@ bool CBuildDatabase::BuildWORDSTable()
 
 			// Create the table in the database:
 			strCmd = QString("create table WORDS "
-							"(WrdNdx INTEGER PRIMARY KEY, Word TEXT, bIndexCasePreserve NUMERIC, NumTotal NUMERIC, AltWords TEXT, Mapping BLOB, NormalMap BLOB)");
+							"(WrdNdx INTEGER PRIMARY KEY, Word TEXT, bIndexCasePreserve NUMERIC, NumTotal NUMERIC, AltWords TEXT, AltWordCounts TEXT, Mapping BLOB, NormalMap BLOB)");
 
 			if (!queryCreate.exec(strCmd)) {
 				fileBook.close();
@@ -512,14 +512,15 @@ bool CBuildDatabase::BuildWORDSTable()
 				QStringList slHeaders;
 				csv >> slHeaders;              // Read Headers (verify and discard)
 
-				if ((slHeaders.size()!=7) ||
+				if ((slHeaders.size()!=8) ||
 					(slHeaders.at(0).compare("WrdNdx") != 0) ||
 					(slHeaders.at(1).compare("Word") != 0) ||
 					(slHeaders.at(2).compare("bIndexCasePreserve") != 0) ||
 					(slHeaders.at(3).compare("NumTotal") != 0) ||
 					(slHeaders.at(4).compare("AltWords") != 0) ||
-					(slHeaders.at(5).compare("Mapping") != 0) ||
-					(slHeaders.at(6).compare("NormalMap") != 0)) {
+					(slHeaders.at(5).compare("AltWordCounts") != 0) ||
+					(slHeaders.at(6).compare("Mapping") != 0) ||
+					(slHeaders.at(7).compare("NormalMap") != 0)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for WORDS data file!"),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 						fileBook.close();
@@ -533,20 +534,21 @@ bool CBuildDatabase::BuildWORDSTable()
 					QStringList sl;
 					csv >> sl;
 
-					assert(sl.count() == 7);
-					if (sl.count() < 7) continue;
+					assert(sl.count() == 8);
+					if (sl.count() < 8) continue;
 
 					strCmd = QString("INSERT INTO WORDS "
-									"(WrdNdx, Word, bIndexCasePreserve, NumTotal, AltWords, Mapping, NormalMap) "
-									"VALUES (:WrdNdx, :Word, :bIndexCasePreserve, :NumTotal, :AltWords, :Mapping, :NormalMap)");
+									"(WrdNdx, Word, bIndexCasePreserve, NumTotal, AltWords, AltWordCounts, Mapping, NormalMap) "
+									"VALUES (:WrdNdx, :Word, :bIndexCasePreserve, :NumTotal, :AltWords, :AltWordCounts, :Mapping, :NormalMap)");
 					queryInsert.prepare(strCmd);
 					queryInsert.bindValue(":WrdNdx", sl.at(0).toUInt());
 					queryInsert.bindValue(":Word", sl.at(1));
 					queryInsert.bindValue(":bIndexCasePreserve", sl.at(2).toInt());
 					queryInsert.bindValue(":NumTotal", sl.at(3).toUInt());
 					queryInsert.bindValue(":AltWords", sl.at(4));
-					queryInsert.bindValue(":Mapping", CSVStringToIndexBlob(sl.at(5)), QSql::In | QSql::Binary);
-					queryInsert.bindValue(":NormalMap", CSVStringToIndexBlob(sl.at(6)), QSql::In | QSql::Binary);
+					queryInsert.bindValue(":AltWordCounts", sl.at(5));
+					queryInsert.bindValue(":Mapping", CSVStringToIndexBlob(sl.at(6)), QSql::In | QSql::Binary);
+					queryInsert.bindValue(":NormalMap", CSVStringToIndexBlob(sl.at(7)), QSql::In | QSql::Binary);
 
 					if (!queryInsert.exec()) {
 						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for WORDS!\n%1\n  %2  (%3)").arg(queryInsert.lastError().text()).arg(sl.at(1)).arg(sl.at(4)),

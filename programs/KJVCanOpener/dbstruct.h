@@ -134,8 +134,6 @@ struct IndexSortPredicate {
 	}
 };
 
-typedef std::vector<QString> TStringList;
-
 struct XformLower {
 	int operator()(int c)
 	{
@@ -264,11 +262,15 @@ extern TBookList g_lstBooks;	// Global Books
 class CWordEntry
 {
 public:
-	CWordEntry() { }
+	CWordEntry()
+	:	m_bCasePreserve(false)
+	{ }
 	~CWordEntry() { }
 
 	QString m_strWord;			// Word Text
-	TStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
+	bool m_bCasePreserve;		// Special Word Case Preserve
+	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
+	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TIndexList m_ndxMapping;	// Indexes
 	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of indexes in Mapping above)
 

@@ -270,10 +270,11 @@ bool CReadDatabase::ReadWORDSTable()
 	query.exec("SELECT * FROM WORDS");
 	while (query.next()) {
 		QString strWord = query.value(1).toString();
-		QString strKey = strWord;
-		if (query.value(2).toInt() == 0) strKey = strKey.toLower();
+		QString strKey = strWord.toLower();
 		CWordEntry &entryWord = g_mapWordList[strKey];
 		entryWord.m_strWord = strWord;
+		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
+
 		QString strAltWords = query.value(4).toString() + '\n';
 		CSVstream csvWord(&strAltWords, QIODevice::ReadOnly);
 		while (!csvWord.atEnd()) {
@@ -281,8 +282,28 @@ bool CReadDatabase::ReadWORDSTable()
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp);
 		}
-		if ((!IndexBlobToIndexList(query.value(5).toByteArray(), entryWord.m_ndxMapping)) ||
-			(!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalized))) {
+		QString strAltWordCounts = query.value(5).toString() + '\n';
+		CSVstream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
+		unsigned int nAltCount = 0;
+		while (!csvWordCount.atEnd()) {
+			QString strTemp;
+			csvWordCount >> strTemp;
+			if (!strTemp.isEmpty()) {
+				entryWord.m_lstAltWordCount.push_back(strTemp.toUInt());
+				nAltCount += strTemp.toUInt();
+			}
+		}
+		if (entryWord.m_lstAltWords.size() != entryWord.m_lstAltWordCount.size()) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Mismatch Word Counts for \"%1\" AltWords=%2, AltWordCounts=%3")
+							.arg(strWord).arg(entryWord.m_lstAltWords.size()).arg(entryWord.m_lstAltWordCount.size()));
+			return false;
+		}
+		if (nAltCount != query.value(3).toUInt()) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad AltWordCounts for \"%1\"").arg(strWord));
+		}
+
+		if ((!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxMapping)) ||
+			(!IndexBlobToIndexList(query.value(7).toByteArray(), entryWord.m_ndxNormalized))) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}

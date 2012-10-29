@@ -82,6 +82,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <stdint.h>
 //#include <locale>
@@ -247,6 +248,93 @@ const char *g_arrstrBkNames[NUM_BK] =
 
 const char *g_strCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-";		// Accept: [alphanumeric, -, '], we'll handle UTF-8 conversion and translate those to ASCII as appropriate
 
+static bool isSpecialWord(const std::string &strWord)
+{
+	if (stricmp(strWord.c_str(), "abominations") == 0) return true;
+	if (stricmp(strWord.c_str(), "am") == 0) return true;
+	if (stricmp(strWord.c_str(), "amen") == 0) return true;
+	if (stricmp(strWord.c_str(), "ancient") == 0) return true;
+	if (stricmp(strWord.c_str(), "and") == 0) return true;
+	if (stricmp(strWord.c_str(), "angel") == 0) return true;
+	if (stricmp(strWord.c_str(), "Babylon") == 0) return true;
+	if (stricmp(strWord.c_str(), "bishop") == 0) return true;
+	if (stricmp(strWord.c_str(), "branch") == 0) return true;
+	if (stricmp(strWord.c_str(), "cherub") == 0) return true;
+	if (stricmp(strWord.c_str(), "comforter") == 0) return true;
+	if (stricmp(strWord.c_str(), "creator") == 0) return true;
+	if (stricmp(strWord.c_str(), "day") == 0) return true;
+	if (stricmp(strWord.c_str(), "days") == 0) return true;
+	if (stricmp(strWord.c_str(), "devil") == 0) return true;
+	if (stricmp(strWord.c_str(), "dominion") == 0) return true;
+	if (stricmp(strWord.c_str(), "duke") == 0) return true;
+	if (stricmp(strWord.c_str(), "earth") == 0) return true;
+	if (stricmp(strWord.c_str(), "elect") == 0) return true;
+	if (stricmp(strWord.c_str(), "father") == 0) return true;
+	if (stricmp(strWord.c_str(), "father's") == 0) return true;
+	if (stricmp(strWord.c_str(), "fathers") == 0) return true;
+	if (stricmp(strWord.c_str(), "ghost") == 0) return true;
+	if (stricmp(strWord.c_str(), "God") == 0) return true;
+	if (stricmp(strWord.c_str(), "gods") == 0) return true;
+	if (stricmp(strWord.c_str(), "great") == 0) return true;
+	if (stricmp(strWord.c_str(), "harlots") == 0) return true;
+	if (stricmp(strWord.c_str(), "heaven") == 0) return true;
+	if (stricmp(strWord.c_str(), "hell") == 0) return true;
+	if (stricmp(strWord.c_str(), "highest") == 0) return true;
+	if (stricmp(strWord.c_str(), "him") == 0) return true;
+	if (stricmp(strWord.c_str(), "himself") == 0) return true;
+	if (stricmp(strWord.c_str(), "his") == 0) return true;
+	if (stricmp(strWord.c_str(), "holiness") == 0) return true;
+	if (stricmp(strWord.c_str(), "holy") == 0) return true;
+	if (stricmp(strWord.c_str(), "is") == 0) return true;
+	if (stricmp(strWord.c_str(), "Jesus") == 0) return true;
+	if (stricmp(strWord.c_str(), "Jews") == 0) return true;
+	if (stricmp(strWord.c_str(), "judge") == 0) return true;
+	if (stricmp(strWord.c_str(), "king") == 0) return true;
+	if (stricmp(strWord.c_str(), "kings") == 0) return true;
+	if (stricmp(strWord.c_str(), "kings'") == 0) return true;
+	if (stricmp(strWord.c_str(), "lamb") == 0) return true;
+	if (stricmp(strWord.c_str(), "legion") == 0) return true;
+	if (stricmp(strWord.c_str(), "lion") == 0) return true;
+	if (stricmp(strWord.c_str(), "lord") == 0) return true;
+	if (stricmp(strWord.c_str(), "lord's") == 0) return true;
+	if (stricmp(strWord.c_str(), "lords") == 0) return true;
+	if (stricmp(strWord.c_str(), "lot") == 0) return true;
+	if (stricmp(strWord.c_str(), "man") == 0) return true;
+	if (stricmp(strWord.c_str(), "man's") == 0) return true;
+	if (stricmp(strWord.c_str(), "master") == 0) return true;
+	if (stricmp(strWord.c_str(), "masters") == 0) return true;
+	if (stricmp(strWord.c_str(), "men") == 0) return true;
+	if (stricmp(strWord.c_str(), "men's") == 0) return true;
+	if (stricmp(strWord.c_str(), "mighty") == 0) return true;
+	if (stricmp(strWord.c_str(), "moon") == 0) return true;
+	if (stricmp(strWord.c_str(), "mother") == 0) return true;
+	if (stricmp(strWord.c_str(), "mystery") == 0) return true;
+	if (stricmp(strWord.c_str(), "Nazareth") == 0) return true;
+	if (stricmp(strWord.c_str(), "of") == 0) return true;
+	if (stricmp(strWord.c_str(), "one") == 0) return true;
+	if (stricmp(strWord.c_str(), "our") == 0) return true;
+	if (stricmp(strWord.c_str(), "righteousness") == 0) return true;
+	if (stricmp(strWord.c_str(), "sanctuary") == 0) return true;
+	if (stricmp(strWord.c_str(), "saviour") == 0) return true;
+	if (stricmp(strWord.c_str(), "sceptre") == 0) return true;
+	if (stricmp(strWord.c_str(), "shepherd") == 0) return true;
+	if (stricmp(strWord.c_str(), "son") == 0) return true;
+	if (stricmp(strWord.c_str(), "spirit") == 0) return true;
+	if (stricmp(strWord.c_str(), "spirits") == 0) return true;
+	if (stricmp(strWord.c_str(), "sun") == 0) return true;
+	if (stricmp(strWord.c_str(), "tabernacle") == 0) return true;
+	if (stricmp(strWord.c_str(), "that") == 0) return true;
+	if (stricmp(strWord.c_str(), "the") == 0) return true;
+	if (stricmp(strWord.c_str(), "this") == 0) return true;
+	if (stricmp(strWord.c_str(), "thy") == 0) return true;
+	if (stricmp(strWord.c_str(), "unknown") == 0) return true;
+	if (stricmp(strWord.c_str(), "unto") == 0) return true;
+	if (stricmp(strWord.c_str(), "word") == 0) return true;
+	if (stricmp(strWord.c_str(), "wormwood") == 0) return true;
+
+	return false;
+}
+
 // ============================================================================
 // Special Types
 
@@ -260,8 +348,9 @@ public:
 		for (int i=0; i<NUM_BK; ++i) m_arrUsage[i] = 0;
 	}
 
-	std::string m_strWord;		// Word Text
-	std::string m_strAltWords;	// CSV of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
+// TODO : CLEAN
+//	std::string m_strWord;		// Word Text
+//	std::string m_strAltWords;	// CSV of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	TIndexList m_ndxMapping;	// Indexes into text
 	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of entries in index above)
 	int m_arrUsage[NUM_BK];		// Word usage count by book.  Sum of the values in this array should match size of index above
@@ -275,7 +364,13 @@ public:
 
 };
 
+// WordListMap will be for ALL forms of all words so that we can get mapping/counts
+//	for all unique forms of words.  Then, we'll store the alternate words in
+//	TAltWordSet objects in the TAltWordListMap which is indexed by only the lower-case
+//	form.  We'll figure out the base "Word Text" and "AltWords" from the set data.
 typedef std::map<std::string, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
+typedef std::set<std::string, CWordEntry::SortPredicate> TAltWordSet;
+typedef std::map<std::string, TAltWordSet, CWordEntry::SortPredicate> TAltWordListMap;
 
 struct XformLower {
 	int operator()(int c)
@@ -284,11 +379,28 @@ struct XformLower {
 	}
 };
 
+// WordFromWordSet - Drives word toward lower-case and returns the resulting word.  The
+//		theory is that proper names will always be capitalized and non-proper names will
+//		have mixed case, being capital only when they start a new sentence.  Thus, if we
+//		drive toward lower-case, we should have an all-lower-case word for non-proper
+//		name words and mixed-case for proper names:
+std::string WordFromWordSet(const TAltWordSet &setAltWords)
+{
+	std::string strWord;
+
+	for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+		if ((strWord.empty()) ||
+			(strcmp((*itrAltWrd).c_str(), strWord.c_str()) > 0)) strWord = *itrAltWrd;
+	}
+
+	return strWord;
+}
 
 // ============================================================================
 // Global Variables
 
 TWordListMap g_mapWordList;			// Our one and only master word list
+TAltWordListMap g_mapAltWordList;	// Our alternate word list, mapping various case forms of words
 TIndexList g_NormalizationVerification;		// Mapping of normalized indexes to Bk/Chp/Vrs/Wrd index.  Used to verify the normalization process
 
 
@@ -386,7 +498,10 @@ int main(int argc, const char *argv[])
 	bool bDoingBook = false;		// TRUE if outputing BOOK table (nBkNdx = book to output)
 	bool bDoingWords = false;		// TRUE if outputing WORDS table
 	bool bDoingWordDump = false;	// TRUE if dumping words used (nBkNdx = book to output or 0 for all)
+	bool bDoingWordDumpKeys = false;	// TRUE if dumping unique Key words used (nBkNdx = book to output or 0 for all)
 	bool bDoingWordDumpUnique = false;	// TRUE if dumping unique words used (nBkNdx = book to output or 0 for all)
+	bool bDoingWordDumpUniqueLC = false;	// TRUE if dumping unique words used as lower-case keys (nBkNdx = book to output or 0 for all)
+	bool bDoingAltWordDump = false;	// TRUE if dumping the Alt Words List (nBkNdx = book to output or 0 for all)
 	bool bDoingBookDump = false;	// TRUE if dumping book content (nBkNdx = book to output or 0 for all)
 	bool bDoingSummary = false;		// TRUE if dumping word usage summary (always for all books)
 	bool bNeedUsage = false;		// TRUE if user needs usage info
@@ -428,13 +543,22 @@ int main(int argc, const char *argv[])
 		// Book name is ignored
 	} else if (stricmp(argv[1], "worddump") == 0) {
 		bDoingWordDump = true;
-		// Book name is optional -- used if specified, or "all" of not
+		// Book name is optional -- used if specified, or "all" if not
+	} else if (stricmp(argv[1], "worddumpkeys") == 0) {
+		bDoingWordDumpKeys = true;
+		// Book name is optional -- used if specified, or "all" if not
 	} else if (stricmp(argv[1], "worddumpunique") == 0) {
 		bDoingWordDumpUnique = true;
-		// Book name is optional -- used if specified, or "all" of not
+		// Book name is optional -- used if specified, or "all" if not
+	} else if (stricmp(argv[1], "worddumpuniqlc") == 0) {
+		bDoingWordDumpUniqueLC = true;
+		// Book name is optional -- used if specified, or "all" if not
+	} else if (stricmp(argv[1], "altworddump") == 0) {
+		bDoingAltWordDump = true;
+		// Book name is optional -- used if specified, or "all" if not
 	} else if (stricmp(argv[1], "bookdump") == 0) {
 		bDoingBookDump = true;
-		// Book name is optional -- used if specified, or "all" of not
+		// Book name is optional -- used if specified, or "all" if not
 	} else if (stricmp(argv[1], "summary") == 0) {
 		bDoingSummary = true;
 		// Book name is ignored
@@ -470,7 +594,10 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "      book           -- Dump BOOK table data for the specified book\n");
 		fprintf(stderr, "      words          -- Dump WORDS table data (book name not used)\n");
 		fprintf(stderr, "      worddump       -- Dumps all words (book name optional)\n");
+		fprintf(stderr, "      worddumpkeys   -- Dumps all key words (book name optional)\n");
 		fprintf(stderr, "      worddumpunique -- Dumps all unique words (book name optional)\n");
+		fprintf(stderr, "      worddumpuniqlc -- Dumps all unique words lowercase (book name optional)\n");
+		fprintf(stderr, "      altworddump    -- Dumps the alternate words table (book name optional)\n");
 		fprintf(stderr, "      bookdump       -- Dumps the content of specified book (Verse per line)\n");
 		fprintf(stderr, "      summary        -- Dump word usage Summary CSV (book name ignored)\n");
 		fprintf(stderr, "\n\n");
@@ -936,27 +1063,13 @@ int main(int argc, const char *argv[])
 			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(fileOut, "%s\r\n", word);
 			if ((nBkNdx == 0) || (nBk == nBkNdx)) {
 				std::string strWordKey(word);
-				bool bPreserve = false;
-				if ((stricmp(word, "Lord") != 0) &&
-					(stricmp(word, "Lord's") != 0) &&
-					(stricmp(word, "God") != 0)) {
-					std::transform(strWordKey.begin(), strWordKey.end(), strWordKey.begin(), XformLower());
-					bPreserve = true;
-				}
 
-				CWordEntry &wrdEntry = g_mapWordList[strWordKey];
+				// Set possible alternate word form:
+				std::transform(strWordKey.begin(), strWordKey.end(), strWordKey.begin(), XformLower());
+				TAltWordSet &wrdSet = g_mapAltWordList[strWordKey];
+				wrdSet.insert(word);
 
-				// If this is a brandnew entry, set the word as-is.  We'll preserve case as it could
-				//		be a proper name.  Note for ones to always preserve and have multiple case
-				//		resolution, like Lord/lord, the 'key' above is mixed case otherwise the key
-				//		is always lowercase.  If the word we are looking at is bigger than the
-				//		previous entry (in other words, if it is now "more lowercase than before",
-				//		we'll use the new word as-is, because the word has now been used multiple ways.
-				//		In theory, proper names won't always start at the beginning of a sentence, yet
-				//		will always have initial caps, and words that beginning a sentence will all
-				//		appear somewhere else in the text not at the beginning of a sentence.
-				if ((wrdEntry.m_strWord.empty()) ||
-					(strcmp(word, wrdEntry.m_strWord.c_str()) > 0)) wrdEntry.m_strWord = word;
+				CWordEntry &wrdEntry = g_mapWordList[word];
 
 				wrdEntry.m_arrUsage[nBk-1]++;
 
@@ -982,37 +1095,90 @@ int main(int argc, const char *argv[])
 		}
 	}
 
+	if (bDoingWordDumpKeys) {
+		for (TAltWordListMap::const_iterator itrUniqWrd = g_mapAltWordList.begin(); itrUniqWrd != g_mapAltWordList.end(); ++itrUniqWrd) {
+			const TAltWordSet &setAltWords = itrUniqWrd->second;
+			fprintf(fileOut, "%s\r\n", WordFromWordSet(setAltWords).c_str());
+		}
+	}
+
 	if (bDoingWordDumpUnique) {
 		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
-			fprintf(fileOut, "%s\r\n", itr->second.m_strWord.c_str());
+			fprintf(fileOut, "%s\r\n", itr->first.c_str());
+		}
+	}
+
+	if (bDoingWordDumpUniqueLC) {
+		for (TAltWordListMap::const_iterator itr = g_mapAltWordList.begin(); itr != g_mapAltWordList.end(); ++itr) {
+			fprintf(fileOut, "%s\r\n", itr->first.c_str());
+		}
+	}
+
+	if (bDoingAltWordDump) {
+		for (TAltWordListMap::const_iterator itrUniqWrd = g_mapAltWordList.begin(); itrUniqWrd != g_mapAltWordList.end(); ++itrUniqWrd) {
+			const TAltWordSet &setAltWords = itrUniqWrd->second;
+			std::string strAltWords;
+
+			if (setAltWords.size() < 2) continue;
+
+			for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+				if (!strAltWords.empty()) strAltWords += ",";
+				strAltWords += *itrAltWrd;
+			}
+			fprintf(fileOut, "%s %s\r\n", WordFromWordSet(setAltWords).c_str(), strAltWords.c_str());
 		}
 	}
 
 	if (bDoingWords) {
-		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,Mapping,NormalMap\r\n");
+		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,Mapping,NormalMap\r\n");
 		nWrd = 0;
-		for (TWordListMap::const_iterator itrWrd = g_mapWordList.begin(); itrWrd != g_mapWordList.end(); ++itrWrd) {
+		for (TAltWordListMap::const_iterator itrUniqWrd = g_mapAltWordList.begin(); itrUniqWrd != g_mapAltWordList.end(); ++itrUniqWrd) {
+			const TAltWordSet &setAltWords = itrUniqWrd->second;
+			std::string strAltWords;
+			std::string strAltWordCounts;
 			std::string strMapping;
 			std::string strNormalMap;
-			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxMapping.begin();
-					itrNdx != itrWrd->second.m_ndxMapping.end(); ++itrNdx) {
-				if (!strMapping.empty()) strMapping += ",";
-				sprintf(word, "%d", *itrNdx);
-				strMapping += word;
-			}
-			for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxNormalized.begin();
-					itrNdx != itrWrd->second.m_ndxNormalized.end(); ++itrNdx) {
-				if (!strNormalMap.empty()) strNormalMap += ",";
-				sprintf(word, "%d", *itrNdx);
-				strNormalMap += word;
+			unsigned int nIndexCount = 0;
+			bool bPreserve = false;
+
+			for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+				TWordListMap::const_iterator itrWrd = g_mapWordList.find(*itrAltWrd);
+				if (itrWrd == g_mapWordList.end()) {
+					fprintf(fileOut, "%s -> %s -- Couldn't find it (something bad happened!)\r\n", itrUniqWrd->first.c_str(), (*itrAltWrd).c_str());
+					continue;
+				}
+
+				if (!strAltWords.empty()) strAltWords += ",";
+				strAltWords += *itrAltWrd;
+				if (!strAltWordCounts.empty()) strAltWordCounts += ",";
+				sprintf(word, "%d", itrWrd->second.m_ndxMapping.size());
+				strAltWordCounts += word;
+
+				if (isSpecialWord(*itrAltWrd)) bPreserve = true;
+
+				for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxMapping.begin();
+						itrNdx != itrWrd->second.m_ndxMapping.end(); ++itrNdx) {
+					if (!strMapping.empty()) strMapping += ",";
+					sprintf(word, "%d", *itrNdx);
+					strMapping += word;
+				}
+				for (TIndexList::const_iterator itrNdx = itrWrd->second.m_ndxNormalized.begin();
+						itrNdx != itrWrd->second.m_ndxNormalized.end(); ++itrNdx) {
+					if (!strNormalMap.empty()) strNormalMap += ",";
+					sprintf(word, "%d", *itrNdx);
+					strNormalMap += word;
+				}
+
+				nIndexCount += itrWrd->second.m_ndxMapping.size();
 			}
 			++nWrd;
-			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\"\r\n",
+			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
 								nWrd,
-								itrWrd->second.m_strWord.c_str(),
-								((strcmp(itrWrd->first.c_str(), itrWrd->second.m_strWord.c_str()) == 0) ? 1 : 0),
-								itrWrd->second.m_ndxMapping.size(),
-								itrWrd->second.m_strAltWords.c_str(),
+								WordFromWordSet(setAltWords).c_str(),
+								(bPreserve ? 1 : 0),
+								nIndexCount,
+								strAltWords.c_str(),
+								strAltWordCounts.c_str(),
 								strMapping.c_str(),
 								strNormalMap.c_str());
 		}
@@ -1024,28 +1190,53 @@ int main(int argc, const char *argv[])
 	}
 
 	if (bDoingSummary) {
-		fprintf(fileOut, "\"Word\",\"Whole\nBible\",\"Old\nTestament\",\"New\nTestament\"");
+		fprintf(fileOut, "\"Word\",\"AltWords\",\"Whole\nBible\",\"Old\nTestament\",\"New\nTestament\"");
 		for (nBk=0; nBk<NUM_BK; ++nBk) {
 			fprintf(fileOut, ",\"%s\"", g_arrstrBkNames[nBk]);
 		}
 		fprintf(fileOut, "\r\n");
-		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
+
+		for (TAltWordListMap::const_iterator itrUniqWrd = g_mapAltWordList.begin(); itrUniqWrd != g_mapAltWordList.end(); ++itrUniqWrd) {
+			const TAltWordSet &setAltWords = itrUniqWrd->second;
+			std::string strAltWords;
 			int nOTCount = 0;
 			int nNTCount = 0;
-			for (nBk=0; nBk<NUM_BK; ++nBk) {
-				if (nBk < NUM_BK_OT) {
-					nOTCount += itr->second.m_arrUsage[nBk];
-				} else {
-					nNTCount += itr->second.m_arrUsage[nBk];
+			int arrUsage[NUM_BK];
+			unsigned int nIndexCount = 0;
+
+			for (nBk=0; nBk<NUM_BK; ++nBk)
+				arrUsage[nBk] = 0;
+
+			for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+				TWordListMap::const_iterator itrWrd = g_mapWordList.find(*itrAltWrd);
+				if (itrWrd == g_mapWordList.end()) {
+					fprintf(fileOut, "%s -> %s -- Couldn't find it (something bad happened!)\r\n", itrUniqWrd->first.c_str(), (*itrAltWrd).c_str());
+					continue;
 				}
+
+				if (!strAltWords.empty()) strAltWords += ",";
+				strAltWords += *itrAltWrd;
+
+				for (nBk=0; nBk<NUM_BK; ++nBk) {
+					arrUsage[nBk] += itrWrd->second.m_arrUsage[nBk];
+					if (nBk < NUM_BK_OT) {
+						nOTCount += itrWrd->second.m_arrUsage[nBk];
+					} else {
+						nNTCount += itrWrd->second.m_arrUsage[nBk];
+					}
+				}
+
+				nIndexCount += itrWrd->second.m_ndxMapping.size();
 			}
-			fprintf(fileOut, "\"%s\",%d,%d,%d",
-								itr->second.m_strWord.c_str(),
-								itr->second.m_ndxMapping.size(),
+
+			fprintf(fileOut, "\"%s\",\"%s\",%d,%d,%d",
+								WordFromWordSet(setAltWords).c_str(),
+								strAltWords.c_str(),
+								nIndexCount,
 								nOTCount,
 								nNTCount);
 			for (nBk=0; nBk<NUM_BK; ++nBk) {
-				fprintf(fileOut, ",%d", itr->second.m_arrUsage[nBk]);
+				fprintf(fileOut, ",%d", arrUsage[nBk]);
 			}
 			fprintf(fileOut, "\r\n");
 		}
