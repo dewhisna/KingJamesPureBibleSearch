@@ -18,8 +18,9 @@
 class CParsedPhrase
 {
 public:
-	CParsedPhrase()
-		:	m_nLevel(0),
+	CParsedPhrase(bool bCaseSensitive = false)
+		:	m_bCaseSensitive(bCaseSensitive),
+			m_nLevel(0),
 			m_nCursorLevel(0),
 			m_nCursorWord(-1),
 			m_nLastMatchWord(-1)
@@ -36,6 +37,9 @@ public:
 	QString GetCursorWord() const;
 	int GetCursorWordPos() const;
 
+	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
+	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
+
 protected:
 	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
@@ -44,6 +48,7 @@ private:
 	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMapping, and m_nLevel
 
 protected:
+	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
@@ -92,7 +97,8 @@ class CPhraseLineEdit : public QTextEdit, CParsedPhrase
 public:
 	CPhraseLineEdit(QWidget *pParent = 0);
 
-
+	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
+	virtual void setCaseSensitive(bool bCaseSensitive);
 
 private slots:
 	void insertCompletion(const QString &completion);
@@ -152,7 +158,7 @@ signals:
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);
-
+	void on_CaseSensitiveChanged(bool bCaseSensitive);
 
 // UI Private:
 private:

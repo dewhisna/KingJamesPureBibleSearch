@@ -247,7 +247,7 @@ void CParsedPhrase::FindWords()
 				//	will signify that we're matching through the cursor, but haven't matched
 				//	full words yet to this point.  In any case, we still need the word list
 				//	to return so that we can show completions for this word and beyond:
-				QRegExp exp(m_lstWords[ndx]+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+				QRegExp exp(m_lstWords[ndx]+"*", (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 				for (int ndxWord=0; ndxWord<m_lstNextWords.size(); ++ndxWord) {
 					if (exp.exactMatch(m_lstNextWords.at(ndxWord))) {
 						m_nCursorLevel++;
@@ -266,10 +266,10 @@ void CParsedPhrase::FindWords()
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			TIndexList lstNextMapping;
-			QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
+			QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], Qt::CaseInsensitive) == 0)) {
+					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive)) == 0)) {
 //				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
 //					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
 					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
@@ -468,7 +468,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
 //	m_pCompleter->setCompletionMode(QCompleter::InlineCompletion);
-	m_pCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
@@ -481,13 +481,22 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
-	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+	m_pCommonPhrasesCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+}
+
+void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
+{
+	CParsedPhrase::setCaseSensitive(bCaseSensitive);
+	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	m_pCommonPhrasesCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+
+	if (!m_bUpdateInProgress) UpdateCompleter();
 }
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
@@ -707,7 +716,10 @@ pStatusBar(NULL),
 {
 	ui->setupUi(this);
 
+	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
+
 	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
@@ -720,5 +732,10 @@ void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
 	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(phrase.GetNumberOfMatches()));
 
 	emit phraseChanged(phrase);
+}
+
+void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)
+{
+	ui->editPhrase->setCaseSensitive(bCaseSensitive);
 }
 
