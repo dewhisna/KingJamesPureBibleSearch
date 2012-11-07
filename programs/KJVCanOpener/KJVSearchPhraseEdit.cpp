@@ -10,6 +10,9 @@
 #include <QTextCursor>
 #include <QRegExp>
 
+#include <algorithm>
+#include <string>
+
 #include <assert.h>
 
 // ============================================================================
@@ -27,6 +30,7 @@ TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
 	}
+	sort(lstResults.begin(), lstResults.end());
 
 	return lstResults;
 }
@@ -231,47 +235,128 @@ void CParsedPhrase::FindWords()
 	m_nCursorLevel = 0;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
+//		if (m_lstWords.at(ndx).isEmpty()) {
+//			if (ndx != 0) {
+//				m_nLevel++;
+//				if (ndx < m_nCursorWord) m_nCursorLevel = m_nLevel;
+//			}
+//			continue;
+//		}
 
 		TWordListMap::const_iterator itrWordMap;
-		itrWordMap = g_mapWordList.find(m_lstWords.at(ndx));
-		if (itrWordMap==g_mapWordList.end()) itrWordMap = g_mapWordList.find(m_lstWords.at(ndx).toLower());
-		if (itrWordMap==g_mapWordList.end()) {
-			if (m_nCursorWord > ndx) {
-				// If we've stopped matching before the cursor, we're done:
-				m_lstMatchMapping.clear();
-				m_lstMapping.clear();
-				m_lstNextWords.clear();
-			} else if (m_nCursorWord == ndx) {
-				// At the cursor, see if the word at the cursor starts with something in
-				//	our list.  If so, we'll bump our CursorLevel, before we bailout.  That
-				//	will signify that we're matching through the cursor, but haven't matched
-				//	full words yet to this point.  In any case, we still need the word list
-				//	to return so that we can show completions for this word and beyond:
-				QRegExp exp(m_lstWords[ndx]+"*", (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
-				for (int ndxWord=0; ndxWord<m_lstNextWords.size(); ++ndxWord) {
-					if (exp.exactMatch(m_lstNextWords.at(ndxWord))) {
-						m_nCursorLevel++;
-						break;
+		TWordListMap::const_iterator itrWordMapEnd = g_mapWordList.end();
+
+		QString strCurWord = m_lstWords.at(ndx);
+		std::size_t nPreRegExp = strCurWord.toStdString().find_first_of("*?[]");
+		if (nPreRegExp == std::string::npos) {
+			if (ndx == (m_lstWords.size()-1)) {
+				nPreRegExp = strCurWord.size();
+				strCurWord += "*";			// If we're on the word currently being typed, simulate a "*" trailing wildcard to match all strings with this prefix
+			}
+		}
+		if (nPreRegExp == std::string::npos) {
+			itrWordMap = g_mapWordList.find(m_lstWords.at(ndx).toLower());
+			if (itrWordMap==g_mapWordList.end()) {
+				if (m_nCursorWord > ndx) {
+					// If we've stopped matching before the cursor, we're done:
+					m_lstMatchMapping.clear();
+					m_lstMapping.clear();
+					m_lstNextWords.clear();
+					break;			// If we've stopped matching before the cursor, we're done
+				}
+			} else {
+				itrWordMapEnd = itrWordMap;
+				itrWordMapEnd++;
+			}
+		} else {
+			QString strPreRegExp;
+			strPreRegExp = strCurWord.toLower().left(nPreRegExp);
+			if (!strPreRegExp.isEmpty()) {
+				itrWordMap = g_mapWordList.lower_bound(strPreRegExp);
+				for (itrWordMapEnd = itrWordMap; itrWordMapEnd != g_mapWordList.end(); ++itrWordMapEnd) {
+					if (!itrWordMapEnd->first.startsWith(strPreRegExp)) break;
+				}
+			} else {
+				itrWordMap = g_mapWordList.begin();
+				itrWordMapEnd = g_mapWordList.end();
+			}
+		}
+		bool bMatch = false;
+		for (/* itrWordMap Set Above */; itrWordMap != itrWordMapEnd; ++itrWordMap) {
+			QRegExp expNC(strCurWord, Qt::CaseInsensitive, QRegExp::Wildcard);
+			if (expNC.exactMatch(itrWordMap->first)) {
+				if (!isCaseSensitive()) {
+					bMatch = true;
+					if (m_nLevel == 0) {
+						m_lstMatchMapping.insert(m_lstMatchMapping.end(), itrWordMap->second.m_ndxNormalized.begin(), itrWordMap->second.m_ndxNormalized.end());
+					} else {
+						break;		// If we aren't adding more indices, once we get a match, we are done...
 					}
+				} else {
+					QRegExp expCase(strCurWord, Qt::CaseSensitive, QRegExp::Wildcard);
+					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
+					unsigned int nCount = 0;
+					for (unsigned int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
+						if (expCase.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
+							bMatch = true;
+							if (m_nLevel == 0) {
+								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
+												&wordEntry.m_ndxNormalized[nCount],
+												&wordEntry.m_ndxNormalized[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
+							} else {
+								break;		// If we aren't adding more indices, once we get a match, we are done...
+							}
+						}
+						nCount += wordEntry.m_lstAltWordCount.at(ndxAltWord);
+					}
+					if (bMatch && (m_nLevel != 0)) break;		// If we aren't adding more indices, stop once we get a match
 				}
 			}
-			break;		// If we can't find this word, break out at this level and stop searching
 		}
+		if (!bMatch) m_lstMatchMapping.clear();
 
-		const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
-		if (m_nLevel == 0) {
-			// If this is our first word, set its mapping to all possible next words:
-			m_lstMatchMapping = wordEntry.m_ndxNormalized;
-		} else {
+
+
+//		itrWordMap = g_mapWordList.find(m_lstWords.at(ndx));
+//		if (itrWordMap==g_mapWordList.end()) itrWordMap = g_mapWordList.find(m_lstWords.at(ndx).toLower());
+//		if (itrWordMap==g_mapWordList.end()) {
+//			if (m_nCursorWord > ndx) {
+//				// If we've stopped matching before the cursor, we're done:
+//				m_lstMatchMapping.clear();
+//				m_lstMapping.clear();
+//				m_lstNextWords.clear();
+//			} else if (m_nCursorWord == ndx) {
+//				// At the cursor, see if the word at the cursor starts with something in
+//				//	our list.  If so, we'll bump our CursorLevel, before we bailout.  That
+//				//	will signify that we're matching through the cursor, but haven't matched
+//				//	full words yet to this point.  In any case, we still need the word list
+//				//	to return so that we can show completions for this word and beyond:
+//				QRegExp exp(m_lstWords[ndx]+"*", (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+//				for (int ndxWord=0; ndxWord<m_lstNextWords.size(); ++ndxWord) {
+//					if (exp.exactMatch(m_lstNextWords.at(ndxWord))) {
+//						m_nCursorLevel++;
+//						break;
+//					}
+//				}
+//			}
+//			break;		// If we can't find this word, break out at this level and stop searching
+//		}
+
+//		const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
+//		if (m_nLevel == 0) {
+//			// If this is our first word, set its mapping to all possible next words:
+//			m_lstMatchMapping = wordEntry.m_ndxNormalized;
+//		} else {
+		if (m_nLevel > 0) {
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			TIndexList lstNextMapping;
 			QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive)) == 0)) {
 //				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-//					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
+//					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive)) == 0)) {
+				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
+					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
 					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
 				}
 			}
@@ -279,19 +364,22 @@ void CParsedPhrase::FindWords()
 		}
 
 		if (m_lstMatchMapping.size()) m_nLevel++;
+//		if (bMatch) m_nLevel++;
 
 		if (ndx < m_nCursorWord) {
-			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possbilities is calculated at the word right before it
+			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possibilities is calculated at the word right before it
 			m_nCursorLevel = m_nLevel;
 
-			m_lstNextWords.clear();
-			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-				if ((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) {
-					m_lstNextWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]);
+			if ((ndx+1) == m_nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
+				m_lstNextWords.clear();
+				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+					if ((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) {
+						m_lstNextWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]);
+					}
 				}
+				m_lstNextWords.removeDuplicates();
+				m_lstNextWords.sort();
 			}
-			m_lstNextWords.removeDuplicates();
-			m_lstNextWords.sort();
 		}
 
 		if (m_lstMatchMapping.size() == 0) break;
@@ -651,8 +739,15 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 //		m_pCompleter->complete();
 
 	ParsePhrase(textCursor());
-	if (m_strCursorWord != m_pCompleter->completionPrefix()) {
-		m_pCompleter->setCompletionPrefix(m_strCursorWord);
+
+	QString strPrefix = m_strCursorWord;
+	std::size_t nPreRegExp = strPrefix.toStdString().find_first_of("*?[]");
+	if (nPreRegExp != std::string::npos) {
+		strPrefix = strPrefix.left(nPreRegExp);
+	}
+
+	if (strPrefix != m_pCompleter->completionPrefix()) {
+		m_pCompleter->setCompletionPrefix(strPrefix);
 		UpdateCompleter();
 		if (m_nLastCursorWord != m_nCursorWord) {
 			m_pCompleter->popup()->close();
