@@ -151,7 +151,12 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 		}
 	}
 
-	ui->lblSearchResultsCount->setText(QString("Found: %1").arg(lstReferences.count()));
+	if ((lstReferences.size() != 0) ||
+		((lstReferences.size() == 0) && (lstResults.size() == 0))) {
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(lstResults.size()).arg(lstReferences.size()));
+	} else {
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(lstResults.size()));
+	}
 }
 
 void CKJVCanOpener::on_SearchResultDoubleClick(const QModelIndex &index)

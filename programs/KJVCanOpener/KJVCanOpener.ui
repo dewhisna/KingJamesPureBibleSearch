@@ -49,7 +49,7 @@
            <x>0</x>
            <y>0</y>
            <width>41</width>
-           <height>486</height>
+           <height>496</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -76,7 +76,7 @@
         <item>
          <widget class="QLabel" name="lblSearchResultsCount">
           <property name="text">
-           <string>Found: 0</string>
+           <string>Found 0 occurrences in 0 verses:</string>
           </property>
          </widget>
         </item>
