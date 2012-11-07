@@ -249,9 +249,10 @@ void CParsedPhrase::FindWords()
 		QString strCurWord = m_lstWords.at(ndx);
 		std::size_t nPreRegExp = strCurWord.toStdString().find_first_of("*?[]");
 		if (nPreRegExp == std::string::npos) {
-			if (ndx == (m_lstWords.size()-1)) {
+			if ((ndx == (m_lstWords.size()-1)) &&
+				(g_mapWordList.find(m_lstWords.at(ndx).toLower()) == g_mapWordList.end())) {
 				nPreRegExp = strCurWord.size();
-				strCurWord += "*";			// If we're on the word currently being typed, simulate a "*" trailing wildcard to match all strings with this prefix
+				strCurWord += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
 			}
 		}
 		if (nPreRegExp == std::string::npos) {
