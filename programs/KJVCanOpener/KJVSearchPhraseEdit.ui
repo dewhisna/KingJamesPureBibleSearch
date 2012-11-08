@@ -15,6 +15,9 @@
    <string extracomment=",8.25,-1,5,50,0,0,0,0,0"/>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <property name="margin">
+    <number>6</number>
+   </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <property name="spacing">
@@ -22,41 +25,6 @@
      </property>
      <item row="0" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QFrame" name="frameSearchBoolOp">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="margin">
-           <number>0</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="radioButtonANDSearch">
-            <property name="text">
-             <string>AND</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QRadioButton" name="radioButtonORSearch">
-            <property name="text">
-             <string>OR</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
@@ -171,8 +139,6 @@
  </customwidgets>
  <tabstops>
   <tabstop>editPhrase</tabstop>
-  <tabstop>radioButtonANDSearch</tabstop>
-  <tabstop>radioButtonORSearch</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
  </tabstops>
  <resources>
