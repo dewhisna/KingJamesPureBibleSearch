@@ -17,7 +17,7 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	~CKJVBrowser();
 
-	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,1,1));	// Default initial location is the first word of Genesis 1:1)
+	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 
 public slots:
 	void gotoIndex(CRelIndex ndx);

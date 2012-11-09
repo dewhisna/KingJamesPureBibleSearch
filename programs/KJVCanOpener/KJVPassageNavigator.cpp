@@ -102,7 +102,7 @@ void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	m_ndxPassage = CRefCountCalc::calcRelIndex(CRelIndex(), m_nWord, m_nVerse, m_nChapter, m_nBook, m_nTestament);
+	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, m_nTestament);
 	ui->editResolved->setText(m_ndxPassage.PassageReferenceText());
 }
 

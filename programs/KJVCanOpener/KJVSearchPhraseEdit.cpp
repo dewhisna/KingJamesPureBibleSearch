@@ -297,7 +297,7 @@ void CParsedPhrase::FindWords()
 					QRegExp expCase(strCurWord, Qt::CaseSensitive, QRegExp::Wildcard);
 					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
 					unsigned int nCount = 0;
-					for (unsigned int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
+					for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
 						if (expCase.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
 							bMatch = true;
 							if (m_nLevel == 0) {

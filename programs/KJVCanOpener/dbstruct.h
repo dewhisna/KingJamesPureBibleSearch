@@ -31,6 +31,10 @@ public:
 	}
 	~CRelIndex() { }
 
+	QString asAnchor() const {					// Anchor is a text string unique to this reference
+		return QString("%1").arg(m_ndx);
+	}
+
 	QString SearchResultToolTip() const;		// Create complete reference statistics report
 	QString PassageReferenceText() const;		// Creates a reference text string like "Genesis 1:1 [5]"
 
@@ -105,9 +109,9 @@ public:
 	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
 	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
 	static CRelIndex calcRelIndex(
-						const CRelIndex &ndxStart,
 						unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
-						unsigned int nBook, unsigned int nTestament);
+						unsigned int nBook, unsigned int nTestament,
+						CRelIndex ndxStart = CRelIndex());
 
 private:
 	CRelIndex m_ndxRef;			// Relative Index

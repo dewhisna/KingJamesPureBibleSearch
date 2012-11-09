@@ -62,7 +62,7 @@ public:
 	explicit CKJVCanOpener(QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void Initialize(uint32_t nInitialIndex = CRelIndex(1,1,1,1).index());	// Default initial location is the first word of Genesis 1:1)
+	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);

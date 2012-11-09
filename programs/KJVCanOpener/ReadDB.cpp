@@ -315,7 +315,7 @@ bool CReadDatabase::ReadWORDSTable()
 		// Add this word and alternates to our concordance, and set all normalized indices that refer it to
 		//	point to the the specific word:
 		unsigned int ndxMapping=0;
-		for (unsigned int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			g_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				g_lstConcordanceMapping[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceWords.size();

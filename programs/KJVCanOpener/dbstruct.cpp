@@ -301,9 +301,9 @@ QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)
 }
 
 CRelIndex CRefCountCalc::calcRelIndex(
-					const CRelIndex &ndxStart,
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
-					unsigned int nBook, unsigned int nTestament)
+					unsigned int nBook, unsigned int nTestament,
+					CRelIndex ndxStart)
 {
 	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
 

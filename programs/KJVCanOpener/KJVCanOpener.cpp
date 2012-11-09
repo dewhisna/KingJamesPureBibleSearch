@@ -90,7 +90,7 @@ CKJVCanOpener::~CKJVCanOpener()
 	delete ui;
 }
 
-void CKJVCanOpener::Initialize(uint32_t nInitialIndex)
+void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 {
 	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
 }
