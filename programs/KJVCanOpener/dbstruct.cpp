@@ -303,121 +303,217 @@ QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)
 CRelIndex CRefCountCalc::calcRelIndex(
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 					unsigned int nBook, unsigned int nTestament,
-					CRelIndex ndxStart)
+					CRelIndex ndxStart,
+					bool bReverse)
 {
 	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
+	CRelIndex ndxResult;
 
-	// Start with our relative location:
-	nWord += ndxStart.word();
-	nVerse += ndxStart.verse();
-	nChapter += ndxStart.chapter();
-	nBook += ndxStart.book();
+	if (!bReverse) {
+		// FORWARD:
 
-	// Assume 1st word/verse/chapter/book of target:
-	if (nWord == 0) nWord = 1;
-	if (nVerse == 0) nVerse = 1;
-	if (nChapter == 0) nChapter = 1;
-	if (nBook == 0) nBook = 1;
+		// Start with our relative location:
+		nWord += ndxStart.word();
+		nVerse += ndxStart.verse();
+		nChapter += ndxStart.chapter();
+		nBook += ndxStart.book();
 
-	// ===================
-	// Testament of Bible:
-	if (nTestament) {
-		if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
-		for (unsigned int ndx=1; ndx<nTestament; ++ndx) {
-			// Ripple down to children:
-			nBook += g_lstTestaments[ndx-1].m_nNumBk;
+		// Assume 1st word/verse/chapter/book of target:
+		if (nWord == 0) nWord = 1;
+		if (nVerse == 0) nVerse = 1;
+		if (nChapter == 0) nChapter = 1;
+		if (nBook == 0) nBook = 1;
+
+		// ===================
+		// Testament of Bible:
+		if (nTestament) {
+			if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
+			for (unsigned int ndx=1; ndx<nTestament; ++ndx) {
+				// Ripple down to children:
+				nBook += g_lstTestaments[ndx-1].m_nNumBk;
+			}
+		}	// At this point, top specified index will be relative to the Bible, nTestament isn't needed beyond this point
+
+		// ===================
+		// Book of Bible/Testament:
+		if (nBook > g_lstTOC.size()) return CRelIndex();
+		for (unsigned int ndx=1; ndx<nBook; ++ndx)
+			ndxWord += g_lstTOC[ndx-1].m_nNumWrd;					// Add words for Books prior to target
+
+		// ===================
+		// Chapter of Bible/Testament:
+		while (nChapter > g_lstTOC[nBook-1].m_nNumChp) {	// Resolve nBook
+			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;			// Add words for books prior to target book
+			nChapter -= g_lstTOC[nBook-1].m_nNumChp;
+			nBook++;
+			if (nBook > g_lstTOC.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
 		}
-	}	// At this point, top specified index will be relative to the Bible, nTestament isn't needed beyond this point
+		// Chapter of Book:
+		//	Note:  Here we'll push the verses of the chapter down to nVerse and
+		//			relocate Chapter back to 1.  We do that so that we will be
+		//			relative to the start of the book for the word search
+		//			so that it can properly push to a following chapter or
+		//			book if that's necessary.  Otherwise, we can run off the
+		//			end of this book looking for more chapters.  We could,
+		//			of course, update verse, chapter and/or book in the verse in
+		//			book resolution loop, but that really complicates that,
+		//			especially since we have to do that anyway.  We won't
+		//			update ndxWord here since that will get done in the Verse
+		//			loop below once we push this down to that:
+		if (nChapter>g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
+		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
+			nVerse += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumVrs;	// Push all chapters prior to target down to nVerse level
+		}
+		nChapter = 1;	// Reset to beginning of book so nVerse can count from there
 
-	// ===================
-	// Book of Bible/Testament:
-	if (nBook > g_lstTOC.size()) return CRelIndex();
-	for (unsigned int ndx=1; ndx<nBook; ++ndx)
-		ndxWord += g_lstTOC[ndx-1].m_nNumWrd;					// Add words for Books prior to target
+		// ===================
+		// Verse of Bible/Testament:
+		while (nVerse > g_lstTOC[nBook-1].m_nNumVrs) {	// Resolve nBook
+			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;		// Add words for books prior to target book
+			nVerse -= g_lstTOC[nBook-1].m_nNumVrs;
+			nBook++;
+			if (nBook > g_lstTOC.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
+		}
+		// Verse of Book:
+		if (nVerse>g_lstTOC[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
+		while (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) {		// Resolve nChapter
+			nVerse -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs;
+			nChapter++;
+			if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
+		}
+		// Verse of Chapter:
+		//	Note:  Here we'll push the words of the verses down to nWord and
+		//			relocate Verse back to 1.  We do that so that we will be
+		//			relative to the start of the chapter for the word search
+		//			so that it can properly push to a following chapter or
+		//			book if that's necessary.  Otherwise, we can run off the
+		//			end of this chapter looking for more verses.  We could,
+		//			of course, update chapter and/or book in the word in
+		//			chapter resolution loop, but that really complicates that,
+		//			especially since we have to do that anyway.  We won't
+		//			update ndxWord here since that will get done in the Word
+		//			loop below once we push this down to that:
+		if (nVerse>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
+		for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
+			nWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Push all verses prior to target down to nWord level
+		}
+		nVerse = 1;		// Reset to beginning of chapter so nWord can count from there
 
-	// ===================
-	// Chapter of Bible/Testament:
-	while (nChapter > g_lstTOC[nBook-1].m_nNumChp) {	// Resolve nBook
-		ndxWord += g_lstTOC[nBook-1].m_nNumWrd;			// Add words for books prior to target book
-		nChapter -= g_lstTOC[nBook-1].m_nNumChp;
-		nBook++;
-		if (nBook > g_lstTOC.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
-	}
-	// Chapter of Book:
-	if (nChapter>g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
-	for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
-		ndxWord += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumWrd;	// Add words for chapters prior to target chapter in target book
-	}
+		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
+			nWord += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumWrd;	// Push all chapters prior to target down to nWord level
+		}
+		nChapter = 1;	// Reset to beginning of book so nWord can count from there
 
-	// ===================
-	// Verse of Bible/Testament:
-	while (nVerse > g_lstTOC[nBook-1].m_nNumVrs) {	// Resolve nBook
-		ndxWord += g_lstTOC[nBook-1].m_nNumWrd;		// Add words for books prior to target book
-		nVerse -= g_lstTOC[nBook-1].m_nNumVrs;
-		nBook++;
-		if (nBook > g_lstTOC.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
-	}
-	// Verse of Book:
-	if (nVerse>g_lstTOC[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
-	while (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) {		// Resolve nChapter
-		ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;			// Add words for chapters prior to target chapter in target book
-		nVerse -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs;
-		nChapter++;
-		if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
-	}
-	// Verse of Chapter:
-	//	Note:  Here we'll push the words of the verses down to nWord and
-	//			relocate Verse back to 1.  We do that so that we will be
-	//			relative to the start of the chapter for the word search
-	//			so that it can properly push to a following chapter or
-	//			book if that's necessary.  Otherwise, we can run off the
-	//			end of this chapter looking for more verses.  We could,
-	//			of course, update chapter and/or book in the word in
-	//			chapter resolution loop, but that really complicates that,
-	//			especially since we have to do that anyway.  We won't
-	//			update ndxWord here since that will get done in the Word
-	//			loop below once we push this down to that:
-	if (nVerse>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
-	for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
-		nWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Push all verses prior to target down to nWord level
-	}
-	nVerse = 1;		// Reset to beginning of chapter so nWord can count from there
+		// ===================
+		// Word of Bible/Testament:
+		while (nWord > g_lstTOC[nBook-1].m_nNumWrd) {		// Resolve nBook
+			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;
+			nWord -= g_lstTOC[nBook-1].m_nNumWrd;
+			nBook++;
+			if (nBook > g_lstTOC.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
+		}
+		// Word of Book:
+		if (nWord>g_lstTOC[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
+		while (nWord > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) {	// Resolve nChapter
+			ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
+			nWord -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
+			nChapter++;
+			if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
+		}
+		// Word of Chapter:
+		if (nWord>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
+		const TBookEntryMap &book = g_lstBooks[nBook-1];
+		while (nWord > book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse
+			ndxWord += book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
+			nWord -= book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
+			nVerse++;
+			if (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
+		}
+		// Word of Verse:
+		if (nWord>(g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
+		ndxWord += nWord;		// Add up to include target word
 
-	// ===================
-	// Word of Bible/Testament:
-	while (nWord > g_lstTOC[nBook-1].m_nNumWrd) {		// Resolve nBook
-		ndxWord += g_lstTOC[nBook-1].m_nNumWrd;
-		nWord -= g_lstTOC[nBook-1].m_nNumWrd;
-		nBook++;
-		if (nBook > g_lstTOC.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
-	}
-	// Word of Book:
-	if (nWord>g_lstTOC[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
-	while (nWord > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) {	// Resolve nChapter
-		ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
-		nWord -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
-		nChapter++;
-		if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
-	}
-	// Word of Chapter:
-	if (nWord>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
-	const TBookEntryMap &book = g_lstBooks[nBook-1];
-	while (nWord > book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse
-		ndxWord += book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
-		nWord -= book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
-		nVerse++;
-		if (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
-	}
-	// Word of Verse:
-	if (nWord>(g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
-	ndxWord += nWord;		// Add up to include target word
+		// ===================
+		// At this point, either nBook/nChapter/nVerse/nWord is completely resolved.
+		//		As a cross-check, ndxWord should be the Normalized index:
+		ndxResult = CRelIndex(nBook, nChapter, nVerse, nWord);
+		uint32_t ndxNormal = NormalizeIndex(ndxResult);
+		assert(ndxWord == ndxNormal);
+	} else {
+		// REVERSE:
 
-	// ===================
-	// At this point, either nBook/nChapter/nVerse/nWord is completely resolved.
-	//		As a cross-check, ndxWord should be the Normalized index:
-	CRelIndex ndxResult(nBook, nChapter, nVerse, nWord);
-	uint32_t ndxNormal = NormalizeIndex(ndxResult);
-	assert(ndxWord == ndxNormal);
+		// Start with starting location or last word of Bible:
+		ndxWord = NormalizeIndex(ndxStart.index());
+		if (ndxWord == 0) {
+			// Set ndxWord to the total number of words in Bible:
+			for (unsigned int ndx = 0; ndx<g_lstTestaments.size(); ++ndx) {
+				ndxWord += g_lstTestaments[ndx].m_nNumWrd;
+			}
+		}
+		// ndxWord is now pointing to the last word of the last verse of
+		//	the last chapter of the last book... or is the word of the
+		//	specified starting point...
+		assert(ndxWord != 0);
+
+		CRelIndex ndxTarget(DenormalizeIndex(ndxWord));
+		assert(ndxTarget.index() != 0);		// Must be either the starting location or the last entry in the Bible
+
+		// In Reverse mode, we ignore the nTestament entry
+
+		// Word back:
+		if (ndxWord <= nWord) return CRelIndex();
+		ndxWord -= nWord;
+		ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+		nWord = ndxTarget.word();					// nWord = Offset of word into verse so we can traverse from start of verse to start of verse
+		ndxTarget.setWord(1);						// Move to first word of this verse
+		ndxWord = NormalizeIndex(ndxTarget.index());
+
+		// Verse back:
+		while (nVerse) {
+			ndxWord--;				// This will move us to previous verse since we are at word 1 of current verse (see above and below)
+			if (ndxWord == 0) return CRelIndex();
+			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget.setWord(1);	// Move to first word of this verse
+			ndxWord = NormalizeIndex(ndxTarget.index());
+			nVerse--;
+		}
+		nVerse = ndxTarget.verse();					// nVerse = Offset of verse into chapter so we can traverse from start of chapter to start of chapter
+		ndxTarget.setVerse(1);						// Move to first verse of this chapter
+		ndxWord = NormalizeIndex(ndxTarget.index());
+
+		// Chapter back:
+		while (nChapter) {
+			ndxWord--;				// This will move us to previous chapter since we are at word 1 of verse 1 (see above and below)
+			if (ndxWord == 0) return CRelIndex();
+			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget.setVerse(1);	// Move to first word of first verse of this chapter
+			ndxTarget.setWord(1);
+			ndxWord = NormalizeIndex(ndxTarget.index());
+			nChapter--;
+		}
+		nChapter = ndxTarget.chapter();				// nChapter = Offset of chapter into book so we can traverse from start of book to start of book
+		ndxTarget.setChapter(1);					// Move to first chapter of this book
+		ndxWord = NormalizeIndex(ndxTarget.index());
+
+		// Book back:
+		while (nBook) {
+			ndxWord--;				// This will move us to previous book since we are at word 1 of verse 1 of chapter 1 (see above and below)
+			if (ndxWord == 0) return CRelIndex();
+			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget.setChapter(1);	// Move to first word of first verse of first chapter of this book
+			ndxTarget.setVerse(1);
+			ndxTarget.setWord(1);
+			ndxWord = NormalizeIndex(ndxTarget.index());
+			nBook--;
+		}
+		nBook = ndxTarget.book();					// nBook = Offset of book into Bible for final location
+		ndxTarget.setBook(1);						// Move to first book of the Bible
+		ndxWord = NormalizeIndex(ndxTarget.index());
+		assert(ndxWord == 1);			// We should be at the beginning of the Bible now
+
+		// Call ourselves to calculate index from beginning of Bible:
+		ndxResult = calcRelIndex(nWord, nVerse, nChapter, nBook, 0);
+	}
 
 	return ndxResult;
 }

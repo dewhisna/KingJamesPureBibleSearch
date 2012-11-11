@@ -172,6 +172,6 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 	CKJVPassageNavigatorDlg dlg(this);
 
 	if (dlg.exec() == QDialog::Accepted) {
-		// TODO : Jump to passage
+		ui->widgetKJVBrowser->gotoIndex(dlg.passage());
 	}
 }

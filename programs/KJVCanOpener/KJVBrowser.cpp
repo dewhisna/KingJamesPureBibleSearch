@@ -236,7 +236,10 @@ void CKJVBrowser::setVerse(uint32_t nVrs)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), nVrs, 0);
 
-	ui->textBrowserMainText->scrollToAnchor(m_ndxCurrent.asAnchor());
+	CRelIndex ndxScroll = m_ndxCurrent;
+	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+
+	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
 }
 
 void CKJVBrowser::BkComboIndexChanged(int index)
@@ -246,7 +249,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 	if (index != -1) {
 		setBook(ui->comboBk->itemData(index).toUInt());
 		setChapter(1);
-		setVerse(0);
+		setVerse(1);
 	} else {
 		setBook(0);
 		setChapter(0);
@@ -260,7 +263,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 
 	if (index != -1) {
 		setChapter(ui->comboBkChp->itemData(index).toUInt());
-		setVerse(0);
+		setVerse(1);
 	} else {
 		setChapter(0);
 		setVerse(0);
@@ -275,8 +278,8 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 		// Get TOC for current book so we know what testament we're currently in:
 		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
 		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), toc.m_nTstNdx);
-		ndxTarget.setVerse(0);		// Target Verse 0 and Word 0 so we'll scroll to the Chapter heading instead of start of verse 1
-		ndxTarget.setWord(0);
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 		gotoIndex(ndxTarget);
 	} else {
 		setBook(0);
@@ -293,8 +296,8 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 		// Get TOC for current book so we know what testament we're currently in:
 		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
 		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, toc.m_nTstNdx);
-		ndxTarget.setVerse(0);		// Target Verse 0 and Word 0 so we'll scroll to the Chapter heading instead of start of verse 1
-		ndxTarget.setWord(0);
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 		gotoIndex(ndxTarget);
 	} else {
 		setBook(0);
@@ -310,7 +313,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 	if (index != -1) {
 		setBook(ui->comboBibleBk->itemData(index).toUInt());
 		setChapter(1);
-		setVerse(0);
+		setVerse(1);
 	} else {
 		setBook(0);
 		setChapter(0);
@@ -324,8 +327,8 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 
 	if (index != -1) {
 		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
-		ndxTarget.setVerse(0);		// Target Verse 0 and Word 0 so we'll scroll to the Chapter heading instead of start of verse 1
-		ndxTarget.setWord(0);
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 		gotoIndex(ndxTarget);
 	} else {
 		setBook(0);

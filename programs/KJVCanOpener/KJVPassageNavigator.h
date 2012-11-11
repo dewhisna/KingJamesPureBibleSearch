@@ -19,6 +19,17 @@ public:
 
 	CRelIndex passage() const { return m_ndxPassage; }
 	void setPassage(const CRelIndex &ndx);
+	CRelIndex startRef() const { return m_ndxStartRef; }
+
+	bool isReversed() const;
+	bool isRelative() const { return m_ndxStartRef.isSet(); }
+	bool isAbsolute() const { return (!m_ndxStartRef.isSet()); }
+	void startRelativeMode(CRelIndex ndxStart = CRelIndex(), CRelIndex ndxPassage = CRelIndex());
+	void startRelativeMode(CRelIndex ndxStart, bool bReverse, CRelIndex ndxPassage = CRelIndex());
+	void startAbsoluteMode(CRelIndex ndxPassage = CRelIndex());
+
+signals:
+	void modeChanged(bool bRelative);
 
 private:
 	void CalcPassage();
@@ -29,9 +40,11 @@ private slots:
 	void ChapterChanged(const QString &strChapter);
 	void VerseChanged(const QString &strVerse);
 	void WordChanged(const QString &strWord);
+	void on_ReverseChanged(bool bReverse);
 
 // Data Private:
 private:
+	CRelIndex m_ndxStartRef;	// Starting index		-- Will be unset if in Absolute Mode
 	CRelIndex m_ndxPassage;		// Index of passage
 	unsigned int m_nTestament;
 	unsigned int m_nBook;

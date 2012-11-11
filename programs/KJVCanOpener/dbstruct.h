@@ -111,7 +111,8 @@ public:
 	static CRelIndex calcRelIndex(
 						unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 						unsigned int nBook, unsigned int nTestament,
-						CRelIndex ndxStart = CRelIndex());
+						CRelIndex ndxStart = CRelIndex(),
+						bool bReverse = false);
 
 private:
 	CRelIndex m_ndxRef;			// Relative Index

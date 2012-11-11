@@ -24,14 +24,16 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		}
 	}
 
-//	setPassage(CRelIndex(1, 1, 1, 1));
 	setPassage(CRelIndex());
+
+	startAbsoluteMode();
 
 	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
 	connect(ui->editWord, SIGNAL(textEdited(const QString &)), this, SLOT(WordChanged(const QString &)));
 	connect(ui->editVerse, SIGNAL(textEdited(const QString &)), this, SLOT(VerseChanged(const QString &)));
 	connect(ui->editChapter, SIGNAL(textEdited(const QString &)), this, SLOT(ChapterChanged(const QString &)));
 	connect(ui->editBook, SIGNAL(textEdited(const QString &)), this, SLOT(BookChanged(const QString &)));
+	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(on_ReverseChanged(bool)));
 }
 
 CKJVPassageNavigator::~CKJVPassageNavigator()
@@ -79,6 +81,13 @@ void CKJVPassageNavigator::WordChanged(const QString &strWord)
 	CalcPassage();
 }
 
+void CKJVPassageNavigator::on_ReverseChanged(bool /* bReverse */)
+{
+	if (m_bDoingUpdate) return;
+
+	CalcPassage();
+}
+
 void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
 {
 	begin_update();
@@ -102,7 +111,78 @@ void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, m_nTestament);
+	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_ndxStartRef.isSet() ? m_nTestament : 0), m_ndxStartRef, (!m_ndxStartRef.isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_ndxPassage.PassageReferenceText());
+}
+
+void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, CRelIndex ndxPassage)
+{
+	startRelativeMode(ndxStart, isReversed(), ndxPassage);
+}
+
+void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, bool bReverse, CRelIndex ndxPassage)
+{
+	begin_update();
+
+	if (ndxStart.isSet()) {
+		m_ndxStartRef = ndxStart;
+	} else {
+		m_ndxStartRef = CRelIndex(1,1,1,1);
+	}
+
+	ui->lblTestament->hide();
+	ui->comboTestament->hide();
+
+	ui->lblStartRef->show();
+	ui->editStartRef->show();
+	ui->chkboxReverse->show();
+
+	ui->editStartRef->setText(m_ndxStartRef.PassageReferenceText());
+	ui->chkboxReverse->setChecked(bReverse);
+
+	ui->lblBook->setText("&Books:");
+	ui->lblChapter->setText("&Chapters:");
+	ui->lblVerse->setText("&Verses:");
+	ui->lblWord->setText("&Words:");
+
+	if (ndxPassage.isSet()) setPassage(ndxPassage);
+
+	emit modeChanged(true);
+
+	CalcPassage();
+
+	end_update();
+}
+
+void CKJVPassageNavigator::startAbsoluteMode(CRelIndex ndxPassage)
+{
+	begin_update();
+
+	m_ndxStartRef = CRelIndex();		// Unset to indicate absolute mode
+
+	ui->lblStartRef->hide();
+	ui->editStartRef->hide();
+	ui->chkboxReverse->hide();
+
+	ui->lblTestament->show();
+	ui->comboTestament->show();
+
+	ui->lblBook->setText("&Book:");
+	ui->lblChapter->setText("&Chapter:");
+	ui->lblVerse->setText("&Verse:");
+	ui->lblWord->setText("&Word:");
+
+	if (ndxPassage.isSet()) setPassage(ndxPassage);
+
+	emit modeChanged(false);
+
+	CalcPassage();
+
+	end_update();
+}
+
+bool CKJVPassageNavigator::isReversed() const
+{
+	return ui->chkboxReverse->isChecked();
 }
 
