@@ -8,6 +8,7 @@
 #include <QModelIndex>
 #include <QStringListModel>
 #include <QTextCursor>
+#include <QTextDocumentFragment>
 #include <QRegExp>
 
 #include <algorithm>
@@ -552,6 +553,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_bUpdateInProgress(false),
 		m_icoDroplist(":/res/droplist.png")
 {
+	setAcceptRichText(false);
+
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
@@ -700,6 +703,41 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 	pStatusBar->showMessage(strTemp);
 }
 
+
+void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
+{
+	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
+
+	bool bHasData = false;
+	QTextDocumentFragment fragment;
+
+	// Change all newlines to spaces, since we are simulating a single-line editor:
+
+// Uncomment to re-enable rich text (don't forget to change acceptRichText setting in constructor)
+//	if (source->hasFormat(QLatin1String("application/x-qrichtext")) && acceptRichText()) {
+//		// x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
+//		QString richtext = QString::fromUtf8(source->data(QLatin1String("application/x-qrichtext")));
+//		richtext.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
+//		fragment = QTextDocumentFragment::fromHtml(richtext, document());
+//		bHasData = true;
+//	} else if (source->hasHtml() && acceptRichText()) {
+//		fragment = QTextDocumentFragment::fromHtml(source->html(), document());
+//		bHasData = true;
+//	} else {
+		QString text = source->text();
+		if (!text.isNull()) {
+			text.replace("\r","");
+			text.replace("\n"," ");
+			if (!text.isEmpty()) {
+				fragment = QTextDocumentFragment::fromPlainText(text);
+				bHasData = true;
+			}
+		}
+//	}
+
+	if (bHasData) textCursor().insertFragment(fragment);
+	ensureCursorVisible();
+}
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 {

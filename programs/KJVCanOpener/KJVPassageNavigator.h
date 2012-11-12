@@ -15,7 +15,7 @@ class CKJVPassageNavigator : public QWidget
 
 public:
 	explicit CKJVPassageNavigator(QWidget *parent = 0);
-	~CKJVPassageNavigator();
+	virtual ~CKJVPassageNavigator();
 
 	CRelIndex passage() const { return m_ndxPassage; }
 	void setPassage(const CRelIndex &ndx);

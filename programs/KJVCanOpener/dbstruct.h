@@ -25,6 +25,10 @@ public:
 		m_ndx(ndx)
 	{
 	}
+	CRelIndex(const QString &strAnchor) :
+		m_ndx(strAnchor.toUInt())
+	{
+	}
 	CRelIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd)
 	{
 		setIndex(nBk, nChp, nVrs, nWrd);

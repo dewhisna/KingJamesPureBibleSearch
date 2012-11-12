@@ -2,8 +2,25 @@
 #define KJVBROWSER_H
 
 #include <QWidget>
+#include <QTextBrowser>
 
 #include "dbstruct.h"
+
+
+class CScriptureBrowser : public QTextBrowser
+{
+	Q_OBJECT
+
+public:
+	explicit CScriptureBrowser(QWidget *parent = 0);
+	virtual ~CScriptureBrowser();
+
+protected:
+	virtual bool event(QEvent *e);
+
+};
+
+// ============================================================================
 
 namespace Ui {
 class CKJVBrowser;
@@ -15,7 +32,7 @@ class CKJVBrowser : public QWidget
 
 public:
 	explicit CKJVBrowser(QWidget *parent = 0);
-	~CKJVBrowser();
+	virtual ~CKJVBrowser();
 
 	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 

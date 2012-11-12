@@ -17,7 +17,7 @@ class CKJVPassageNavigatorDlg : public QDialog
 
 public:
 	explicit CKJVPassageNavigatorDlg(QWidget *parent = 0);
-	~CKJVPassageNavigatorDlg();
+	virtual ~CKJVPassageNavigatorDlg();
 
 	CRelIndex passage() const;
 	void setPassage(const CRelIndex &ndx);

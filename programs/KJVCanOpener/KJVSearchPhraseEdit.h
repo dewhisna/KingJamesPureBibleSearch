@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QIcon>
 #include <QPushButton>
+#include <QMimeData>
 
 #include <QStatusBar>
 #include <utility>
@@ -113,6 +114,8 @@ signals:
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
 
+	virtual void insertFromMimeData(const QMimeData * source);
+
 	void UpdateCompleter();
 
 	// TODO : Remove this and set parent to non-virtual after done debugging!
@@ -148,7 +151,7 @@ class CKJVSearchPhraseEdit : public QWidget
 
 public:
 	explicit CKJVSearchPhraseEdit(QWidget *parent = 0);
-	~CKJVSearchPhraseEdit();
+	virtual ~CKJVSearchPhraseEdit();
 
 QStatusBar *pStatusBar;
 

@@ -135,57 +135,98 @@ QString CRelIndex::bookName() const
 
 QString CRelIndex::SearchResultToolTip() const
 {
-//	CRefCountCalc Tst(CRefCountCalc::RTE_TESTAMENT, *this);
 	CRefCountCalc Bk(CRefCountCalc::RTE_BOOK, *this);
 	CRefCountCalc Chp(CRefCountCalc::RTE_CHAPTER, *this);
 	CRefCountCalc Vrs(CRefCountCalc::RTE_VERSE, *this);
 	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, *this);
 
-//	return	QString("%1\n\n").arg(PassageReferenceText()) +
-//			QString("Book \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n").arg(Bk.ofBible()).arg(testamentName()).arg(Bk.ofTestament()) +
-//			QString("Chapter \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n").arg(Chp.ofBible()).arg(testamentName()).arg(Chp.ofTestament()).arg(Chp.ofBook()) +
-//			QString("Verse \n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n"
-//					"    of Chapter: %5\n").arg(Vrs.ofBible()).arg(testamentName()).arg(Vrs.ofTestament()).arg(Vrs.ofBook()).arg(Vrs.ofChapter()) +
-//			QString("Word/Phrase\n"
-//					"    of Bible: %1\n"
-//					"    of %2: %3\n"
-//					"    of Book: %4\n"
-//					"    of Chapter: %5\n"
-//					"    of Verse: %6\n").arg(Wrd.ofBible()).arg(testamentName()).arg(Wrd.ofTestament()).arg(Wrd.ofBook()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
+	QString strTemp;
 
-	return	QString("%1\n\n").arg(PassageReferenceText()) +
-			QString("Book \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n").arg(Bk.ofBible()).arg(Bk.ofTestament()).arg(testamentName()) +
-			QString("Chapter \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n").arg(Chp.ofBible()).arg(Chp.ofTestament()).arg(testamentName()).arg(Chp.ofBook()).arg(bookName()) +
-			QString("Verse \n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n"
-					"    %6 of Chapter\n").arg(Vrs.ofBible()).arg(Vrs.ofTestament()).arg(testamentName()).arg(Vrs.ofBook()).arg(bookName()).arg(Vrs.ofChapter()) +
-			QString("Word/Phrase\n"
-					"    %1 of Bible\n"
-					"    %2 of %3\n"
-					"    %4 of %5\n"
-					"    %6 of Chapter\n"
-					"    %7 of Verse\n").arg(Wrd.ofBible()).arg(Wrd.ofTestament()).arg(testamentName()).arg(Wrd.ofBook()).arg(bookName()).arg(Wrd.ofChapter()).arg(Wrd.ofVerse());
+	strTemp += QString("%1\n\n").arg(PassageReferenceText());
 
+	if ((Bk.ofBible() != 0) ||
+		(Bk.ofTestament() != 0)) {
+		strTemp += "Book \n";
+		if (Bk.ofBible() != 0) {
+			strTemp += QString("    %1 of Bible\n").arg(Bk.ofBible());
+		}
+		if (Bk.ofTestament() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Bk.ofTestament()).arg(testamentName());
+		}
+	}
+
+	if ((Chp.ofBible() != 0) ||
+		(Chp.ofTestament() != 0) ||
+		(Chp.ofBook() != 0)) {
+		strTemp += "Chapter \n";
+		if (Chp.ofBible() != 0) {
+			strTemp += QString("    %1 of Bible\n").arg(Chp.ofBible());
+		}
+		if (Chp.ofTestament() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Chp.ofTestament()).arg(testamentName());
+		}
+		if (Chp.ofBook() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Chp.ofBook()).arg(bookName());
+		}
+	}
+
+	if ((Vrs.ofBible() != 0) ||
+		(Vrs.ofTestament() != 0) ||
+		(Vrs.ofBook() != 0) ||
+		(Vrs.ofChapter() != 0)) {
+		strTemp += "Verse \n";
+		if (Vrs.ofBible() != 0) {
+			strTemp += QString("    %1 of Bible\n").arg(Vrs.ofBible());
+		}
+		if (Vrs.ofTestament() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Vrs.ofTestament()).arg(testamentName());
+		}
+		if (Vrs.ofBook() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Vrs.ofBook()).arg(bookName());
+		}
+		if (Vrs.ofChapter() != 0) {
+			strTemp += QString("    %1 of Chapter\n").arg(Vrs.ofChapter());
+		}
+	}
+
+	if ((Wrd.ofBible() != 0) ||
+		(Wrd.ofTestament() != 0) ||
+		(Wrd.ofBook() != 0) ||
+		(Wrd.ofChapter() != 0) ||
+		(Wrd.ofVerse() != 0)) {
+		strTemp += "Word/Phrase\n";
+		if (Wrd.ofBible() != 0) {
+			strTemp += QString("    %1 of Bible\n").arg(Wrd.ofBible());
+		}
+		if (Wrd.ofTestament() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Wrd.ofTestament()).arg(testamentName());
+		}
+		if (Wrd.ofBook() != 0) {
+			strTemp += QString("    %1 of %2\n").arg(Wrd.ofBook()).arg(bookName());
+		}
+		if (Wrd.ofChapter() != 0) {
+			strTemp += QString("    %1 of Chapter\n").arg(Wrd.ofChapter());
+		}
+		if (Wrd.ofVerse() != 0) {
+			strTemp += QString("    %1 of Verse\n").arg(Wrd.ofVerse());
+		}
+	}
+
+	return strTemp;
 }
 
 QString CRelIndex::PassageReferenceText() const
 {
-	if (!isSet()) return "<Invalid Reference>";
+	if ((!isSet()) || (book() == 0)) return "<Invalid Reference>";
+	if (chapter() == 0) {
+		return QString("%1").arg(bookName());
+	}
+	if (verse() == 0) {
+		return QString("%1 %2").arg(bookName()).arg(chapter());
+	}
+	if (word() == 0) {
+		return QString("%1 %2:%3").arg(bookName()).arg(chapter()).arg(verse());
+	}
 	return QString("%1 %2:%3 [%4]").arg(bookName()).arg(chapter()).arg(verse()).arg(word());
 }
 

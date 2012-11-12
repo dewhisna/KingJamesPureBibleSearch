@@ -3,13 +3,85 @@
 
 #include "dbstruct.h"
 
+#include "KJVSearchPhraseEdit.h"
+
 #include <assert.h>
 
 #include <QMessageBox>
 #include <QLabel>
 #include <QComboBox>
 #include <QTextBrowser>
+#include <QTextCharFormat>
+#include <QToolTip>
 
+// ============================================================================
+
+CScriptureBrowser::CScriptureBrowser(QWidget *parent)
+	:	QTextBrowser(parent)
+{
+
+}
+
+CScriptureBrowser::~CScriptureBrowser()
+{
+
+}
+
+bool CScriptureBrowser::event(QEvent *e)
+{
+	if (e->type() == QEvent::ToolTip) {
+		QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
+		CPhraseCursor cursor = cursorForPosition(pHelpEvent->pos());
+
+		QTextCharFormat fmt = cursor.charFormat();
+		if (!fmt.anchorName().isEmpty()) {
+			CRelIndex ndxReference(fmt.anchorName());
+			QString strToolTip = ndxReference.SearchResultToolTip();
+			if (ndxReference.book() != 0) {
+				assert(ndxReference.book() <= g_lstTOC.size());
+				if (ndxReference.book() <= g_lstTOC.size()) {
+					strToolTip += "\n----------\n";
+					strToolTip += QString("\n%1 contains:\n"
+											"    %2 Chapters\n"
+											"    %3 Verses\n"
+											"    %4 Words\n")
+											.arg(ndxReference.bookName())
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumChp)
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumVrs)
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumWrd);
+					if (ndxReference.chapter() != 0) {
+						assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
+						if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
+							strToolTip += QString("\n%1 %2 contains:\n"
+													"    %3 Verses\n"
+													"    %4 Words\n")
+													.arg(ndxReference.bookName()).arg(ndxReference.chapter())
+													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
+													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
+							if (ndxReference.verse() != 0) {
+								assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
+								if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
+									strToolTip += QString("\n%1 %2:%3 contains:\n"
+															"    %4 Words\n")
+															.arg(ndxReference.bookName()).arg(ndxReference.chapter()).arg(ndxReference.verse())
+															.arg((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
+								}
+							}
+						}
+					}
+				}
+			}
+			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
+		} else {
+			QToolTip::hideText();
+		}
+		return true;
+	}
+
+	return QTextBrowser::event(e);
+}
+
+// ============================================================================
 
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	QWidget(parent),
@@ -172,7 +244,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
 		strHTML += "<p>";
-		strHTML += QString("<bold> %1 </bold>").arg(relPrev.verse());
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
 		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
@@ -180,8 +252,8 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	strHTML += "<hr/>\n";
 
 	// Print Heading for this Book/Chapter:
-	strHTML += QString("<a id=\"%1\"><h1>%2</h1></a>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName);
-	strHTML += QString("<h2>Chapter %1</h2>\n").arg(m_ndxCurrent.chapter());
+	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName);
+	strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(m_ndxCurrent.chapter());
 
 	// Print this Chapter Text:
 	bool bParagraph = false;
@@ -219,11 +291,11 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != m_ndxCurrent.book())
-			strHTML += QString("<h1>%1</h1>\n").arg(g_lstTOC[relNext.book()-1].m_strBkName);
-		strHTML += QString("<h2>Chapter %1</h2>\n").arg(relNext.chapter());
+			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName);
+		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter());
 
 		strHTML += "<p>";
-		strHTML += QString("<bold> %1 </bold>").arg(relNext.verse());
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relNext.asAnchor()).arg(relNext.verse());
 		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
