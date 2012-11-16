@@ -73,10 +73,8 @@ CRelIndex CScriptureBrowser::ResolveCursorReference2(CPhraseCursor &cursor)
 
 
 	CRelIndex ndxReference;
-	unsigned int nWord = 1;
+	unsigned int nWord = 0;
 
-//	CheckForAnchor();
-//	cursor.moveCursorCharLeft(QTextCursor::MoveAnchor);
 	CheckForAnchor();
 	while (!cursor.charUnderCursor().isSpace()) {
 		if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
@@ -84,12 +82,12 @@ CRelIndex CScriptureBrowser::ResolveCursorReference2(CPhraseCursor &cursor)
 	}
 
 	do {
+		nWord++;
+
 		while (cursor.charUnderCursor().isSpace()) {
 			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
 			CheckForAnchor();
 		}
-
-		nWord++;
 
 		while (!cursor.charUnderCursor().isSpace()) {
 			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
@@ -105,36 +103,15 @@ bool CScriptureBrowser::event(QEvent *e)
 	if (e->type() == QEvent::ToolTip) {
 		QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
 		CPhraseCursor cursor = cursorForPosition(pHelpEvent->pos());
-
-		int nCurPosStart = cursor.position();
-
 		CRelIndex ndxReference = ResolveCursorReference(cursor);
-
-//		unsigned int nWord = 0;
-//		do {
-//			QTextCharFormat fmt = cursor.charFormat();
-//			strAnchor = fmt.anchorName();
-//			ndxReference = CRelIndex(strAnchor);
-//			if ((ndxReference.isSet()) && (ndxReference.verse() != 0)) break;		// If we are on a verse tag, we're done
-
-//			while (!cursor.charUnderCursor().isSpace()) {
-//				if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor))
-//			}
-
-
-//		} while ((ndxReference.verse() == 0) && (cursor.moveCursorWordLeft(QTextCursor::MoveAnchor)));
-
 		QString strToolTip;
 
-		strToolTip += "Resolved Anchor: " + ndxReference.asAnchor() + "\n";
-
 		if (ndxReference.isSet()) {
-//			if ((ndxReference.verse() != 0) && (ndxReference.word() == 0)) {
-//				ndxReference.setWord(nWord-1);
-//			}
-			uint32_t ndxNormal = NormalizeIndex(ndxReference);
-			if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
-				strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+			if (ndxReference.word() != 0) {
+				uint32_t ndxNormal = NormalizeIndex(ndxReference);
+				if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
+					strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+				}
 			}
 			strToolTip += ndxReference.SearchResultToolTip();
 			if (ndxReference.book() != 0) {
@@ -334,6 +311,9 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 		return;
 	}
 
+
+/*
+
 	ui->textBrowserMainText->setFontFamily("Times New Roman");
 	ui->textBrowserMainText->setFontPointSize(12);
 	ui->textBrowserMainText->setFontWeight(QFont::Normal);
@@ -349,34 +329,11 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	// Print last verse of previous chapter if available:
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
-		unsigned int nNumWords = (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].m_nNumWrd;
 
-
-//		cursor.insertBlock();
 		ui->textBrowserMainText->insertHtml("<p>");
 		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse()));
 		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		int nCurPosStart = cursor.position();
 		cursor.insertHtml((g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n");
-
-/*
-		cursor.setPosition(nCurPosStart, QTextCursor::MoveAnchor);
-		unsigned int nWord = 0;
-		do {
-			nWord++;
-			relPrev.setWord(nWord);
-			cursor.selectWordUnderCursor();
-			QTextCharFormat fmt = cursor.charFormat();
-//			fmt.setProperty(QTextFormat::UserProperty, relPrev.index());
-			fmt.setAnchorName(relPrev.asAnchor());
-			cursor.setCharFormat(fmt);
-		} while ((cursor.moveCursorWordRight(QTextCursor::MoveAnchor)) && (nWord != nNumWords));
-		ui->textBrowserMainText->setTextCursor(cursor);
-		ui->textBrowserMainText->insertHtml("</p>");
-
-		assert(nWord == nNumWords);
-
-*/
 
 //		strHTML += "<p>";
 //		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
@@ -385,13 +342,10 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 	}
 
-//	cursor.insertBlock();
 	ui->textBrowserMainText->insertHtml("<hr/>\n");
 
 	// Print Heading for this Book/Chapter:
-//	cursor.insertBlock();
 	ui->textBrowserMainText->insertHtml(QString("<h1><a id=\"%1\">%2</a></h1><br/>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName));
-//	cursor.insertBlock();
 	ui->textBrowserMainText->insertHtml(QString("<h2><a id=\"%1\">Chapter %2</a></h2><br/>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(m_ndxCurrent.chapter()));
 
 //	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName);
@@ -426,25 +380,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, 0).asAnchor()).arg(ndxVrs+1));
 		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		int nCurPosStart = cursor.position();
 		cursor.insertHtml(verse.GetRichText() + "\n");
-
-/*
-		cursor.setPosition(nCurPosStart, QTextCursor::MoveAnchor);
-		unsigned int nWord = 0;
-		do {
-			nWord++;
-			cursor.selectWordUnderCursor();
-			QTextCharFormat fmt = cursor.charFormat();
-//			fmt.setProperty(QTextFormat::UserProperty, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, nWord).index());
-			fmt.setAnchorName(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, nWord).asAnchor());
-			cursor.setCharFormat(fmt);
-		} while ((cursor.moveCursorWordRight(QTextCursor::MoveAnchor)) && (nWord != verse.m_nNumWrd));
-		ui->textBrowserMainText->setTextCursor(cursor);
-
-		assert(nWord == verse.m_nNumWrd);
-
-*/
 
 
 	}
@@ -455,55 +391,27 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	}
 
 
-
-
-//	cursor.insertBlock();
 	ui->textBrowserMainText->insertHtml("<hr/>\n");
 
 	// Print first verse of next chapter if available:
 	if (nRelNextChapter != 0) {
 		CRelIndex relNext(nRelNextChapter);
-		unsigned int nNumWords = (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].m_nNumWrd;
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != m_ndxCurrent.book()) {
-//			cursor.insertBlock();
 			ui->textBrowserMainText->insertHtml(QString("<h1><a id=\"%1\">%2</a></h1><br/>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName));
 
 //			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName);
 		}
 
-//		cursor.insertBlock();
 		ui->textBrowserMainText->insertHtml(QString("<h2><a id=\"%1\">Chapter %2</a></h2><br/>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter()));
 
 //		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter());
 
-//		cursor.insertBlock();
 		ui->textBrowserMainText->insertHtml("<p>");
 		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse()));
 		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		int nCurPosStart = cursor.position();
 		cursor.insertHtml((g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n");
-
-/*
-
-		cursor.setPosition(nCurPosStart, QTextCursor::MoveAnchor);
-		unsigned int nWord = 0;
-		do {
-			nWord++;
-			relNext.setWord(nWord);
-			cursor.selectWordUnderCursor();
-			QTextCharFormat fmt = cursor.charFormat();
-//			fmt.setProperty(QTextFormat::UserProperty, relNext.index());
-			fmt.setAnchorName(relNext.asAnchor());
-			cursor.setCharFormat(fmt);
-		} while ((cursor.moveCursorWordRight(QTextCursor::MoveAnchor)) && (nWord != nNumWords));
-		ui->textBrowserMainText->setTextCursor(cursor);
-		ui->textBrowserMainText->insertHtml("</p>");
-
-		assert(nWord == nNumWords);
-
-*/
 
 
 //		strHTML += "<p>";
@@ -514,14 +422,13 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 
 
-
 	ui->textBrowserMainText->insertHtml("<a id=\"0\"></a>");
 
+*/
 
 
 
 
-/*
 
 //	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
 	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
@@ -536,7 +443,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
 		strHTML += "<p>";
-		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
 		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
@@ -587,7 +494,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter());
 
 		strHTML += "<p>";
-		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relNext.asAnchor()).arg(relNext.verse());
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
 		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
@@ -595,7 +502,7 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	strHTML += "<br/></body></html>";
 	ui->textBrowserMainText->setHtml(strHTML);
 
-*/
+
 
 
 }
