@@ -5,6 +5,7 @@
 #include <QTextBrowser>
 
 #include "dbstruct.h"
+#include "KJVSearchPhraseEdit.h"
 
 
 class CScriptureBrowser : public QTextBrowser
@@ -17,6 +18,10 @@ public:
 
 protected:
 	virtual bool event(QEvent *e);
+
+private:
+	CRelIndex ResolveCursorReference(CPhraseCursor &cursor);		// Bounds limited for words
+	CRelIndex ResolveCursorReference2(CPhraseCursor &cursor);		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
 
 };
 
