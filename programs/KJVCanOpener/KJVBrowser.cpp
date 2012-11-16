@@ -12,7 +12,6 @@
 #include <QComboBox>
 #include <QTextBrowser>
 #include <QTextCharFormat>
-#include <QTextDocumentFragment>
 #include <QToolTip>
 
 // ============================================================================
@@ -311,125 +310,6 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 		return;
 	}
 
-
-/*
-
-	ui->textBrowserMainText->setFontFamily("Times New Roman");
-	ui->textBrowserMainText->setFontPointSize(12);
-	ui->textBrowserMainText->setFontWeight(QFont::Normal);
-	ui->textBrowserMainText->setWordWrapMode(QTextOption::WordWrap);
-
-	uint32_t nFirstWordNormal = NormalizeIndex(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
-	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + layout.m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
-	uint32_t nRelPrevChapter = DenormalizeIndex(nFirstWordNormal - 1);				// Find previous book/chapter/verse (and word)
-	uint32_t nRelNextChapter = DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
-
-	ui->textBrowserMainText->insertHtml("<a id=\"0\"></a>");
-
-	// Print last verse of previous chapter if available:
-	if (nRelPrevChapter != 0) {
-		CRelIndex relPrev(nRelPrevChapter);
-
-		ui->textBrowserMainText->insertHtml("<p>");
-		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse()));
-		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		cursor.insertHtml((g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n");
-
-//		strHTML += "<p>";
-//		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
-//		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
-//		strHTML += "</p>";
-
-	}
-
-	ui->textBrowserMainText->insertHtml("<hr/>\n");
-
-	// Print Heading for this Book/Chapter:
-	ui->textBrowserMainText->insertHtml(QString("<h1><a id=\"%1\">%2</a></h1><br/>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName));
-	ui->textBrowserMainText->insertHtml(QString("<h2><a id=\"%1\">Chapter %2</a></h2><br/>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(m_ndxCurrent.chapter()));
-
-//	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName);
-//	strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(m_ndxCurrent.chapter());
-
-
-	// Print this Chapter Text:
-	bool bParagraph = false;
-	for (unsigned int ndxVrs=0; ndxVrs<layout.m_nNumVrs; ++ndxVrs) {
-		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,m_ndxCurrent.chapter(),ndxVrs+1,0));
-		if (mapLookupVerse == book.end()) {
-			assert(false);
-			continue;
-		}
-		const CBookEntry &verse(mapLookupVerse->second);
-		if (verse.m_bPilcrow) {
-			if (bParagraph) {
-				ui->textBrowserMainText->insertHtml("</p>");
-//				strHTML += "</p>";
-				bParagraph=false;
-			}
-////			strHTML += "<br/>\n";
-		}
-		if (!bParagraph) {
-			ui->textBrowserMainText->insertHtml("<p>");
-//			strHTML += "<p>";
-			bParagraph = true;
-		}
-//		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, 0).asAnchor()).arg(ndxVrs+1);
-//		strHTML += verse.GetRichText() + "\n";
-
-
-		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, 0).asAnchor()).arg(ndxVrs+1));
-		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		cursor.insertHtml(verse.GetRichText() + "\n");
-
-
-	}
-	if (bParagraph) {
-		ui->textBrowserMainText->insertHtml("</p>");
-//		strHTML += "</p>";
-		bParagraph = false;
-	}
-
-
-	ui->textBrowserMainText->insertHtml("<hr/>\n");
-
-	// Print first verse of next chapter if available:
-	if (nRelNextChapter != 0) {
-		CRelIndex relNext(nRelNextChapter);
-
-		// Print Heading for this Book/Chapter:
-		if (relNext.book() != m_ndxCurrent.book()) {
-			ui->textBrowserMainText->insertHtml(QString("<h1><a id=\"%1\">%2</a></h1><br/>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName));
-
-//			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName);
-		}
-
-		ui->textBrowserMainText->insertHtml(QString("<h2><a id=\"%1\">Chapter %2</a></h2><br/>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter()));
-
-//		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter());
-
-		ui->textBrowserMainText->insertHtml("<p>");
-		ui->textBrowserMainText->insertHtml(QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse()));
-		CPhraseCursor cursor(ui->textBrowserMainText->textCursor());
-		cursor.insertHtml((g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n");
-
-
-//		strHTML += "<p>";
-//		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(relNext.asAnchor()).arg(relNext.verse());
-//		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
-//		strHTML += "</p>";
-	}
-
-
-
-	ui->textBrowserMainText->insertHtml("<a id=\"0\"></a>");
-
-*/
-
-
-
-
-
 //	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
 	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
@@ -501,10 +381,6 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 	strHTML += "<br/></body></html>";
 	ui->textBrowserMainText->setHtml(strHTML);
-
-
-
-
 }
 
 void CKJVBrowser::setVerse(uint32_t nVrs)
