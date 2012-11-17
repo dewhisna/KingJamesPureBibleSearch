@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 #include <QWidget>
 #include <QByteArray>
+#include <QString>
 #include "dbstruct.h"
 
 class CReadDatabase
@@ -14,8 +15,8 @@ public:
 	{ }
 	~CReadDatabase() { }
 
-	bool ReadDatabase(const char *pstrDatabaseFilename);
-	bool ReadUserDatabase(const char *pstrDatabaseFilename);
+	bool ReadDatabase(const QString &strDatabaseFilename);
+	bool ReadUserDatabase(const QString &strDatabaseFilename);
 
 	static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList);
 

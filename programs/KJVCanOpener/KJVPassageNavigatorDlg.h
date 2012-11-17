@@ -2,6 +2,7 @@
 #define KJVPASSAGENAVIGATORDLG_H
 
 #include "dbstruct.h"
+#include "KJVPassageNavigator.h"
 
 #include <QDialog>
 #include <QAbstractButton>
@@ -21,6 +22,7 @@ public:
 
 	CRelIndex passage() const;
 	void setPassage(const CRelIndex &ndx);
+	CKJVPassageNavigator &navigator();
 
 private slots:
 	void on_modeChanged(bool bRelative);

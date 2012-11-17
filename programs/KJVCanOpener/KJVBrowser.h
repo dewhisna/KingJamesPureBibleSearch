@@ -16,8 +16,12 @@ public:
 	explicit CScriptureBrowser(QWidget *parent = 0);
 	virtual ~CScriptureBrowser();
 
+signals:
+	void gotoIndex(CRelIndex ndx);
+
 protected:
 	virtual bool event(QEvent *e);
+	virtual void mouseDoubleClickEvent(QMouseEvent * e);
 
 private:
 	CRelIndex ResolveCursorReference(CPhraseCursor &cursor);		// Bounds limited for words
@@ -39,10 +43,10 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
+	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 
 public slots:
-	void gotoIndex(CRelIndex ndx);
+	void gotoIndex(const CRelIndex &ndx);
 
 signals:
 	void IndexChanged(const CRelIndex &index);

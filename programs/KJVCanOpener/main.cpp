@@ -5,12 +5,14 @@
 #include <QSplashScreen>
 #include <QWidget>
 #include <QMainWindow>
+#include <QTime>
 //#include <QTimer>
 //#include <QThread>
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QLocale>
 #include <QMessageBox>
+#include <QFileInfo>
 
 #include "KJVCanOpener.h"
 
@@ -20,9 +22,13 @@
 #include <assert.h>
 
 namespace {
+	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
+
 	const char *g_constrInitialization = "KJVCanOpener Initialization";
 
-	const char *g_constrDatabaseFilename = "../KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrUserDatabaseFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 
 }	// namespace
 
@@ -57,7 +63,16 @@ int main(int argc, char *argv[])
 	splash->setPixmap(QPixmap(":/res/can-of-KJV.png"));
 	splash->show();
 
+	QTime splashTimer;
+	splashTimer.start();
 
+	// Setup our SQL Plugin paths:
+	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
+	app.addLibraryPath(fiPlugins.absolutePath());
+
+	// Database Paths:
+	QFileInfo fiDatabase(app.applicationDirPath(), g_constrDatabaseFilename);
+	QFileInfo fiUserDatabase(app.applicationDirPath(), g_constrUserDatabaseFilename);
 
 
 //CBuildDatabase adb(splash);
@@ -74,11 +89,26 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Read Main Database
 	CReadDatabase rdb(splash);
-	if (!rdb.ReadDatabase(g_constrDatabaseFilename)) {
+	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath())) {
 		QMessageBox::warning(splash, g_constrInitialization, "Failed to Read and Validate KJV Database!\nCheck Installation!");
 		return -2;
 	}
+
+	// Read User Database if it exists:
+	if (fiUserDatabase.exists()) {
+		if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
+			QMessageBox::warning(splash, g_constrInitialization, "Failed to Read KJV User Database!\nCheck Installation and Verify Database File!");
+			return -3;
+		}
+	}
+
+	// Show splash for minimum time:
+	int nElapsed;
+	do {
+		nElapsed = splashTimer.elapsed();
+	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:

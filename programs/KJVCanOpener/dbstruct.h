@@ -293,7 +293,7 @@ public:
 
 typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
 
-extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed by lowercase word except those that case-preserve)
+extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed by lowercase word)
 
 // ============================================================================
 

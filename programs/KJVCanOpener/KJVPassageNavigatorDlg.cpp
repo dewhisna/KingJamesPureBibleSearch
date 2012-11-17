@@ -46,6 +46,11 @@ void CKJVPassageNavigatorDlg::setPassage(const CRelIndex &ndx)
 	ui->widgetKJVPassageNavigator->setPassage(ndx);
 }
 
+CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
+{
+	return *(ui->widgetKJVPassageNavigator);
+}
+
 void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 {
 	if (bRelative) {

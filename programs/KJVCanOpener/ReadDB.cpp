@@ -537,24 +537,21 @@ bool CReadDatabase::ValidateData()
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(g_lstConcordanceMapping.size()));
 		return false;
 	}
-	if (g_mapWordList.size() != static_cast<unsigned int>(g_lstConcordanceWords.size())) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 words, but Concordance contains %2 words!").arg(g_mapWordList.size()).arg(g_lstConcordanceWords.size()));
-	}
 
 	return true;
 }
 
 // ============================================================================
 
-bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
+bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 {
 	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
+	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
 		return false;
 	}
 
@@ -573,13 +570,13 @@ bool CReadDatabase::ReadDatabase(const char *pstrDatabaseFilename)
 	return bSuccess;
 }
 
-bool CReadDatabase::ReadUserDatabase(const char *pstrDatabaseFilename)
+bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
 {
 	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
+	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
 		return false;
 	}
 

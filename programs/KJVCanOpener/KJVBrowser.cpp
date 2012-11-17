@@ -4,6 +4,7 @@
 #include "dbstruct.h"
 
 #include "KJVSearchPhraseEdit.h"
+#include "KJVPassageNavigatorDlg.h"
 
 #include <assert.h>
 
@@ -160,6 +161,19 @@ bool CScriptureBrowser::event(QEvent *e)
 	return QTextBrowser::event(e);
 }
 
+void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent * e)
+{
+	CPhraseCursor cursor = cursorForPosition(e->pos());
+	CRelIndex ndxReference = ResolveCursorReference(cursor);
+	if (ndxReference.isSet()) {
+		CKJVPassageNavigatorDlg dlg(this);
+		dlg.navigator().startRelativeMode(ndxReference, false);
+		if (dlg.exec() == QDialog::Accepted) {
+			emit gotoIndex(dlg.passage());
+		}
+	}
+}
+
 // ============================================================================
 
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
@@ -175,6 +189,8 @@ CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	Initialize();
 
 // UI Connections:
+	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const CRelIndex &)), this, SLOT(gotoIndex(const CRelIndex &)));
+
 	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BkChpComboIndexChanged(int)));
 	connect(ui->comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(TstBkComboIndexChanged(int)));
@@ -188,7 +204,7 @@ CKJVBrowser::~CKJVBrowser()
 	delete ui;
 }
 
-void CKJVBrowser::Initialize(CRelIndex nInitialIndex)
+void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
 {
 	begin_update();
 
@@ -210,7 +226,7 @@ void CKJVBrowser::Initialize(CRelIndex nInitialIndex)
 	if (nInitialIndex.isSet()) gotoIndex(nInitialIndex);
 }
 
-void CKJVBrowser::gotoIndex(CRelIndex ndx)
+void CKJVBrowser::gotoIndex(const CRelIndex &ndx)
 {
 	setBook(ndx.book());
 	setChapter(ndx.chapter());

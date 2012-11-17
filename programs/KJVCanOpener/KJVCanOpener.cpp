@@ -100,7 +100,7 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 	TIndexList lstResults = phrase.GetNormalizedSearchResults();
 	CVerseList lstReferences;
 
-	if (lstResults.size() <= 5000) {		// This check keep the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+	if (lstResults.size() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
 		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
 			int nCount = 1;
 			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults]);
