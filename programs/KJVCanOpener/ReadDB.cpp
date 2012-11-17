@@ -4,6 +4,7 @@
 #include "ReadDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
+#include "KJVSearchPhraseEdit.h"
 
 #include <assert.h>
 
@@ -395,6 +396,9 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		phrase.m_strPhrase = query.value(1).toString();
 		phrase.m_bCaseSensitive = ((query.value(2).toInt() != 0) ? true : false);
 		if (!phrase.m_strPhrase.isEmpty()) {
+			CParsedPhrase parsedPhrase;
+			parsedPhrase.ParsePhrase(phrase.m_strPhrase);
+			phrase.m_nNumWrd = parsedPhrase.phraseSize();
 			if (bUserPhrases) {
 				g_lstUserPhrases.push_back(phrase);
 			} else {

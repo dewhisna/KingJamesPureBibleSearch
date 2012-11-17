@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QList>
 #include <QVariant>
+#include <QPair>
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -18,6 +19,14 @@
 
 
 // ============================================================================
+
+// CRelIndex Masks:
+#define RIMASK_HEADING	0x10
+#define RIMASK_BOOK		0x08
+#define RIMASK_CHAPTER	0x04
+#define RIMASK_VERSE	0x02
+#define RIMASK_WORD		0x01
+#define RIMASK_ALL		0x1F
 
 class CRelIndex {
 public:
@@ -39,7 +48,7 @@ public:
 		return QString("%1").arg(m_ndx);
 	}
 
-	QString SearchResultToolTip() const;		// Create complete reference statistics report
+	QString SearchResultToolTip(int nRIMask = RIMASK_ALL) const;		// Create complete reference statistics report
 	QString PassageReferenceText() const;		// Creates a reference text string like "Genesis 1:1 [5]"
 
 	QString testamentName() const;
@@ -93,7 +102,7 @@ public:
 	CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex);
 	~CRefCountCalc() { }
 
-	static QString SearchResultToolTip(const CRelIndex &refIndex);		// Create complete reference statistics report
+	static QString SearchResultToolTip(const CRelIndex &refIndex, int nRIMask = RIMASK_ALL);		// Create complete reference statistics report
 	static QString PassageReferenceText(const CRelIndex &refIndex);		// Creates a reference text string like "Genesis 1:1 [5]"
 
 	REF_TYPE_ENUM refType() const { return m_nRefType; }
@@ -314,12 +323,14 @@ class CPhraseEntry
 {
 public:
 	CPhraseEntry()
-		:	m_bCaseSensitive(false)
+		:	m_bCaseSensitive(false),
+			m_nNumWrd(0)
 	{ }
 	~CPhraseEntry() { }
 
 	bool m_bCaseSensitive;
 	QString m_strPhrase;
+	unsigned int m_nNumWrd;		// Number of words in phrase
 };
 
 Q_DECLARE_METATYPE(CPhraseEntry)
@@ -328,5 +339,19 @@ typedef QList<CPhraseEntry> CPhraseList;
 
 extern CPhraseList g_lstCommonPhrases;			// Common phrases read from database
 extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database
+
+// ============================================================================
+
+typedef QPair<uint32_t, unsigned int> TPhraseTag;		// Normalized Index and Word Count pair used for highlight phrases found
+typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases
+
+struct TPhraseTagListSortPredicate {
+	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)
+	{
+		return (s1.first < s2.first);
+	}
+};
+
+// ============================================================================
 
 #endif // DBSTRUCT_H

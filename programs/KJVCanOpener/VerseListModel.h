@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QVariant>
 
+// ============================================================================
+
 class CVerseListItem
 {
 public:
@@ -39,6 +41,8 @@ public:
 	uint32_t getIndexNormalized() const { return NormalizeIndex(m_ndxRelative.index()); }
 	uint32_t getIndexDenormalized() const { return m_ndxRelative.index(); }
 	CRelIndex getIndex() const { return m_ndxRelative; }
+	TPhraseTagList &phraseTags() { return m_lstTags; }
+	const TPhraseTagList &phraseTags() const { return m_lstTags; }
 
 	QStringList getWordList() const
 	{
@@ -65,6 +69,7 @@ public:
 
 private:
 	CRelIndex m_ndxRelative;		// Relative Index
+	TPhraseTagList m_lstTags;		// Phrase Tags to highlight
 	QString m_strHeading;
 	QString m_strToolTip;
 };
@@ -72,6 +77,8 @@ private:
 Q_DECLARE_METATYPE(CVerseListItem)
 
 typedef QList<CVerseListItem> CVerseList;
+
+// ============================================================================
 
 class CVerseListModel : public QAbstractListModel
 {

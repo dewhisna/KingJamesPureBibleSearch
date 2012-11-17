@@ -133,7 +133,7 @@ QString CRelIndex::bookName() const
 	return toc.m_strBkName;
 }
 
-QString CRelIndex::SearchResultToolTip() const
+QString CRelIndex::SearchResultToolTip(int nRIMask) const
 {
 	CRefCountCalc Bk(CRefCountCalc::RTE_BOOK, *this);
 	CRefCountCalc Chp(CRefCountCalc::RTE_CHAPTER, *this);
@@ -142,10 +142,13 @@ QString CRelIndex::SearchResultToolTip() const
 
 	QString strTemp;
 
-	strTemp += QString("%1\n\n").arg(PassageReferenceText());
+	if (nRIMask & RIMASK_HEADING) {
+		strTemp += QString("%1\n\n").arg(PassageReferenceText());
+	}
 
-	if ((Bk.ofBible() != 0) ||
-		(Bk.ofTestament() != 0)) {
+	if ((nRIMask & RIMASK_BOOK) &&
+		((Bk.ofBible() != 0) ||
+		 (Bk.ofTestament() != 0))) {
 		strTemp += "Book \n";
 		if (Bk.ofBible() != 0) {
 			strTemp += QString("    %1 of Bible\n").arg(Bk.ofBible());
@@ -155,9 +158,10 @@ QString CRelIndex::SearchResultToolTip() const
 		}
 	}
 
-	if ((Chp.ofBible() != 0) ||
-		(Chp.ofTestament() != 0) ||
-		(Chp.ofBook() != 0)) {
+	if ((nRIMask & RIMASK_CHAPTER) &&
+		((Chp.ofBible() != 0) ||
+		 (Chp.ofTestament() != 0) ||
+		 (Chp.ofBook() != 0))) {
 		strTemp += "Chapter \n";
 		if (Chp.ofBible() != 0) {
 			strTemp += QString("    %1 of Bible\n").arg(Chp.ofBible());
@@ -170,10 +174,11 @@ QString CRelIndex::SearchResultToolTip() const
 		}
 	}
 
-	if ((Vrs.ofBible() != 0) ||
-		(Vrs.ofTestament() != 0) ||
-		(Vrs.ofBook() != 0) ||
-		(Vrs.ofChapter() != 0)) {
+	if ((nRIMask & RIMASK_VERSE) &&
+		((Vrs.ofBible() != 0) ||
+		 (Vrs.ofTestament() != 0) ||
+		 (Vrs.ofBook() != 0) ||
+		 (Vrs.ofChapter() != 0))) {
 		strTemp += "Verse \n";
 		if (Vrs.ofBible() != 0) {
 			strTemp += QString("    %1 of Bible\n").arg(Vrs.ofBible());
@@ -189,11 +194,12 @@ QString CRelIndex::SearchResultToolTip() const
 		}
 	}
 
-	if ((Wrd.ofBible() != 0) ||
-		(Wrd.ofTestament() != 0) ||
-		(Wrd.ofBook() != 0) ||
-		(Wrd.ofChapter() != 0) ||
-		(Wrd.ofVerse() != 0)) {
+	if ((nRIMask & RIMASK_WORD) &&
+		((Wrd.ofBible() != 0) ||
+		 (Wrd.ofTestament() != 0) ||
+		 (Wrd.ofBook() != 0) ||
+		 (Wrd.ofChapter() != 0) ||
+		 (Wrd.ofVerse() != 0))) {
 		strTemp += "Word/Phrase\n";
 		if (Wrd.ofBible() != 0) {
 			strTemp += QString("    %1 of Bible\n").arg(Wrd.ofBible());
@@ -331,9 +337,9 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 	}
 }
 
-QString CRefCountCalc::SearchResultToolTip(const CRelIndex &refIndex)
+QString CRefCountCalc::SearchResultToolTip(const CRelIndex &refIndex, int nRIMask)
 {
-	return refIndex.SearchResultToolTip();
+	return refIndex.SearchResultToolTip(nRIMask);
 }
 
 QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)

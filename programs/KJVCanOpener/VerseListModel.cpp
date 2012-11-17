@@ -46,7 +46,12 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		const CVerseListItem &refVerse = m_lstVerses[index.row()];
 		QString strToolTip;
 		if (!refVerse.getToolTip().isEmpty()) strToolTip = refVerse.getToolTip() + "\n\n";
-		strToolTip += CRefCountCalc::SearchResultToolTip(refVerse.getIndex());
+		strToolTip += refVerse.getHeading() + "\n\n";
+		strToolTip += refVerse.getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
+		for (int ndx = 0; ndx < refVerse.phraseTags().size(); ++ndx) {
+			if (refVerse.phraseTags().size() > 1) strToolTip += QString("(%1) ").arg(ndx+1);
+			strToolTip += CRelIndex(DenormalizeIndex(refVerse.phraseTags().at(ndx).first)).SearchResultToolTip(RIMASK_WORD);
+		}
 		return strToolTip;
 	}
 

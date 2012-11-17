@@ -30,13 +30,16 @@ public:
 	{ }
 
 	uint32_t GetNumberOfMatches() const;
-	TIndexList GetNormalizedSearchResults() const;
+	TPhraseTagList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
 	uint32_t GetCursorMatchLevel() const;
-
-	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
 	QString GetCursorWord() const;
 	int GetCursorWordPos() const;
+	QString phrase() const;						// Return reconstituted phrase
+	unsigned int phraseSize() const;			// Return number of words in reconstituted phrase
+
+	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
+	virtual void ParsePhrase(const QString &strPhrase);			// Parses a fixed phrase
 
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }

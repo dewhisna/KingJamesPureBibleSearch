@@ -10,6 +10,7 @@
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QRegExp>
+#include <QtAlgorithms>
 
 #include <algorithm>
 #include <string>
@@ -23,15 +24,16 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 	return m_lstMatchMapping.size();
 }
 
-TIndexList CParsedPhrase::GetNormalizedSearchResults() const
+TPhraseTagList CParsedPhrase::GetNormalizedSearchResults() const
 {
-	TIndexList lstResults;
+	TPhraseTagList lstResults;
+	unsigned int nPhraseSize = phraseSize();
 
-	lstResults.resize(m_lstMatchMapping.size());
+	lstResults.reserve(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
+		lstResults.push_back(TPhraseTag(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1, nPhraseSize));
 	}
-	sort(lstResults.begin(), lstResults.end());
+	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 	return lstResults;
 }
@@ -54,6 +56,27 @@ QString CParsedPhrase::GetCursorWord() const
 int CParsedPhrase::GetCursorWordPos() const
 {
 	return m_nCursorWord;
+}
+
+QString CParsedPhrase::phrase() const
+{
+	QString strPhrase;
+	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
+		if (m_lstWords.at(ndx).isEmpty()) continue;
+		if (ndx) strPhrase += " ";
+		strPhrase += m_lstWords.at(ndx);
+	}
+	return strPhrase;
+}
+
+unsigned int CParsedPhrase::phraseSize() const
+{
+	unsigned int nSize = 0;
+	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
+		if (m_lstWords.at(ndx).isEmpty()) continue;
+		nSize++;
+	}
+	return nSize;
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
@@ -223,6 +246,20 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
 
 
+}
+
+void CParsedPhrase::ParsePhrase(const QString &strPhrase)
+{
+	m_lstLeftWords.clear();
+	m_lstRightWords.clear();
+	m_strCursorWord.clear();
+	m_lstWords.clear();
+
+	m_lstLeftWords = strPhrase.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_lstWords.append(m_lstLeftWords);
+	m_nCursorWord = m_lstWords.size();
+	m_lstWords.append(m_strCursorWord);
+	m_lstWords.append(m_lstRightWords);
 }
 
 void CParsedPhrase::FindWords()

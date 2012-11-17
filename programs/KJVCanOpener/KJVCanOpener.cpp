@@ -97,32 +97,45 @@ void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 
 void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 {
-	TIndexList lstResults = phrase.GetNormalizedSearchResults();
 	CVerseList lstReferences;
 
-	if (lstResults.size() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-			int nCount = 1;
-			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults]);
-			CRelIndex ndxRelative(ndxDenormal);
+	if (phrase.GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+		TPhraseTagList lstResults = phrase.GetNormalizedSearchResults();
 
-			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
+		for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+			int nCount = 1;
+			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults].first);
+			CRelIndex ndxRelative(ndxDenormal);
+			CRelIndex ndxRelativeZW = CRelIndex(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);
+
+			if ((lstResults[ndxResults].first == 0) || (ndxDenormal == 0)) {
 //				lstReferences.push_back(QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal));
 
 				lstReferences.push_back(CVerseListItem(
 						0,
-						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal),
+						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults].first).arg(ndxDenormal),
 						QString("TODO : TOOLTIP")));
 				continue;
+			} else {
+				lstReferences.push_back(CVerseListItem(
+						ndxRelativeZW,
+						QString(),
+						QString("TODO : TOOLTIP")));
 			}
+
+			QString strHeading = ndxRelative.PassageReferenceText();
+			CVerseListItem &verseItem(lstReferences.last());
+			verseItem.phraseTags().push_back(lstResults.at(ndxResults));
 
 			if (ndxResults<(lstResults.size()-1)) {
 				bool bNextIsSameReference=false;
 				do {
-					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults[ndxResults+1]));
+					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults[ndxResults+1].first));
 					if ((ndxRelative.book() == ndxNextRelative.book()) &&
 						(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
 						(ndxRelative.verse() == ndxNextRelative.verse())) {
+						strHeading += QString("[%1]").arg(ndxNextRelative.word());
+						verseItem.phraseTags().push_back(lstResults.at(ndxResults+1));
 						bNextIsSameReference=true;
 						nCount++;
 						ndxResults++;
@@ -131,13 +144,8 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 					}
 				} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
 			}
-			if ((lstResults[ndxResults] != 0) && (ndxDenormal != 0)) {
-//				lstReferences.push_back(QString("%1 %2:%3 [%4] (%5)").arg(g_lstTOC[ndxRelative.m_nN3-1].m_strBkName).arg(ndxRelative.m_nN2).arg(ndxRelative.m_nN1).arg(ndxRelative.m_nN0).arg(nCount));
-				lstReferences.push_back(CVerseListItem(
-						ndxRelative,
-						QString("%1 (%2)").arg(CRefCountCalc::PassageReferenceText(ndxRelative)).arg(nCount),
-						QString("TODO : TOOLTIP")));
-			}
+			if (nCount > 1) strHeading = QString("(%1) ").arg(nCount) + strHeading;
+			verseItem.setHeading(strHeading);
 		}
 //		lstReferences.removeDuplicates();
 	}
@@ -152,10 +160,10 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 	}
 
 	if ((lstReferences.size() != 0) ||
-		((lstReferences.size() == 0) && (lstResults.size() == 0))) {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(lstResults.size()).arg(lstReferences.size()));
+		((lstReferences.size() == 0) && (phrase.GetNumberOfMatches() == 0))) {
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(phrase.GetNumberOfMatches()).arg(lstReferences.size()));
 	} else {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(lstResults.size()));
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase.GetNumberOfMatches()));
 	}
 }
 
