@@ -30,7 +30,7 @@ public:
 	{ }
 
 	uint32_t GetNumberOfMatches() const;
-	TPhraseTagList GetNormalizedSearchResults() const;
+	TIndexList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
 	uint32_t GetCursorMatchLevel() const;
 	QString GetCursorWord() const;

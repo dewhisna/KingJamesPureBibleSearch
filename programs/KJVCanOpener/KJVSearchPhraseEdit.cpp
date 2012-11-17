@@ -10,7 +10,6 @@
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QRegExp>
-#include <QtAlgorithms>
 
 #include <algorithm>
 #include <string>
@@ -24,16 +23,15 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 	return m_lstMatchMapping.size();
 }
 
-TPhraseTagList CParsedPhrase::GetNormalizedSearchResults() const
+TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 {
-	TPhraseTagList lstResults;
-	unsigned int nPhraseSize = phraseSize();
+	TIndexList lstResults;
 
-	lstResults.reserve(m_lstMatchMapping.size());
+	lstResults.resize(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		lstResults.push_back(TPhraseTag(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1, nPhraseSize));
+		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
 	}
-	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	sort(lstResults.begin(), lstResults.end());
 
 	return lstResults;
 }

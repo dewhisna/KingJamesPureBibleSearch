@@ -100,20 +100,20 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 	CVerseList lstReferences;
 
 	if (phrase.GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-		TPhraseTagList lstResults = phrase.GetNormalizedSearchResults();
+		TIndexList lstResults = phrase.GetNormalizedSearchResults();
 
-		for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
 			int nCount = 1;
-			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults].first);
+			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults]);
 			CRelIndex ndxRelative(ndxDenormal);
 			CRelIndex ndxRelativeZW = CRelIndex(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);
 
-			if ((lstResults[ndxResults].first == 0) || (ndxDenormal == 0)) {
+			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
 //				lstReferences.push_back(QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal));
 
 				lstReferences.push_back(CVerseListItem(
 						0,
-						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults].first).arg(ndxDenormal),
+						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal),
 						QString("TODO : TOOLTIP")));
 				continue;
 			} else {
@@ -125,17 +125,18 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 
 			QString strHeading = ndxRelative.PassageReferenceText();
 			CVerseListItem &verseItem(lstReferences.last());
-			verseItem.phraseTags().push_back(lstResults.at(ndxResults));
+			unsigned int nPhraseSize = phrase.phraseSize();
+			verseItem.phraseTags().push_back(TPhraseTag(lstResults.at(ndxResults), nPhraseSize));
 
 			if (ndxResults<(lstResults.size()-1)) {
 				bool bNextIsSameReference=false;
 				do {
-					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults[ndxResults+1].first));
+					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults[ndxResults+1]));
 					if ((ndxRelative.book() == ndxNextRelative.book()) &&
 						(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
 						(ndxRelative.verse() == ndxNextRelative.verse())) {
 						strHeading += QString("[%1]").arg(ndxNextRelative.word());
-						verseItem.phraseTags().push_back(lstResults.at(ndxResults+1));
+						verseItem.phraseTags().push_back(TPhraseTag(lstResults.at(ndxResults+1), nPhraseSize));
 						bNextIsSameReference=true;
 						nCount++;
 						ndxResults++;
