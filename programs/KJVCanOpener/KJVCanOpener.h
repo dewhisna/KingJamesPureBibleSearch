@@ -65,6 +65,7 @@ public:
 	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 
 protected slots:
+	void on_browserHistoryChanged();
 	void on_phraseChanged(const CParsedPhrase &phrase);
 	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
@@ -72,6 +73,8 @@ protected slots:
 
 // UI Private:
 private:
+	QAction *m_pActionNavBackward;	// Browser Navigate Backward
+	QAction *m_pActionNavForward;	// Browser Navigate Forward
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	Ui::CKJVCanOpener *ui;
 };

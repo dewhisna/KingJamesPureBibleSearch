@@ -8,5 +8,17 @@
         <file>res/droplist.png</file>
         <file>res/go_jump.png</file>
         <file>res/go_jump2.png</file>
+        <file>res/Nav_Arrow_Left.png</file>
+        <file>res/Nav_Arrow_Right.png</file>
+        <file>res/Nav_Arrow_Down.png</file>
+        <file>res/Nav_Arrow_Up.png</file>
+        <file>res/Nav2_Arrow_Left.png</file>
+        <file>res/Nav2_Arrow_Right.png</file>
+        <file>res/Nav2_Arrow_Down.png</file>
+        <file>res/Nav2_Arrow_Up.png</file>
+        <file>res/Nav3_Arrow_Left.png</file>
+        <file>res/Nav3_Arrow_Right.png</file>
+        <file>res/Nav3_Arrow_Down.png</file>
+        <file>res/Nav3_Arrow_Up.png</file>
     </qresource>
 </RCC>

@@ -33,10 +33,28 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QMainWindow(parent),
+	m_pActionNavBackward(NULL),
+	m_pActionNavForward(NULL),
 	m_pActionJump(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
+
+	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), "History Backward", this);
+	ui->mainToolBar->addAction(m_pActionNavBackward);
+	connect(ui->widgetKJVBrowser->browser(), SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
+	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(backward()));
+	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionNavBackward->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable());
+
+	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), "History Forward", this);
+	ui->mainToolBar->addAction(m_pActionNavForward);
+	connect(ui->widgetKJVBrowser->browser(), SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
+	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(forward()));
+	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionNavForward->setEnabled(ui->widgetKJVBrowser->browser()->isForwardAvailable());
+
+	connect(ui->widgetKJVBrowser->browser(), SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
 
 	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
 	ui->mainToolBar->addAction(m_pActionJump);
@@ -93,6 +111,12 @@ CKJVCanOpener::~CKJVCanOpener()
 void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 {
 	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
+}
+
+void CKJVCanOpener::on_browserHistoryChanged()
+{
+	if (m_pActionNavBackward) m_pActionNavBackward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(-1));
+	if (m_pActionNavForward) m_pActionNavForward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(+1));
 }
 
 void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)

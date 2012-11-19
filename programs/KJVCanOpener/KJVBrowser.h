@@ -4,8 +4,6 @@
 #include <QWidget>
 #include <QTextBrowser>
 #include <QColor>
-//#include <QPointF>
-//#include <QRectF>
 
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
@@ -29,9 +27,6 @@ protected:
 	virtual void mouseDoubleClickEvent(QMouseEvent * e);
 
 private:
-//	QPointF anchorPosition(const QString &name) const;
-//	QRectF rectForPosition(int position) const;
-
 	CRelIndex ResolveCursorReference(CPhraseCursor &cursor);		// Bounds limited for words
 	CRelIndex ResolveCursorReference2(CPhraseCursor &cursor);		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
 
@@ -53,6 +48,8 @@ public:
 
 	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0),		// Default initial location is Genesis 1
 					const QColor &colorHighlight = QColor("blue"));
+
+	CScriptureBrowser *browser();
 
 public slots:
 	void gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount = 0);
@@ -77,10 +74,10 @@ private:
 	void undoHighlighting();				// Remove the highlighting.  Used to swapout the current tag list for a new one without redrawing everything
 
 	// These should be used in order:
-	void setBook(uint32_t nBk);				// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
-	void setChapter(uint32_t nChp);			// Fills in the main browser text for the desired chapter
-	void setVerse(uint32_t nVrs);			// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
-	void setWord(uint32_t nWrd, unsigned int nWrdCount = 0);		// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
+	void setBook(const CRelIndex &ndx);		// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
+	void setChapter(const CRelIndex &ndx);	// Fills in the main browser text for the desired chapter
+	void setVerse(const CRelIndex &ndx);	// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
+	void setWord(const CRelIndex &ndx, unsigned int nWrdCount = 0);		// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
 
 // Data Private:
 private:
