@@ -13,6 +13,11 @@
 #include <QComboBox>
 #include <QTextBrowser>
 #include <QTextCharFormat>
+#include <QTextBlock>
+#include <QTextFragment>
+//#include <QAbstractTextDocumentLayout>
+//#include <QTextLayout>
+//#include <QTextLine>
 #include <QToolTip>
 
 // ============================================================================
@@ -26,6 +31,123 @@ CScriptureBrowser::CScriptureBrowser(QWidget *parent)
 CScriptureBrowser::~CScriptureBrowser()
 {
 
+}
+
+/*
+QPointF CScriptureBrowser::anchorPosition(const QString &name) const
+{
+	if (name.isEmpty()) return QPointF();
+
+	QRectF r;
+	for (QTextBlock block = document()->begin(); block.isValid(); block = block.next()) {
+		QTextCharFormat format = block.charFormat();
+		if (format.isAnchor() && format.anchorNames().contains(name)) {
+
+		}
+	}
+
+	for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
+		QTextCharFormat format = block.charFormat();
+		if (format.isAnchor() && format.anchorNames().contains(name)) {
+			r = d->rectForPosition(block.position());
+			break;
+		}
+
+		for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
+			QTextFragment fragment = it.fragment();
+			format = fragment.charFormat();
+			if (format.isAnchor() && format.anchorNames().contains(name)) {
+				r = d->rectForPosition(fragment.position());
+				block = QTextBlock();
+				break;
+			}
+		}
+	}
+	if (!r.isValid())
+		return QPointF();
+	return QPointF(0, r.top());
+}
+
+QRectF CScriptureBrowser::rectForPosition(int position) const
+{
+	const QTextBlock block = document()->findBlock(position);
+	if (!block.isValid()) return QRectF();
+
+	const QAbstractTextDocumentLayout *docLayout = document()->documentLayout();
+	const QTextLayout *layout = block.layout();
+	const QPointF layoutPos = docLayout->blockBoundingRect(block).topLeft();
+	int relativePos = position - block.position();
+
+layout->preeditAreaPosition();
+
+
+	const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
+	const QTextLayout *layout = block.layout();
+	const QPointF layoutPos = q->blockBoundingRect(block).topLeft();
+	int relativePos = position - block.position();
+	if (preeditCursor != 0) {
+		int preeditPos = layout->preeditAreaPosition();
+		if (relativePos == preeditPos)
+			relativePos += preeditCursor;
+		else if (relativePos > preeditPos)
+			relativePos += layout->preeditAreaText().length();
+	}
+	QTextLine line = layout->lineForTextPosition(relativePos);
+
+	int cursorWidth;
+	{
+		bool ok = false;
+#ifndef QT_NO_PROPERTIES
+		cursorWidth = docLayout->property("cursorWidth").toInt(&ok);
+#endif
+		if (!ok)
+			cursorWidth = 1;
+	}
+
+	QRectF r;
+
+	if (line.isValid()) {
+		qreal x = line.cursorToX(relativePos);
+		qreal w = 0;
+		if (overwriteMode) {
+			if (relativePos < line.textLength() - line.textStart())
+				w = line.cursorToX(relativePos + 1) - x;
+			else
+				w = QFontMetrics(block.layout()->font()).width(QLatin1Char(' ')); // in sync with QTextLine::draw()
+		}
+		r = QRectF(layoutPos.x() + x, layoutPos.y() + line.y(),
+				   cursorWidth + w, line.height());
+	} else {
+		r = QRectF(layoutPos.x(), layoutPos.y(), cursorWidth, 10); // #### correct height
+	}
+
+	return r;
+}
+*/
+
+int CScriptureBrowser::anchorPosition(const QString &strAnchorName) const
+{
+	if (strAnchorName.isEmpty()) return -1;
+
+	for (QTextBlock block = document()->begin(); block.isValid(); block = block.next()) {
+		QTextCharFormat format = block.charFormat();
+		if (format.isAnchor()) {
+			if (format.anchorNames().contains(strAnchorName)) {
+				return block.position()+1;
+			}
+		}
+		for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
+			QTextFragment fragment = it.fragment();
+			format = fragment.charFormat();
+			if (format.isAnchor()) {
+				if (format.anchorNames().contains(strAnchorName)) {
+					return fragment.position()+1;
+				}
+			}
+		}
+	}
+
+	return -1;
 }
 
 CRelIndex CScriptureBrowser::ResolveCursorReference(CPhraseCursor &cursor)
@@ -169,7 +291,7 @@ void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent * e)
 		CKJVPassageNavigatorDlg dlg(this);
 		dlg.navigator().startRelativeMode(ndxReference, false);
 		if (dlg.exec() == QDialog::Accepted) {
-			emit gotoIndex(dlg.passage());
+			emit gotoIndex(dlg.passage(), 1);
 		}
 	}
 }
@@ -179,6 +301,7 @@ void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent * e)
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	QWidget(parent),
 	m_ndxCurrent(0),
+	m_colorHighlight("blue"),
 	m_bDoingUpdate(false),
 	ui(new Ui::CKJVBrowser)
 {
@@ -189,7 +312,8 @@ CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	Initialize();
 
 // UI Connections:
-	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const CRelIndex &)), this, SLOT(gotoIndex(const CRelIndex &)));
+	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const CRelIndex &, unsigned int)), this, SLOT(gotoIndex(const CRelIndex &, unsigned int)));
+	connect(ui->textBrowserMainText, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
 
 	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BkChpComboIndexChanged(int)));
@@ -204,7 +328,9 @@ CKJVBrowser::~CKJVBrowser()
 	delete ui;
 }
 
-void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex, const QColor &colorHighlight)
 {
 	begin_update();
 
@@ -223,21 +349,149 @@ void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
 
 	end_update();
 
+	m_colorHighlight = colorHighlight;
+
 	if (nInitialIndex.isSet()) gotoIndex(nInitialIndex);
 }
 
-void CKJVBrowser::gotoIndex(const CRelIndex &ndx)
+void CKJVBrowser::gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount)
 {
 	setBook(ndx.book());
 	setChapter(ndx.chapter());
 	setVerse(ndx.verse());
+	setWord(ndx.word(), nWrdCount);
+
+	doHighlighting();
 
 	emit IndexChanged(ndx);
 }
 
+void CKJVBrowser::on_sourceChanged(const QUrl &src)
+{
+//	QMessageBox::information(this, "TEST", src.toString());
+	if (m_bDoingUpdate) return;
+
+	QString strURL = src.toString();		// Internal URLs are in the form of "#nnnnnnnn" as anchors
+	int nPos = strURL.indexOf('#');
+	if (nPos > -1) {
+		CRelIndex ndxRel(strURL.mid(nPos+1));
+		if (ndxRel.isSet()) gotoIndex(ndxRel);
+	}
+}
+
+void CKJVBrowser::focusBrowser()
+{
+	ui->textBrowserMainText->setFocus();
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::setHighlight(const TPhraseTagList &lstPhraseTags)
+{
+	undoHighlighting();					// Remove existing highlighting
+	m_lstPhraseTags = lstPhraseTags;	// Set new set of tags
+	doHighlighting();					// Highlight using new tags
+}
+
+void CKJVBrowser::doHighlighting()
+{
+	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
+		CRelIndex ndxRel(DenormalizeIndex(m_lstPhraseTags.at(ndx).first));
+		if (!ndxRel.isSet()) continue;
+		// Save some time if the tag isn't anything close to what we are displaying.
+		//		We'll use one before/one after since we might be displaying part of
+		//		the proceding passage:
+		if ((ndxRel.book() < (m_ndxCurrent.book()-1)) ||
+			(ndxRel.book() > (m_ndxCurrent.book()+1)) ||
+			(ndxRel.chapter() < (m_ndxCurrent.chapter()-1)) ||
+			(ndxRel.chapter() > (m_ndxCurrent.chapter()+1))) continue;
+		uint32_t ndxWord = ndxRel.word();
+		ndxRel.setWord(0);
+		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
+		if (nPos == -1) continue;
+		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
+		int nSelStart = myCursor.anchor();
+		int nSelEnd = myCursor.position();
+		myCursor.setPosition(nPos);
+		while (ndxWord) {
+			myCursor.selectWordUnderCursor();
+			myCursor.moveCursorWordRight();
+			ndxWord--;
+		}
+		unsigned int nCount = m_lstPhraseTags.at(ndx).second;
+		while (nCount) {
+			QTextCharFormat fmt = myCursor.charFormat();
+			if (!fmt.isAnchor()) {
+				myCursor.selectWordUnderCursor();
+				fmt = myCursor.charFormat();
+				if (!fmt.isAnchor()) {
+//					fmt.setUnderlineColor(m_colorHighlight);
+//					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+					fmt.setForeground(QBrush(m_colorHighlight));
+					myCursor.setCharFormat(fmt);
+					nCount--;
+				}
+			}
+			if (!myCursor.moveCursorWordRight()) break;
+		}
+		myCursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
+		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+		ui->textBrowserMainText->setTextCursor(myCursor);
+	}
+}
+
+void CKJVBrowser::undoHighlighting()
+{
+	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
+		CRelIndex ndxRel(DenormalizeIndex(m_lstPhraseTags.at(ndx).first));
+		if (!ndxRel.isSet()) continue;
+		// Save some time if the tag isn't anything close to what we are displaying.
+		//		We'll use one before/one after since we might be displaying part of
+		//		the proceding passage:
+		if ((ndxRel.book() < (m_ndxCurrent.book()-1)) ||
+			(ndxRel.book() > (m_ndxCurrent.book()+1)) ||
+			(ndxRel.chapter() < (m_ndxCurrent.chapter()-1)) ||
+			(ndxRel.chapter() > (m_ndxCurrent.chapter()+1))) continue;
+		uint32_t ndxWord = ndxRel.word();
+		ndxRel.setWord(0);
+		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
+		if (nPos == -1) continue;
+		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
+		int nSelStart = myCursor.anchor();
+		int nSelEnd = myCursor.position();
+		myCursor.setPosition(nPos);
+		while (ndxWord) {
+			myCursor.selectWordUnderCursor();
+			myCursor.moveCursorWordRight();
+			ndxWord--;
+		}
+		unsigned int nCount = m_lstPhraseTags.at(ndx).second;
+		while (nCount) {
+			QTextCharFormat fmt = myCursor.charFormat();
+			if (!fmt.isAnchor()) {
+				myCursor.selectWordUnderCursor();
+				fmt = myCursor.charFormat();
+				if (!fmt.isAnchor()) {
+//					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+					fmt.clearForeground();
+					myCursor.setCharFormat(fmt);
+					nCount--;
+				}
+			}
+			if (!myCursor.moveCursorWordRight()) break;
+		}
+		myCursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
+		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+		ui->textBrowserMainText->setTextCursor(myCursor);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
 void CKJVBrowser::setBook(uint32_t nBk)
 {
 	if (nBk == 0) return;
+	if (nBk == m_ndxCurrent.book()) return;
 
 	begin_update();
 
@@ -276,6 +530,8 @@ void CKJVBrowser::setBook(uint32_t nBk)
 
 void CKJVBrowser::setChapter(uint32_t nChp)
 {
+	if (nChp == m_ndxCurrent.chapter()) return;
+
 	begin_update();
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), nChp, 0, 0);
@@ -313,7 +569,6 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 
 	end_update();
 
-
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(m_ndxCurrent.book(),m_ndxCurrent.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
@@ -327,7 +582,8 @@ void CKJVBrowser::setChapter(uint32_t nChp)
 	}
 
 //	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
-	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n";
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n")
+						.arg(CRelIndex(m_ndxCurrent.book(),m_ndxCurrent.chapter(),0,0).PassageReferenceText());		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
 	uint32_t nFirstWordNormal = NormalizeIndex(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
@@ -406,101 +662,150 @@ void CKJVBrowser::setVerse(uint32_t nVrs)
 	CRelIndex ndxScroll = m_ndxCurrent;
 	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
 
-	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
+	begin_update();
+
+//	ui->textBrowserMainText->setSource(QString("#%1").arg(ndxScroll.asAnchor()));
+////	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
+
+	end_update();
 }
+
+void CKJVBrowser::setWord(uint32_t nWrd, unsigned int nWrdCount)
+{
+	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), nWrd);
+
+	CRelIndex ndxScroll = m_ndxCurrent;
+	if (ndxScroll.verse() == 1) {
+		ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+		ndxScroll.setWord(0);
+	}
+	if (ndxScroll.word() == 1) ndxScroll.setWord(0);		// Use 0 anchor if we are going to the first word of the verse so we'll scroll to the start of the verse
+
+	begin_update();
+
+	ui->textBrowserMainText->setSource(QString("#%1").arg(ndxScroll.asAnchor()));
+//	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
+
+	end_update();
+
+
+//	if (nWrd != 0) {
+		CRelIndex ndxRel = m_ndxCurrent;
+		uint32_t ndxWord = ndxRel.word();
+		ndxRel.setWord(0);
+		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
+		if (nPos != -1) {
+			CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
+			myCursor.setPosition(nPos);
+			while (ndxWord) {
+				myCursor.moveCursorWordRight();
+				ndxWord--;
+			}
+			int nSelEnd = myCursor.position();
+			unsigned int nCount = nWrdCount;
+			while (nCount) {
+				QTextCharFormat fmt = myCursor.charFormat();
+				if (!fmt.isAnchor()) {
+					myCursor.moveCursorWordStart(QTextCursor::KeepAnchor);
+					myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
+					fmt = myCursor.charFormat();
+					if (!fmt.isAnchor()) nCount--;
+				}
+				nSelEnd = myCursor.position();
+				if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
+			}
+			myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+			ui->textBrowserMainText->setTextCursor(myCursor);
+		}
+//	}
+}
+
+// ----------------------------------------------------------------------------
 
 void CKJVBrowser::BkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
 	if (index != -1) {
-		setBook(ui->comboBk->itemData(index).toUInt());
-		setChapter(1);
-		setVerse(1);
-	} else {
-		setBook(0);
-		setChapter(0);
-		setVerse(0);
+		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
+		ndxTarget.setChapter(1);
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 	}
+	gotoIndex(ndxTarget);
 }
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
+	ndxTarget.setBook(m_ndxCurrent.book());
 	if (index != -1) {
-		setChapter(ui->comboBkChp->itemData(index).toUInt());
-		setVerse(1);
-	} else {
-		setChapter(0);
-		setVerse(0);
+		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 	}
+	gotoIndex(ndxTarget);
 }
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get TOC for current book so we know what testament we're currently in:
 		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
-		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), toc.m_nTstNdx);
+		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), toc.m_nTstNdx);
 		ndxTarget.setVerse(1);
 		ndxTarget.setWord(1);
-		gotoIndex(ndxTarget);
-	} else {
-		setBook(0);
-		setChapter(0);
-		setVerse(0);
 	}
+	gotoIndex(ndxTarget);
 }
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get TOC for current book so we know what testament we're currently in:
 		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
-		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, toc.m_nTstNdx);
+		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, toc.m_nTstNdx);
 		ndxTarget.setVerse(1);
 		ndxTarget.setWord(1);
-		gotoIndex(ndxTarget);
-	} else {
-		setBook(0);
-		setChapter(0);
-		setVerse(0);
 	}
+	gotoIndex(ndxTarget);
 }
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
 	if (index != -1) {
-		setBook(ui->comboBibleBk->itemData(index).toUInt());
-		setChapter(1);
-		setVerse(1);
-	} else {
-		setBook(0);
-		setChapter(0);
-		setVerse(0);
+		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
+		ndxTarget.setChapter(1);
+		ndxTarget.setVerse(1);
+		ndxTarget.setWord(1);
 	}
+	gotoIndex(ndxTarget);
 }
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
+	CRelIndex ndxTarget;
 	if (index != -1) {
-		CRelIndex ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
+		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
 		ndxTarget.setVerse(1);
 		ndxTarget.setWord(1);
-		gotoIndex(ndxTarget);
-	} else {
-		setBook(0);
-		setChapter(0);
-		setVerse(0);
 	}
+	gotoIndex(ndxTarget);
 }
+
+// ----------------------------------------------------------------------------
 

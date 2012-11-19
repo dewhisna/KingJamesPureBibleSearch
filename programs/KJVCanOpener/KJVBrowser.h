@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <QTextBrowser>
+#include <QColor>
+//#include <QPointF>
+//#include <QRectF>
 
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
@@ -16,14 +19,19 @@ public:
 	explicit CScriptureBrowser(QWidget *parent = 0);
 	virtual ~CScriptureBrowser();
 
+	int anchorPosition(const QString &strAnchorName) const;
+
 signals:
-	void gotoIndex(CRelIndex ndx);
+	void gotoIndex(CRelIndex ndx, unsigned int nWrdCount);
 
 protected:
 	virtual bool event(QEvent *e);
 	virtual void mouseDoubleClickEvent(QMouseEvent * e);
 
 private:
+//	QPointF anchorPosition(const QString &name) const;
+//	QRectF rectForPosition(int position) const;
+
 	CRelIndex ResolveCursorReference(CPhraseCursor &cursor);		// Bounds limited for words
 	CRelIndex ResolveCursorReference2(CPhraseCursor &cursor);		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
 
@@ -43,15 +51,20 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
+	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0),		// Default initial location is Genesis 1
+					const QColor &colorHighlight = QColor("blue"));
 
 public slots:
-	void gotoIndex(const CRelIndex &ndx);
+	void gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount = 0);
+	void focusBrowser();
+	void setHighlight(const TPhraseTagList &lstPhraseTags);
 
 signals:
 	void IndexChanged(const CRelIndex &index);
 
 private slots:
+	void on_sourceChanged(const QUrl &src);
+
 	void BkComboIndexChanged(int index);
 	void BkChpComboIndexChanged(int index);
 	void TstBkComboIndexChanged(int index);
@@ -60,15 +73,20 @@ private slots:
 	void BibleChpComboIndexChanged(int index);
 
 private:
+	void doHighlighting();					// Highlight the areas marked in the PhraseTags
+	void undoHighlighting();				// Remove the highlighting.  Used to swapout the current tag list for a new one without redrawing everything
+
 	// These should be used in order:
 	void setBook(uint32_t nBk);				// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
 	void setChapter(uint32_t nChp);			// Fills in the main browser text for the desired chapter
-	void setVerse(uint32_t nVrs);			// Scrolls browser to the specified verse for the curret Bk/Tst/Chp, etc.
-
+	void setVerse(uint32_t nVrs);			// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
+	void setWord(uint32_t nWrd, unsigned int nWrdCount = 0);		// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
 
 // Data Private:
 private:
 	CRelIndex m_ndxCurrent;
+	TPhraseTagList m_lstPhraseTags;			// Phrases to highlight
+	QColor m_colorHighlight;				// Highlight Color
 
 // UI Private:
 private:

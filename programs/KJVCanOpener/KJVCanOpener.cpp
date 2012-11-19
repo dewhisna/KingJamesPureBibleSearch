@@ -82,7 +82,7 @@ pPhraseEdit->pStatusBar = ui->statusBar;
 //connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 
-	connect(ui->listViewSearchResults, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(on_SearchResultDoubleClick(const QModelIndex &)));
+	connect(ui->listViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -98,6 +98,7 @@ void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 {
 	CVerseList lstReferences;
+	TPhraseTagList lstTags;
 
 	if (phrase.GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
 		TIndexList lstResults = phrase.GetNormalizedSearchResults();
@@ -147,6 +148,8 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 			}
 			if (nCount > 1) strHeading = QString("(%1) ").arg(nCount) + strHeading;
 			verseItem.setHeading(strHeading);
+
+			lstTags.append(verseItem.phraseTags());
 		}
 //		lstReferences.removeDuplicates();
 	}
@@ -166,14 +169,36 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 	} else {
 		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase.GetNumberOfMatches()));
 	}
+
+	ui->widgetKJVBrowser->setHighlight(lstTags);
 }
 
-void CKJVCanOpener::on_SearchResultDoubleClick(const QModelIndex &index)
+void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 {
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	CVerseListItem verse = pModel->data(index, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>();
 
-	ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
+//	unsigned int nWordCount = 1;
+//	if (verse.phraseTags().size() == 1) {
+//		nWordCount = verse.phraseTags().at(0).second;
+//		ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), nWordCount);
+//	} else {
+//		if (verse.phraseTags().size() > 1) {
+//			ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), 0);
+//		} else {
+//			ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
+//		}
+//	}
+
+	if (verse.phraseTags().size() != 0) {
+		ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), 0);
+	} else {
+		ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
+	}
+
+//	ui->widgetKJVBrowser->setHighlight(verse.phraseTags());
+
+	ui->widgetKJVBrowser->focusBrowser();
 }
 
 void CKJVCanOpener::on_PassageNavigatorTriggered()

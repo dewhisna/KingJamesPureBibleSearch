@@ -658,9 +658,11 @@ QString CPhraseLineEdit::textUnderCursor() const
 
 void CPhraseLineEdit::on_textChanged()
 {
-	if (!m_bUpdateInProgress) UpdateCompleter();
+	if (!m_bUpdateInProgress) {
+		UpdateCompleter();
 
-	emit phraseChanged(*this);
+		emit phraseChanged(*this);
+	}
 }
 
 void CPhraseLineEdit::on_cursorPositionChanged()

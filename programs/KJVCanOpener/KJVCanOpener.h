@@ -66,7 +66,7 @@ public:
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);
-	void on_SearchResultDoubleClick(const QModelIndex &index);
+	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
 	void on_PassageNavigatorTriggered();
 
