@@ -49,7 +49,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		strToolTip += refVerse.getHeading() + "\n\n";
 		strToolTip += refVerse.getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < refVerse.phraseTags().size(); ++ndx) {
-			CRelIndex ndxTag(DenormalizeIndex(refVerse.phraseTags().at(ndx).first));
+			const CRelIndex &ndxTag(refVerse.phraseTags().at(ndx).first);
 			if (refVerse.phraseTags().size() > 1) strToolTip += QString("(%1)[%2] ").arg(ndx+1).arg(ndxTag.word());
 			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
 		}

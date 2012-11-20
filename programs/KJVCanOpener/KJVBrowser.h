@@ -70,6 +70,7 @@ private slots:
 	void BibleChpComboIndexChanged(int index);
 
 private:
+	void gotoIndex2(const CRelIndex &ndx, unsigned int nWrdCount = 0);
 	void doHighlighting();					// Highlight the areas marked in the PhraseTags
 	void undoHighlighting();				// Remove the highlighting.  Used to swapout the current tag list for a new one without redrawing everything
 

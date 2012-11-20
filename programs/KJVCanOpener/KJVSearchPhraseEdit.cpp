@@ -586,7 +586,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
 		m_bUpdateInProgress(false),
-		m_icoDroplist(":/res/droplist.png")
+		m_icoDroplist(":/res/droplist.png"),
+		m_pButtonDroplist(NULL)
 {
 	setAcceptRichText(false);
 
@@ -599,7 +600,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
-	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
+	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
+								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 
 	CPhraseList phrases = g_lstCommonPhrases;
 	phrases.append(g_lstUserPhrases);
@@ -623,7 +625,10 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	m_pCommonPhrasesCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-	if (!m_bUpdateInProgress) UpdateCompleter();
+	if (!m_bUpdateInProgress) {
+		UpdateCompleter();
+		emit phraseChanged(*this);
+	}
 }
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)

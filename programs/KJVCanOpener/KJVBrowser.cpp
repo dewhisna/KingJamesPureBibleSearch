@@ -288,6 +288,11 @@ void CKJVBrowser::gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount)
 	ui->textBrowserMainText->setSource(QString("#%1").arg(ndx.asAnchor()));
 	end_update();
 
+	gotoIndex2(ndx, nWrdCount);
+}
+
+void CKJVBrowser::gotoIndex2(const CRelIndex &ndx, unsigned int nWrdCount)
+{
 	setBook(ndx);
 	setChapter(ndx);
 	setVerse(ndx);
@@ -300,14 +305,13 @@ void CKJVBrowser::gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount)
 
 void CKJVBrowser::on_sourceChanged(const QUrl &src)
 {
-//	QMessageBox::information(this, "TEST", src.toString());
 	if (m_bDoingUpdate) return;
 
 	QString strURL = src.toString();		// Internal URLs are in the form of "#nnnnnnnn" as anchors
 	int nPos = strURL.indexOf('#');
 	if (nPos > -1) {
 		CRelIndex ndxRel(strURL.mid(nPos+1));
-		if (ndxRel.isSet()) gotoIndex(ndxRel);
+		if (ndxRel.isSet()) gotoIndex2(ndxRel);
 	}
 }
 
@@ -328,7 +332,7 @@ void CKJVBrowser::setHighlight(const TPhraseTagList &lstPhraseTags)
 void CKJVBrowser::doHighlighting()
 {
 	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
-		CRelIndex ndxRel(DenormalizeIndex(m_lstPhraseTags.at(ndx).first));
+		CRelIndex ndxRel = m_lstPhraseTags.at(ndx).first;
 		if (!ndxRel.isSet()) continue;
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		We'll use one before/one after since we might be displaying part of
@@ -359,10 +363,25 @@ void CKJVBrowser::doHighlighting()
 				if (!fmt.isAnchor()) {
 //					fmt.setUnderlineColor(m_colorHighlight);
 //					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+					// Save current brush in UserProperty so we can restore it later in undoHighlighting:
+					fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
 					fmt.setForeground(QBrush(m_colorHighlight));
 					myCursor.setCharFormat(fmt);
 					nCount--;
+				} else {
+					assert(false);		// Shouldn't have any anchors within our text only at word start boundaries outside spaces
 				}
+			} else {
+				// If we hit an anchor, see if it's a chapter start anchor.  If so, search
+				//		for our special "X" close anchor so we'll be at the start of the next
+				//		verse:
+				CRelIndex ndxAnchor(fmt.anchorName());
+				assert(ndxAnchor.isSet());
+				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
+					if (nEndAnchorPos) myCursor.setPosition(nEndAnchorPos);
+				}
+
 			}
 			if (!myCursor.moveCursorWordRight()) break;
 		}
@@ -375,7 +394,7 @@ void CKJVBrowser::doHighlighting()
 void CKJVBrowser::undoHighlighting()
 {
 	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
-		CRelIndex ndxRel(DenormalizeIndex(m_lstPhraseTags.at(ndx).first));
+		CRelIndex ndxRel = m_lstPhraseTags.at(ndx).first;
 		if (!ndxRel.isSet()) continue;
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		We'll use one before/one after since we might be displaying part of
@@ -405,10 +424,24 @@ void CKJVBrowser::undoHighlighting()
 				fmt = myCursor.charFormat();
 				if (!fmt.isAnchor()) {
 //					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
-					fmt.clearForeground();
+					// Restore preserved brush to restore text:
+					fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
 					myCursor.setCharFormat(fmt);
 					nCount--;
+				} else {
+					assert(false);		// Shouldn't have any anchors within our text only at word start boundaries outside spaces
 				}
+			} else {
+				// If we hit an anchor, see if it's a chapter start anchor.  If so, search
+				//		for our special "X" close anchor so we'll be at the start of the next
+				//		verse:
+				CRelIndex ndxAnchor(fmt.anchorName());
+				assert(ndxAnchor.isSet());
+				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
+					if (nEndAnchorPos) myCursor.setPosition(nEndAnchorPos);
+				}
+
 			}
 			if (!myCursor.moveCursorWordRight()) break;
 		}
@@ -462,8 +495,6 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 void CKJVBrowser::setChapter(const CRelIndex &ndx)
 {
-	if (ndx.chapter() == m_ndxCurrent.chapter()) return;
-
 	begin_update();
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);
@@ -535,8 +566,13 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	strHTML += "<hr/>\n";
 
 	// Print Heading for this Book/Chapter:
-	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(toc.m_strBkName);
-	strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor()).arg(m_ndxCurrent.chapter());
+	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n")
+					.arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor())
+					.arg(toc.m_strBkName);
+	strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+					.arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor())
+					.arg(m_ndxCurrent.chapter())
+					.arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0).asAnchor());
 
 	// Print this Chapter Text:
 	bool bParagraph = false;
@@ -552,13 +588,14 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 				strHTML += "</p>";
 				bParagraph=false;
 			}
-//			strHTML += "<br/>\n";
 		}
 		if (!bParagraph) {
 			strHTML += "<p>";
 			bParagraph = true;
 		}
-		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, 0).asAnchor()).arg(ndxVrs+1);
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>")
+					.arg(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndxVrs+1, 0).asAnchor())
+					.arg(ndxVrs+1);
 		strHTML += verse.GetRichText() + "\n";
 	}
 	if (bParagraph) {
@@ -574,8 +611,13 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != m_ndxCurrent.book())
-			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor()).arg(g_lstTOC[relNext.book()-1].m_strBkName);
-		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2>\n").arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor()).arg(relNext.chapter());
+			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n")
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
+							.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
+							.arg(relNext.chapter())
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
 
 		strHTML += "<p>";
 		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
@@ -593,13 +635,6 @@ void CKJVBrowser::setVerse(const CRelIndex &ndx)
 
 	CRelIndex ndxScroll = m_ndxCurrent;
 	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
-
-	begin_update();
-
-//	ui->textBrowserMainText->setSource(QString("#%1").arg(ndxScroll.asAnchor()));
-////	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
-
-	end_update();
 }
 
 void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
@@ -607,16 +642,11 @@ void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), ndx.word());
 
 	CRelIndex ndxScroll = m_ndxCurrent;
-	if (ndxScroll.verse() == 1) {
-		ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
-		ndxScroll.setWord(0);
-	}
-//	if (ndxScroll.word() == 1) ndxScroll.setWord(0);		// Use 0 anchor if we are going to the first word of the verse so we'll scroll to the start of the verse
+	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
 	ndxScroll.setWord(0);
 
 	begin_update();
 
-//	ui->textBrowserMainText->setSource(QString("#%1").arg(ndxScroll.asAnchor()));
 	ui->textBrowserMainText->scrollToAnchor(ndxScroll.asAnchor());
 
 	end_update();

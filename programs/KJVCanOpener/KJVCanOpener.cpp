@@ -7,6 +7,9 @@
 
 #include <assert.h>
 
+#include <QMenu>
+#include <QIcon>
+#include <QKeySequence>
 #include <QMessageBox>
 #include <QLabel>
 #include <QComboBox>
@@ -35,30 +38,72 @@ CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
 	QMainWindow(parent),
 	m_pActionNavBackward(NULL),
 	m_pActionNavForward(NULL),
+	m_pActionNavHome(NULL),
+	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
+	m_pActionAbout(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
 
-	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), "History Backward", this);
+	QMenu *pFileMenu = ui->menuBar->addMenu("&File");
+	pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+
+	QMenu *pViewMenu = ui->menuBar->addMenu("&View");
+	QMenu *pViewToolbarsMenu = pViewMenu->addMenu("&Toolbars");
+	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
+
+	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
+
+	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), "History &Backward", this);
+	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
 	ui->mainToolBar->addAction(m_pActionNavBackward);
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(backward()));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
 	m_pActionNavBackward->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable());
+	pNavMenu->addAction(m_pActionNavBackward);
 
-	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), "History Forward", this);
+	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), "History &Forward", this);
+	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
 	ui->mainToolBar->addAction(m_pActionNavForward);
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(forward()));
 	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
 	m_pActionNavForward->setEnabled(ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	pNavMenu->addAction(m_pActionNavForward);
+
+	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", ui->widgetKJVBrowser->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
+									ui->widgetKJVBrowser->browser()->isForwardAvailable());
+
+	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), "&Clear Navigation History", this);
+	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
+	ui->mainToolBar->addAction(m_pActionNavClear);
+	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(on_clearBrowserHistory()));
+	m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
+									ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	pNavMenu->addAction(m_pActionNavClear);
 
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
 
-	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
+//	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
+	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage Navigator", this);
 	ui->mainToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(on_PassageNavigatorTriggered()));
+
+	pNavMenu->addSeparator();
+	pNavMenu->addAction(m_pActionJump);
+
+	QMenu *pHelpMenu = ui->menuBar->addMenu("&Help");
+	pHelpMenu->addAction(QIcon(":/res/help_book.png"), "&Help", this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
+
+	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), "About...", this);
+	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
+	ui->mainToolBar->addAction(m_pActionAbout);
+
+	pHelpMenu->addAction(m_pActionAbout);
+
 
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit();
@@ -117,6 +162,15 @@ void CKJVCanOpener::on_browserHistoryChanged()
 {
 	if (m_pActionNavBackward) m_pActionNavBackward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(-1));
 	if (m_pActionNavForward) m_pActionNavForward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(+1));
+	if (m_pActionNavClear) m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
+														ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	if (m_pActionNavHome) m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
+														ui->widgetKJVBrowser->browser()->isForwardAvailable());
+}
+
+void CKJVCanOpener::on_clearBrowserHistory()
+{
+	ui->widgetKJVBrowser->browser()->clearHistory();
 }
 
 void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
@@ -129,7 +183,7 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 
 		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
 			int nCount = 1;
-			uint32_t ndxDenormal = DenormalizeIndex(lstResults[ndxResults]);
+			uint32_t ndxDenormal = DenormalizeIndex(lstResults.at(ndxResults));
 			CRelIndex ndxRelative(ndxDenormal);
 			CRelIndex ndxRelativeZW = CRelIndex(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);
 
@@ -138,7 +192,7 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 
 				lstReferences.push_back(CVerseListItem(
 						0,
-						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal),
+						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults.at(ndxResults)).arg(ndxDenormal),
 						QString("TODO : TOOLTIP")));
 				continue;
 			} else {
@@ -151,17 +205,17 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 			QString strHeading = ndxRelative.PassageReferenceText();
 			CVerseListItem &verseItem(lstReferences.last());
 			unsigned int nPhraseSize = phrase.phraseSize();
-			verseItem.phraseTags().push_back(TPhraseTag(lstResults.at(ndxResults), nPhraseSize));
+			verseItem.phraseTags().push_back(TPhraseTag(ndxRelative, nPhraseSize));
 
 			if (ndxResults<(lstResults.size()-1)) {
 				bool bNextIsSameReference=false;
 				do {
-					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults[ndxResults+1]));
+					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults.at(ndxResults+1)));
 					if ((ndxRelative.book() == ndxNextRelative.book()) &&
 						(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
 						(ndxRelative.verse() == ndxNextRelative.verse())) {
 						strHeading += QString("[%1]").arg(ndxNextRelative.word());
-						verseItem.phraseTags().push_back(TPhraseTag(lstResults.at(ndxResults+1), nPhraseSize));
+						verseItem.phraseTags().push_back(TPhraseTag(ndxNextRelative, nPhraseSize));
 						bNextIsSameReference=true;
 						nCount++;
 						ndxResults++;
@@ -205,17 +259,17 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 //	unsigned int nWordCount = 1;
 //	if (verse.phraseTags().size() == 1) {
 //		nWordCount = verse.phraseTags().at(0).second;
-//		ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), nWordCount);
+//		ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, nWordCount);
 //	} else {
 //		if (verse.phraseTags().size() > 1) {
-//			ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), 0);
+//			ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, 0);
 //		} else {
 //			ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
 //		}
 //	}
 
 	if (verse.phraseTags().size() != 0) {
-		ui->widgetKJVBrowser->gotoIndex(DenormalizeIndex(verse.phraseTags().at(0).first), 0);
+		ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, 0);
 	} else {
 		ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
 	}
@@ -233,3 +287,14 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 		ui->widgetKJVBrowser->gotoIndex(dlg.passage());
 	}
 }
+
+void CKJVCanOpener::on_HelpManual()
+{
+
+}
+
+void CKJVCanOpener::on_HelpAbout()
+{
+
+}
+

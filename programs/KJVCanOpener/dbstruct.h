@@ -342,13 +342,13 @@ extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optiona
 
 // ============================================================================
 
-typedef QPair<uint32_t, unsigned int> TPhraseTag;		// Normalized Index and Word Count pair used for highlight phrases found
+typedef QPair<CRelIndex, unsigned int> TPhraseTag;		// Relative Index and Word Count pair used for highlight phrases found
 typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases
 
 struct TPhraseTagListSortPredicate {
 	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)
 	{
-		return (s1.first < s2.first);
+		return (s1.first.index() < s2.first.index());
 	}
 };
 
