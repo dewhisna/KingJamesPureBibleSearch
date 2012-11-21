@@ -6,7 +6,7 @@
 #include <QColor>
 
 #include "dbstruct.h"
-#include "KJVSearchPhraseEdit.h"
+#include "PhraseEdit.h"
 
 
 class CScriptureBrowser : public QTextBrowser

@@ -3,11 +3,11 @@
 
 #include "dbstruct.h"
 
-#include "KJVSearchPhraseEdit.h"
 #include "KJVPassageNavigatorDlg.h"
 
 #include <assert.h>
 
+#include <QHelpEvent>
 #include <QMessageBox>
 #include <QLabel>
 #include <QComboBox>

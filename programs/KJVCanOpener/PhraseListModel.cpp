@@ -1,6 +1,7 @@
 #include "PhraseListModel.h"
 
 #include <QVector>
+#include <QModelIndexList>
 
 CPhraseListModel::CPhraseListModel(QObject *parent) :
 	QAbstractListModel(parent)

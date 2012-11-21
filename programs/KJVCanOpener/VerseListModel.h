@@ -2,7 +2,9 @@
 #define VERSELISTMODEL_H
 
 #include "dbstruct.h"
+
 #include <QAbstractListModel>
+#include <QModelIndex>
 #include <QList>
 #include <QStringList>
 #include <QVariant>

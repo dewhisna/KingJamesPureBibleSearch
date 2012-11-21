@@ -4,7 +4,7 @@
 #include "ReadDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
-#include "KJVSearchPhraseEdit.h"
+#include "PhraseEdit.h"
 
 #include <assert.h>
 

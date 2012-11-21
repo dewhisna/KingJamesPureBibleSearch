@@ -1,8 +1,10 @@
 #ifndef PHRASELISTMODEL_H
 #define PHRASELISTMODEL_H
 
-#include <QAbstractListModel>
 #include "dbstruct.h"
+
+#include <QAbstractListModel>
+#include <QModelIndex>
 
 class CPhraseListModel : public QAbstractListModel
 {

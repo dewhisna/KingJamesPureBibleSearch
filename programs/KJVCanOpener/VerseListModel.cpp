@@ -1,6 +1,7 @@
 #include "VerseListModel.h"
 
 #include <QVector>
+#include <QModelIndexList>
 
 CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractListModel(parent),
