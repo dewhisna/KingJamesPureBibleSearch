@@ -434,14 +434,33 @@ void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
 		unsigned int nCount = nWrdCount;
 		while (nCount) {
 			QTextCharFormat fmt = myCursor.charFormat();
-			if (!fmt.isAnchor()) {
+			QString strAnchorName = fmt.anchorName();
+			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
 				myCursor.moveCursorWordStart(QTextCursor::KeepAnchor);
 				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
 				fmt = myCursor.charFormat();
 				if (!fmt.isAnchor()) nCount--;
+				nSelEnd = myCursor.position();
+				if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
+			} else {
+				// If we hit an anchor, see if it's either a special section A-B marker or if
+				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+				//		If it is a chapter start anchor, search for our special X-anchor so
+				//		we'll be at the correct start of the next verse:
+				if (strAnchorName.startsWith('A')) {
+					int nEndAnchorPos = CPhraseNavigator(*ui->textBrowserMainText).anchorPosition("B" + strAnchorName.mid(1));
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+				} else {
+					CRelIndex ndxAnchor(strAnchorName);
+					assert(ndxAnchor.isSet());
+					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+						int nEndAnchorPos = CPhraseNavigator(*ui->textBrowserMainText).anchorPosition("X" + fmt.anchorName());
+						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+					}
+					nSelEnd = myCursor.position();
+					if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
+				}
 			}
-			nSelEnd = myCursor.position();
-			if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
 		}
 		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
 		ui->textBrowserMainText->setTextCursor(myCursor);
