@@ -7,6 +7,8 @@
 #include <QModelIndex>
 #include <QScrollArea>
 #include <QAction>
+#include <QCloseEvent>
+#include <QString>
 
 #include <assert.h>
 
@@ -59,10 +61,14 @@ class CKJVCanOpener : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CKJVCanOpener(QWidget *parent = 0);
+	explicit CKJVCanOpener(const QString &strUserDatabase = QString(), QWidget *parent = 0);
 	~CKJVCanOpener();
 
 	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
+
+protected:
+	virtual void closeEvent(QCloseEvent * event);
+	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
 protected slots:
 	void on_browserHistoryChanged();
@@ -74,6 +80,10 @@ protected slots:
 
 	void on_HelpManual();
 	void on_HelpAbout();
+
+// Data Private:
+private:
+	QString m_strUserDatabase;
 
 // UI Private:
 private:

@@ -76,13 +76,13 @@ int main(int argc, char *argv[])
 
 
 //CBuildDatabase adb(splash);
-//adb.BuildDatabase(g_constrDatabaseFilename);
+//adb.BuildDatabase(fiDatabase.absoluteFilePath());
 //return 0;
 
 	if (argc > 1) {
 		if (stricmp(argv[1], "builddb") == 0) {
 			CBuildDatabase bdb(splash);
-			if (!bdb.BuildDatabase(g_constrDatabaseFilename)) {
+			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
 				return -1;
 			}
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener wMain;
+	CKJVCanOpener wMain(fiUserDatabase.absoluteFilePath());
 	wMain.show();
 	splash->finish(&wMain);
 	delete splash;

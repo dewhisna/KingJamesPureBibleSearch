@@ -104,6 +104,9 @@ public:
 	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
 
+public slots:
+	void on_phraseListChanged();
+
 private slots:
 	void insertCompletion(const QString &completion);
 	void insertCommonPhraseCompletion(const QString &completion);
@@ -161,10 +164,18 @@ QStatusBar *pStatusBar;
 
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
+	void phraseListChanged();
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);
 	void on_CaseSensitiveChanged(bool bCaseSensitive);
+	void on_phraseAdd();
+	void on_phraseDel();
+	void on_phraseClear();
+
+// Data Private:
+private:
+	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
 
 // UI Private:
 private:

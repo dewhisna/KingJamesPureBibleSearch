@@ -4,6 +4,8 @@
 #include "BuildDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
+#include "KJVSearchPhraseEdit.h"
+#include "PhraseListModel.h"
 
 #include <assert.h>
 
@@ -565,15 +567,134 @@ bool CBuildDatabase::BuildWORDSTable()
 	return true;
 }
 
-bool CBuildDatabase::BuildDatabase(const char *pstrDatabaseFilename)
+bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
+{
+	// Build the PHRASES table:
+
+	QString strCmd;
+	QSqlQuery queryCreate(m_myDatabase);
+
+	// Check to see if the table exists already:
+	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PHRASES'")) {
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"PHRASES\" Failed!\n%1").arg(queryCreate.lastError().text()),
+								QMessageBox::Ok);
+		return false;
+	} else {
+		queryCreate.next();
+		if (queryCreate.value(0).toInt()) {
+			// If we found it, drop it so we can recreate it:
+			if (!queryCreate.exec("DROP TABLE PHRASES")) {
+				QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Failed to drop old \"PHRASES\" table from database!\n%1").arg(queryCreate.lastError().text()),
+								QMessageBox::Ok);
+				return false;
+			}
+		}
+		if (!bUserPhrases) {
+			// If this is the main phrases table, open our data file for populating it:
+			QFile filePhrases(QString("../KJVCanOpener/db/data/PHRASES.csv"));
+			while (1) {
+				if (!filePhrases.open(QIODevice::ReadOnly)) {
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
+							QString("Failed to open %1 for reading.").arg(filePhrases.fileName()),
+							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+				} else break;
+			}
+
+			// Read file and populate phrase list:
+			CSVstream csv(&filePhrases);
+
+			QStringList slHeaders;
+			csv >> slHeaders;              // Read Headers (verify and discard)
+
+			if ((slHeaders.size()!=3) ||
+				(slHeaders.at(0).compare("Ndx") != 0) ||
+				(slHeaders.at(1).compare("Phrase") != 0) ||
+				(slHeaders.at(2).compare("CaseSensitive") != 0)) {
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for PHRASES data file!"),
+									QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+					filePhrases.close();
+					return false;
+				}
+			}
+
+			g_lstCommonPhrases.clear();
+
+			while (!csv.atEnd()) {
+				QStringList sl;
+				csv >> sl;
+
+				assert(sl.count() == 3);
+				if (sl.count() < 3) continue;
+
+				CPhraseEntry phrase;
+				phrase.m_strPhrase = sl.at(1);
+				phrase.m_bCaseSensitive = ((sl.at(2).toInt() != 0) ? true : false);
+				if (!phrase.m_strPhrase.isEmpty()) {
+					CParsedPhrase parsedPhrase;
+					parsedPhrase.ParsePhrase(phrase.m_strPhrase);
+					phrase.m_nNumWrd = parsedPhrase.phraseSize();
+
+					g_lstCommonPhrases.push_back(phrase);
+				}
+			}
+
+			filePhrases.close();
+		}
+
+		// Create the table in the database:
+		strCmd = QString("create table PHRASES "
+						"(Ndx INTEGER PRIMARY KEY, Phrase TEXT, CaseSensitive NUMERIC)");
+		if (!queryCreate.exec(strCmd)) {
+			QMessageBox::warning(m_pParent, g_constrBuildDatabase,
+					QString("Failed to create table for PHRASES\n%1").arg(queryCreate.lastError().text()),
+					QMessageBox::Ok);
+			return false;
+		}
+
+		// Get the phrases and use the CPhraseListModel to sort it (since that will be displaying it later):
+		CPhraseList phrases;
+		if (!bUserPhrases) {
+			phrases.append(g_lstCommonPhrases);
+		} else {
+			phrases.append(g_lstUserPhrases);
+		}
+		CPhraseListModel mdlPhrases(phrases);
+		mdlPhrases.sort(0, Qt::AscendingOrder);
+		phrases = mdlPhrases.phraseList();
+
+		QSqlQuery queryInsert(m_myDatabase);
+		queryInsert.exec("BEGIN TRANSACTION");
+		for (int ndx=0; ndx<phrases.size(); ++ndx) {
+			strCmd = QString("INSERT INTO PHRASES "
+									"(Ndx, Phrase, CaseSensitive) "
+									"VALUES (:Ndx, :Phrase, :CaseSensitive)");
+			queryInsert.prepare(strCmd);
+			queryInsert.bindValue(":Ndx", ndx+1);
+			queryInsert.bindValue(":Phrase", phrases.at(ndx).m_strPhrase);
+			queryInsert.bindValue(":CaseSensitive", (phrases.at(ndx).m_bCaseSensitive ? 1 : 0));
+			if (!queryInsert.exec()) {
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for PHRASES!\n%1\n  %2  (%3)")
+																				.arg(queryInsert.lastError().text())
+																				.arg(phrases.at(ndx).m_strPhrase)
+																				.arg(phrases.at(ndx).m_bCaseSensitive ? "Case" : "NoCase"),
+										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
+			}
+		}
+		queryInsert.exec("COMMIT");
+	}
+
+	return true;
+}
+
+bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 {
 	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
-	m_myDatabase.setDatabaseName(pstrDatabaseFilename);
+	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 //	QMessageBox::information(m_pParent, g_constrBuildDatabase, m_myDatabase.databaseName());
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(m_myDatabase.databaseName()));
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
 		return false;
 	}
 
@@ -583,11 +704,35 @@ bool CBuildDatabase::BuildDatabase(const char *pstrDatabaseFilename)
 		(!BuildTOCTable()) ||
 		(!BuildLAYOUTTable()) ||
 		(!BuildBookTables()) ||
-		(!BuildWORDSTable())) bSuccess = false;
+		(!BuildWORDSTable()) ||
+		(!BuildPHRASESTable(false))) bSuccess = false;
 
 	m_myDatabase.close();
 
 	if (bSuccess) QMessageBox::information(m_pParent, g_constrBuildDatabase, "Build Complete!");
+	return bSuccess;
+}
+
+bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename)
+{
+	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase.setDatabaseName(strDatabaseFilename);
+
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
+		return false;
+	}
+
+	bool bSuccess = true;
+
+	if (!BuildPHRASESTable(true)) {
+		bSuccess = false;
+	} else {
+		g_bUserPhrasesDirty = false;
+	}
+
+	m_myDatabase.close();
+
 	return bSuccess;
 }
 

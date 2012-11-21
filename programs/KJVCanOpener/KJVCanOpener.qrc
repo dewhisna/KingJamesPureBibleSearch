@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>res/can-of-KJV.png</file>
         <file>res/addPhrase.png</file>
+		<file>res/delPhrase.png</file>
         <file>res/Close.png</file>
         <file>res/bible.ico</file>
         <file>res/list_add.png</file>

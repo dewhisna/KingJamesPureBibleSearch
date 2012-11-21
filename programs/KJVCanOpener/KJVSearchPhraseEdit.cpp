@@ -605,6 +605,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 
 	CPhraseList phrases = g_lstCommonPhrases;
 	phrases.append(g_lstUserPhrases);
+	phrases.removeDuplicates();
 	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases);
 	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
 	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
@@ -629,6 +630,22 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 		UpdateCompleter();
 		emit phraseChanged(*this);
 	}
+}
+
+void CPhraseLineEdit::on_phraseListChanged()
+{
+	assert(m_pCommonPhrasesCompleter != NULL);
+	if (m_pCommonPhrasesCompleter == NULL) return;
+
+	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
+	assert(pModel != NULL);
+	if (pModel == NULL) return;
+
+	CPhraseList phrases = g_lstCommonPhrases;
+	phrases.append(g_lstUserPhrases);
+	phrases.removeDuplicates();
+	pModel->setPhraseList(phrases);
+	pModel->sort(0, Qt::AscendingOrder);
 }
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
@@ -893,9 +910,16 @@ pStatusBar(NULL),
 	ui->setupUi(this);
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
+	ui->buttonAddPhrase->setEnabled(false);
+	ui->buttonDelPhrase->setEnabled(false);
+	ui->buttonClear->setEnabled(false);
 
 	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
+	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(on_phraseAdd()));
+	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
+	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
+	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
@@ -907,11 +931,49 @@ void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
 {
 	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(phrase.GetNumberOfMatches()));
 
+	m_phraseEntry.m_strPhrase=phrase.phrase();		// Use reconstituted phrase for save/restore
+	m_phraseEntry.m_bCaseSensitive=phrase.isCaseSensitive();
+	m_phraseEntry.m_nNumWrd=phrase.phraseSize();
+
+	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
+	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
+	bool bHaveText = (!ui->editPhrase->toPlainText().isEmpty());
+	ui->buttonAddPhrase->setEnabled(bHaveText && !bUserFound && !bCommonFound);
+	ui->buttonDelPhrase->setEnabled(bHaveText && bUserFound);
+	ui->buttonClear->setEnabled(bHaveText);
+
 	emit phraseChanged(phrase);
 }
 
 void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)
 {
 	ui->editPhrase->setCaseSensitive(bCaseSensitive);
+}
+
+void CKJVSearchPhraseEdit::on_phraseAdd()
+{
+	g_lstUserPhrases.push_back(m_phraseEntry);
+	g_bUserPhrasesDirty = true;
+	ui->buttonAddPhrase->setEnabled(false);
+	ui->buttonDelPhrase->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
+	emit phraseListChanged();
+}
+
+void CKJVSearchPhraseEdit::on_phraseDel()
+{
+	int ndx = g_lstUserPhrases.indexOf(m_phraseEntry);
+	assert(ndx != -1);		// Shouldn't be in this handler if it didn't exist!!  What happened?
+	if (ndx >= 0) {
+		g_lstUserPhrases.removeAt(ndx);
+		g_bUserPhrasesDirty = true;
+	}
+	ui->buttonAddPhrase->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
+	ui->buttonDelPhrase->setEnabled(false);
+	emit phraseListChanged();
+}
+
+void CKJVSearchPhraseEdit::on_phraseClear()
+{
+	ui->editPhrase->clear();
 }
 

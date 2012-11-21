@@ -331,14 +331,36 @@ public:
 	bool m_bCaseSensitive;
 	QString m_strPhrase;
 	unsigned int m_nNumWrd;		// Number of words in phrase
+
+	bool operator==(const CPhraseEntry &src) const
+	{
+		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
+				(m_strPhrase.compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
+	}
 };
 
 Q_DECLARE_METATYPE(CPhraseEntry)
 
-typedef QList<CPhraseEntry> CPhraseList;
+class CPhraseList : public QList<CPhraseEntry>
+{
+public:
+	inline CPhraseList() { }
+	inline explicit CPhraseList(const CPhraseEntry &i) { append(i); }
+	inline CPhraseList(const CPhraseList &l) : QList<CPhraseEntry>(l) { }
+	inline CPhraseList(const QList<CPhraseEntry> &l) : QList<CPhraseEntry>(l) { }
+
+	int removeDuplicates();
+};
+
+inline uint qHash(const CPhraseEntry &key)
+{
+	uint nHash = qHash(key.m_strPhrase);
+	return (key.m_bCaseSensitive ? (nHash*2) : nHash);
+}
 
 extern CPhraseList g_lstCommonPhrases;			// Common phrases read from database
 extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database
+extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 
 // ============================================================================
 

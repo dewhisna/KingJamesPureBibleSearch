@@ -3,6 +3,9 @@
 
 #include "dbstruct.h"
 
+#include <QtAlgorithms>
+#include <QSet>
+
 #include <assert.h>
 
 // Global Testament List:
@@ -31,6 +34,29 @@ CPhraseList g_lstCommonPhrases;
 
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;
+bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
+
+// ============================================================================
+
+int CPhraseList::removeDuplicates()
+{
+	int n = size();
+	int j = 0;
+	QSet<CPhraseEntry> seen;
+	seen.reserve(n);
+	for (int i = 0; i < n; ++i) {
+		const CPhraseEntry &s = at(i);
+		if (seen.contains(s))
+			continue;
+		seen.insert(s);
+		if (j != i)
+			(*this)[j] = s;
+		++j;
+	}
+	if (n != j)
+		erase(begin() + j, end());
+	return n - j;
+}
 
 // ============================================================================
 

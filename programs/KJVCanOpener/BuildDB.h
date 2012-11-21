@@ -15,7 +15,8 @@ public:
 	{ }
 	~CBuildDatabase() { }
 
-	bool BuildDatabase(const char *pstrDatabaseFilename);
+	bool BuildDatabase(const QString &strDatabaseFilename);
+	bool BuildUserDatabase(const QString &strDatabaseFilename);
 
 	static QByteArray CSVStringToIndexBlob(const QString &str);
 
@@ -25,6 +26,7 @@ protected:
 	bool BuildLAYOUTTable();
 	bool BuildBookTables();
 	bool BuildWORDSTable();
+	bool BuildPHRASESTable(bool bUserPhrases);
 
 private:
 	QWidget *m_pParent;

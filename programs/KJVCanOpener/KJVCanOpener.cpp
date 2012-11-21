@@ -4,6 +4,7 @@
 #include "dbstruct.h"
 #include "VerseListModel.h"
 #include "KJVPassageNavigatorDlg.h"
+#include "BuildDB.h"
 
 #include <assert.h>
 
@@ -34,8 +35,9 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 // ============================================================================
 
-CKJVCanOpener::CKJVCanOpener(QWidget *parent) :
+CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
+	m_strUserDatabase(strUserDatabase),
 	m_pActionNavBackward(NULL),
 	m_pActionNavForward(NULL),
 	m_pActionNavHome(NULL),
@@ -156,6 +158,25 @@ CKJVCanOpener::~CKJVCanOpener()
 void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 {
 	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
+}
+
+void CKJVCanOpener::closeEvent(QCloseEvent *event)
+{
+	if ((g_bUserPhrasesDirty) && haveUserDatabase()) {
+		if (QMessageBox::warning(this, windowTitle(), "Do you wish to save the search phrase list changes you've made to the user database?",
+											QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+			event->ignore();
+			return;
+		}
+		CBuildDatabase bdb(this);
+		if (!bdb.BuildUserDatabase(m_strUserDatabase)) {
+			QMessageBox::warning(this, windowTitle(), "Failed to save KJV User Database!\nCheck installation and settings!");
+			event->ignore();
+			return;
+		}
+	}
+
+	return QMainWindow::closeEvent(event);
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()
@@ -297,4 +318,3 @@ void CKJVCanOpener::on_HelpAbout()
 {
 
 }
-

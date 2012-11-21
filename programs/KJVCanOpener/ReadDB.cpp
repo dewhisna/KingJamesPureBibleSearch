@@ -586,7 +586,11 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
 
 	bool bSuccess = true;
 
-	if (!ReadPHRASESTable(true)) bSuccess = false;
+	if (!ReadPHRASESTable(true)) {
+		bSuccess = false;
+	} else {
+		g_bUserPhrasesDirty = false;
+	}
 
 	m_myDatabase.close();
 
