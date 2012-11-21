@@ -658,18 +658,29 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor)
 {
 
 #define CheckForAnchor() {											\
-	ndxReference = CRelIndex(cursor.charFormat().anchorName());		\
-	if (ndxReference.isSet()) {										\
-		if ((ndxReference.verse() != 0) &&							\
-			(ndxReference.word() == 0)) {							\
-			ndxReference.setWord(nWord);							\
+	if (cursor.charFormat().anchorName().startsWith('B')) {			\
+		bInABanchor = true;											\
+		bBanchorFound = true;										\
+	} else if (cursor.charFormat().anchorName().startsWith('A')) {	\
+		if (!bBanchorFound) nWord = 0;								\
+		bInABanchor = false;										\
+		bBanchorFound = false;										\
+	} else {														\
+		ndxReference = CRelIndex(cursor.charFormat().anchorName());	\
+		if (ndxReference.isSet()) {									\
+			if ((ndxReference.verse() != 0) &&						\
+				(ndxReference.word() == 0)) {						\
+				ndxReference.setWord(nWord);						\
+			}														\
+			return ndxReference;									\
 		}															\
-		return ndxReference;										\
 	}																\
 }
 
 	CRelIndex ndxReference;
 	unsigned int nWord = 0;
+	bool bInABanchor = false;		// Set to true if we are inside an A-B anchor set where we should ignore word counts
+	bool bBanchorFound = false;		// Set to true if we encounter a B anchor, used when we get to A anchor to know if we should clear nWord
 
 	CheckForAnchor();
 	while (!cursor.charUnderCursor().isSpace()) {
@@ -678,7 +689,7 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor)
 	}
 
 	do {
-		nWord++;
+		if (!bInABanchor) nWord++;
 
 		while (cursor.charUnderCursor().isSpace()) {
 			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
