@@ -163,16 +163,19 @@ void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
 {
 	if ((g_bUserPhrasesDirty) && haveUserDatabase()) {
-		if (QMessageBox::warning(this, windowTitle(), "Do you wish to save the search phrase list changes you've made to the user database?",
-											QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+		int nResult = QMessageBox::warning(this, windowTitle(), "Do you wish to save the search phrase list changes you've made to the user database?",
+											QString("Yes"), QString("No"), QString("Cancel"), 0, 2);
+		if (nResult == 2) {
 			event->ignore();
 			return;
 		}
-		CBuildDatabase bdb(this);
-		if (!bdb.BuildUserDatabase(m_strUserDatabase)) {
-			QMessageBox::warning(this, windowTitle(), "Failed to save KJV User Database!\nCheck installation and settings!");
-			event->ignore();
-			return;
+		if (nResult == 0) {
+			CBuildDatabase bdb(this);
+			if (!bdb.BuildUserDatabase(m_strUserDatabase)) {
+				QMessageBox::warning(this, windowTitle(), "Failed to save KJV User Database!\nCheck installation and settings!");
+				event->ignore();
+				return;
+			}
 		}
 	}
 
