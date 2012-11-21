@@ -116,6 +116,7 @@ private slots:
 
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
+	void changeCaseSensitive(bool bCaseSensitive);
 
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
@@ -137,7 +138,7 @@ private:
 	QCompleter *m_pCompleter;					// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
-	bool m_bUpdateInProgress;	// Completer update in progress (to guard against re-entrance)
+	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)
 
 // UI Private:
 private:
@@ -176,6 +177,7 @@ protected slots:
 // Data Private:
 private:
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
+	bool m_bUpdateInProgress;			// case-sensitivity update in progress (to guard against re-entrance)
 
 // UI Private:
 private:

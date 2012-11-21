@@ -611,7 +611,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
-	m_pCommonPhrasesCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
 
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
@@ -624,11 +624,11 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 {
 	CParsedPhrase::setCaseSensitive(bCaseSensitive);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
-	m_pCommonPhrasesCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
 		emit phraseChanged(*this);
+		emit changeCaseSensitive(bCaseSensitive);
 	}
 }
 
@@ -667,9 +667,22 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	CPhraseCursor cursor(textCursor());
 	cursor.clearSelection();
 	cursor.select(QTextCursor::LineUnderCursor);
-	cursor.insertText(completion);							// Replace with completed word
+	bool bUpdateSave = m_bUpdateInProgress;
+	m_bUpdateInProgress = true;									// Hold-over to update everything at once
+	if (completion.startsWith('§')) {
+		cursor.insertText(completion.mid(1));					// Replace with complete word minus special flag
+		setCaseSensitive(true);
+	} else {
+		cursor.insertText(completion);							// Replace with completed word
+		setCaseSensitive(false);
+	}
+	m_bUpdateInProgress = bUpdateSave;
+	if (!m_bUpdateInProgress) {
+		UpdateCompleter();
+		emit phraseChanged(*this);
+		emit changeCaseSensitive(isCaseSensitive());
+	}
 }
-
 
 QString CPhraseLineEdit::textUnderCursor() const
 {
@@ -905,6 +918,7 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	QWidget(parent),
 pStatusBar(NULL),
+	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
 {
 	ui->setupUi(this);
@@ -916,6 +930,7 @@ pStatusBar(NULL),
 
 	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
+	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
 	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(on_phraseAdd()));
 	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
@@ -947,7 +962,11 @@ void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
 
 void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)
 {
-	ui->editPhrase->setCaseSensitive(bCaseSensitive);
+	if (m_bUpdateInProgress) return;
+	m_bUpdateInProgress = true;
+	ui->chkCaseSensitive->setChecked(bCaseSensitive);		// Set the checkbox in case the phrase editor is setting us
+	ui->editPhrase->setCaseSensitive(bCaseSensitive);		// Set the phrase editor in case the checkbox is setting us
+	m_bUpdateInProgress = false;
 }
 
 void CKJVSearchPhraseEdit::on_phraseAdd()
