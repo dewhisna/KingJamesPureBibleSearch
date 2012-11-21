@@ -720,14 +720,9 @@ void CPhraseLineEdit::UpdateCompleter()
 	fmt.setFontStrikeOut(false);
 	fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
 
-	int nSelStart = cursor.anchor();
-	int nSelEnd = cursor.position();
 	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 	cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
 	cursor.setCharFormat(fmt);
-	cursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
-	cursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
-	setTextCursor(cursor);
 
 	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 	int nWord = 0;
@@ -748,10 +743,6 @@ void CPhraseLineEdit::UpdateCompleter()
 
 		nWord++;
 	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
-
-	cursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
-	cursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
-	setTextCursor(cursor);
 
 	m_bUpdateInProgress = false;
 }
