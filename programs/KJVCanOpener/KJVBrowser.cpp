@@ -357,39 +357,42 @@ void CKJVBrowser::doHighlighting(bool bClear)
 		unsigned int nCount = m_lstPhraseTags.at(ndx).second;
 		while (nCount) {
 			QTextCharFormat fmt = myCursor.charFormat();
-			if (!fmt.isAnchor()) {
+			QString strAnchorName = fmt.anchorName();
+			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
 				myCursor.selectWordUnderCursor();
 				fmt = myCursor.charFormat();
-				if (!fmt.isAnchor()) {
-					if (!bClear) {
-//						fmt.setUnderlineColor(m_colorHighlight);
-//						fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-						// Save current brush in UserProperty so we can restore it later in undoHighlighting:
-						fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
-						fmt.setForeground(QBrush(m_colorHighlight));
-					} else {
-//						fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
-						// Restore preserved brush to restore text:
-						fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
-					}
-					myCursor.setCharFormat(fmt);
-					nCount--;
+				if (!bClear) {
+//					fmt.setUnderlineColor(m_colorHighlight);
+//					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+					// Save current brush in UserProperty so we can restore it later in undoHighlighting:
+					fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
+					fmt.setForeground(QBrush(m_colorHighlight));
 				} else {
-					assert(false);		// Shouldn't have any anchors within our text only at word start boundaries outside spaces
+//					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+					// Restore preserved brush to restore text:
+					fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
 				}
+				myCursor.setCharFormat(fmt);
+				nCount--;
+				if (!myCursor.moveCursorWordRight()) break;
 			} else {
-				// If we hit an anchor, see if it's a chapter start anchor.  If so, search
-				//		for our special "X" close anchor so we'll be at the start of the next
-				//		verse:
-				CRelIndex ndxAnchor(fmt.anchorName());
-				assert(ndxAnchor.isSet());
-				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
-					if (nEndAnchorPos) myCursor.setPosition(nEndAnchorPos);
+				// If we hit an anchor, see if it's either a special section A-B marker or if
+				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+				//		If it is a chapter start anchor, search for our special X-anchor so
+				//		we'll be at the correct start of the next verse:
+				if (strAnchorName.startsWith('A')) {
+					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("B" + strAnchorName.mid(1));
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+				} else {
+					CRelIndex ndxAnchor(strAnchorName);
+					assert(ndxAnchor.isSet());
+					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+						int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
+						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					}
+					if (!myCursor.moveCursorWordRight()) break;
 				}
-
 			}
-			if (!myCursor.moveCursorWordRight()) break;
 		}
 		myCursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
 		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);

@@ -764,8 +764,8 @@ int main(int argc, const char *argv[])
 			}
 		} while ((!feof(fileIn)) && (ndx < sizeof(buffPlain)-1) && (c != '@'));
 		buffPlain[ndx] = 0;			// End main text
+		ndx = 0;
 		if (c != '@') {				// If we didn't find the end marker, we must be in a footnote
-			ndx = 0;
 			do {
 				c = fgetcUTF8(fileIn);
 				if ((c != '@') && (c != EOF)) {
@@ -793,8 +793,8 @@ int main(int argc, const char *argv[])
 					ndx++;
 				}
 			} while ((!feof(fileIn)) && (ndx < sizeof(buffFootnote)-1) && (c != '@'));
-			buffFootnote[ndx] = 0;			// End footnote
 		}
+		buffFootnote[ndx] = 0;			// End footnote
 
 /////////////////////////////////////
 // Find and Parse Rich Text
@@ -811,6 +811,10 @@ int main(int argc, const char *argv[])
 
 		// First, fill in missing Hebrew alphabet in Psalm 119 in both Hebrew and English for text to be rendered:
 		if ((nBk == 19) && (nChp == 119) && (((nVrs-1)%8) == 0)) {
+
+			// Add special Start tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+			sprintf(&buffRich[ndx], "<a id=\"\"A%d\"\"> </a>", MakeIndex(nBk, nChp, nVrs, 0));
+			ndx += strlen(&buffRich[ndx]);
 
 #if (OUTPUT_HEBREW_PS119)
 			switch ((nVrs-1)/8) {
@@ -909,75 +913,79 @@ int main(int argc, const char *argv[])
 
 			switch ((nVrs-1)/8) {
 				case 0:
-					strcpy(&buffRich[ndx], "(ALEPH). ");
+					strcpy(&buffRich[ndx], "(ALEPH).");
 					break;
 				case 1:
-					strcpy(&buffRich[ndx], "(BETH). ");
+					strcpy(&buffRich[ndx], "(BETH).");
 					break;
 				case 2:
-					strcpy(&buffRich[ndx], "(GIMEL). ");
+					strcpy(&buffRich[ndx], "(GIMEL).");
 					break;
 				case 3:
-					strcpy(&buffRich[ndx], "(DALETH). ");
+					strcpy(&buffRich[ndx], "(DALETH).");
 					break;
 				case 4:
-					strcpy(&buffRich[ndx], "(HE). ");
+					strcpy(&buffRich[ndx], "(HE).");
 					break;
 				case 5:
-					strcpy(&buffRich[ndx], "(VAU). ");
+					strcpy(&buffRich[ndx], "(VAU).");
 					break;
 				case 6:
-					strcpy(&buffRich[ndx], "(ZAIN). ");
+					strcpy(&buffRich[ndx], "(ZAIN).");
 					break;
 				case 7:
-					strcpy(&buffRich[ndx], "(CHETH). ");
+					strcpy(&buffRich[ndx], "(CHETH).");
 					break;
 				case 8:
-					strcpy(&buffRich[ndx], "(TETH). ");
+					strcpy(&buffRich[ndx], "(TETH).");
 					break;
 				case 9:
-					strcpy(&buffRich[ndx], "(JOD). ");
+					strcpy(&buffRich[ndx], "(JOD).");
 					break;
 				case 10:
-					strcpy(&buffRich[ndx], "(CAPH). ");
+					strcpy(&buffRich[ndx], "(CAPH).");
 					break;
 				case 11:
-					strcpy(&buffRich[ndx], "(LAMED). ");
+					strcpy(&buffRich[ndx], "(LAMED).");
 					break;
 				case 12:
-					strcpy(&buffRich[ndx], "(MEM). ");
+					strcpy(&buffRich[ndx], "(MEM).");
 					break;
 				case 13:
-					strcpy(&buffRich[ndx], "(NUN). ");
+					strcpy(&buffRich[ndx], "(NUN).");
 					break;
 				case 14:
-					strcpy(&buffRich[ndx], "(SAMECH). ");
+					strcpy(&buffRich[ndx], "(SAMECH).");
 					break;
 				case 15:
-					strcpy(&buffRich[ndx], "(AIN). ");
+					strcpy(&buffRich[ndx], "(AIN).");
 					break;
 				case 16:
-					strcpy(&buffRich[ndx], "(PE). ");
+					strcpy(&buffRich[ndx], "(PE).");
 					break;
 				case 17:
-					strcpy(&buffRich[ndx], "(TZADDI). ");
+					strcpy(&buffRich[ndx], "(TZADDI).");
 					break;
 				case 18:
-					strcpy(&buffRich[ndx], "(KOPH). ");
+					strcpy(&buffRich[ndx], "(KOPH).");
 					break;
 				case 19:
-					strcpy(&buffRich[ndx], "(RESH). ");
+					strcpy(&buffRich[ndx], "(RESH).");
 					break;
 				case 20:
-					strcpy(&buffRich[ndx], "(SCHIN). ");
+					strcpy(&buffRich[ndx], "(SCHIN).");
 					break;
 				case 21:
-					strcpy(&buffRich[ndx], "(TAU). ");
+					strcpy(&buffRich[ndx], "(TAU).");
 					break;
 				default:
 					buffRich[ndx] = 0;		// Safeguard in case something's wrong with the text
 					break;
 			}
+			ndx += strlen(&buffRich[ndx]);
+
+			// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+			sprintf(&buffRich[ndx], "<a id=\"\"B%d\"\"> </a>", MakeIndex(nBk, nChp, nVrs, 0));
 			ndx += strlen(&buffRich[ndx]);
 
 			bIsPilcrowRich = true;			// Add Pilcrow break for these as it looks best on output since each letter should start new paragraph

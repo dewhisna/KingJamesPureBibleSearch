@@ -102,6 +102,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), "About...", this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
+	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
 
 	pHelpMenu->addAction(m_pActionAbout);
