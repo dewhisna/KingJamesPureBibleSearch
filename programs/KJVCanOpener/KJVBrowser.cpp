@@ -324,12 +324,12 @@ void CKJVBrowser::focusBrowser()
 
 void CKJVBrowser::setHighlight(const TPhraseTagList &lstPhraseTags)
 {
-	undoHighlighting();					// Remove existing highlighting
+	doHighlighting(true);				// Remove existing highlighting
 	m_lstPhraseTags = lstPhraseTags;	// Set new set of tags
 	doHighlighting();					// Highlight using new tags
 }
 
-void CKJVBrowser::doHighlighting()
+void CKJVBrowser::doHighlighting(bool bClear)
 {
 	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
 		CRelIndex ndxRel = m_lstPhraseTags.at(ndx).first;
@@ -361,71 +361,17 @@ void CKJVBrowser::doHighlighting()
 				myCursor.selectWordUnderCursor();
 				fmt = myCursor.charFormat();
 				if (!fmt.isAnchor()) {
-//					fmt.setUnderlineColor(m_colorHighlight);
-//					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-					// Save current brush in UserProperty so we can restore it later in undoHighlighting:
-					fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
-					fmt.setForeground(QBrush(m_colorHighlight));
-					myCursor.setCharFormat(fmt);
-					nCount--;
-				} else {
-					assert(false);		// Shouldn't have any anchors within our text only at word start boundaries outside spaces
-				}
-			} else {
-				// If we hit an anchor, see if it's a chapter start anchor.  If so, search
-				//		for our special "X" close anchor so we'll be at the start of the next
-				//		verse:
-				CRelIndex ndxAnchor(fmt.anchorName());
-				assert(ndxAnchor.isSet());
-				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
-					if (nEndAnchorPos) myCursor.setPosition(nEndAnchorPos);
-				}
-
-			}
-			if (!myCursor.moveCursorWordRight()) break;
-		}
-		myCursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
-		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
-		ui->textBrowserMainText->setTextCursor(myCursor);
-	}
-}
-
-void CKJVBrowser::undoHighlighting()
-{
-	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
-		CRelIndex ndxRel = m_lstPhraseTags.at(ndx).first;
-		if (!ndxRel.isSet()) continue;
-		// Save some time if the tag isn't anything close to what we are displaying.
-		//		We'll use one before/one after since we might be displaying part of
-		//		the proceding passage:
-		if ((ndxRel.book() < (m_ndxCurrent.book()-1)) ||
-			(ndxRel.book() > (m_ndxCurrent.book()+1)) ||
-			(ndxRel.chapter() < (m_ndxCurrent.chapter()-1)) ||
-			(ndxRel.chapter() > (m_ndxCurrent.chapter()+1))) continue;
-		uint32_t ndxWord = ndxRel.word();
-		ndxRel.setWord(0);
-		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
-		if (nPos == -1) continue;
-		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
-		int nSelStart = myCursor.anchor();
-		int nSelEnd = myCursor.position();
-		myCursor.setPosition(nPos);
-		while (ndxWord) {
-			myCursor.selectWordUnderCursor();
-			myCursor.moveCursorWordRight();
-			ndxWord--;
-		}
-		unsigned int nCount = m_lstPhraseTags.at(ndx).second;
-		while (nCount) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			if (!fmt.isAnchor()) {
-				myCursor.selectWordUnderCursor();
-				fmt = myCursor.charFormat();
-				if (!fmt.isAnchor()) {
-//					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
-					// Restore preserved brush to restore text:
-					fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
+					if (!bClear) {
+//						fmt.setUnderlineColor(m_colorHighlight);
+//						fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+						// Save current brush in UserProperty so we can restore it later in undoHighlighting:
+						fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
+						fmt.setForeground(QBrush(m_colorHighlight));
+					} else {
+//						fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+						// Restore preserved brush to restore text:
+						fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
+					}
 					myCursor.setCharFormat(fmt);
 					nCount--;
 				} else {

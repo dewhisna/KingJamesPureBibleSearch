@@ -71,8 +71,7 @@ private slots:
 
 private:
 	void gotoIndex2(const CRelIndex &ndx, unsigned int nWrdCount = 0);
-	void doHighlighting();					// Highlight the areas marked in the PhraseTags
-	void undoHighlighting();				// Remove the highlighting.  Used to swapout the current tag list for a new one without redrawing everything
+	void doHighlighting(bool bClear = false);		// Highlight the areas marked in the PhraseTags.  If bClear=True, removes the highlighting, which is used to swapout the current tag list for a new one without redrawing everything
 
 	// These should be used in order:
 	void setBook(const CRelIndex &ndx);		// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
