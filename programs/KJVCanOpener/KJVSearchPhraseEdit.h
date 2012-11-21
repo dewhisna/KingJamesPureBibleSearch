@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QPushButton>
 #include <QMimeData>
+#include <QColor>
 
 #include <QStatusBar>
 #include <utility>
@@ -91,6 +92,36 @@ public:
 	void selectCursorToLineEnd();
 };
 
+// ============================================================================
+
+class CPhraseNavigator
+{
+public:
+	CPhraseNavigator(QTextEdit &textEditor)
+		: m_TextEditor(textEditor)
+	{ }
+
+	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
+	int anchorPosition(const QString &strAnchorName) const;
+
+	// ResolveCursorReference interprets anchors at the currext textCursor and
+	//		backtracks until it finds an anchor to determine the relative index.
+	//		Used mainly with the KJVBrowser, but also useful for search results
+	//		review and navigator dialog preview:
+	CRelIndex ResolveCursorReference(CPhraseCursor cursor);			// Bounds limited for words
+	CRelIndex ResolveCursorReference2(CPhraseCursor cursor);		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
+
+	// Highlight the areas marked in the PhraseTags.  If bClear=True, removes
+	//		the highlighting, which is used to swapout the current tag list
+	//		for a new one without redrawing everything.  ndxCurrent is used
+	//		as an optimization to skip areas not within current chapter.  Use
+	//		empty index to ignore.  Highlighting is done in the specified
+	//		color.
+	void doHighlighting(const TPhraseTagList &lstPhraseTags, const QColor &colorHighlight, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex());
+
+private:
+	QTextEdit &m_TextEditor;
+};
 
 // ============================================================================
 

@@ -7,7 +7,9 @@
 #include <QTextEdit>
 #include <QModelIndex>
 #include <QStringListModel>
-#include <QTextCursor>
+#include <QTextCharFormat>
+#include <QTextBlock>
+#include <QTextFragment>
 #include <QTextDocumentFragment>
 #include <QRegExp>
 
@@ -576,6 +578,187 @@ void CPhraseCursor::selectCursorToLineEnd()
 {
 	clearSelection();
 	movePosition(EndOfLine, KeepAnchor);
+}
+
+// ============================================================================
+
+int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
+{
+	if (strAnchorName.isEmpty()) return -1;
+
+	for (QTextBlock block = m_TextEditor.document()->begin(); block.isValid(); block = block.next()) {
+		QTextCharFormat format = block.charFormat();
+		if (format.isAnchor()) {
+			if (format.anchorNames().contains(strAnchorName)) {
+				int nPos = block.position();
+				QString strText = block.text();
+				for (int nPosStr = 0; nPosStr < strText.length(); ++nPosStr) {
+					if (strText[nPosStr].isSpace()) {
+						nPos++;
+					} else {
+						break;
+					}
+				}
+				return nPos;
+			}
+		}
+		for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
+			QTextFragment fragment = it.fragment();
+			format = fragment.charFormat();
+			if (format.isAnchor()) {
+				if (format.anchorNames().contains(strAnchorName)) {
+					int nPos = fragment.position();
+					QString strText = fragment.text();
+					for (int nPosStr = 0; nPosStr < strText.length(); ++nPosStr) {
+						if (strText[nPosStr].isSpace()) {
+							nPos++;
+						} else {
+							break;
+						}
+					}
+					return nPos;
+				}
+			}
+		}
+	}
+
+	return -1;
+}
+
+CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor)
+{
+	CRelIndex ndxReference = ResolveCursorReference2(cursor);
+
+	if (ndxReference.book() != 0) {
+		assert(ndxReference.book() <= g_lstTOC.size());
+		if (ndxReference.book() <= g_lstTOC.size()) {
+			if (ndxReference.chapter() != 0) {
+				assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
+				if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
+					if (ndxReference.verse() != 0) {
+						assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
+						if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
+							if (ndxReference.word() > (g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd) {
+								// Clip word index at max since it's possible to be on the space
+								//		between words and have an index that is one larger than
+								//		our largest word:
+								ndxReference.setWord((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ndxReference;
+}
+
+CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor)
+{
+
+#define CheckForAnchor() {											\
+	ndxReference = CRelIndex(cursor.charFormat().anchorName());		\
+	if (ndxReference.isSet()) {										\
+		if ((ndxReference.verse() != 0) &&							\
+			(ndxReference.word() == 0)) {							\
+			ndxReference.setWord(nWord);							\
+		}															\
+		return ndxReference;										\
+	}																\
+}
+
+	CRelIndex ndxReference;
+	unsigned int nWord = 0;
+
+	CheckForAnchor();
+	while (!cursor.charUnderCursor().isSpace()) {
+		if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
+		CheckForAnchor();
+	}
+
+	do {
+		nWord++;
+
+		while (cursor.charUnderCursor().isSpace()) {
+			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
+			CheckForAnchor();
+		}
+
+		while (!cursor.charUnderCursor().isSpace()) {
+			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
+			CheckForAnchor();
+		}
+	} while (1);
+
+	return ndxReference;
+}
+
+void CPhraseNavigator::doHighlighting(const TPhraseTagList &lstPhraseTags, const QColor &colorHighlight, bool bClear, const CRelIndex &ndxCurrent)
+{
+	for (int ndx=0; ndx<lstPhraseTags.size(); ++ndx) {
+		CRelIndex ndxRel = lstPhraseTags.at(ndx).first;
+		if (!ndxRel.isSet()) continue;
+		// Save some time if the tag isn't anything close to what we are displaying.
+		//		We'll use one before/one after since we might be displaying part of
+		//		the proceding passage:
+		if  ((ndxCurrent.isSet()) &&
+				((ndxRel.book() < (ndxCurrent.book()-1)) ||
+				 (ndxRel.book() > (ndxCurrent.book()+1)) ||
+				 (ndxRel.chapter() < (ndxCurrent.chapter()-1)) ||
+				 (ndxRel.chapter() > (ndxCurrent.chapter()+1)))) continue;
+		uint32_t ndxWord = ndxRel.word();
+		ndxRel.setWord(0);
+		int nPos = anchorPosition(ndxRel.asAnchor());
+		if (nPos == -1) continue;
+		CPhraseCursor myCursor(m_TextEditor.textCursor());
+		myCursor.setPosition(nPos);
+		while (ndxWord) {
+			myCursor.selectWordUnderCursor();
+			myCursor.moveCursorWordRight();
+			ndxWord--;
+		}
+		unsigned int nCount = lstPhraseTags.at(ndx).second;
+		while (nCount) {
+			QTextCharFormat fmt = myCursor.charFormat();
+			QString strAnchorName = fmt.anchorName();
+			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+				myCursor.selectWordUnderCursor();
+				fmt = myCursor.charFormat();
+				if (!bClear) {
+//					fmt.setUnderlineColor(m_colorHighlight);
+//					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+					// Save current brush in UserProperty so we can restore it later in undoHighlighting:
+					fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
+					fmt.setForeground(QBrush(colorHighlight));
+				} else {
+//					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
+					// Restore preserved brush to restore text:
+					fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
+				}
+				myCursor.setCharFormat(fmt);
+				nCount--;
+				if (!myCursor.moveCursorWordRight()) break;
+			} else {
+				// If we hit an anchor, see if it's either a special section A-B marker or if
+				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+				//		If it is a chapter start anchor, search for our special X-anchor so
+				//		we'll be at the correct start of the next verse:
+				if (strAnchorName.startsWith('A')) {
+					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+				} else {
+					CRelIndex ndxAnchor(strAnchorName);
+					assert(ndxAnchor.isSet());
+					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					}
+					if (!myCursor.moveCursorWordRight()) break;
+				}
+			}
+		}
+	}
 }
 
 // ============================================================================

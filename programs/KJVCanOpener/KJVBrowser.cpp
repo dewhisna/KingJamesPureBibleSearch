@@ -30,125 +30,11 @@ CScriptureBrowser::~CScriptureBrowser()
 
 }
 
-int CScriptureBrowser::anchorPosition(const QString &strAnchorName) const
-{
-	if (strAnchorName.isEmpty()) return -1;
-
-	for (QTextBlock block = document()->begin(); block.isValid(); block = block.next()) {
-		QTextCharFormat format = block.charFormat();
-		if (format.isAnchor()) {
-			if (format.anchorNames().contains(strAnchorName)) {
-				int nPos = block.position();
-				QString strText = block.text();
-				for (int nPosStr = 0; nPosStr < strText.length(); ++nPosStr) {
-					if (strText[nPosStr].isSpace()) {
-						nPos++;
-					} else {
-						break;
-					}
-				}
-				return nPos;
-			}
-		}
-		for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
-			QTextFragment fragment = it.fragment();
-			format = fragment.charFormat();
-			if (format.isAnchor()) {
-				if (format.anchorNames().contains(strAnchorName)) {
-					int nPos = fragment.position();
-					QString strText = fragment.text();
-					for (int nPosStr = 0; nPosStr < strText.length(); ++nPosStr) {
-						if (strText[nPosStr].isSpace()) {
-							nPos++;
-						} else {
-							break;
-						}
-					}
-					return nPos;
-				}
-			}
-		}
-	}
-
-	return -1;
-}
-
-CRelIndex CScriptureBrowser::ResolveCursorReference(CPhraseCursor &cursor)
-{
-	CRelIndex ndxReference = ResolveCursorReference2(cursor);
-
-	if (ndxReference.book() != 0) {
-		assert(ndxReference.book() <= g_lstTOC.size());
-		if (ndxReference.book() <= g_lstTOC.size()) {
-			if (ndxReference.chapter() != 0) {
-				assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
-				if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
-					if (ndxReference.verse() != 0) {
-						assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
-						if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
-							if (ndxReference.word() > (g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd) {
-								// Clip word index at max since it's possible to be on the space
-								//		between words and have an index that is one larger than
-								//		our largest word:
-								ndxReference.setWord((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return ndxReference;
-}
-
-CRelIndex CScriptureBrowser::ResolveCursorReference2(CPhraseCursor &cursor)
-{
-
-#define CheckForAnchor() {											\
-	ndxReference = CRelIndex(cursor.charFormat().anchorName());		\
-	if (ndxReference.isSet()) {										\
-		if ((ndxReference.verse() != 0) &&							\
-			(ndxReference.word() == 0)) {							\
-			ndxReference.setWord(nWord);							\
-		}															\
-		return ndxReference;										\
-	}																\
-}
-
-
-	CRelIndex ndxReference;
-	unsigned int nWord = 0;
-
-	CheckForAnchor();
-	while (!cursor.charUnderCursor().isSpace()) {
-		if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-		CheckForAnchor();
-	}
-
-	do {
-		nWord++;
-
-		while (cursor.charUnderCursor().isSpace()) {
-			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-			CheckForAnchor();
-		}
-
-		while (!cursor.charUnderCursor().isSpace()) {
-			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-			CheckForAnchor();
-		}
-	} while (1);
-
-	return ndxReference;
-}
-
 bool CScriptureBrowser::event(QEvent *e)
 {
 	if (e->type() == QEvent::ToolTip) {
 		QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
-		CPhraseCursor cursor = cursorForPosition(pHelpEvent->pos());
-		CRelIndex ndxReference = ResolveCursorReference(cursor);
+		CRelIndex ndxReference = CPhraseNavigator(*this).ResolveCursorReference(cursorForPosition(pHelpEvent->pos()));
 		QString strToolTip;
 
 		if (ndxReference.isSet()) {
@@ -208,8 +94,7 @@ bool CScriptureBrowser::event(QEvent *e)
 
 void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent * e)
 {
-	CPhraseCursor cursor = cursorForPosition(e->pos());
-	CRelIndex ndxReference = ResolveCursorReference(cursor);
+	CRelIndex ndxReference = CPhraseNavigator(*this).ResolveCursorReference(cursorForPosition(e->pos()));
 	if (ndxReference.isSet()) {
 		CKJVPassageNavigatorDlg dlg(parentWidget());
 		dlg.navigator().startRelativeMode(ndxReference, false);
@@ -331,68 +216,7 @@ void CKJVBrowser::setHighlight(const TPhraseTagList &lstPhraseTags)
 
 void CKJVBrowser::doHighlighting(bool bClear)
 {
-	for (int ndx=0; ndx<m_lstPhraseTags.size(); ++ndx) {
-		CRelIndex ndxRel = m_lstPhraseTags.at(ndx).first;
-		if (!ndxRel.isSet()) continue;
-		// Save some time if the tag isn't anything close to what we are displaying.
-		//		We'll use one before/one after since we might be displaying part of
-		//		the proceding passage:
-		if ((ndxRel.book() < (m_ndxCurrent.book()-1)) ||
-			(ndxRel.book() > (m_ndxCurrent.book()+1)) ||
-			(ndxRel.chapter() < (m_ndxCurrent.chapter()-1)) ||
-			(ndxRel.chapter() > (m_ndxCurrent.chapter()+1))) continue;
-		uint32_t ndxWord = ndxRel.word();
-		ndxRel.setWord(0);
-		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
-		if (nPos == -1) continue;
-		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
-		myCursor.setPosition(nPos);
-		while (ndxWord) {
-			myCursor.selectWordUnderCursor();
-			myCursor.moveCursorWordRight();
-			ndxWord--;
-		}
-		unsigned int nCount = m_lstPhraseTags.at(ndx).second;
-		while (nCount) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				myCursor.selectWordUnderCursor();
-				fmt = myCursor.charFormat();
-				if (!bClear) {
-//					fmt.setUnderlineColor(m_colorHighlight);
-//					fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-					// Save current brush in UserProperty so we can restore it later in undoHighlighting:
-					fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
-					fmt.setForeground(QBrush(m_colorHighlight));
-				} else {
-//					fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
-					// Restore preserved brush to restore text:
-					fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
-				}
-				myCursor.setCharFormat(fmt);
-				nCount--;
-				if (!myCursor.moveCursorWordRight()) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("B" + strAnchorName.mid(1));
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = ui->textBrowserMainText->anchorPosition("X" + fmt.anchorName());
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-					}
-					if (!myCursor.moveCursorWordRight()) break;
-				}
-			}
-		}
-	}
+	CPhraseNavigator(*ui->textBrowserMainText).doHighlighting(m_lstPhraseTags, m_colorHighlight, bClear, m_ndxCurrent);
 }
 
 // ----------------------------------------------------------------------------
@@ -598,7 +422,7 @@ void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
 	CRelIndex ndxRel = m_ndxCurrent;
 	uint32_t ndxWord = ndxRel.word();
 	ndxRel.setWord(0);
-	int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
+	int nPos = CPhraseNavigator(*ui->textBrowserMainText).anchorPosition(ndxRel.asAnchor());
 	if (nPos != -1) {
 		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
 		myCursor.setPosition(nPos);

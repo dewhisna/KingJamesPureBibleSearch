@@ -17,19 +17,12 @@ public:
 	explicit CScriptureBrowser(QWidget *parent = 0);
 	virtual ~CScriptureBrowser();
 
-	int anchorPosition(const QString &strAnchorName) const;
-
 signals:
 	void gotoIndex(CRelIndex ndx, unsigned int nWrdCount);
 
 protected:
 	virtual bool event(QEvent *e);
 	virtual void mouseDoubleClickEvent(QMouseEvent * e);
-
-private:
-	CRelIndex ResolveCursorReference(CPhraseCursor &cursor);		// Bounds limited for words
-	CRelIndex ResolveCursorReference2(CPhraseCursor &cursor);		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
-
 };
 
 // ============================================================================
