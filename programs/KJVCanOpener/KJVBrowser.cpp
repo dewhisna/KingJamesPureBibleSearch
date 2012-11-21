@@ -346,8 +346,6 @@ void CKJVBrowser::doHighlighting(bool bClear)
 		int nPos = ui->textBrowserMainText->anchorPosition(ndxRel.asAnchor());
 		if (nPos == -1) continue;
 		CPhraseCursor myCursor(ui->textBrowserMainText->textCursor());
-		int nSelStart = myCursor.anchor();
-		int nSelEnd = myCursor.position();
 		myCursor.setPosition(nPos);
 		while (ndxWord) {
 			myCursor.selectWordUnderCursor();
@@ -394,9 +392,6 @@ void CKJVBrowser::doHighlighting(bool bClear)
 				}
 			}
 		}
-		myCursor.setPosition(nSelStart, QTextCursor::MoveAnchor);
-		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
-		ui->textBrowserMainText->setTextCursor(myCursor);
 	}
 }
 
