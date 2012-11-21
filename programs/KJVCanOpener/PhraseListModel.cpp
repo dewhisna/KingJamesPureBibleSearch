@@ -104,14 +104,12 @@ bool CPhraseListModel::removeRows(int row, int count, const QModelIndex &parent)
 
 static bool ascendingLessThan(const QPair<CPhraseEntry, int> &s1, const QPair<CPhraseEntry, int> &s2)
 {
-	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase,
-						((s1.first.m_bCaseSensitive || s2.first.m_bCaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive)) < 0);
+	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase, Qt::CaseInsensitive) < 0);
 }
 
 static bool decendingLessThan(const QPair<CPhraseEntry, int> &s1, const QPair<CPhraseEntry, int> &s2)
 {
-	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase,
-						((s1.first.m_bCaseSensitive || s2.first.m_bCaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive)) > 0);
+	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase, Qt::CaseInsensitive) > 0);
 }
 
 void CPhraseListModel::sort(int /* column */, Qt::SortOrder order)
