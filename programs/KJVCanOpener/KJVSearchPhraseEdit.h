@@ -16,7 +16,6 @@
 #include <QCompleter>
 
 #include <QStatusBar>
-//#include <utility>
 
 // ============================================================================
 

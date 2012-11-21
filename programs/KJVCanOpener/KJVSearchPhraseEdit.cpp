@@ -31,7 +31,6 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pCompleter = new QCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
-//	m_pCompleter->setCompletionMode(QCompleter::InlineCompletion);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
@@ -86,15 +85,6 @@ void CPhraseLineEdit::on_phraseListChanged()
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
 {
-/*
-	QTextCursor cursor = textCursor();
-	int extra = completion.length() - m_pCompleter->completionPrefix().length();
-	cursor.movePosition(QTextCursor::Left);
-	cursor.movePosition(QTextCursor::EndOfWord);
-	cursor.insertText(completion.right(extra));
-	setTextCursor(cursor);
-*/
-
 	CParsedPhrase::insertCompletion(textCursor(), completion);
 }
 
@@ -260,22 +250,6 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 	QTextEdit::keyPressEvent(event);
 
-
-////	const QString completionPrefix = textUnderCursor();
-//	std::pair<QStringList, int> parseWords = ParsePhrase();
-//	assert(parseWords.second < parseWords.first.size());
-//	const QString completionPrefix = parseWords.first.at(parseWords.second);
-
-//	if (completionPrefix != m_pCompleter->completionPrefix()) {
-//		m_pCompleter->setCompletionPrefix(completionPrefix);
-//		UpdateCompleter();
-//		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index( 0, 0 ));
-//	}
-
-////	if (!event->text().isEmpty() /* && completionPrefix.length() > 2 */)
-//	if ((!event->text().isEmpty()) && ((completionPrefix.length() > 0) || (textCursor().atEnd())))
-//		m_pCompleter->complete();
-
 	ParsePhrase(textCursor());
 
 	QString strPrefix = m_strCursorWord;
@@ -299,27 +273,6 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 }
 
-
-
-/*
-	bool MyTextEdit::event(QEvent* event)
-	{
-	if (event->type() == QEvent::ToolTip)
-	{
-	QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
-	QTextCursor cursor = cursorForPosition(helpEvent->pos());
-	cursor.select(QTextCursor::WordUnderCursor);
-	if (!cursor.selectedText().isEmpty())
-	QToolTip::showText(helpEvent->globalPos(), cursor.selectedText());
-	else
-	QToolTip::hideText();
-	return true;
-	}
-	return QTextEdit::event(event);
-	}
-*/
-
-
 void CPhraseLineEdit::resizeEvent(QResizeEvent *event)
 {
 	m_pButtonDroplist->move(width()-m_pButtonDroplist->width(),0);
@@ -327,15 +280,6 @@ void CPhraseLineEdit::resizeEvent(QResizeEvent *event)
 
 void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 {
-//	CPhraseCursor cursor(textCursor());
-//
-//	cursor.clearSelection();
-//	cursor.select(QTextCursor::LineUnderCursor);
-//
-//	QString strPhrase = cursor.selectedText();
-//
-//	m_pCommonPhrasesCompleter->setCompletionPrefix(strPhrase);
-
 	m_pCommonPhrasesCompleter->complete();
 }
 

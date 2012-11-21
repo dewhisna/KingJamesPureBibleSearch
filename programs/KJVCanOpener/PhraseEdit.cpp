@@ -85,31 +85,6 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aC
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
 {
-
-//	QTextCursor cursor = curInsert;
-////	int extra = completion.length() - m_pCompleter->completionPrefix().length();
-////	cursor.movePosition(QTextCursor::Left);
-////	cursor.movePosition(QTextCursor::EndOfWord);
-////	cursor.insertText(completion.right(extra));
-////	setTextCursor(cursor);
-
-//	cursor.clearSelection();
-///*
-//	if (((m_strCursorWord.compare("-", Qt::CaseInsensitive) == 0) && (completion.contains('-', Qt::CaseInsensitive))) ||
-//		((m_strCursorWord.compare("'", Qt::CaseInsensitive) == 0) && (completion.contains('\'', Qt::CaseInsensitive)))) {
-//		cursor.movePosition(QTextCursor::WordLeft);
-//		cursor.movePosition(QTextCursor::WordLeft);
-//		cursor.selectionStart();
-//		cursor.movePosition(QTextCursor::WordRight);
-//		cursor.movePosition(QTextCursor::WordRight);
-//	}
-//*/
-////	cursor.movePosition(QTextCursor::WordLeft);			// TODO : Find proper movement based on word arrays!
-
-//	cursor.select(QTextCursor::WordUnderCursor);
-//	cursor.insertText(completion);
-
-
 	CPhraseCursor cursor(curInsert);
 	cursor.clearSelection();
 	cursor.selectWordUnderCursor();							// Select word under the cursor
@@ -124,41 +99,6 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 	m_lstRightWords.clear();
 	m_strCursorWord.clear();
 
-/*
-	QTextCursor curCursor = curInsert;
-	bool bCurAtEnd = curCursor.atEnd();
-	curCursor.select(QTextCursor::WordUnderCursor);
-	m_strCursorWord = curCursor.selectedText();					// Save current word
-	curCursor.clearSelection();
-	QTextCursor cursor(curCursor);
-
-	while (!cursor.atStart()) {
-		if (cursor.movePosition(QTextCursor::WordLeft)) {
-			QTextCursor selCursor(cursor);
-			selCursor.select(QTextCursor::WordUnderCursor);
-			m_lstLeftWords.push_front(selCursor.selectedText());
-		}
-	}
-	cursor = curCursor;
-	if (!bCurAtEnd) cursor.movePosition(QTextCursor::WordLeft);
-	while (!cursor.atEnd()) {
-			QTextCursor selCursor(cursor);
-			selCursor.select(QTextCursor::WordUnderCursor);
-			m_lstRightWords.push_back(selCursor.selectedText());
-		cursor.movePosition(QTextCursor::WordRight);
-	}
-
-	// FINALLY!! The above works!
-	// Here:
-	//	if (m_lstRightWords.size()!=0) then the first entry of m_lstRightWords is the current word! (Will only be true when !m_strCursorWord.isEmpty() as well)
-	//	if ((m_lstLeftWords.size()!=0) AND (!m_strCursorWord.isEmpty())) then the last entry of m_lstLeftWords is the current word!
-
-	if (!m_strCursorWord.isEmpty()) {
-		if (m_lstRightWords.size() != 0) m_lstRightWords.removeFirst();
-		if (m_lstLeftWords.size() != 0) m_lstLeftWords.removeLast();
-	}
-*/
-
 	CPhraseCursor curLeft(curInsert);
 	while (curLeft.moveCursorWordLeft()) {
 		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
@@ -170,76 +110,15 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 		m_lstRightWords.push_back(curRight.wordUnderCursor());
 	}
 
-
-	// The QTextCursor parses symbols, like "'" and "-" as individual words.  We
-	//		want to treat them as part of the word, so find them and combine
-	//		them with their word pairs.  In our text, a word could end with a "'"
-	//		or a "'s", but that's the only uses of "'".
-	//	So, there's two ways we could do it.  We could see if we have a "'" entry
-	//		and see if the next entry is a "s" and if so combine all three.  Or
-	//		else just combine the two.  But, this is very very hacky if their next
-	//		word happens to start with an "s" and will cause problems.
-	//	Another way to do it is to get the plaintext string, filter it for our
-	//		character set and split it on whitespace.  Then, compare that against
-	//		the entries from the cursor searching to find which word we are really
-	//		on.  Wow, how hacky!
-	//	There has to be a way to substitute the boundary finding logic of QTextCursor
-	//		but I can't figure out what it is!!  The closest thing is to create our
-	//		on locale with different flags per character denoting what constitutes
-	//		a word character or not.  But that's a lot of work and not sure I could
-	//		get it to work correctly.  <ugh!>
-
 	m_lstWords.clear();
 	m_lstWords.append(m_lstLeftWords);
 	m_nCursorWord = m_lstWords.size();
 	m_lstWords.append(m_strCursorWord);
 	m_lstWords.append(m_lstRightWords);
 
-/*
-	QString strLine = toPlainText();
-	QStringList lstAllWords = strLine.split(QRegExp("[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-]+"), QString::SkipEmptyParts);
-
-	assert(m_lstWords.size() >= lstAllWords.size());
-*/
-
-/*
-
-	for (int i=1; i<m_lstWords.size(); ++i) {
-		if (m_lstWords.at(i).compare("-", Qt::CaseInsensitive) == 0) {
-			m_lstWords[i-1] = m_lstWords.at(i-1).trimmed() + m_lstWords.at(i).trimmed();
-			if (i<(m_lstWords.size()-1)) {
-				m_lstWords[i-1] += m_lstWords.at(i+1).trimmed();
-				m_lstWords.removeAt(i+1);
-				if (i<=m_nCursorWord) m_nCursorWord--;
-			}
-			m_lstWords.removeAt(i);
-			i--;
-			if (i<m_nCursorWord) m_nCursorWord--;
-			continue;
-		}
-		if (m_lstWords.at(i).compare("'", Qt::CaseInsensitive) == 0) {
-			m_lstWords[i-1] = m_lstWords.at(i-1).trimmed() + m_lstWords.at(i).trimmed();
-			if ((i<(m_lstWords.size()-1)) && (m_lstWords.at(i+1).trimmed().compare("s", Qt::CaseInsensitive) == 0)) {
-				m_lstWords[i-1] += m_lstWords.at(i+1).trimmed();
-				m_lstWords.removeAt(i+1);
-				if (i<=m_nCursorWord) m_nCursorWord--;
-			}
-			m_lstWords.removeAt(i);
-			i--;
-			if (i<m_nCursorWord) m_nCursorWord--;
-			continue;
-		}
-	}
-
-
-*/
-
-
 	// Make sure our cursor is within the index range of the list.  If we're adding
 	//	things to the end of the list, we're at an empty string:
 	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
-
-
 }
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)
@@ -267,13 +146,6 @@ void CParsedPhrase::FindWords()
 	m_nCursorLevel = 0;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
-//		if (m_lstWords.at(ndx).isEmpty()) {
-//			if (ndx != 0) {
-//				m_nLevel++;
-//				if (ndx < m_nCursorWord) m_nCursorLevel = m_nLevel;
-//			}
-//			continue;
-//		}
 
 		TWordListMap::const_iterator itrWordMap;
 		TWordListMap::const_iterator itrWordMapEnd = g_mapWordList.end();
@@ -348,46 +220,12 @@ void CParsedPhrase::FindWords()
 		}
 		if (!bMatch) m_lstMatchMapping.clear();
 
-
-
-//		itrWordMap = g_mapWordList.find(m_lstWords.at(ndx));
-//		if (itrWordMap==g_mapWordList.end()) itrWordMap = g_mapWordList.find(m_lstWords.at(ndx).toLower());
-//		if (itrWordMap==g_mapWordList.end()) {
-//			if (m_nCursorWord > ndx) {
-//				// If we've stopped matching before the cursor, we're done:
-//				m_lstMatchMapping.clear();
-//				m_lstMapping.clear();
-//				m_lstNextWords.clear();
-//			} else if (m_nCursorWord == ndx) {
-//				// At the cursor, see if the word at the cursor starts with something in
-//				//	our list.  If so, we'll bump our CursorLevel, before we bailout.  That
-//				//	will signify that we're matching through the cursor, but haven't matched
-//				//	full words yet to this point.  In any case, we still need the word list
-//				//	to return so that we can show completions for this word and beyond:
-//				QRegExp exp(m_lstWords[ndx]+"*", (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
-//				for (int ndxWord=0; ndxWord<m_lstNextWords.size(); ++ndxWord) {
-//					if (exp.exactMatch(m_lstNextWords.at(ndxWord))) {
-//						m_nCursorLevel++;
-//						break;
-//					}
-//				}
-//			}
-//			break;		// If we can't find this word, break out at this level and stop searching
-//		}
-
-//		const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
-//		if (m_nLevel == 0) {
-//			// If this is our first word, set its mapping to all possible next words:
-//			m_lstMatchMapping = wordEntry.m_ndxNormalized;
-//		} else {
 		if (m_nLevel > 0) {
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			TIndexList lstNextMapping;
 			QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-//				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
-//					(m_lstWords[ndx].compare(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive)) == 0)) {
 				if (((m_lstMatchMapping[ndxWord]+1) < g_lstConcordanceMapping.size()) &&
 					(exp.exactMatch(g_lstConcordanceWords[g_lstConcordanceMapping[m_lstMatchMapping[ndxWord]+1]-1]))) {
 					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
@@ -397,7 +235,6 @@ void CParsedPhrase::FindWords()
 		}
 
 		if (m_lstMatchMapping.size()) m_nLevel++;
-//		if (bMatch) m_nLevel++;
 
 		if (ndx < m_nCursorWord) {
 			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possibilities is calculated at the word right before it
@@ -533,17 +370,6 @@ QString CPhraseCursor::wordUnderCursor()
 	int nSelStart = anchor();
 	int nSelEnd = position();
 	clearSelection();
-
-	// Return empty string if between words:
-//	if (charUnderCursor().isSpace()) {
-//		moveCursorCharLeft(MoveAnchor);
-//		if (charUnderCursor().isSpace()) {
-//			setPosition(nSelStart, MoveAnchor);
-//			setPosition(nSelEnd, KeepAnchor);
-//			return QString();
-//		}
-//		moveCursorCharRight(MoveAnchor);
-//	}
 
 	// Find and return word we're on or just to our right:
 	if (moveCursorWordStart(MoveAnchor)) {
