@@ -120,6 +120,7 @@ public:
 	void fillEditorWithVerse(const CRelIndex &ndx);
 	void selectWords(const CRelIndex &ndx, unsigned int nWrdCount);
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent) const;
+	QString getToolTip(const CRelIndex &ndxReference) const;
 
 private:
 	QTextEdit &m_TextEditor;

@@ -875,9 +875,24 @@ bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent) const
 {
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
+	QString strToolTip = getToolTip(ndxReference);
+
+	if (!strToolTip.isEmpty()) {
+		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
+	} else {
+		QToolTip::hideText();
+		return false;
+	}
+
+	return true;
+}
+
+QString CPhraseNavigator::getToolTip(const CRelIndex &ndxReference) const
+{
 	QString strToolTip;
 
 	if (ndxReference.isSet()) {
+		strToolTip += "<qt><pre>";
 		if (ndxReference.word() != 0) {
 			uint32_t ndxNormal = NormalizeIndex(ndxReference);
 			if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
@@ -888,7 +903,7 @@ bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent) const
 		if (ndxReference.book() != 0) {
 			assert(ndxReference.book() <= g_lstTOC.size());
 			if (ndxReference.book() <= g_lstTOC.size()) {
-				strToolTip += "\n----------\n";
+				strToolTip += "</pre><hr/><pre>";
 				strToolTip += QString("\n%1 contains:\n"
 										"    %2 Chapters\n"
 										"    %3 Verses\n"
@@ -919,17 +934,12 @@ bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent) const
 				}
 			}
 		}
+		strToolTip += "</pre></qt>";
 	}
 
-	if (!strToolTip.isEmpty()) {
-		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
-	} else {
-		QToolTip::hideText();
-		return false;
-	}
-
-	return true;
+	return strToolTip;
 }
+
 
 // ============================================================================
 

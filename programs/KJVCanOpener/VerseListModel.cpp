@@ -46,7 +46,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	if (role == Qt::ToolTipRole) {
 		const CVerseListItem &refVerse = m_lstVerses[index.row()];
 		QString strToolTip;
-		if (!refVerse.getToolTip().isEmpty()) strToolTip = refVerse.getToolTip() + "\n\n";
+		strToolTip += "<qt><pre>";
+		if (!refVerse.getToolTip().isEmpty()) strToolTip += refVerse.getToolTip() + "\n\n";
 		strToolTip += refVerse.getHeading() + "\n\n";
 		strToolTip += refVerse.getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < refVerse.phraseTags().size(); ++ndx) {
@@ -54,6 +55,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if (refVerse.phraseTags().size() > 1) strToolTip += QString("(%1)[%2] ").arg(ndx+1).arg(ndxTag.word());
 			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
 		}
+		strToolTip += "</pre></qt>";
 		return strToolTip;
 	}
 
