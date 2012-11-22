@@ -15,7 +15,6 @@
 #include <QTextCharFormat>
 #include <QTextBlock>
 #include <QTextFragment>
-#include <QToolTip>
 
 // ============================================================================
 
@@ -35,58 +34,7 @@ bool CScriptureBrowser::event(QEvent *e)
 {
 	if (e->type() == QEvent::ToolTip) {
 		QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
-		CRelIndex ndxReference = m_navigator.ResolveCursorReference(cursorForPosition(pHelpEvent->pos()));
-		QString strToolTip;
-
-		if (ndxReference.isSet()) {
-			if (ndxReference.word() != 0) {
-				uint32_t ndxNormal = NormalizeIndex(ndxReference);
-				if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
-					strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
-				}
-			}
-			strToolTip += ndxReference.SearchResultToolTip();
-			if (ndxReference.book() != 0) {
-				assert(ndxReference.book() <= g_lstTOC.size());
-				if (ndxReference.book() <= g_lstTOC.size()) {
-					strToolTip += "\n----------\n";
-					strToolTip += QString("\n%1 contains:\n"
-											"    %2 Chapters\n"
-											"    %3 Verses\n"
-											"    %4 Words\n")
-											.arg(ndxReference.bookName())
-											.arg(g_lstTOC[ndxReference.book()-1].m_nNumChp)
-											.arg(g_lstTOC[ndxReference.book()-1].m_nNumVrs)
-											.arg(g_lstTOC[ndxReference.book()-1].m_nNumWrd);
-					if (ndxReference.chapter() != 0) {
-						assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
-						if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
-							strToolTip += QString("\n%1 %2 contains:\n"
-													"    %3 Verses\n"
-													"    %4 Words\n")
-													.arg(ndxReference.bookName()).arg(ndxReference.chapter())
-													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
-													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
-							if (ndxReference.verse() != 0) {
-								assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
-								if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
-									strToolTip += QString("\n%1 %2:%3 contains:\n"
-															"    %4 Words\n")
-															.arg(ndxReference.bookName()).arg(ndxReference.chapter()).arg(ndxReference.verse())
-															.arg((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (!strToolTip.isEmpty()) {
-			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
-		} else {
-			QToolTip::hideText();
-		}
+		if (!m_navigator.handleToolTipEvent(pHelpEvent)) pHelpEvent->ignore();
 		return true;
 	}
 

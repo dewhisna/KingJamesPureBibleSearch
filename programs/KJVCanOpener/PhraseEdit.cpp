@@ -4,6 +4,7 @@
 #include <QTextCharFormat>
 #include <QTextBlock>
 #include <QTextFragment>
+#include <QToolTip>
 
 #include <QRegExp>
 
@@ -445,7 +446,7 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 	return -1;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor)
+CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
 {
 	CRelIndex ndxReference = ResolveCursorReference2(cursor);
 
@@ -474,7 +475,7 @@ CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor)
 	return ndxReference;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor)
+CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
 {
 
 #define CheckForAnchor() {											\
@@ -582,7 +583,7 @@ void CPhraseNavigator::doHighlighting(const TPhraseTagList &lstPhraseTags, const
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						int nEndAnchorPos = anchorPosition("X" + strAnchorName);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 					}
 					if (!myCursor.moveCursorWordRight()) break;
@@ -740,10 +741,9 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
 	// Print Book/Chapter for this verse:
-	strHTML += QString("<a id=\"%1\">%2 %3</a><a id=\"X%4\">:</a>")
+	strHTML += QString("<a id=\"%1\">%2</a><a id=\"X%3\"> </a>")
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
 					.arg(toc.m_strBkName)
-					.arg(ndx.chapter())
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
 
 	// Print this Verse Text:
@@ -753,8 +753,9 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 		return;
 	}
 	const CBookEntry &verse(mapLookupVerse->second);
-	strHTML += QString("<a id=\"%1\"><bold>%2 </bold></a>")
+	strHTML += QString("<a id=\"%1\"><bold> %2:%3 </bold></a>")
 				.arg(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor())
+				.arg(ndx.chapter())
 				.arg(ndx.verse());
 	strHTML += verse.GetRichText() + "\n";
 
@@ -816,6 +817,66 @@ void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
 		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
 		m_TextEditor.setTextCursor(myCursor);
 	}
+}
+
+bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent) const
+{
+	assert(pHelpEvent != NULL);
+	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
+	QString strToolTip;
+
+	if (ndxReference.isSet()) {
+		if (ndxReference.word() != 0) {
+			uint32_t ndxNormal = NormalizeIndex(ndxReference);
+			if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
+				strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+			}
+		}
+		strToolTip += ndxReference.SearchResultToolTip();
+		if (ndxReference.book() != 0) {
+			assert(ndxReference.book() <= g_lstTOC.size());
+			if (ndxReference.book() <= g_lstTOC.size()) {
+				strToolTip += "\n----------\n";
+				strToolTip += QString("\n%1 contains:\n"
+										"    %2 Chapters\n"
+										"    %3 Verses\n"
+										"    %4 Words\n")
+										.arg(ndxReference.bookName())
+										.arg(g_lstTOC[ndxReference.book()-1].m_nNumChp)
+										.arg(g_lstTOC[ndxReference.book()-1].m_nNumVrs)
+										.arg(g_lstTOC[ndxReference.book()-1].m_nNumWrd);
+				if (ndxReference.chapter() != 0) {
+					assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
+					if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
+						strToolTip += QString("\n%1 %2 contains:\n"
+												"    %3 Verses\n"
+												"    %4 Words\n")
+												.arg(ndxReference.bookName()).arg(ndxReference.chapter())
+												.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
+												.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
+						if (ndxReference.verse() != 0) {
+							assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
+							if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
+								strToolTip += QString("\n%1 %2:%3 contains:\n"
+														"    %4 Words\n")
+														.arg(ndxReference.bookName()).arg(ndxReference.chapter()).arg(ndxReference.verse())
+														.arg((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (!strToolTip.isEmpty()) {
+		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
+	} else {
+		QToolTip::hideText();
+		return false;
+	}
+
+	return true;
 }
 
 // ============================================================================
