@@ -91,6 +91,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage Navigator", this);
+	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	ui->mainToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(on_PassageNavigatorTriggered()));
 
@@ -299,8 +300,6 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 		ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
 	}
 
-//	ui->widgetKJVBrowser->setHighlight(verse.phraseTags());
-
 	ui->widgetKJVBrowser->focusBrowser();
 }
 
@@ -310,6 +309,7 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 
 	if (dlg.exec() == QDialog::Accepted) {
 		ui->widgetKJVBrowser->gotoIndex(dlg.passage());
+		ui->widgetKJVBrowser->focusBrowser();
 	}
 }
 
