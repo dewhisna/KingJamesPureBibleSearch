@@ -705,7 +705,61 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 
 void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 {
+	m_TextEditor.clear();
 
+	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) return;
+
+	if (ndx.book() > g_lstTOC.size()) {
+		assert(false);
+		return;
+	}
+
+	const CTOCEntry &toc = g_lstTOC[ndx.book()-1];
+	const TBookEntryMap &book = g_lstBooks[ndx.book()-1];
+
+	if (ndx.chapter() > toc.m_nNumChp) {
+		assert(false);
+		return;
+	}
+
+	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (mapLookupLayout == g_mapLayout.end()) {
+		assert(false);
+		return;
+	}
+	const CLayoutEntry &layout(mapLookupLayout->second);
+
+	if (ndx.verse() > layout.m_nNumVrs) {
+		assert(false);
+		return;
+	}
+
+//	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n")
+						.arg(ndx.PassageReferenceText());		// Document Title
+//	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
+
+	// Print Book/Chapter for this verse:
+	strHTML += QString("<a id=\"%1\">%2 %3</a><a id=\"X%4\">:</a>")
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+					.arg(toc.m_strBkName)
+					.arg(ndx.chapter())
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+
+	// Print this Verse Text:
+	TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
+	if (mapLookupVerse == book.end()) {
+		assert(false);
+		return;
+	}
+	const CBookEntry &verse(mapLookupVerse->second);
+	strHTML += QString("<a id=\"%1\"><bold>%2 </bold></a>")
+				.arg(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor())
+				.arg(ndx.verse());
+	strHTML += verse.GetRichText() + "\n";
+
+	strHTML += "<br/></body></html>";
+	m_TextEditor.setHtml(strHTML);
 }
 
 void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)

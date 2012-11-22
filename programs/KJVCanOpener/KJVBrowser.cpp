@@ -304,6 +304,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 void CKJVBrowser::setVerse(const CRelIndex &ndx)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndx.verse(), 0);
+
 }
 
 void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
