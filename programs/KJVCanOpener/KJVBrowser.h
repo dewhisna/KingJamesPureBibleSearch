@@ -8,6 +8,7 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 
+// ============================================================================
 
 class CScriptureBrowser : public QTextBrowser
 {
@@ -23,6 +24,9 @@ signals:
 protected:
 	virtual bool event(QEvent *e);
 	virtual void mouseDoubleClickEvent(QMouseEvent * e);
+
+private:
+	CPhraseNavigator m_navigator;
 };
 
 // ============================================================================

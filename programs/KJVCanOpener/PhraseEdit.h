@@ -114,6 +114,11 @@ public:
 	//		color.
 	void doHighlighting(const TPhraseTagList &lstPhraseTags, const QColor &colorHighlight, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex());
 
+	// Text Fill/Select Functions:
+	void fillEditorWithChapter(const CRelIndex &ndx);
+	void fillEditorWithVerse(const CRelIndex &ndx);
+	void selectWords(const CRelIndex &ndx, unsigned int nWrdCount);
+
 private:
 	QTextEdit &m_TextEditor;
 };

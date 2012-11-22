@@ -592,5 +592,177 @@ void CPhraseNavigator::doHighlighting(const TPhraseTagList &lstPhraseTags, const
 	}
 }
 
+void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
+{
+	m_TextEditor.clear();
+
+	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return;
+
+	if (ndx.book() > g_lstTOC.size()) {
+		assert(false);
+		return;
+	}
+
+	const CTOCEntry &toc = g_lstTOC[ndx.book()-1];
+	const TBookEntryMap &book = g_lstBooks[ndx.book()-1];
+
+	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (mapLookupLayout == g_mapLayout.end()) {
+		assert(false);
+		return;
+	}
+	const CLayoutEntry &layout(mapLookupLayout->second);
+
+	if (ndx.chapter() > toc.m_nNumChp) {
+		assert(false);
+		return;
+	}
+
+//	QString strHTML = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n<br/>";
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; }\n</style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\">\n")
+						.arg(ndx.PassageReferenceText());		// Document Title
+//	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
+
+	uint32_t nFirstWordNormal = NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
+	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + layout.m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
+	uint32_t nRelPrevChapter = DenormalizeIndex(nFirstWordNormal - 1);				// Find previous book/chapter/verse (and word)
+	uint32_t nRelNextChapter = DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
+
+	// Print last verse of previous chapter if available:
+	if (nRelPrevChapter != 0) {
+		CRelIndex relPrev(nRelPrevChapter);
+		strHTML += "<p>";
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
+		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
+		strHTML += "</p>";
+	}
+
+	strHTML += "<hr/>\n";
+
+	// Print Heading for this Book/Chapter:
+	strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n")
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+					.arg(toc.m_strBkName);
+	strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+					.arg(ndx.chapter())
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+
+	// Print this Chapter Text:
+	bool bParagraph = false;
+	for (unsigned int ndxVrs=0; ndxVrs<layout.m_nNumVrs; ++ndxVrs) {
+		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndxVrs+1,0));
+		if (mapLookupVerse == book.end()) {
+			assert(false);
+			continue;
+		}
+		const CBookEntry &verse(mapLookupVerse->second);
+		if (verse.m_bPilcrow) {
+			if (bParagraph) {
+				strHTML += "</p>";
+				bParagraph=false;
+			}
+		}
+		if (!bParagraph) {
+			strHTML += "<p>";
+			bParagraph = true;
+		}
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>")
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0).asAnchor())
+					.arg(ndxVrs+1);
+		strHTML += verse.GetRichText() + "\n";
+	}
+	if (bParagraph) {
+		strHTML += "</p>";
+		bParagraph = false;
+	}
+
+	strHTML += "<hr/>\n";
+
+	// Print first verse of next chapter if available:
+	if (nRelNextChapter != 0) {
+		CRelIndex relNext(nRelNextChapter);
+
+		// Print Heading for this Book/Chapter:
+		if (relNext.book() != ndx.book())
+			strHTML += QString("<h1><a id=\"%1\">%2</a></h1>\n")
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
+							.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+		strHTML += QString("<h2><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
+							.arg(relNext.chapter())
+							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
+
+		strHTML += "<p>";
+		strHTML += QString("<a id=\"%1\"><bold> %2 </bold></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
+		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
+		strHTML += "</p>";
+	}
+
+	strHTML += "<br/></body></html>";
+	m_TextEditor.setHtml(strHTML);
+}
+
+void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
+{
+
+}
+
+void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
+{
+	CRelIndex ndxScroll = ndx;
+	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+	ndxScroll.setWord(0);
+
+	m_TextEditor.scrollToAnchor(ndxScroll.asAnchor());
+
+	CRelIndex ndxRel = ndx;
+	uint32_t ndxWord = ndxRel.word();
+	ndxRel.setWord(0);
+	int nPos = anchorPosition(ndxRel.asAnchor());
+	if (nPos != -1) {
+		CPhraseCursor myCursor(m_TextEditor.textCursor());
+		myCursor.setPosition(nPos);
+		while (ndxWord) {
+			myCursor.moveCursorWordRight();
+			ndxWord--;
+		}
+		int nSelEnd = myCursor.position();
+		unsigned int nCount = nWrdCount;
+		while (nCount) {
+			QTextCharFormat fmt = myCursor.charFormat();
+			QString strAnchorName = fmt.anchorName();
+			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+				myCursor.moveCursorWordStart(QTextCursor::KeepAnchor);
+				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
+				fmt = myCursor.charFormat();
+				if (!fmt.isAnchor()) nCount--;
+				nSelEnd = myCursor.position();
+				if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
+			} else {
+				// If we hit an anchor, see if it's either a special section A-B marker or if
+				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+				//		If it is a chapter start anchor, search for our special X-anchor so
+				//		we'll be at the correct start of the next verse:
+				if (strAnchorName.startsWith('A')) {
+					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+				} else {
+					CRelIndex ndxAnchor(strAnchorName);
+					assert(ndxAnchor.isSet());
+					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+					}
+					nSelEnd = myCursor.position();
+					if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
+				}
+			}
+		}
+		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+		m_TextEditor.setTextCursor(myCursor);
+	}
+}
+
 // ============================================================================
 
