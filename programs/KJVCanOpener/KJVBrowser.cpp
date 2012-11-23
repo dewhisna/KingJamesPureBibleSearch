@@ -27,7 +27,7 @@ CScriptureBrowser::CScriptureBrowser(QWidget *parent)
 
 	m_HighlightTimer.stop();
 
-	connect(&m_navigator, SIGNAL(changedEditorText()), &m_Highlighter, SLOT(clearPhraseTags()));
+	connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
 	connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 }
 
@@ -311,7 +311,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	ui->textBrowserMainText->navigator().fillEditorWithChapter(ndx);
+	ui->textBrowserMainText->navigator().setDocumentToChapter(ndx);
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)

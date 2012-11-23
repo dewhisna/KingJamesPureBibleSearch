@@ -115,10 +115,10 @@ void CKJVPassageNavigator::CalcPassage()
 {
 	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_ndxStartRef.isSet() ? m_nTestament : 0), m_ndxStartRef, (!m_ndxStartRef.isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_ndxPassage.PassageReferenceText());
-	CPhraseNavigator navigator(*ui->editVersePreview);
+	CPhraseEditNavigator navigator(*ui->editVersePreview);
 //	TPhraseTagList tags;
 //	tags.push_back(TPhraseTag(m_ndxPassage, 1));
-	navigator.fillEditorWithVerse(m_ndxPassage);
+	navigator.setDocumentToVerse(m_ndxPassage);
 	navigator.doHighlighting(CSearchResultHighlighter(TPhraseTag(m_ndxPassage, 1)));
 }
 

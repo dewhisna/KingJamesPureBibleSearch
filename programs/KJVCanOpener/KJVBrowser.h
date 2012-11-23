@@ -20,7 +20,7 @@ public:
 	explicit CScriptureBrowser(QWidget *parent = 0);
 	virtual ~CScriptureBrowser();
 
-	CPhraseNavigator &navigator()
+	CPhraseEditNavigator &navigator()
 	{
 		return m_navigator;
 	}
@@ -37,7 +37,7 @@ private slots:
 	void clearHighlighting();
 
 private:
-	CPhraseNavigator m_navigator;
+	CPhraseEditNavigator m_navigator;
 	CCursorFollowHighlighter m_Highlighter;
 	QTimer m_HighlightTimer;
 };

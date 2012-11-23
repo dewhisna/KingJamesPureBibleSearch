@@ -407,7 +407,7 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 {
 	if (strAnchorName.isEmpty()) return -1;
 
-	for (QTextBlock block = m_TextEditor.document()->begin(); block.isValid(); block = block.next()) {
+	for (QTextBlock block = m_TextDocument.begin(); block.isValid(); block = block.next()) {
 		QTextCharFormat format = block.charFormat();
 		if (format.isAnchor()) {
 			if (format.anchorNames().contains(strAnchorName)) {
@@ -544,7 +544,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 		ndxRel.setWord(0);
 		int nPos = anchorPosition(ndxRel.asAnchor());
 		if (nPos == -1) continue;
-		CPhraseCursor myCursor(m_TextEditor.textCursor());
+		CPhraseCursor myCursor = QTextCursor(&m_TextDocument);
 		myCursor.setPosition(nPos);
 		int nSelEnd = nPos;
 		while (ndxWord) {
@@ -612,15 +612,15 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	}
 }
 
-void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
+void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 {
-	m_TextEditor.clear();
+	m_TextDocument.clear();
 
 	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return;
 
 	if (ndx.book() > g_lstTOC.size()) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
@@ -630,14 +630,14 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 	const CLayoutEntry &layout(mapLookupLayout->second);
 
 	if (ndx.chapter() > toc.m_nNumChp) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
@@ -723,22 +723,22 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 	}
 
 	strHTML += "<br/></body></html>";
-	m_TextEditor.setHtml(strHTML);
-	emit changedEditorText();
+	m_TextDocument.setHtml(strHTML);
+	emit changedDocumentText();
 }
 
-void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
+void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx)
 {
-	m_TextEditor.clear();
+	m_TextDocument.clear();
 
 	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) {
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
 	if (ndx.book() > g_lstTOC.size()) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
@@ -747,21 +747,21 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 
 	if (ndx.chapter() > toc.m_nNumChp) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 	const CLayoutEntry &layout(mapLookupLayout->second);
 
 	if (ndx.verse() > layout.m_nNumVrs) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 
@@ -780,7 +780,7 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 	TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
 	if (mapLookupVerse == book.end()) {
 		assert(false);
-		emit changedEditorText();
+		emit changedDocumentText();
 		return;
 	}
 	const CBookEntry &verse(mapLookupVerse->second);
@@ -791,11 +791,13 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 	strHTML += verse.GetRichText() + "\n";
 
 	strHTML += "<br/></body></html>";
-	m_TextEditor.setHtml(strHTML);
-	emit changedEditorText();
+	m_TextDocument.setHtml(strHTML);
+	emit changedDocumentText();
 }
 
-void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
+// ============================================================================
+
+void CPhraseEditNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
 {
 	CRelIndex ndxScroll = ndx;
 	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
@@ -875,7 +877,7 @@ void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
 	}
 }
 
-bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const
+bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const
 {
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
@@ -904,7 +906,7 @@ bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHi
 	return true;
 }
 
-QString CPhraseNavigator::getToolTip(const CRelIndex &ndxReference) const
+QString CPhraseEditNavigator::getToolTip(const CRelIndex &ndxReference) const
 {
 	QString strToolTip;
 
@@ -956,7 +958,6 @@ QString CPhraseNavigator::getToolTip(const CRelIndex &ndxReference) const
 
 	return strToolTip;
 }
-
 
 // ============================================================================
 

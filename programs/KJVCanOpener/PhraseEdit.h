@@ -4,6 +4,7 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 
+#include <QTextDocument>
 #include <QTextEdit>
 #include <QTextCursor>
 #include <QCompleter>
@@ -95,9 +96,9 @@ class CPhraseNavigator : public QObject
 {
 	Q_OBJECT
 public:
-	CPhraseNavigator(QTextEdit &textEditor, QObject *parent = NULL)
+	CPhraseNavigator(QTextDocument &textDocument, QObject *parent = NULL)
 		:	QObject(parent),
-			m_TextEditor(textEditor)
+			m_TextDocument(textDocument)
 	{ }
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
@@ -118,15 +119,33 @@ public:
 	//		color.
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
-	// Text Fill/Select Functions:
-	void fillEditorWithChapter(const CRelIndex &ndx);
-	void fillEditorWithVerse(const CRelIndex &ndx);
+	// Text Fill Functions:
+	void setDocumentToChapter(const CRelIndex &ndx);
+	void setDocumentToVerse(const CRelIndex &ndx);
+
+signals:
+	void changedDocumentText();
+
+private:
+	QTextDocument &m_TextDocument;
+};
+
+// ============================================================================
+
+class CPhraseEditNavigator : public CPhraseNavigator
+{
+	Q_OBJECT
+public:
+	CPhraseEditNavigator(QTextEdit &textEditor, QObject *parent = NULL)
+		:	CPhraseNavigator(*textEditor.document(), parent),
+			m_TextEditor(textEditor)
+	{
+	}
+
+	// Text Selection/ToolTip Functions:
 	void selectWords(const CRelIndex &ndx, unsigned int nWrdCount);
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const;
 	QString getToolTip(const CRelIndex &ndxReference) const;
-
-signals:
-	void changedEditorText();
 
 private:
 	QTextEdit &m_TextEditor;

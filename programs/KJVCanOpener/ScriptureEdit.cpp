@@ -19,7 +19,7 @@ CScriptureEdit::CScriptureEdit(QWidget *parent)
 
 	m_HighlightTimer.stop();
 
-	connect(&m_navigator, SIGNAL(changedEditorText()), &m_Highlighter, SLOT(clearPhraseTags()));
+	connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
 	connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 }
 
