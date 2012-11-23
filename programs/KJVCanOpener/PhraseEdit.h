@@ -2,6 +2,7 @@
 #define PHRASEEDIT_H
 
 #include "dbstruct.h"
+#include "Highlighter.h"
 
 #include <QTextEdit>
 #include <QTextCursor>
@@ -90,11 +91,13 @@ public:
 
 // ============================================================================
 
-class CPhraseNavigator
+class CPhraseNavigator : public QObject
 {
+	Q_OBJECT
 public:
-	CPhraseNavigator(QTextEdit &textEditor)
-		: m_TextEditor(textEditor)
+	CPhraseNavigator(QTextEdit &textEditor, QObject *parent = NULL)
+		:	QObject(parent),
+			m_TextEditor(textEditor)
 	{ }
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
@@ -113,14 +116,17 @@ public:
 	//		as an optimization to skip areas not within current chapter.  Use
 	//		empty index to ignore.  Highlighting is done in the specified
 	//		color.
-	void doHighlighting(const TPhraseTagList &lstPhraseTags, const QColor &colorHighlight, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex());
+	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
 	// Text Fill/Select Functions:
 	void fillEditorWithChapter(const CRelIndex &ndx);
 	void fillEditorWithVerse(const CRelIndex &ndx);
 	void selectWords(const CRelIndex &ndx, unsigned int nWrdCount);
-	bool handleToolTipEvent(const QHelpEvent *pHelpEvent) const;
+	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const;
 	QString getToolTip(const CRelIndex &ndxReference) const;
+
+signals:
+	void changedEditorText();
 
 private:
 	QTextEdit &m_TextEditor;

@@ -3,6 +3,7 @@
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
+#include "Highlighter.h"
 
 CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	:	QWidget(parent),
@@ -115,10 +116,10 @@ void CKJVPassageNavigator::CalcPassage()
 	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_ndxStartRef.isSet() ? m_nTestament : 0), m_ndxStartRef, (!m_ndxStartRef.isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_ndxPassage.PassageReferenceText());
 	CPhraseNavigator navigator(*ui->editVersePreview);
-	TPhraseTagList tags;
-	tags.push_back(TPhraseTag(m_ndxPassage, 1));
+//	TPhraseTagList tags;
+//	tags.push_back(TPhraseTag(m_ndxPassage, 1));
 	navigator.fillEditorWithVerse(m_ndxPassage);
-	navigator.doHighlighting(tags, QColor("blue"));			// TODO : Centralize Highlight color setting
+	navigator.doHighlighting(CSearchResultHighlighter(TPhraseTag(m_ndxPassage, 1)));
 }
 
 void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, CRelIndex ndxPassage)

@@ -22,7 +22,13 @@ CScriptureBrowser::CScriptureBrowser(QWidget *parent)
 	:	QTextBrowser(parent),
 		m_navigator(*this)
 {
+	setMouseTracking(true);
+	installEventFilter(this);
 
+	m_HighlightTimer.stop();
+
+	connect(&m_navigator, SIGNAL(changedEditorText()), &m_Highlighter, SLOT(clearPhraseTags()));
+	connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 }
 
 CScriptureBrowser::~CScriptureBrowser()
@@ -30,12 +36,74 @@ CScriptureBrowser::~CScriptureBrowser()
 
 }
 
+void CScriptureBrowser::clearHighlighting()
+{
+	m_navigator.doHighlighting(m_Highlighter, true);
+	m_Highlighter.clearPhraseTags();
+	m_HighlightTimer.stop();
+}
+
+bool CScriptureBrowser::eventFilter(QObject *obj, QEvent *ev)
+{
+	if (obj == this) {
+		switch (ev->type()) {
+			case QEvent::Wheel:
+			case QEvent::ActivationChange:
+			case QEvent::KeyPress:
+			case QEvent::KeyRelease:
+			case QEvent::FocusOut:
+			case QEvent::FocusIn:
+			case QEvent::MouseButtonPress:
+			case QEvent::MouseButtonRelease:
+			case QEvent::MouseButtonDblClick:
+			case QEvent::Leave:
+				return false;
+			default:
+				break;
+		}
+	}
+
+	return QTextBrowser::eventFilter(obj, ev);
+}
+
 bool CScriptureBrowser::event(QEvent *e)
 {
-	if (e->type() == QEvent::ToolTip) {
-		QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
-		if (!m_navigator.handleToolTipEvent(pHelpEvent)) pHelpEvent->ignore();
-		return true;
+	switch (e->type()) {
+		case QEvent::ToolTip:
+			{
+				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
+				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter)) {
+					m_HighlightTimer.stop();
+				} else {
+					pHelpEvent->ignore();
+				}
+				return true;
+			}
+			break;
+
+		// User input and window activation makes tooltips sleep
+		case QEvent::Wheel:
+		case QEvent::ActivationChange:
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+		case QEvent::FocusOut:
+		case QEvent::FocusIn:
+		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
+		case QEvent::MouseButtonDblClick:
+			// Unfortunately, there doesn't seem to be any event we can hook to to determine
+			//		when the ToolTip disappears.  Looking at the Qt code, it looks to be on
+			//		a 2 second timeout.  So, we'll do a similar timeout here for the highlight:
+			if ((!m_Highlighter.getHighlightTags().isEmpty()) && (!m_HighlightTimer.isActive()))
+				m_HighlightTimer.start(2000);
+			break;
+		case QEvent::Leave:
+			if (!m_Highlighter.getHighlightTags().isEmpty()) {
+				m_HighlightTimer.start(20);
+			}
+			break;
+		default:
+			break;
 	}
 
 	return QTextBrowser::event(e);
@@ -58,7 +126,6 @@ void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent * e)
 CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	QWidget(parent),
 	m_ndxCurrent(0),
-	m_colorHighlight("blue"),
 	m_bDoingUpdate(false),
 	ui(new Ui::CKJVBrowser)
 {
@@ -92,7 +159,7 @@ CScriptureBrowser *CKJVBrowser::browser()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex, const QColor &colorHighlight)
+void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
 {
 	begin_update();
 
@@ -110,8 +177,6 @@ void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex, const QColor &color
 	}
 
 	end_update();
-
-	m_colorHighlight = colorHighlight;
 
 	if (nInitialIndex.isSet()) gotoIndex(nInitialIndex);
 }
@@ -156,16 +221,16 @@ void CKJVBrowser::focusBrowser()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::setHighlight(const TPhraseTagList &lstPhraseTags)
+void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)
 {
 	doHighlighting(true);				// Remove existing highlighting
-	m_lstPhraseTags = lstPhraseTags;	// Set new set of tags
+	m_Highlighter.setHighlightTags(lstPhraseTags);
 	doHighlighting();					// Highlight using new tags
 }
 
 void CKJVBrowser::doHighlighting(bool bClear)
 {
-	CPhraseNavigator(*ui->textBrowserMainText).doHighlighting(m_lstPhraseTags, m_colorHighlight, bClear, m_ndxCurrent);
+	ui->textBrowserMainText->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
 }
 
 // ----------------------------------------------------------------------------
@@ -246,7 +311,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	CPhraseNavigator(*ui->textBrowserMainText).fillEditorWithChapter(ndx);
+	ui->textBrowserMainText->navigator().fillEditorWithChapter(ndx);
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)
@@ -258,7 +323,7 @@ void CKJVBrowser::setVerse(const CRelIndex &ndx)
 void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), ndx.word());
-	CPhraseNavigator(*ui->textBrowserMainText).selectWords(ndx, nWrdCount);
+	ui->textBrowserMainText->navigator().selectWords(ndx, nWrdCount);
 }
 
 // ----------------------------------------------------------------------------

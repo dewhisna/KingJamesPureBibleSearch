@@ -274,7 +274,7 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase.GetNumberOfMatches()));
 	}
 
-	ui->widgetKJVBrowser->setHighlight(lstTags);
+	ui->widgetKJVBrowser->setHighlightTags(lstTags);
 }
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)

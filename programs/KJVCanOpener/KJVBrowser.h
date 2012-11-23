@@ -1,12 +1,14 @@
 #ifndef KJVBROWSER_H
 #define KJVBROWSER_H
 
+#include "dbstruct.h"
+#include "Highlighter.h"
+#include "PhraseEdit.h"
+
 #include <QWidget>
 #include <QTextBrowser>
 #include <QColor>
-
-#include "dbstruct.h"
-#include "PhraseEdit.h"
+#include <QTimer>
 
 // ============================================================================
 
@@ -18,15 +20,26 @@ public:
 	explicit CScriptureBrowser(QWidget *parent = 0);
 	virtual ~CScriptureBrowser();
 
+	CPhraseNavigator &navigator()
+	{
+		return m_navigator;
+	}
+
 signals:
 	void gotoIndex(CRelIndex ndx, unsigned int nWrdCount);
 
 protected:
 	virtual bool event(QEvent *e);
 	virtual void mouseDoubleClickEvent(QMouseEvent * e);
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
+
+private slots:
+	void clearHighlighting();
 
 private:
 	CPhraseNavigator m_navigator;
+	CCursorFollowHighlighter m_Highlighter;
+	QTimer m_HighlightTimer;
 };
 
 // ============================================================================
@@ -43,15 +56,14 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0),		// Default initial location is Genesis 1
-					const QColor &colorHighlight = QColor("blue"));
+	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
 
 	CScriptureBrowser *browser();
 
 public slots:
 	void gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount = 0);
 	void focusBrowser();
-	void setHighlight(const TPhraseTagList &lstPhraseTags);
+	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
 
 signals:
 	void IndexChanged(const CRelIndex &index);
@@ -79,8 +91,7 @@ private:
 // Data Private:
 private:
 	CRelIndex m_ndxCurrent;
-	TPhraseTagList m_lstPhraseTags;			// Phrases to highlight
-	QColor m_colorHighlight;				// Highlight Color
+	CSearchResultHighlighter m_Highlighter;
 
 // UI Private:
 private:

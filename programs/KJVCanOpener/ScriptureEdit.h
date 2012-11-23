@@ -2,8 +2,10 @@
 #define SCRIPTUREEDIT_H
 
 #include "PhraseEdit.h"
+#include "Highlighter.h"
 
 #include <QTextEdit>
+#include <QTimer>
 
 // ============================================================================
 
@@ -17,9 +19,15 @@ public:
 
 protected:
 	virtual bool event(QEvent *e);
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
+
+private slots:
+	void clearHighlighting();
 
 private:
 	CPhraseNavigator m_navigator;
+	CCursorFollowHighlighter m_Highlighter;
+	QTimer m_HighlightTimer;
 };
 
 // ============================================================================

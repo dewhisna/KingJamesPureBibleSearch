@@ -526,8 +526,9 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
 	return ndxReference;
 }
 
-void CPhraseNavigator::doHighlighting(const TPhraseTagList &lstPhraseTags, const QColor &colorHighlight, bool bClear, const CRelIndex &ndxCurrent)
+void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const CRelIndex &ndxCurrent) const
 {
+	const TPhraseTagList &lstPhraseTags(aHighlighter.getHighlightTags());
 	for (int ndx=0; ndx<lstPhraseTags.size(); ++ndx) {
 		CRelIndex ndxRel = lstPhraseTags.at(ndx).first;
 		if (!ndxRel.isSet()) continue;
@@ -583,17 +584,7 @@ void CPhraseNavigator::doHighlighting(const TPhraseTagList &lstPhraseTags, const
 				do {
 					if (!myCursor.moveCursorCharRight(QTextCursor::KeepAnchor)) break;
 					fmt = myCursor.charFormat();
-					if (!bClear) {
-//						fmt.setUnderlineColor(m_colorHighlight);
-//						fmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-						// Save current brush in UserProperty so we can restore it later in undoHighlighting:
-						fmt.setProperty(QTextFormat::UserProperty, QVariant(fmt.foreground()));
-						fmt.setForeground(QBrush(colorHighlight));
-					} else {
-//						fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
-						// Restore preserved brush to restore text:
-						fmt.setForeground(fmt.property(QTextFormat::UserProperty).value<QBrush>());
-					}
+					aHighlighter.doHighlighting(fmt, bClear);
 					myCursor.setCharFormat(fmt);
 					myCursor.clearSelection();
 				} while (!myCursor.charUnderCursor().isSpace());
@@ -629,6 +620,7 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 
 	if (ndx.book() > g_lstTOC.size()) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 
@@ -638,12 +630,14 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 	const CLayoutEntry &layout(mapLookupLayout->second);
 
 	if (ndx.chapter() > toc.m_nNumChp) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 
@@ -730,16 +724,21 @@ void CPhraseNavigator::fillEditorWithChapter(const CRelIndex &ndx)
 
 	strHTML += "<br/></body></html>";
 	m_TextEditor.setHtml(strHTML);
+	emit changedEditorText();
 }
 
 void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 {
 	m_TextEditor.clear();
 
-	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) return;
+	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) {
+		emit changedEditorText();
+		return;
+	}
 
 	if (ndx.book() > g_lstTOC.size()) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 
@@ -748,18 +747,21 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 
 	if (ndx.chapter() > toc.m_nNumChp) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 
 	TLayoutMap::const_iterator mapLookupLayout = g_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 	if (mapLookupLayout == g_mapLayout.end()) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 	const CLayoutEntry &layout(mapLookupLayout->second);
 
 	if (ndx.verse() > layout.m_nNumVrs) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 
@@ -778,6 +780,7 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 	TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
 	if (mapLookupVerse == book.end()) {
 		assert(false);
+		emit changedEditorText();
 		return;
 	}
 	const CBookEntry &verse(mapLookupVerse->second);
@@ -789,6 +792,7 @@ void CPhraseNavigator::fillEditorWithVerse(const CRelIndex &ndx)
 
 	strHTML += "<br/></body></html>";
 	m_TextEditor.setHtml(strHTML);
+	emit changedEditorText();
 }
 
 void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
@@ -871,15 +875,28 @@ void CPhraseNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
 	}
 }
 
-bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent) const
+bool CPhraseNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const
 {
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
 	QString strToolTip = getToolTip(ndxReference);
 
 	if (!strToolTip.isEmpty()) {
+		doHighlighting(aHighlighter, true);
+		TPhraseTagList tags;
+		// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
+		if ((ndxReference.book() != 0) &&
+			(ndxReference.chapter() != 0) &&
+			(ndxReference.verse() != 0) &&
+			(ndxReference.word() != 0)) {
+			tags.append(TPhraseTag(ndxReference, 1));
+		}
+		aHighlighter.setHighlightTags(tags);
+		doHighlighting(aHighlighter);
 		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 	} else {
+		doHighlighting(aHighlighter, true);
+		aHighlighter.clearPhraseTags();
 		QToolTip::hideText();
 		return false;
 	}
