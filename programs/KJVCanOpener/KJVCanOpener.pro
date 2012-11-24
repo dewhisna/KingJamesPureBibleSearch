@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     KJVPassageNavigatorDlg.cpp \
     PhraseEdit.cpp \
     ScriptureEdit.cpp \
-    Highlighter.cpp
+    Highlighter.cpp \
+    VerseListDelegate.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
@@ -42,7 +43,9 @@ HEADERS  += KJVCanOpener.h \
     KJVPassageNavigatorDlg.h \
     PhraseEdit.h \
     ScriptureEdit.h \
-    Highlighter.h
+    Highlighter.h \
+    VerseListDelegate.h \
+    DelegateMisc.h
 
 FORMS    += KJVCanOpener.ui \
     KJVBrowser.ui \

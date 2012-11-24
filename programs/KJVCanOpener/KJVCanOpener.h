@@ -71,6 +71,9 @@ protected:
 	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
 protected slots:
+	void on_viewVerseHeading();
+	void on_viewVerseRichText();
+
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
 	void on_phraseChanged(const CParsedPhrase &phrase);
@@ -87,6 +90,9 @@ private:
 
 // UI Private:
 private:
+	bool m_bDoingUpdate;
+	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
+	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext
 	QAction *m_pActionNavBackward;	// Browser Navigate Backward
 	QAction *m_pActionNavForward;	// Browser Navigate Forward
 	QAction *m_pActionNavHome;		// Browser Navigate to History Home

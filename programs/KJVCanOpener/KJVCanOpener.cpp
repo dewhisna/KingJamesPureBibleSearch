@@ -3,6 +3,7 @@
 
 #include "dbstruct.h"
 #include "VerseListModel.h"
+#include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
 #include "BuildDB.h"
 
@@ -38,6 +39,9 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
 	m_strUserDatabase(strUserDatabase),
+	m_bDoingUpdate(false),
+	m_pActionShowVerseHeading(NULL),
+	m_pActionShowVerseRichText(NULL),
 	m_pActionNavBackward(NULL),
 	m_pActionNavForward(NULL),
 	m_pActionNavHome(NULL),
@@ -48,17 +52,39 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 {
 	ui->setupUi(this);
 
+	// TODO : Set preference for start mode!:
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
+
+	QAction *pAction;
+
 	QMenu *pFileMenu = ui->menuBar->addMenu("&File");
-	pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+	pAction->setStatusTip("Exit the King James Can Opener Application");
+	pFileMenu->addAction(pAction);
 
 	QMenu *pViewMenu = ui->menuBar->addMenu("&View");
+
 	QMenu *pViewToolbarsMenu = pViewMenu->addMenu("&Toolbars");
 	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
+	ui->mainToolBar->toggleViewAction()->setStatusTip("Show/Hide Main Tool Bar");
+
+	pViewMenu->addSeparator();
+
+	m_pActionShowVerseHeading = pViewMenu->addAction(QIcon(), "&Headings Only", this, SLOT(on_viewVerseHeading()));
+	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse Headings Only");
+	m_pActionShowVerseHeading->setCheckable(true);
+	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
+
+	m_pActionShowVerseRichText = pViewMenu->addAction(QIcon(), "&Rich Verse Text", this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Verse Text");
+	m_pActionShowVerseRichText->setCheckable(true);
+	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
 
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
 
 	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), "History &Backward", this);
 	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
+	m_pActionNavBackward->setStatusTip("Go Backward in Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavBackward);
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(backward()));
@@ -68,6 +94,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), "History &Forward", this);
 	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
+	m_pActionNavForward->setStatusTip("Go Forward in Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavForward);
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(forward()));
@@ -76,11 +103,13 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pNavMenu->addAction(m_pActionNavForward);
 
 	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", ui->widgetKJVBrowser->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	m_pActionNavHome->setStatusTip("Jump to History Home Passage");
 	m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
 									ui->widgetKJVBrowser->browser()->isForwardAvailable());
 
 	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), "&Clear Navigation History", this);
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
+	m_pActionNavClear->setStatusTip("Clear All Passage Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavClear);
 	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(on_clearBrowserHistory()));
 	m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
@@ -92,6 +121,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage Navigator", this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+	m_pActionJump->setStatusTip("Display the Passage Navigator Widget");
 	ui->mainToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(on_PassageNavigatorTriggered()));
 
@@ -99,13 +129,14 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pNavMenu->addAction(m_pActionJump);
 
 	QMenu *pHelpMenu = ui->menuBar->addMenu("&Help");
-	pHelpMenu->addAction(QIcon(":/res/help_book.png"), "&Help", this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
+	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), "&Help", this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
+	pAction->setStatusTip("Display the Users Manual");
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), "About...", this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
+	m_pActionAbout->setStatusTip("About the King James Can Opener");
 	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
-
 	pHelpMenu->addAction(m_pActionAbout);
 
 
@@ -142,9 +173,12 @@ ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pP
 pPhraseEdit->pStatusBar = ui->statusBar;
 
 
-	CVerseListModel *model = new CVerseListModel();
-	model->setDisplayMode(CVerseListModel::VDME_HEADING);
+	CVerseListModel *model = new CVerseListModel(ui->listViewSearchResults);
+	model->setDisplayMode(nDisplayMode);
 	ui->listViewSearchResults->setModel(model);
+
+	CVerseListDelegate *delegate = new CVerseListDelegate(*model, ui->listViewSearchResults);
+	ui->listViewSearchResults->setItemDelegate(delegate);
 
 //connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
@@ -184,10 +218,76 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	return QMainWindow::closeEvent(event);
 }
 
+void CKJVCanOpener::on_viewVerseHeading()
+{
+	assert(m_pActionShowVerseHeading != NULL);
+	assert(m_pActionShowVerseRichText != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_HEADING;
+
+	if (m_pActionShowVerseHeading->isChecked()) {
+		m_pActionShowVerseRichText->setChecked(false);
+		nMode = CVerseListModel::VDME_HEADING;
+	} else {
+		m_pActionShowVerseRichText->setChecked(true);
+		nMode = CVerseListModel::VDME_RICHTEXT;
+	}
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
+	if (pModel) {
+		pModel->setDisplayMode(nMode);
+	}
+
+	m_bDoingUpdate = false;
+}
+
+void CKJVCanOpener::on_viewVerseRichText()
+{
+	assert(m_pActionShowVerseHeading != NULL);
+	assert(m_pActionShowVerseRichText != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_HEADING;
+
+	if (m_pActionShowVerseRichText->isChecked()) {
+		m_pActionShowVerseHeading->setChecked(false);
+		nMode = CVerseListModel::VDME_RICHTEXT;
+	} else {
+		m_pActionShowVerseHeading->setChecked(true);
+		nMode = CVerseListModel::VDME_HEADING;
+	}
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
+	if (pModel) {
+		pModel->setDisplayMode(nMode);
+	}
+
+	m_bDoingUpdate = false;
+}
+
 void CKJVCanOpener::on_browserHistoryChanged()
 {
-	if (m_pActionNavBackward) m_pActionNavBackward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(-1));
-	if (m_pActionNavForward) m_pActionNavForward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(+1));
+	if (m_pActionNavBackward) {
+		m_pActionNavBackward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(-1));
+		if (ui->widgetKJVBrowser->browser()->isBackwardAvailable()) {
+			m_pActionNavBackward->setStatusTip("Go to: " + ui->widgetKJVBrowser->browser()->historyTitle(-1));
+		} else {
+			m_pActionNavBackward->setStatusTip("Go Backward in Navigation History");
+		}
+	}
+	if (m_pActionNavForward) {
+		m_pActionNavForward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(+1));
+		if (ui->widgetKJVBrowser->browser()->isForwardAvailable()) {
+			m_pActionNavForward->setStatusTip("Go to: " + ui->widgetKJVBrowser->browser()->historyTitle(+1));
+		} else {
+			m_pActionNavForward->setStatusTip("Go Forward in Navigation History");
+		}
+	}
 	if (m_pActionNavClear) m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
 														ui->widgetKJVBrowser->browser()->isForwardAvailable());
 	if (m_pActionNavHome) m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
@@ -219,13 +319,13 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 				lstReferences.push_back(CVerseListItem(
 						0,
 						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults.at(ndxResults)).arg(ndxDenormal),
-						QString("TODO : TOOLTIP")));
+						QString()));		// TODO : TOOLTIP
 				continue;
 			} else {
 				lstReferences.push_back(CVerseListItem(
 						ndxRelativeZW,
 						QString(),
-						QString("TODO : TOOLTIP")));
+						QString()));		// TODO : TOOLTIP
 			}
 
 			QString strHeading = ndxRelative.PassageReferenceText();

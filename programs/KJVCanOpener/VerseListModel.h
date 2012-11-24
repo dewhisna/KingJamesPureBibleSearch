@@ -118,7 +118,11 @@ public:
 	void setVerseList(const CVerseList &verses);
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
-	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) { m_nDisplayMode = nDisplayMode; }
+	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) {
+		emit layoutAboutToBeChanged();
+		m_nDisplayMode = nDisplayMode;
+		emit layoutChanged();
+	}
 
 signals:
 

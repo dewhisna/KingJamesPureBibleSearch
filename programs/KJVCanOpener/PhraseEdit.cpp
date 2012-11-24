@@ -874,6 +874,7 @@ void CPhraseEditNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCo
 		}
 		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
 		m_TextEditor.setTextCursor(myCursor);
+		m_TextEditor.ensureCursorVisible();				// Hmmm, for some strange reason, this doen't always work when user has used mousewheel to scroll off.  Qt bug?
 	}
 }
 

@@ -35,13 +35,15 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
+	m_pButtonDroplist->setToolTip("Show Phrase List");
+	m_pButtonDroplist->setStatusTip("Show List of Common Phrases and User Phrases from Database");
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
 								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 
 	CPhraseList phrases = g_lstCommonPhrases;
 	phrases.append(g_lstUserPhrases);
 	phrases.removeDuplicates();
-	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases);
+	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases, this);
 	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
 	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
 	m_pCommonPhrasesCompleter->setWidget(this);
@@ -296,8 +298,17 @@ pStatusBar(NULL),
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
 	ui->buttonAddPhrase->setEnabled(false);
+	ui->buttonAddPhrase->setToolTip("Add Phrase to User Database");
+	ui->buttonAddPhrase->setStatusTip("Add this Phrase to the User Database");
 	ui->buttonDelPhrase->setEnabled(false);
+	ui->buttonDelPhrase->setToolTip("Delete Phrase from User Database");
+	ui->buttonDelPhrase->setStatusTip("Delete this Phrase from the User Database");
 	ui->buttonClear->setEnabled(false);
+	ui->buttonClear->setToolTip("Clear Phrase Text");
+	ui->buttonClear->setStatusTip("Clear this Phrase Text");
+
+	ui->buttonRemove->setToolTip("Remove Phrase from Search Criteria");
+	ui->buttonRemove->setStatusTip("Remove this Phrase from the current Search Criteria");
 
 	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
