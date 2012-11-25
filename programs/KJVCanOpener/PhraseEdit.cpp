@@ -727,7 +727,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 	emit changedDocumentText();
 }
 
-void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx)
+void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore)
 {
 	m_TextDocument.clear();
 
@@ -770,6 +770,8 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx)
 						.arg(ndx.PassageReferenceText());		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
+	if (bAddDividerLineBefore) strHTML += "<hr/>";
+
 	// Print Book/Chapter for this verse:
 	strHTML += QString("<a id=\"%1\">%2</a><a id=\"X%3\"> </a>")
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
@@ -790,7 +792,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx)
 				.arg(ndx.verse());
 	strHTML += verse.GetRichText() + "\n";
 
-	strHTML += "<br/></body></html>";
+	strHTML += "</body></html>";
 	m_TextDocument.setHtml(strHTML);
 	emit changedDocumentText();
 }

@@ -48,7 +48,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 				CPhraseNavigator navigator(doc);
 				CSearchResultHighlighter highlighter(item.phraseTags());
 
-				navigator.setDocumentToVerse(item.getIndex());
+				navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
 				navigator.doHighlighting(highlighter);
 
 				doc.setTextWidth(textRect.width());
@@ -81,7 +81,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 		CPhraseNavigator navigator(doc);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
-		navigator.setDocumentToVerse(item.getIndex());
+		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
 		navigator.doHighlighting(highlighter);
 
 		if (optionV4.rect.isValid()) {

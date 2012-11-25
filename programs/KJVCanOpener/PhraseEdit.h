@@ -121,7 +121,7 @@ public:
 
 	// Text Fill Functions:
 	void setDocumentToChapter(const CRelIndex &ndx);
-	void setDocumentToVerse(const CRelIndex &ndx);
+	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false);
 
 signals:
 	void changedDocumentText();
