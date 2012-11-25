@@ -42,6 +42,10 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_bDoingUpdate(false),
 	m_pActionShowVerseHeading(NULL),
 	m_pActionShowVerseRichText(NULL),
+	m_pActionBookBackward(NULL),
+	m_pActionBookForward(NULL),
+	m_pActionChapterBackward(NULL),
+	m_pActionChapterForward(NULL),
 	m_pActionNavBackward(NULL),
 	m_pActionNavForward(NULL),
 	m_pActionNavHome(NULL),
@@ -70,17 +74,39 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	pViewMenu->addSeparator();
 
-	m_pActionShowVerseHeading = pViewMenu->addAction(QIcon(), "&Headings Only", this, SLOT(on_viewVerseHeading()));
-	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse Headings Only");
+	m_pActionShowVerseHeading = pViewMenu->addAction(QIcon(), "&References Only", this, SLOT(on_viewVerseHeading()));
+	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse References Only");
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
 
-	m_pActionShowVerseRichText = pViewMenu->addAction(QIcon(), "&Rich Verse Text", this, SLOT(on_viewVerseRichText()));
-	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Verse Text");
+	m_pActionShowVerseRichText = pViewMenu->addAction(QIcon(), "Verse &Preview", this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Text Verse Preview");
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
 
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
+
+	pAction = pNavMenu->addAction("Beginning of Bible", ui->widgetKJVBrowser, SLOT(on_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	pAction->setStatusTip("Goto the very Beginning of the Bible");
+	connect(pAction, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	pAction = pNavMenu->addAction("Ending of Bible", ui->widgetKJVBrowser, SLOT(on_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
+	pAction->setStatusTip("Goto the very End of the Bible");
+	connect(pAction, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionBookBackward = pNavMenu->addAction("Book Backward", ui->widgetKJVBrowser, SLOT(on_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
+	m_pActionBookBackward->setStatusTip("Move Backward one Book");
+	connect(m_pActionBookBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionBookForward = pNavMenu->addAction("Book Forward", ui->widgetKJVBrowser, SLOT(on_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
+	m_pActionBookForward->setStatusTip("Move Forward one Book");
+	connect(m_pActionBookForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionChapterBackward = pNavMenu->addAction("Chapter Backward", ui->widgetKJVBrowser, SLOT(on_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
+	m_pActionChapterBackward->setStatusTip("Move Backward one Chapter");
+	connect(m_pActionChapterBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	m_pActionChapterForward = pNavMenu->addAction("Chapter Forward", ui->widgetKJVBrowser, SLOT(on_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
+	m_pActionChapterForward->setStatusTip("Move Forward one Chapter");
+	connect(m_pActionChapterForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	connect(ui->widgetKJVBrowser, SIGNAL(IndexChanged(const CRelIndex &)), this, SLOT(on_indexChanged(const CRelIndex &)));
+
+	pNavMenu->addSeparator();
 
 	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), "History &Backward", this);
 	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
@@ -102,7 +128,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionNavForward->setEnabled(ui->widgetKJVBrowser->browser()->isForwardAvailable());
 	pNavMenu->addAction(m_pActionNavForward);
 
-	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", ui->widgetKJVBrowser->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", ui->widgetKJVBrowser->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Up));
 	m_pActionNavHome->setStatusTip("Jump to History Home Passage");
 	m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
 									ui->widgetKJVBrowser->browser()->isForwardAvailable());
@@ -268,6 +294,25 @@ void CKJVCanOpener::on_viewVerseRichText()
 	}
 
 	m_bDoingUpdate = false;
+}
+
+void CKJVCanOpener::on_indexChanged(const CRelIndex &index)
+{
+	assert(m_pActionBookBackward != NULL);
+	assert(m_pActionBookForward != NULL);
+	assert(m_pActionChapterBackward != NULL);
+	assert(m_pActionChapterForward != NULL);
+	if ((m_pActionBookBackward == NULL) ||
+		(m_pActionBookForward == NULL) ||
+		(m_pActionChapterBackward == NULL) ||
+		(m_pActionChapterForward == NULL)) return;
+
+	m_pActionBookBackward->setEnabled(index.book() >= 2);
+	m_pActionBookForward->setEnabled(index.book() < g_lstTOC.size());
+	m_pActionChapterBackward->setEnabled((index.book() >= 2) ||
+										((index.book() == 1) && (index.chapter() >= 2)));
+	m_pActionChapterForward->setEnabled((index.book() < g_lstTOC.size()) ||
+										((index.book() == g_lstTOC.size()) && (index.chapter() < g_lstTOC.at(index.book()-1).m_nNumChp)));
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()

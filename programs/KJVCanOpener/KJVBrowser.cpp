@@ -235,6 +235,49 @@ void CKJVBrowser::doHighlighting(bool bClear)
 
 // ----------------------------------------------------------------------------
 
+void CKJVBrowser::on_Bible_Beginning()
+{
+	gotoIndex(CRelIndex(1,1,1,1));
+}
+
+void CKJVBrowser::on_Bible_Ending()
+{
+	CRelIndex ndx;
+	ndx.setBook(g_lstTOC.size());
+	ndx.setChapter(g_lstTOC.at(g_lstTOC.size()-1).m_nNumChp);
+	ndx.setVerse(g_mapLayout[CRelIndex(ndx.book(), ndx.chapter(), 0, 0)].m_nNumVrs);
+	ndx.setWord((g_lstBooks[ndx.book()-1])[CRelIndex(0, ndx.chapter(), ndx.verse(), 0)].m_nNumWrd);
+	gotoIndex(ndx);
+}
+
+void CKJVBrowser::on_Book_Backward()
+{
+	if (m_ndxCurrent.book() < 2) return;
+
+	gotoIndex(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1));
+}
+
+void CKJVBrowser::on_Book_Forward()
+{
+	if (m_ndxCurrent.book() >= g_lstTOC.size()) return;
+
+	gotoIndex(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1));
+}
+
+void CKJVBrowser::on_ChapterBackward()
+{
+	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
+	if (ndx.isSet()) gotoIndex(ndx);
+}
+
+void CKJVBrowser::on_ChapterForward()
+{
+	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
+	if (ndx.isSet()) gotoIndex(ndx);
+}
+
+// ----------------------------------------------------------------------------
+
 void CKJVBrowser::setBook(const CRelIndex &ndx)
 {
 	if (ndx.book() == 0) return;

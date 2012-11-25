@@ -74,6 +74,8 @@ protected slots:
 	void on_viewVerseHeading();
 	void on_viewVerseRichText();
 
+	void on_indexChanged(const CRelIndex &index);
+
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
 	void on_phraseChanged(const CParsedPhrase &phrase);
@@ -93,6 +95,10 @@ private:
 	bool m_bDoingUpdate;
 	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
 	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext
+	QAction *m_pActionBookBackward;	// Navigate Book Backward
+	QAction *m_pActionBookForward;	// Navigate Book Forward
+	QAction *m_pActionChapterBackward;	// Navigate Chapter Backward
+	QAction *m_pActionChapterForward;	// Navigate Chapter Forward
 	QAction *m_pActionNavBackward;	// Browser Navigate Backward
 	QAction *m_pActionNavForward;	// Browser Navigate Forward
 	QAction *m_pActionNavHome;		// Browser Navigate to History Home

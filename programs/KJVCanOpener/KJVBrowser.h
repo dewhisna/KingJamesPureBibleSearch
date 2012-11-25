@@ -65,6 +65,14 @@ public slots:
 	void focusBrowser();
 	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
 
+	// Navigation Shortcut Processing:
+	void on_Bible_Beginning();
+	void on_Bible_Ending();
+	void on_Book_Backward();
+	void on_Book_Forward();
+	void on_ChapterBackward();
+	void on_ChapterForward();
+
 signals:
 	void IndexChanged(const CRelIndex &index);
 
