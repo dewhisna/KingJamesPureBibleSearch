@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>res/can-of-KJV.png</file>
+		<file>res/church02-e.jpg</file>
         <file>res/addPhrase.png</file>
 		<file>res/delPhrase.png</file>
         <file>res/Close.png</file>

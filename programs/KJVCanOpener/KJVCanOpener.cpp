@@ -6,6 +6,7 @@
 #include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
 #include "BuildDB.h"
+#include "KJVAboutDlg.h"
 
 #include <assert.h>
 
@@ -161,6 +162,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), "About...", this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
 	m_pActionAbout->setStatusTip("About the King James Can Opener");
+	m_pActionAbout->setToolTip("About the King James Can Opener...");
+	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(on_HelpAbout()));
 	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
@@ -465,5 +468,8 @@ void CKJVCanOpener::on_HelpManual()
 
 void CKJVCanOpener::on_HelpAbout()
 {
+	CKJVAboutDlg dlg(this);
 
+	dlg.exec();
 }
+

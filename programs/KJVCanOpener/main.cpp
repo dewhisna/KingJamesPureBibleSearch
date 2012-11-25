@@ -6,8 +6,6 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QTime>
-//#include <QTimer>
-//#include <QThread>
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QLocale>
@@ -16,6 +14,7 @@
 
 #include "KJVCanOpener.h"
 
+#include "version.h"
 #include "BuildDB.h"
 #include "ReadDB.h"
 
@@ -38,26 +37,11 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-	Q_INIT_RESOURCE(KJVCanOpener);
-//	CKJVCanOpener wMain;
+	app.setApplicationVersion(VER_QT);
+	app.setOrganizationDomain(VER_COMPANYDOMAIN_STR);
+	app.setOrganizationName(VER_COMPANYNAME_STR);
 
-/*
-//	QImage splashScrImage("res/can-of-KJV.png");
-//	QImage splashScrImage(":/res/can-of-KJV.png");
-	QImage splashScrImage("qrc:///res/can-of-KJV.png");
-	QSize screenSize = QApplication::desktop()->geometry().size();
-	QImage splashScr(screenSize, QImage::Format_ARGB32_Premultiplied);
-	QPainter painter(&splashScr);
-	painter.fillRect(splashScr.rect(), Qt::black);
-	QImage scaled = splashScrImage.scaled(screenSize, Qt::KeepAspectRatio);
-	QRect scaledRect = scaled.rect();
-	scaledRect.moveCenter(splashScr.rect().center());
-	painter.drawImage(scaledRect, scaled);
-	QPixmap Logo;
-	Logo.convertFromImage(splashScr);
-	QSplashScreen splashScrWindow(wMain, Logo, Qt::WindowStaysOnTopHint);
-	splashScrWindow.move(0,0);
-*/
+	Q_INIT_RESOURCE(KJVCanOpener);
 
 	QSplashScreen *splash = new QSplashScreen;
 	splash->setPixmap(QPixmap(":/res/can-of-KJV.png"));
@@ -118,8 +102,6 @@ int main(int argc, char *argv[])
 	delete splash;
 
 	wMain.Initialize();
-
-//	splashScrWindow.close();
 
 	return app.exec();
 }
