@@ -10,7 +10,7 @@
 #include <QMessageBox>
 
 CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
-	QDialog(parent),
+	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 	ui(new Ui::CKJVAboutDlg)
 {
 	ui->setupUi(this);
