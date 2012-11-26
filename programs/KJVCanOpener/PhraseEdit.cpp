@@ -779,9 +779,9 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 	strBook = strBook.leftJustified(2, ' ', false);
 	strHTML += QString("<a id=\"%1\"><b>%2</b></a><a id=\"X%3\"><b>%4</b></a>")
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(toc.m_strBkName.left(toc.m_strBkName.size()-1))
+					.arg(strBook.left(strBook.size()-1))
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(toc.m_strBkName.right(1));
+					.arg(strBook.right(1));
 
 	// Print this Verse Text:
 	TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
