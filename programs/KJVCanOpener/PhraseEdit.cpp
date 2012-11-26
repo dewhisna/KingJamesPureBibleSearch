@@ -884,24 +884,13 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 {
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
-	QString strToolTip = getToolTip(ndxReference);
+	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1));
 
 	if (!strToolTip.isEmpty()) {
-		doHighlighting(aHighlighter, true);
-		TPhraseTagList tags;
-		// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
-		if ((ndxReference.book() != 0) &&
-			(ndxReference.chapter() != 0) &&
-			(ndxReference.verse() != 0) &&
-			(ndxReference.word() != 0)) {
-			tags.append(TPhraseTag(ndxReference, 1));
-		}
-		aHighlighter.setHighlightTags(tags);
-		doHighlighting(aHighlighter);
+		highlightTag(aHighlighter, TPhraseTag(ndxReference, 1));
 		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 	} else {
-		doHighlighting(aHighlighter, true);
-		aHighlighter.clearPhraseTags();
+		highlightTag(aHighlighter);
 		QToolTip::hideText();
 		return false;
 	}
@@ -909,54 +898,85 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	return true;
 }
 
-QString CPhraseEditNavigator::getToolTip(const CRelIndex &ndxReference) const
+void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag) const
 {
+	doHighlighting(aHighlighter, true);
+	TPhraseTagList tags;
+	// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
+	if ((tag.first.book() != 0) &&
+		(tag.first.chapter() != 0) &&
+		(tag.first.verse() != 0) &&
+		(tag.first.word() != 0) &&
+		(tag.second != 0)) {
+		tags.append(tag);
+		aHighlighter.setHighlightTags(tags);
+		doHighlighting(aHighlighter);
+	} else {
+		aHighlighter.clearPhraseTags();
+	}
+}
+
+QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
+{
+	const CRelIndex &ndxReference(tag.first);
 	QString strToolTip;
 
 	if (ndxReference.isSet()) {
-		strToolTip += "<qt><pre>";
-		if (ndxReference.word() != 0) {
-			uint32_t ndxNormal = NormalizeIndex(ndxReference);
-			if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
-				strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+		if (!bPlainText) strToolTip += "<html><body><pre>";
+		if ((nToolTipType == TTE_COMPLETE) ||
+			(nToolTipType == TTE_REFERENCE_ONLY)) {
+			if (ndxReference.word() != 0) {
+				uint32_t ndxNormal = NormalizeIndex(ndxReference);
+				if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
+					strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+				}
 			}
+			strToolTip += ndxReference.SearchResultToolTip();
 		}
-		strToolTip += ndxReference.SearchResultToolTip();
-		if (ndxReference.book() != 0) {
-			assert(ndxReference.book() <= g_lstTOC.size());
-			if (ndxReference.book() <= g_lstTOC.size()) {
-				strToolTip += "</pre><hr/><pre>";
-				strToolTip += QString("\n%1 contains:\n"
-										"    %2 Chapters\n"
-										"    %3 Verses\n"
-										"    %4 Words\n")
-										.arg(ndxReference.bookName())
-										.arg(g_lstTOC[ndxReference.book()-1].m_nNumChp)
-										.arg(g_lstTOC[ndxReference.book()-1].m_nNumVrs)
-										.arg(g_lstTOC[ndxReference.book()-1].m_nNumWrd);
-				if (ndxReference.chapter() != 0) {
-					assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
-					if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
-						strToolTip += QString("\n%1 %2 contains:\n"
-												"    %3 Verses\n"
-												"    %4 Words\n")
-												.arg(ndxReference.bookName()).arg(ndxReference.chapter())
-												.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
-												.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
-						if (ndxReference.verse() != 0) {
-							assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
-							if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
-								strToolTip += QString("\n%1 %2:%3 contains:\n"
-														"    %4 Words\n")
-														.arg(ndxReference.bookName()).arg(ndxReference.chapter()).arg(ndxReference.verse())
-														.arg((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
+		if ((nToolTipType == TTE_COMPLETE) ||
+			(nToolTipType == TTE_STATISTICS_ONLY)) {
+			if (ndxReference.book() != 0) {
+				assert(ndxReference.book() <= g_lstTOC.size());
+				if (ndxReference.book() <= g_lstTOC.size()) {
+					if (nToolTipType == TTE_COMPLETE) {
+						if (!bPlainText) {
+							strToolTip += "</pre><hr/><pre>";
+						} else {
+							strToolTip += "--------------------\n";
+						}
+					}
+					strToolTip += QString("\n%1 contains:\n"
+											"    %2 Chapters\n"
+											"    %3 Verses\n"
+											"    %4 Words\n")
+											.arg(ndxReference.bookName())
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumChp)
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumVrs)
+											.arg(g_lstTOC[ndxReference.book()-1].m_nNumWrd);
+					if (ndxReference.chapter() != 0) {
+						assert(ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp);
+						if (ndxReference.chapter() <= g_lstTOC[ndxReference.book()-1].m_nNumChp) {
+							strToolTip += QString("\n%1 %2 contains:\n"
+													"    %3 Verses\n"
+													"    %4 Words\n")
+													.arg(ndxReference.bookName()).arg(ndxReference.chapter())
+													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
+													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
+							if (ndxReference.verse() != 0) {
+								assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
+								if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
+									strToolTip += QString("\n%1 %2:%3 contains:\n"
+															"    %4 Words\n")
+															.arg(ndxReference.bookName()).arg(ndxReference.chapter()).arg(ndxReference.verse())
+															.arg((g_lstBooks[ndxReference.book()-1])[CRelIndex(0, ndxReference.chapter(), ndxReference.verse(), 0)].m_nNumWrd);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-		strToolTip += "</pre></qt>";
+		if (!bPlainText) strToolTip += "</pre></body></html>";
 	}
 
 	return strToolTip;

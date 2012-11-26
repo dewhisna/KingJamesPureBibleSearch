@@ -58,12 +58,12 @@ bool CScriptureEdit::eventFilter(QObject *obj, QEvent *ev)
 	return QTextEdit::eventFilter(obj, ev);
 }
 
-bool CScriptureEdit::event(QEvent *e)
+bool CScriptureEdit::event(QEvent *ev)
 {
-	switch (e->type()) {
+	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(e);
+				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
 				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter)) {
 					m_HighlightTimer.stop();
 				} else {
@@ -98,7 +98,7 @@ bool CScriptureEdit::event(QEvent *e)
 			break;
 	}
 
-	return QTextEdit::event(e);
+	return QTextEdit::event(ev);
 }
 
 // ============================================================================

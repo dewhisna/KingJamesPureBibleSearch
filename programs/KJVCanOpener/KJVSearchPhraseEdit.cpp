@@ -230,6 +230,12 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 	ensureCursorVisible();
 }
 
+void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
+{
+	emit activatedPhraseEdit();
+	QTextEdit::focusInEvent(event);
+}
+
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 {
 	bool bForceCompleter = false;
@@ -317,6 +323,7 @@ pStatusBar(NULL),
 	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
 	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
+	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit()), this, SIGNAL(activatedPhraseEdit()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()

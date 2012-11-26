@@ -142,10 +142,17 @@ public:
 	{
 	}
 
+	enum TOOLTIP_TYPE_ENUM {
+		TTE_COMPLETE = 0,
+		TTE_REFERENCE_ONLY = 1,
+		TTE_STATISTICS_ONLY = 2
+	};
+
 	// Text Selection/ToolTip Functions:
 	void selectWords(const CRelIndex &ndx, unsigned int nWrdCount);
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const;
-	QString getToolTip(const CRelIndex &ndxReference) const;
+	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag(CRelIndex(), 0)) const;
+	QString getToolTip(const TPhraseTag &tag, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 
 private:
 	QTextEdit &m_TextEditor;

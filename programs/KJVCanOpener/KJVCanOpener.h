@@ -71,6 +71,11 @@ protected:
 	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
 protected slots:
+	void on_addPassageBrowserEditMenu(bool bAdd);
+	void on_activatedBrowser();
+	void on_activatedSearchResults();
+	void on_activatedPhraseEditor();
+
 	void on_viewVerseHeading();
 	void on_viewVerseRichText();
 
@@ -93,6 +98,8 @@ private:
 // UI Private:
 private:
 	bool m_bDoingUpdate;
+	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
+	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
 	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext
 	QAction *m_pActionBookBackward;	// Navigate Book Backward

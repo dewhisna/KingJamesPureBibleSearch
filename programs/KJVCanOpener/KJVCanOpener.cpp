@@ -41,6 +41,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
 	m_strUserDatabase(strUserDatabase),
 	m_bDoingUpdate(false),
+	m_pActionPassageBrowserEditMenu(NULL),
+	m_pViewMenu(NULL),
 	m_pActionShowVerseHeading(NULL),
 	m_pActionShowVerseRichText(NULL),
 	m_pActionBookBackward(NULL),
@@ -67,20 +69,26 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pAction->setStatusTip("Exit the King James Can Opener Application");
 	pFileMenu->addAction(pAction);
 
-	QMenu *pViewMenu = ui->menuBar->addMenu("&View");
+//	QMenu *pEditMenu = ui->menuBar->addMenu("&Edit");
+//	QMenu *pBrowserEditMenu = ui->widgetKJVBrowser->browser()->getEditMenu();
+//	ui->menuBar->addMenu(pBrowserEditMenu);
+//	connect(ui->widgetKJVBrowser->browser(), SIGNAL(addEditMenu(bool)), this, SLOT(on_addPassageBrowserEditMenu(bool)));
+	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedBrowser()), this, SLOT(on_activatedBrowser()));
 
-	QMenu *pViewToolbarsMenu = pViewMenu->addMenu("&Toolbars");
+	m_pViewMenu = ui->menuBar->addMenu("&View");
+
+	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu("&Toolbars");
 	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
 	ui->mainToolBar->toggleViewAction()->setStatusTip("Show/Hide Main Tool Bar");
 
-	pViewMenu->addSeparator();
+	m_pViewMenu->addSeparator();
 
-	m_pActionShowVerseHeading = pViewMenu->addAction(QIcon(), "&References Only", this, SLOT(on_viewVerseHeading()));
+	m_pActionShowVerseHeading = m_pViewMenu->addAction(QIcon(), "&References Only", this, SLOT(on_viewVerseHeading()));
 	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse References Only");
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
 
-	m_pActionShowVerseRichText = pViewMenu->addAction(QIcon(), "Verse &Preview", this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText = m_pViewMenu->addAction(QIcon(), "Verse &Preview", this, SLOT(on_viewVerseRichText()));
 	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Text Verse Preview");
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
@@ -171,6 +179,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit();
+	connect(pPhraseEdit, SIGNAL(activatedPhraseEdit()), this, SLOT(on_activatedPhraseEditor()));
 
 	QVBoxLayout *pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
 	pLayoutPhrases->setSpacing(0);
@@ -245,6 +254,36 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	}
 
 	return QMainWindow::closeEvent(event);
+}
+
+void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
+{
+	if (bAdd) {
+		if (m_pActionPassageBrowserEditMenu == NULL) {
+			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->widgetKJVBrowser->browser()->getEditMenu());
+			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+		}
+	} else {
+		if (m_pActionPassageBrowserEditMenu) {
+			ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
+			m_pActionPassageBrowserEditMenu = NULL;
+		}
+	}
+}
+
+void CKJVCanOpener::on_activatedBrowser()
+{
+	on_addPassageBrowserEditMenu(true);
+}
+
+void CKJVCanOpener::on_activatedSearchResults()
+{
+	on_addPassageBrowserEditMenu(false);
+}
+
+void CKJVCanOpener::on_activatedPhraseEditor()
+{
+	on_addPassageBrowserEditMenu(false);
 }
 
 void CKJVCanOpener::on_viewVerseHeading()

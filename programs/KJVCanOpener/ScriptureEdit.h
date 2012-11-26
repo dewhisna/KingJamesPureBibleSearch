@@ -18,7 +18,7 @@ public:
 	virtual ~CScriptureEdit();
 
 protected:
-	virtual bool event(QEvent *e);
+	virtual bool event(QEvent *ev);
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 private slots:

@@ -6,7 +6,9 @@
 
 #include <QWidget>
 #include <QIcon>
+#include <QFocusEvent>
 #include <QKeyEvent>
+#include <QResizeEvent>
 #include <QPushButton>
 #include <QMimeData>
 
@@ -42,6 +44,7 @@ private slots:
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
 	void changeCaseSensitive(bool bCaseSensitive);
+	void activatedPhraseEdit();
 
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
@@ -54,6 +57,7 @@ protected:
 	virtual void ParsePhrase(const QTextCursor &curInsert);
 
 protected:
+	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
 	QString textUnderCursor() const;
@@ -91,6 +95,7 @@ QStatusBar *pStatusBar;
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
 	void phraseListChanged();
+	void activatedPhraseEdit();
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);
