@@ -37,6 +37,31 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 // ============================================================================
 
+CSearchResultsListView::CSearchResultsListView(QWidget *parent)
+	:	QListView(parent)
+{
+
+}
+
+CSearchResultsListView::~CSearchResultsListView()
+{
+
+}
+
+void CSearchResultsListView::focusInEvent(QFocusEvent *event)
+{
+	emit activatedSearchResults();
+	QListView::focusInEvent(event);
+}
+
+void CSearchResultsListView::contextMenuEvent(QContextMenuEvent *event)
+{
+	QListView::contextMenuEvent(event);
+}
+
+
+// ============================================================================
+
 CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
 	m_strUserDatabase(strUserDatabase),
@@ -74,6 +99,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 //	ui->menuBar->addMenu(pBrowserEditMenu);
 //	connect(ui->widgetKJVBrowser->browser(), SIGNAL(addEditMenu(bool)), this, SLOT(on_addPassageBrowserEditMenu(bool)));
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedBrowser()), this, SLOT(on_activatedBrowser()));
+	connect(ui->listViewSearchResults, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
 
 	m_pViewMenu = ui->menuBar->addMenu("&View");
 

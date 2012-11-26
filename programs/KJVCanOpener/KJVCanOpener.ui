@@ -81,7 +81,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QListView" name="listViewSearchResults">
+         <widget class="CSearchResultsListView" name="listViewSearchResults">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>10</horstretch>
@@ -152,6 +152,11 @@
    <extends>QWidget</extends>
    <header>KJVSearchCriteria.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CSearchResultsListView</class>
+   <extends>QListView</extends>
+   <header>KJVCanOpener.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

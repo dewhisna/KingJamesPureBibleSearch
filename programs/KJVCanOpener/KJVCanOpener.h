@@ -1,19 +1,22 @@
 #ifndef KJVCANOPENER_H
 #define KJVCANOPENER_H
 
+#include "dbstruct.h"
+#include "KJVSearchPhraseEdit.h"
+
 #include <QMainWindow>
-#include <QListWidget>
-#include <QListWidgetItem>
 #include <QModelIndex>
 #include <QScrollArea>
 #include <QAction>
 #include <QCloseEvent>
+#include <QFocusEvent>
+#include <QContextMenuEvent>
 #include <QString>
+#include <QListView>
 
 #include <assert.h>
 
-#include "dbstruct.h"
-#include "KJVSearchPhraseEdit.h"
+// ============================================================================
 
 class CSearchPhraseScrollArea : public QScrollArea
 {
@@ -27,28 +30,23 @@ public:
 	virtual QSize sizeHint() const;
 };
 
+// ============================================================================
 
-/*
-class CPhraseEditListWidgetItem : public QListWidgetItem
+class CSearchResultsListView : public QListView
 {
+	Q_OBJECT
 public:
-	CPhraseEditListWidgetItem(QListWidget *pParentView = NULL)
-		:	QListWidgetItem(pParentView),
-			m_widgetPhraseEdit(NULL)
-	{
-//		pParentView->addItem(this);
-//		pParentView->setItemWidget(this, &m_widgetPhraseEdit);
-		m_widgetPhraseEdit = new CKJVSearchPhraseEdit(pParentView);
-	}
+	explicit CSearchResultsListView(QWidget *parent = 0);
+	virtual ~CSearchResultsListView();
 
-	~CPhraseEditListWidgetItem()
-	{
+signals:
+	void activatedSearchResults();
 
-	}
-
-	CKJVSearchPhraseEdit *m_widgetPhraseEdit;
+protected:
+	virtual void focusInEvent(QFocusEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event);
 };
-*/
+
 
 // ============================================================================
 
