@@ -22,6 +22,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include <QScrollBar>
+#include <QItemSelection>
 
 // ============================================================================
 
@@ -38,14 +39,47 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 // ============================================================================
 
 CSearchResultsListView::CSearchResultsListView(QWidget *parent)
-	:	QListView(parent)
+	:	QListView(parent),
+		m_pEditMenu(NULL),
+		m_pActionCopy(NULL),
+		m_pActionSelectAll(NULL),
+		m_pActionClearSelection(NULL),
+		m_pActionCopyReferenceDetails(NULL),
+		m_pStatusAction(NULL)
 {
+	setMouseTracking(true);
 
+	m_pEditMenu = new QMenu("&Edit");
+	m_pEditMenu->setStatusTip("Search Results Edit Operations");
+	m_pActionCopy = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy->setStatusTip("Copy selected Search Results to the clipboard");
+	m_pActionCopy->setEnabled(false);
+	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
+	m_pEditMenu->addSeparator();
+	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip("Select all Search Results");
+	m_pActionClearSelection = m_pEditMenu->addAction("C&lear Selection", this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
+	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
+	m_pActionClearSelection->setEnabled(false);
+	m_pEditMenu->addSeparator();
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details for the selected Search Results to the clipboard");
+	m_pActionCopyReferenceDetails->setEnabled(false);
+
+	m_pStatusAction = new QAction(this);
 }
 
 CSearchResultsListView::~CSearchResultsListView()
 {
+	if (m_pEditMenu) {
+		delete m_pEditMenu;
+		m_pEditMenu = NULL;
+	}
+}
 
+void CSearchResultsListView::copy()
+{
+// TODO
 }
 
 void CSearchResultsListView::focusInEvent(QFocusEvent *event)
@@ -59,6 +93,30 @@ void CSearchResultsListView::contextMenuEvent(QContextMenuEvent *event)
 	QListView::contextMenuEvent(event);
 }
 
+void CSearchResultsListView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+{
+	if (selectedIndexes().size()) {
+		m_pActionCopy->setEnabled(true);
+		m_pActionClearSelection->setEnabled(true);
+		m_pActionCopyReferenceDetails->setEnabled(true);
+	} else {
+		m_pActionCopy->setEnabled(false);
+		m_pActionClearSelection->setEnabled(false);
+		m_pActionCopyReferenceDetails->setEnabled(false);
+	}
+
+	QString strStatusText = QString("%1 Search Results Selected").arg(selectedIndexes().size());
+	setStatusTip(strStatusText);
+	m_pStatusAction->setStatusTip(strStatusText);
+	m_pStatusAction->showStatusText();
+
+	QListView::selectionChanged(selected, deselected);
+}
+
+void CSearchResultsListView::on_copyReferenceDetails()
+{
+// TODO
+}
 
 // ============================================================================
 
@@ -67,6 +125,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_strUserDatabase(strUserDatabase),
 	m_bDoingUpdate(false),
 	m_pActionPassageBrowserEditMenu(NULL),
+	m_pActionSearchResultsEditMenu(NULL),
 	m_pViewMenu(NULL),
 	m_pActionShowVerseHeading(NULL),
 	m_pActionShowVerseRichText(NULL),
@@ -297,19 +356,37 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 	}
 }
 
+void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
+{
+	if (bAdd) {
+		if (m_pActionSearchResultsEditMenu == NULL) {
+			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->listViewSearchResults->getEditMenu());
+			// TODO : Connect?
+		}
+	} else {
+		if (m_pActionSearchResultsEditMenu) {
+			ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
+			m_pActionSearchResultsEditMenu = NULL;
+		}
+	}
+}
+
 void CKJVCanOpener::on_activatedBrowser()
 {
 	on_addPassageBrowserEditMenu(true);
+	on_addSearchResultsEditMenu(false);
 }
 
 void CKJVCanOpener::on_activatedSearchResults()
 {
 	on_addPassageBrowserEditMenu(false);
+	on_addSearchResultsEditMenu(true);
 }
 
 void CKJVCanOpener::on_activatedPhraseEditor()
 {
 	on_addPassageBrowserEditMenu(false);
+	on_addSearchResultsEditMenu(false);
 }
 
 void CKJVCanOpener::on_viewVerseHeading()

@@ -55,7 +55,7 @@ private:
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QAction *m_pActionCopy;			// Edit menu copy
-	QAction *m_pActionSelectAll;	// Edit menu select
+	QAction *m_pActionSelectAll;	// Edit menu select all
 	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
 	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy

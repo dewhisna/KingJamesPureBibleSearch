@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QScrollArea>
+#include <QMenu>
 #include <QAction>
 #include <QCloseEvent>
 #include <QFocusEvent>
@@ -39,12 +40,29 @@ public:
 	explicit CSearchResultsListView(QWidget *parent = 0);
 	virtual ~CSearchResultsListView();
 
+	QMenu *getEditMenu() { return m_pEditMenu; }
+
+public slots:
+	void copy();
+
 signals:
 	void activatedSearchResults();
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
+	virtual void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
+
+private slots:
+	void on_copyReferenceDetails();
+
+private:
+	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
+	QAction *m_pActionCopy;			// Edit menu copy
+	QAction *m_pActionSelectAll;	// Edit menu select all
+	QAction *m_pActionClearSelection;	// Edit menu clear selection
+	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
+	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 
 
@@ -70,6 +88,7 @@ protected:
 
 protected slots:
 	void on_addPassageBrowserEditMenu(bool bAdd);
+	void on_addSearchResultsEditMenu(bool bAdd);
 	void on_activatedBrowser();
 	void on_activatedSearchResults();
 	void on_activatedPhraseEditor();
@@ -97,6 +116,7 @@ private:
 private:
 	bool m_bDoingUpdate;
 	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
+	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
 	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext

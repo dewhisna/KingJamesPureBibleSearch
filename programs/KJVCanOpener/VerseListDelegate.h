@@ -17,8 +17,6 @@ public:
 	CVerseListDelegate(CVerseListModel &model, QObject *parent = NULL);
 
 	virtual void paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-//	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
-//	virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 signals:
@@ -33,7 +31,8 @@ protected:
 		// This sets a palette useful for the black text of the verses:
 		palette->setColor(QPalette::All, QPalette::HighlightedText, palette->color(QPalette::Active, QPalette::Text));
 		// Note that setting a saturated color here results in ugly XOR colors in the focus rect
-		palette->setColor(QPalette::All, QPalette::Highlight, palette->base().color().darker(108));
+		palette->setColor(QPalette::All, QPalette::Highlight, palette->base().color().darker(116));
+		palette->setColor(QPalette::Active, QPalette::Highlight, palette->base().color().darker(150));
 	}
 
 private:
