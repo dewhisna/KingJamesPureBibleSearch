@@ -43,19 +43,14 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		}
 	}
 
-	if (role == Qt::ToolTipRole) {
+	if ((role == Qt::ToolTipRole) ||
+		(role == TOOLTIP_PLAINTEXT_ROLE)) {
 		const CVerseListItem &refVerse = m_lstVerses[index.row()];
 		QString strToolTip;
-		strToolTip += "<qt><pre>";
-		if (!refVerse.getToolTip().isEmpty()) strToolTip += refVerse.getToolTip() + "\n\n";
+		if (role == Qt::ToolTipRole) strToolTip += "<qt><pre>";
 		strToolTip += refVerse.getHeading() + "\n\n";
-		strToolTip += refVerse.getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
-		for (int ndx = 0; ndx < refVerse.phraseTags().size(); ++ndx) {
-			const CRelIndex &ndxTag(refVerse.phraseTags().at(ndx).first);
-			if (refVerse.phraseTags().size() > 1) strToolTip += QString("(%1)[%2] ").arg(ndx+1).arg(ndxTag.word());
-			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
-		}
-		strToolTip += "</pre></qt>";
+		strToolTip += refVerse.getToolTip();
+		if (role == Qt::ToolTipRole) strToolTip += "</pre></qt>";
 		return strToolTip;
 	}
 
@@ -72,10 +67,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 
 	if ((role == Qt::EditRole) || (role == Qt::DisplayRole)) {
 		switch (m_nDisplayMode) {
-			case VDME_HEADING:		// TODO : Should this be settable??
-				m_lstVerses[index.row()].setHeading(value.toString());
-				emit dataChanged(index, index);
-				return true;
+			case VDME_HEADING:
 			case VDME_VERYPLAIN:
 			case VDME_RICHTEXT:
 			case VDME_COMPLETE:
@@ -84,9 +76,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 	}
 
 	if (role == Qt::ToolTipRole) {
-		m_lstVerses[index.row()].setToolTip(value.toString());
-		emit dataChanged(index, index);
-		return true;
+		return false;				// read-only
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {

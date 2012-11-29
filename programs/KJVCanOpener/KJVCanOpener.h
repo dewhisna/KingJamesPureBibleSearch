@@ -41,9 +41,13 @@ public:
 	virtual ~CSearchResultsListView();
 
 	QMenu *getEditMenu() { return m_pEditMenu; }
+	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
 
 public slots:
-	void copy();
+	void on_copyVerseText();
+	void on_copyVerseHeadings();
+	void on_copyReferenceDetails();
+	void on_copyComplete();
 
 signals:
 	void activatedSearchResults();
@@ -53,15 +57,16 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 	virtual void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
 
-private slots:
-	void on_copyReferenceDetails();
-
 private:
+	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
-	QAction *m_pActionCopy;			// Edit menu copy
+	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
+	QAction *m_pActionCopyVerseText;			// Edit menu copy text
+	QAction *m_pActionCopyVerseHeadings;		// Edit menu copy headings
+	QAction *m_pActionCopyReferenceDetails;		// Edit menu Reference ToolTip Copy
+	QAction *m_pActionCopyComplete;				// Edit menu copy everything
 	QAction *m_pActionSelectAll;	// Edit menu select all
 	QAction *m_pActionClearSelection;	// Edit menu clear selection
-	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 

@@ -9,49 +9,101 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <assert.h>
+
 // ============================================================================
 
 class CVerseListItem
 {
 public:
 	explicit CVerseListItem(const CRelIndex &ndx = CRelIndex(),
-							const QString &strHeading = QString(),
-							const QString &strToolTip = QString())
-		:	m_ndxRelative(ndx),
-			m_strHeading(strHeading),
-			m_strToolTip(strToolTip)
-	{ }
+							const unsigned int nPhraseSize = 1)
+		:	m_ndxRelative(ndx)
+	{
+		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
+		if (nPhraseSize > 0)
+			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
+	}
 	~CVerseListItem()
 	{ }
 
-	QString getHeading() const { return m_strHeading; }
-	void setHeading(const QString &strHeading) { m_strHeading = strHeading; }
+	inline QString getHeading() const {
+		QString strHeading;
+		if (m_lstTags.size() > 1) strHeading += QString("(%1) ").arg(m_lstTags.size());
+		for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
+			if (ndx == 0) {
+				strHeading += m_lstTags.at(ndx).first.PassageReferenceText();
+			} else {
+				strHeading += QString("[%1]").arg(m_lstTags.at(ndx).first.word());
+			}
+		}
+		return strHeading;
+	}
 
-	QString getToolTip() const { return m_strToolTip; }
-	void setToolTip(const QString &strToolTip) { m_strToolTip = strToolTip; }
+	inline QString getToolTip() const {
+		QString strToolTip;
+		strToolTip += getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
+		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
+			const CRelIndex &ndxTag(phraseTags().at(ndx).first);
+			if (phraseTags().size() > 1) {
+				strToolTip += QString("(%1)[%2] \"%3\" is: ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx));
+			} else {
+				strToolTip += QString("[%1] \"%2\" is: ").arg(ndxTag.word()).arg(getPhrase(ndx));
+			}
+			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
+		}
 
-	bool isSet() const {
+		return strToolTip;
+	}
+
+	inline bool isSet() const {
 		return (m_ndxRelative.isSet());
 	}
 
-	uint32_t getBook() const { return m_ndxRelative.book(); }			// Book Number (1-n)
-	uint32_t getChapter() const { return m_ndxRelative.chapter(); }		// Chapter Number within Book (1-n)
-	uint32_t getVerse() const { return m_ndxRelative.verse(); }			// Verse Number within Chapter (1-n)
-	uint32_t getWord() const { return m_ndxRelative.word(); }			// Word Number within Verse (1-n)
-	void setIndexNormalized(uint32_t ndx) { m_ndxRelative = CRelIndex(DenormalizeIndex(ndx)); }
-	void setIndexDenormalized(uint32_t ndx) { m_ndxRelative = CRelIndex(ndx); }
+	inline uint32_t getBook() const { return m_ndxRelative.book(); }		// Book Number (1-n)
+	inline uint32_t getChapter() const { return m_ndxRelative.chapter(); }	// Chapter Number within Book (1-n)
+	inline uint32_t getVerse() const { return m_ndxRelative.verse(); }		// Verse Number within Chapter (1-n)
 	uint32_t getIndexNormalized() const { return NormalizeIndex(m_ndxRelative.index()); }
-	uint32_t getIndexDenormalized() const { return m_ndxRelative.index(); }
-	CRelIndex getIndex() const { return m_ndxRelative; }
-	TPhraseTagList &phraseTags() { return m_lstTags; }
+	inline uint32_t getIndexDenormalized() const { return m_ndxRelative.index(); }
+	inline CRelIndex getIndex() const { return m_ndxRelative; }
+	inline unsigned int getPhraseSize(int nTag) const {
+		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		if ((nTag < 0) || (nTag >= m_lstTags.size())) return 0;
+		return m_lstTags.at(nTag).second;
+	}
+	inline CRelIndex getPhraseReference(int nTag) const {
+		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		if ((nTag < 0) || (nTag >= m_lstTags.size())) return CRelIndex();
+		return m_lstTags.at(nTag).first;
+	}
+	void addPhraseTag(const CRelIndex &ndx, unsigned int nPhraseSize) { m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize)); }
 	const TPhraseTagList &phraseTags() const { return m_lstTags; }
 
-	QStringList getWordList() const
+	QStringList getWordList(int nTag) const
+	{
+		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		if ((!isSet()) || (nTag < 0) || (nTag >= m_lstTags.size())) return QStringList();
+		QStringList strWords;
+		unsigned int nNumWords = m_lstTags.at(nTag).second;
+		uint32_t ndxNormal = NormalizeIndex(m_lstTags.at(nTag).first);
+		while (nNumWords) {
+			strWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[ndxNormal]-1]);
+			ndxNormal++;
+			nNumWords--;
+		}
+		return strWords;
+	}
+	QString getPhrase(int nTag) const
+	{
+		return getWordList(nTag).join(" ");
+	}
+
+	QStringList getVerseAsWordList() const
 	{
 		if (!isSet()) return QStringList();
 		QStringList strWords;
 		unsigned int nNumWords = (g_lstBooks[getBook()-1])[CRelIndex(0,getChapter(),getVerse(),0)].m_nNumWrd;
-		uint32_t ndxNormal = NormalizeIndex(m_ndxRelative.index());
+		uint32_t ndxNormal = getIndexNormalized();
 		while (nNumWords) {
 			strWords.push_back(g_lstConcordanceWords[g_lstConcordanceMapping[ndxNormal]-1]);
 			ndxNormal++;
@@ -61,19 +113,17 @@ public:
 	}
 	QString getVerseVeryPlainText() const		// Very Plain has no punctuation!
 	{
-		return getWordList().join(" ");
+		return getVerseAsWordList().join(" ");
 	}
 	QString getVerseRichText() const
 	{
 		if (!isSet()) return QString();
-		return (g_lstBooks[m_ndxRelative.book()-1])[CRelIndex(0,m_ndxRelative.chapter(),m_ndxRelative.verse(),0)].GetRichText();
+		return (g_lstBooks[getBook()-1])[CRelIndex(0,getChapter(),getVerse(),0)].GetRichText();
 	}
 
 private:
-	CRelIndex m_ndxRelative;		// Relative Index
-	TPhraseTagList m_lstTags;		// Phrase Tags to highlight
-	QString m_strHeading;
-	QString m_strToolTip;
+	CRelIndex m_ndxRelative;		// Primary Relative Index (word index == 0)
+	TPhraseTagList m_lstTags;		// Phrase Tags to highlight, includes a copy of the Primary (w/word index != 0)
 };
 
 Q_DECLARE_METATYPE(CVerseListItem)
@@ -94,7 +144,8 @@ public:
 	};
 
 	enum VERSE_DATA_ROLES_ENUM {
-		VERSE_ENTRY_ROLE = Qt::UserRole + 0
+		VERSE_ENTRY_ROLE = Qt::UserRole + 0,
+		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 1			// Same as Qt::ToolTipRole, but as PlainText instead of RichText
 	};
 
 	explicit CVerseListModel(QObject *parent = 0);

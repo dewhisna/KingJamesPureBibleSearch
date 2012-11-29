@@ -7,6 +7,8 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "BuildDB.h"
 #include "KJVAboutDlg.h"
+#include "PhraseEdit.h"
+#include "Highlighter.h"
 
 #include <assert.h>
 
@@ -23,6 +25,12 @@
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QItemSelection>
+#include <QMimeData>
+#include <QApplication>
+#include <QClipboard>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
+#include <QTextDocumentFragment>
 
 // ============================================================================
 
@@ -40,46 +48,151 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	:	QListView(parent),
+		m_bDoingPopup(false),
 		m_pEditMenu(NULL),
-		m_pActionCopy(NULL),
+		m_pEditMenuLocal(NULL),
+		m_pActionCopyVerseText(NULL),
+		m_pActionCopyVerseHeadings(NULL),
+		m_pActionCopyReferenceDetails(NULL),
+		m_pActionCopyComplete(NULL),
 		m_pActionSelectAll(NULL),
 		m_pActionClearSelection(NULL),
-		m_pActionCopyReferenceDetails(NULL),
 		m_pStatusAction(NULL)
 {
 	setMouseTracking(true);
 
-	m_pEditMenu = new QMenu("&Edit");
+	m_pEditMenu = new QMenu("&Edit", this);
+	m_pEditMenuLocal = new QMenu("&Edit", this);
 	m_pEditMenu->setStatusTip("Search Results Edit Operations");
-	m_pActionCopy = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopy->setStatusTip("Copy selected Search Results to the clipboard");
-	m_pActionCopy->setEnabled(false);
-	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
+	m_pActionCopyVerseText = m_pEditMenu->addAction("Copy &Verse Text", this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerseText->setStatusTip("Copy Verse Text for the selected Search Results to the clipboard");
+	m_pActionCopyVerseText->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
+	m_pActionCopyVerseHeadings = m_pEditMenu->addAction("Copy &References", this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyVerseHeadings->setStatusTip("Copy Verse References for the selected Search Results to the clipboard");
+	m_pActionCopyVerseHeadings->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy Reference &Details (Word/Phrase Counts)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard");
+	m_pActionCopyReferenceDetails->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
+	m_pActionCopyComplete = m_pEditMenu->addAction("Copy &Complete Verse Text and Reference Details", this, SLOT(on_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopyComplete->setStatusTip("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard");
+	m_pActionCopyComplete->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
 	m_pEditMenu->addSeparator();
+	m_pEditMenuLocal->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip("Select all Search Results");
+	m_pEditMenuLocal->addAction(m_pActionSelectAll);
 	m_pActionClearSelection = m_pEditMenu->addAction("C&lear Selection", this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
 	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
 	m_pActionClearSelection->setEnabled(false);
-	m_pEditMenu->addSeparator();
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
-	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details for the selected Search Results to the clipboard");
-	m_pActionCopyReferenceDetails->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 
 	m_pStatusAction = new QAction(this);
 }
 
 CSearchResultsListView::~CSearchResultsListView()
 {
-	if (m_pEditMenu) {
-		delete m_pEditMenu;
-		m_pEditMenu = NULL;
-	}
 }
 
-void CSearchResultsListView::copy()
+void CSearchResultsListView::on_copyVerseText()
 {
-// TODO
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	QTextDocument docList;
+	QTextCursor cursorDocList(&docList);
+
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		QTextDocument docVerse;
+		CPhraseNavigator navigator(docVerse);
+		CSearchResultHighlighter highlighter(item.phraseTags());
+
+		navigator.setDocumentToVerse(item.getIndex(), (ndx != 0));		// Not quite sure why passing true here doesn't give us an <hr> in our results but a <br>.  Yet adding an <hr> manually later works.  Hmmm...
+		navigator.doHighlighting(highlighter);
+
+		QTextCursor cursorDocVerse(&docVerse);
+		cursorDocVerse.select(QTextCursor::Document);
+		QTextDocumentFragment fragment(cursorDocVerse);
+		cursorDocList.insertFragment(fragment);
+//		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<hr/>\n");
+	}
+
+	mime->setText(docList.toPlainText());
+	mime->setHtml(docList.toHtml());
+	clipboard->setMimeData(mime);
+}
+
+void CSearchResultsListView::on_copyVerseHeadings()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	QString strVerseHeadings;
+
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		strVerseHeadings += item.getHeading() + "\n";
+	}
+
+	mime->setText(strVerseHeadings);
+	clipboard->setMimeData(mime);
+}
+
+void CSearchResultsListView::on_copyReferenceDetails()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	QString strPlainText;
+	QString strRichText;
+
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (ndx) {
+			strPlainText += "--------------------\n";
+			strRichText += "<hr/>\n";
+		}
+		strPlainText += lstSelectedItems.at(ndx).data(CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += lstSelectedItems.at(ndx).data(Qt::ToolTipRole).toString();
+	}
+
+	mime->setText(strPlainText);
+	mime->setHtml(strRichText);
+	clipboard->setMimeData(mime);
+}
+
+void CSearchResultsListView::on_copyComplete()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	QTextDocument docList;
+	QTextCursor cursorDocList(&docList);
+
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		QTextDocument docVerse;
+		CPhraseNavigator navigator(docVerse);
+		CSearchResultHighlighter highlighter(item.phraseTags());
+
+		navigator.setDocumentToVerse(item.getIndex(), (ndx != 0));		// Not quite sure why passing true here doesn't give us an <hr> in our results but a <br>.  Yet adding an <hr> manually later works.  Hmmm...
+		navigator.doHighlighting(highlighter);
+
+		QTextCursor cursorDocVerse(&docVerse);
+		cursorDocVerse.select(QTextCursor::Document);
+		QTextDocumentFragment fragment(cursorDocVerse);
+		cursorDocList.insertFragment(fragment);
+
+		cursorDocList.insertHtml("<br/>\n<pre>" + item.getToolTip() + "</pre>\n");
+		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("\n<hr/><br/>\n");
+	}
+
+	mime->setText(docList.toPlainText());
+	mime->setHtml(docList.toHtml());
+	clipboard->setMimeData(mime);
 }
 
 void CSearchResultsListView::focusInEvent(QFocusEvent *event)
@@ -90,19 +203,27 @@ void CSearchResultsListView::focusInEvent(QFocusEvent *event)
 
 void CSearchResultsListView::contextMenuEvent(QContextMenuEvent *event)
 {
+	m_bDoingPopup = true;
+	m_pEditMenuLocal->exec(event->globalPos());
+	m_bDoingPopup = false;
+
 	QListView::contextMenuEvent(event);
 }
 
 void CSearchResultsListView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
 	if (selectedIndexes().size()) {
-		m_pActionCopy->setEnabled(true);
-		m_pActionClearSelection->setEnabled(true);
+		m_pActionCopyVerseText->setEnabled(true);
+		m_pActionCopyVerseHeadings->setEnabled(true);
 		m_pActionCopyReferenceDetails->setEnabled(true);
+		m_pActionCopyComplete->setEnabled(true);
+		m_pActionClearSelection->setEnabled(true);
 	} else {
-		m_pActionCopy->setEnabled(false);
-		m_pActionClearSelection->setEnabled(false);
+		m_pActionCopyVerseText->setEnabled(false);
+		m_pActionCopyVerseHeadings->setEnabled(false);
 		m_pActionCopyReferenceDetails->setEnabled(false);
+		m_pActionCopyComplete->setEnabled(false);
+		m_pActionClearSelection->setEnabled(false);
 	}
 
 	QString strStatusText = QString("%1 Search Results Selected").arg(selectedIndexes().size());
@@ -111,11 +232,6 @@ void CSearchResultsListView::selectionChanged(const QItemSelection & selected, c
 	m_pStatusAction->showStatusText();
 
 	QListView::selectionChanged(selected, deselected);
-}
-
-void CSearchResultsListView::on_copyReferenceDetails()
-{
-// TODO
 }
 
 // ============================================================================
@@ -167,16 +283,19 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->mainToolBar->toggleViewAction()->setStatusTip("Show/Hide Main Tool Bar");
 
 	m_pViewMenu->addSeparator();
+	ui->listViewSearchResults->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowVerseHeading = m_pViewMenu->addAction(QIcon(), "&References Only", this, SLOT(on_viewVerseHeading()));
+	m_pActionShowVerseHeading = m_pViewMenu->addAction(QIcon(), "View &References Only", this, SLOT(on_viewVerseHeading()));
 	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse References Only");
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
+	ui->listViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
 
-	m_pActionShowVerseRichText = m_pViewMenu->addAction(QIcon(), "Verse &Preview", this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText = m_pViewMenu->addAction(QIcon(), "View Verse &Preview", this, SLOT(on_viewVerseRichText()));
 	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Text Verse Preview");
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
+	ui->listViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
 
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
 
@@ -348,11 +467,10 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->widgetKJVBrowser->browser()->getEditMenu());
 			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
 		}
+		m_pActionPassageBrowserEditMenu->setVisible(true);
 	} else {
-		if (m_pActionPassageBrowserEditMenu) {
-			ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
-			m_pActionPassageBrowserEditMenu = NULL;
-		}
+		if (m_pActionPassageBrowserEditMenu)
+			m_pActionPassageBrowserEditMenu->setVisible(false);
 	}
 }
 
@@ -361,13 +479,11 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 	if (bAdd) {
 		if (m_pActionSearchResultsEditMenu == NULL) {
 			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->listViewSearchResults->getEditMenu());
-			// TODO : Connect?
 		}
+		m_pActionSearchResultsEditMenu->setVisible(true);
 	} else {
-		if (m_pActionSearchResultsEditMenu) {
-			ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
-			m_pActionSearchResultsEditMenu = NULL;
-		}
+		if (m_pActionSearchResultsEditMenu)
+			m_pActionSearchResultsEditMenu->setVisible(false);
 	}
 }
 
@@ -413,6 +529,8 @@ void CKJVCanOpener::on_viewVerseHeading()
 	}
 
 	m_bDoingUpdate = false;
+
+	ui->listViewSearchResults->scrollTo(ui->listViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
 }
 
 void CKJVCanOpener::on_viewVerseRichText()
@@ -439,6 +557,8 @@ void CKJVCanOpener::on_viewVerseRichText()
 	}
 
 	m_bDoingUpdate = false;
+
+	ui->listViewSearchResults->scrollTo(ui->listViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
 }
 
 void CKJVCanOpener::on_indexChanged(const CRelIndex &index)
@@ -498,30 +618,19 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 		TIndexList lstResults = phrase.GetNormalizedSearchResults();
 
 		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-			int nCount = 1;
 			uint32_t ndxDenormal = DenormalizeIndex(lstResults.at(ndxResults));
 			CRelIndex ndxRelative(ndxDenormal);
-			CRelIndex ndxRelativeZW = CRelIndex(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);
+			unsigned int nPhraseSize = phrase.phraseSize();
 
 			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
-//				lstReferences.push_back(QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults[ndxResults]).arg(ndxDenormal));
-
-				lstReferences.push_back(CVerseListItem(
-						0,
-						QString("Invalid Index: @ %1: Norm: %2  Denorm: %3").arg(ndxResults).arg(lstResults.at(ndxResults)).arg(ndxDenormal),
-						QString()));		// TODO : TOOLTIP
+				assert(false);
+				lstReferences.push_back(CVerseListItem(0, 0));
 				continue;
 			} else {
-				lstReferences.push_back(CVerseListItem(
-						ndxRelativeZW,
-						QString(),
-						QString()));		// TODO : TOOLTIP
+				lstReferences.push_back(CVerseListItem(ndxRelative, nPhraseSize));
 			}
 
-			QString strHeading = ndxRelative.PassageReferenceText();
 			CVerseListItem &verseItem(lstReferences.last());
-			unsigned int nPhraseSize = phrase.phraseSize();
-			verseItem.phraseTags().push_back(TPhraseTag(ndxRelative, nPhraseSize));
 
 			if (ndxResults<(lstResults.size()-1)) {
 				bool bNextIsSameReference=false;
@@ -530,18 +639,14 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 					if ((ndxRelative.book() == ndxNextRelative.book()) &&
 						(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
 						(ndxRelative.verse() == ndxNextRelative.verse())) {
-						strHeading += QString("[%1]").arg(ndxNextRelative.word());
-						verseItem.phraseTags().push_back(TPhraseTag(ndxNextRelative, nPhraseSize));
+						verseItem.addPhraseTag(ndxNextRelative, nPhraseSize);
 						bNextIsSameReference=true;
-						nCount++;
 						ndxResults++;
 					} else {
 						bNextIsSameReference=false;
 					}
 				} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
 			}
-			if (nCount > 1) strHeading = QString("(%1) ").arg(nCount) + strHeading;
-			verseItem.setHeading(strHeading);
 
 			lstTags.append(verseItem.phraseTags());
 		}
