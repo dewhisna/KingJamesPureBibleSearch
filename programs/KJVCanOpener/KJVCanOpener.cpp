@@ -242,6 +242,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_bDoingUpdate(false),
 	m_pActionPassageBrowserEditMenu(NULL),
 	m_pActionSearchResultsEditMenu(NULL),
+	m_pActionSearchPhraseEditMenu(NULL),
 	m_pViewMenu(NULL),
 	m_pActionShowVerseHeading(NULL),
 	m_pActionShowVerseRichText(NULL),
@@ -380,10 +381,9 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
 
-
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit();
-	connect(pPhraseEdit, SIGNAL(activatedPhraseEdit()), this, SLOT(on_activatedPhraseEditor()));
+	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit(this);
+	connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	QVBoxLayout *pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
 	pLayoutPhrases->setSpacing(0);
@@ -464,10 +464,11 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->widgetKJVBrowser->browser()->getEditMenu());
 			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
 		}
-		m_pActionPassageBrowserEditMenu->setVisible(true);
 	} else {
-		if (m_pActionPassageBrowserEditMenu)
-			m_pActionPassageBrowserEditMenu->setVisible(false);
+		if (m_pActionPassageBrowserEditMenu) {
+			ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
+			m_pActionPassageBrowserEditMenu = NULL;
+		}
 	}
 }
 
@@ -477,10 +478,22 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 		if (m_pActionSearchResultsEditMenu == NULL) {
 			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->listViewSearchResults->getEditMenu());
 		}
-		m_pActionSearchResultsEditMenu->setVisible(true);
 	} else {
-		if (m_pActionSearchResultsEditMenu)
-			m_pActionSearchResultsEditMenu->setVisible(false);
+		if (m_pActionSearchResultsEditMenu) {
+			ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
+			m_pActionSearchResultsEditMenu = NULL;
+		}
+	}
+}
+
+void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor)
+{
+	if (m_pActionSearchPhraseEditMenu) {
+		ui->menuBar->removeAction(m_pActionSearchPhraseEditMenu);
+		m_pActionSearchPhraseEditMenu = NULL;
+	}
+	if ((bAdd) && (pEditor != NULL)) {
+		m_pActionSearchPhraseEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), pEditor->getEditMenu());
 	}
 }
 
@@ -488,18 +501,21 @@ void CKJVCanOpener::on_activatedBrowser()
 {
 	on_addPassageBrowserEditMenu(true);
 	on_addSearchResultsEditMenu(false);
+	on_addSearchPhraseEditMenu(false);
 }
 
 void CKJVCanOpener::on_activatedSearchResults()
 {
 	on_addPassageBrowserEditMenu(false);
 	on_addSearchResultsEditMenu(true);
+	on_addSearchPhraseEditMenu(false);
 }
 
-void CKJVCanOpener::on_activatedPhraseEditor()
+void CKJVCanOpener::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 {
 	on_addPassageBrowserEditMenu(false);
 	on_addSearchResultsEditMenu(false);
+	on_addSearchPhraseEditMenu(true, pEditor);
 }
 
 void CKJVCanOpener::on_viewVerseHeading()

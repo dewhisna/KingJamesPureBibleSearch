@@ -94,9 +94,10 @@ protected:
 protected slots:
 	void on_addPassageBrowserEditMenu(bool bAdd);
 	void on_addSearchResultsEditMenu(bool bAdd);
+	void on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
 	void on_activatedBrowser();
 	void on_activatedSearchResults();
-	void on_activatedPhraseEditor();
+	void on_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 	void on_viewVerseHeading();
 	void on_viewVerseRichText();
@@ -122,6 +123,7 @@ private:
 	bool m_bDoingUpdate;
 	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
+	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
 	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext

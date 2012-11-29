@@ -17,7 +17,9 @@
 #include <QString>
 #include <QCompleter>
 
-#include <QStatusBar>
+#include <QMenu>
+#include <QContextMenuEvent>
+
 
 // ============================================================================
 
@@ -27,6 +29,8 @@ class CPhraseLineEdit : public QTextEdit, CParsedPhrase
 
 public:
 	CPhraseLineEdit(QWidget *pParent = 0);
+
+	QMenu *getEditMenu() const { return m_pEditMenu; }
 
 	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
@@ -44,7 +48,7 @@ private slots:
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
 	void changeCaseSensitive(bool bCaseSensitive);
-	void activatedPhraseEdit();
+	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
 
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
@@ -73,6 +77,13 @@ private:
 private:
 	QIcon m_icoDroplist;
 	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
+
+	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
+//	QAction *m_pAction
+//	QAction *m_pActionCopy;			// Edit menu copy
+//	QAction *m_pActionSelectAll;	// Edit menu select all
+
+
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 
@@ -93,7 +104,7 @@ public:
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);
 	void phraseListChanged();
-	void activatedPhraseEdit();
+	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
 
 protected slots:
 	void on_phraseChanged(const CParsedPhrase &phrase);

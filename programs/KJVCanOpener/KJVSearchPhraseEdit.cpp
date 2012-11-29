@@ -24,9 +24,49 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_bUpdateInProgress(false),
 		m_icoDroplist(":/res/droplist.png"),
 		m_pButtonDroplist(NULL),
+		m_pEditMenu(NULL),
 		m_pStatusAction(NULL)
 {
 	setAcceptRichText(false);
+
+	QAction *pAction;
+	m_pEditMenu = new QMenu("&Edit");
+	m_pEditMenu->setStatusTip("Search Phrase Editor Operations");
+	pAction = m_pEditMenu->addAction("&Undo", this, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
+	pAction->setStatusTip("Undo last operation to the Serach Phrase Editor");
+	pAction->setEnabled(false);
+	connect(this, SIGNAL(undoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	pAction = m_pEditMenu->addAction("&Redo", this, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::Key_Y));
+	pAction->setStatusTip("Redo last operation on the Search Phrase Editor");
+	pAction->setEnabled(false);
+	connect(this, SIGNAL(redoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	m_pEditMenu->addSeparator();
+	pAction = m_pEditMenu->addAction("Cu&t", this, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
+	pAction->setStatusTip("Cut selected text from the Search Phrase Editor to the clipboard");
+	pAction->setEnabled(false);
+	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	pAction = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	pAction->setStatusTip("Copy selected text from the Search Phrase Editor to the clipboard");
+	pAction->setEnabled(false);
+	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	pAction = m_pEditMenu->addAction("&Paste", this, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	pAction->setStatusTip("Paste text on clipboard into the Search Phrase Editor");
+	pAction->setEnabled(true);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	pAction = m_pEditMenu->addAction("&Delete", this, SLOT(clear()), QKeySequence(Qt::Key_Delete));
+	pAction->setStatusTip("Delete selected text from the Search Phrase Editor");
+	pAction->setEnabled(false);
+	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	m_pEditMenu->addSeparator();
+	pAction = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	pAction->setStatusTip("Select All Text in the Search Phrase Editor");
+	pAction->setEnabled(true);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
@@ -237,7 +277,7 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 
 void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 {
-	emit activatedPhraseEdit();
+	emit activatedPhraseEdit(this);
 	QTextEdit::focusInEvent(event);
 }
 
@@ -327,7 +367,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
 	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
-	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit()), this, SIGNAL(activatedPhraseEdit()));
+	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
