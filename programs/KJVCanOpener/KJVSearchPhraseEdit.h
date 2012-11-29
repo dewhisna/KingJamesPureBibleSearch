@@ -73,6 +73,7 @@ private:
 private:
 	QIcon m_icoDroplist;
 	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
+	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 
 // ============================================================================
@@ -88,9 +89,6 @@ class CKJVSearchPhraseEdit : public QWidget
 public:
 	explicit CKJVSearchPhraseEdit(QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
-
-QStatusBar *pStatusBar;
-
 
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);

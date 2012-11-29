@@ -23,7 +23,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_nLastCursorWord(-1),
 		m_bUpdateInProgress(false),
 		m_icoDroplist(":/res/droplist.png"),
-		m_pButtonDroplist(NULL)
+		m_pButtonDroplist(NULL),
+		m_pStatusAction(NULL)
 {
 	setAcceptRichText(false);
 
@@ -55,6 +56,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+
+	m_pStatusAction = new QAction(this);
 }
 
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
@@ -181,17 +184,19 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 
 	CParsedPhrase::ParsePhrase(curInsert);
 
-	QStatusBar *pStatusBar = ((CKJVSearchPhraseEdit *)parent())->pStatusBar;
-
-	QString strTemp;
-	for (int n=0; n<m_lstWords.size(); ++n) {
-		if (n==m_nCursorWord) strTemp += "(";
-		strTemp += m_lstWords[n];
-		if (n==m_nCursorWord) strTemp += ")";
-		strTemp += " ";
+	if (m_pStatusAction) {
+		QString strTemp;
+		for (int n=0; n<m_lstWords.size(); ++n) {
+			if (n==m_nCursorWord) strTemp += "(";
+			strTemp += m_lstWords[n];
+			if (n==m_nCursorWord) strTemp += ")";
+			strTemp += " ";
+		}
+		strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
+		setStatusTip(strTemp);
+		m_pStatusAction->setStatusTip(strTemp);
+		m_pStatusAction->showStatusText();
 	}
-	strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
-	pStatusBar->showMessage(strTemp);
 }
 
 
@@ -296,7 +301,6 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 
 CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	QWidget(parent),
-pStatusBar(NULL),
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
 {

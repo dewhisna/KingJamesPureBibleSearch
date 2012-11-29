@@ -411,9 +411,6 @@ ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pP
 ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
 
 
-//ui->widgetPhraseEdit->pStatusBar = ui->statusBar;
-pPhraseEdit->pStatusBar = ui->statusBar;
-
 
 	CVerseListModel *model = new CVerseListModel(ui->listViewSearchResults);
 	model->setDisplayMode(nDisplayMode);
