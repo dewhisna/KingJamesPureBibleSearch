@@ -46,9 +46,9 @@ public:
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
 			const CRelIndex &ndxTag(phraseTags().at(ndx).first);
 			if (phraseTags().size() > 1) {
-				strToolTip += QString("(%1)[%2] \"%3\" is: ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx));
+				strToolTip += QString("(%1)[%2] \"%3\" is ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx));
 			} else {
-				strToolTip += QString("[%1] \"%2\" is: ").arg(ndxTag.word()).arg(getPhrase(ndx));
+				strToolTip += QString("[%1] \"%2\" is ").arg(ndxTag.word()).arg(getPhrase(ndx));
 			}
 			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
 		}
