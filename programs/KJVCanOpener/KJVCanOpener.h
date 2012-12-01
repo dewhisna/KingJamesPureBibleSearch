@@ -3,6 +3,7 @@
 
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
+#include "SearchPhraseListModel.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -85,7 +86,7 @@ public:
 	explicit CKJVCanOpener(const QString &strUserDatabase = QString(), QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void Initialize(CRelIndex nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
+	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0), 0));		// Default initial location is Genesis 1
 
 protected:
 	virtual void closeEvent(QCloseEvent * event);
@@ -102,7 +103,7 @@ protected slots:
 	void on_viewVerseHeading();
 	void on_viewVerseRichText();
 
-	void on_indexChanged(const CRelIndex &index);
+	void on_indexChanged(const TPhraseTag &tag);
 
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
@@ -137,6 +138,10 @@ private:
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	QAction *m_pActionAbout;		// About Application
+
+	CSearchPhraseListModel m_modelSearchPhraseEditors;
+	CSearchPhraseEditList m_lstSearchPhraseEditors;
+
 	Ui::CKJVCanOpener *ui;
 };
 

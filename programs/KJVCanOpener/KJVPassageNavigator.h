@@ -17,19 +17,20 @@ public:
 	explicit CKJVPassageNavigator(QWidget *parent = 0);
 	virtual ~CKJVPassageNavigator();
 
-	CRelIndex passage() const { return m_ndxPassage; }
-	void setPassage(const CRelIndex &ndx);
-	CRelIndex startRef() const { return m_ndxStartRef; }
+	TPhraseTag passage() const { return m_tagPassage; }
+	void setPassage(const TPhraseTag &tag);
+	TPhraseTag startRef() const { return m_tagStartRef; }
 
 	bool isReversed() const;
-	bool isRelative() const { return m_ndxStartRef.isSet(); }
-	bool isAbsolute() const { return (!m_ndxStartRef.isSet()); }
-	void startRelativeMode(CRelIndex ndxStart = CRelIndex(), CRelIndex ndxPassage = CRelIndex());
-	void startRelativeMode(CRelIndex ndxStart, bool bReverse, CRelIndex ndxPassage = CRelIndex());
-	void startAbsoluteMode(CRelIndex ndxPassage = CRelIndex());
+	bool isRelative() const { return m_tagStartRef.first.isSet(); }
+	bool isAbsolute() const { return (!m_tagStartRef.first.isSet()); }
+	void startRelativeMode(TPhraseTag tagStart = TPhraseTag(), TPhraseTag tagPassage = TPhraseTag());
+	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage = TPhraseTag());
+	void startAbsoluteMode(TPhraseTag tagPassage = TPhraseTag());
 
 signals:
 	void modeChanged(bool bRelative);
+	void gotoIndex(const TPhraseTag &tag);
 
 private:
 	void CalcPassage();
@@ -44,8 +45,8 @@ private slots:
 
 // Data Private:
 private:
-	CRelIndex m_ndxStartRef;	// Starting index		-- Will be unset if in Absolute Mode
-	CRelIndex m_ndxPassage;		// Index of passage
+	TPhraseTag m_tagStartRef;	// Starting index		-- Will be unset if in Absolute Mode
+	TPhraseTag m_tagPassage;	// Index of passage
 	unsigned int m_nTestament;
 	unsigned int m_nBook;
 	unsigned int m_nChapter;

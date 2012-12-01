@@ -364,7 +364,15 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 
 // ============================================================================
 
-typedef QPair<CRelIndex, unsigned int> TPhraseTag;		// Relative Index and Word Count pair used for highlight phrases found
+//typedef QPair<CRelIndex, unsigned int> TPhraseTag;
+// Relative Index and Word Count pair used for highlight phrases found:
+class TPhraseTag : public QPair<CRelIndex, unsigned int>
+{
+public:
+	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 1)	// Note: Most common default is 1 word on tags
+		:	QPair<CRelIndex, unsigned int>(ndx, nCount) { }
+};
+
 typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases
 
 struct TPhraseTagListSortPredicate {

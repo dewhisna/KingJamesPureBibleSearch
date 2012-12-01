@@ -804,15 +804,15 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 
 // ============================================================================
 
-void CPhraseEditNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCount)
+void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {
-	CRelIndex ndxScroll = ndx;
+	CRelIndex ndxScroll = tag.first;
 	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
 	ndxScroll.setWord(0);
 
 	m_TextEditor.scrollToAnchor(ndxScroll.asAnchor());
 
-	CRelIndex ndxRel = ndx;
+	CRelIndex ndxRel = tag.first;
 	uint32_t ndxWord = ndxRel.word();
 	ndxRel.setWord(0);
 	int nPos = anchorPosition(ndxRel.asAnchor());
@@ -848,7 +848,7 @@ void CPhraseEditNavigator::selectWords(const CRelIndex &ndx, unsigned int nWrdCo
 			}
 		}
 		myCursor.setPosition(nSelEnd);
-		unsigned int nCount = nWrdCount;
+		unsigned int nCount = tag.second;
 		while (nCount) {
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();

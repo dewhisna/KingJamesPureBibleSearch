@@ -185,4 +185,6 @@ private:
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 };
 
+// ============================================================================
+
 #endif // VERSELISTMODEL_H

@@ -260,6 +260,11 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 {
 	ui->setupUi(this);
 
+//	ui->splitter->setStyleSheet("QSplitter::handle:hover { background-color: #0000FF; }");
+//	setStyleSheet("QSplitter::handle:hover { background: #0000FF; }");
+//	setStyleSheet("QMainWindow::separator:hover { background-color: palette(highlight); }");
+	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
+
 	// TODO : Set preference for start mode!:
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
 
@@ -318,7 +323,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionChapterForward = pNavMenu->addAction("Chapter Forward", ui->widgetKJVBrowser, SLOT(on_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
 	m_pActionChapterForward->setStatusTip("Move Forward one Chapter");
 	connect(m_pActionChapterForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	connect(ui->widgetKJVBrowser, SIGNAL(IndexChanged(const CRelIndex &)), this, SLOT(on_indexChanged(const CRelIndex &)));
+	connect(ui->widgetKJVBrowser, SIGNAL(IndexChanged(const TPhraseTag &)), this, SLOT(on_indexChanged(const TPhraseTag &)));
 
 	pNavMenu->addSeparator();
 
@@ -384,6 +389,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit(this);
 	connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	m_lstSearchPhraseEditors.append(pPhraseEdit);
 
 	QVBoxLayout *pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
 	pLayoutPhrases->setSpacing(0);
@@ -408,7 +415,49 @@ pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
 */
 
-ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
+
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
+
+
+//ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
+ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
 
 
 
@@ -419,9 +468,6 @@ ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pP
 	CVerseListDelegate *delegate = new CVerseListDelegate(*model, ui->listViewSearchResults);
 	ui->listViewSearchResults->setItemDelegate(delegate);
 
-//connect(ui->widgetPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-
 	connect(ui->listViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
 }
 
@@ -430,7 +476,7 @@ CKJVCanOpener::~CKJVCanOpener()
 	delete ui;
 }
 
-void CKJVCanOpener::Initialize(CRelIndex nInitialIndex)
+void CKJVCanOpener::Initialize(const TPhraseTag &nInitialIndex)
 {
 	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
 }
@@ -574,7 +620,7 @@ void CKJVCanOpener::on_viewVerseRichText()
 	ui->listViewSearchResults->scrollTo(ui->listViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
 }
 
-void CKJVCanOpener::on_indexChanged(const CRelIndex &index)
+void CKJVCanOpener::on_indexChanged(const TPhraseTag &tag)
 {
 	assert(m_pActionBookBackward != NULL);
 	assert(m_pActionBookForward != NULL);
@@ -585,12 +631,12 @@ void CKJVCanOpener::on_indexChanged(const CRelIndex &index)
 		(m_pActionChapterBackward == NULL) ||
 		(m_pActionChapterForward == NULL)) return;
 
-	m_pActionBookBackward->setEnabled(index.book() >= 2);
-	m_pActionBookForward->setEnabled(index.book() < g_lstTOC.size());
-	m_pActionChapterBackward->setEnabled((index.book() >= 2) ||
-										((index.book() == 1) && (index.chapter() >= 2)));
-	m_pActionChapterForward->setEnabled((index.book() < g_lstTOC.size()) ||
-										((index.book() == g_lstTOC.size()) && (index.chapter() < g_lstTOC.at(index.book()-1).m_nNumChp)));
+	m_pActionBookBackward->setEnabled(tag.first.book() >= 2);
+	m_pActionBookForward->setEnabled(tag.first.book() < g_lstTOC.size());
+	m_pActionChapterBackward->setEnabled((tag.first.book() >= 2) ||
+										((tag.first.book() == 1) && (tag.first.chapter() >= 2)));
+	m_pActionChapterForward->setEnabled((tag.first.book() < g_lstTOC.size()) ||
+										((tag.first.book() == g_lstTOC.size()) && (tag.first.chapter() < g_lstTOC.at(tag.first.book()-1).m_nNumChp)));
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()
@@ -703,9 +749,9 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 //	}
 
 	if (verse.phraseTags().size() != 0) {
-		ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, 0);
+		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.phraseTags().at(0).first, 0));
 	} else {
-		ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
+		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.getIndex(), 0));
 	}
 
 	ui->widgetKJVBrowser->focusBrowser();

@@ -20,8 +20,8 @@ public:
 	explicit CKJVPassageNavigatorDlg(QWidget *parent = 0);
 	virtual ~CKJVPassageNavigatorDlg();
 
-	CRelIndex passage() const;
-	void setPassage(const CRelIndex &ndx);
+	TPhraseTag passage() const;
+	void setPassage(const TPhraseTag &tag);
 	CKJVPassageNavigator &navigator();
 
 private slots:
@@ -29,6 +29,7 @@ private slots:
 	void on_ApplyResolvedClicked();
 	void on_ModeClicked();
 	void on_ResetClicked();
+	void on_gotoIndex(const TPhraseTag &tag);
 
 private:
 	QPushButton *m_pApplyButton;		// Apply is to apply the resolved reference to the start reference for relative mode

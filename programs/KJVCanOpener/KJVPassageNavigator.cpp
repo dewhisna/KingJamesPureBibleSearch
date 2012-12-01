@@ -26,7 +26,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		}
 	}
 
-	setPassage(CRelIndex());
+	setPassage(TPhraseTag());
 
 	startAbsoluteMode();
 
@@ -36,6 +36,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	connect(ui->editChapter, SIGNAL(textEdited(const QString &)), this, SLOT(ChapterChanged(const QString &)));
 	connect(ui->editBook, SIGNAL(textEdited(const QString &)), this, SLOT(BookChanged(const QString &)));
 	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(on_ReverseChanged(bool)));
+	connect(ui->editVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigator::~CKJVPassageNavigator()
@@ -90,22 +91,22 @@ void CKJVPassageNavigator::on_ReverseChanged(bool /* bReverse */)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
+void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 {
 	begin_update();
 
-	m_ndxPassage = ndx;
+	m_tagPassage = tag;
 
 	ui->comboTestament->setCurrentIndex(ui->comboTestament->findData(0));
 	m_nTestament = 0;
-	ui->editBook->setText(QString("%1").arg(ndx.book()));
-	m_nBook = ndx.book();
-	ui->editChapter->setText(QString("%1").arg(ndx.chapter()));
-	m_nChapter = ndx.chapter();
-	ui->editVerse->setText(QString("%1").arg(ndx.verse()));
-	m_nVerse = ndx.verse();
-	ui->editWord->setText(QString("%1").arg(ndx.word()));
-	m_nWord = ndx.word();
+	ui->editBook->setText(QString("%1").arg(tag.first.book()));
+	m_nBook = tag.first.book();
+	ui->editChapter->setText(QString("%1").arg(tag.first.chapter()));
+	m_nChapter = tag.first.chapter();
+	ui->editVerse->setText(QString("%1").arg(tag.first.verse()));
+	m_nVerse = tag.first.verse();
+	ui->editWord->setText(QString("%1").arg(tag.first.word()));
+	m_nWord = tag.first.word();
 	CalcPassage();
 
 	end_update();
@@ -113,28 +114,28 @@ void CKJVPassageNavigator::setPassage(const CRelIndex &ndx)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	m_ndxPassage = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_ndxStartRef.isSet() ? m_nTestament : 0), m_ndxStartRef, (!m_ndxStartRef.isSet() ? false : ui->chkboxReverse->isChecked()));
-	ui->editResolved->setText(m_ndxPassage.PassageReferenceText());
+	m_tagPassage.first = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
+	ui->editResolved->setText(m_tagPassage.first.PassageReferenceText());
 	CPhraseEditNavigator navigator(*ui->editVersePreview);
 //	TPhraseTagList tags;
 //	tags.push_back(TPhraseTag(m_ndxPassage, 1));
-	navigator.setDocumentToVerse(m_ndxPassage);
-	navigator.doHighlighting(CSearchResultHighlighter(TPhraseTag(m_ndxPassage, 1)));
+	navigator.setDocumentToVerse(m_tagPassage.first);
+	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 }
 
-void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, CRelIndex ndxPassage)
+void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
 {
-	startRelativeMode(ndxStart, isReversed(), ndxPassage);
+	startRelativeMode(tagStart, isReversed(), tagPassage);
 }
 
-void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, bool bReverse, CRelIndex ndxPassage)
+void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
 {
 	begin_update();
 
-	if (ndxStart.isSet()) {
-		m_ndxStartRef = ndxStart;
+	if (tagStart.first.isSet()) {
+		m_tagStartRef = tagStart;
 	} else {
-		m_ndxStartRef = CRelIndex(1,1,1,1);
+		m_tagStartRef = TPhraseTag(CRelIndex(1,1,1,1), 1);
 	}
 
 	ui->lblTestament->hide();
@@ -144,7 +145,7 @@ void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, bool bReverse, 
 	ui->editStartRef->show();
 	ui->chkboxReverse->show();
 
-	ui->editStartRef->setText(m_ndxStartRef.PassageReferenceText());
+	ui->editStartRef->setText(m_tagStartRef.first.PassageReferenceText());
 	ui->chkboxReverse->setChecked(bReverse);
 
 	ui->lblBook->setText("&Books:");
@@ -152,7 +153,7 @@ void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, bool bReverse, 
 	ui->lblVerse->setText("&Verses:");
 	ui->lblWord->setText("&Words:");
 
-	if (ndxPassage.isSet()) setPassage(ndxPassage);
+	if (tagPassage.first.isSet()) setPassage(tagPassage);
 
 	emit modeChanged(true);
 
@@ -161,11 +162,11 @@ void CKJVPassageNavigator::startRelativeMode(CRelIndex ndxStart, bool bReverse, 
 	end_update();
 }
 
-void CKJVPassageNavigator::startAbsoluteMode(CRelIndex ndxPassage)
+void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
 	begin_update();
 
-	m_ndxStartRef = CRelIndex();		// Unset to indicate absolute mode
+	m_tagStartRef = TPhraseTag();		// Unset to indicate absolute mode
 
 	ui->lblStartRef->hide();
 	ui->editStartRef->hide();
@@ -179,7 +180,7 @@ void CKJVPassageNavigator::startAbsoluteMode(CRelIndex ndxPassage)
 	ui->lblVerse->setText("&Verse:");
 	ui->lblWord->setText("&Word:");
 
-	if (ndxPassage.isSet()) setPassage(ndxPassage);
+	if (tagPassage.first.isSet()) setPassage(tagPassage);
 
 	emit modeChanged(false);
 

@@ -41,7 +41,7 @@ CScriptureBrowser::CScriptureBrowser(QWidget *parent)
 	connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
 	connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 
-	m_pEditMenu = new QMenu("&Edit");
+	m_pEditMenu = new QMenu("&Edit", this);
 	m_pEditMenu->setStatusTip("Passage Browser Editor Operations");
 	m_pActionCopy = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
 	m_pActionCopy->setStatusTip("Copy selected passage browser text to the clipboard");
@@ -61,10 +61,7 @@ CScriptureBrowser::CScriptureBrowser(QWidget *parent)
 
 CScriptureBrowser::~CScriptureBrowser()
 {
-	if (m_pEditMenu) {
-		delete m_pEditMenu;
-		m_pEditMenu = NULL;
-	}
+
 }
 
 void CScriptureBrowser::clearHighlighting()
@@ -150,9 +147,9 @@ void CScriptureBrowser::mouseDoubleClickEvent(QMouseEvent *ev)
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	if (ndxLast.isSet()) {
 		CKJVPassageNavigatorDlg dlg(parentWidget());
-		dlg.navigator().startRelativeMode(ndxLast, false);
+		dlg.navigator().startRelativeMode(m_tagLast, false);
 		if (dlg.exec() == QDialog::Accepted) {
-			emit gotoIndex(dlg.passage(), 1);
+			emit gotoIndex(dlg.passage());
 		}
 	}
 	m_bDoingPopup = false;
@@ -221,7 +218,7 @@ CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	Initialize();
 
 // UI Connections:
-	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const CRelIndex &, unsigned int)), this, SLOT(gotoIndex(const CRelIndex &, unsigned int)));
+	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(ui->textBrowserMainText, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
 
 	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
@@ -244,7 +241,7 @@ CScriptureBrowser *CKJVBrowser::browser()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
+void CKJVBrowser::Initialize(const TPhraseTag &nInitialIndex)
 {
 	begin_update();
 
@@ -263,28 +260,28 @@ void CKJVBrowser::Initialize(const CRelIndex &nInitialIndex)
 
 	end_update();
 
-	if (nInitialIndex.isSet()) gotoIndex(nInitialIndex);
+	if (nInitialIndex.first.isSet()) gotoIndex(nInitialIndex);
 }
 
-void CKJVBrowser::gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount)
+void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
 	begin_update();
-	ui->textBrowserMainText->setSource(QString("#%1").arg(ndx.asAnchor()));
+	ui->textBrowserMainText->setSource(QString("#%1").arg(tag.first.asAnchor()));
 	end_update();
 
-	gotoIndex2(ndx, nWrdCount);
+	gotoIndex2(tag);
 }
 
-void CKJVBrowser::gotoIndex2(const CRelIndex &ndx, unsigned int nWrdCount)
+void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 {
-	setBook(ndx);
-	setChapter(ndx);
-	setVerse(ndx);
-	setWord(ndx, nWrdCount);
+	setBook(tag.first);
+	setChapter(tag.first);
+	setVerse(tag.first);
+	setWord(tag);
 
 	doHighlighting();
 
-	emit IndexChanged(ndx);
+	emit IndexChanged(tag);
 }
 
 void CKJVBrowser::on_sourceChanged(const QUrl &src)
@@ -295,7 +292,7 @@ void CKJVBrowser::on_sourceChanged(const QUrl &src)
 	int nPos = strURL.indexOf('#');
 	if (nPos > -1) {
 		CRelIndex ndxRel(strURL.mid(nPos+1));
-		if (ndxRel.isSet()) gotoIndex2(ndxRel);
+		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(ndxRel, 0));
 	}
 }
 
@@ -322,7 +319,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 
 void CKJVBrowser::on_Bible_Beginning()
 {
-	gotoIndex(CRelIndex(1,1,1,1));
+	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1), 0));
 }
 
 void CKJVBrowser::on_Bible_Ending()
@@ -332,33 +329,33 @@ void CKJVBrowser::on_Bible_Ending()
 	ndx.setChapter(g_lstTOC.at(g_lstTOC.size()-1).m_nNumChp);
 	ndx.setVerse(g_mapLayout[CRelIndex(ndx.book(), ndx.chapter(), 0, 0)].m_nNumVrs);
 	ndx.setWord((g_lstBooks[ndx.book()-1])[CRelIndex(0, ndx.chapter(), ndx.verse(), 0)].m_nNumWrd);
-	gotoIndex(ndx);
+	gotoIndex(TPhraseTag(ndx, 0));
 }
 
 void CKJVBrowser::on_Book_Backward()
 {
 	if (m_ndxCurrent.book() < 2) return;
 
-	gotoIndex(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1), 0));
 }
 
 void CKJVBrowser::on_Book_Forward()
 {
 	if (m_ndxCurrent.book() >= g_lstTOC.size()) return;
 
-	gotoIndex(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1), 0));
 }
 
 void CKJVBrowser::on_ChapterBackward()
 {
 	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) gotoIndex(ndx);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx, 0));
 }
 
 void CKJVBrowser::on_ChapterForward()
 {
 	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
-	if (ndx.isSet()) gotoIndex(ndx);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx, 0));
 }
 
 // ----------------------------------------------------------------------------
@@ -448,10 +445,10 @@ void CKJVBrowser::setVerse(const CRelIndex &ndx)
 
 }
 
-void CKJVBrowser::setWord(const CRelIndex &ndx, unsigned int nWrdCount)
+void CKJVBrowser::setWord(const TPhraseTag &tag)
 {
-	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), ndx.word());
-	ui->textBrowserMainText->navigator().selectWords(ndx, nWrdCount);
+	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.first.word());
+	ui->textBrowserMainText->navigator().selectWords(tag);
 }
 
 // ----------------------------------------------------------------------------
@@ -465,7 +462,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget, 0));
 }
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
@@ -477,7 +474,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	if (index != -1) {
 		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget,0));
 }
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
@@ -492,7 +489,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget,0));
 }
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
@@ -507,7 +504,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget,0));
 }
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
@@ -519,7 +516,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget,0));
 }
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
@@ -532,7 +529,7 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(ndxTarget);
+	gotoIndex(TPhraseTag(ndxTarget,0));
 }
 
 // ----------------------------------------------------------------------------

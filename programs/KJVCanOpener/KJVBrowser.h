@@ -30,7 +30,7 @@ public:
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
 signals:
-	void gotoIndex(CRelIndex ndx, unsigned int nWrdCount);
+	void gotoIndex(const TPhraseTag &tag);
 	void activatedBrowser();
 
 protected:
@@ -75,12 +75,12 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	void Initialize(const CRelIndex &nInitialIndex = CRelIndex(1,1,0,0));		// Default initial location is Genesis 1
+	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0), 0));		// Default initial location is Genesis 1
 
 	CScriptureBrowser *browser();
 
 public slots:
-	void gotoIndex(const CRelIndex &ndx, unsigned int nWrdCount = 0);
+	void gotoIndex(const TPhraseTag &tag);
 	void focusBrowser();
 	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
 
@@ -93,7 +93,7 @@ public slots:
 	void on_ChapterForward();
 
 signals:
-	void IndexChanged(const CRelIndex &index);
+	void IndexChanged(const TPhraseTag &tag);
 
 private slots:
 	void on_sourceChanged(const QUrl &src);
@@ -106,14 +106,14 @@ private slots:
 	void BibleChpComboIndexChanged(int index);
 
 private:
-	void gotoIndex2(const CRelIndex &ndx, unsigned int nWrdCount = 0);
+	void gotoIndex2(const TPhraseTag &tag);
 	void doHighlighting(bool bClear = false);		// Highlight the areas marked in the PhraseTags.  If bClear=True, removes the highlighting, which is used to swapout the current tag list for a new one without redrawing everything
 
 	// These should be used in order:
 	void setBook(const CRelIndex &ndx);		// Updates BkChp list, sets lblTestament, updates TstBk and TstChp lists
 	void setChapter(const CRelIndex &ndx);	// Fills in the main browser text for the desired chapter
 	void setVerse(const CRelIndex &ndx);	// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
-	void setWord(const CRelIndex &ndx, unsigned int nWrdCount = 0);		// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
+	void setWord(const TPhraseTag &tag);	// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
 
 // Data Private:
 private:

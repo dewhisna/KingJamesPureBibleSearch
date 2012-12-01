@@ -326,7 +326,7 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 }
 
-void CPhraseLineEdit::resizeEvent(QResizeEvent *event)
+void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)
 {
 	m_pButtonDroplist->move(width()-m_pButtonDroplist->width(),0);
 }
@@ -373,6 +373,11 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 {
 	delete ui;
+}
+
+const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
+{
+	return ui->editPhrase;
 }
 
 void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)

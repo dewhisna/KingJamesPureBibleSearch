@@ -23,7 +23,7 @@
 
 // ============================================================================
 
-class CPhraseLineEdit : public QTextEdit, CParsedPhrase
+class CPhraseLineEdit : public QTextEdit, public CParsedPhrase
 {
 	Q_OBJECT
 
@@ -77,13 +77,7 @@ private:
 private:
 	QIcon m_icoDroplist;
 	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
-
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
-//	QAction *m_pAction
-//	QAction *m_pActionCopy;			// Edit menu copy
-//	QAction *m_pActionSelectAll;	// Edit menu select all
-
-
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 
@@ -100,6 +94,8 @@ class CKJVSearchPhraseEdit : public QWidget
 public:
 	explicit CKJVSearchPhraseEdit(QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
+
+	const CParsedPhrase *parsedPhrase() const;
 
 signals:
 	void phraseChanged(const CParsedPhrase &phrase);

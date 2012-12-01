@@ -29,6 +29,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(QWidget *parent) :
 	on_modeChanged(ui->widgetKJVPassageNavigator->isRelative());
 
 	connect(ui->widgetKJVPassageNavigator, SIGNAL(modeChanged(bool)), this, SLOT(on_modeChanged(bool)));
+	connect(ui->widgetKJVPassageNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(on_gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
@@ -36,14 +37,14 @@ CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
 	delete ui;
 }
 
-CRelIndex CKJVPassageNavigatorDlg::passage() const
+TPhraseTag CKJVPassageNavigatorDlg::passage() const
 {
 	return ui->widgetKJVPassageNavigator->passage();
 }
 
-void CKJVPassageNavigatorDlg::setPassage(const CRelIndex &ndx)
+void CKJVPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
 {
-	ui->widgetKJVPassageNavigator->setPassage(ndx);
+	ui->widgetKJVPassageNavigator->setPassage(tag);
 }
 
 CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
@@ -67,14 +68,14 @@ void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 void CKJVPassageNavigatorDlg::on_ApplyResolvedClicked()
 {
 	// Reversing and swapping passage and startRef are symmetric:
-	ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage(), !ui->widgetKJVPassageNavigator->isReversed());
+	ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage(), ui->widgetKJVPassageNavigator->isReversed());
 }
 
 void CKJVPassageNavigatorDlg::on_ModeClicked()
 {
 	if (ui->widgetKJVPassageNavigator->isAbsolute()) {
 		ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage());
-		ui->widgetKJVPassageNavigator->setPassage(CRelIndex());
+		on_ResetClicked();
 	} else {
 		ui->widgetKJVPassageNavigator->startAbsoluteMode(ui->widgetKJVPassageNavigator->passage());
 	}
@@ -82,6 +83,16 @@ void CKJVPassageNavigatorDlg::on_ModeClicked()
 
 void CKJVPassageNavigatorDlg::on_ResetClicked()
 {
-	setPassage(CRelIndex());
+	setPassage(TPhraseTag(CRelIndex(), passage().second));
+}
+
+void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)
+{
+	// Easiest way to simulate this is to apply the click-navigated passage as an
+	//		absolute reference and accept it.  Otherwise, if we just setPassage,
+	//		then if we're in relative mode, we'll move by the relative offset
+	//		instead of navigating to it:
+	ui->widgetKJVPassageNavigator->startAbsoluteMode(tag);
+	accept();
 }
 
