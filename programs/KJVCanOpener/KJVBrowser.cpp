@@ -165,7 +165,6 @@ void CScriptureBrowser::contextMenuEvent(QContextMenuEvent *ev)
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu *menu = createStandardContextMenu(ev->pos());
-	menu->setStyleSheet(" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;");
 	menu->addSeparator();
 	menu->addAction(m_pActionCopyReferenceDetails);
 	menu->addAction(m_pActionCopyPassageStatistics);
@@ -218,8 +217,6 @@ CKJVBrowser::CKJVBrowser(QWidget *parent) :
 	ui(new Ui::CKJVBrowser)
 {
 	ui->setupUi(this);
-
-	ui->textBrowserMainText->setStyleSheet("font: 12pt \"Times New Roman\";");
 
 	Initialize();
 

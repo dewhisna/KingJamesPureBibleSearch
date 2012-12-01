@@ -640,7 +640,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 		emit changedDocumentText();
 		return;
 	}
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:20pt; }\n.chapter { font-size:16pt; }\n</style></head><body>\n")
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
@@ -661,10 +661,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 	strHTML += "<hr/>\n";
 
 	// Print Heading for this Book/Chapter:
-	strHTML += QString("<h1 class=book><a id=\"%1\">%2</a></h1>\n")
+	strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
 					.arg(Qt::escape(toc.m_strBkName));
-	strHTML += QString("<h2 class=chapter><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+	strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
 					.arg(ndx.chapter())
 					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
@@ -706,10 +706,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != ndx.book())
-			strHTML += QString("<h1 class=book><a id=\"%1\">%2</a></h1>\n")
+			strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
 							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
 							.arg(g_lstTOC[relNext.book()-1].m_strBkName);
-		strHTML += QString("<h2 class=chapter><a id=\"%1\">Chapter %2</a></h2><a id=\"X%3\"> </a>\n")
+		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
 							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
 							.arg(relNext.chapter())
 							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
@@ -763,7 +763,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		return;
 	}
 
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:20pt; }\n.chapter { font-size:16pt; }\n</style></head><body>\n")
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 						.arg(ndx.PassageReferenceText());		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br/>";
 
