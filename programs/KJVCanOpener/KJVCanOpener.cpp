@@ -364,7 +364,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
 
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
-	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage Navigator", this);
+	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage &Navigator", this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	m_pActionJump->setStatusTip("Display the Passage Navigator Widget");
 	ui->mainToolBar->addAction(m_pActionJump);
@@ -759,11 +759,15 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 
 void CKJVCanOpener::on_PassageNavigatorTriggered()
 {
-	CKJVPassageNavigatorDlg dlg(this);
+	if (ui->widgetKJVBrowser->browser()->hasFocus()) {
+		ui->widgetKJVBrowser->browser()->on_passageNavigator();
+	} else {
+		CKJVPassageNavigatorDlg dlg(this);
 
-	if (dlg.exec() == QDialog::Accepted) {
-		ui->widgetKJVBrowser->gotoIndex(dlg.passage());
-		ui->widgetKJVBrowser->focusBrowser();
+		if (dlg.exec() == QDialog::Accepted) {
+			ui->widgetKJVBrowser->gotoIndex(dlg.passage());
+			ui->widgetKJVBrowser->focusBrowser();
+		}
 	}
 }
 

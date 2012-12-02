@@ -46,6 +46,10 @@ public:
 
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
+	bool haveSelection() const {
+		return ((m_tagSelection.first.isSet()) && (m_tagSelection.second != 0));
+	}
+
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
@@ -57,18 +61,25 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 //private slots:
-	void on_cursorPositionChanged();
-	void clearHighlighting();
-	void on_copyReferenceDetails();
-	void on_copyPassageStatistics();
-	void on_copyEntirePassageDetails();
+protected:
+	virtual void on_cursorPositionChanged();
+	virtual void on_selectionChanged();
+	virtual void clearHighlighting();
+	virtual void on_copyReferenceDetails();
+	virtual void on_copyPassageStatistics();
+	virtual void on_copyEntirePassageDetails();
+
+//public slots:
+public:
+	virtual void on_passageNavigator();
 
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	CPhraseEditNavigator m_navigator;
 	CCursorFollowHighlighter m_Highlighter;
 	QTimer m_HighlightTimer;
-	TPhraseTag m_tagLast;			// Last reference tag for tool tips, etc (used for copying, etc)
+	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
+	TPhraseTag m_tagSelection;		// Current cursor selection reference for tool tips, etc (used for copying, etc)
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QAction *m_pActionCopy;			// Edit menu copy
@@ -76,6 +87,13 @@ private:
 	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
 	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy
+
+#define begin_popup()							\
+			bool bPopupSave = m_bDoingPopup;	\
+			m_bDoingPopup = true;
+#define end_popup()								\
+			m_bDoingPopup = bPopupSave;
+
 };
 
 
@@ -97,10 +115,14 @@ signals:
 
 protected slots:
 	virtual void on_cursorPositionChanged() = 0;
+	virtual void on_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
 	virtual void on_copyReferenceDetails() = 0;
 	virtual void on_copyPassageStatistics() = 0;
 	virtual void on_copyEntirePassageDetails() = 0;
+
+public slots:
+//	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -117,10 +139,14 @@ signals:
 
 protected slots:
 	virtual void on_cursorPositionChanged() = 0;
+	virtual void on_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
 	virtual void on_copyReferenceDetails() = 0;
 	virtual void on_copyPassageStatistics() = 0;
 	virtual void on_copyEntirePassageDetails() = 0;
+
+public slots:
+	virtual void on_passageNavigator() = 0;
 };
 
 // ============================================================================

@@ -117,8 +117,6 @@ void CKJVPassageNavigator::CalcPassage()
 	m_tagPassage.first = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_tagPassage.first.PassageReferenceText());
 	CPhraseEditNavigator navigator(*ui->editVersePreview);
-//	TPhraseTagList tags;
-//	tags.push_back(TPhraseTag(m_ndxPassage, 1));
 	navigator.setDocumentToVerse(m_tagPassage.first);
 	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 }
@@ -153,7 +151,13 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->lblVerse->setText("&Verses:");
 	ui->lblWord->setText("&Words:");
 
-	if (tagPassage.first.isSet()) setPassage(tagPassage);
+	if (tagPassage.first.isSet()) {
+		setPassage(tagPassage);
+	} else {
+		// If we don't have an absolute passage, set the passage size (that we'll calculate from
+		//		our zero-relative) to be the size of the starting reference passage:
+		m_tagPassage.second = tagStart.second;
+	}
 
 	emit modeChanged(true);
 

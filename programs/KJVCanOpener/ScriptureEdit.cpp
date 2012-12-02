@@ -34,6 +34,7 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_HighlightTimer.stop();
 
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
+	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(on_selectionChanged()));
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 
@@ -48,7 +49,6 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
-	connect(m_pActionCopyReferenceDetails, SLOT(trigger()), this, SLOT(on_copyReferenceDetails()));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
 	m_pActionCopyPassageStatistics = m_pEditMenu->addAction("Copy Passage &Statistics (Book/Chapter/Verse)", this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
@@ -65,9 +65,11 @@ CScriptureText<T,U>::~CScriptureText()
 template<class T, class U>
 void CScriptureText<T,U>::clearHighlighting()
 {
-	m_navigator.doHighlighting(m_Highlighter, true);
-	m_Highlighter.clearPhraseTags();
-	m_HighlightTimer.stop();
+	if (!m_bDoingPopup) {
+		m_navigator.doHighlighting(m_Highlighter, true);
+		m_Highlighter.clearPhraseTags();
+		m_HighlightTimer.stop();
+	}
 }
 
 template<class T, class U>
@@ -143,54 +145,87 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 template<>
 void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-	m_bDoingPopup = true;
+	begin_popup();
+
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
-	m_bDoingPopup = false;
+
+	end_popup();
 }
 
 template<>
 void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-	m_bDoingPopup = true;
-	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	m_navigator.highlightTag(m_Highlighter, m_tagLast);
-	if (ndxLast.isSet()) {
-		CKJVPassageNavigatorDlg dlg(parentWidget());
-		dlg.navigator().startRelativeMode(m_tagLast, false);
-		if (dlg.exec() == QDialog::Accepted) {
-			emit gotoIndex(dlg.passage());
-		}
+	QTextBrowser::mouseDoubleClickEvent(ev);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_passageNavigator()
+{
+	begin_popup();
+
+	// This now works exclusively by edit cursor position, not the mouse position from
+	//		hovering as it used to when there was no selection.  This is so the menu
+	//		Ctrl-G shortcut to activate this will make sense and be consistent across
+	//		the entire app.
+
+	TPhraseTag tagSel = m_tagSelection;
+	if (tagSel.second == 0) tagSel.second = 1;			// Simulate single word selection if nothing actually selected
+	m_navigator.highlightTag(m_Highlighter, tagSel);
+	CKJVPassageNavigatorDlg dlg(T::parentWidget());
+	dlg.navigator().startRelativeMode(tagSel, false);
+	if (dlg.exec() == QDialog::Accepted) {
+		emit T::gotoIndex(dlg.passage());
 	}
-	m_bDoingPopup = false;
+
+	end_popup();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 {
-	m_bDoingPopup = true;
+	begin_popup();
+
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	if (!haveSelection()) m_tagSelection.first = m_tagLast.first;		// simulate selection move with context mouse if we don't have a selection
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu *menu = T::createStandardContextMenu(ev->pos());
+	menu->addSeparator();
+	QAction *pActionNavigator = menu->addAction("Passage &Navigator...");
+	pActionNavigator->setEnabled(connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
+	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu->addSeparator();
 	menu->addAction(m_pActionCopyReferenceDetails);
 	menu->addAction(m_pActionCopyPassageStatistics);
 	menu->addAction(m_pActionCopyEntirePassageDetails);
 	menu->exec(ev->globalPos());
 	delete menu;
-	m_bDoingPopup = false;
+
+	end_popup();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_cursorPositionChanged()
 {
 	CPhraseCursor cursor = T::textCursor();
-	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursor);
-	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_tagLast.first = m_navigator.ResolveCursorReference(cursor);
+	if (!m_tagLast.first.isSet()) m_tagLast.second = 0;
+	cursor.setPosition(qMin(cursor.anchor(), cursor.position()));
+	m_tagSelection.first = m_navigator.ResolveCursorReference(cursor);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_selectionChanged()
+{
+	CPhraseCursor cursor = T::textCursor();
+	CParsedPhrase phrase;
+	phrase.ParsePhrase(cursor.selectedText());
+	m_tagSelection.second = phrase.phraseSize();
+	cursor.setPosition(qMin(cursor.anchor(), cursor.position()));
+	m_tagSelection.first = m_navigator.ResolveCursorReference(cursor);
 }
 
 template<class T, class U>
