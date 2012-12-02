@@ -292,7 +292,7 @@ void CKJVBrowser::on_sourceChanged(const QUrl &src)
 	int nPos = strURL.indexOf('#');
 	if (nPos > -1) {
 		CRelIndex ndxRel(strURL.mid(nPos+1));
-		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(ndxRel, 0));
+		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(ndxRel));
 	}
 }
 
@@ -319,7 +319,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 
 void CKJVBrowser::on_Bible_Beginning()
 {
-	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1), 0));
+	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1)));
 }
 
 void CKJVBrowser::on_Bible_Ending()
@@ -329,33 +329,33 @@ void CKJVBrowser::on_Bible_Ending()
 	ndx.setChapter(g_lstTOC.at(g_lstTOC.size()-1).m_nNumChp);
 	ndx.setVerse(g_mapLayout[CRelIndex(ndx.book(), ndx.chapter(), 0, 0)].m_nNumVrs);
 	ndx.setWord((g_lstBooks[ndx.book()-1])[CRelIndex(0, ndx.chapter(), ndx.verse(), 0)].m_nNumWrd);
-	gotoIndex(TPhraseTag(ndx, 0));
+	gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::on_Book_Backward()
 {
 	if (m_ndxCurrent.book() < 2) return;
 
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1), 0));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_Book_Forward()
 {
 	if (m_ndxCurrent.book() >= g_lstTOC.size()) return;
 
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1), 0));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_ChapterBackward()
 {
 	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx, 0));
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::on_ChapterForward()
 {
 	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx, 0));
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 // ----------------------------------------------------------------------------
@@ -462,7 +462,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(ndxTarget, 0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
@@ -474,7 +474,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	if (index != -1) {
 		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
 	}
-	gotoIndex(TPhraseTag(ndxTarget,0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
@@ -489,7 +489,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget,0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
@@ -504,7 +504,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget,0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
@@ -516,7 +516,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(ndxTarget,0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
@@ -529,7 +529,7 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget,0));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 // ----------------------------------------------------------------------------

@@ -86,7 +86,7 @@ public:
 	explicit CKJVCanOpener(const QString &strUserDatabase = QString(), QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0), 0));		// Default initial location is Genesis 1
+	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0)));		// Default initial location is Genesis 1
 
 protected:
 	virtual void closeEvent(QCloseEvent * event);

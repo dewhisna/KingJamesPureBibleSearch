@@ -749,9 +749,9 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 //	}
 
 	if (verse.phraseTags().size() != 0) {
-		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.phraseTags().at(0).first, 0));
+		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.phraseTags().at(0).first));
 	} else {
-		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.getIndex(), 0));
+		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.getIndex()));
 	}
 
 	ui->widgetKJVBrowser->focusBrowser();

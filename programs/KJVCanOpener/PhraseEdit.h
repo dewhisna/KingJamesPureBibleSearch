@@ -151,7 +151,7 @@ public:
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const;
-	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag(CRelIndex(), 0)) const;
+	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;
 	QString getToolTip(const TPhraseTag &tag, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 
 private:

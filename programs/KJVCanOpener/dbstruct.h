@@ -369,7 +369,7 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 class TPhraseTag : public QPair<CRelIndex, unsigned int>
 {
 public:
-	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 1)	// Note: Most common default is 1 word on tags
+	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
 		:	QPair<CRelIndex, unsigned int>(ndx, nCount) { }
 };
 

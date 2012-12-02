@@ -26,7 +26,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		}
 	}
 
-	setPassage(TPhraseTag());
+	setPassage(TPhraseTag(CRelIndex(), 1));
 
 	startAbsoluteMode();
 
@@ -166,7 +166,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
 	begin_update();
 
-	m_tagStartRef = TPhraseTag();		// Unset to indicate absolute mode
+	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
 
 	ui->lblStartRef->hide();
 	ui->editStartRef->hide();
