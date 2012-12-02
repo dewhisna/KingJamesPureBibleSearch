@@ -6,6 +6,8 @@
 
 QT       += core gui sql
 
+CONFIG += rtti
+
 TARGET = KJVCanOpener
 TEMPLATE = app
 

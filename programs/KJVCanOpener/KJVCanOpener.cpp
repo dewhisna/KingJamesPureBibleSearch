@@ -279,7 +279,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 //	QMenu *pBrowserEditMenu = ui->widgetKJVBrowser->browser()->getEditMenu();
 //	ui->menuBar->addMenu(pBrowserEditMenu);
 //	connect(ui->widgetKJVBrowser->browser(), SIGNAL(addEditMenu(bool)), this, SLOT(on_addPassageBrowserEditMenu(bool)));
-	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedBrowser()), this, SLOT(on_activatedBrowser()));
+	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
 	connect(ui->listViewSearchResults, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
 
 	m_pViewMenu = ui->menuBar->addMenu("&View");

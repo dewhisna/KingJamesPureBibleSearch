@@ -1,6 +1,7 @@
 #include "ScriptureEdit.h"
 
 #include "dbstruct.h"
+#include "KJVPassageNavigatorDlg.h"
 
 #include <assert.h>
 
@@ -13,8 +14,9 @@
 
 // ============================================================================
 
-CScriptureEdit::CScriptureEdit(QWidget *parent)
-	:	QTextEdit(parent),
+template <class T, class U>
+CScriptureText<T,U>::CScriptureText(QWidget *parent)
+	:	T(parent),
 		m_bDoingPopup(false),
 		m_navigator(*this),
 		m_pEditMenu(NULL),
@@ -24,19 +26,19 @@ CScriptureEdit::CScriptureEdit(QWidget *parent)
 		m_pActionCopyPassageStatistics(NULL),
 		m_pActionCopyEntirePassageDetails(NULL)
 {
-	setMouseTracking(true);
-	installEventFilter(this);
+	T::setMouseTracking(true);
+	T::installEventFilter(this);
 
-	viewport()->setCursor(QCursor(Qt::ArrowCursor));
+	T::viewport()->setCursor(QCursor(Qt::ArrowCursor));
 
 	m_HighlightTimer.stop();
 
-	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
-	connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
-	connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
+	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
+	T::connect(&m_navigator, SIGNAL(changedDocumentText()), &m_Highlighter, SLOT(clearPhraseTags()));
+	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 
 	m_pEditMenu = new QMenu("&Edit", this);
-	m_pEditMenu->setStatusTip("Scripture Editor Operations");
+	m_pEditMenu->setStatusTip("Scripture Text Edit Operations");
 	m_pActionCopy = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
 	m_pActionCopy->setStatusTip("Copy selected passage browser text to the clipboard");
 	m_pActionCopy->setEnabled(false);
@@ -46,6 +48,7 @@ CScriptureEdit::CScriptureEdit(QWidget *parent)
 	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	connect(m_pActionCopyReferenceDetails, SLOT(trigger()), this, SLOT(on_copyReferenceDetails()));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
 	m_pActionCopyPassageStatistics = m_pEditMenu->addAction("Copy Passage &Statistics (Book/Chapter/Verse)", this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
@@ -53,19 +56,22 @@ CScriptureEdit::CScriptureEdit(QWidget *parent)
 	m_pActionCopyEntirePassageDetails->setStatusTip("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard");
 }
 
-CScriptureEdit::~CScriptureEdit()
+template<class T, class U>
+CScriptureText<T,U>::~CScriptureText()
 {
 
 }
 
-void CScriptureEdit::clearHighlighting()
+template<class T, class U>
+void CScriptureText<T,U>::clearHighlighting()
 {
 	m_navigator.doHighlighting(m_Highlighter, true);
 	m_Highlighter.clearPhraseTags();
 	m_HighlightTimer.stop();
 }
 
-bool CScriptureEdit::eventFilter(QObject *obj, QEvent *ev)
+template<class T, class U>
+bool CScriptureText<T,U>::eventFilter(QObject *obj, QEvent *ev)
 {
 	if (obj == this) {
 		switch (ev->type()) {
@@ -85,12 +91,13 @@ bool CScriptureEdit::eventFilter(QObject *obj, QEvent *ev)
 		}
 	}
 
-	return QTextEdit::eventFilter(obj, ev);
+	return U::eventFilter(obj, ev);
 }
 
-bool CScriptureEdit::event(QEvent *ev)
+template<class T, class U>
+bool CScriptureText<T,U>::event(QEvent *ev)
 {
-	if (ev->type() == QEvent::FocusIn) emit activatedScriptureEdit();
+	if (ev->type() == QEvent::FocusIn) emit T::activatedScriptureText();
 
 	switch (ev->type()) {
 		case QEvent::ToolTip:
@@ -130,10 +137,11 @@ bool CScriptureEdit::event(QEvent *ev)
 			break;
 	}
 
-	return QTextEdit::event(ev);
+	return U::event(ev);
 }
 
-void CScriptureEdit::mouseDoubleClickEvent(QMouseEvent *ev)
+template<>
+void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
 	m_bDoingPopup = true;
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
@@ -143,13 +151,31 @@ void CScriptureEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 	m_bDoingPopup = false;
 }
 
-void CScriptureEdit::contextMenuEvent(QContextMenuEvent *ev)
+template<>
+void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
 	m_bDoingPopup = true;
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
-	QMenu *menu = createStandardContextMenu(ev->pos());
+	if (ndxLast.isSet()) {
+		CKJVPassageNavigatorDlg dlg(parentWidget());
+		dlg.navigator().startRelativeMode(m_tagLast, false);
+		if (dlg.exec() == QDialog::Accepted) {
+			emit gotoIndex(dlg.passage());
+		}
+	}
+	m_bDoingPopup = false;
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
+{
+	m_bDoingPopup = true;
+	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
+	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_navigator.highlightTag(m_Highlighter, m_tagLast);
+	QMenu *menu = T::createStandardContextMenu(ev->pos());
 	menu->addSeparator();
 	menu->addAction(m_pActionCopyReferenceDetails);
 	menu->addAction(m_pActionCopyPassageStatistics);
@@ -159,14 +185,16 @@ void CScriptureEdit::contextMenuEvent(QContextMenuEvent *ev)
 	m_bDoingPopup = false;
 }
 
-void CScriptureEdit::on_cursorPositionChanged()
+template<class T, class U>
+void CScriptureText<T,U>::on_cursorPositionChanged()
 {
-	CPhraseCursor cursor = textCursor();
+	CPhraseCursor cursor = T::textCursor();
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursor);
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 }
 
-void CScriptureEdit::on_copyReferenceDetails()
+template<class T, class U>
+void CScriptureText<T,U>::on_copyReferenceDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
@@ -175,7 +203,8 @@ void CScriptureEdit::on_copyReferenceDetails()
 	clipboard->setMimeData(mime);
 }
 
-void CScriptureEdit::on_copyPassageStatistics()
+template<class T, class U>
+void CScriptureText<T,U>::on_copyPassageStatistics()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
@@ -184,7 +213,8 @@ void CScriptureEdit::on_copyPassageStatistics()
 	clipboard->setMimeData(mime);
 }
 
-void CScriptureEdit::on_copyEntirePassageDetails()
+template<class T, class U>
+void CScriptureText<T,U>::on_copyEntirePassageDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
@@ -193,7 +223,8 @@ void CScriptureEdit::on_copyEntirePassageDetails()
 	clipboard->setMimeData(mime);
 }
 
-
 // ============================================================================
 
+template class CScriptureText<i_CScriptureEdit, QTextEdit>;
+template class CScriptureText<i_CScriptureBrowser, QTextBrowser>;
 

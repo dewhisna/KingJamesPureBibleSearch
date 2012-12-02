@@ -185,6 +185,9 @@
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
+       <property name="tabChangesFocus">
+        <bool>false</bool>
+       </property>
        <property name="textInteractionFlags">
         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
@@ -201,7 +204,7 @@
   <customwidget>
    <class>CScriptureBrowser</class>
    <extends>QTextBrowser</extends>
-   <header location="global">KJVBrowser.h</header>
+   <header location="global">ScriptureEdit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
