@@ -177,24 +177,11 @@ void CScriptureText<T,U>::on_passageNavigator()
 	TPhraseTag tagSel = m_tagSelection;
 	if (tagSel.second == 0) tagSel.second = 1;			// Simulate single word selection if nothing actually selected
 
-	TPhraseTag tagHighlight = tagSel;
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
-	unsigned int nVerseWords = 0;
-	if (tagHighlight.first.isSet()) {
-		if ((tagHighlight.first.book() > 0) && (tagHighlight.first.book() <= g_lstTOC.size()) &&
-			(tagHighlight.first.chapter() > 0) && (tagHighlight.first.chapter() <= g_lstTOC[tagHighlight.first.book()-1].m_nNumChp) &&
-			(tagHighlight.first.verse() > 0) && (tagHighlight.first.verse() <= g_mapLayout[CRelIndex(tagHighlight.first.book(),tagHighlight.first.chapter(),0,0)].m_nNumVrs)) {
-
-			nVerseWords =(g_lstBooks[tagHighlight.first.book()-1])[CRelIndex(0,tagHighlight.first.chapter(),tagHighlight.first.verse(),0)].m_nNumWrd;
-		} else {
-			assert(false);
-			nVerseWords = 0;
-		}
-	} else {
-		nVerseWords = 0;
-	}
-	tagHighlight.second = qMin(nVerseWords - tagHighlight.first.word() + 1, tagHighlight.second);
+	TPhraseTag tagHighlight = tagSel;
+	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, tagHighlight.first);
+	tagHighlight.second = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.second);
 
 	m_navigator.highlightTag(m_Highlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(T::parentWidget());

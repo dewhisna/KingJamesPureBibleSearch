@@ -173,74 +173,77 @@ QString CRelIndex::SearchResultToolTip(int nRIMask) const
 	}
 
 	if ((nRIMask & RIMASK_BOOK) &&
-		((Bk.ofBible() != 0) ||
-		 (Bk.ofTestament() != 0))) {
+		((Bk.ofBible().first != 0) ||
+		 (Bk.ofTestament().first != 0))) {
 		strTemp += "Book \n";
-		if (Bk.ofBible() != 0) {
-			strTemp += QString("    %1 of Bible\n").arg(Bk.ofBible());
+		if (Bk.ofBible().first != 0) {
+			strTemp += QString("    %1 of %2 of Bible\n").arg(Bk.ofBible().first).arg(Bk.ofBible().second);
 		}
-		if (Bk.ofTestament() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Bk.ofTestament()).arg(testamentName());
+		if (Bk.ofTestament().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName());
 		}
 	}
 
 	if ((nRIMask & RIMASK_CHAPTER) &&
-		((Chp.ofBible() != 0) ||
-		 (Chp.ofTestament() != 0) ||
-		 (Chp.ofBook() != 0))) {
+		(chapter() != 0) &&
+		((Chp.ofBible().first != 0) ||
+		 (Chp.ofTestament().first != 0) ||
+		 (Chp.ofBook().first != 0))) {
 		strTemp += "Chapter \n";
-		if (Chp.ofBible() != 0) {
-			strTemp += QString("    %1 of Bible\n").arg(Chp.ofBible());
+		if (Chp.ofBible().first != 0) {
+			strTemp += QString("    %1 of %2 of Bible\n").arg(Chp.ofBible().first).arg(Chp.ofBible().second);
 		}
-		if (Chp.ofTestament() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Chp.ofTestament()).arg(testamentName());
+		if (Chp.ofTestament().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName());
 		}
-		if (Chp.ofBook() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Chp.ofBook()).arg(bookName());
+		if (Chp.ofBook().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName());
 		}
 	}
 
 	if ((nRIMask & RIMASK_VERSE) &&
-		((Vrs.ofBible() != 0) ||
-		 (Vrs.ofTestament() != 0) ||
-		 (Vrs.ofBook() != 0) ||
-		 (Vrs.ofChapter() != 0))) {
+		(verse() != 0) &&
+		((Vrs.ofBible().first != 0) ||
+		 (Vrs.ofTestament().first != 0) ||
+		 (Vrs.ofBook().first != 0) ||
+		 (Vrs.ofChapter().first != 0))) {
 		strTemp += "Verse \n";
-		if (Vrs.ofBible() != 0) {
-			strTemp += QString("    %1 of Bible\n").arg(Vrs.ofBible());
+		if (Vrs.ofBible().first != 0) {
+			strTemp += QString("    %1 of %2 of Bible\n").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second);
 		}
-		if (Vrs.ofTestament() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Vrs.ofTestament()).arg(testamentName());
+		if (Vrs.ofTestament().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName());
 		}
-		if (Vrs.ofBook() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Vrs.ofBook()).arg(bookName());
+		if (Vrs.ofBook().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName());
 		}
-		if (Vrs.ofChapter() != 0) {
-			strTemp += QString("    %1 of Chapter\n").arg(Vrs.ofChapter());
+		if (Vrs.ofChapter().first != 0) {
+			strTemp += QString("    %1 of %2 of Chapter\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second);
 		}
 	}
 
 	if ((nRIMask & RIMASK_WORD) &&
-		((Wrd.ofBible() != 0) ||
-		 (Wrd.ofTestament() != 0) ||
-		 (Wrd.ofBook() != 0) ||
-		 (Wrd.ofChapter() != 0) ||
-		 (Wrd.ofVerse() != 0))) {
+		(word() != 0) &&
+		((Wrd.ofBible().first != 0) ||
+		 (Wrd.ofTestament().first != 0) ||
+		 (Wrd.ofBook().first != 0) ||
+		 (Wrd.ofChapter().first != 0) ||
+		 (Wrd.ofVerse().first != 0))) {
 		strTemp += "Word/Phrase\n";
-		if (Wrd.ofBible() != 0) {
-			strTemp += QString("    %1 of Bible\n").arg(Wrd.ofBible());
+		if (Wrd.ofBible().first != 0) {
+			strTemp += QString("    %1 of %2 of Bible\n").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second);
 		}
-		if (Wrd.ofTestament() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Wrd.ofTestament()).arg(testamentName());
+		if (Wrd.ofTestament().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName());
 		}
-		if (Wrd.ofBook() != 0) {
-			strTemp += QString("    %1 of %2\n").arg(Wrd.ofBook()).arg(bookName());
+		if (Wrd.ofBook().first != 0) {
+			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName());
 		}
-		if (Wrd.ofChapter() != 0) {
-			strTemp += QString("    %1 of Chapter\n").arg(Wrd.ofChapter());
+		if (Wrd.ofChapter().first != 0) {
+			strTemp += QString("    %1 of %2 of Chapter\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second);
 		}
-		if (Wrd.ofVerse() != 0) {
-			strTemp += QString("    %1 of Verse\n").arg(Wrd.ofVerse());
+		if (Wrd.ofVerse().first != 0) {
+			strTemp += QString("    %1 of %2 of Verse\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second);
 		}
 	}
 
@@ -267,97 +270,129 @@ QString CRelIndex::PassageReferenceText() const
 CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 :	m_ndxRef(refIndex),
 	m_nRefType(nRefType),
-	m_nOfBible(0),
-	m_nOfTst(0),
-	m_nOfBk(0),
-	m_nOfChp(0),
-	m_nOfVrs(0)
+	m_nOfBible(0,0),
+	m_nOfTst(0,0),
+	m_nOfBk(0,0),
+	m_nOfChp(0,0),
+	m_nOfVrs(0,0)
 {
 	switch (nRefType) {
 		case RTE_TESTAMENT:				// Calculate the Testament of the Bible
-			m_nOfBible = m_ndxRef.testament();
+			m_nOfBible.first = m_ndxRef.testament();
+			m_nOfBible.second = g_lstTestaments.size();
 			break;
 
 		case RTE_BOOK:					// Calculate the Book of the Testament and Bible
-			m_nOfBible = m_ndxRef.book();
+			m_nOfBible.first = m_ndxRef.book();
+			m_nOfBible.second = g_lstTOC.size();
 			if (m_ndxRef.book() != 0) {
 				const CTOCEntry &toc = g_lstTOC[m_ndxRef.book()-1];
-				m_nOfTst = toc.m_nTstBkNdx;
+				m_nOfTst.first = toc.m_nTstBkNdx;
+				m_nOfTst.second = g_lstTestaments[toc.m_nTstNdx-1].m_nNumBk;
 			}
 			break;
 
 		case RTE_CHAPTER:				// Calculate the Chapter of the Book, Testament, and Bible
-			m_nOfBk = m_ndxRef.chapter();
+			m_nOfBk.first = m_ndxRef.chapter();
 			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size())) {
+				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumChp;
 				// Number of Chapters in books prior to target:
 				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
 					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
-						m_nOfTst += g_lstTOC[ndxBk].m_nNumChp;
-					m_nOfBible += g_lstTOC[ndxBk].m_nNumChp;
+						m_nOfTst.first += g_lstTOC[ndxBk].m_nNumChp;
+					m_nOfBible.first += g_lstTOC[ndxBk].m_nNumChp;
+				}
+				m_nOfTst.second = m_nOfTst.first;
+				m_nOfBible.second = m_nOfBible.first;
+				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
+					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+						m_nOfTst.second += g_lstTOC[ndxBk].m_nNumChp;
+					m_nOfBible.second += g_lstTOC[ndxBk].m_nNumChp;
 				}
 				// Number of Chapter in target:
-				m_nOfTst += m_ndxRef.chapter();
-				m_nOfBible += m_ndxRef.chapter();
+				m_nOfTst.first += m_ndxRef.chapter();
+				m_nOfBible.first += m_ndxRef.chapter();
 			}
 			break;
 
 		case RTE_VERSE:					// Calculate the Verse of the Chapter, Book, Testament, and Bible
-			m_nOfChp = m_ndxRef.verse();
+			m_nOfChp.first = m_ndxRef.verse();
 			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size()) &&
 				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= g_lstTOC[m_ndxRef.book()-1].m_nNumChp)) {
+				m_nOfChp.second = g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumVrs;
+				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumVrs;
 				// Number of Verses in books prior to target:
 				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
 					unsigned int nVerses = g_lstTOC[ndxBk].m_nNumVrs;
 					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
-						m_nOfTst += nVerses;
-					m_nOfBible += nVerses;
+						m_nOfTst.first += nVerses;
+					m_nOfBible.first += nVerses;
+				}
+				m_nOfTst.second = m_nOfTst.first;
+				m_nOfBible.second = m_nOfBible.first;
+				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
+					unsigned int nVerses = g_lstTOC[ndxBk].m_nNumVrs;
+					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+						m_nOfTst.second += nVerses;
+					m_nOfBible.second += nVerses;
 				}
 				// Number of Verses in Chapters prior to target in target book:
 				for (unsigned int ndxChp=1; ndxChp<m_ndxRef.chapter(); ++ndxChp) {
 					unsigned int nVerses = g_mapLayout[CRelIndex(m_ndxRef.book(),ndxChp,0,0)].m_nNumVrs;
-					m_nOfBk += nVerses;
-					m_nOfTst += nVerses;
-					m_nOfBible += nVerses;
+					m_nOfBk.first += nVerses;
+					m_nOfTst.first += nVerses;
+					m_nOfBible.first += nVerses;
 				}
 				// Number of Verses in target:
-				m_nOfBk += m_ndxRef.verse();
-				m_nOfTst += m_ndxRef.verse();
-				m_nOfBible += m_ndxRef.verse();
+				m_nOfBk.first += m_ndxRef.verse();
+				m_nOfTst.first += m_ndxRef.verse();
+				m_nOfBible.first += m_ndxRef.verse();
 			}
 			break;
 
 		case RTE_WORD:					// Calculate the Word of the Verse, Book, Testament, and Bible
-			m_nOfVrs = m_ndxRef.word();
+			m_nOfVrs.first = m_ndxRef.word();
 			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size()) &&
 				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= g_lstTOC[m_ndxRef.book()-1].m_nNumChp) &&
 				(m_ndxRef.verse() > 0) && (m_ndxRef.verse() <= g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumVrs)) {
+				m_nOfVrs.second = (g_lstBooks[m_ndxRef.book()-1])[CRelIndex(0,m_ndxRef.chapter(),m_ndxRef.verse(),0)].m_nNumWrd;
+				m_nOfChp.second = g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumWrd;
+				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumWrd;
 				// Number of Words in books prior to target:
 				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
 					unsigned int nWords = g_lstTOC[ndxBk].m_nNumWrd;
 					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
-						m_nOfTst += nWords;
-					m_nOfBible += nWords;
+						m_nOfTst.first += nWords;
+					m_nOfBible.first += nWords;
+				}
+				m_nOfTst.second = m_nOfTst.first;
+				m_nOfBible.second = m_nOfBible.first;
+				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
+					unsigned int nWords = g_lstTOC[ndxBk].m_nNumWrd;
+					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+						m_nOfTst.second += nWords;
+					m_nOfBible.second += nWords;
 				}
 				// Number of Words in Chapters prior to target in target Book:
 				for (unsigned int ndxChp=1; ndxChp<m_ndxRef.chapter(); ++ndxChp) {
 					unsigned int nWords = g_mapLayout[CRelIndex(m_ndxRef.book(),ndxChp,0,0)].m_nNumWrd;
-					m_nOfBk += nWords;
-					m_nOfTst += nWords;
-					m_nOfBible += nWords;
+					m_nOfBk.first += nWords;
+					m_nOfTst.first += nWords;
+					m_nOfBible.first += nWords;
 				}
 				// Number of Words in Verses prior to target in target Chapter:
 				for (unsigned int ndxVrs=1; ndxVrs<m_ndxRef.verse(); ++ndxVrs) {
 					unsigned int nWords = (g_lstBooks[m_ndxRef.book()-1])[CRelIndex(0,m_ndxRef.chapter(),ndxVrs,0)].m_nNumWrd;
-					m_nOfChp += nWords;
-					m_nOfBk += nWords;
-					m_nOfTst += nWords;
-					m_nOfBible += nWords;
+					m_nOfChp.first += nWords;
+					m_nOfBk.first += nWords;
+					m_nOfTst.first += nWords;
+					m_nOfBible.first += nWords;
 				}
 				// Number of Words in target:
-				m_nOfChp += m_ndxRef.word();
-				m_nOfBk += m_ndxRef.word();
-				m_nOfTst += m_ndxRef.word();
-				m_nOfBible += m_ndxRef.word();
+				m_nOfChp.first += m_ndxRef.word();
+				m_nOfBk.first += m_ndxRef.word();
+				m_nOfTst.first += m_ndxRef.word();
+				m_nOfBible.first += m_ndxRef.word();
 			}
 			break;
 	}

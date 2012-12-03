@@ -88,6 +88,14 @@ extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);
 
 // ============================================================================
 
+// Pair representing X (first) of Y (second) things:
+class TCountOf : public QPair<unsigned int, unsigned int>
+{
+public:
+	explicit inline TCountOf(unsigned int x = 0, unsigned int y = 0)
+		:	QPair<unsigned int, unsigned int>(x, y) { }
+};
+
 class CRefCountCalc			// Calculates the reference count information for creating ToolTips and indices
 {
 public:
@@ -108,11 +116,11 @@ public:
 	REF_TYPE_ENUM refType() const { return m_nRefType; }
 	CRelIndex refIndex() const { return m_ndxRef; }
 
-	unsigned int ofBible() const { return m_nOfBible; }
-	unsigned int ofTestament() const { return m_nOfTst; }
-	unsigned int ofBook() const { return m_nOfBk; }
-	unsigned int ofChapter() const { return m_nOfChp; }
-	unsigned int ofVerse() const { return m_nOfVrs; }
+	TCountOf ofBible() const { return m_nOfBible; }
+	TCountOf ofTestament() const { return m_nOfTst; }
+	TCountOf ofBook() const { return m_nOfBk; }
+	TCountOf ofChapter() const { return m_nOfChp; }
+	TCountOf ofVerse() const { return m_nOfVrs; }
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
 	//			calcRelIndex(1, 1, 666, 0, 1);						// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
@@ -133,11 +141,11 @@ private:
 	REF_TYPE_ENUM m_nRefType;	// Type of Reference these counts are for
 
 	// All entries above the type specified will be valid:
-	unsigned int m_nOfBible;	// Testament, Book, Chapter, Verse, Word of the whole Bible
-	unsigned int m_nOfTst;		// Book, Chapter, Verse, Word of the Testament
-	unsigned int m_nOfBk;		// Chapter, Verse, Word of the Book
-	unsigned int m_nOfChp;		// Verse, Word of the Chapter
-	unsigned int m_nOfVrs;		// Word of the Verse
+	TCountOf m_nOfBible;	// Testament, Book, Chapter, Verse, Word of the whole Bible
+	TCountOf m_nOfTst;		// Book, Chapter, Verse, Word of the Testament
+	TCountOf m_nOfBk;		// Chapter, Verse, Word of the Book
+	TCountOf m_nOfChp;		// Verse, Word of the Chapter
+	TCountOf m_nOfVrs;		// Word of the Verse
 };
 
 
@@ -364,7 +372,6 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 
 // ============================================================================
 
-//typedef QPair<CRelIndex, unsigned int> TPhraseTag;
 // Relative Index and Word Count pair used for highlight phrases found:
 class TPhraseTag : public QPair<CRelIndex, unsigned int>
 {
