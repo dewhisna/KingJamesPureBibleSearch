@@ -24,7 +24,8 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 		m_pActionSelectAll(NULL),
 		m_pActionCopyReferenceDetails(NULL),
 		m_pActionCopyPassageStatistics(NULL),
-		m_pActionCopyEntirePassageDetails(NULL)
+		m_pActionCopyEntirePassageDetails(NULL),
+		m_pStatusAction(NULL)
 {
 	T::setMouseTracking(true);
 	T::installEventFilter(this);
@@ -54,6 +55,8 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
 	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction("Copy Entire Passage &Details", this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionCopyEntirePassageDetails->setStatusTip("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard");
+
+	m_pStatusAction = new QAction(this);
 }
 
 template<class T, class U>
@@ -105,7 +108,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		case QEvent::ToolTip:
 			{
 				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter)) {
+				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_tagSelection)) {
 					m_HighlightTimer.stop();
 				} else {
 					pHelpEvent->ignore();
@@ -173,7 +176,27 @@ void CScriptureText<T,U>::on_passageNavigator()
 
 	TPhraseTag tagSel = m_tagSelection;
 	if (tagSel.second == 0) tagSel.second = 1;			// Simulate single word selection if nothing actually selected
-	m_navigator.highlightTag(m_Highlighter, tagSel);
+
+	TPhraseTag tagHighlight = tagSel;
+	// Cap the number of words to those remaining in this verse so
+	//		we don't spend all day highlighting junk:
+	unsigned int nVerseWords = 0;
+	if (tagHighlight.first.isSet()) {
+		if ((tagHighlight.first.book() > 0) && (tagHighlight.first.book() <= g_lstTOC.size()) &&
+			(tagHighlight.first.chapter() > 0) && (tagHighlight.first.chapter() <= g_lstTOC[tagHighlight.first.book()-1].m_nNumChp) &&
+			(tagHighlight.first.verse() > 0) && (tagHighlight.first.verse() <= g_mapLayout[CRelIndex(tagHighlight.first.book(),tagHighlight.first.chapter(),0,0)].m_nNumVrs)) {
+
+			nVerseWords =(g_lstBooks[tagHighlight.first.book()-1])[CRelIndex(0,tagHighlight.first.chapter(),tagHighlight.first.verse(),0)].m_nNumWrd;
+		} else {
+			assert(false);
+			nVerseWords = 0;
+		}
+	} else {
+		nVerseWords = 0;
+	}
+	tagHighlight.second = qMin(nVerseWords - tagHighlight.first.word() + 1, tagHighlight.second);
+
+	m_navigator.highlightTag(m_Highlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(T::parentWidget());
 	dlg.navigator().startRelativeMode(tagSel, false);
 	if (dlg.exec() == QDialog::Accepted) {
@@ -213,6 +236,9 @@ void CScriptureText<T,U>::on_cursorPositionChanged()
 	CPhraseCursor cursor = T::textCursor();
 	m_tagLast.first = m_navigator.ResolveCursorReference(cursor);
 	if (!m_tagLast.first.isSet()) m_tagLast.second = 0;
+
+	// Move start of selection tag so we can later simulate pseudo-selection of
+	//		single word when nothing is really selected:
 	cursor.setPosition(qMin(cursor.anchor(), cursor.position()));
 	m_tagSelection.first = m_navigator.ResolveCursorReference(cursor);
 }
@@ -220,12 +246,8 @@ void CScriptureText<T,U>::on_cursorPositionChanged()
 template<class T, class U>
 void CScriptureText<T,U>::on_selectionChanged()
 {
-	CPhraseCursor cursor = T::textCursor();
-	CParsedPhrase phrase;
-	phrase.ParsePhrase(cursor.selectedText());
-	m_tagSelection.second = phrase.phraseSize();
-	cursor.setPosition(qMin(cursor.anchor(), cursor.position()));
-	m_tagSelection.first = m_navigator.ResolveCursorReference(cursor);
+	QPair<CParsedPhrase, TPhraseTag> selectedPhrase = m_navigator.getSelectedPhrase();
+	m_tagSelection = selectedPhrase.second;
 }
 
 template<class T, class U>
@@ -233,8 +255,8 @@ void CScriptureText<T,U>::on_copyReferenceDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
 	clipboard->setMimeData(mime);
 }
 
@@ -243,8 +265,8 @@ void CScriptureText<T,U>::on_copyPassageStatistics()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
 	clipboard->setMimeData(mime);
 }
 
@@ -253,8 +275,8 @@ void CScriptureText<T,U>::on_copyEntirePassageDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_COMPLETE, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, CPhraseEditNavigator::TTE_COMPLETE, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_COMPLETE, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_COMPLETE, false));
 	clipboard->setMimeData(mime);
 }
 

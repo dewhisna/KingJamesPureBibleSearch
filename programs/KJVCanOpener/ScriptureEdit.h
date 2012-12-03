@@ -87,6 +87,7 @@ private:
 	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
 	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy
+	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
 #define begin_popup()							\
 			bool bPopupSave = m_bDoingPopup;	\

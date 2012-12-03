@@ -885,11 +885,64 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	}
 }
 
-bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter) const
+QPair<CParsedPhrase, TPhraseTag> CPhraseEditNavigator::getSelectedPhrase() const
+{
+	QPair<CParsedPhrase, TPhraseTag> retVal;
+
+	CPhraseCursor myCursor = m_TextEditor.textCursor();
+	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
+	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
+	myCursor.setPosition(nPosFirst);
+	myCursor.moveCursorWordStart();
+	QString strPhrase;
+	unsigned int nWords = 0;
+	CRelIndex nIndex;
+
+	while (myCursor.position() < nPosLast) {
+		QTextCharFormat fmt = myCursor.charFormat();
+		QString strAnchorName = fmt.anchorName();
+		if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+			if (!nIndex.isSet()) {
+				CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
+				nIndex = ResolveCursorReference(tempCursor);
+			}
+			if (!strPhrase.isEmpty()) strPhrase += " ";
+			strPhrase += myCursor.wordUnderCursor();
+			nWords++;
+			if (!myCursor.moveCursorWordRight()) break;
+		} else {
+			// If we hit an anchor, see if it's either a special section A-B marker or if
+			//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+			//		If it is a chapter start anchor, search for our special X-anchor so
+			//		we'll be at the correct start of the next verse:
+			if (strAnchorName.startsWith('A')) {
+				int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+				if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+			} else {
+				CRelIndex ndxAnchor(strAnchorName);
+				assert(ndxAnchor.isSet());
+				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+					int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+				}
+				if (!myCursor.moveCursorWordRight()) break;
+			}
+		}
+	}
+
+	retVal.first.ParsePhrase(strPhrase);
+	retVal.second.first = nIndex;
+	retVal.second.second = nWords;
+	assert(nWords == retVal.first.phraseSize());
+
+	return retVal;
+}
+
+bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const
 {
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
-	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1));
+	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
 		highlightTag(aHighlighter, TPhraseTag(ndxReference, 1));
@@ -921,7 +974,7 @@ void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const T
 	}
 }
 
-QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
+QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
 {
 	const CRelIndex &ndxReference(tag.first);
 	QString strToolTip;
