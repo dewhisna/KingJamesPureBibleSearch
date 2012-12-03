@@ -21,6 +21,8 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 		m_navigator(*this),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
+		m_pActionCopyRaw(NULL),
+		m_pActionCopyVeryRaw(NULL),
 		m_pActionSelectAll(NULL),
 		m_pActionCopyReferenceDetails(NULL),
 		m_pActionCopyPassageStatistics(NULL),
@@ -45,6 +47,14 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopy->setStatusTip("Copy selected passage browser text to the clipboard");
 	m_pActionCopy->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
+	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Ra&w Text", this, SLOT(on_copyRaw()));
+	m_pActionCopyRaw->setStatusTip("Copy selected passage browser text as raw phrase words to the clipboard");
+	m_pActionCopyRaw->setEnabled(false);
+	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy &Very Raw Text", this, SLOT(on_copyVeryRaw()));
+	m_pActionCopyVeryRaw->setStatusTip("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard");
+	m_pActionCopyVeryRaw->setEnabled(false);
+	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
@@ -108,7 +118,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		case QEvent::ToolTip:
 			{
 				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_tagSelection)) {
+				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_selectedPhase.second)) {
 					m_HighlightTimer.stop();
 				} else {
 					pHelpEvent->ignore();
@@ -174,8 +184,9 @@ void CScriptureText<T,U>::on_passageNavigator()
 	//		Ctrl-G shortcut to activate this will make sense and be consistent across
 	//		the entire app.
 
-	TPhraseTag tagSel = m_tagSelection;
+	TPhraseTag tagSel = m_selectedPhase.second;
 	if (tagSel.second == 0) tagSel.second = 1;			// Simulate single word selection if nothing actually selected
+	if (!tagSel.first.isSet()) tagSel.first = m_tagLast.first;
 
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
@@ -200,9 +211,19 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	if (!haveSelection()) m_tagSelection.first = m_tagLast.first;		// simulate selection move with context mouse if we don't have a selection
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu *menu = T::createStandardContextMenu(ev->pos());
+	QList<QAction *>acts = menu->actions();
+	QList<QAction *>actsCopy;
+	actsCopy.append(m_pActionCopyRaw);
+	actsCopy.append(m_pActionCopyVeryRaw);
+	if (acts.size()>1) {
+		menu->insertActions(acts.at(1), actsCopy);
+	} else if (acts.size()>0) {
+		menu->insertActions(acts.at(0), actsCopy);
+	} else {
+		menu->addActions(actsCopy);
+	}
 	menu->addSeparator();
 	QAction *pActionNavigator = menu->addAction("Passage &Navigator...");
 	pActionNavigator->setEnabled(connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
@@ -226,15 +247,35 @@ void CScriptureText<T,U>::on_cursorPositionChanged()
 
 	// Move start of selection tag so we can later simulate pseudo-selection of
 	//		single word when nothing is really selected:
-	cursor.setPosition(qMin(cursor.anchor(), cursor.position()));
-	m_tagSelection.first = m_navigator.ResolveCursorReference(cursor);
+	bool bOldSel = haveSelection();
+	m_selectedPhase = m_navigator.getSelectedPhrase();
+	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_selectionChanged()
 {
-	QPair<CParsedPhrase, TPhraseTag> selectedPhrase = m_navigator.getSelectedPhrase();
-	m_tagSelection = selectedPhrase.second;
+	bool bOldSel = haveSelection();
+	m_selectedPhase = m_navigator.getSelectedPhrase();
+	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_copyRaw()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	mime->setText(m_selectedPhase.first.phrase());
+	clipboard->setMimeData(mime);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_copyVeryRaw()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	mime->setText(m_selectedPhase.first.phraseRaw());
+	clipboard->setMimeData(mime);
 }
 
 template<class T, class U>
@@ -242,8 +283,8 @@ void CScriptureText<T,U>::on_copyReferenceDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
 	clipboard->setMimeData(mime);
 }
 
@@ -252,8 +293,8 @@ void CScriptureText<T,U>::on_copyPassageStatistics()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
 	clipboard->setMimeData(mime);
 }
 
@@ -262,8 +303,8 @@ void CScriptureText<T,U>::on_copyEntirePassageDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_COMPLETE, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_tagSelection, CPhraseEditNavigator::TTE_COMPLETE, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_COMPLETE, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhase.second, CPhraseEditNavigator::TTE_COMPLETE, false));
 	clipboard->setMimeData(mime);
 }
 

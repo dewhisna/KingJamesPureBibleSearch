@@ -64,6 +64,18 @@ QString CParsedPhrase::phrase() const
 	return strPhrase;
 }
 
+QString CParsedPhrase::phraseRaw() const
+{
+	QString strPhrase = phrase();
+	const QString strValidChars(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-");
+
+	for (int i = (strPhrase.size()-1); i>=0; --i) {
+		if (!strValidChars.contains(strPhrase.at(i))) strPhrase.remove(i, 1);
+	}
+
+	return strPhrase;
+}
+
 unsigned int CParsedPhrase::phraseSize() const
 {
 	unsigned int nSize = 0;
@@ -892,40 +904,42 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseEditNavigator::getSelectedPhrase() const
 	CPhraseCursor myCursor = m_TextEditor.textCursor();
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
-	myCursor.setPosition(nPosFirst);
-	myCursor.moveCursorWordStart();
 	QString strPhrase;
 	unsigned int nWords = 0;
 	CRelIndex nIndex;
 
-	while (myCursor.position() < nPosLast) {
-		QTextCharFormat fmt = myCursor.charFormat();
-		QString strAnchorName = fmt.anchorName();
-		if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-			if (!nIndex.isSet()) {
-				CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
-				nIndex = ResolveCursorReference(tempCursor);
-			}
-			if (!strPhrase.isEmpty()) strPhrase += " ";
-			strPhrase += myCursor.wordUnderCursor();
-			nWords++;
-			if (!myCursor.moveCursorWordRight()) break;
-		} else {
-			// If we hit an anchor, see if it's either a special section A-B marker or if
-			//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-			//		If it is a chapter start anchor, search for our special X-anchor so
-			//		we'll be at the correct start of the next verse:
-			if (strAnchorName.startsWith('A')) {
-				int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-				if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-			} else {
-				CRelIndex ndxAnchor(strAnchorName);
-				assert(ndxAnchor.isSet());
-				if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-					int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+	if (nPosFirst < nPosLast) {
+		myCursor.setPosition(nPosFirst);
+		myCursor.moveCursorWordStart();
+		while (myCursor.position() < nPosLast) {
+			QTextCharFormat fmt = myCursor.charFormat();
+			QString strAnchorName = fmt.anchorName();
+			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+				if (!nIndex.isSet()) {
+					CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
+					nIndex = ResolveCursorReference(tempCursor);
 				}
+				if (!strPhrase.isEmpty()) strPhrase += " ";
+				strPhrase += myCursor.wordUnderCursor();
+				nWords++;
 				if (!myCursor.moveCursorWordRight()) break;
+			} else {
+				// If we hit an anchor, see if it's either a special section A-B marker or if
+				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
+				//		If it is a chapter start anchor, search for our special X-anchor so
+				//		we'll be at the correct start of the next verse:
+				if (strAnchorName.startsWith('A')) {
+					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+				} else {
+					CRelIndex ndxAnchor(strAnchorName);
+					assert(ndxAnchor.isSet());
+					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					}
+					if (!myCursor.moveCursorWordRight()) break;
+				}
 			}
 		}
 	}

@@ -35,6 +35,7 @@ public:
 	QString GetCursorWord() const;
 	int GetCursorWordPos() const;
 	QString phrase() const;						// Return reconstituted phrase
+	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
 	unsigned int phraseSize() const;			// Return number of words in reconstituted phrase
 
 	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord

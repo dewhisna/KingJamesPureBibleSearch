@@ -381,6 +381,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
 	m_pActionAbout->setStatusTip("About the King James Can Opener");
 	m_pActionAbout->setToolTip("About the King James Can Opener...");
+	m_pActionAbout->setMenuRole(QAction::AboutRole);
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(on_HelpAbout()));
 	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
