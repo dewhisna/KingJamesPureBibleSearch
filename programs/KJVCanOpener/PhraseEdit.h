@@ -37,6 +37,10 @@ public:
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
 	unsigned int phraseSize() const;			// Return number of words in reconstituted phrase
+	unsigned int phraseRawSize() const;			// Return number of words in reconstituted raw phrase
+	QStringList phraseWords() const;			// Return reconstituted phrase words
+	QStringList phraseWordsRaw() const;			// Return reconstituted raw phrase words
+	static QString makeRawPhrase(const QString &strPhrase);
 
 	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
 	virtual void ParsePhrase(const QString &strPhrase);			// Parses a fixed phrase

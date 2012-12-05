@@ -264,7 +264,21 @@ void CScriptureText<T,U>::updateSelection()
 	bool bOldSel = haveSelection();
 	m_selectedPhase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
-	QString strStatusText = QString("%1 Word(s) Selected").arg(m_selectedPhase.first.phraseSize());
+	QString strStatusText;
+	if (haveSelection()) {
+		strStatusText = m_selectedPhase.second.first.PassageReferenceText();
+		if (m_selectedPhase.second.second) {
+			uint32_t nNormal = NormalizeIndex(m_selectedPhase.second.first);
+			strStatusText += " - " + CRelIndex(DenormalizeIndex(nNormal + m_selectedPhase.second.second - 1)).PassageReferenceText();
+		}
+	} else if (m_tagLast.first.isSet()) {
+		strStatusText = m_tagLast.first.PassageReferenceText();
+	}
+
+	if (m_selectedPhase.second.second > 0) {
+		if (!strStatusText.isEmpty()) strStatusText += " : ";
+		strStatusText += QString("%1 Word(s) Selected").arg(m_selectedPhase.second.second);
+	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();

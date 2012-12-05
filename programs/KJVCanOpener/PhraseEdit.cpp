@@ -55,35 +55,55 @@ int CParsedPhrase::GetCursorWordPos() const
 
 QString CParsedPhrase::phrase() const
 {
-	QString strPhrase;
-	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
-		if (m_lstWords.at(ndx).isEmpty()) continue;
-		if (ndx) strPhrase += " ";
-		strPhrase += m_lstWords.at(ndx);
-	}
-	return strPhrase;
+	return phraseWords().join(" ");
 }
 
 QString CParsedPhrase::phraseRaw() const
 {
-	QString strPhrase = phrase();
-	const QString strValidChars(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-");
-
-	for (int i = (strPhrase.size()-1); i>=0; --i) {
-		if (!strValidChars.contains(strPhrase.at(i))) strPhrase.remove(i, 1);
-	}
-
-	return strPhrase;
+	return phraseWordsRaw().join(" ");
 }
 
 unsigned int CParsedPhrase::phraseSize() const
 {
-	unsigned int nSize = 0;
-	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
-		if (m_lstWords.at(ndx).isEmpty()) continue;
-		nSize++;
+	return phraseWords().size();
+}
+
+unsigned int CParsedPhrase::phraseRawSize() const
+{
+	return phraseWordsRaw().size();
+}
+
+QStringList CParsedPhrase::phraseWords() const
+{
+	QStringList lstPhraseWords = m_lstWords;
+	for (int ndx = (lstPhraseWords.size()-1); ndx >= 0; --ndx) {
+		if (lstPhraseWords.at(ndx).isEmpty()) lstPhraseWords.removeAt(ndx);
 	}
-	return nSize;
+	return lstPhraseWords;
+}
+
+QStringList CParsedPhrase::phraseWordsRaw() const
+{
+	QStringList lstPhraseWords = phraseWords();
+	for (int ndx = (lstPhraseWords.size()-1); ndx >= 0; --ndx) {
+		QString strTemp = makeRawPhrase(lstPhraseWords.at(ndx));
+		if (strTemp.isEmpty()) {
+			lstPhraseWords.removeAt(ndx);
+		} else {
+			lstPhraseWords[ndx] = strTemp;
+		}
+	}
+	return lstPhraseWords;
+}
+
+QString CParsedPhrase::CParsedPhrase::makeRawPhrase(const QString &strPhrase)
+{
+	const QString strValidChars(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-");
+	QString strTemp = strPhrase;
+	for (int i = (strTemp.size()-1); i >= 0; --i) {
+		if (!strValidChars.contains(strTemp.at(i))) strTemp.remove(i, 1);
+	}
+	return strTemp;
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
@@ -522,7 +542,8 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
 	}
 
 	do {
-		if (!bInABanchor) nWord++;
+		if ((!bInABanchor) && (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty()))
+			nWord++;
 
 		while (cursor.charUnderCursor().isSpace()) {
 			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
@@ -563,7 +584,8 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				ndxWord--;
+				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
+					ndxWord--;
 				nSelEnd = myCursor.position();
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
@@ -600,7 +622,8 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					myCursor.setCharFormat(fmt);
 					myCursor.clearSelection();
 				} while (!myCursor.charUnderCursor().isSpace());
-				nCount--;
+				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
+					nCount--;
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
 				// If we hit an anchor, see if it's either a special section A-B marker or if
@@ -822,7 +845,6 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
 	QString strPhrase;
-	unsigned int nWords = 0;
 	CRelIndex nIndex;
 
 	if (nPosFirst < nPosLast) {
@@ -838,7 +860,6 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 				}
 				if (!strPhrase.isEmpty()) strPhrase += " ";
 				strPhrase += myCursor.wordUnderCursor();
-				nWords++;
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
 				// If we hit an anchor, see if it's either a special section A-B marker or if
@@ -863,8 +884,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 
 	retVal.first.ParsePhrase(strPhrase);
 	retVal.second.first = nIndex;
-	retVal.second.second = nWords;
-	assert(nWords == retVal.first.phraseSize());
+	retVal.second.second = retVal.first.phraseRawSize();
 
 	return retVal;
 }
@@ -891,7 +911,8 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				ndxWord--;
+				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
+					ndxWord--;
 				nSelEnd = myCursor.position();
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
@@ -923,7 +944,8 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 				myCursor.moveCursorWordStart(QTextCursor::KeepAnchor);
 				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
 				fmt = myCursor.charFormat();
-				if (!fmt.isAnchor()) nCount--;
+				if ((!fmt.isAnchor()) && (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()))
+					nCount--;
 				nSelEnd = myCursor.position();
 				if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
 			} else {
