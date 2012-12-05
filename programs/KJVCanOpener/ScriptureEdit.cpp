@@ -23,10 +23,10 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 		m_pActionCopy(NULL),
 		m_pActionCopyRaw(NULL),
 		m_pActionCopyVeryRaw(NULL),
-		m_pActionSelectAll(NULL),
 		m_pActionCopyReferenceDetails(NULL),
 		m_pActionCopyPassageStatistics(NULL),
 		m_pActionCopyEntirePassageDetails(NULL),
+		m_pActionSelectAll(NULL),
 		m_pStatusAction(NULL)
 {
 	T::setMouseTracking(true);
@@ -47,17 +47,14 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopy->setStatusTip("Copy selected passage browser text to the clipboard");
 	m_pActionCopy->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
-	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Ra&w Text", this, SLOT(on_copyRaw()));
+	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip("Copy selected passage browser text as raw phrase words to the clipboard");
 	m_pActionCopyRaw->setEnabled(false);
 	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy &Very Raw Text", this, SLOT(on_copyVeryRaw()));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	m_pActionCopyVeryRaw->setStatusTip("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard");
 	m_pActionCopyVeryRaw->setEnabled(false);
 	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
-	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
@@ -65,6 +62,9 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
 	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction("Copy Entire Passage &Details", this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionCopyEntirePassageDetails->setStatusTip("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard");
+	m_pEditMenu->addSeparator();
+	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
 
 	m_pStatusAction = new QAction(this);
 }
@@ -213,10 +213,14 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu *menu = T::createStandardContextMenu(ev->pos());
+	// -----------------
 	QList<QAction *>acts = menu->actions();
 	QList<QAction *>actsCopy;
 	actsCopy.append(m_pActionCopyRaw);
 	actsCopy.append(m_pActionCopyVeryRaw);
+	actsCopy.append(m_pActionCopyReferenceDetails);
+	actsCopy.append(m_pActionCopyPassageStatistics);
+	actsCopy.append(m_pActionCopyEntirePassageDetails);
 	if (acts.size()>1) {
 		menu->insertActions(acts.at(1), actsCopy);
 	} else if (acts.size()>0) {
@@ -224,14 +228,12 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	} else {
 		menu->addActions(actsCopy);
 	}
+	menu->insertSeparator(m_pActionCopyReferenceDetails);
+	// -----------------
 	menu->addSeparator();
 	QAction *pActionNavigator = menu->addAction("Passage &Navigator...");
 	pActionNavigator->setEnabled(connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
-	menu->addSeparator();
-	menu->addAction(m_pActionCopyReferenceDetails);
-	menu->addAction(m_pActionCopyPassageStatistics);
-	menu->addAction(m_pActionCopyEntirePassageDetails);
 	menu->exec(ev->globalPos());
 	delete menu;
 
@@ -247,17 +249,25 @@ void CScriptureText<T,U>::on_cursorPositionChanged()
 
 	// Move start of selection tag so we can later simulate pseudo-selection of
 	//		single word when nothing is really selected:
-	bool bOldSel = haveSelection();
-	m_selectedPhase = m_navigator.getSelectedPhrase();
-	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
+	updateSelection();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_selectionChanged()
 {
+	updateSelection();
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::updateSelection()
+{
 	bool bOldSel = haveSelection();
 	m_selectedPhase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
+	QString strStatusText = QString("%1 Word(s) Selected").arg(m_selectedPhase.first.phraseSize());
+	T::setStatusTip(strStatusText);
+	m_pStatusAction->setStatusTip(strStatusText);
+	m_pStatusAction->showStatusText();
 }
 
 template<class T, class U>

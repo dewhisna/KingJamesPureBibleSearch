@@ -61,6 +61,9 @@ protected:
 	virtual void mouseDoubleClickEvent(QMouseEvent *ev);
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
 
+protected:
+	virtual void updateSelection();
+
 //private slots:
 protected:
 	virtual void on_cursorPositionChanged();
@@ -85,13 +88,17 @@ private:
 	QPair<CParsedPhrase, TPhraseTag> m_selectedPhase;		// Selected phrase and cursor selection reference
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
+	// ----
 	QAction *m_pActionCopy;			// Edit menu copy
 	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text
 	QAction *m_pActionCopyVeryRaw;	// Edit menu copy very (no punctuation) raw phrase text
-	QAction *m_pActionSelectAll;	// Edit menu select all
+	// ----
 	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
 	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy
+	// ----
+	QAction *m_pActionSelectAll;	// Edit menu select all
+	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
 #define begin_popup()							\

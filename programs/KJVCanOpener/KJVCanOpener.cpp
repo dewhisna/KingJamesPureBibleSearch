@@ -52,6 +52,8 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 		m_pEditMenu(NULL),
 		m_pEditMenuLocal(NULL),
 		m_pActionCopyVerseText(NULL),
+		m_pActionCopyRaw(NULL),
+		m_pActionCopyVeryRaw(NULL),
 		m_pActionCopyVerseHeadings(NULL),
 		m_pActionCopyReferenceDetails(NULL),
 		m_pActionCopyComplete(NULL),
@@ -68,6 +70,16 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	m_pActionCopyVerseText->setStatusTip("Copy Verse Text for the selected Search Results to the clipboard");
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
+	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw Verse &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw->setStatusTip("Copy selected Search Results as raw phrase words to the clipboard");
+	m_pActionCopyRaw->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Verse Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw->setStatusTip("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard");
+	m_pActionCopyVeryRaw->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
+	m_pEditMenu->addSeparator();
+	m_pEditMenuLocal->addSeparator();
 	m_pActionCopyVerseHeadings = m_pEditMenu->addAction("Copy &References", this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyVerseHeadings->setStatusTip("Copy Verse References for the selected Search Results to the clipboard");
 	m_pActionCopyVerseHeadings->setEnabled(false);
@@ -111,18 +123,60 @@ void CSearchResultsListView::on_copyVerseText()
 		CPhraseNavigator navigator(docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
-		navigator.setDocumentToVerse(item.getIndex(), (ndx != 0));		// Not quite sure why passing true here doesn't give us an <hr> in our results but a <br>.  Yet adding an <hr> manually later works.  Hmmm...
+		// Note:  Qt bug with fragments causes leading <hr /> tags
+		//		to get converted to <br /> tags.  Since this may
+		//		change on us if/when they get it fixed, we'll pass
+		//		false here and set our <hr /> or <br /> below as
+		//		desired:
+		navigator.setDocumentToVerse(item.getIndex(), false);
 		navigator.doHighlighting(highlighter);
 
-		QTextCursor cursorDocVerse(&docVerse);
-		cursorDocVerse.select(QTextCursor::Document);
-		QTextDocumentFragment fragment(cursorDocVerse);
+		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
-//		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<hr/>\n");
+//		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<hr />\n");
+		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
+	clipboard->setMimeData(mime);
+}
+
+void CSearchResultsListView::on_copyRaw()
+{
+	copyRawCommon(false);
+}
+
+void CSearchResultsListView::on_copyVeryRaw()
+{
+	copyRawCommon(true);
+}
+
+void CSearchResultsListView::copyRawCommon(bool bVeryRaw) const
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
+	QString strText;
+
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		QTextDocument docVerse;
+		CPhraseNavigator navigator(docVerse);
+		navigator.setDocumentToVerse(item.getIndex(), false);
+
+		QTextCursor cursorDocVerse(&docVerse);
+		cursorDocVerse.select(QTextCursor::Document);
+		QPair<CParsedPhrase, TPhraseTag> phrase = navigator.getSelectedPhrase(cursorDocVerse);
+
+		if (!bVeryRaw) {
+			strText += phrase.first.phrase() + "\n";
+		} else {
+			strText += phrase.first.phraseRaw() + "\n";
+		}
+	}
+
+	mime->setText(strText);
 	clipboard->setMimeData(mime);
 }
 
@@ -153,7 +207,7 @@ void CSearchResultsListView::on_copyReferenceDetails()
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (ndx) {
 			strPlainText += "--------------------\n";
-			strRichText += "<hr/>\n";
+			strRichText += "<hr />\n";
 		}
 		strPlainText += lstSelectedItems.at(ndx).data(CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
 		strRichText += lstSelectedItems.at(ndx).data(Qt::ToolTipRole).toString();
@@ -186,8 +240,8 @@ void CSearchResultsListView::on_copyComplete()
 		QTextDocumentFragment fragment(cursorDocVerse);
 		cursorDocList.insertFragment(fragment);
 
-		cursorDocList.insertHtml("<br/>\n<pre>" + item.getToolTip() + "</pre>\n");
-		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("\n<hr/><br/>\n");
+		cursorDocList.insertHtml("<br />\n<pre>" + item.getToolTip() + "</pre>\n");
+		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
@@ -214,19 +268,23 @@ void CSearchResultsListView::selectionChanged(const QItemSelection & selected, c
 {
 	if (selectedIndexes().size()) {
 		m_pActionCopyVerseText->setEnabled(true);
+		m_pActionCopyRaw->setEnabled(true);
+		m_pActionCopyVeryRaw->setEnabled(true);
 		m_pActionCopyVerseHeadings->setEnabled(true);
 		m_pActionCopyReferenceDetails->setEnabled(true);
 		m_pActionCopyComplete->setEnabled(true);
 		m_pActionClearSelection->setEnabled(true);
 	} else {
 		m_pActionCopyVerseText->setEnabled(false);
+		m_pActionCopyRaw->setEnabled(false);
+		m_pActionCopyVeryRaw->setEnabled(false);
 		m_pActionCopyVerseHeadings->setEnabled(false);
 		m_pActionCopyReferenceDetails->setEnabled(false);
 		m_pActionCopyComplete->setEnabled(false);
 		m_pActionClearSelection->setEnabled(false);
 	}
 
-	QString strStatusText = QString("%1 Search Results Selected").arg(selectedIndexes().size());
+	QString strStatusText = QString("%1 Search Result(s) Selected").arg(selectedIndexes().size());
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
@@ -260,10 +318,11 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 {
 	ui->setupUi(this);
 
-//	ui->splitter->setStyleSheet("QSplitter::handle:hover { background-color: #0000FF; }");
-//	setStyleSheet("QSplitter::handle:hover { background: #0000FF; }");
-//	setStyleSheet("QMainWindow::separator:hover { background-color: palette(highlight); }");
+	ui->splitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
+
+// The following is supposed to be another workaround for QTBUG-13768
+//	ui->splitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
 
 	// TODO : Set preference for start mode!:
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
