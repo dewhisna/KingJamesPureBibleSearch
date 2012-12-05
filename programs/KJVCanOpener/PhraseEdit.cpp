@@ -478,9 +478,9 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 	return -1;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
+CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor, bool bRawOnly) const
 {
-	CRelIndex ndxReference = ResolveCursorReference2(cursor);
+	CRelIndex ndxReference = ResolveCursorReference2(cursor, bRawOnly);
 
 	if (ndxReference.book() != 0) {
 		assert(ndxReference.book() <= g_lstTOC.size());
@@ -507,11 +507,12 @@ CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
 	return ndxReference;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
+CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor, bool bRawOnly) const
 {
 
 #define CheckForAnchor() {											\
 	if (cursor.charFormat().anchorName().startsWith('B')) {			\
+		nWord++;													\
 		bInABanchor = true;											\
 		bBanchorFound = true;										\
 	} else if (cursor.charFormat().anchorName().startsWith('A')) {	\
@@ -542,8 +543,12 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
 	}
 
 	do {
-		if ((!bInABanchor) && (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty()))
+// TODO : CLEAN
+//		if (!bInABanchor)
+		if (!bInABanchor) {
+			if ((!bRawOnly) || (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty()))
 			nWord++;
+		}
 
 		while (cursor.charUnderCursor().isSpace()) {
 			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
@@ -584,6 +589,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+// TODO : CLEAN
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
 					ndxWord--;
 				nSelEnd = myCursor.position();
@@ -595,12 +601,14 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
 						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						assert(nEndAnchorPos >= 0);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 					}
 					nSelEnd = myCursor.position();
@@ -622,6 +630,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					myCursor.setCharFormat(fmt);
 					myCursor.clearSelection();
 				} while (!myCursor.charUnderCursor().isSpace());
+// TODO : CLEAN
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
 					nCount--;
 				if (!myCursor.moveCursorWordRight()) break;
@@ -632,12 +641,14 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
 						int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+						assert(nEndAnchorPos >= 0);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 					}
 					if (!myCursor.moveCursorWordRight()) break;
@@ -845,6 +856,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
 	QString strPhrase;
+	unsigned int nWords = 0;
 	CRelIndex nIndex;
 
 	if (nPosFirst < nPosLast) {
@@ -856,10 +868,13 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
 				if (!nIndex.isSet()) {
 					CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
-					nIndex = ResolveCursorReference(tempCursor);
+					nIndex = ResolveCursorReference(tempCursor, false);
 				}
-				if (!strPhrase.isEmpty()) strPhrase += " ";
-				strPhrase += myCursor.wordUnderCursor();
+				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
+					nWords++;
+					if (!strPhrase.isEmpty()) strPhrase += " ";
+					strPhrase += myCursor.wordUnderCursor();
+				}
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
 				// If we hit an anchor, see if it's either a special section A-B marker or if
@@ -868,12 +883,14 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
 						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						assert(nEndAnchorPos >= 0);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 					}
 					if (!myCursor.moveCursorWordRight()) break;
@@ -885,6 +902,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	retVal.first.ParsePhrase(strPhrase);
 	retVal.second.first = nIndex;
 	retVal.second.second = retVal.first.phraseRawSize();
+	assert(nWords == retVal.second.second);
 
 	return retVal;
 }
@@ -922,12 +940,14 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
 						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						assert(nEndAnchorPos >= 0);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 					}
 					nSelEnd = myCursor.position();
@@ -955,12 +975,14 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
+					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
 				} else {
 					CRelIndex ndxAnchor(strAnchorName);
 					assert(ndxAnchor.isSet());
 					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
 						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
+						assert(nEndAnchorPos >= 0);
 						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
 					}
 					nSelEnd = myCursor.position();
