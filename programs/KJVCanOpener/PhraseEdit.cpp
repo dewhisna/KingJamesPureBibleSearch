@@ -512,7 +512,7 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor, bool b
 
 #define CheckForAnchor() {											\
 	if (cursor.charFormat().anchorName().startsWith('B')) {			\
-		nWord++;													\
+		++nWord;													\
 		bInABanchor = true;											\
 		bBanchorFound = true;										\
 	} else if (cursor.charFormat().anchorName().startsWith('A')) {	\
@@ -858,17 +858,36 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	QString strPhrase;
 	unsigned int nWords = 0;
 	CRelIndex nIndex;
+	bool bFoundAnchorA = false;			// Set to true once we've found the first A anchor so if we start in the middle of an A-B pair and hit a B, we know if we've seen the A or not.
 
 	if (nPosFirst < nPosLast) {
 		myCursor.setPosition(nPosFirst);
+		// See if our first character is a space.  If so, don't include it because it's
+		//		most likely the single space between words.  If so, we would end up
+		//		starting the selection at the preceding word and while that's technically
+		//		correct, it's confusing to the user who probably didn't mean for that
+		//		to happen:
+		if (myCursor.charUnderCursor().isSpace()) myCursor.moveCursorCharRight();
 		myCursor.moveCursorWordStart();
 		while (myCursor.position() < nPosLast) {
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
+				if ((fmt.isAnchor()) && (!bFoundAnchorA)) {
+					// If we hit a B anchor and haven't found our first A anchor yet,
+					//		it means the user started the selection in the middle
+					//		of the A-B pair and we want to clear everything we've
+					//		found so far, because it belongs to the void between
+					//		the two and not real text.  However, we want to continue
+					//		and set our location info and the word we are on top of
+					//		is actually the first word we want to keep.
+					nIndex = CRelIndex();
+					nWords = 0;
+					strPhrase.clear();
+				}
 				if (!nIndex.isSet()) {
 					CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
-					nIndex = ResolveCursorReference(tempCursor, false);
+					nIndex = ResolveCursorReference(tempCursor);
 				}
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
 					nWords++;
@@ -882,6 +901,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 				//		If it is a chapter start anchor, search for our special X-anchor so
 				//		we'll be at the correct start of the next verse:
 				if (strAnchorName.startsWith('A')) {
+					bFoundAnchorA = true;
 					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
