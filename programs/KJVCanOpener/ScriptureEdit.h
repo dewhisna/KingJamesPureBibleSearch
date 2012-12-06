@@ -47,7 +47,7 @@ public:
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
 	bool haveSelection() const {
-		return ((m_selectedPhase.second.first.isSet()) && (m_selectedPhase.second.second != 0));
+		return ((m_selectedPhrase.second.first.isSet()) && (m_selectedPhrase.second.second != 0));
 	}
 
 //signals:
@@ -73,6 +73,7 @@ protected:
 //public slots:
 public:
 	virtual void on_passageNavigator();
+	virtual void on_copy();
 	virtual void on_copyRaw();
 	virtual void on_copyVeryRaw();
 	virtual void on_copyReferenceDetails();
@@ -85,7 +86,7 @@ private:
 	CCursorFollowHighlighter m_Highlighter;
 	QTimer m_HighlightTimer;
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
-	QPair<CParsedPhrase, TPhraseTag> m_selectedPhase;		// Selected phrase and cursor selection reference
+	QPair<CParsedPhrase, TPhraseTag> m_selectedPhrase;		// Selected phrase and cursor selection reference
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	// ----
@@ -134,6 +135,7 @@ protected slots:
 
 public slots:
 //	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
+	virtual void on_copy() = 0;
 	virtual void on_copyRaw() = 0;
 	virtual void on_copyVeryRaw() = 0;
 	virtual void on_copyReferenceDetails() = 0;
@@ -161,6 +163,7 @@ protected slots:
 
 public slots:
 	virtual void on_passageNavigator() = 0;
+	virtual void on_copy() = 0;
 	virtual void on_copyRaw() = 0;
 	virtual void on_copyVeryRaw() = 0;
 	virtual void on_copyReferenceDetails() = 0;
