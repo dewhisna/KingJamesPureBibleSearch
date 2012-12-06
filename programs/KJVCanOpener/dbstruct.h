@@ -48,7 +48,7 @@ public:
 		return QString("%1").arg(m_ndx);
 	}
 
-	QString SearchResultToolTip(int nRIMask = RIMASK_ALL) const;		// Create complete reference statistics report
+	QString SearchResultToolTip(int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
 	QString PassageReferenceText() const;		// Creates a reference text string like "Genesis 1:1 [5]"
 
 	QString testamentName() const;
@@ -110,7 +110,7 @@ public:
 	CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex);
 	~CRefCountCalc() { }
 
-	static QString SearchResultToolTip(const CRelIndex &refIndex, int nRIMask = RIMASK_ALL);		// Create complete reference statistics report
+	static QString SearchResultToolTip(const CRelIndex &refIndex, int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1);		// Create complete reference statistics report
 	static QString PassageReferenceText(const CRelIndex &refIndex);		// Creates a reference text string like "Genesis 1:1 [5]"
 
 	REF_TYPE_ENUM refType() const { return m_nRefType; }

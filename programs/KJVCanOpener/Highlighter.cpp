@@ -33,7 +33,7 @@ void CBasicHighlighter::clearPhraseTags()
 
 void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
-	if (!bClear) {
+	if ((!bClear) && (enabled())) {
 		aFormat.setProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
 		aFormat.setForeground(QBrush(QColor("blue")));				// TODO : Get properties from global settings!
 	} else {
@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(QTextCharFormat::UnderlineStyle)
 
 void CCursorFollowHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
-	if (!bClear) {
+	if ((!bClear) && (enabled())) {
 		aFormat.setProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR, QVariant(aFormat.underlineColor()));
 		aFormat.setProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
 		aFormat.setUnderlineColor(QColor("blue"));							// TODO : Get properties from global settings!

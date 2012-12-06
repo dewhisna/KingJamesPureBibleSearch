@@ -1054,20 +1054,40 @@ void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const T
 
 QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
 {
-	const CRelIndex &ndxReference(tag.first);
+	bool bHaveSelection = ((selection.first.isSet()) && (selection.second != 0));
+	const CRelIndex &ndxReference(bHaveSelection ? selection.first : tag.first);
+
 	QString strToolTip;
 
 	if (ndxReference.isSet()) {
 		if (!bPlainText) strToolTip += "<html><body><pre>";
 		if ((nToolTipType == TTE_COMPLETE) ||
 			(nToolTipType == TTE_REFERENCE_ONLY)) {
-			if (ndxReference.word() != 0) {
-				uint32_t ndxNormal = NormalizeIndex(ndxReference);
-				if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
-					strToolTip += "Word: " + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\n";
+			if (!bHaveSelection) {
+				if (ndxReference.word() != 0) {
+					uint32_t ndxNormal = NormalizeIndex(ndxReference);
+					if ((ndxNormal != 0) && (ndxNormal <= g_lstConcordanceMapping.size())) {
+						strToolTip += "Word: \"" + g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal)-1) + "\"\n";
+					}
 				}
+				strToolTip += ndxReference.SearchResultToolTip();
+			} else {
+				strToolTip += "Phrase: \"";
+				uint32_t ndxNormal = NormalizeIndex(ndxReference);
+				if (ndxNormal != 0) {
+					unsigned int ndx;
+					for (ndx = 0; ((ndx < qMin(7u, selection.second)) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())) ; ++ndx) {
+						if (ndx) strToolTip += " ";
+						strToolTip += g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal + ndx)-1);
+					}
+					if ((ndx == 7u) && (selection.second > 7u)) strToolTip += " ...";
+				} else {
+					assert(false);
+					strToolTip += "???";
+				}
+				strToolTip += "\"\n";
+				strToolTip += ndxReference.SearchResultToolTip(RIMASK_ALL, selection.second);
 			}
-			strToolTip += ndxReference.SearchResultToolTip();
 		}
 		if ((nToolTipType == TTE_COMPLETE) ||
 			(nToolTipType == TTE_STATISTICS_ONLY)) {
@@ -1098,7 +1118,7 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 													.arg(ndxReference.bookName()).arg(ndxReference.chapter())
 													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs)
 													.arg(g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumWrd);
-							if (ndxReference.verse() != 0) {
+							if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
 								assert(ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs);
 								if (ndxReference.verse() <= g_mapLayout[CRelIndex(ndxReference.book(), ndxReference.chapter(), 0, 0)].m_nNumVrs) {
 									strToolTip += QString("\n%1 %2:%3 contains:\n"
@@ -1110,6 +1130,9 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 						}
 					}
 				}
+			}
+			if (bHaveSelection) {
+				strToolTip += QString("\n%1 Word(s) Selected\n").arg(selection.second);
 			}
 		}
 		if (!bPlainText) strToolTip += "</pre></body></html>";

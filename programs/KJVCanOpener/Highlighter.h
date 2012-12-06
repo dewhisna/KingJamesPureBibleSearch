@@ -13,7 +13,8 @@ class CBasicHighlighter : public QObject {
 public:
 	explicit CBasicHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
 		:	QObject(parent),
-			m_lstPhraseTags(lstPhraseTags)
+			m_lstPhraseTags(lstPhraseTags),
+			m_bEnabled(true)
 	{
 	}
 	CBasicHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
@@ -23,6 +24,8 @@ public:
 	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const = 0;
+	virtual bool enabled() const { return m_bEnabled; }
+	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
 
 	const TPhraseTagList &getHighlightTags() const;
 	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
@@ -32,6 +35,7 @@ public slots:
 
 protected:
 	TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	bool m_bEnabled;
 };
 
 // ============================================================================

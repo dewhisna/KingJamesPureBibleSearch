@@ -194,6 +194,7 @@ void CScriptureText<T,U>::on_passageNavigator()
 	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, tagHighlight.first);
 	tagHighlight.second = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.second);
 
+	m_Highlighter.setEnabled(true);
 	m_navigator.highlightTag(m_Highlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(T::parentWidget());
 	dlg.navigator().startRelativeMode(tagSel, false);
@@ -258,7 +259,7 @@ void CScriptureText<T,U>::updateSelection()
 	QString strStatusText;
 	if (haveSelection()) {
 		strStatusText = m_selectedPhrase.second.first.PassageReferenceText();
-		if (m_selectedPhrase.second.second) {
+		if (m_selectedPhrase.second.second > 1) {
 			uint32_t nNormal = NormalizeIndex(m_selectedPhrase.second.first);
 			strStatusText += " - " + CRelIndex(DenormalizeIndex(nNormal + m_selectedPhrase.second.second - 1)).PassageReferenceText();
 		}
@@ -273,6 +274,7 @@ void CScriptureText<T,U>::updateSelection()
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
+	m_Highlighter.setEnabled(!haveSelection());
 }
 
 template<class T, class U>
