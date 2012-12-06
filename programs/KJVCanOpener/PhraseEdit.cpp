@@ -478,9 +478,9 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 	return -1;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor, bool bRawOnly) const
+CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
 {
-	CRelIndex ndxReference = ResolveCursorReference2(cursor, bRawOnly);
+	CRelIndex ndxReference = ResolveCursorReference2(cursor);
 
 	if (ndxReference.book() != 0) {
 		assert(ndxReference.book() <= g_lstTOC.size());
@@ -507,7 +507,7 @@ CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor, bool bR
 	return ndxReference;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor, bool bRawOnly) const
+CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
 {
 
 #define CheckForAnchor() {											\
@@ -543,10 +543,7 @@ CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor, bool b
 	}
 
 	do {
-// TODO : CLEAN
-//		if (!bInABanchor)
-		if (!bInABanchor) {
-			if ((!bRawOnly) || (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty()))
+		if ((!bInABanchor) && (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty())) {
 			nWord++;
 		}
 
@@ -589,7 +586,6 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			QTextCharFormat fmt = myCursor.charFormat();
 			QString strAnchorName = fmt.anchorName();
 			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-// TODO : CLEAN
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
 					ndxWord--;
 				nSelEnd = myCursor.position();
@@ -630,7 +626,6 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					myCursor.setCharFormat(fmt);
 					myCursor.clearSelection();
 				} while (!myCursor.charUnderCursor().isSpace());
-// TODO : CLEAN
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
 					nCount--;
 				if (!myCursor.moveCursorWordRight()) break;

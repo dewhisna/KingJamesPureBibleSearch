@@ -113,8 +113,8 @@ public:
 	//		backtracks until it finds an anchor to determine the relative index.
 	//		Used mainly with the KJVBrowser, but also useful for search results
 	//		review and navigator dialog preview:
-	CRelIndex ResolveCursorReference(CPhraseCursor cursor, bool bRawOnly = true) const;		// Bounds limited for words
-	CRelIndex ResolveCursorReference2(CPhraseCursor cursor, bool bRawOnly = true) const;	// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
+	CRelIndex ResolveCursorReference(CPhraseCursor cursor) const;		// Bounds limited for words
+	CRelIndex ResolveCursorReference2(CPhraseCursor cursor) const;		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
 
 	// Highlight the areas marked in the PhraseTags.  If bClear=True, removes
 	//		the highlighting, which is used to swapout the current tag list
