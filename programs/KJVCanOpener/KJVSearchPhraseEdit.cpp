@@ -270,7 +270,7 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 		QString strPhrase;
 		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(source);
 		uint32_t ndxNormal = NormalizeIndex(tag.first);
-		if (ndxNormal != 0) {
+		if ((ndxNormal != 0) && (tag.second > 0)) {
 			for (unsigned int ndx = 0; ((ndx < tag.second) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())); ++ndx) {
 				if (ndx) strPhrase += " ";
 				strPhrase += g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal + ndx)-1);
