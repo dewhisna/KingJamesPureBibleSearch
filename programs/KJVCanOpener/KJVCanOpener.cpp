@@ -475,13 +475,9 @@ pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
 */
 
-
-
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+QFrame *pFrame1 = new QFrame(this);
+pFrame1->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame1);
 
 pPhraseEdit = new CKJVSearchPhraseEdit(this);
 connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
@@ -489,11 +485,9 @@ connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on
 m_lstSearchPhraseEditors.append(pPhraseEdit);
 pLayoutPhrases->addWidget(pPhraseEdit);
 
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+QFrame *pFrame2 = new QFrame(this);
+pFrame2->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame2);
 
 pPhraseEdit = new CKJVSearchPhraseEdit(this);
 connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
@@ -501,11 +495,39 @@ connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on
 m_lstSearchPhraseEditors.append(pPhraseEdit);
 pLayoutPhrases->addWidget(pPhraseEdit);
 
+QFrame *pFrame3 = new QFrame(this);
+pFrame3->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame3);
+
 pPhraseEdit = new CKJVSearchPhraseEdit(this);
 connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
 m_lstSearchPhraseEditors.append(pPhraseEdit);
 pLayoutPhrases->addWidget(pPhraseEdit);
+
+QFrame *pFrame4 = new QFrame(this);
+pFrame4->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame4);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+QFrame *pFrame5 = new QFrame(this);
+pFrame5->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame5);
+
+pPhraseEdit = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit);
+pLayoutPhrases->addWidget(pPhraseEdit);
+
+QFrame *pFrame6 = new QFrame(this);
+pFrame6->setFrameStyle(QFrame::HLine | QFrame::Raised);
+pLayoutPhrases->addWidget(pFrame6);
 
 pPhraseEdit = new CKJVSearchPhraseEdit(this);
 connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
@@ -517,7 +539,7 @@ m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
 
 //ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
-ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
+ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7 + pFrame1->sizeHint().height()*6);
 
 
 
