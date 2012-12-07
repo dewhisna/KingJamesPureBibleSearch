@@ -54,6 +54,7 @@ protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
 
 	virtual void insertFromMimeData(const QMimeData * source);
+	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 
 	void UpdateCompleter();
 

@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     Highlighter.cpp \
     VerseListDelegate.cpp \
     KJVAboutDlg.cpp \
-    SearchPhraseListModel.cpp
+    SearchPhraseListModel.cpp \
+    MimeHelper.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
@@ -52,7 +53,8 @@ HEADERS  += KJVCanOpener.h \
     DelegateMisc.h \
     KJVAboutDlg.h \
     version.h \
-    SearchPhraseListModel.h
+    SearchPhraseListModel.h \
+    MimeHelper.h
 
 FORMS    += KJVCanOpener.ui \
     KJVBrowser.ui \

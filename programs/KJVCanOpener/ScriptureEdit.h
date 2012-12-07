@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QMimeData>
 
 // ============================================================================
 
@@ -60,6 +61,7 @@ protected:
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	virtual void mouseDoubleClickEvent(QMouseEvent *ev);
 	virtual void contextMenuEvent(QContextMenuEvent *ev);
+	virtual QMimeData *createMimeDataFromSelection () const;
 
 protected:
 	virtual void updateSelection();

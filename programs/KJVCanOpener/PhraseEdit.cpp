@@ -96,7 +96,7 @@ QStringList CParsedPhrase::phraseWordsRaw() const
 	return lstPhraseWords;
 }
 
-QString CParsedPhrase::CParsedPhrase::makeRawPhrase(const QString &strPhrase)
+QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
 {
 	const QString strValidChars(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-");
 	QString strTemp = strPhrase;
@@ -1076,7 +1076,7 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 				uint32_t ndxNormal = NormalizeIndex(ndxReference);
 				if (ndxNormal != 0) {
 					unsigned int ndx;
-					for (ndx = 0; ((ndx < qMin(7u, selection.second)) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())) ; ++ndx) {
+					for (ndx = 0; ((ndx < qMin(7u, selection.second)) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())); ++ndx) {
 						if (ndx) strToolTip += " ";
 						strToolTip += g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal + ndx)-1);
 					}

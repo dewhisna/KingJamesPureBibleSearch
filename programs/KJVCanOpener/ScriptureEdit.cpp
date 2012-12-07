@@ -2,12 +2,15 @@
 
 #include "dbstruct.h"
 #include "KJVPassageNavigatorDlg.h"
+#include "MimeHelper.h"
 
 #include <assert.h>
 
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include <QByteArray>
+#include <QDataStream>
 #include <QString>
 #include <QEvent>
 #include <QHelpEvent>
@@ -233,6 +236,14 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 }
 
 template<class T, class U>
+QMimeData *CScriptureText<T,U>::createMimeDataFromSelection () const
+{
+	QMimeData *mime = U::createMimeDataFromSelection();
+	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	return mime;
+}
+
+template<class T, class U>
 void CScriptureText<T,U>::on_cursorPositionChanged()
 {
 	CPhraseCursor cursor = T::textCursor();
@@ -285,54 +296,73 @@ void CScriptureText<T,U>::on_copy()
 	m_bDoingPopup = false;
 	clearHighlighting();
 	T::copy();
+//	if ((T::textCursor().hasSelection()) || (haveSelection())) {
+//		QMimeData *mime = T::createMimeDataFromSelection();
+//		if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+//		QApplication::clipboard()->setMimeData(mime);
+//	}
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyRaw()
 {
-	QClipboard *clipboard = QApplication::clipboard();
+	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_selectedPhrase.first.phrase());
-	clipboard->setMimeData(mime);
+	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyVeryRaw()
 {
-	QClipboard *clipboard = QApplication::clipboard();
+	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_selectedPhrase.first.phraseRaw());
-	clipboard->setMimeData(mime);
+	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyReferenceDetails()
 {
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
-	clipboard->setMimeData(mime);
+	if (haveSelection()) {
+		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	} else {
+		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
+	}
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyPassageStatistics()
 {
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
-	clipboard->setMimeData(mime);
+	if (haveSelection()) {
+		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	} else {
+		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
+	}
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyEntirePassageDetails()
 {
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, false));
-	clipboard->setMimeData(mime);
+	if (haveSelection()) {
+		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	} else {
+		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
+	}
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 // ============================================================================

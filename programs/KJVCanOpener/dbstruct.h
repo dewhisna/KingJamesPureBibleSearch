@@ -12,6 +12,8 @@
 #include <QList>
 #include <QVariant>
 #include <QPair>
+#include <QMetaType>
+#include <QDataStream>
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -30,12 +32,16 @@
 
 class CRelIndex {
 public:
-	CRelIndex(uint32_t ndx = 0) :
-		m_ndx(ndx)
+	CRelIndex(const CRelIndex &ndx)
+		:	m_ndx(ndx.index())
 	{
 	}
-	CRelIndex(const QString &strAnchor) :
-		m_ndx(strAnchor.toUInt())
+	CRelIndex(uint32_t ndx = 0)
+		:	m_ndx(ndx)
+	{
+	}
+	CRelIndex(const QString &strAnchor)
+		:	m_ndx(strAnchor.toUInt())
 	{
 	}
 	CRelIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd)
@@ -44,7 +50,7 @@ public:
 	}
 	~CRelIndex() { }
 
-	QString asAnchor() const {					// Anchor is a text string unique to this reference
+	inline QString asAnchor() const {			// Anchor is a text string unique to this reference
 		return QString("%1").arg(m_ndx);
 	}
 
@@ -55,32 +61,45 @@ public:
 	uint32_t testament() const;
 
 	QString bookName() const;
-	uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
-	void setBook(uint32_t nBk) {
+	inline uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
+	inline void setBook(uint32_t nBk) {
 		m_ndx = ((m_ndx & 0x00FFFFFF) | ((nBk & 0xFF) << 24));
 	}
-	uint32_t chapter() const { return ((m_ndx >> 16) & 0xFF); }
-	void setChapter(uint32_t nChp) {
+	inline uint32_t chapter() const { return ((m_ndx >> 16) & 0xFF); }
+	inline void setChapter(uint32_t nChp) {
 		m_ndx = ((m_ndx & 0xFF00FFFF) | ((nChp & 0xFF) << 16));
 	}
-	uint32_t verse() const { return ((m_ndx >> 8) & 0xFF); }
-	void setVerse(uint32_t nVrs) {
+	inline uint32_t verse() const { return ((m_ndx >> 8) & 0xFF); }
+	inline void setVerse(uint32_t nVrs) {
 		m_ndx = ((m_ndx & 0xFFFF00FF) | ((nVrs & 0xFF) << 8));
 	}
-	uint32_t word() const { return (m_ndx & 0xFF); }
-	void setWord(uint32_t nWrd) {
+	inline uint32_t word() const { return (m_ndx & 0xFF); }
+	inline void setWord(uint32_t nWrd) {
 		m_ndx = ((m_ndx & 0xFFFFFF00) | (nWrd & 0xFF));
 	}
-	bool isSet() const { return (m_ndx != 0); }
+	inline bool isSet() const { return (m_ndx != 0); }
 
-	uint32_t index() const { return m_ndx; }
-	void setIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd) {
+	inline uint32_t index() const { return m_ndx; }
+	inline void setIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd) {
 		m_ndx = (((nBk & 0xFF) << 24) | ((nChp & 0xFF) << 16) | ((nVrs & 0xFF) << 8) | (nWrd & 0xFF));
+	}
+	inline void setIndex(uint32_t ndx) {
+		m_ndx = ndx;
 	}
 
 private:
 	uint32_t m_ndx;
 };
+inline QDataStream& operator<<(QDataStream &out, const CRelIndex &ndx) {
+	out << ndx.index();
+	return out;
+}
+inline QDataStream& operator>>(QDataStream &in, CRelIndex &ndx) {
+	uint32_t anIndex;
+	in >> anIndex;
+	ndx.setIndex(anIndex);
+	return in;
+}
 
 extern uint32_t NormalizeIndex(const CRelIndex &nRelIndex);
 extern uint32_t NormalizeIndex(uint32_t nRelIndex);
@@ -379,6 +398,9 @@ public:
 	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
 		:	QPair<CRelIndex, unsigned int>(ndx, nCount) { }
 };
+Q_DECLARE_METATYPE(TPhraseTag)
+
+const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.bethelchurch.kjvcanopener.phrasetag");
 
 typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases
 

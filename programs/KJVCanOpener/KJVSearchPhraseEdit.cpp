@@ -2,6 +2,7 @@
 #include "ui_KJVSearchPhraseEdit.h"
 
 #include "PhraseListModel.h"
+#include "MimeHelper.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -239,17 +240,20 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 	}
 }
 
+bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
+{
+	if (source->hasFormat(g_constrPhraseTagMimeType)) {
+		return true;
+	} else {
+		return QTextEdit::canInsertFromMimeData(source);
+	}
+}
 
 void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 {
 	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
 
-	bool bHasData = false;
-	QTextDocumentFragment fragment;
-
-	// Change all newlines to spaces, since we are simulating a single-line editor:
-
-// Uncomment to re-enable rich text (don't forget to change acceptRichText setting in constructor)
+// For reference if we ever re-enable rich text:  (don't forget to change acceptRichText setting in constructor)
 //	if (source->hasFormat(QLatin1String("application/x-qrichtext")) && acceptRichText()) {
 //		// x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
 //		QString richtext = QString::fromUtf8(source->data(QLatin1String("application/x-qrichtext")));
@@ -260,7 +264,25 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 //		fragment = QTextDocumentFragment::fromHtml(source->html(), document());
 //		bHasData = true;
 //	} else {
+
+
+	if (source->hasFormat(g_constrPhraseTagMimeType)) {
+		QString strPhrase;
+		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(source);
+		uint32_t ndxNormal = NormalizeIndex(tag.first);
+		if (ndxNormal != 0) {
+			for (unsigned int ndx = 0; ((ndx < tag.second) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())); ++ndx) {
+				if (ndx) strPhrase += " ";
+				strPhrase += g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal + ndx)-1);
+			}
+			clear();
+			setText(strPhrase);
+		}
+	} else if (source->hasText()) {
+		bool bHasData = false;
+		QTextDocumentFragment fragment;
 		QString text = source->text();
+		// Change all newlines to spaces, since we are simulating a single-line editor:
 		if (!text.isNull()) {
 			text.replace("\r","");
 			text.replace("\n"," ");
@@ -269,9 +291,9 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 				bHasData = true;
 			}
 		}
-//	}
+		if (bHasData) textCursor().insertFragment(fragment);
+	}
 
-	if (bHasData) textCursor().insertFragment(fragment);
 	ensureCursorVisible();
 }
 

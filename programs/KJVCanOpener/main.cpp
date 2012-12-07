@@ -1,4 +1,3 @@
-//#include <QtGui/QApplication>
 #include <QtCore>
 #include <QApplication>
 #include <QPixmap>
@@ -57,6 +56,8 @@ int main(int argc, char *argv[])
 	// Database Paths:
 	QFileInfo fiDatabase(app.applicationDirPath(), g_constrDatabaseFilename);
 	QFileInfo fiUserDatabase(app.applicationDirPath(), g_constrUserDatabaseFilename);
+
+//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
 
 //CBuildDatabase adb(splash);
