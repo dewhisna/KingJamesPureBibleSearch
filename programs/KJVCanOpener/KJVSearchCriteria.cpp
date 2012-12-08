@@ -29,6 +29,7 @@ CKJVSearchCriteria::CKJVSearchCriteria(QWidget *parent) :
 	connect(ui->radioButtonANDSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperator()));
 	connect(ui->radioButtonORSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperator()));
 	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changeSearchScope(int)));
+	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 
 	// Set Initial Mode:
 	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_nSearchScope));

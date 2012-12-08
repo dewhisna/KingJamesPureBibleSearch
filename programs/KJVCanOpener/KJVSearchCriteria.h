@@ -31,6 +31,7 @@ public:
 signals:
 	void changedSearchScope(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 	void changedOperator(CKJVSearchCriteria::OPERATOR_MODE_ENUM mode);
+	void addSearchPhraseClicked();
 
 private slots:
 	void on_changeSearchScope(int ndx);

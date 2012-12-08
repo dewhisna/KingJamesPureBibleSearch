@@ -103,7 +103,13 @@ signals:
 	void phraseListChanged();
 	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
 
+public slots:
+	void showSeperatorLine(bool bShow = true);
+	void enableCloseButton(bool bEnable = true);
+
 protected slots:
+	void on_closeSearchPhraseClicked();
+
 	void on_phraseChanged(const CParsedPhrase &phrase);
 	void on_CaseSensitiveChanged(bool bCaseSensitive);
 	void on_phraseAdd();

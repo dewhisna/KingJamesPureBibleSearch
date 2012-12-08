@@ -314,33 +314,35 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
 	m_pActionAbout(NULL),
+	m_pLayoutPhrases(NULL),
+	m_pMainSearchPhraseEditor(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
 
-	ui->splitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
-	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
-
 // The following is supposed to be another workaround for QTBUG-13768
 //	ui->splitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
+	ui->splitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
+	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
 	// TODO : Set preference for start mode!:
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
 
+	// --------------------
+
 	QAction *pAction;
 
+	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu("&File");
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip("Exit the King James Can Opener Application");
 	pFileMenu->addAction(pAction);
 
-//	QMenu *pEditMenu = ui->menuBar->addMenu("&Edit");
-//	QMenu *pBrowserEditMenu = ui->widgetKJVBrowser->browser()->getEditMenu();
-//	ui->menuBar->addMenu(pBrowserEditMenu);
-//	connect(ui->widgetKJVBrowser->browser(), SIGNAL(addEditMenu(bool)), this, SLOT(on_addPassageBrowserEditMenu(bool)));
+	// --- Edit Menu
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
 	connect(ui->listViewSearchResults, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
 
+	// --- View Menu
 	m_pViewMenu = ui->menuBar->addMenu("&View");
 
 	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu("&Toolbars");
@@ -362,6 +364,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
 	ui->listViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
 
+	// --- Navigate Menu
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
 
 	pAction = pNavMenu->addAction("Beginning of Bible", ui->widgetKJVBrowser, SLOT(on_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
@@ -432,6 +435,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
 
+	// --- Help Menu
 	QMenu *pHelpMenu = ui->menuBar->addMenu("&Help");
 	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), "&Help", this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
 	pAction->setStatusTip("Display the Users Manual");
@@ -446,23 +450,27 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
 
+	// -------------------- Search Phrase Widgets:
+
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	CKJVSearchPhraseEdit *pPhraseEdit = new CKJVSearchPhraseEdit(this);
-	connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-	m_lstSearchPhraseEditors.append(pPhraseEdit);
+	m_pMainSearchPhraseEditor = new CKJVSearchPhraseEdit(this);
+	connect(m_pMainSearchPhraseEditor, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(m_pMainSearchPhraseEditor, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	m_lstSearchPhraseEditors.append(m_pMainSearchPhraseEditor);
+	m_pMainSearchPhraseEditor->showSeperatorLine(false);
+	m_pMainSearchPhraseEditor->enableCloseButton(false);
 
-	QVBoxLayout *pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
-	pLayoutPhrases->setSpacing(0);
-	pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
-	pLayoutPhrases->addWidget(pPhraseEdit);
+	m_pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
+	m_pLayoutPhrases->setSpacing(0);
+	m_pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
+	m_pLayoutPhrases->addWidget(m_pMainSearchPhraseEditor);
 
-	ui->scrollAreaWidgetContents->setMinimumSize(/* pLayoutPhrases->sizeHint() */ pPhraseEdit->sizeHint() );
+	ui->scrollAreaWidgetContents->setMinimumSize(/* pLayoutPhrases->sizeHint() */ m_pMainSearchPhraseEditor->sizeHint() );
 
-	ui->scrollAreaSearchPhrases->setMinimumSize(pLayoutPhrases->sizeHint().width() +
+	ui->scrollAreaSearchPhrases->setMinimumSize(m_pLayoutPhrases->sizeHint().width() +
 							ui->scrollAreaSearchPhrases->verticalScrollBar()->sizeHint().width() +
 							ui->scrollAreaSearchPhrases->frameWidth() * 2,
-							pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
+							m_pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
 
 /*
 pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
@@ -475,73 +483,57 @@ pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
 ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
 */
 
-QFrame *pFrame1 = new QFrame(this);
-pFrame1->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame1);
+/*
 
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+CKJVSearchPhraseEdit *pPhraseEdit2;
 
-QFrame *pFrame2 = new QFrame(this);
-pFrame2->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame2);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-QFrame *pFrame3 = new QFrame(this);
-pFrame3->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame3);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-QFrame *pFrame4 = new QFrame(this);
-pFrame4->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame4);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
+pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
+connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+m_lstSearchPhraseEditors.append(pPhraseEdit2);
+pLayoutPhrases->addWidget(pPhraseEdit2);
 
-QFrame *pFrame5 = new QFrame(this);
-pFrame5->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame5);
-
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
-
-QFrame *pFrame6 = new QFrame(this);
-pFrame6->setFrameStyle(QFrame::HLine | QFrame::Raised);
-pLayoutPhrases->addWidget(pFrame6);
-
-pPhraseEdit = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit);
-pLayoutPhrases->addWidget(pPhraseEdit);
-
-m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
+//m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
 
 //ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
-ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7 + pFrame1->sizeHint().height()*6);
+ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height() + pPhraseEdit2->sizeHint().height()*6);
 
+*/
 
+	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
+
+	// -------------------- Search Results List View:
 
 	CVerseListModel *model = new CVerseListModel(ui->listViewSearchResults);
 	model->setDisplayMode(nDisplayMode);
@@ -583,6 +575,36 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	}
 
 	return QMainWindow::closeEvent(event);
+}
+
+void CKJVCanOpener::on_addSearchPhraseClicked()
+{
+	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
+	connect(pPhraseWidget, SIGNAL(destroyed(QObject*)), this, SLOT(on_closingSearchPhrase(QObject*)));
+	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(pPhraseWidget, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	m_lstSearchPhraseEditors.append(pPhraseWidget);
+	m_pLayoutPhrases->addWidget(pPhraseWidget);
+	ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + pPhraseWidget->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
+
+//m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
+}
+
+void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
+{
+	CKJVSearchPhraseEdit *pSearchPhraseWidget = static_cast<CKJVSearchPhraseEdit *>(pWidget);
+	assert(pSearchPhraseWidget != NULL);
+
+	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhraseWidget);
+	assert(ndx != -1);
+	if (ndx != -1) {
+		m_lstSearchPhraseEditors.removeAt(ndx);
+	}
+	if (m_lstSearchPhraseEditors.size() > 1) {
+		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + m_lstSearchPhraseEditors.at(1)->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
+	} else {
+		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height());
+	}
 }
 
 void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)

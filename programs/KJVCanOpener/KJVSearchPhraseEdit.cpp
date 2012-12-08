@@ -390,11 +390,28 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
 	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
 	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)));
+	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(on_closeSearchPhraseClicked()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 {
 	delete ui;
+}
+
+void CKJVSearchPhraseEdit::on_closeSearchPhraseClicked()
+{
+	deleteLater();
+}
+
+void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
+{
+	ui->lineSeparator->setVisible(bShow);
+	adjustSize();
+}
+
+void CKJVSearchPhraseEdit::enableCloseButton(bool bEnable)
+{
+	ui->buttonRemove->setEnabled(bEnable);
 }
 
 const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const

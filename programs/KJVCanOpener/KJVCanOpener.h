@@ -15,6 +15,7 @@
 #include <QContextMenuEvent>
 #include <QString>
 #include <QListView>
+#include <QVBoxLayout>
 
 #include <assert.h>
 
@@ -103,6 +104,9 @@ protected:
 	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
 protected slots:
+	void on_addSearchPhraseClicked();
+	void on_closingSearchPhrase(QObject *pWidget);
+
 	void on_addPassageBrowserEditMenu(bool bAdd);
 	void on_addSearchResultsEditMenu(bool bAdd);
 	void on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
@@ -149,8 +153,10 @@ private:
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	QAction *m_pActionAbout;		// About Application
 
+	QVBoxLayout *m_pLayoutPhrases;
 	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
+	CKJVSearchPhraseEdit *m_pMainSearchPhraseEditor;
 
 	Ui::CKJVCanOpener *ui;
 };
