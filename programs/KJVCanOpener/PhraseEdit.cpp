@@ -22,15 +22,15 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 
 TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 {
-	TIndexList lstResults;
+	if (m_cache_lstNormalizedSearchResults.size()) return m_cache_lstNormalizedSearchResults;
 
-	lstResults.resize(m_lstMatchMapping.size());
+	m_cache_lstNormalizedSearchResults.resize(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		lstResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
+		m_cache_lstNormalizedSearchResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
 	}
-	sort(lstResults.begin(), lstResults.end());
+	sort(m_cache_lstNormalizedSearchResults.begin(), m_cache_lstNormalizedSearchResults.end());
 
-	return lstResults;
+	return m_cache_lstNormalizedSearchResults;
 }
 
 uint32_t CParsedPhrase::GetMatchLevel() const
@@ -75,25 +75,29 @@ unsigned int CParsedPhrase::phraseRawSize() const
 
 QStringList CParsedPhrase::phraseWords() const
 {
-	QStringList lstPhraseWords = m_lstWords;
-	for (int ndx = (lstPhraseWords.size()-1); ndx >= 0; --ndx) {
-		if (lstPhraseWords.at(ndx).isEmpty()) lstPhraseWords.removeAt(ndx);
+	if (m_cache_lstPhraseWords.size()) return m_cache_lstPhraseWords;
+
+	m_cache_lstPhraseWords = m_lstWords;
+	for (int ndx = (m_cache_lstPhraseWords.size()-1); ndx >= 0; --ndx) {
+		if (m_cache_lstPhraseWords.at(ndx).isEmpty()) m_cache_lstPhraseWords.removeAt(ndx);
 	}
-	return lstPhraseWords;
+	return m_cache_lstPhraseWords;
 }
 
 QStringList CParsedPhrase::phraseWordsRaw() const
 {
-	QStringList lstPhraseWords = phraseWords();
-	for (int ndx = (lstPhraseWords.size()-1); ndx >= 0; --ndx) {
-		QString strTemp = makeRawPhrase(lstPhraseWords.at(ndx));
+	if (m_cache_lstPhraseWordsRaw.size()) return m_cache_lstPhraseWordsRaw;
+
+	m_cache_lstPhraseWordsRaw = phraseWords();
+	for (int ndx = (m_cache_lstPhraseWordsRaw.size()-1); ndx >= 0; --ndx) {
+		QString strTemp = makeRawPhrase(m_cache_lstPhraseWordsRaw.at(ndx));
 		if (strTemp.isEmpty()) {
-			lstPhraseWords.removeAt(ndx);
+			m_cache_lstPhraseWordsRaw.removeAt(ndx);
 		} else {
-			lstPhraseWords[ndx] = strTemp;
+			m_cache_lstPhraseWordsRaw[ndx] = strTemp;
 		}
 	}
-	return lstPhraseWords;
+	return m_cache_lstPhraseWordsRaw;
 }
 
 QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
@@ -104,6 +108,13 @@ QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
 		if (!strValidChars.contains(strTemp.at(i))) strTemp.remove(i, 1);
 	}
 	return strTemp;
+}
+
+void CParsedPhrase::clearCache() const
+{
+	m_cache_lstPhraseWords.clear();
+	m_cache_lstPhraseWordsRaw.clear();
+	m_cache_lstNormalizedSearchResults.clear();
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
@@ -128,6 +139,8 @@ QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const 
 
 void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 {
+	clearCache();
+
 	m_lstLeftWords.clear();
 	m_lstRightWords.clear();
 	m_strCursorWord.clear();
@@ -156,6 +169,8 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 {
+	clearCache();
+
 	m_lstLeftWords.clear();
 	m_lstRightWords.clear();
 	m_strCursorWord.clear();
