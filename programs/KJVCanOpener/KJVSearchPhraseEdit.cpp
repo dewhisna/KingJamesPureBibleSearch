@@ -108,7 +108,7 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
-		emit phraseChanged(*this);
+		emit phraseChanged();
 		emit changeCaseSensitive(bCaseSensitive);
 	}
 }
@@ -151,7 +151,7 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	m_bUpdateInProgress = bUpdateSave;
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
-		emit phraseChanged(*this);
+		emit phraseChanged();
 		emit changeCaseSensitive(isCaseSensitive());
 	}
 }
@@ -168,7 +168,7 @@ void CPhraseLineEdit::on_textChanged()
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
 
-		emit phraseChanged(*this);
+		emit phraseChanged();
 	}
 }
 
@@ -382,7 +382,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	ui->buttonRemove->setToolTip("Remove Phrase from Search Criteria");
 	ui->buttonRemove->setStatusTip("Remove this Phrase from the current Search Criteria");
 
-	connect(ui->editPhrase, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	connect(ui->editPhrase, SIGNAL(phraseChanged()), this, SLOT(on_phraseChanged()));
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
 	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
 	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(on_phraseAdd()));
@@ -419,13 +419,13 @@ const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 	return ui->editPhrase;
 }
 
-void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
+void CKJVSearchPhraseEdit::on_phraseChanged()
 {
-	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(phrase.GetNumberOfMatches()));
+	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(ui->editPhrase->GetNumberOfMatches()));
 
-	m_phraseEntry.m_strPhrase=phrase.phrase();		// Use reconstituted phrase for save/restore
-	m_phraseEntry.m_bCaseSensitive=phrase.isCaseSensitive();
-	m_phraseEntry.m_nNumWrd=phrase.phraseSize();
+	m_phraseEntry.m_strPhrase=ui->editPhrase->phrase();		// Use reconstituted phrase for save/restore
+	m_phraseEntry.m_bCaseSensitive=ui->editPhrase->isCaseSensitive();
+	m_phraseEntry.m_nNumWrd=ui->editPhrase->phraseSize();
 
 	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
@@ -434,7 +434,7 @@ void CKJVSearchPhraseEdit::on_phraseChanged(const CParsedPhrase &phrase)
 	ui->buttonDelPhrase->setEnabled(bHaveText && bUserFound);
 	ui->buttonClear->setEnabled(bHaveText);
 
-	emit phraseChanged(phrase);
+	emit phraseChanged(this);
 }
 
 void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)

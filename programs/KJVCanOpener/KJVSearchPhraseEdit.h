@@ -46,7 +46,7 @@ private slots:
 	void on_dropCommonPhrasesClicked();
 
 signals:
-	void phraseChanged(const CParsedPhrase &phrase);
+	void phraseChanged();
 	void changeCaseSensitive(bool bCaseSensitive);
 	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
 
@@ -99,7 +99,7 @@ public:
 	const CParsedPhrase *parsedPhrase() const;
 
 signals:
-	void phraseChanged(const CParsedPhrase &phrase);
+	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseListChanged();
 	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
 
@@ -110,7 +110,7 @@ public slots:
 protected slots:
 	void on_closeSearchPhraseClicked();
 
-	void on_phraseChanged(const CParsedPhrase &phrase);
+	void on_phraseChanged();
 	void on_CaseSensitiveChanged(bool bCaseSensitive);
 	void on_phraseAdd();
 	void on_phraseDel();

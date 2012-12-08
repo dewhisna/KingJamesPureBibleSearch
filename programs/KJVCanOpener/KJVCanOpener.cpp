@@ -455,7 +455,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	m_pMainSearchPhraseEditor = new CKJVSearchPhraseEdit(this);
 	connect(m_pMainSearchPhraseEditor, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(m_pMainSearchPhraseEditor, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	connect(m_pMainSearchPhraseEditor, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
 	m_lstSearchPhraseEditors.append(m_pMainSearchPhraseEditor);
 	m_pMainSearchPhraseEditor->showSeperatorLine(false);
 	m_pMainSearchPhraseEditor->enableCloseButton(false);
@@ -472,64 +472,9 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 							ui->scrollAreaSearchPhrases->frameWidth() * 2,
 							m_pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
 
-/*
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-pLayoutPhrases->addWidget(new CKJVSearchPhraseEdit());
-
-ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*7);
-*/
-
-/*
-
-CKJVSearchPhraseEdit *pPhraseEdit2;
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
-
-pPhraseEdit2 = new CKJVSearchPhraseEdit(this);
-connect(pPhraseEdit2, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-connect(pPhraseEdit2, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
-m_lstSearchPhraseEditors.append(pPhraseEdit2);
-pLayoutPhrases->addWidget(pPhraseEdit2);
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
-
-//ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height()*1);
-ui->scrollAreaWidgetContents->setMinimumSize(pPhraseEdit->sizeHint().width(), pPhraseEdit->sizeHint().height() + pPhraseEdit2->sizeHint().height()*6);
-
-*/
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
 
@@ -582,7 +527,7 @@ void CKJVCanOpener::on_addSearchPhraseClicked()
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
 	connect(pPhraseWidget, SIGNAL(destroyed(QObject*)), this, SLOT(on_closingSearchPhrase(QObject*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(pPhraseWidget, SIGNAL(phraseChanged(const CParsedPhrase &)), this, SLOT(on_phraseChanged(const CParsedPhrase &)));
+	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
 	m_pLayoutPhrases->addWidget(pPhraseWidget);
 	ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + pPhraseWidget->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
@@ -772,18 +717,20 @@ void CKJVCanOpener::on_clearBrowserHistory()
 	ui->widgetKJVBrowser->browser()->clearHistory();
 }
 
-void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
+void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
+	assert(pSearchPhrase != NULL);
+	const CParsedPhrase *phrase = pSearchPhrase->parsedPhrase();
 	CVerseList lstReferences;
 	TPhraseTagList lstTags;
 
-	if (phrase.GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-		TIndexList lstResults = phrase.GetNormalizedSearchResults();
+	if (phrase->GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+		TIndexList lstResults = phrase->GetNormalizedSearchResults();
 
 		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
 			uint32_t ndxDenormal = DenormalizeIndex(lstResults.at(ndxResults));
 			CRelIndex ndxRelative(ndxDenormal);
-			unsigned int nPhraseSize = phrase.phraseSize();
+			unsigned int nPhraseSize = phrase->phraseSize();
 
 			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
 				assert(false);
@@ -826,10 +773,10 @@ void CKJVCanOpener::on_phraseChanged(const CParsedPhrase &phrase)
 	}
 
 	if ((lstReferences.size() != 0) ||
-		((lstReferences.size() == 0) && (phrase.GetNumberOfMatches() == 0))) {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(phrase.GetNumberOfMatches()).arg(lstReferences.size()));
+		((lstReferences.size() == 0) && (phrase->GetNumberOfMatches() == 0))) {
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(phrase->GetNumberOfMatches()).arg(lstReferences.size()));
 	} else {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase.GetNumberOfMatches()));
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase->GetNumberOfMatches()));
 	}
 
 	ui->widgetKJVBrowser->setHighlightTags(lstTags);
@@ -877,13 +824,12 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 
 void CKJVCanOpener::on_HelpManual()
 {
-
+	QMessageBox::information(this, windowTitle(), "An online help manual is coming soon for the KJV Can Opener.\n\nKeep your eyes open for future updates.");
 }
 
 void CKJVCanOpener::on_HelpAbout()
 {
 	CKJVAboutDlg dlg(this);
-
 	dlg.exec();
 }
 

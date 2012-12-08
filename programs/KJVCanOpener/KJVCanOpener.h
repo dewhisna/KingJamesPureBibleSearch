@@ -121,7 +121,7 @@ protected slots:
 
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
-	void on_phraseChanged(const CParsedPhrase &phrase);
+	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
 	void on_PassageNavigatorTriggered();
