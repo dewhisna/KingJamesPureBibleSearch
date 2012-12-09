@@ -340,6 +340,9 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
 	m_pActionAbout(NULL),
+	m_bBrowserActive(false),
+	m_bSearchResultsActive(false),
+	m_bPhraseEditorActive(false),
 	m_pLayoutPhrases(NULL),
 	m_pMainSearchPhraseEditor(NULL),
 	ui(new Ui::CKJVCanOpener)
@@ -581,6 +584,8 @@ void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
 
 void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 {
+	m_bBrowserActive = bAdd;
+
 	if (bAdd) {
 		if (m_pActionPassageBrowserEditMenu == NULL) {
 			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->widgetKJVBrowser->browser()->getEditMenu());
@@ -596,6 +601,8 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 
 void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 {
+	m_bSearchResultsActive = bAdd;
+
 	if (bAdd) {
 		if (m_pActionSearchResultsEditMenu == NULL) {
 			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->listViewSearchResults->getEditMenu());
@@ -610,6 +617,8 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 
 void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor)
 {
+	m_bPhraseEditorActive = bAdd;
+
 	if (m_pActionSearchPhraseEditMenu) {
 		ui->menuBar->removeAction(m_pActionSearchPhraseEditMenu);
 		m_pActionSearchPhraseEditMenu = NULL;
@@ -840,8 +849,12 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 
 void CKJVCanOpener::on_PassageNavigatorTriggered()
 {
-	if (ui->widgetKJVBrowser->browser()->hasFocus()) {
+	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
+		(m_bBrowserActive)) {
 		ui->widgetKJVBrowser->browser()->on_passageNavigator();
+	} else if (((ui->listViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
+				(ui->listViewSearchResults->selectionModel()->selectedRows().count()== 1)) {
+		ui->listViewSearchResults->on_passageNavigator();
 	} else {
 		CKJVPassageNavigatorDlg dlg(this);
 

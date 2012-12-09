@@ -52,8 +52,6 @@ public slots:
 	void on_copyVerseHeadings();
 	void on_copyReferenceDetails();
 	void on_copyComplete();
-
-private slots:
 	void on_passageNavigator();
 
 signals:
@@ -158,6 +156,10 @@ private:
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	QAction *m_pActionAbout;		// About Application
+
+	bool m_bBrowserActive;
+	bool m_bSearchResultsActive;
+	bool m_bPhraseEditorActive;
 
 	QVBoxLayout *m_pLayoutPhrases;
 	CSearchPhraseListModel m_modelSearchPhraseEditors;
