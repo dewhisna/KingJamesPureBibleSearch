@@ -127,9 +127,14 @@ void CSearchResultsListView::on_copyVerseText()
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
 
-	QModelIndexList lstSelectedItems = selectedIndexes();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	int nCount = 0;
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
+		nCount++;
+		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
@@ -144,8 +149,8 @@ void CSearchResultsListView::on_copyVerseText()
 
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
-//		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<hr />\n");
-		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("<br />\n");
+//		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("<hr />\n");
+		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("<br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
@@ -169,9 +174,12 @@ void CSearchResultsListView::copyRawCommon(bool bVeryRaw) const
 	QMimeData *mime = new QMimeData();
 	QString strText;
 
-	QModelIndexList lstSelectedItems = selectedIndexes();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
+		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		navigator.setDocumentToVerse(item.getIndex(), false);
@@ -197,9 +205,12 @@ void CSearchResultsListView::on_copyVerseHeadings()
 	QMimeData *mime = new QMimeData();
 	QString strVerseHeadings;
 
-	QModelIndexList lstSelectedItems = selectedIndexes();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
+		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		strVerseHeadings += item.getHeading() + "\n";
 	}
 
@@ -214,14 +225,19 @@ void CSearchResultsListView::on_copyReferenceDetails()
 	QString strPlainText;
 	QString strRichText;
 
-	QModelIndexList lstSelectedItems = selectedIndexes();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (ndx) {
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	int nCount = 0;
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
+		nCount++;
+		if (nCount > 1) {
 			strPlainText += "--------------------\n";
 			strRichText += "<hr />\n";
 		}
-		strPlainText += lstSelectedItems.at(ndx).data(CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += lstSelectedItems.at(ndx).data(Qt::ToolTipRole).toString();
+		strPlainText += pModel->index(ndx).data(CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += pModel->index(ndx).data(Qt::ToolTipRole).toString();
 	}
 
 	mime->setText(strPlainText);
@@ -236,23 +252,31 @@ void CSearchResultsListView::on_copyComplete()
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
 
-	QModelIndexList lstSelectedItems = selectedIndexes();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	int nCount = 0;
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
+		nCount++;
+		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
-		navigator.setDocumentToVerse(item.getIndex(), (ndx != 0));		// Not quite sure why passing true here doesn't give us an <hr> in our results but a <br>.  Yet adding an <hr> manually later works.  Hmmm...
+		// Note:  Qt bug with fragments causes leading <hr /> tags
+		//		to get converted to <br /> tags.  Since this may
+		//		change on us if/when they get it fixed, we'll pass
+		//		false here and set our <hr /> or <br /> below as
+		//		desired:
+		navigator.setDocumentToVerse(item.getIndex(), false);
 		navigator.doHighlighting(highlighter);
 
-		QTextCursor cursorDocVerse(&docVerse);
-		cursorDocVerse.select(QTextCursor::Document);
-		QTextDocumentFragment fragment(cursorDocVerse);
+		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
 		cursorDocList.insertHtml("<br />\n<pre>" + item.getToolTip() + "</pre>\n");
-		if (ndx != (lstSelectedItems.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
+		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("\n<hr /><br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
@@ -262,7 +286,7 @@ void CSearchResultsListView::on_copyComplete()
 
 void CSearchResultsListView::on_passageNavigator()
 {
-	QModelIndexList lstSelectedItems = selectedIndexes();
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() != 1) return;
 
 	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
@@ -291,7 +315,9 @@ void CSearchResultsListView::contextMenuEvent(QContextMenuEvent *event)
 
 void CSearchResultsListView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-	if (selectedIndexes().size()) {
+	int nNumResultsSelected = selectionModel()->selectedRows().size();
+
+	if (nNumResultsSelected) {
 		m_pActionCopyVerseText->setEnabled(true);
 		m_pActionCopyRaw->setEnabled(true);
 		m_pActionCopyVeryRaw->setEnabled(true);
@@ -308,9 +334,9 @@ void CSearchResultsListView::selectionChanged(const QItemSelection & selected, c
 		m_pActionCopyComplete->setEnabled(false);
 		m_pActionClearSelection->setEnabled(false);
 	}
-	m_pActionNavigator->setEnabled(selectedIndexes().size() == 1);		// Only allow navigation on a single entry
+	m_pActionNavigator->setEnabled(nNumResultsSelected == 1);		// Only allow navigation on a single entry
 
-	QString strStatusText = QString("%1 Search Result(s) Selected").arg(selectedIndexes().size());
+	QString strStatusText = QString("%1 Search Result(s) Selected").arg(nNumResultsSelected);
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
