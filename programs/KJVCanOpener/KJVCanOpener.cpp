@@ -315,6 +315,12 @@ void CSearchResultsListView::contextMenuEvent(QContextMenuEvent *event)
 
 void CSearchResultsListView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
+	handle_selectionChanged();
+	QListView::selectionChanged(selected, deselected);
+}
+
+void CSearchResultsListView::handle_selectionChanged()
+{
 	int nNumResultsSelected = selectionModel()->selectedRows().size();
 
 	if (nNumResultsSelected) {
@@ -340,8 +346,11 @@ void CSearchResultsListView::selectionChanged(const QItemSelection & selected, c
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
+}
 
-	QListView::selectionChanged(selected, deselected);
+void CSearchResultsListView::on_listChanged()
+{
+	handle_selectionChanged();
 }
 
 // ============================================================================
@@ -544,6 +553,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	connect(ui->listViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
 	connect(ui->listViewSearchResults, SIGNAL(gotoIndex(const TPhraseTag &)), ui->widgetKJVBrowser, SLOT(gotoIndex(TPhraseTag)));
+	connect(this, SIGNAL(changedSearchResults()), ui->listViewSearchResults, SLOT(on_listChanged()));
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -845,6 +855,8 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 
 	ui->widgetKJVBrowser->setHighlightTags(lstTags);
+
+	emit changedSearchResults();
 }
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)

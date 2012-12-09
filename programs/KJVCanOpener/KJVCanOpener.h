@@ -54,6 +54,8 @@ public slots:
 	void on_copyComplete();
 	void on_passageNavigator();
 
+	void on_listChanged();
+
 signals:
 	void activatedSearchResults();
 	void gotoIndex(const TPhraseTag &tag);
@@ -64,6 +66,7 @@ protected:
 	virtual void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
 
 	void copyRawCommon(bool bVeryRaw) const;
+	void handle_selectionChanged();
 
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
@@ -106,6 +109,9 @@ public:
 protected:
 	virtual void closeEvent(QCloseEvent * event);
 	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
+
+signals:
+	void changedSearchResults();
 
 protected slots:
 	void on_addSearchPhraseClicked();
