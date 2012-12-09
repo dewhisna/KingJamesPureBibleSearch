@@ -53,8 +53,12 @@ public slots:
 	void on_copyReferenceDetails();
 	void on_copyComplete();
 
+private slots:
+	void on_passageNavigator();
+
 signals:
 	void activatedSearchResults();
+	void gotoIndex(const TPhraseTag &tag);
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
@@ -78,6 +82,8 @@ private:
 	// ----
 	QAction *m_pActionSelectAll;	// Edit menu select all
 	QAction *m_pActionClearSelection;	// Edit menu clear selection
+	// ----
+	QAction *m_pActionNavigator;	// Launch Passage Navigator for Search Result
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };

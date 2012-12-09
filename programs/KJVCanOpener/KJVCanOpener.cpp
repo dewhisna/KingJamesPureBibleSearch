@@ -59,6 +59,7 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 		m_pActionCopyComplete(NULL),
 		m_pActionSelectAll(NULL),
 		m_pActionClearSelection(NULL),
+		m_pActionNavigator(NULL),
 		m_pStatusAction(NULL)
 {
 	setMouseTracking(true);
@@ -66,6 +67,7 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	m_pEditMenu = new QMenu("&Edit", this);
 	m_pEditMenuLocal = new QMenu("&Edit", this);
 	m_pEditMenu->setStatusTip("Search Results Edit Operations");
+	// ----
 	m_pActionCopyVerseText = m_pEditMenu->addAction("Copy &Verse Text", this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
 	m_pActionCopyVerseText->setStatusTip("Copy Verse Text for the selected Search Results to the clipboard");
 	m_pActionCopyVerseText->setEnabled(false);
@@ -78,6 +80,7 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	m_pActionCopyVeryRaw->setStatusTip("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard");
 	m_pActionCopyVeryRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
+	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
 	m_pActionCopyVerseHeadings = m_pEditMenu->addAction("Copy &References", this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
@@ -92,6 +95,7 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	m_pActionCopyComplete->setStatusTip("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard");
 	m_pActionCopyComplete->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
+	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
@@ -101,6 +105,13 @@ CSearchResultsListView::CSearchResultsListView(QWidget *parent)
 	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
+	// ----
+	m_pEditMenuLocal->addSeparator();
+	m_pActionNavigator = m_pEditMenuLocal->addAction("Passage &Navigator...");
+	m_pActionNavigator->setEnabled(false);
+	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator()));
+	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+	// ----
 
 	m_pStatusAction = new QAction(this);
 }
@@ -249,6 +260,20 @@ void CSearchResultsListView::on_copyComplete()
 	clipboard->setMimeData(mime);
 }
 
+void CSearchResultsListView::on_passageNavigator()
+{
+	QModelIndexList lstSelectedItems = selectedIndexes();
+	if (lstSelectedItems.size() != 1) return;
+
+	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CKJVPassageNavigatorDlg dlg(this);
+
+	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
+	if (dlg.exec() == QDialog::Accepted) {
+		emit gotoIndex(dlg.passage());
+	}
+}
+
 void CSearchResultsListView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
@@ -283,6 +308,7 @@ void CSearchResultsListView::selectionChanged(const QItemSelection & selected, c
 		m_pActionCopyComplete->setEnabled(false);
 		m_pActionClearSelection->setEnabled(false);
 	}
+	m_pActionNavigator->setEnabled(selectedIndexes().size() == 1);		// Only allow navigation on a single entry
 
 	QString strStatusText = QString("%1 Search Result(s) Selected").arg(selectedIndexes().size());
 	setStatusTip(strStatusText);
@@ -488,6 +514,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->listViewSearchResults->setItemDelegate(delegate);
 
 	connect(ui->listViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
+	connect(ui->listViewSearchResults, SIGNAL(gotoIndex(const TPhraseTag &)), ui->widgetKJVBrowser, SLOT(gotoIndex(TPhraseTag)));
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -762,6 +789,9 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		}
 //		lstReferences.removeDuplicates();
 	}
+
+
+	// ----------------------------
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	if (pModel) {

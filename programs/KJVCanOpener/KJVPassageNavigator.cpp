@@ -198,6 +198,12 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 		CalcPassage();
 	}
 
+	// If the caller told us to not highlight any words, we will have not done
+	//		so above on the setPassage painting, but we'll set it to one word
+	//		here so that as the user starts selecting things, his word will
+	//		highlighted appear:
+	if (m_tagPassage.second == 0) m_tagPassage.second = 1;
+
 	emit modeChanged(false);
 
 	end_update();

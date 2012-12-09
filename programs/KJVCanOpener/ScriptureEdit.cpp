@@ -188,8 +188,8 @@ void CScriptureText<T,U>::on_passageNavigator()
 	//		the entire app.
 
 	TPhraseTag tagSel = m_selectedPhrase.second;
-	if (tagSel.second == 0) tagSel.second = 1;			// Simulate single word selection if nothing actually selected
 	if (!tagSel.first.isSet()) tagSel.first = m_tagLast.first;
+	if (tagSel.second == 0) tagSel.second = ((tagSel.first.word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
 
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
@@ -200,7 +200,8 @@ void CScriptureText<T,U>::on_passageNavigator()
 	m_Highlighter.setEnabled(true);
 	m_navigator.highlightTag(m_Highlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(T::parentWidget());
-	dlg.navigator().startRelativeMode(tagSel, false);
+//	dlg.navigator().startRelativeMode(tagSel, false);
+	dlg.navigator().startAbsoluteMode(tagSel);
 	if (dlg.exec() == QDialog::Accepted) {
 		emit T::gotoIndex(dlg.passage());
 	}
