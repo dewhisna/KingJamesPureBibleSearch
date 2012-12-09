@@ -153,15 +153,15 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 
 	if (tagPassage.first.isSet()) {
 		setPassage(tagPassage);
+		// setPassage will already call CalcPassage
 	} else {
 		// If we don't have an absolute passage, set the passage size (that we'll calculate from
 		//		our zero-relative) to be the size of the starting reference passage:
 		m_tagPassage.second = tagStart.second;
+		CalcPassage();
 	}
 
 	emit modeChanged(true);
-
-	CalcPassage();
 
 	end_update();
 }
@@ -184,11 +184,14 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui->lblVerse->setText("&Verse:");
 	ui->lblWord->setText("&Word:");
 
-	if (tagPassage.first.isSet()) setPassage(tagPassage);
+	if (tagPassage.first.isSet()) {
+		setPassage(tagPassage);
+		// setPassage will already call CalcPassage
+	} else {
+		CalcPassage();
+	}
 
 	emit modeChanged(false);
-
-	CalcPassage();
 
 	end_update();
 }

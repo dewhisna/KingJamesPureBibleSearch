@@ -30,6 +30,7 @@ private slots:
 	void on_ModeClicked();
 	void on_ResetClicked();
 	void on_gotoIndex(const TPhraseTag &tag);
+	void on_resizeMe();
 
 private:
 	QPushButton *m_pApplyButton;		// Apply is to apply the resolved reference to the start reference for relative mode

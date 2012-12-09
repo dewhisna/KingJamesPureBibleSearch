@@ -1,6 +1,8 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "ui_KJVPassageNavigatorDlg.h"
 
+#include <QTimer>
+
 CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 	m_pApplyButton(NULL),
@@ -63,6 +65,16 @@ void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 		m_pApplyButton->hide();
 		m_pModeButton->setText("&Switch to Relative Mode");
 	}
+	// It's sometimes confusing knowing which mode you are
+	//	in, so we'll resize back to our minimum size each
+	//	time so they'll look distinctively different to the
+	//	user:
+	//
+	// Note:  The minimumSizeHint isn't computed until the
+	//	event loop runs, so just calling adjustSize here has
+	//	no effect.  So, we'll setup a dummy timer and
+	//	trigger it later in the event stack:
+	QTimer::singleShot(0, this, SLOT(on_resizeMe()));
 }
 
 void CKJVPassageNavigatorDlg::on_ApplyResolvedClicked()
@@ -94,5 +106,10 @@ void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)
 	//		instead of navigating to it:
 	ui->widgetKJVPassageNavigator->startAbsoluteMode(tag);
 	accept();
+}
+
+void CKJVPassageNavigatorDlg::on_resizeMe()
+{
+	adjustSize();
 }
 
