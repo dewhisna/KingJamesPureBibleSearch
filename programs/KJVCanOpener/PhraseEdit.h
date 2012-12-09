@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QColor>
 #include <QHelpEvent>
+#include <QList>
 
 // ============================================================================
 
@@ -76,6 +77,8 @@ protected:
 	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
 	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
 };
+
+typedef QList <const CParsedPhrase *> TParsedPhrasesList;
 
 // ============================================================================
 

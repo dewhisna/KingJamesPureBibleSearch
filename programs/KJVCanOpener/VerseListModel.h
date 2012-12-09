@@ -24,6 +24,13 @@ public:
 		if (nPhraseSize > 0)
 			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
 	}
+	CVerseListItem(const TPhraseTag &tag)
+		:	m_ndxRelative(tag.first)
+	{
+		m_ndxRelative.setWord(0);				// Primary index will have a zero word index
+		if (tag.second > 0)
+			m_lstTags.push_back(tag);			// But the corresponding tag will have non-zero word index
+	}
 	~CVerseListItem()
 	{ }
 
@@ -77,6 +84,7 @@ public:
 		return m_lstTags.at(nTag).first;
 	}
 	void addPhraseTag(const CRelIndex &ndx, unsigned int nPhraseSize) { m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize)); }
+	void addPhraseTag(const TPhraseTag &tag) { m_lstTags.push_back(tag); }
 	const TPhraseTagList &phraseTags() const { return m_lstTags; }
 
 	QStringList getWordList(int nTag) const

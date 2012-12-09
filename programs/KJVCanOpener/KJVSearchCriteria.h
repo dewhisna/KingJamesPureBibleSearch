@@ -28,19 +28,22 @@ public:
 		OME_AND = 1
 	};
 
+	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
+	OPERATOR_MODE_ENUM operatorMode() const { return m_nOperatorMode; }
+
 signals:
-	void changedSearchScope(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
-	void changedOperator(CKJVSearchCriteria::OPERATOR_MODE_ENUM mode);
+	void changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
+	void changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM mode);
 	void addSearchPhraseClicked();
 
 private slots:
-	void on_changeSearchScope(int ndx);
-	void on_changeOperator();
+	void on_changeSearchScopeMode(int ndx);
+	void on_changeOperatorMode();
 
 // Data Private:
 private:
-	SEARCH_SCOPE_MODE_ENUM m_nSearchScope;
-	OPERATOR_MODE_ENUM m_nOperator;
+	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
+	OPERATOR_MODE_ENUM m_nOperatorMode;
 
 // UI Private:
 private:

@@ -3,8 +3,8 @@
 
 CKJVSearchCriteria::CKJVSearchCriteria(QWidget *parent) :
 	QWidget(parent),
-	m_nSearchScope(SSME_WHOLE_BIBLE),
-	m_nOperator(OME_OR),
+	m_nSearchScopeMode(SSME_WHOLE_BIBLE),
+	m_nOperatorMode(OME_OR),
 	m_bDoingUpdate(false),
 	ui(new Ui::CKJVSearchCriteria)
 {
@@ -26,14 +26,14 @@ CKJVSearchCriteria::CKJVSearchCriteria(QWidget *parent) :
 	ui->comboSearchScope->setToolTip("Select Search Scope");
 	ui->comboSearchScope->setStatusTip("Set Search Scope for AND-mode phrase searches");
 
-	connect(ui->radioButtonANDSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperator()));
-	connect(ui->radioButtonORSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperator()));
-	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changeSearchScope(int)));
+	connect(ui->radioButtonANDSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperatorMode()));
+	connect(ui->radioButtonORSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperatorMode()));
+	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changeSearchScopeMode(int)));
 	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 
 	// Set Initial Mode:
-	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_nSearchScope));
-	switch (m_nOperator) {
+	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_nSearchScopeMode));
+	switch (m_nOperatorMode) {
 		case OME_OR:
 			ui->radioButtonORSearch->setChecked(true);
 			break;
@@ -49,29 +49,29 @@ CKJVSearchCriteria::~CKJVSearchCriteria()
 }
 
 
-void CKJVSearchCriteria::on_changeSearchScope(int ndx)
+void CKJVSearchCriteria::on_changeSearchScopeMode(int ndx)
 {
 	if (m_bDoingUpdate) return;
 
 	begin_update();
 
 	if (ndx == -1) return;
-	m_nSearchScope = static_cast<SEARCH_SCOPE_MODE_ENUM>(ui->comboSearchScope->itemData(ndx).toInt());
-	emit changedSearchScope(m_nSearchScope);
+	m_nSearchScopeMode = static_cast<SEARCH_SCOPE_MODE_ENUM>(ui->comboSearchScope->itemData(ndx).toInt());
+	emit changedSearchScopeMode(m_nSearchScopeMode);
 
 	end_update();
 }
 
-void CKJVSearchCriteria::on_changeOperator()
+void CKJVSearchCriteria::on_changeOperatorMode()
 {
 	if (ui->radioButtonORSearch->isChecked()) {
-		m_nOperator = OME_OR;
-		emit changedOperator(m_nOperator);
+		m_nOperatorMode = OME_OR;
+		emit changedOperatorMode(m_nOperatorMode);
 		ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(SSME_WHOLE_BIBLE));
 		ui->comboSearchScope->setEnabled(false);
 	} else if (ui->radioButtonANDSearch->isChecked()) {
-		m_nOperator = OME_AND;
-		emit changedOperator(m_nOperator);
+		m_nOperatorMode = OME_AND;
+		emit changedOperatorMode(m_nOperatorMode);
 		ui->comboSearchScope->setEnabled(true);
 	}
 }

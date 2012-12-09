@@ -616,6 +616,7 @@ void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
 	} else {
 		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height());
 	}
+	on_phraseChanged(NULL);
 }
 
 void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
@@ -789,72 +790,86 @@ void CKJVCanOpener::on_clearBrowserHistory()
 	ui->widgetKJVBrowser->browser()->clearHistory();
 }
 
-void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 {
-	assert(pSearchPhrase != NULL);
-	const CParsedPhrase *phrase = pSearchPhrase->parsedPhrase();
-	CVerseList lstReferences;
-	TPhraseTagList lstTags;
-
-	if (phrase->GetNumberOfMatches() <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-		TIndexList lstResults = phrase->GetNormalizedSearchResults();
-
-		for (unsigned int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-			uint32_t ndxDenormal = DenormalizeIndex(lstResults.at(ndxResults));
-			CRelIndex ndxRelative(ndxDenormal);
-			unsigned int nPhraseSize = phrase->phraseSize();
-
-			if ((lstResults[ndxResults] == 0) || (ndxDenormal == 0)) {
-				assert(false);
-				lstReferences.push_back(CVerseListItem(0, 0));
-				continue;
-			} else {
-				lstReferences.push_back(CVerseListItem(ndxRelative, nPhraseSize));
-			}
-
-			CVerseListItem &verseItem(lstReferences.last());
-
-			if (ndxResults<(lstResults.size()-1)) {
-				bool bNextIsSameReference=false;
-				do {
-					CRelIndex ndxNextRelative(DenormalizeIndex(lstResults.at(ndxResults+1)));
-					if ((ndxRelative.book() == ndxNextRelative.book()) &&
-						(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
-						(ndxRelative.verse() == ndxNextRelative.verse())) {
-						verseItem.addPhraseTag(ndxNextRelative, nPhraseSize);
-						bNextIsSameReference=true;
-						ndxResults++;
-					} else {
-						bNextIsSameReference=false;
-					}
-				} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
-			}
-
-			lstTags.append(verseItem.phraseTags());
-		}
-//		lstReferences.removeDuplicates();
+	unsigned int nTotalMatches = 0;
+	TParsedPhrasesList lstPhrases;
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		lstPhrases.append(m_lstSearchPhraseEditors.at(ndx)->parsedPhrase());
+		nTotalMatches += lstPhrases.at(ndx)->GetNumberOfMatches();
 	}
+
+	CVerseList lstReferences;
+	TPhraseTagList lstResults;
+
+	if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_OR) {
+		// OR'ing is simple -- just combine the results:
+		if (nTotalMatches <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+
+			// Combine results from all phrases into single list, denormalizing them, and
+			//		setting the phrase size details:
+			for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
+				const CParsedPhrase *phrase = lstPhrases.at(ndx);
+				TIndexList lstPhraseResults = phrase->GetNormalizedSearchResults();
+				for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
+					lstResults.append(TPhraseTag(CRelIndex(DenormalizeIndex(lstPhraseResults.at(ndxResults))), phrase->phraseSize()));
+				}
+			}
+			qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+
+			for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+				if (!lstResults.at(ndxResults).first.isSet()) {
+					assert(false);
+					lstReferences.push_back(CVerseListItem(0, 0));
+					continue;
+				}
+				lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
+
+				CVerseListItem &verseItem(lstReferences.last());
+
+				if (ndxResults<(lstResults.size()-1)) {
+					bool bNextIsSameReference=false;
+					CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+					do {
+						CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+
+						if ((ndxRelative.book() == ndxNextRelative.book()) &&
+							(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
+							(ndxRelative.verse() == ndxNextRelative.verse())) {
+							verseItem.addPhraseTag(lstResults.at(ndxResults+1));
+							bNextIsSameReference=true;
+							ndxResults++;
+						} else {
+							bNextIsSameReference=false;
+						}
+					} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+				}
+			}
+		}
+	}
+
+
 
 
 	// ----------------------------
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	if (pModel) {
-		if (lstReferences.size() <= 2000) {
+//		if (lstReferences.size() <= 2000) {
 			pModel->setVerseList(lstReferences);
-		} else {
-			pModel->setVerseList(CVerseList());
-		}
+//		} else {
+//			pModel->setVerseList(CVerseList());
+//		}
 	}
 
 	if ((lstReferences.size() != 0) ||
-		((lstReferences.size() == 0) && (phrase->GetNumberOfMatches() == 0))) {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(phrase->GetNumberOfMatches()).arg(lstReferences.size()));
+		((lstReferences.size() == 0) && (nTotalMatches == 0))) {
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(nTotalMatches).arg(lstReferences.size()));
 	} else {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(phrase->GetNumberOfMatches()));
+		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(nTotalMatches));
 	}
 
-	ui->widgetKJVBrowser->setHighlightTags(lstTags);
+	ui->widgetKJVBrowser->setHighlightTags(lstResults);
 
 	emit changedSearchResults();
 }
