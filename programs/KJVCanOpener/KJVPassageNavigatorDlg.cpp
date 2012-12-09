@@ -21,7 +21,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(QWidget *parent) :
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(on_ModeClicked()));
 
 	m_pResetButton = ui->buttonBox->addButton("&Reset", QDialogButtonBox::ResetRole);
-	connect(m_pResetButton, SIGNAL(clicked()), this, SLOT(on_ResetClicked()));
+	connect(m_pResetButton, SIGNAL(clicked()), ui->widgetKJVPassageNavigator, SLOT(reset()));
 
 	m_pOKButton = ui->buttonBox->addButton("&Goto", QDialogButtonBox::AcceptRole);
 
@@ -87,15 +87,10 @@ void CKJVPassageNavigatorDlg::on_ModeClicked()
 {
 	if (ui->widgetKJVPassageNavigator->isAbsolute()) {
 		ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage());
-		on_ResetClicked();
+		ui->widgetKJVPassageNavigator->reset();
 	} else {
 		ui->widgetKJVPassageNavigator->startAbsoluteMode(ui->widgetKJVPassageNavigator->passage());
 	}
-}
-
-void CKJVPassageNavigatorDlg::on_ResetClicked()
-{
-	setPassage(TPhraseTag(CRelIndex(), passage().second));
 }
 
 void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)

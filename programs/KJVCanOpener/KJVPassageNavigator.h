@@ -24,9 +24,12 @@ public:
 	bool isReversed() const;
 	bool isRelative() const { return m_tagStartRef.first.isSet(); }
 	bool isAbsolute() const { return (!m_tagStartRef.first.isSet()); }
+
+public slots:
 	void startRelativeMode(TPhraseTag tagStart = TPhraseTag(CRelIndex(), 1), TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
 	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
 	void startAbsoluteMode(TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
+	void reset();
 
 signals:
 	void modeChanged(bool bRelative);

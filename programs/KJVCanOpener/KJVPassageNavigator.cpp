@@ -7,6 +7,8 @@
 
 CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	:	QWidget(parent),
+		m_tagStartRef(TPhraseTag(CRelIndex(), 1)),		// Start with default word-size of one so we highlight at least one word when tracking
+		m_tagPassage(TPhraseTag(CRelIndex(), 1)),		// ""  (ditto)
 		m_nTestament(0),
 		m_nBook(0),
 		m_nChapter(0),
@@ -26,9 +28,8 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		}
 	}
 
-	setPassage(TPhraseTag(CRelIndex(), 1));
-
 	startAbsoluteMode();
+	reset();
 
 	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
 	connect(ui->editWord, SIGNAL(textEdited(const QString &)), this, SLOT(WordChanged(const QString &)));
@@ -42,6 +43,15 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 CKJVPassageNavigator::~CKJVPassageNavigator()
 {
 	delete ui;
+}
+
+void CKJVPassageNavigator::reset()
+{
+	if (isAbsolute()) {
+		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
+	} else {
+		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.second));
+	}
 }
 
 void CKJVPassageNavigator::TestamentComboIndexChanged(int index)
@@ -151,15 +161,12 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->lblVerse->setText("&Verses:");
 	ui->lblWord->setText("&Words:");
 
-	if (tagPassage.first.isSet()) {
-		setPassage(tagPassage);
-		// setPassage will already call CalcPassage
-	} else {
-		// If we don't have an absolute passage, set the passage size (that we'll calculate from
+	if (!tagPassage.first.isSet()) {
+		// If we don't have an absolute starting passage, set the passage size (that we'll calculate from
 		//		our zero-relative) to be the size of the starting reference passage:
-		m_tagPassage.second = tagStart.second;
-		CalcPassage();
+		tagPassage.second = tagStart.second;
 	}
+	setPassage(tagPassage);			// Note: setPassage will already call CalcPassage
 
 	emit modeChanged(true);
 
