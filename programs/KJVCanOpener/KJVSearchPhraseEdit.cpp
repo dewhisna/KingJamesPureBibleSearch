@@ -29,6 +29,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_pStatusAction(NULL)
 {
 	setAcceptRichText(false);
+	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
 
 	QAction *pAction;
 	m_pEditMenu = new QMenu("&Edit");

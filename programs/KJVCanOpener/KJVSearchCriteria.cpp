@@ -30,6 +30,7 @@ CKJVSearchCriteria::CKJVSearchCriteria(QWidget *parent) :
 	connect(ui->radioButtonORSearch, SIGNAL(toggled(bool)), this, SLOT(on_changeOperatorMode()));
 	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changeSearchScopeMode(int)));
 	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
+	connect(ui->buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
 	// Set Initial Mode:
 	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_nSearchScopeMode));
@@ -79,5 +80,10 @@ void CKJVSearchCriteria::on_changeOperatorMode()
 	}
 
 	end_update();
+}
+
+void CKJVSearchCriteria::enableCopySearchPhraseSummary(bool bEnable)
+{
+	ui->buttonCopySummary->setEnabled(bEnable);
 }
 

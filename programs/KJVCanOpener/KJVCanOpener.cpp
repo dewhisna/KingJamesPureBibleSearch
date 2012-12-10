@@ -8,6 +8,7 @@
 #include "BuildDB.h"
 #include "KJVAboutDlg.h"
 #include "PhraseEdit.h"
+#include "PhraseListModel.h"
 #include "Highlighter.h"
 
 #include <assert.h>
@@ -380,6 +381,11 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_bPhraseEditorActive(false),
 	m_pLayoutPhrases(NULL),
 	m_pMainSearchPhraseEditor(NULL),
+	m_nLastSearchOccurrences(0),
+	m_nLastSearchVerses(0),
+	m_nLastSearchChapters(0),
+	m_nLastSearchBooks(0),
+	m_bLastCalcSuccess(true),
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
@@ -543,6 +549,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
 	connect(ui->widgetSearchCriteria, SIGNAL(changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
+	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
 
 	// -------------------- Search Results List View:
 
@@ -624,6 +631,75 @@ void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
 void CKJVCanOpener::on_changedSearchCriteria()
 {
 	on_phraseChanged(NULL);
+}
+
+void CKJVCanOpener::on_copySearchPhraseSummary()
+{
+	int nNumPhrases = 0;
+
+	CPhraseList phrases;
+	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
+		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->GetNumberOfMatches()) {
+			nNumPhrases++;
+			CPhraseEntry entry;
+			entry.m_bCaseSensitive = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive();
+			entry.m_strPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase();
+			entry.m_nNumWrd = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->GetNumberOfMatches();	// Bend the rules and use # of words to store number of matches
+			phrases.append(entry);
+		}
+	}
+
+	CPhraseListModel mdlPhrases(phrases);
+	mdlPhrases.sort(0);
+
+	QString strScope;
+	if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_AND) {
+		switch (ui->widgetSearchCriteria->searchScopeMode()) {
+			case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
+				strScope = " anywhere in the Whole Bible";
+				break;
+			case (CKJVSearchCriteria::SSME_TESTAMENT):
+				strScope = " within the same Testament";
+				break;
+			case (CKJVSearchCriteria::SSME_BOOK):
+				strScope = " in the same Book";
+				break;
+			case (CKJVSearchCriteria::SSME_CHAPTER):
+				strScope = " in the same Chapter";
+				break;
+			case (CKJVSearchCriteria::SSME_VERSE):
+				strScope = " in the same Verse";
+				break;
+			default:
+				break;
+		}
+	}
+
+	QString strSummary;
+	strSummary += QString("\"%1\" Search of %2 Phrase(s)%3:\n")
+							.arg((ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_OR) ? "OR" : "AND")
+							.arg(nNumPhrases)
+							.arg(strScope);
+	if (nNumPhrases) strSummary += "\n";
+	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
+		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
+		strSummary += QString("    \"%1\" (Found %2 Times)\n").arg(mdlPhrases.index(ndx).data().toString()).arg(aPhrase.m_nNumWrd);
+	}
+	if (nNumPhrases) strSummary += "\n";
+	if (m_bLastCalcSuccess) {
+		strSummary += QString("Found %1 Occurrences\n").arg(m_nLastSearchOccurrences);
+		strSummary += QString("    in %1 Verses\n").arg(m_nLastSearchVerses);
+		strSummary += QString("    in %1 Chapters\n").arg(m_nLastSearchChapters);
+		strSummary += QString("    in %1 Books\n").arg(m_nLastSearchBooks);
+	} else {
+		strSummary += QString("Search was incomplete -- too many possible matches\n");
+	}
+
+	QMimeData *mime = new QMimeData();
+
+	mime->setText(strSummary);
+	mime->setHtml("<qt><pre>\n" + strSummary + "</pre></qt>\n");
+	QApplication::clipboard()->setMimeData(mime);
 }
 
 void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
@@ -1003,12 +1079,22 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 						.arg(lstReferences.size())
 						.arg(nChapters)
 						.arg(nBooks));
+		m_bLastCalcSuccess = true;
+		m_nLastSearchOccurrences = lstResults.size();
+		m_nLastSearchVerses = lstReferences.size();
+		m_nLastSearchChapters = nChapters;
+		m_nLastSearchBooks = nBooks;
 	} else {
 		if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_OR) {
 			ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(nTotalMatches));
 		} else {
 			ui->lblSearchResultsCount->setText(QString("Found %1 possible matches (too many to process)").arg(nMaxTotalMatches));
 		}
+		m_bLastCalcSuccess = false;
+		m_nLastSearchOccurrences = 0;
+		m_nLastSearchVerses = 0;
+		m_nLastSearchChapters = 0;
+		m_nLastSearchBooks = 0;
 	}
 
 	ui->widgetKJVBrowser->setHighlightTags(lstResults);

@@ -35,6 +35,10 @@ signals:
 	void changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 	void changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM mode);
 	void addSearchPhraseClicked();
+	void copySearchPhraseSummary();
+
+public slots:
+	void enableCopySearchPhraseSummary(bool bEnable);
 
 private slots:
 	void on_changeSearchScopeMode(int ndx);
