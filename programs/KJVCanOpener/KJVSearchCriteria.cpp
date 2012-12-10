@@ -64,15 +64,20 @@ void CKJVSearchCriteria::on_changeSearchScopeMode(int ndx)
 
 void CKJVSearchCriteria::on_changeOperatorMode()
 {
+	begin_update();				// Lockout update so we don't send both changedSearchScopeMode and changedOperatorMode signals
+
 	if (ui->radioButtonORSearch->isChecked()) {
 		m_nOperatorMode = OME_OR;
-		emit changedOperatorMode(m_nOperatorMode);
 		ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(SSME_WHOLE_BIBLE));
 		ui->comboSearchScope->setEnabled(false);
+		m_nSearchScopeMode = SSME_WHOLE_BIBLE;
+		emit changedOperatorMode(m_nOperatorMode);
 	} else if (ui->radioButtonANDSearch->isChecked()) {
 		m_nOperatorMode = OME_AND;
-		emit changedOperatorMode(m_nOperatorMode);
 		ui->comboSearchScope->setEnabled(true);
+		emit changedOperatorMode(m_nOperatorMode);
 	}
+
+	end_update();
 }
 

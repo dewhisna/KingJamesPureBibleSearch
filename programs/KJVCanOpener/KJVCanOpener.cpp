@@ -541,6 +541,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
+	connect(ui->widgetSearchCriteria, SIGNAL(changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
+	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 
 	// -------------------- Search Results List View:
 
@@ -616,6 +618,11 @@ void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
 	} else {
 		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height());
 	}
+	on_phraseChanged(NULL);
+}
+
+void CKJVCanOpener::on_changedSearchCriteria()
+{
 	on_phraseChanged(NULL);
 }
 
@@ -792,11 +799,15 @@ void CKJVCanOpener::on_clearBrowserHistory()
 
 void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 {
+	bool bCalcFlag = false;
+
 	unsigned int nTotalMatches = 0;
+	unsigned int nMaxTotalMatches = 0;
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		lstPhrases.append(m_lstSearchPhraseEditors.at(ndx)->parsedPhrase());
 		nTotalMatches += lstPhrases.at(ndx)->GetNumberOfMatches();
+		nMaxTotalMatches = qMax(nMaxTotalMatches, lstPhrases.at(ndx)->GetNumberOfMatches());
 	}
 
 	CVerseList lstReferences;
@@ -805,7 +816,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 	if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_OR) {
 		// OR'ing is simple -- just combine the results:
 		if (nTotalMatches <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-
+			bCalcFlag = true;
 			// Combine results from all phrases into single list, denormalizing them, and
 			//		setting the phrase size details:
 			for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
@@ -815,41 +826,165 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 					lstResults.append(TPhraseTag(CRelIndex(DenormalizeIndex(lstPhraseResults.at(ndxResults))), phrase->phraseSize()));
 				}
 			}
-			qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+		}
+	} else if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_AND) {
+		if (nMaxTotalMatches <= 5000) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
+			bCalcFlag = true;
 
-			for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-				if (!lstResults.at(ndxResults).first.isSet()) {
-					assert(false);
-					lstReferences.push_back(CVerseListItem(0, 0));
-					continue;
+			TPhraseTagListList lstlstResults;
+			QList<int> lstNdxStart;
+			QList<int> lstNdxEnd;
+			QList<CRelIndex> lstScopedRefs;
+			QList<bool> lstNeedScope;
+			int nNumPhrases = 0;
+			CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode = ui->widgetSearchCriteria->searchScopeMode();
+
+			// Fetch results from all phrases and build a list of lists, denormalizing entries, and
+			//		setting the phrase size details:
+			for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
+				const CParsedPhrase *phrase = lstPhrases.at(ndx);
+				TIndexList lstPhraseResults = phrase->GetNormalizedSearchResults();
+				if (lstPhraseResults.size() == 0) continue;		// Don't include phrases that had no matches of themselves
+				nNumPhrases++;
+				TPhraseTagList aLstOfResults;
+				for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
+					aLstOfResults.append(TPhraseTag(CRelIndex(DenormalizeIndex(lstPhraseResults.at(ndxResults))), phrase->phraseSize()));
 				}
-				lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
+				lstlstResults.append(aLstOfResults);
+				lstNdxStart.append(0);
+				lstNdxEnd.append(0);
+				lstScopedRefs.append(CRelIndex());
+				lstNeedScope.append(true);
+			}
 
-				CVerseListItem &verseItem(lstReferences.last());
+			// Now, we'll go through our lists and compress the results to the scope specified
+			//		for each phrase.  We'll then find the lowest valued one and see if the others
+			//		match.  If they do, we'll push all of those results onto the output.  If not,
+			//		we'll toss results for the lowest until we get a match.  When any list hits
+			//		its end, we're done and can break out since we have no more matches
 
-				if (ndxResults<(lstResults.size()-1)) {
-					bool bNextIsSameReference=false;
-					CRelIndex ndxRelative = lstResults.at(ndxResults).first;
-					do {
-						CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
-
-						if ((ndxRelative.book() == ndxNextRelative.book()) &&
-							(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
-							(ndxRelative.verse() == ndxNextRelative.verse())) {
-							verseItem.addPhraseTag(lstResults.at(ndxResults+1));
-							bNextIsSameReference=true;
-							ndxResults++;
-						} else {
-							bNextIsSameReference=false;
+			bool bDone = (nNumPhrases == 0);		// We're done if we have no phrases (or phrases with results)
+			while (!bDone) {
+				uint32_t nMaxScope = 0;
+				for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+					if (!lstNeedScope[ndx]) {
+						nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
+						continue;		// Only find next scope for a phrase if we need it
+					}
+					lstNdxStart[ndx] = lstNdxEnd[ndx];		// Begin at the last ending position
+					if (lstNdxStart[ndx] >= lstlstResults[ndx].size()) {
+						bDone = true;
+						break;
+					}
+					lstScopedRefs[ndx] = lstlstResults[ndx].at(lstNdxStart[ndx]).first;
+					ScopeIndex(lstScopedRefs[ndx], nSearchScopeMode);
+					for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < lstlstResults[ndx].size(); ++lstNdxEnd[ndx]) {
+						CRelIndex ndxScopedTemp = lstlstResults[ndx].at(lstNdxEnd[ndx]).first;
+						ScopeIndex(ndxScopedTemp, nSearchScopeMode);
+						if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
+					}
+					// Here lstNdxEnd will be one more than the number of matching, either the next index
+					//		off the end of the array, or the first non-matching entry.  So the scoped
+					//		area is from lstNdxStart to lstNdxEnd-1.
+					nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
+					lstNeedScope[ndx] = false;
+				}
+				if (bDone) continue;		// If we run out of phrase matches on any phrase, we're done
+				// Now, check the scoped references.  If they match for all indexes, we'll push the
+				//	results to our output and set flags to get all new scopes.  Otherwise, compare them
+				//	all against our maximum scope value and tag any that's less than that as needing a
+				//	new scope (they weren't matches).  Then loop back until we've either pushed all
+				//	results or run out of matches.
+				bool bMatch = true;
+				for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+					if (lstScopedRefs[ndx].index() != nMaxScope) {
+						lstNeedScope[ndx] = true;
+						bMatch = false;
+					}
+				}
+				if (bMatch) {
+					// We got a match, so push results to output and flag for new scopes:
+					for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+						for ( ; lstNdxStart[ndx]<lstNdxEnd[ndx]; ++lstNdxStart[ndx]) {
+							lstResults.append(lstlstResults[ndx].at(lstNdxStart[ndx]));
 						}
-					} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+						lstNeedScope[ndx] = true;
+					}
 				}
 			}
 		}
+	} else {
+		assert(false);		// Unknown Operator Mode
 	}
 
+	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 
+	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+		if (!lstResults.at(ndxResults).first.isSet()) {
+			assert(false);
+			lstReferences.push_back(CVerseListItem(0, 0));
+			continue;
+		}
+		lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
+
+		CVerseListItem &verseItem(lstReferences.last());
+
+		if (ndxResults<(lstResults.size()-1)) {
+			bool bNextIsSameReference=false;
+			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+			do {
+				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+
+				if ((ndxRelative.book() == ndxNextRelative.book()) &&
+					(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
+					(ndxRelative.verse() == ndxNextRelative.verse())) {
+					verseItem.addPhraseTag(lstResults.at(ndxResults+1));
+					bNextIsSameReference=true;
+					ndxResults++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+		}
+	}
+	int nChapters = 0;		// Results counts in Chapters
+	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+		nChapters++;		// Count the chapter we are on and skip the ones that are on the same chapter:
+		if (ndxResults<(lstResults.size()-1)) {
+			bool bNextIsSameReference=false;
+			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+			do {
+				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+
+				if ((ndxRelative.book() == ndxNextRelative.book()) &&
+					(ndxRelative.chapter() == ndxNextRelative.chapter())) {
+					bNextIsSameReference=true;
+					ndxResults++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+		}
+	}
+	int nBooks = 0;			// Results counts in Books
+	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
+		if (ndxResults<(lstResults.size()-1)) {
+			bool bNextIsSameReference=false;
+			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+			do {
+				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+
+				if (ndxRelative.book() == ndxNextRelative.book()) {
+					bNextIsSameReference=true;
+					ndxResults++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+		}
+	}
 
 	// ----------------------------
 
@@ -862,16 +997,61 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 //		}
 	}
 
-	if ((lstReferences.size() != 0) ||
-		((lstReferences.size() == 0) && (nTotalMatches == 0))) {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences in %2 verses").arg(nTotalMatches).arg(lstReferences.size()));
+	if (bCalcFlag) {
+		ui->lblSearchResultsCount->setText(QString("Found %1 Occurrences:\n    in %2 Verses in %3 Chapters in %4 Books")
+						.arg(lstResults.size())
+						.arg(lstReferences.size())
+						.arg(nChapters)
+						.arg(nBooks));
 	} else {
-		ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(nTotalMatches));
+		if (ui->widgetSearchCriteria->operatorMode() == CKJVSearchCriteria::OME_OR) {
+			ui->lblSearchResultsCount->setText(QString("Found %1 occurrences (too many verses!)").arg(nTotalMatches));
+		} else {
+			ui->lblSearchResultsCount->setText(QString("Found %1 possible matches (too many to process)").arg(nMaxTotalMatches));
+		}
 	}
 
 	ui->widgetKJVBrowser->setHighlightTags(lstResults);
 
 	emit changedSearchResults();
+}
+
+void CKJVCanOpener::ScopeIndex(CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
+{
+	switch (nMode) {
+		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
+			// For Whole Bible, we'll set the Book to 1 so that anything in the Bible matches:
+			if (index.isSet()) index = CRelIndex(1, 0, 0, 0);
+			break;
+		case (CKJVSearchCriteria::SSME_TESTAMENT):
+			// For Testament, set the Book to the 1st Book of the corresponding Testament:
+			if (index.book()) {
+				if (index.book() <= g_lstTOC.size()) {
+					const CTOCEntry &toc = g_lstTOC[index.book()-1];
+					unsigned int nTestament = toc.m_nTstNdx;
+					unsigned int nBook = 1;
+					for (unsigned int i=1; i<nTestament; ++i)
+						nBook += g_lstTestaments[i-1].m_nNumBk;
+					index = CRelIndex();
+					index.setBook(nBook);
+				}
+			}
+			break;
+		case (CKJVSearchCriteria::SSME_BOOK):
+			// For Book, mask off Chapter, Verse, and Word:
+			index = CRelIndex(index.book(), 0, 0, 0);
+			break;
+		case (CKJVSearchCriteria::SSME_CHAPTER):
+			// For Chapter, mask off Verse and Word:
+			index = CRelIndex(index.book(), index.chapter(), 0, 0);
+			break;
+		case (CKJVSearchCriteria::SSME_VERSE):
+			// For Verse, mask off word:
+			index = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
+			break;
+		default:
+			break;
+	}
 }
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)

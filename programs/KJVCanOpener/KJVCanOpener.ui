@@ -76,7 +76,11 @@
         <item>
          <widget class="QLabel" name="lblSearchResultsCount">
           <property name="text">
-           <string>Found 0 occurrences in 0 verses:</string>
+           <string>Found 0 Occurrences:
+    in 0 Verses in 0 Chapters in 0 Books</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

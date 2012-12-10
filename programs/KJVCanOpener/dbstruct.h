@@ -402,7 +402,8 @@ Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.bethelchurch.kjvcanopener.phrasetag");
 
-typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases
+typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases, etc.
+typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases
 
 struct TPhraseTagListSortPredicate {
 	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)

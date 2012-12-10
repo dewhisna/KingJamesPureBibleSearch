@@ -4,6 +4,7 @@
 #include "dbstruct.h"
 #include "KJVSearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
+#include "KJVSearchCriteria.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -116,6 +117,7 @@ signals:
 protected slots:
 	void on_addSearchPhraseClicked();
 	void on_closingSearchPhrase(QObject *pWidget);
+	void on_changedSearchCriteria();
 
 	void on_addPassageBrowserEditMenu(bool bAdd);
 	void on_addSearchResultsEditMenu(bool bAdd);
@@ -138,6 +140,9 @@ protected slots:
 
 	void on_HelpManual();
 	void on_HelpAbout();
+
+private:
+	static void ScopeIndex(CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 // Data Private:
 private:
