@@ -38,6 +38,11 @@ bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
 
 // ============================================================================
 
+// User-editable options (TODO: move to options class)
+bool g_bEnableNoLimits = false;
+
+// ============================================================================
+
 int CPhraseList::removeDuplicates()
 {
 	int n = size();

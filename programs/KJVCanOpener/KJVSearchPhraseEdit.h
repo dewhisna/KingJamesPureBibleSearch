@@ -106,6 +106,7 @@ signals:
 public slots:
 	void showSeperatorLine(bool bShow = true);
 	void enableCloseButton(bool bEnable = true);
+	void focusEditor();
 
 protected slots:
 	void on_closeSearchPhraseClicked();

@@ -23,17 +23,10 @@ public:
 		SSME_VERSE = 4
 	};
 
-	enum OPERATOR_MODE_ENUM {
-		OME_OR = 0,
-		OME_AND = 1
-	};
-
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
-	OPERATOR_MODE_ENUM operatorMode() const { return m_nOperatorMode; }
 
 signals:
 	void changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
-	void changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM mode);
 	void addSearchPhraseClicked();
 	void copySearchPhraseSummary();
 
@@ -42,12 +35,10 @@ public slots:
 
 private slots:
 	void on_changeSearchScopeMode(int ndx);
-	void on_changeOperatorMode();
 
 // Data Private:
 private:
 	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
-	OPERATOR_MODE_ENUM m_nOperatorMode;
 
 // UI Private:
 private:

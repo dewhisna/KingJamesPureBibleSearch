@@ -226,6 +226,7 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 
 	CParsedPhrase::ParsePhrase(curInsert);
 
+/*
 	if (m_pStatusAction) {
 		QString strTemp;
 		for (int n=0; n<m_lstWords.size(); ++n) {
@@ -239,6 +240,8 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 		m_pStatusAction->setStatusTip(strTemp);
 		m_pStatusAction->showStatusText();
 	}
+*/
+
 }
 
 bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
@@ -380,6 +383,9 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	ui->buttonClear->setToolTip("Clear Phrase Text");
 	ui->buttonClear->setStatusTip("Clear this Phrase Text");
 
+	ui->editPhrase->setToolTip("Enter Word or Phrase to Search");
+	ui->editPhrase->setStatusTip("Enter Word or Phrase to Search");
+
 	ui->buttonRemove->setToolTip("Remove Phrase from Search Criteria");
 	ui->buttonRemove->setStatusTip("Remove this Phrase from the current Search Criteria");
 
@@ -413,6 +419,11 @@ void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
 void CKJVSearchPhraseEdit::enableCloseButton(bool bEnable)
 {
 	ui->buttonRemove->setEnabled(bEnable);
+}
+
+void CKJVSearchPhraseEdit::focusEditor()
+{
+	ui->editPhrase->setFocus();
 }
 
 const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const

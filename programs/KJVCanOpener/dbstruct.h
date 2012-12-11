@@ -414,4 +414,11 @@ struct TPhraseTagListSortPredicate {
 
 // ============================================================================
 
+// General settings/options.  Needs to be moved to an options handling class
+//		once we've implemented user editable options (TODO)
+
+extern bool g_bEnableNoLimits;						// True if user passed /nolimits on the command-line.  Turns off cap of maximum search results
+
+// ============================================================================
+
 #endif // DBSTRUCT_H

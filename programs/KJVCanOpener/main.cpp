@@ -14,6 +14,7 @@
 #include "KJVCanOpener.h"
 
 #include "version.h"
+#include "dbstruct.h"
 #include "BuildDB.h"
 #include "ReadDB.h"
 
@@ -65,12 +66,15 @@ int main(int argc, char *argv[])
 //return 0;
 
 	if (argc > 1) {
-		if (stricmp(argv[1], "builddb") == 0) {
+		QString strArg1(argv[1]);
+		if (strArg1.compare("/builddb", Qt::CaseInsensitive) == 0) {
 			CBuildDatabase bdb(splash);
 			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
 				return -1;
 			}
+		} else if (strArg1.compare("/nolimits", Qt::CaseInsensitive) == 0) {
+			g_bEnableNoLimits = true;
 		}
 	}
 
