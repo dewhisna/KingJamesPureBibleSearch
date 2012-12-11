@@ -1,12 +1,12 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_QT						"0.1.2"
-#define VER_FILEVERSION				0,0,1,2
-#define VER_FILEVERSION_STR			"0,0,1,2\0"
+#define VER_QT						"0.2.1"
+#define VER_FILEVERSION				0,0,2,1
+#define VER_FILEVERSION_STR			"0,0,2,1\0"
 
-#define VER_PRODUCTVERSION			0,0,1,2
-#define VER_PRODUCTVERSION_STR		"0,0,1,2\0"
+#define VER_PRODUCTVERSION			0,0,2,1
+#define VER_PRODUCTVERSION_STR		"0,0,2,1\0"
 
 #define VER_COMMENTS_STR			"Don't make me have to open a can on you!\n\0"
 #define VER_COMPANYNAME_STR			"Bethel Church, Festus, MO\0"
