@@ -34,7 +34,7 @@ Source: {#GetEnv('QTDIR')}\plugins\imageformats\qmng4.dll; DestDir: {app}\plugin
 
 ; db
 Source: "db\kjvtext.s3db"; DestDir: {app}\db; Flags: ignoreversion;
-Source: "db\kjvuser.s3db"; DestDir: {app}\db; Flags: ignoreversion onlyifdoesntexist; Permissions: users-modify;
+Source: "db\kjvuser.s3db"; DestDir: {app}\db; Flags: onlyifdoesntexist uninsneveruninstall; Permissions: users-modify;
 
 ; license
 Source: "gpl-3.0.txt"; DestDir: {app}\license; Flags: ignoreversion;
