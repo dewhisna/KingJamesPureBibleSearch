@@ -65,6 +65,7 @@ protected:
 
 protected:
 	virtual void updateSelection();
+	virtual void copyVersesCommon(bool bPlainOnly);
 
 //private slots:
 protected:
@@ -76,8 +77,11 @@ protected:
 public:
 	virtual void on_passageNavigator();
 	virtual void on_copy();
+	virtual void on_copyPlain();
 	virtual void on_copyRaw();
 	virtual void on_copyVeryRaw();
+	virtual void on_copyVerses();
+	virtual void on_copyVersesPlain();
 	virtual void on_copyReferenceDetails();
 	virtual void on_copyPassageStatistics();
 	virtual void on_copyEntirePassageDetails();
@@ -89,12 +93,17 @@ private:
 	QTimer m_HighlightTimer;
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
 	QPair<CParsedPhrase, TPhraseTag> m_selectedPhrase;		// Selected phrase and cursor selection reference
+	bool m_bDoPlainCopyOnly;		// Flag for the createMimeDataFromSelection function to use only plain text
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	// ----
-	QAction *m_pActionCopy;			// Edit menu copy
+	QAction *m_pActionCopy;			// Edit menu copy (text as shown)
+	QAction *m_pActionCopyPlain;	// Edit menu copy, as shown, but plaintext
 	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text
 	QAction *m_pActionCopyVeryRaw;	// Edit menu copy very (no punctuation) raw phrase text
+	// ----
+	QAction *m_pActionCopyVerses;	// Edit menu copy as formatted verses
+	QAction *m_pActionCopyVersesPlain;	// Edit menu copy as formatted verses, but plaintext
 	// ----
 	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
 	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
@@ -138,8 +147,11 @@ protected slots:
 public slots:
 //	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 	virtual void on_copy() = 0;
+	virtual void on_copyPlain() = 0;
 	virtual void on_copyRaw() = 0;
 	virtual void on_copyVeryRaw() = 0;
+	virtual void on_copyVerses() = 0;
+	virtual void on_copyVersesPlain() = 0;
 	virtual void on_copyReferenceDetails() = 0;
 	virtual void on_copyPassageStatistics() = 0;
 	virtual void on_copyEntirePassageDetails() = 0;
@@ -166,8 +178,11 @@ protected slots:
 public slots:
 	virtual void on_passageNavigator() = 0;
 	virtual void on_copy() = 0;
+	virtual void on_copyPlain() = 0;
 	virtual void on_copyRaw() = 0;
 	virtual void on_copyVeryRaw() = 0;
+	virtual void on_copyVerses() = 0;
+	virtual void on_copyVersesPlain() = 0;
 	virtual void on_copyReferenceDetails() = 0;
 	virtual void on_copyPassageStatistics() = 0;
 	virtual void on_copyEntirePassageDetails() = 0;

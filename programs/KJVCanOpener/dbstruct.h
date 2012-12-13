@@ -397,6 +397,15 @@ class TPhraseTag : public QPair<CRelIndex, unsigned int>
 public:
 	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
 		:	QPair<CRelIndex, unsigned int>(ndx, nCount) { }
+
+	QString PassageReferenceRangeText() const {
+		QString strReferenceRangeText = first.PassageReferenceText();
+		if (second > 1) {
+			uint32_t nNormal = NormalizeIndex(first);
+			strReferenceRangeText += " - " + CRelIndex(DenormalizeIndex(nNormal + second - 1)).PassageReferenceText();
+		}
+		return strReferenceRangeText;
+	}
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

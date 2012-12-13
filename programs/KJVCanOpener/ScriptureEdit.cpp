@@ -22,10 +22,14 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	:	T(parent),
 		m_bDoingPopup(false),
 		m_navigator(*this),
+		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
+		m_pActionCopyPlain(NULL),
 		m_pActionCopyRaw(NULL),
 		m_pActionCopyVeryRaw(NULL),
+		m_pActionCopyVerses(NULL),
+		m_pActionCopyVersesPlain(NULL),
 		m_pActionCopyReferenceDetails(NULL),
 		m_pActionCopyPassageStatistics(NULL),
 		m_pActionCopyEntirePassageDetails(NULL),
@@ -46,10 +50,14 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 
 	m_pEditMenu = new QMenu("&Edit", this);
 	m_pEditMenu->setStatusTip("Scripture Text Edit Operations");
-	m_pActionCopy = m_pEditMenu->addAction("&Copy", this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopy->setStatusTip("Copy selected passage browser text to the clipboard");
+	m_pActionCopy = m_pEditMenu->addAction("&Copy as shown", this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy->setStatusTip("Copy selected passage browser text, as shown, to the clipboard");
 	m_pActionCopy->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
+	m_pActionCopyPlain = m_pEditMenu->addAction("Copy as shown (&plain)", this, SLOT(on_copyPlain()));
+	m_pActionCopyPlain->setStatusTip("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard");
+	m_pActionCopyPlain->setEnabled(false);
+	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
 	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip("Copy selected passage browser text as raw phrase words to the clipboard");
 	m_pActionCopyRaw->setEnabled(false);
@@ -58,6 +66,15 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopyVeryRaw->setStatusTip("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard");
 	m_pActionCopyVeryRaw->setEnabled(false);
 	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
+	m_pEditMenu->addSeparator();
+	m_pActionCopyVerses = m_pEditMenu->addAction("Copy as &Verses", this, SLOT(on_copyVerses()));
+	m_pActionCopyVerses->setStatusTip("Copy selected passage browser text as Formatted Verses to the clipboard");
+	m_pActionCopyVerses->setEnabled(false);
+	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
+	m_pActionCopyVersesPlain = m_pEditMenu->addAction("Copy as Verses (plai&n)", this, SLOT(on_copyVersesPlain()));
+	m_pActionCopyVersesPlain->setStatusTip("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard");
+	m_pActionCopyVersesPlain->setEnabled(false);
+	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
@@ -219,8 +236,12 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
+	menu.addAction(m_pActionCopyPlain);
 	menu.addAction(m_pActionCopyRaw);
 	menu.addAction(m_pActionCopyVeryRaw);
+	menu.addSeparator();
+	menu.addAction(m_pActionCopyVerses);
+	menu.addAction(m_pActionCopyVersesPlain);
 	menu.addSeparator();
 	menu.addAction(m_pActionCopyReferenceDetails);
 	menu.addAction(m_pActionCopyPassageStatistics);
@@ -240,6 +261,13 @@ template<class T, class U>
 QMimeData *CScriptureText<T,U>::createMimeDataFromSelection () const
 {
 	QMimeData *mime = U::createMimeDataFromSelection();
+	if (m_bDoPlainCopyOnly) {
+		// Let the base class do the copy, but snag the plaintext
+		//	version and render only that:
+		QString strTemp = mime->text();
+		mime->clear();
+		mime->setText(strTemp);
+	}
 	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
 	return mime;
 }
@@ -270,11 +298,7 @@ void CScriptureText<T,U>::updateSelection()
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
 	QString strStatusText;
 	if (haveSelection()) {
-		strStatusText = m_selectedPhrase.second.first.PassageReferenceText();
-		if (m_selectedPhrase.second.second > 1) {
-			uint32_t nNormal = NormalizeIndex(m_selectedPhrase.second.first);
-			strStatusText += " - " + CRelIndex(DenormalizeIndex(nNormal + m_selectedPhrase.second.second - 1)).PassageReferenceText();
-		}
+		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText();
 	} else if (m_tagLast.first.isSet()) {
 		strStatusText = m_tagLast.first.PassageReferenceText();
 	}
@@ -297,11 +321,18 @@ void CScriptureText<T,U>::on_copy()
 	m_bDoingPopup = false;
 	clearHighlighting();
 	T::copy();
-//	if ((T::textCursor().hasSelection()) || (haveSelection())) {
-//		QMimeData *mime = T::createMimeDataFromSelection();
-//		if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
-//		QApplication::clipboard()->setMimeData(mime);
-//	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_copyPlain()
+{
+	// Clear highlighting before copy so we don't have the cursor follow highlighter
+	//		copied in the middle of our copied text
+	m_bDoingPopup = false;
+	clearHighlighting();
+	m_bDoPlainCopyOnly = true;		// Do plaintext only so user can paste into Word without changing its format, for example
+	T::copy();
+	m_bDoPlainCopyOnly = false;
 }
 
 template<class T, class U>
@@ -322,6 +353,18 @@ void CScriptureText<T,U>::on_copyVeryRaw()
 	mime->setText(m_selectedPhrase.first.phraseRaw());
 	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
 	QApplication::clipboard()->setMimeData(mime);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_copyVerses()
+{
+	if (haveSelection()) copyVersesCommon(false);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::on_copyVersesPlain()
+{
+	if (haveSelection()) copyVersesCommon(true);
 }
 
 template<class T, class U>
@@ -363,6 +406,19 @@ void CScriptureText<T,U>::on_copyEntirePassageDetails()
 	} else {
 		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
 	}
+	QApplication::clipboard()->setMimeData(mime);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
+{
+	QTextDocument docFormattedVerses;
+	CPhraseNavigator navigator(docFormattedVerses);
+	navigator.setDocumentToFormattedVerses(m_selectedPhrase.second);
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(docFormattedVerses.toPlainText());
+	if (!bPlainOnly) mime->setHtml(docFormattedVerses.toHtml());
 	QApplication::clipboard()->setMimeData(mime);
 }
 

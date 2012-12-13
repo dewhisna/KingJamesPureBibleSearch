@@ -135,6 +135,7 @@ public:
 	// Text Fill Functions:
 	void setDocumentToChapter(const CRelIndex &ndx);
 	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false);
+	void setDocumentToFormattedVerses(const TPhraseTag &tag);
 
 	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 

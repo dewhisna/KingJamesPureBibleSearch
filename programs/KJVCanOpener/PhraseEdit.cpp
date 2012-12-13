@@ -820,7 +820,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 	}
 
 	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
-						.arg(ndx.PassageReferenceText());		// Document Title
+						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br />";
 
 	if (bAddDividerLineBefore) strHTML += "<hr />";
@@ -854,6 +854,104 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 	strHTML += verse.GetRichText() + "\n";
 
 	strHTML += "</p></body></html>";
+	m_TextDocument.setHtml(strHTML);
+	emit changedDocumentText();
+}
+
+void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
+{
+	m_TextDocument.clear();
+
+	if ((!tag.first.isSet()) || (tag.second == 0)) {
+		emit changedDocumentText();
+		return;
+	}
+
+	CRelIndex ndxFirst = CRelIndex(tag.first.book(), tag.first.chapter(), tag.first.verse(), 1);		// Start on first word of verse
+	CRelIndex ndxLast = DenormalizeIndex(NormalizeIndex(tag.first) + tag.second - 1);		// Add number of words to arrive at last word, wherever that is
+	ndxLast.setWord(1);			// Shift back to the first word of this verse
+	CRelIndex ndxNext = CRefCountCalc::calcRelIndex(0, 1, 0, 0, 0, ndxLast);	// Add a verse, so we ndxNext is on first word of next verse.
+	ndxLast = DenormalizeIndex(NormalizeIndex(ndxNext) - 1);		// Move to next word so ndxLast is the last word of the last verse
+	TPhraseTag tagAdjusted(ndxFirst, NormalizeIndex(ndxNext) - NormalizeIndex(ndxFirst));
+
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
+						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText()));		// Document Title
+
+	QString strReference;
+
+	if (ndxFirst.book() == ndxLast.book()) {
+		if (ndxFirst.chapter() == ndxLast.chapter()) {
+			if (ndxFirst.verse() == ndxLast.verse()) {
+				strReference = QString("(%1 %2:%3)")
+										.arg(ndxFirst.bookName())
+										.arg(ndxFirst.chapter())
+										.arg(ndxFirst.verse());
+			} else {
+				strReference = QString("(%1 %2:%3-%4)")
+										.arg(ndxFirst.bookName())
+										.arg(ndxFirst.chapter())
+										.arg(ndxFirst.verse())
+										.arg(ndxLast.verse());
+			}
+		} else {
+			strReference = QString("(%1 %2:%3-%4:%5)")
+									.arg(ndxFirst.bookName())
+									.arg(ndxFirst.chapter())
+									.arg(ndxFirst.verse())
+									.arg(ndxLast.chapter())
+									.arg(ndxLast.verse());
+		}
+	} else {
+		strReference = QString("(%1 %2:%3-%4 %5:%6)")
+								.arg(ndxFirst.bookName())
+								.arg(ndxFirst.chapter())
+								.arg(ndxFirst.verse())
+								.arg(ndxLast.bookName())
+								.arg(ndxLast.chapter())
+								.arg(ndxLast.verse());
+	}
+
+	strHTML += QString("<p><b>%1</b> &quot;").arg(Qt::escape(strReference));
+
+	CRelIndex ndxPrev = ndxFirst;
+	for (CRelIndex ndx = ndxFirst; ndx.index() < ndxLast.index(); ndx=CRefCountCalc::calcRelIndex(0,1,0,0,0,ndx)) {
+		if (ndx.book() != ndxPrev.book()) {
+			strHTML += QString("  <b>%1 %2:%3</b> ").arg(Qt::escape(ndx.bookName())).arg(ndx.chapter()).arg(ndx.verse());
+		} else if (ndx.chapter() != ndxPrev.chapter()) {
+			strHTML += QString("  <b>%1:%2</b> ").arg(ndx.chapter()).arg(ndx.verse());
+		} else if (ndx.verse() != ndxPrev.verse()) {
+			strHTML += QString("  <b>%1</b> ").arg(ndx.verse());
+		}
+
+		if (ndx.book() > g_lstTOC.size()) {
+			assert(false);
+			emit changedDocumentText();
+			return;
+		}
+
+		const CTOCEntry &toc = g_lstTOC[ndx.book()-1];
+
+		if (ndx.chapter() > toc.m_nNumChp) {
+			assert(false);
+			emit changedDocumentText();
+			return;
+		}
+
+		const TBookEntryMap &book = g_lstBooks[ndx.book()-1];
+		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
+		if (mapLookupVerse == book.end()) {
+			assert(false);
+			emit changedDocumentText();
+			return;
+		}
+		const CBookEntry &verse(mapLookupVerse->second);
+
+		strHTML += verse.GetRichText();
+
+		ndxPrev = ndx;
+	}
+
+	strHTML += "&quot;</p></body></html>";
 	m_TextDocument.setHtml(strHTML);
 	emit changedDocumentText();
 }
