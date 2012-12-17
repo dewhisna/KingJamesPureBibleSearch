@@ -40,10 +40,10 @@ private:
 
 private slots:
 	void TestamentComboIndexChanged(int index);
-	void BookChanged(const QString &strBook);
-	void ChapterChanged(const QString &strChapter);
-	void VerseChanged(const QString &strVerse);
-	void WordChanged(const QString &strWord);
+	void BookChanged(int nBook);
+	void ChapterChanged(int nChapter);
+	void VerseChanged(int nVerse);
+	void WordChanged(int nWord);
 	void on_ReverseChanged(bool bReverse);
 
 // Data Private:

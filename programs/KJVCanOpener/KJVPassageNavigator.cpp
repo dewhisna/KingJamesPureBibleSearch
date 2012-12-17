@@ -19,23 +19,37 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 {
 	ui->setupUi(this);
 
+	int nBooks = 0;
+	int nChapters = 0;
+	int nVerses = 0;
+	int nWords = 0;
+
 	ui->comboTestament->clear();
 	for (unsigned int ndx=0; ndx<=g_lstTestaments.size(); ++ndx){
 		if (ndx == 0) {
 			ui->comboTestament->addItem("Entire Bible", ndx);
 		} else {
 			ui->comboTestament->addItem(g_lstTestaments[ndx-1].m_strTstName, ndx);
+			nBooks += g_lstTestaments[ndx-1].m_nNumBk;
+			nChapters += g_lstTestaments[ndx-1].m_nNumChp;
+			nVerses += g_lstTestaments[ndx-1].m_nNumVrs;
+			nWords += g_lstTestaments[ndx-1].m_nNumWrd;
 		}
 	}
+
+	ui->spinBook->setRange(0, nBooks);
+	ui->spinChapter->setRange(0, nChapters);
+	ui->spinVerse->setRange(0, nVerses);
+	ui->spinWord->setRange(0, nWords);
 
 	startAbsoluteMode();
 	reset();
 
 	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
-	connect(ui->editWord, SIGNAL(textEdited(const QString &)), this, SLOT(WordChanged(const QString &)));
-	connect(ui->editVerse, SIGNAL(textEdited(const QString &)), this, SLOT(VerseChanged(const QString &)));
-	connect(ui->editChapter, SIGNAL(textEdited(const QString &)), this, SLOT(ChapterChanged(const QString &)));
-	connect(ui->editBook, SIGNAL(textEdited(const QString &)), this, SLOT(BookChanged(const QString &)));
+	connect(ui->spinWord, SIGNAL(valueChanged(int)), this, SLOT(WordChanged(int)));
+	connect(ui->spinVerse, SIGNAL(valueChanged(int)), this, SLOT(VerseChanged(int)));
+	connect(ui->spinChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterChanged(int)));
+	connect(ui->spinBook, SIGNAL(valueChanged(int)), this, SLOT(BookChanged(int)));
 	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(on_ReverseChanged(bool)));
 	connect(ui->editVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
@@ -62,40 +76,45 @@ void CKJVPassageNavigator::TestamentComboIndexChanged(int index)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::BookChanged(const QString &strBook)
+void CKJVPassageNavigator::BookChanged(int nBook)
 {
 	if (m_bDoingUpdate) return;
 
-	m_nBook = strBook.toUInt();
+	m_nBook = nBook;
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::ChapterChanged(const QString &strChapter)
+void CKJVPassageNavigator::ChapterChanged(int nChapter)
 {
 	if (m_bDoingUpdate) return;
 
-	m_nChapter = strChapter.toUInt();
+	m_nChapter = nChapter;
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::VerseChanged(const QString &strVerse)
+void CKJVPassageNavigator::VerseChanged(int nVerse)
 {
 	if (m_bDoingUpdate) return;
 
-	m_nVerse = strVerse.toUInt();
+	m_nVerse = nVerse;
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::WordChanged(const QString &strWord)
+void CKJVPassageNavigator::WordChanged(int nWord)
 {
 	if (m_bDoingUpdate) return;
 
-	m_nWord = strWord.toUInt();
+	m_nWord = nWord;
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::on_ReverseChanged(bool /* bReverse */)
+void CKJVPassageNavigator::on_ReverseChanged(bool bReverse)
 {
+	ui->spinBook->setPrefix(bReverse ? "-" : "");
+	ui->spinChapter->setPrefix(bReverse ? "-" : "");
+	ui->spinVerse->setPrefix(bReverse ? "-" : "");
+	ui->spinWord->setPrefix(bReverse ? "-" : "");
+
 	if (m_bDoingUpdate) return;
 
 	CalcPassage();
@@ -109,13 +128,13 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 	ui->comboTestament->setCurrentIndex(ui->comboTestament->findData(0));
 	m_nTestament = 0;
-	ui->editBook->setText(QString("%1").arg(tag.first.book()));
+	ui->spinBook->setValue(tag.first.book());
 	m_nBook = tag.first.book();
-	ui->editChapter->setText(QString("%1").arg(tag.first.chapter()));
+	ui->spinChapter->setValue(tag.first.chapter());
 	m_nChapter = tag.first.chapter();
-	ui->editVerse->setText(QString("%1").arg(tag.first.verse()));
+	ui->spinVerse->setValue(tag.first.verse());
 	m_nVerse = tag.first.verse();
-	ui->editWord->setText(QString("%1").arg(tag.first.word()));
+	ui->spinWord->setValue(tag.first.word());
 	m_nWord = tag.first.word();
 	CalcPassage();
 
@@ -181,6 +200,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 
 	ui->lblStartRef->hide();
 	ui->editStartRef->hide();
+	ui->chkboxReverse->setChecked(false);
 	ui->chkboxReverse->hide();
 
 	ui->lblTestament->show();
@@ -190,6 +210,11 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui->lblChapter->setText("&Chapter:");
 	ui->lblVerse->setText("&Verse:");
 	ui->lblWord->setText("&Word:");
+
+	ui->spinBook->setPrefix("");
+	ui->spinChapter->setPrefix("");
+	ui->spinVerse->setPrefix("");
+	ui->spinWord->setPrefix("");
 
 	if (tagPassage.first.isSet()) {
 		setPassage(tagPassage);
