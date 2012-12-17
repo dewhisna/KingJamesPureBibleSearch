@@ -157,7 +157,7 @@
   <customwidget>
    <class>CKJVBrowser</class>
    <extends>QWidget</extends>
-   <header location="global">KJVBrowser.h</header>
+   <header>KJVBrowser.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

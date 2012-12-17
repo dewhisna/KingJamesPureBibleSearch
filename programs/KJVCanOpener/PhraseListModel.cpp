@@ -27,7 +27,7 @@ QVariant CPhraseListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		return (m_lstPhrases.at(index.row()).m_bCaseSensitive ? "§" : "") + m_lstPhrases.at(index.row()).m_strPhrase;
+		return (m_lstPhrases.at(index.row()).m_bCaseSensitive ? QChar(0xA7) : QString()) + m_lstPhrases.at(index.row()).m_strPhrase;
 	}
 
 	if (role == Qt::ToolTipRole) {

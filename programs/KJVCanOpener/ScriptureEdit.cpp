@@ -258,7 +258,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 }
 
 template<class T, class U>
-QMimeData *CScriptureText<T,U>::createMimeDataFromSelection () const
+QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 {
 	QMimeData *mime = U::createMimeDataFromSelection();
 	if (m_bDoPlainCopyOnly) {

@@ -142,7 +142,7 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	cursor.select(QTextCursor::LineUnderCursor);
 	bool bUpdateSave = m_bUpdateInProgress;
 	m_bUpdateInProgress = true;									// Hold-over to update everything at once
-	if (completion.startsWith('§')) {
+	if (completion.startsWith(QChar(0xA7))) {
 		cursor.insertText(completion.mid(1));					// Replace with complete word minus special flag
 		setCaseSensitive(true);
 	} else {

@@ -1167,7 +1167,7 @@ void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const T
 
 QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
 {
-	bool bHaveSelection = ((selection.first.isSet()) && (selection.second != 0));
+	bool bHaveSelection = selection.haveSelection();
 	const CRelIndex &ndxReference(bHaveSelection ? selection.first : tag.first);
 
 	QString strToolTip;

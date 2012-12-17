@@ -48,7 +48,7 @@ public:
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
 	bool haveSelection() const {
-		return ((m_selectedPhrase.second.first.isSet()) && (m_selectedPhrase.second.second != 0));
+		return (m_selectedPhrase.second.haveSelection());
 	}
 
 //signals:

@@ -551,7 +551,6 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
-	connect(ui->widgetSearchCriteria, SIGNAL(changedOperatorMode(CKJVSearchCriteria::OPERATOR_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
 
@@ -688,7 +687,7 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
 		strSummary += QString("    \"%1\" (Found %2 Times)\n").arg(mdlPhrases.index(ndx).data().toString()).arg(aPhrase.m_nNumWrd);
 	}
-	if (bCaseSensitive) strSummary += QString("\n    (§ = Case Sensitive)\n");
+	if (bCaseSensitive) strSummary += QString("\n    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
 	if (nNumPhrases) strSummary += "\n";
 	if (m_bLastCalcSuccess) {
 		strSummary += QString("Found %1 Occurrences\n").arg(m_nLastSearchOccurrences);

@@ -406,6 +406,10 @@ public:
 		}
 		return strReferenceRangeText;
 	}
+
+	bool haveSelection() const {
+		return ((first.isSet()) && (second != 0));
+	}
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

@@ -33,7 +33,7 @@
   <customwidget>
    <class>CKJVPassageNavigator</class>
    <extends>QWidget</extends>
-   <header location="global">KJVPassageNavigator.h</header>
+   <header>KJVPassageNavigator.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

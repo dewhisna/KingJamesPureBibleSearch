@@ -204,7 +204,7 @@
   <customwidget>
    <class>CScriptureBrowser</class>
    <extends>QTextBrowser</extends>
-   <header location="global">ScriptureEdit.h</header>
+   <header>ScriptureEdit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
