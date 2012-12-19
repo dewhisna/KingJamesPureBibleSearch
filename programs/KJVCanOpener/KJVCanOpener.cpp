@@ -603,7 +603,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 void CKJVCanOpener::on_addSearchPhraseClicked()
 {
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
-	connect(pPhraseWidget, SIGNAL(destroyed(QObject*)), this, SLOT(on_closingSearchPhrase(QObject*)));
+	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
@@ -614,12 +614,14 @@ void CKJVCanOpener::on_addSearchPhraseClicked()
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 }
 
-void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
+void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
-	CKJVSearchPhraseEdit *pSearchPhraseWidget = static_cast<CKJVSearchPhraseEdit *>(pWidget);
-	assert(pSearchPhraseWidget != NULL);
+	assert(pSearchPhrase != NULL);
 
-	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhraseWidget);
+	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
+							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0));
+
+	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhrase);
 	assert(ndx != -1);
 	if (ndx != -1) {
 		m_lstSearchPhraseEditors.removeAt(ndx);
@@ -629,7 +631,7 @@ void CKJVCanOpener::on_closingSearchPhrase(QObject *pWidget)
 	} else {
 		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height());
 	}
-	on_phraseChanged(NULL);
+	if (bPhraseChanged) on_phraseChanged(NULL);
 }
 
 void CKJVCanOpener::on_changedSearchCriteria()

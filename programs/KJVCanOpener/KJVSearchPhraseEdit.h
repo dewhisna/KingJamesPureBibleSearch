@@ -99,6 +99,7 @@ public:
 	const CParsedPhrase *parsedPhrase() const;
 
 signals:
+	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseListChanged();
 	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);

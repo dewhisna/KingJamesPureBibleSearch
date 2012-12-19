@@ -116,7 +116,7 @@ signals:
 
 protected slots:
 	void on_addSearchPhraseClicked();
-	void on_closingSearchPhrase(QObject *pWidget);
+	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_changedSearchCriteria();
 	void on_copySearchPhraseSummary();
 

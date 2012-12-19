@@ -407,6 +407,7 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 
 void CKJVSearchPhraseEdit::on_closeSearchPhraseClicked()
 {
+	emit closingSearchPhrase(this);
 	deleteLater();
 }
 
