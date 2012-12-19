@@ -115,7 +115,7 @@ signals:
 	void changedSearchResults();
 
 protected slots:
-	void on_addSearchPhraseClicked();
+	CKJVSearchPhraseEdit *addSearchPhrase();
 	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_changedSearchCriteria();
 	void on_copySearchPhraseSummary();
@@ -176,7 +176,6 @@ private:
 	QVBoxLayout *m_pLayoutPhrases;
 	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
-	CKJVSearchPhraseEdit *m_pMainSearchPhraseEditor;
 
 	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
 	int m_nLastSearchVerses;

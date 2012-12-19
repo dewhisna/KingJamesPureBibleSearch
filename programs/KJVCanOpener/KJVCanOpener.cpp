@@ -381,7 +381,6 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_bSearchResultsActive(false),
 	m_bPhraseEditorActive(false),
 	m_pLayoutPhrases(NULL),
-	m_pMainSearchPhraseEditor(NULL),
 	m_nLastSearchOccurrences(0),
 	m_nLastSearchVerses(0),
 	m_nLastSearchChapters(0),
@@ -523,26 +522,18 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	// -------------------- Search Phrase Widgets:
 
-	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	m_pMainSearchPhraseEditor = new CKJVSearchPhraseEdit(this);
-	connect(m_pMainSearchPhraseEditor, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(m_pMainSearchPhraseEditor, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
-	m_lstSearchPhraseEditors.append(m_pMainSearchPhraseEditor);
-	m_pMainSearchPhraseEditor->showSeperatorLine(false);
-	m_pMainSearchPhraseEditor->enableCloseButton(false);
-	QTimer::singleShot(0, m_pMainSearchPhraseEditor, SLOT(focusEditor()));
-
 	m_pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
 	m_pLayoutPhrases->setSpacing(0);
 	m_pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
-	m_pLayoutPhrases->addWidget(m_pMainSearchPhraseEditor);
 
-	ui->scrollAreaWidgetContents->setMinimumSize(/* pLayoutPhrases->sizeHint() */ m_pMainSearchPhraseEditor->sizeHint() );
+	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
+	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 
 	ui->scrollAreaSearchPhrases->setMinimumSize(m_pLayoutPhrases->sizeHint().width() +
 							ui->scrollAreaSearchPhrases->verticalScrollBar()->sizeHint().width() +
 							ui->scrollAreaSearchPhrases->frameWidth() * 2,
-							m_pLayoutPhrases->sizeHint().height() /* pPhraseEdit->sizeHint() */);
+							m_pLayoutPhrases->sizeHint().height() /* pFirstSearchPhraseEditor->sizeHint() */);
 
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
@@ -550,7 +541,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
-	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(on_addSearchPhraseClicked()));
+	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
 	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
 
@@ -600,18 +591,26 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	return QMainWindow::closeEvent(event);
 }
 
-void CKJVCanOpener::on_addSearchPhraseClicked()
+CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 {
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
+	pPhraseWidget->showSeperatorLine(m_lstSearchPhraseEditors.size() > 1);
 	m_pLayoutPhrases->addWidget(pPhraseWidget);
-	ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + pPhraseWidget->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
+	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
+	int nHeight = 0;
+	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
+		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
+	}
+	ui->scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
 	pPhraseWidget->focusEditor();
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
+
+	return pPhraseWidget;
 }
 
 void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
@@ -626,11 +625,14 @@ void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	if (ndx != -1) {
 		m_lstSearchPhraseEditors.removeAt(ndx);
 	}
-	if (m_lstSearchPhraseEditors.size() > 1) {
-		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + m_lstSearchPhraseEditors.at(1)->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
-	} else {
-		ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height());
+	if ((ndx == 0) && (m_lstSearchPhraseEditors.size() != 0))
+		m_lstSearchPhraseEditors.at(0)->showSeperatorLine(false);
+
+	int nHeight = 0;
+	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
+		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
+	ui->scrollAreaWidgetContents->setMinimumSize(ui->scrollAreaWidgetContents->minimumSize().width(), nHeight);
 	if (bPhraseChanged) on_phraseChanged(NULL);
 }
 
@@ -676,7 +678,7 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	QString strScope;
 	switch (ui->widgetSearchCriteria->searchScopeMode()) {
 		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
-			strScope = "in the Whole Bible";
+			strScope = "in the Entire Bible";
 			break;
 		case (CKJVSearchCriteria::SSME_TESTAMENT):
 			strScope = "in the same Testament";
