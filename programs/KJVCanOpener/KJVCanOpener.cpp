@@ -609,6 +609,7 @@ void CKJVCanOpener::on_addSearchPhraseClicked()
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
 	m_pLayoutPhrases->addWidget(pPhraseWidget);
 	ui->scrollAreaWidgetContents->setMinimumSize(m_pMainSearchPhraseEditor->sizeHint().width(), m_pMainSearchPhraseEditor->sizeHint().height() + pPhraseWidget->sizeHint().height()*(m_lstSearchPhraseEditors.size()-1));
+	pPhraseWidget->focusEditor();
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 }
