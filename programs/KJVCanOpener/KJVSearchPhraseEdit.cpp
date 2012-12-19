@@ -421,7 +421,7 @@ void CKJVSearchPhraseEdit::enableCloseButton(bool bEnable)
 	ui->buttonRemove->setEnabled(bEnable);
 }
 
-void CKJVSearchPhraseEdit::focusEditor()
+void CKJVSearchPhraseEdit::focusEditor() const
 {
 	ui->editPhrase->setFocus();
 }
@@ -433,8 +433,6 @@ const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 
 void CKJVSearchPhraseEdit::on_phraseChanged()
 {
-	ui->lblOccurrenceCount->setText(QString("Number of Occurrences: %1").arg(ui->editPhrase->GetNumberOfMatches()));
-
 	m_phraseEntry.m_strPhrase=ui->editPhrase->phrase();		// Use reconstituted phrase for save/restore
 	m_phraseEntry.m_bCaseSensitive=ui->editPhrase->isCaseSensitive();
 	m_phraseEntry.m_nNumWrd=ui->editPhrase->phraseSize();
@@ -447,6 +445,21 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 	ui->buttonClear->setEnabled(bHaveText);
 
 	emit phraseChanged(this);
+
+	// Do this after emitting above signal so parent can calculate the number
+	//		of contributing occurrences:
+	phraseStatisticsChanged();
+}
+
+void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
+{
+	QString strTemp = "Number of Occurrences: ";
+	if (ui->editPhrase->IsDuplicate()) {
+		strTemp += "(Duplicate)";
+	} else {
+		strTemp += QString("%1/%2").arg(ui->editPhrase->GetContributingNumberOfMatches()).arg(ui->editPhrase->GetNumberOfMatches());
+	}
+	ui->lblOccurrenceCount->setText(strTemp);
 }
 
 void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)

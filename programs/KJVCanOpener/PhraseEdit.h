@@ -20,7 +20,9 @@ class CParsedPhrase
 {
 public:
 	CParsedPhrase(bool bCaseSensitive = false)
-		:	m_bCaseSensitive(bCaseSensitive),
+		:	m_nContributingMatchCount(0),
+			m_bIsDuplicate(false),
+			m_bCaseSensitive(bCaseSensitive),
 			m_nLevel(0),
 			m_nCursorLevel(0),
 			m_nCursorWord(-1),
@@ -29,6 +31,10 @@ public:
 	~CParsedPhrase()
 	{ }
 
+	bool IsDuplicate() const { return m_bIsDuplicate; }
+	void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
+	uint32_t GetContributingNumberOfMatches() const { return m_nContributingMatchCount; }
+	void SetContributingNumberOfMatches(uint32_t nMatches) const { m_nContributingMatchCount = nMatches; }
 	uint32_t GetNumberOfMatches() const;
 	TIndexList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
@@ -49,6 +55,18 @@ public:
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
 
+	bool operator==(const CParsedPhrase &src) const
+	{
+		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
+				(phrase().compare(src.phrase(), Qt::CaseSensitive) == 0));
+	}
+
+	bool operator==(const CPhraseEntry &src) const
+	{
+		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
+				(phrase().compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
+	}
+
 protected:
 	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
@@ -61,6 +79,8 @@ protected:
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
+	mutable uint32_t m_nContributingMatchCount;		// Set by parent phraseChanged logic, cleared with cache (considered part of cache)
+	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set by parent phraseChanged logic, cleared with cache (considered part of cache)
 
 	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())

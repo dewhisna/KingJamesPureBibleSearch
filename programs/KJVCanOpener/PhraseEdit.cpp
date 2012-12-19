@@ -15,6 +15,12 @@
 
 // ============================================================================
 
+bool CPhraseEntry::operator==(const CParsedPhrase &src) const
+{
+	return ((m_bCaseSensitive == src.isCaseSensitive()) &&
+			(m_strPhrase.compare(src.phrase(), Qt::CaseSensitive) == 0));
+}
+
 uint32_t CParsedPhrase::GetNumberOfMatches() const
 {
 	return m_lstMatchMapping.size();
@@ -115,6 +121,8 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseWords.clear();
 	m_cache_lstPhraseWordsRaw.clear();
 	m_cache_lstNormalizedSearchResults.clear();
+	m_nContributingMatchCount = 0;
+	m_bIsDuplicate = false;
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)

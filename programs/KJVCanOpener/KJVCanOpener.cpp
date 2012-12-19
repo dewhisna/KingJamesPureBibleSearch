@@ -636,6 +636,12 @@ void CKJVCanOpener::on_changedSearchCriteria()
 	on_phraseChanged(NULL);
 }
 
+typedef struct {
+	unsigned int m_nNumMatches;
+	unsigned int m_nNumContributingMatches;
+} TPhraseOccurrenceInfo;
+Q_DECLARE_METATYPE(TPhraseOccurrenceInfo)
+
 void CKJVCanOpener::on_copySearchPhraseSummary()
 {
 	int nNumPhrases = 0;
@@ -643,12 +649,19 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 
 	CPhraseList phrases;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->GetNumberOfMatches()) {
+		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
+		assert(pPhrase != NULL);
+		if ((pPhrase->GetNumberOfMatches()) &&
+			(!pPhrase->IsDuplicate())) {
 			nNumPhrases++;
 			CPhraseEntry entry;
-			entry.m_bCaseSensitive = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive();
-			entry.m_strPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase();
-			entry.m_nNumWrd = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->GetNumberOfMatches();	// Bend the rules and use # of words to store number of matches
+			entry.m_bCaseSensitive = pPhrase->isCaseSensitive();
+			entry.m_strPhrase = pPhrase->phrase();
+			entry.m_nNumWrd = pPhrase->phraseSize();
+			TPhraseOccurrenceInfo poiUsage;
+			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
+			poiUsage.m_nNumContributingMatches = pPhrase->GetContributingNumberOfMatches();
+			entry.m_varExtraInfo = QVariant::fromValue(poiUsage);
 			phrases.append(entry);
 			if (entry.m_bCaseSensitive) bCaseSensitive = true;
 		}
@@ -685,7 +698,10 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	if (nNumPhrases) strSummary += "\n";
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
-		strSummary += QString("    \"%1\" (Found %2 Times)\n").arg(mdlPhrases.index(ndx).data().toString()).arg(aPhrase.m_nNumWrd);
+		strSummary += QString("    \"%1\" (Found %2 Times, %3 in Scope)\n")
+							.arg(mdlPhrases.index(ndx).data().toString())
+							.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
+							.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 	}
 	if (bCaseSensitive) strSummary += QString("\n    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
 	if (nNumPhrases) strSummary += "\n";
@@ -876,7 +892,7 @@ void CKJVCanOpener::on_clearBrowserHistory()
 	ui->widgetKJVBrowser->browser()->clearHistory();
 }
 
-void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
+void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	bool bCalcFlag = false;
 
@@ -884,9 +900,31 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 	unsigned int nMaxTotalMatches = 0;
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-		lstPhrases.append(m_lstSearchPhraseEditors.at(ndx)->parsedPhrase());
-		nTotalMatches += lstPhrases.at(ndx)->GetNumberOfMatches();
-		nMaxTotalMatches = qMax(nMaxTotalMatches, lstPhrases.at(ndx)->GetNumberOfMatches());
+		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
+		assert(pPhrase != NULL);
+		pPhrase->SetContributingNumberOfMatches(0);
+		if (pPhrase->GetNumberOfMatches() == 0) {
+			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
+				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
+			continue;		// Don't include phrases that had no matches of themselves
+		}
+		// Check for phrases with the same text and ignore them:
+		bool bDuplicate = false;
+		for (int ndx2 = 0; ndx2 < ndx; ++ndx2) {
+			if ((*pPhrase) == (*m_lstSearchPhraseEditors.at(ndx2)->parsedPhrase())) {
+				bDuplicate = true;
+				break;
+			}
+		}
+		pPhrase->SetIsDuplicate(bDuplicate);
+		if (bDuplicate) {
+			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
+				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
+			continue;
+		}
+		lstPhrases.append(pPhrase);
+		nTotalMatches += pPhrase->GetNumberOfMatches();
+		nMaxTotalMatches = qMax(nMaxTotalMatches, pPhrase->GetNumberOfMatches());
 	}
 
 	CVerseList lstReferences;
@@ -908,7 +946,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 		for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
 			const CParsedPhrase *phrase = lstPhrases.at(ndx);
 			TIndexList lstPhraseResults = phrase->GetNormalizedSearchResults();
-			if (lstPhraseResults.size() == 0) continue;		// Don't include phrases that had no matches of themselves
+			assert(lstPhraseResults.size() != 0);		// Should have already eliminated phrases with no results in loop above
 			nNumPhrases++;
 			TPhraseTagList aLstOfResults;
 			for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
@@ -969,6 +1007,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 			if (bMatch) {
 				// We got a match, so push results to output and flag for new scopes:
 				for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+					lstPhrases.at(ndx)->SetContributingNumberOfMatches(lstPhrases.at(ndx)->GetContributingNumberOfMatches() + (lstNdxEnd[ndx]-lstNdxStart[ndx]));
 					for ( ; lstNdxStart[ndx]<lstNdxEnd[ndx]; ++lstNdxStart[ndx]) {
 						lstResults.append(lstlstResults[ndx].at(lstNdxStart[ndx]));
 					}
@@ -1045,6 +1084,13 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit * /* pSearchPhrase */)
 				}
 			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
 		}
+	}
+
+	// ----------------------------
+
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
+			m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 	}
 
 	// ----------------------------

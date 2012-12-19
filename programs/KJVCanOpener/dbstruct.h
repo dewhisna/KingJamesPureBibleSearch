@@ -346,6 +346,8 @@ extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in Concordan
 // Phrases -- Common and Saved Search Phrase Lists:
 //
 
+class CParsedPhrase;		// Forward declaration
+
 class CPhraseEntry
 {
 public:
@@ -358,12 +360,15 @@ public:
 	bool m_bCaseSensitive;
 	QString m_strPhrase;
 	unsigned int m_nNumWrd;		// Number of words in phrase
+	QVariant m_varExtraInfo;	// Extra user info for specific uses of this structure
 
 	bool operator==(const CPhraseEntry &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
 				(m_strPhrase.compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
+
+	bool operator==(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
 };
 
 Q_DECLARE_METATYPE(CPhraseEntry)
