@@ -908,6 +908,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
 		assert(pPhrase != NULL);
 		pPhrase->SetContributingNumberOfMatches(0);
+		pPhrase->SetIsDuplicate(false);
 		if (pPhrase->GetNumberOfMatches() == 0) {
 			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
 				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
@@ -921,8 +922,8 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 				break;
 			}
 		}
-		pPhrase->SetIsDuplicate(bDuplicate);
 		if (bDuplicate) {
+			pPhrase->SetIsDuplicate(true);
 			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
 				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 			continue;

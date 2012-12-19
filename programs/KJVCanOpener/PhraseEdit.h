@@ -31,10 +31,13 @@ public:
 	~CParsedPhrase()
 	{ }
 
+	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
+	//			use for maintaining statistics about this phrase in context with others:
 	bool IsDuplicate() const { return m_bIsDuplicate; }
 	void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
 	uint32_t GetContributingNumberOfMatches() const { return m_nContributingMatchCount; }
 	void SetContributingNumberOfMatches(uint32_t nMatches) const { m_nContributingMatchCount = nMatches; }
+	// -------
 	uint32_t GetNumberOfMatches() const;
 	TIndexList GetNormalizedSearchResults() const;
 	uint32_t GetMatchLevel() const;
@@ -79,8 +82,9 @@ protected:
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
-	mutable uint32_t m_nContributingMatchCount;		// Set by parent phraseChanged logic, cleared with cache (considered part of cache)
-	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set by parent phraseChanged logic, cleared with cache (considered part of cache)
+	// -------
+	mutable uint32_t m_nContributingMatchCount;		// Set/Cleared by parent phraseChanged logic.
+	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
 
 	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())

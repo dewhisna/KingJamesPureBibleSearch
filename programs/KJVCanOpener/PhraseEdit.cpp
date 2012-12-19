@@ -121,8 +121,6 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseWords.clear();
 	m_cache_lstPhraseWordsRaw.clear();
 	m_cache_lstNormalizedSearchResults.clear();
-	m_nContributingMatchCount = 0;
-	m_bIsDuplicate = false;
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
