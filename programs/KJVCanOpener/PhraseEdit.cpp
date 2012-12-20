@@ -674,7 +674,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	}
 }
 
-void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
+void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors)
 {
 	m_TextDocument.clear();
 
@@ -715,7 +715,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
 		strHTML += "<p>";
-		strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
+		if (!bNoAnchors) {
+			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
+		} else {
+			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
+		}
 		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
@@ -723,13 +727,20 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 	strHTML += "<hr />\n";
 
 	// Print Heading for this Book/Chapter:
-	strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(Qt::escape(toc.m_strBkName));
-	strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(ndx.chapter())
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+	if (!bNoAnchors) {
+		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(Qt::escape(toc.m_strBkName));
+		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(ndx.chapter())
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+	} else {
+		strHTML += QString("<div class=book>%1</div>\n")
+						.arg(Qt::escape(toc.m_strBkName));
+		strHTML += QString("<div class=chapter>Chapter %1</div>\n")
+						.arg(ndx.chapter());
+	}
 
 	// Print this Chapter Text:
 	bool bParagraph = false;
@@ -750,9 +761,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 			strHTML += "<p>";
 			bParagraph = true;
 		}
-		strHTML += QString("<a id=\"%1\"><b> %2 </b></a>")
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0).asAnchor())
-					.arg(ndxVrs+1);
+		if (!bNoAnchors) {
+			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>")
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0).asAnchor())
+						.arg(ndxVrs+1);
+		} else {
+			strHTML += QString("<b> %1 </b>")
+						.arg(ndxVrs+1);
+		}
 		strHTML += verse.GetRichText() + "\n";
 	}
 	if (bParagraph) {
@@ -767,17 +783,32 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 		CRelIndex relNext(nRelNextChapter);
 
 		// Print Heading for this Book/Chapter:
-		if (relNext.book() != ndx.book())
-			strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
-							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
-							.arg(g_lstTOC[relNext.book()-1].m_strBkName);
-		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
-							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
-							.arg(relNext.chapter())
-							.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
+		if (relNext.book() != ndx.book()) {
+			if (!bNoAnchors) {
+				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
+								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
+								.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+			} else {
+				strHTML += QString("<div class=book>%1</div>\n")
+								.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+			}
+		}
+		if (!bNoAnchors) {
+			strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
+								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
+								.arg(relNext.chapter())
+								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
+		} else {
+			strHTML += QString("<div class=chapter>Chapter %1</div>\n")
+								.arg(relNext.chapter());
+		}
 
 		strHTML += "<p>";
-		strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
+		if (!bNoAnchors) {
+			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
+		} else {
+			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
+		}
 		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
 		strHTML += "</p>";
 	}
@@ -787,7 +818,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx)
 	emit changedDocumentText();
 }
 
-void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore)
+void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore, bool bNoAnchors)
 {
 	m_TextDocument.clear();
 
@@ -832,18 +863,23 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 	if (bAddDividerLineBefore) strHTML += "<hr />";
 
 	// Print Book/Chapter for this verse:
-	//		Note: This little shenanigan is so we can have an ending "X" anchor within the name of the book
-	//				itself.  This is because the chapter/verse reference anchor below must begin with
-	//				a space so that we can find a dual unique anchor in our searching.  If we don't do
-	//				this with the book name, we have to insert an extra space at the end for the "X" anchor
-	//				and that extra space was just annoying me!!!
-	QString strBook = toc.m_strBkName;
-	strBook = strBook.leftJustified(2, ' ', false);
-	strHTML += QString("<p><a id=\"%1\"><b>%2</b></a><a id=\"X%3\"><b>%4</b></a>")
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(Qt::escape(strBook.left(strBook.size()-1)))
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-					.arg(Qt::escape(strBook.right(1)));
+	if (!bNoAnchors) {
+		//		Note: This little shenanigan is so we can have an ending "X" anchor within the name of the book
+		//				itself.  This is because the chapter/verse reference anchor below must begin with
+		//				a space so that we can find a dual unique anchor in our searching.  If we don't do
+		//				this with the book name, we have to insert an extra space at the end for the "X" anchor
+		//				and that extra space was just annoying me!!!
+		QString strBook = toc.m_strBkName;
+		strBook = strBook.leftJustified(2, ' ', false);
+		strHTML += QString("<p><a id=\"%1\"><b>%2</b></a><a id=\"X%3\"><b>%4</b></a>")
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(Qt::escape(strBook.left(strBook.size()-1)))
+						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(Qt::escape(strBook.right(1)));
+	} else {
+		strHTML += QString("<p><b>%1</b>")
+						.arg(Qt::escape(toc.m_strBkName));
+	}
 
 	// Print this Verse Text:
 	TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndx.verse(),0));
@@ -853,10 +889,16 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		return;
 	}
 	const CBookEntry &verse(mapLookupVerse->second);
-	strHTML += QString("<a id=\"%1\"><b> %2:%3 </b></a>")
-				.arg(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor())
-				.arg(ndx.chapter())
-				.arg(ndx.verse());
+	if (!bNoAnchors) {
+		strHTML += QString("<a id=\"%1\"><b> %2:%3 </b></a>")
+					.arg(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor())
+					.arg(ndx.chapter())
+					.arg(ndx.verse());
+	} else {
+		strHTML += QString("<b> %1:%2 </b>")
+					.arg(ndx.chapter())
+					.arg(ndx.verse());
+	}
 	strHTML += verse.GetRichText() + "\n";
 
 	strHTML += "</p></body></html>";

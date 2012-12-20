@@ -157,9 +157,9 @@ public:
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
 	// Text Fill Functions:
-	void setDocumentToChapter(const CRelIndex &ndx);
-	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false);
-	void setDocumentToFormattedVerses(const TPhraseTag &tag);
+	void setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors = false);
+	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false, bool bNoAnchors = false);
+	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
 	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
