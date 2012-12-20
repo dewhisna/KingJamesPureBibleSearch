@@ -18,7 +18,8 @@ public:
 	{
 	}
 	CBasicHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
-		:	QObject(parent)
+		:	QObject(parent),
+			m_bEnabled(true)
 	{
 		m_lstPhraseTags.append(aTag);
 	}
