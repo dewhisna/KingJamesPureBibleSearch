@@ -317,6 +317,16 @@ CPhraseCursor::CPhraseCursor(const QTextCursor &aCursor)
 {
 }
 
+CPhraseCursor::CPhraseCursor(const CPhraseCursor &aCursor)
+	:	QTextCursor(aCursor)
+{
+}
+
+CPhraseCursor::CPhraseCursor(QTextDocument *pDocument)
+	:	QTextCursor(pDocument)
+{
+}
+
 CPhraseCursor::~CPhraseCursor()
 {
 }
@@ -600,7 +610,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 		ndxRel.setWord(0);
 		int nPos = anchorPosition(ndxRel.asAnchor());
 		if (nPos == -1) continue;
-		CPhraseCursor myCursor = QTextCursor(&m_TextDocument);
+		CPhraseCursor myCursor(&m_TextDocument);
 		myCursor.setPosition(nPos);
 		int nSelEnd = nPos;
 		while (ndxWord) {
@@ -1008,7 +1018,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 {
 	QPair<CParsedPhrase, TPhraseTag> retVal;
 
-	CPhraseCursor myCursor = aCursor;
+	CPhraseCursor myCursor(aCursor);
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
 	QString strPhrase;
@@ -1042,7 +1052,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					strPhrase.clear();
 				}
 				if (!nIndex.isSet()) {
-					CPhraseCursor tempCursor = myCursor;	// Need temp cursor as the following call destroys it:
+					CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
 					nIndex = ResolveCursorReference(tempCursor);
 				}
 				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
@@ -1081,6 +1091,48 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	assert(nWords == retVal.second.second);
 
 	return retVal;
+}
+
+void CPhraseNavigator::removeAnchors()
+{
+	// Note: I discovered in this that just moving the cursor one character
+	//		to the right at a time and looking for anchors wasn't sufficient.
+	//		Not totally sure why, but it seems like some are kept on the
+	//		block level and not in a corresponding text fragment.  So, I
+	//		cobbled this up, pattered after our anchorPosition function, which
+	//		was patterned after the Qt code for doing this:
+
+	CPhraseCursor cursor(&m_TextDocument);
+
+	for (QTextBlock block = m_TextDocument.begin(); block.isValid(); block = block.next()) {
+		QTextCharFormat format = block.charFormat();
+		if (format.isAnchor()) {
+			format.setAnchorNames(QStringList());
+			format.setAnchor(false);
+			cursor.setPosition(block.position());
+			cursor.setPosition(block.position()+1, QTextCursor::KeepAnchor);
+			cursor.setCharFormat(format);
+			// This one is a linked list instead of an iterator, so no need to reset
+			//	any iterators here
+		}
+		for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); /* increment inside loop */ ) {
+			QTextFragment fragment = it.fragment();
+			format = fragment.charFormat();
+			if (format.isAnchor()) {
+				format.setAnchorNames(QStringList());
+				format.setAnchor(false);
+				cursor.setPosition(fragment.position());
+				cursor.setPosition(fragment.position()+1, QTextCursor::KeepAnchor);
+				cursor.setCharFormat(format);
+				// Note: The above affects the fragment iteration list and
+				//	if we don't reset our loop here, we'll segfault with an
+				//	invalid iterator:
+				it = block.begin();
+			} else {
+				++it;
+			}
+		}
+	}
 }
 
 // ============================================================================

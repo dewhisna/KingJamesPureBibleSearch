@@ -267,6 +267,14 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 		QString strTemp = mime->text();
 		mime->clear();
 		mime->setText(strTemp);
+	} else {
+		if (mime->hasHtml()) {
+			QTextDocument docCopy;
+			docCopy.setHtml(mime->html());
+			CPhraseNavigator navigator(docCopy);
+			navigator.removeAnchors();
+			mime->setHtml(docCopy.toHtml());
+		}
 	}
 	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
 	return mime;
@@ -275,7 +283,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 template<class T, class U>
 void CScriptureText<T,U>::on_cursorPositionChanged()
 {
-	CPhraseCursor cursor = T::textCursor();
+	CPhraseCursor cursor(T::textCursor());
 	m_tagLast.first = m_navigator.ResolveCursorReference(cursor);
 	if (!m_tagLast.first.isSet()) m_tagLast.second = 0;
 

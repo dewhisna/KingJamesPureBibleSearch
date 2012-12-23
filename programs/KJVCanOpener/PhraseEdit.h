@@ -110,6 +110,8 @@ class CPhraseCursor : public QTextCursor
 {
 public:
 	CPhraseCursor(const QTextCursor &aCursor);
+	CPhraseCursor(const CPhraseCursor &aCursor);
+	CPhraseCursor(QTextDocument *pDocument);
 	virtual ~CPhraseCursor();
 
 	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
@@ -162,6 +164,8 @@ public:
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
 	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+
+	void removeAnchors();
 
 signals:
 	void changedDocumentText();

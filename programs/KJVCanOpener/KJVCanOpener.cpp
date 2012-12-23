@@ -148,6 +148,7 @@ void CSearchResultsListView::on_copyVerseText()
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex(), false);
 		navigator.doHighlighting(highlighter);
+		navigator.removeAnchors();
 
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
@@ -273,6 +274,7 @@ void CSearchResultsListView::on_copyComplete()
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex(), false);
 		navigator.doHighlighting(highlighter);
+		navigator.removeAnchors();
 
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
