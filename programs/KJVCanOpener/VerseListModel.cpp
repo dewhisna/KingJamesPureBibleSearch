@@ -48,11 +48,32 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		(role == TOOLTIP_NOHEADING_ROLE) ||
 		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 		const CVerseListItem &refVerse = m_lstVerses[index.row()];
+		bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
 		QString strToolTip;
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
-		if ((role != TOOLTIP_NOHEADING_ROLE) &&
-			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += refVerse.getHeading() + "\n\n";
+		if (bHeading) strToolTip += refVerse.getHeading() + "\n";
+		QPair<int, int> nResultsIndexes = GetResultsIndexes(index.row());
+		if (nResultsIndexes.first != nResultsIndexes.second) {
+			strToolTip += QString("%1Results %2-%3 of %4\n")
+									.arg(bHeading ? "    " : "")
+									.arg(nResultsIndexes.first)
+									.arg(nResultsIndexes.second)
+									.arg(GetTotalResultsCount());
+		} else {
+			assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
+			strToolTip += QString("%1Result %2 of %3\n")
+									.arg(bHeading ? "    " : "")
+									.arg(nResultsIndexes.first)
+									.arg(GetTotalResultsCount());
+		}
+		QPair<int, int> nVerseResult = GetVerseIndexAndCount(index.row());
+		strToolTip += QString("%1    Verse %2 of %3\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
+		QPair<int, int> nChapterResult = GetChapterIndexAndCount(index.row());
+		strToolTip += QString("%1    Chapter %2 of %3\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
+		QPair<int, int> nBookResult = GetBookIndexAndCount(index.row());
+		strToolTip += QString("%1    Book %2 of %3\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
+		strToolTip += "\n";
 		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
@@ -205,5 +226,91 @@ void CVerseListModel::setParsedPhrases(const TParsedPhrasesList &phrases)
 	//		additional lookup data for the model objects for building of tooltips
 	//		that are appropriate for the entire search scope
 	m_lstParsedPhrases = phrases;
+}
+
+QPair<int, int> CVerseListModel::GetResultsIndexes(int nRow) const
+{
+	QPair<int, int> nResultsIndexes;
+	nResultsIndexes.first = 0;
+	nResultsIndexes.second = 0;
+
+	for (int ndx = 0; ((ndx < nRow) && (ndx < m_lstVerses.size())); ++ndx) {
+		nResultsIndexes.first += m_lstVerses.at(ndx).phraseTags().size();
+	}
+	nResultsIndexes.second = nResultsIndexes.first;
+	if (nRow < m_lstVerses.size()) {
+		nResultsIndexes.first++;
+		nResultsIndexes.second += m_lstVerses.at(nRow).phraseTags().size();
+	}
+
+	return nResultsIndexes;		// Result first = first result index, second = last result index for specified row
+}
+
+int CVerseListModel::GetTotalResultsCount() const
+{
+	int nResultsCount = 0;
+
+	for (int ndx = 0; ndx < m_lstVerses.size(); ++ndx) {
+		nResultsCount += m_lstVerses.at(ndx).phraseTags().size();
+	}
+
+	return nResultsCount;
+}
+
+QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nRow) const
+{
+	int ndxBook = 0;		// Index into Books
+	int nBooks = 0;			// Results counts in Books
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
+		if (ndx <= nRow) ndxBook++;
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
+			do {
+				if (nCurrentBook == m_lstVerses.at(ndx+1).getBook()) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return QPair<int, int>(ndxBook, nBooks);
+}
+
+QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nRow) const
+{
+	int ndxChapter = 0;		// Index into Chapters
+	int nChapters = 0;		// Results counts in Chapters
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
+		if (ndx <= nRow) ndxChapter++;
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
+			uint32_t nCurrentChapter = m_lstVerses.at(ndx).getChapter();
+			do {
+				if ((nCurrentBook == m_lstVerses.at(ndx+1).getBook()) &&
+					(nCurrentChapter == m_lstVerses.at(ndx+1).getChapter())) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return QPair<int, int>(ndxChapter, nChapters);
+}
+
+QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nRow) const
+{
+	return QPair<int, int>(nRow+1, m_lstVerses.size());
 }
 

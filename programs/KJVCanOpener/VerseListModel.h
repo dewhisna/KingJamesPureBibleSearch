@@ -9,6 +9,7 @@
 #include <QList>
 #include <QStringList>
 #include <QVariant>
+#include <QPair>
 
 #include <assert.h>
 
@@ -48,7 +49,7 @@ public:
 		return strHeading;
 	}
 
-	inline QString getToolTip(const TParsedPhrasesList &phrases) const {
+	inline QString getToolTip(const TParsedPhrasesList &phrases = TParsedPhrasesList()) const {
 		QString strToolTip;
 		strToolTip += getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
@@ -209,6 +210,13 @@ public:
 signals:
 
 public slots:
+
+private:
+	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
+	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
+	QPair<int, int> GetBookIndexAndCount(int nRow) const;		// Returns the Search Result Book number and total number of books with results
+	QPair<int, int> GetChapterIndexAndCount(int nRow) const;	// Returns the Search Result Chapter and total number of chapters with results
+	QPair<int, int> GetVerseIndexAndCount(int nRow) const;		// Returns the Search Result Verse and total number of verses with results (for completeness only)
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
