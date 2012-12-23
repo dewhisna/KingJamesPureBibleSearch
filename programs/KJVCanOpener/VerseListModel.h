@@ -2,6 +2,7 @@
 #define VERSELISTMODEL_H
 
 #include "dbstruct.h"
+#include "PhraseEdit.h"
 
 #include <QAbstractListModel>
 #include <QModelIndex>
@@ -47,7 +48,7 @@ public:
 		return strHeading;
 	}
 
-	inline QString getToolTip() const {
+	inline QString getToolTip(const TParsedPhrasesList &phrases) const {
 		QString strToolTip;
 		strToolTip += getIndex().SearchResultToolTip(RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
@@ -58,6 +59,23 @@ public:
 				strToolTip += QString("[%1] \"%2\" is ").arg(ndxTag.word()).arg(getPhrase(ndx));
 			}
 			strToolTip += ndxTag.SearchResultToolTip(RIMASK_WORD);
+			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
+				const CParsedPhrase *pPhrase = phrases.at(ndxPhrase);
+				assert(pPhrase != NULL);
+				if (pPhrase == NULL) continue;
+				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
+					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results\n")
+										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+										.arg(pPhrase->GetPhraseTagSearchResults().size())
+										.arg(pPhrase->phrase());
+				}
+				if (pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
+					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Scoped Results\n")
+										.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+										.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
+										.arg(pPhrase->phrase());
+				}
+			}
 		}
 
 		return strToolTip;
@@ -153,7 +171,9 @@ public:
 
 	enum VERSE_DATA_ROLES_ENUM {
 		VERSE_ENTRY_ROLE = Qt::UserRole + 0,
-		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 1			// Same as Qt::ToolTipRole, but as PlainText instead of RichText
+		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 1,			// Same as Qt::ToolTipRole, but as PlainText instead of RichText
+		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 2,			// Same as Qt::ToolTipRole, but without Verse Reference Heading
+		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 3	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
 	};
 
 	explicit CVerseListModel(QObject *parent = 0);
@@ -176,6 +196,9 @@ public:
 	CVerseList verseList() const;
 	void setVerseList(const CVerseList &verses);
 
+	TParsedPhrasesList parsedPhrases() const;
+	void setParsedPhrases(const TParsedPhrasesList &phrases);
+
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) {
 		emit layoutAboutToBeChanged();
@@ -190,6 +213,7 @@ public slots:
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	CVerseList m_lstVerses;
+	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged, used to generate tooltips appropos to entire search scope
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 };
 

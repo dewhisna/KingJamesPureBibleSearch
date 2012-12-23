@@ -415,6 +415,11 @@ public:
 	bool haveSelection() const {
 		return ((first.isSet()) && (second != 0));
 	}
+
+	bool operator==(const TPhraseTag &otherTag) {
+		return ((first.index() == otherTag.first.index()) &&
+				(second == otherTag.second));
+	}
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

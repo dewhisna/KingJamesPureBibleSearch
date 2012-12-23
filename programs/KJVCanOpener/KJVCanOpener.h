@@ -174,7 +174,7 @@ private:
 	bool m_bPhraseEditorActive;
 
 	QVBoxLayout *m_pLayoutPhrases;
-	CSearchPhraseListModel m_modelSearchPhraseEditors;
+//	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
 
 	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books

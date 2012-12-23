@@ -26,7 +26,7 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 	return m_lstMatchMapping.size();
 }
 
-TIndexList CParsedPhrase::GetNormalizedSearchResults() const
+const TIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 {
 	if (m_cache_lstNormalizedSearchResults.size()) return m_cache_lstNormalizedSearchResults;
 
@@ -37,6 +37,19 @@ TIndexList CParsedPhrase::GetNormalizedSearchResults() const
 	sort(m_cache_lstNormalizedSearchResults.begin(), m_cache_lstNormalizedSearchResults.end());
 
 	return m_cache_lstNormalizedSearchResults;
+}
+
+const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
+{
+	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
+
+	m_cache_lstPhraseTagResults.clear();		// This call really shouldn't be needed since we already know the size is zero (above), but it just feels better with it. :-)
+	const TIndexList &lstPhraseResults(GetNormalizedSearchResults());
+	for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
+		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
+	}
+
+	return m_cache_lstPhraseTagResults;
 }
 
 uint32_t CParsedPhrase::GetMatchLevel() const
@@ -121,6 +134,7 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseWords.clear();
 	m_cache_lstPhraseWordsRaw.clear();
 	m_cache_lstNormalizedSearchResults.clear();
+	m_cache_lstPhraseTagResults.clear();
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)

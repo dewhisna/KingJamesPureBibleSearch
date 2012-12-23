@@ -44,13 +44,18 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	}
 
 	if ((role == Qt::ToolTipRole) ||
-		(role == TOOLTIP_PLAINTEXT_ROLE)) {
+		(role == TOOLTIP_PLAINTEXT_ROLE) ||
+		(role == TOOLTIP_NOHEADING_ROLE) ||
+		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 		const CVerseListItem &refVerse = m_lstVerses[index.row()];
 		QString strToolTip;
-		if (role == Qt::ToolTipRole) strToolTip += "<qt><pre>";
-		strToolTip += refVerse.getHeading() + "\n\n";
-		strToolTip += refVerse.getToolTip();
-		if (role == Qt::ToolTipRole) strToolTip += "</pre></qt>";
+		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
+		if ((role != TOOLTIP_NOHEADING_ROLE) &&
+			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += refVerse.getHeading() + "\n\n";
+		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
+		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 		return strToolTip;
 	}
 
@@ -75,7 +80,10 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 		}
 	}
 
-	if (role == Qt::ToolTipRole) {
+	if ((role == Qt::ToolTipRole) ||
+		(role == TOOLTIP_PLAINTEXT_ROLE) ||
+		(role == TOOLTIP_NOHEADING_ROLE) ||
+		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 		return false;				// read-only
 	}
 
@@ -184,5 +192,18 @@ void CVerseListModel::setVerseList(const CVerseList &verses)
 	emit beginResetModel();
 	m_lstVerses = verses;
 	emit endResetModel();
+}
+
+TParsedPhrasesList CVerseListModel::parsedPhrases() const
+{
+	return m_lstParsedPhrases;
+}
+
+void CVerseListModel::setParsedPhrases(const TParsedPhrasesList &phrases)
+{
+	// Note: This doesn't change the basic model list. It's only used to provide
+	//		additional lookup data for the model objects for building of tooltips
+	//		that are appropriate for the entire search scope
+	m_lstParsedPhrases = phrases;
 }
 

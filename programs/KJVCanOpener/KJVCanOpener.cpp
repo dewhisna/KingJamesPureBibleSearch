@@ -279,7 +279,7 @@ void CSearchResultsListView::on_copyComplete()
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
-		cursorDocList.insertHtml("<br />\n<pre>" + item.getToolTip() + "</pre>\n");
+		cursorDocList.insertHtml("<br />\n<pre>" + pModel->index(ndx).data(CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
 		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("\n<hr /><br />\n");
 	}
 
@@ -911,6 +911,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		assert(pPhrase != NULL);
 		pPhrase->SetContributingNumberOfMatches(0);
 		pPhrase->SetIsDuplicate(false);
+		pPhrase->ClearScopedPhraseTagSearchResults();
 		if (pPhrase->GetNumberOfMatches() == 0) {
 			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
 				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
@@ -941,26 +942,16 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	if ((g_bEnableNoLimits) || (nMaxTotalMatches <= 5000)) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
 		bCalcFlag = true;
 
-		TPhraseTagListList lstlstResults;
 		QList<int> lstNdxStart;
 		QList<int> lstNdxEnd;
 		QList<CRelIndex> lstScopedRefs;
 		QList<bool> lstNeedScope;
-		int nNumPhrases = 0;
+		int nNumPhrases = lstPhrases.size();
 		CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode = ui->widgetSearchCriteria->searchScopeMode();
 
 		// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 		//		setting the phrase size details:
-		for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
-			const CParsedPhrase *phrase = lstPhrases.at(ndx);
-			TIndexList lstPhraseResults = phrase->GetNormalizedSearchResults();
-			assert(lstPhraseResults.size() != 0);		// Should have already eliminated phrases with no results in loop above
-			nNumPhrases++;
-			TPhraseTagList aLstOfResults;
-			for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
-				aLstOfResults.append(TPhraseTag(CRelIndex(DenormalizeIndex(lstPhraseResults.at(ndxResults))), phrase->phraseSize()));
-			}
-			lstlstResults.append(aLstOfResults);
+		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 			lstNdxStart.append(0);
 			lstNdxEnd.append(0);
 			lstScopedRefs.append(CRelIndex());
@@ -977,18 +968,19 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		while (!bDone) {
 			uint32_t nMaxScope = 0;
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+				const CParsedPhrase *phrase = lstPhrases.at(ndx);
 				if (!lstNeedScope[ndx]) {
 					nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
 					continue;		// Only find next scope for a phrase if we need it
 				}
 				lstNdxStart[ndx] = lstNdxEnd[ndx];		// Begin at the last ending position
-				if (lstNdxStart[ndx] >= lstlstResults[ndx].size()) {
+				if (lstNdxStart[ndx] >= phrase->GetPhraseTagSearchResults().size()) {
 					bDone = true;
 					break;
 				}
-				lstScopedRefs[ndx] = ScopeIndex(lstlstResults[ndx].at(lstNdxStart[ndx]).first, nSearchScopeMode);
-				for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < lstlstResults[ndx].size(); ++lstNdxEnd[ndx]) {
-					CRelIndex ndxScopedTemp = ScopeIndex(lstlstResults[ndx].at(lstNdxEnd[ndx]).first, nSearchScopeMode);
+				lstScopedRefs[ndx] = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]).first, nSearchScopeMode);
+				for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < phrase->GetPhraseTagSearchResults().size(); ++lstNdxEnd[ndx]) {
+					CRelIndex ndxScopedTemp = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxEnd[ndx]).first, nSearchScopeMode);
 					if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 				}
 				// Here lstNdxEnd will be one more than the number of matching, either the next index
@@ -1013,13 +1005,18 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 			if (bMatch) {
 				// We got a match, so push results to output and flag for new scopes:
 				for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-					lstPhrases.at(ndx)->SetContributingNumberOfMatches(lstPhrases.at(ndx)->GetContributingNumberOfMatches() + (lstNdxEnd[ndx]-lstNdxStart[ndx]));
+					const CParsedPhrase *phrase = lstPhrases.at(ndx);
+					phrase->SetContributingNumberOfMatches(phrase->GetContributingNumberOfMatches() + (lstNdxEnd[ndx]-lstNdxStart[ndx]));
 					for ( ; lstNdxStart[ndx]<lstNdxEnd[ndx]; ++lstNdxStart[ndx]) {
-						lstResults.append(lstlstResults[ndx].at(lstNdxStart[ndx]));
+						phrase->AddScopedPhraseTagSearchResult(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]));
 					}
 					lstNeedScope[ndx] = true;
 				}
 			}
+		}
+		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+			const CParsedPhrase *phrase = lstPhrases.at(ndx);
+			lstResults.append(phrase->GetScopedPhraseTagSearchResults());
 		}
 	}
 
@@ -1103,6 +1100,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	if (pModel) {
+		pModel->setParsedPhrases(lstPhrases);		// Do this before we set the verse list in case one of the existing phrases is disappearing
 //		if (lstReferences.size() <= 2000) {
 			pModel->setVerseList(lstReferences);
 //		} else {

@@ -37,9 +37,13 @@ public:
 	void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
 	uint32_t GetContributingNumberOfMatches() const { return m_nContributingMatchCount; }
 	void SetContributingNumberOfMatches(uint32_t nMatches) const { m_nContributingMatchCount = nMatches; }
+	const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
+	void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults.clear(); }
+	void AddScopedPhraseTagSearchResult(const TPhraseTag &tag) const { m_lstScopedPhraseTagResults.append(tag); }
 	// -------
 	uint32_t GetNumberOfMatches() const;
-	TIndexList GetNormalizedSearchResults() const;
+	const TIndexList &GetNormalizedSearchResults() const;			// Returned as reference so we don't have to keep copying
+	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
 	uint32_t GetMatchLevel() const;
 	uint32_t GetCursorMatchLevel() const;
 	QString GetCursorWord() const;
@@ -82,10 +86,13 @@ protected:
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
+	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
 	// -------
 	mutable uint32_t m_nContributingMatchCount;		// Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
+	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// Lost of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic.
 
+	// -------
 	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
