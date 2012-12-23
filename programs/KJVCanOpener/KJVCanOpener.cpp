@@ -986,11 +986,9 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 					bDone = true;
 					break;
 				}
-				lstScopedRefs[ndx] = lstlstResults[ndx].at(lstNdxStart[ndx]).first;
-				ScopeIndex(lstScopedRefs[ndx], nSearchScopeMode);
+				lstScopedRefs[ndx] = ScopeIndex(lstlstResults[ndx].at(lstNdxStart[ndx]).first, nSearchScopeMode);
 				for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < lstlstResults[ndx].size(); ++lstNdxEnd[ndx]) {
-					CRelIndex ndxScopedTemp = lstlstResults[ndx].at(lstNdxEnd[ndx]).first;
-					ScopeIndex(ndxScopedTemp, nSearchScopeMode);
+					CRelIndex ndxScopedTemp = ScopeIndex(lstlstResults[ndx].at(lstNdxEnd[ndx]).first, nSearchScopeMode);
 					if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 				}
 				// Here lstNdxEnd will be one more than the number of matching, either the next index
@@ -1139,12 +1137,14 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	emit changedSearchResults();
 }
 
-void CKJVCanOpener::ScopeIndex(CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
+CRelIndex CKJVCanOpener::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
 {
+	CRelIndex indexScoped;
+
 	switch (nMode) {
 		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
 			// For Whole Bible, we'll set the Book to 1 so that anything in the Bible matches:
-			if (index.isSet()) index = CRelIndex(1, 0, 0, 0);
+			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
 			break;
 		case (CKJVSearchCriteria::SSME_TESTAMENT):
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
@@ -1155,26 +1155,27 @@ void CKJVCanOpener::ScopeIndex(CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOP
 					unsigned int nBook = 1;
 					for (unsigned int i=1; i<nTestament; ++i)
 						nBook += g_lstTestaments[i-1].m_nNumBk;
-					index = CRelIndex();
-					index.setBook(nBook);
+					indexScoped = CRelIndex(nBook, 0, 0 ,0);
 				}
 			}
 			break;
 		case (CKJVSearchCriteria::SSME_BOOK):
 			// For Book, mask off Chapter, Verse, and Word:
-			index = CRelIndex(index.book(), 0, 0, 0);
+			indexScoped = CRelIndex(index.book(), 0, 0, 0);
 			break;
 		case (CKJVSearchCriteria::SSME_CHAPTER):
 			// For Chapter, mask off Verse and Word:
-			index = CRelIndex(index.book(), index.chapter(), 0, 0);
+			indexScoped = CRelIndex(index.book(), index.chapter(), 0, 0);
 			break;
 		case (CKJVSearchCriteria::SSME_VERSE):
 			// For Verse, mask off word:
-			index = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
+			indexScoped = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
 			break;
 		default:
 			break;
 	}
+
+	return indexScoped;
 }
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)

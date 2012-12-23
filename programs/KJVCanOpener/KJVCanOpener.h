@@ -143,7 +143,7 @@ protected slots:
 	void on_HelpAbout();
 
 private:
-	static void ScopeIndex(CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
+	static CRelIndex ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 // Data Private:
 private:
