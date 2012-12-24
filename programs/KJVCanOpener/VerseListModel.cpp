@@ -55,24 +55,24 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		if (bHeading) strToolTip += refVerse.getHeading() + "\n";
 		QPair<int, int> nResultsIndexes = GetResultsIndexes(index.row());
 		if (nResultsIndexes.first != nResultsIndexes.second) {
-			strToolTip += QString("%1Results %2-%3 of %4\n")
+			strToolTip += QString("%1Search Results %2-%3 of %4 phrase occurrences\n")
 									.arg(bHeading ? "    " : "")
 									.arg(nResultsIndexes.first)
 									.arg(nResultsIndexes.second)
 									.arg(GetTotalResultsCount());
 		} else {
 			assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
-			strToolTip += QString("%1Result %2 of %3\n")
+			strToolTip += QString("%1Search Result %2 of %3 phrase occurrences\n")
 									.arg(bHeading ? "    " : "")
 									.arg(nResultsIndexes.first)
 									.arg(GetTotalResultsCount());
 		}
 		QPair<int, int> nVerseResult = GetVerseIndexAndCount(index.row());
-		strToolTip += QString("%1    Verse %2 of %3\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
+		strToolTip += QString("%1    Verse %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
 		QPair<int, int> nChapterResult = GetChapterIndexAndCount(index.row());
-		strToolTip += QString("%1    Chapter %2 of %3\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
+		strToolTip += QString("%1    Chapter %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
 		QPair<int, int> nBookResult = GetBookIndexAndCount(index.row());
-		strToolTip += QString("%1    Book %2 of %3\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
+		strToolTip += QString("%1    Book %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
 		strToolTip += "\n";
 		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&

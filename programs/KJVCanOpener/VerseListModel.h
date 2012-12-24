@@ -65,13 +65,13 @@ public:
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results\n")
+					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results in Entire Bible\n")
 										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetPhraseTagSearchResults().size())
 										.arg(pPhrase->phrase());
 				}
 				if (pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Scoped Results\n")
+					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results in Search Scope\n")
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
 										.arg(pPhrase->phrase());
