@@ -3,6 +3,7 @@
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
+#include "KJVSearchCriteria.h"
 
 #include <QAbstractListModel>
 #include <QModelIndex>
@@ -198,7 +199,7 @@ public:
 	void setVerseList(const CVerseList &verses);
 
 	TParsedPhrasesList parsedPhrases() const;
-	TPhraseTagList setParsedPhrases(const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	TPhraseTagList setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) {
@@ -218,12 +219,15 @@ signals:
 public slots:
 
 private:
+	void buildScopedResultsInParsedPhrases();
 	TPhraseTagList buildVerseListFromParsedPhrases();
+	static CRelIndex ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	CVerseList m_lstVerses;
-	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged, used to generate tooltips appropos to entire search scope
+	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
+	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 };
 

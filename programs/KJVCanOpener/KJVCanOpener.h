@@ -142,9 +142,6 @@ protected slots:
 	void on_HelpManual();
 	void on_HelpAbout();
 
-private:
-	static CRelIndex ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
-
 // Data Private:
 private:
 	QString m_strUserDatabase;

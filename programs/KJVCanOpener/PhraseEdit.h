@@ -90,7 +90,7 @@ protected:
 	// -------
 	mutable uint32_t m_nContributingMatchCount;		// Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
-	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// Lost of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic.
+	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// Lost of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel
 
 	// -------
 	bool m_bCaseSensitive;
