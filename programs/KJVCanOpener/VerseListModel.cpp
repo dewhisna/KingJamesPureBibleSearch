@@ -220,12 +220,17 @@ TParsedPhrasesList CVerseListModel::parsedPhrases() const
 	return m_lstParsedPhrases;
 }
 
-void CVerseListModel::setParsedPhrases(const TParsedPhrasesList &phrases)
+TPhraseTagList CVerseListModel::setParsedPhrases(const TParsedPhrasesList &phrases)
 {
-	// Note: This doesn't change the basic model list. It's only used to provide
-	//		additional lookup data for the model objects for building of tooltips
-	//		that are appropriate for the entire search scope
+	// Note: Basic setting of this list doesn't change the model, as the phrases
+	//		themselves are used primarily for building of tooltips that are
+	//		appropriate for the entire search scope.  However, once these are
+	//		set, we'll call the buildVerseListFromParsedPhrases function that
+	//		will build and set the VerseList, which will change the model.
+	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
+	//		but down in setVerseList:
 	m_lstParsedPhrases = phrases;
+	return buildVerseListFromParsedPhrases();
 }
 
 QPair<int, int> CVerseListModel::GetResultsIndexes(int nRow) const
@@ -312,5 +317,52 @@ QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nRow) const
 QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nRow) const
 {
 	return QPair<int, int>(nRow+1, m_lstVerses.size());
+}
+
+TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
+{
+	CVerseList lstReferences;
+	TPhraseTagList lstResults;
+
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
+		assert(phrase != NULL);
+		lstResults.append(phrase->GetScopedPhraseTagSearchResults());
+	}
+
+	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+
+	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
+		if (!lstResults.at(ndxResults).first.isSet()) {
+			assert(false);
+			lstReferences.push_back(CVerseListItem(0, 0));
+			continue;
+		}
+		lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
+
+		CVerseListItem &verseItem(lstReferences.last());
+
+		if (ndxResults<(lstResults.size()-1)) {
+			bool bNextIsSameReference=false;
+			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+			do {
+				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+
+				if ((ndxRelative.book() == ndxNextRelative.book()) &&
+					(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
+					(ndxRelative.verse() == ndxNextRelative.verse())) {
+					verseItem.addPhraseTag(lstResults.at(ndxResults+1));
+					bNextIsSameReference=true;
+					ndxResults++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+		}
+	}
+
+	setVerseList(lstReferences);
+
+	return lstResults;
 }
 

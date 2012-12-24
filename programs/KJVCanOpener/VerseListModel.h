@@ -198,7 +198,7 @@ public:
 	void setVerseList(const CVerseList &verses);
 
 	TParsedPhrasesList parsedPhrases() const;
-	void setParsedPhrases(const TParsedPhrasesList &phrases);
+	TPhraseTagList setParsedPhrases(const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) {
@@ -207,16 +207,18 @@ public:
 		emit layoutChanged();
 	}
 
+	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
+	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
+	QPair<int, int> GetBookIndexAndCount(int nRow = -1) const;		// Returns the Search Result Book number and total number of books with results
+	QPair<int, int> GetChapterIndexAndCount(int nRow = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
+	QPair<int, int> GetVerseIndexAndCount(int nRow = -1) const;		// Returns the Search Result Verse and total number of verses with results (for completeness only)
+
 signals:
 
 public slots:
 
 private:
-	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
-	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
-	QPair<int, int> GetBookIndexAndCount(int nRow) const;		// Returns the Search Result Book number and total number of books with results
-	QPair<int, int> GetChapterIndexAndCount(int nRow) const;	// Returns the Search Result Chapter and total number of chapters with results
-	QPair<int, int> GetVerseIndexAndCount(int nRow) const;		// Returns the Search Result Verse and total number of verses with results (for completeness only)
+	TPhraseTagList buildVerseListFromParsedPhrases();
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)

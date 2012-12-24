@@ -936,9 +936,6 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		nMaxTotalMatches = qMax(nMaxTotalMatches, pPhrase->GetNumberOfMatches());
 	}
 
-	CVerseList lstReferences;
-	TPhraseTagList lstResults;
-
 	if ((g_bEnableNoLimits) || (nMaxTotalMatches <= 5000)) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
 		bCalcFlag = true;
 
@@ -1014,79 +1011,6 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 				}
 			}
 		}
-		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			const CParsedPhrase *phrase = lstPhrases.at(ndx);
-			lstResults.append(phrase->GetScopedPhraseTagSearchResults());
-		}
-	}
-
-	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
-
-
-	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-		if (!lstResults.at(ndxResults).first.isSet()) {
-			assert(false);
-			lstReferences.push_back(CVerseListItem(0, 0));
-			continue;
-		}
-		lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
-
-		CVerseListItem &verseItem(lstReferences.last());
-
-		if (ndxResults<(lstResults.size()-1)) {
-			bool bNextIsSameReference=false;
-			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
-			do {
-				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
-
-				if ((ndxRelative.book() == ndxNextRelative.book()) &&
-					(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
-					(ndxRelative.verse() == ndxNextRelative.verse())) {
-					verseItem.addPhraseTag(lstResults.at(ndxResults+1));
-					bNextIsSameReference=true;
-					ndxResults++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
-		}
-	}
-	int nChapters = 0;		// Results counts in Chapters
-	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-		nChapters++;		// Count the chapter we are on and skip the ones that are on the same chapter:
-		if (ndxResults<(lstResults.size()-1)) {
-			bool bNextIsSameReference=false;
-			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
-			do {
-				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
-
-				if ((ndxRelative.book() == ndxNextRelative.book()) &&
-					(ndxRelative.chapter() == ndxNextRelative.chapter())) {
-					bNextIsSameReference=true;
-					ndxResults++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
-		}
-	}
-	int nBooks = 0;			// Results counts in Books
-	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
-		if (ndxResults<(lstResults.size()-1)) {
-			bool bNextIsSameReference=false;
-			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
-			do {
-				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
-
-				if (ndxRelative.book() == ndxNextRelative.book()) {
-					bNextIsSameReference=true;
-					ndxResults++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
-		}
 	}
 
 	// ----------------------------
@@ -1098,28 +1022,35 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	// ----------------------------
 
+	int nVerses = 0;		// Results counts in Verses
+	int nChapters = 0;		// Results counts in Chapters
+	int nBooks = 0;			// Results counts in Books
+	int nResults = 0;		// Total number of Results in Scope
+	TPhraseTagList lstResults;
+
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	if (pModel) {
-		pModel->setParsedPhrases(lstPhrases);		// Do this before we set the verse list in case one of the existing phrases is disappearing
-//		if (lstReferences.size() <= 2000) {
-			pModel->setVerseList(lstReferences);
-//		} else {
-//			pModel->setVerseList(CVerseList());
-//		}
+		lstResults = pModel->setParsedPhrases(lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
+		nVerses = pModel->GetVerseIndexAndCount().second;
+		nChapters = pModel->GetChapterIndexAndCount().second;
+		nBooks = pModel->GetBookIndexAndCount().second;
+		nResults = pModel->GetTotalResultsCount();
+	} else {
+		assert(false);
 	}
 
 	if (bCalcFlag) {
 		ui->lblSearchResultsCount->setText(QString("Found %1 Occurrences\n    in %2 Verses in %3 Chapters in %4 Books")
-						.arg(lstResults.size())
-						.arg(lstReferences.size())
+						.arg(nResults)
+						.arg(nVerses)
 						.arg(nChapters)
 						.arg(nBooks));
 		m_bLastCalcSuccess = true;
-		m_nLastSearchOccurrences = lstResults.size();
-		m_nLastSearchVerses = lstReferences.size();
+		m_nLastSearchOccurrences = nResults;
+		m_nLastSearchVerses = nVerses;
 		m_nLastSearchChapters = nChapters;
 		m_nLastSearchBooks = nBooks;
-		ui->widgetSearchCriteria->enableCopySearchPhraseSummary(lstResults.size() > 0);
+		ui->widgetSearchCriteria->enableCopySearchPhraseSummary(nResults > 0);
 	} else {
 		ui->lblSearchResultsCount->setText(QString("Found %1 possible matches\n(too many to process)").arg(nTotalMatches));
 		m_bLastCalcSuccess = false;
