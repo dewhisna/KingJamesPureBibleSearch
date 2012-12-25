@@ -10,6 +10,7 @@
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
 #include "Highlighter.h"
+#include "version.h"
 
 #include <assert.h>
 
@@ -33,6 +34,10 @@
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocumentFragment>
 #include <QTimer>
+#include <QFileDialog>
+#include <QSettings>
+
+#define KJS_FILE_VERSION 1			// Current KJS File Version
 
 // ============================================================================
 
@@ -406,9 +411,28 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu("&File");
+
+	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), "&New Search", this, SLOT(on_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction->setStatusTip("Clear All Search Phrases and Begin New Search");
+	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
+	ui->mainToolBar->addAction(pAction);
+
+	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), "&Open Search...", this, SLOT(on_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
+	pAction->setStatusTip("Open a previously saved KJV Search File");
+	pAction->setToolTip("Open a previously saved KJV Search File");
+	ui->mainToolBar->addAction(pAction);
+
+	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), "&Save Search...", this, SLOT(on_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
+	pAction->setStatusTip("Save current Search Phrases to a KJV Search File");
+	pAction->setToolTip("Save current Search Phrases to a KJV Search File");
+	ui->mainToolBar->addAction(pAction);
+
+	pFileMenu->addSeparator();
+	ui->mainToolBar->addSeparator();
+
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip("Exit the King James Can Opener Application");
-	pFileMenu->addAction(pAction);
+	pAction->setToolTip("Exit KJVCanOpener");
 
 	// --- Edit Menu
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
@@ -593,6 +617,119 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	return QMainWindow::closeEvent(event);
 }
 
+// ------------------------------------------------------------------
+
+void CKJVCanOpener::on_NewSearch()
+{
+	closeAllSearchPhrases();
+	addSearchPhrase();
+	ui->widgetSearchCriteria->setSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE);
+}
+
+void CKJVCanOpener::on_OpenSearch()
+{
+	QString strFilePathName = QFileDialog::getOpenFileName(this, "Open KJV Search File", QString(), "KJV Search Files (*.kjs)", NULL, QFileDialog::ReadOnly);
+	if (!strFilePathName.isEmpty())
+		if (!openKJVSearchFile(strFilePathName))
+			QMessageBox::warning(this, "KJV Search File Open Failed", "Failed to open and read the specified KJV Search File!");
+}
+
+void CKJVCanOpener::on_SaveSearch()
+{
+	QString strFilePathName = QFileDialog::getSaveFileName(this, "Save KJV Search File", QString(), "KJV Search Files (*.kjs)", NULL, 0);
+	if (!strFilePathName.isEmpty())
+		if (!saveKJVSearchFile(strFilePathName))
+			QMessageBox::warning(this, "KJV Search File Save Failed", "Failed to save the specified KJV Search File!");
+}
+
+void CKJVCanOpener::closeAllSearchPhrases()
+{
+	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
+		m_lstSearchPhraseEditors.at(ndx)->closeSearchPhrase();
+	}
+}
+
+bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
+{
+	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
+	if (kjsFile.status() != QSettings::NoError) return false;
+
+	unsigned int nFileVersion = 0;
+	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+
+	kjsFile.beginGroup("KJVCanOpener");
+	nFileVersion = kjsFile.value("KJSFileVersion").toUInt();
+	kjsFile.endGroup();
+
+	if (nFileVersion < KJS_FILE_VERSION) {
+		QMessageBox::warning(this, "Opening KJV Search File", "Warning: The file you are opening was saved on "
+									"an older version of KJVCanOpener.  Some manual editing may be necessary "
+									"to configure any new search options added since that older version.");
+	} else if (nFileVersion > KJS_FILE_VERSION) {
+		QMessageBox::warning(this, "Opening KJV Search File", "Warning: The file you are opening was created on "
+									"a newer version of KJVCanOpener.  It may contain settings for options not "
+									"available on this version of KJVCanOpener.  If so, those options will be "
+									"ignored.");
+	}
+
+	closeAllSearchPhrases();
+
+	kjsFile.beginGroup("SearchCriteria");
+	nSearchScope = static_cast<CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CKJVSearchCriteria::SSME_WHOLE_BIBLE).toInt());
+	if ((nSearchScope < CKJVSearchCriteria::SSME_WHOLE_BIBLE) ||
+		(nSearchScope > CKJVSearchCriteria::SSME_VERSE))
+		nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+	kjsFile.endGroup();
+
+	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
+
+	int nPhrases = kjsFile.beginReadArray("SearchPhrases");
+	for (int ndx = 0; ndx < nPhrases; ++ndx) {
+		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+		assert(pPhraseEditor != NULL);
+		kjsFile.setArrayIndex(ndx);
+		pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
+		pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
+	}
+	kjsFile.endArray();
+
+	return (kjsFile.status() == QSettings::NoError);
+}
+
+bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
+{
+	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
+	if (kjsFile.status() != QSettings::NoError) return false;
+
+	kjsFile.clear();
+
+	kjsFile.beginGroup("KJVCanOpener");
+	kjsFile.setValue("AppVersion", VER_QT);
+	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
+	kjsFile.endGroup();
+
+	kjsFile.beginGroup("SearchCriteria");
+	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchScopeMode());
+	kjsFile.endGroup();
+
+	int ndxCurrent = 0;
+	kjsFile.beginWriteArray("SearchPhrases");
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase().isEmpty()) continue;
+		kjsFile.setArrayIndex(ndxCurrent);
+		kjsFile.setValue("Phrase", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase());
+		kjsFile.setValue("CaseSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive());
+		ndxCurrent++;
+	}
+	kjsFile.endArray();
+
+	kjsFile.sync();
+
+	return (kjsFile.status() == QSettings::NoError);
+}
+
+// ------------------------------------------------------------------
+
 CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 {
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
@@ -608,6 +745,8 @@ CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
 	ui->scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
+	ui->scrollAreaSearchPhrases->ensureVisible((pPhraseWidget->sizeHint().width()/2),
+												nHeight - (pPhraseWidget->sizeHint().height()/2));
 	pPhraseWidget->focusEditor();
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);

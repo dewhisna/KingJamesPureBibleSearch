@@ -75,7 +75,6 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		strToolTip += QString("%1    Chapter %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
 		QPair<int, int> nBookResult = GetBookIndexAndCount(index.row());
 		strToolTip += QString("%1    Book %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
-		strToolTip += "\n";
 		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";

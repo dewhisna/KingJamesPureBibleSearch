@@ -51,3 +51,8 @@ void CKJVSearchCriteria::enableCopySearchPhraseSummary(bool bEnable)
 	ui->buttonCopySummary->setEnabled(bEnable);
 }
 
+void CKJVSearchCriteria::setSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)
+{
+	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(mode));
+}
+

@@ -97,6 +97,7 @@ public:
 	virtual ~CKJVSearchPhraseEdit();
 
 	const CParsedPhrase *parsedPhrase() const;
+	CPhraseLineEdit *phraseEditor() const;
 
 signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
@@ -109,10 +110,9 @@ public slots:
 	void enableCloseButton(bool bEnable = true);
 	void focusEditor() const;
 	void phraseStatisticsChanged() const;
+	void closeSearchPhrase();
 
 protected slots:
-	void on_closeSearchPhraseClicked();
-
 	void on_phraseChanged();
 	void on_CaseSensitiveChanged(bool bCaseSensitive);
 	void on_phraseAdd();

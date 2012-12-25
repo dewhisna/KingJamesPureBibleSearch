@@ -397,7 +397,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
 	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
 	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)));
-	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(on_closeSearchPhraseClicked()));
+	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
@@ -405,7 +405,7 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 	delete ui;
 }
 
-void CKJVSearchPhraseEdit::on_closeSearchPhraseClicked()
+void CKJVSearchPhraseEdit::closeSearchPhrase()
 {
 	emit closingSearchPhrase(this);
 	deleteLater();
@@ -432,6 +432,11 @@ const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 	return ui->editPhrase;
 }
 
+CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
+{
+	return ui->editPhrase;
+}
+
 void CKJVSearchPhraseEdit::on_phraseChanged()
 {
 	m_phraseEntry.m_strPhrase=ui->editPhrase->phrase();		// Use reconstituted phrase for save/restore
@@ -440,10 +445,10 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 
 	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
-	bool bHaveText = (!ui->editPhrase->toPlainText().isEmpty());
+	bool bHaveText = (!ui->editPhrase->phrase().isEmpty());
 	ui->buttonAddPhrase->setEnabled(bHaveText && !bUserFound && !bCommonFound);
 	ui->buttonDelPhrase->setEnabled(bHaveText && bUserFound);
-	ui->buttonClear->setEnabled(bHaveText);
+	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
 
 	emit phraseChanged(this);
 
@@ -477,7 +482,7 @@ void CKJVSearchPhraseEdit::on_phraseAdd()
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
 	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
+	ui->buttonDelPhrase->setEnabled(!ui->editPhrase->phrase().isEmpty());
 	emit phraseListChanged();
 }
 
@@ -489,7 +494,7 @@ void CKJVSearchPhraseEdit::on_phraseDel()
 		g_lstUserPhrases.removeAt(ndx);
 		g_bUserPhrasesDirty = true;
 	}
-	ui->buttonAddPhrase->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
+	ui->buttonAddPhrase->setEnabled(!ui->editPhrase->phrase().isEmpty());
 	ui->buttonDelPhrase->setEnabled(false);
 	emit phraseListChanged();
 }

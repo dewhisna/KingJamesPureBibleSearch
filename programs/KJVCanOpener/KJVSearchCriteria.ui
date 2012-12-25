@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>CKJVSearchCriteria</class>
  <widget class="QWidget" name="CKJVSearchCriteria">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>235</width>
+    <height>75</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -16,7 +24,10 @@
        <item>
         <widget class="QLabel" name="lblSearchScope">
          <property name="text">
-          <string>Search Scope:</string>
+          <string>Search &amp;Scope:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboSearchScope</cstring>
          </property>
         </widget>
        </item>
@@ -49,6 +60,9 @@
        <property name="icon">
         <iconset resource="KJVCanOpener.qrc">
          <normaloff>:/res/list_add.png</normaloff>:/res/list_add.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+P</string>
        </property>
        <property name="flat">
         <bool>true</bool>

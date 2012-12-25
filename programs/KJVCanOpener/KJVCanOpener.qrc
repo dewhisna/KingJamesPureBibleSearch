@@ -29,6 +29,9 @@
 		<file>res/green_about_question.png</file>
 		<file>res/help_icon1.png</file>
 		<file>res/help_book.png</file>
+		<file>res/file-new-icon2.png</file>
+		<file>res/save-file-icon3.png</file>
+		<file>res/open-file-icon3.png</file>
 		<file>res/exit.png</file>
     </qresource>
 </RCC>
