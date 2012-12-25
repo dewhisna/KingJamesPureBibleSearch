@@ -1053,12 +1053,6 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
-// TODO : CLEAN
-//	bool bCalcFlag = false;
-
-// TODO : CLEAN
-//	unsigned int nTotalMatches = 0;
-//	unsigned int nMaxTotalMatches = 0;
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
@@ -1067,9 +1061,6 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		pPhrase->SetIsDuplicate(false);
 		pPhrase->ClearScopedPhraseTagSearchResults();
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
-// TODO : CLEAN
-//			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
-//				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 			continue;		// Don't include phrases that had no matches of themselves
 		}
 		// Check for phrases with the same text and ignore them:
@@ -1082,9 +1073,6 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		}
 		if (bDuplicate) {
 			pPhrase->SetIsDuplicate(true);
-// TODO : CLEAN
-//			if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
-//				m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 			continue;
 		}
 
@@ -1096,16 +1084,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 			if (pPhrase->GetNumberOfMatches() < lstPhrases.at(ndxInsert)->GetNumberOfMatches()) break;
 		}
 		lstPhrases.insert(ndxInsert, pPhrase);
-
-// TODO : CLEAN
-//		nTotalMatches += pPhrase->GetNumberOfMatches();
-//		nMaxTotalMatches = qMax(nMaxTotalMatches, pPhrase->GetNumberOfMatches());
 	}
-
-// TODO : CLEAN
-////	if ((g_bEnableNoLimits) || (nMaxTotalMatches <= 5000)) {		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-//		bCalcFlag = true;
-////	}
 
 	// ----------------------------
 
@@ -1117,51 +1096,21 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->listViewSearchResults->model());
 	assert(pModel != NULL);
-// TODO : CLEAN
-//	if (bCalcFlag) {
-		lstResults = pModel->setParsedPhrases(ui->widgetSearchCriteria->searchScopeMode(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
 
-		nVerses = pModel->GetVerseIndexAndCount().second;
-		nChapters = pModel->GetChapterIndexAndCount().second;
-		nBooks = pModel->GetBookIndexAndCount().second;
-		nResults = pModel->GetTotalResultsCount();
-// TODO : CLEAN
-//	} else {
-//		lstResults = pModel->setParsedPhrases(ui->widgetSearchCriteria->searchScopeMode(), TParsedPhrasesList());
-//	}
+	lstResults = pModel->setParsedPhrases(ui->widgetSearchCriteria->searchScopeMode(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
+
+	nVerses = pModel->GetVerseIndexAndCount().second;
+	nChapters = pModel->GetChapterIndexAndCount().second;
+	nBooks = pModel->GetBookIndexAndCount().second;
+	nResults = pModel->GetTotalResultsCount();
 
 	// ----------------------------
 
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-// TODO : CLEAN
-//		if (m_lstSearchPhraseEditors.at(ndx) != pSearchPhrase)		// Don't notify the one that notified us, as it will be updating itself already
-			m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
+		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 	}
 
 	// ----------------------------
-
-// TODO : CLEAN
-//	if (bCalcFlag) {
-//		ui->lblSearchResultsCount->setText(QString("Found %1 Occurrences\n    in %2 Verses in %3 Chapters in %4 Books")
-//						.arg(nResults)
-//						.arg(nVerses)
-//						.arg(nChapters)
-//						.arg(nBooks));
-//		m_bLastCalcSuccess = true;
-//		m_nLastSearchOccurrences = nResults;
-//		m_nLastSearchVerses = nVerses;
-//		m_nLastSearchChapters = nChapters;
-//		m_nLastSearchBooks = nBooks;
-//		ui->widgetSearchCriteria->enableCopySearchPhraseSummary(nResults > 0);
-//	} else {
-//		ui->lblSearchResultsCount->setText(QString("Found %1 possible matches\n(too many to process)").arg(nTotalMatches));
-//		m_bLastCalcSuccess = false;
-//		m_nLastSearchOccurrences = 0;
-//		m_nLastSearchVerses = 0;
-//		m_nLastSearchChapters = 0;
-//		m_nLastSearchBooks = 0;
-//		ui->widgetSearchCriteria->enableCopySearchPhraseSummary(true);
-//	}
 
 	ui->lblSearchResultsCount->setText(QString("Found %1 Occurrences\n    in %2 Verses in %3 Chapters in %4 Books")
 					.arg(nResults)

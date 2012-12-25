@@ -7,8 +7,6 @@ CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractListModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING)
-// TODO : CLEAN
-//		m_bDisplayLimitExceeded(false)
 {
 }
 
@@ -17,8 +15,6 @@ CVerseListModel::CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_EN
 		m_lstVerses(verses),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(nDisplayMode)
-// TODO : CLEAN
-//		m_bDisplayLimitExceeded(false)
 {
 }
 
@@ -27,8 +23,6 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid()) return 0;
 
 	return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
-// TODO : CLEAN
-//	return m_lstVerses.count();
 }
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const

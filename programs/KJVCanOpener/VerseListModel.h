@@ -227,8 +227,6 @@ private:
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
-// TODO : CLEAN
-//	bool m_bDisplayLimitExceeded;				// Set to true when setting data that exceeds the maximum number we are allowed to display
 };
 
 // ============================================================================

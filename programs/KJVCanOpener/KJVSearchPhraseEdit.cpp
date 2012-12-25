@@ -477,11 +477,6 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 	//		CKJVCanOpener will be calling it for everyone (as a result of
 	//		the above emit statements, since not only does this editor
 	//		need to be updated, but all editors
-
-// TODO : CLEAN
-	// Do this after emitting above signal so parent can calculate the number
-	//		of contributing occurrences:
-	// phraseStatisticsChanged();
 }
 
 void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
