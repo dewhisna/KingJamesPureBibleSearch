@@ -36,6 +36,8 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+	QString strKJSFile;
+	bool bBuildDB = false;
 
 	app.setApplicationVersion(VER_QT);
 	app.setOrganizationDomain(VER_COMPANYDOMAIN_STR);
@@ -65,16 +67,22 @@ int main(int argc, char *argv[])
 //adb.BuildDatabase(fiDatabase.absoluteFilePath());
 //return 0;
 
-	if (argc > 1) {
-		QString strArg1(argv[1]);
-		if (strArg1.compare("/builddb", Qt::CaseInsensitive) == 0) {
-			CBuildDatabase bdb(splash);
-			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
-				QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
-				return -1;
-			}
-		} else if (strArg1.compare("/nolimits", Qt::CaseInsensitive) == 0) {
+	for (int ndx = 1; ndx < argc; ++ndx) {
+		QString strArg(argv[ndx]);
+		if (strArg.compare("/builddb", Qt::CaseInsensitive) == 0) {
+			bBuildDB = true;
+		} else if (strArg.compare("/nolimits", Qt::CaseInsensitive) == 0) {
 			g_bEnableNoLimits = true;
+		} else if ((!strArg.startsWith("/")) && (strKJSFile.isEmpty())) {
+			strKJSFile = strArg;
+		}
+	}
+
+	if (bBuildDB) {
+		CBuildDatabase bdb(splash);
+		if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
+			QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
+			return -1;
 		}
 	}
 
@@ -107,6 +115,8 @@ int main(int argc, char *argv[])
 	delete splash;
 
 	wMain.Initialize();
+
+	if (!strKJSFile.isEmpty()) wMain.openKJVSearchFile(strKJSFile);
 
 	return app.exec();
 }

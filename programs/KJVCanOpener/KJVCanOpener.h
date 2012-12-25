@@ -114,14 +114,16 @@ protected:
 signals:
 	void changedSearchResults();
 
+public slots:
+	bool openKJVSearchFile(const QString &strFilePathName);
+	bool saveKJVSearchFile(const QString &strFilePathName) const;
+
 protected slots:
 	void on_NewSearch();
 	void on_OpenSearch();
 	void on_SaveSearch();
 
 	void closeAllSearchPhrases();
-	bool openKJVSearchFile(const QString &strFilePathName);
-	bool saveKJVSearchFile(const QString &strFilePathName) const;
 
 	CKJVSearchPhraseEdit *addSearchPhrase();
 	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
