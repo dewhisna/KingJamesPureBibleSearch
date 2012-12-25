@@ -229,13 +229,14 @@ void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 /*
 	if (m_pStatusAction) {
 		QString strTemp;
-		for (int n=0; n<m_lstWords.size(); ++n) {
-			if (n==m_nCursorWord) strTemp += "(";
-			strTemp += m_lstWords[n];
-			if (n==m_nCursorWord) strTemp += ")";
-			strTemp += " ";
-		}
-		strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
+//		for (int n=0; n<m_lstWords.size(); ++n) {
+//			if (n==m_nCursorWord) strTemp += "(";
+//			strTemp += m_lstWords[n];
+//			if (n==m_nCursorWord) strTemp += ")";
+//			strTemp += " ";
+//		}
+//		strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
+		strTemp = QString("MatchLevel: %1  PhraseSize: %2").arg(GetMatchLevel()).arg(phraseSize());
 		setStatusTip(strTemp);
 		m_pStatusAction->setStatusTip(strTemp);
 		m_pStatusAction->showStatusText();
@@ -367,6 +368,7 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 
 CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
 	QWidget(parent),
+	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
 {
@@ -439,22 +441,47 @@ CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 
 void CKJVSearchPhraseEdit::on_phraseChanged()
 {
-	m_phraseEntry.m_strPhrase=ui->editPhrase->phrase();		// Use reconstituted phrase for save/restore
-	m_phraseEntry.m_bCaseSensitive=ui->editPhrase->isCaseSensitive();
-	m_phraseEntry.m_nNumWrd=ui->editPhrase->phraseSize();
+	const CParsedPhrase *pPhrase = ui->editPhrase;
+	assert(pPhrase != NULL);
+
+	m_phraseEntry.m_strPhrase=pPhrase->phrase();		// Use reconstituted phrase for save/restore
+	m_phraseEntry.m_bCaseSensitive=pPhrase->isCaseSensitive();
+	m_phraseEntry.m_nNumWrd=pPhrase->phraseSize();
 
 	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
-	bool bHaveText = (!ui->editPhrase->phrase().isEmpty());
+	bool bHaveText = (!m_phraseEntry.m_strPhrase.isEmpty());
 	ui->buttonAddPhrase->setEnabled(bHaveText && !bUserFound && !bCommonFound);
 	ui->buttonDelPhrase->setEnabled(bHaveText && bUserFound);
 	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
 
-	emit phraseChanged(this);
+	// If last time, this phrase didn't have anything meaningful, if it still doesn't
+	//		then there's no need to send a notification as the overall search results
+	//		still won't be affected:
+	if (!m_bLastPhraseChangeHadResults) {
+		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
+			pPhrase->SetContributingNumberOfMatches(0);
+			pPhrase->SetIsDuplicate(false);
+			pPhrase->ClearScopedPhraseTagSearchResults();
+			phraseStatisticsChanged();
+		} else {
+			emit phraseChanged(this);
+			m_bLastPhraseChangeHadResults = true;
+		}
+	} else {
+		emit phraseChanged(this);
+		m_bLastPhraseChangeHadResults = ((pPhrase->isCompleteMatch()) && (pPhrase->GetNumberOfMatches() != 0));
+	}
 
+	// Note: No need to call phraseStatisticsChanged() here as the parent
+	//		CKJVCanOpener will be calling it for everyone (as a result of
+	//		the above emit statements, since not only does this editor
+	//		need to be updated, but all editors
+
+// TODO : CLEAN
 	// Do this after emitting above signal so parent can calculate the number
 	//		of contributing occurrences:
-	phraseStatisticsChanged();
+	// phraseStatisticsChanged();
 }
 
 void CKJVSearchPhraseEdit::phraseStatisticsChanged() const

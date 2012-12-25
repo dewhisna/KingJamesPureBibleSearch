@@ -122,6 +122,7 @@ protected slots:
 // Data Private:
 private:
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
+	bool m_bLastPhraseChangeHadResults;	// True if the last on_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications
 	bool m_bUpdateInProgress;			// case-sensitivity update in progress (to guard against re-entrance)
 
 // UI Private:

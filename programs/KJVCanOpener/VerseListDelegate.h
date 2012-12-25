@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
+#include <QHelpEvent>
 
 class CVerseListDelegate : public QStyledItemDelegate
 {
@@ -22,7 +23,7 @@ public:
 signals:
 
 public slots:
-
+	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 protected:
 	QAbstractItemView* parentView() const { return static_cast<QAbstractItemView*>(QObject::parent()); }

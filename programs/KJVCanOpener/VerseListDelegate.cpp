@@ -10,6 +10,8 @@
 #include <QRect>
 #include <QTextDocument>
 #include <QAbstractTextDocumentLayout>
+#include <QToolTip>
+#include <QWhatsThis>
 
 CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 	:	QStyledItemDelegate(parent),
@@ -70,13 +72,13 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 
 QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-
 	QStyleOptionViewItemV4 optionV4 = option;
 	initStyleOption(&optionV4, index);
 	QStyle* style = (optionV4.widget ? optionV4.widget->style() : QApplication::style());
 
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
+		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
 		QTextDocument doc;
 		CPhraseNavigator navigator(doc);
 		CSearchResultHighlighter highlighter(item.phraseTags());
@@ -101,5 +103,49 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 	if (value.isValid())
 		return qvariant_cast<QSize>(value);
 	return style->sizeFromContents(QStyle::CT_ItemViewItem, &optionV4, QSize(), optionV4.widget);
+}
+
+bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+	Q_UNUSED(option);
+
+	if (!event || !view)
+		return false;
+
+	switch (event->type()) {
+		case QEvent::ToolTip:
+		{
+			QHelpEvent *he = static_cast<QHelpEvent*>(event);
+			if (!m_model.hasExceededDisplayLimit()) {
+				QVariant tooltip = index.data(Qt::ToolTipRole);
+				if (tooltip.canConvert<QString>()) {
+					QToolTip::showText(he->globalPos(), tooltip.toString(), view);
+					return true;
+				}
+			} else {
+				QToolTip::showText(he->globalPos(), "Too many results to Display!", view);
+				return true;
+			}
+			break;
+		}
+		case QEvent::QueryWhatsThis:
+			if (index.data(Qt::WhatsThisRole).isValid())
+				return true;
+			break;
+		case QEvent::WhatsThis:
+		{
+			QHelpEvent *he = static_cast<QHelpEvent*>(event);
+			QVariant whatsthis = index.data(Qt::WhatsThisRole);
+			if (whatsthis.canConvert<QString>()) {
+				QWhatsThis::showText(he->globalPos(), whatsthis.toString(), view);
+				return true;
+			}
+			break;
+		}
+		default:
+			break;
+	}
+
+	return false;
 }
 

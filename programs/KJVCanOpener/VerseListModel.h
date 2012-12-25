@@ -202,17 +202,15 @@ public:
 	TPhraseTagList setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
-	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode) {
-		emit layoutAboutToBeChanged();
-		m_nDisplayMode = nDisplayMode;
-		emit layoutChanged();
-	}
+	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 
 	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
 	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
 	QPair<int, int> GetBookIndexAndCount(int nRow = -1) const;		// Returns the Search Result Book number and total number of books with results
 	QPair<int, int> GetChapterIndexAndCount(int nRow = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
 	QPair<int, int> GetVerseIndexAndCount(int nRow = -1) const;		// Returns the Search Result Verse and total number of verses with results (for completeness only)
+
+	bool hasExceededDisplayLimit() const;
 
 signals:
 
@@ -229,6 +227,8 @@ private:
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
+// TODO : CLEAN
+//	bool m_bDisplayLimitExceeded;				// Set to true when setting data that exceeds the maximum number we are allowed to display
 };
 
 // ============================================================================

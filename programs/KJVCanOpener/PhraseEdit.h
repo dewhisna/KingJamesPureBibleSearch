@@ -41,6 +41,7 @@ public:
 	void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults.clear(); }
 	void AddScopedPhraseTagSearchResult(const TPhraseTag &tag) const { m_lstScopedPhraseTagResults.append(tag); }
 	// -------
+	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
 	uint32_t GetNumberOfMatches() const;
 	const TIndexList &GetNormalizedSearchResults() const;			// Returned as reference so we don't have to keep copying
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying

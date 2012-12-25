@@ -7,6 +7,8 @@ CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractListModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING)
+// TODO : CLEAN
+//		m_bDisplayLimitExceeded(false)
 {
 }
 
@@ -15,6 +17,8 @@ CVerseListModel::CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_EN
 		m_lstVerses(verses),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(nDisplayMode)
+// TODO : CLEAN
+//		m_bDisplayLimitExceeded(false)
 {
 }
 
@@ -22,7 +26,9 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid()) return 0;
 
-	return m_lstVerses.count();
+	return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
+// TODO : CLEAN
+//	return m_lstVerses.count();
 }
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
@@ -128,8 +134,9 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 
 bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-	if (count < 1 || row < 0 || row > rowCount(parent))
+	if (count < 1 || row < 0 || row > m_lstVerses.size())
 		return false;
+	if (parent.isValid()) return false;
 
 	beginInsertRows(QModelIndex(), row, row + count - 1);
 
@@ -143,8 +150,9 @@ bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-	if (count <= 0 || row < 0 || (row + count) > rowCount(parent))
+	if (count <= 0 || row < 0 || (row + count) > m_lstVerses.size())
 		return false;
+	if (parent.isValid()) return false;
 
 	beginRemoveRows(QModelIndex(), row, row + count - 1);
 
@@ -234,6 +242,25 @@ TPhraseTagList CVerseListModel::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOP
 	m_nSearchScopeMode = nSearchScopeMode;
 	buildScopedResultsInParsedPhrases();
 	return buildVerseListFromParsedPhrases();
+}
+
+bool CVerseListModel::hasExceededDisplayLimit() const
+{
+	if (g_bEnableNoLimits) return false;
+	return ((m_lstVerses.size() > g_nSearchLimit) && (m_nDisplayMode != VDME_HEADING));
+}
+
+void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
+{
+	if (!hasExceededDisplayLimit()) {
+		emit layoutAboutToBeChanged();
+		m_nDisplayMode = nDisplayMode;
+		emit layoutChanged();
+	} else {
+		emit beginResetModel();
+		m_nDisplayMode = nDisplayMode;
+		emit endResetModel();
+	}
 }
 
 QPair<int, int> CVerseListModel::GetResultsIndexes(int nRow) const
@@ -484,4 +511,5 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria
 
 	return indexScoped;
 }
+
 

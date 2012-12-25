@@ -255,12 +255,13 @@ void CParsedPhrase::FindWords()
 			}
 		}
 		bool bMatch = false;
+		bool bFirstWordExactMatch = false;
 		for (/* itrWordMap Set Above */; itrWordMap != itrWordMapEnd; ++itrWordMap) {
 			QRegExp expNC(strCurWord, Qt::CaseInsensitive, QRegExp::Wildcard);
 			if (expNC.exactMatch(itrWordMap->first)) {
 				if (!isCaseSensitive()) {
 					bMatch = true;
-					if (m_nLevel == 0) {
+					if (ndx == 0) {
 						m_lstMatchMapping.insert(m_lstMatchMapping.end(), itrWordMap->second.m_ndxNormalized.begin(), itrWordMap->second.m_ndxNormalized.end());
 					} else {
 						break;		// If we aren't adding more indices, once we get a match, we are done...
@@ -272,7 +273,7 @@ void CParsedPhrase::FindWords()
 					for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
 						if (expCase.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
 							bMatch = true;
-							if (m_nLevel == 0) {
+							if (ndx == 0) {
 								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
 												&wordEntry.m_ndxNormalized[nCount],
 												&wordEntry.m_ndxNormalized[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
@@ -282,8 +283,12 @@ void CParsedPhrase::FindWords()
 						}
 						nCount += wordEntry.m_lstAltWordCount.at(ndxAltWord);
 					}
-					if (bMatch && (m_nLevel != 0)) break;		// If we aren't adding more indices, stop once we get a match
+					if (bMatch && (ndx != 0)) break;		// If we aren't adding more indices, stop once we get a match
 				}
+			}
+			if (ndx == 0) {
+				QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+				if (exp.exactMatch(itrWordMap->first)) bFirstWordExactMatch = true;
 			}
 		}
 		if (!bMatch) m_lstMatchMapping.clear();
@@ -302,7 +307,8 @@ void CParsedPhrase::FindWords()
 			m_lstMatchMapping = lstNextMapping;
 		}
 
-		if (m_lstMatchMapping.size()) m_nLevel++;
+		if (((m_lstMatchMapping.size() != 0) && (ndx > 0)) ||
+			((bFirstWordExactMatch) && (ndx == 0))) m_nLevel++;
 
 		if (ndx < m_nCursorWord) {
 			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possibilities is calculated at the word right before it
