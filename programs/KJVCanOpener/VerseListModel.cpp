@@ -4,14 +4,14 @@
 #include <QModelIndexList>
 
 CVerseListModel::CVerseListModel(QObject *parent)
-	:	QAbstractListModel(parent),
+	:	QAbstractItemModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING)
 {
 }
 
 CVerseListModel::CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_ENUM nDisplayMode, QObject *parent)
-	:	QAbstractListModel(parent),
+	:	QAbstractItemModel(parent),
 		m_lstVerses(verses),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(nDisplayMode)
@@ -23,6 +23,24 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid()) return 0;
 
 	return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
+}
+
+int CVerseListModel::columnCount(const QModelIndex &parent) const
+{
+	if (parent.isValid()) return 0;
+
+	return 1;
+}
+
+QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &parent) const
+{
+	return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+}
+
+QModelIndex CVerseListModel::parent(const QModelIndex &index) const
+{
+	Q_UNUSED(index);
+	return QModelIndex();
 }
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const

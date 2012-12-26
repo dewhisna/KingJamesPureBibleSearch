@@ -5,7 +5,7 @@
 #include "PhraseEdit.h"
 #include "KJVSearchCriteria.h"
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QList>
 #include <QStringList>
@@ -160,7 +160,7 @@ typedef QList<CVerseListItem> CVerseList;
 
 // ============================================================================
 
-class CVerseListModel : public QAbstractListModel
+class CVerseListModel : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
@@ -182,6 +182,10 @@ public:
 	CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_ENUM nDisplayMode = VDME_HEADING, QObject *parent = 0);
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
