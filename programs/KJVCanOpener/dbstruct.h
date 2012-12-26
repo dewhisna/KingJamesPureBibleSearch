@@ -193,8 +193,9 @@ struct XformLower {
 class CTestamentEntry
 {
 public:
-	CTestamentEntry()
-	:	m_nNumBk(0),
+	CTestamentEntry(const QString &strTstName = QString())
+	:	m_strTstName(strTstName),
+		m_nNumBk(0),
 		m_nNumChp(0),
 		m_nNumVrs(0),
 		m_nNumWrd(0)
@@ -211,6 +212,8 @@ public:
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
 
 extern TTestamentList g_lstTestaments;		// Global Testament List
+
+extern CTestamentEntry g_EntireBible;		// Entire Bible stats, calculated from testament stats in ReadDB.
 
 // ============================================================================
 

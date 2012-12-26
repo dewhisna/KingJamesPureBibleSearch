@@ -358,7 +358,7 @@ void CSearchResultsListView::handle_selectionChanged()
 	if (!pModel->hasExceededDisplayLimit()) {
 		strStatusText = QString("%1 Search Result(s) Selected").arg(nNumResultsSelected);
 	} else {
-		strStatusText = "Too many search results to display!!";
+		strStatusText = "Too many search results to display in this mode!!  Try Switching to View References Only mode.";
 	}
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
@@ -828,7 +828,8 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	mdlPhrases.sort(0);
 
 	QString strScope;
-	switch (ui->widgetSearchCriteria->searchScopeMode()) {
+	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchScopeMode();
+	switch (nScope) {
 		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
 			strScope = "in the Entire Bible";
 			break;
@@ -849,24 +850,48 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	}
 
 	QString strSummary;
-	strSummary += QString("Search of %1 Phrase(s) %2:\n")
-							.arg(nNumPhrases)
-							.arg(strScope);
-	if (nNumPhrases) strSummary += "\n";
+	if (nNumPhrases != 1) {
+		strSummary += QString("Search of %1 Phrases %2:\n")
+								.arg(nNumPhrases)
+								.arg(strScope);
+	} else {
+		strSummary += QString("Search of: ");
+	}
+	if (nNumPhrases > 1) strSummary += "\n";
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
-		strSummary += QString("    \"%1\" (Found %2 Times, %3 in Scope)\n")
-							.arg(mdlPhrases.index(ndx).data().toString())
-							.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-							.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+		if (nNumPhrases > 1) {
+			if (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE) {
+				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible, %4 in Scope)\n")
+									.arg(mdlPhrases.index(ndx).data().toString())
+									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
+									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "")
+									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+			} else {
+				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible)\n")
+									.arg(mdlPhrases.index(ndx).data().toString())
+									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
+									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "");
+				assert(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+			}
+		} else {
+			strSummary += QString("\"%1\"\n").arg(mdlPhrases.index(ndx).data().toString());
+		}
 	}
-	if (bCaseSensitive) strSummary += QString("\n    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
+	if (bCaseSensitive) {
+		if (nNumPhrases > 1) strSummary += "\n";
+		strSummary += QString("    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
+	}
 	if (nNumPhrases) strSummary += "\n";
 	if (m_bLastCalcSuccess) {
-		strSummary += QString("Found %1 Occurrences\n").arg(m_nLastSearchOccurrences);
-		strSummary += QString("    in %1 Verses\n").arg(m_nLastSearchVerses);
-		strSummary += QString("    in %1 Chapters\n").arg(m_nLastSearchChapters);
-		strSummary += QString("    in %1 Books\n").arg(m_nLastSearchBooks);
+		strSummary += QString("Found %1 %2Occurrence%3\n").arg(m_nLastSearchOccurrences).arg((nNumPhrases > 1) ? "Combined " : "").arg((m_nLastSearchOccurrences != 1) ? "s" : "");
+		strSummary += QString("    in %1 Verse%2\n").arg(m_nLastSearchVerses).arg((m_nLastSearchVerses != 1) ? "s" : "");
+		strSummary += QString("    in %1 Chapter%2\n").arg(m_nLastSearchChapters).arg((m_nLastSearchChapters != 1) ? "s" : "");
+		strSummary += QString("    in %1 Book%2\n").arg(m_nLastSearchBooks).arg((m_nLastSearchBooks != 1) ? "s" : "");
+		strSummary += "\n";
+		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumVrs - m_nLastSearchVerses).arg(((g_EntireBible.m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumChp - m_nLastSearchChapters).arg(((g_EntireBible.m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumBk - m_nLastSearchBooks).arg(((g_EntireBible.m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
 	} else {
 		strSummary += QString("Search was incomplete -- too many possible matches\n");
 	}
@@ -1112,11 +1137,25 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	// ----------------------------
 
-	ui->lblSearchResultsCount->setText(QString("Found %1 Occurrences\n    in %2 Verses in %3 Chapters in %4 Books")
-					.arg(nResults)
-					.arg(nVerses)
-					.arg(nChapters)
-					.arg(nBooks));
+	QString strResults;
+
+	strResults += QString("Found %1 Occurrence%2\n").arg(nResults).arg((nResults != 1) ? "s" : "");
+	strResults += QString("    in %1 Verse%2 in %3 Chapter%4 in %5 Book%6")
+							.arg(nVerses).arg((nVerses != 1) ? "s" : "")
+							.arg(nChapters).arg((nChapters != 1) ? "s" : "")
+							.arg(nBooks).arg((nBooks != 1) ? "s" : "");
+	if (nResults > 0) {
+		strResults += "\n";
+		strResults += QString("    Not found at all in %1 Verse%2 of the Bible\n")
+								.arg(g_EntireBible.m_nNumVrs - nVerses).arg(((g_EntireBible.m_nNumVrs - nVerses) != 1) ? "s" : "");
+		strResults += QString("    Not found at all in %1 Chapter%2 of the Bible\n")
+								.arg(g_EntireBible.m_nNumChp - nChapters).arg(((g_EntireBible.m_nNumChp - nChapters) != 1) ? "s" : "");
+		strResults += QString("    Not found at all in %1 Book%2 of the Bible")
+								.arg(g_EntireBible.m_nNumBk - nBooks).arg(((g_EntireBible.m_nNumBk - nBooks) != 1) ? "s" : "");
+	}
+
+	ui->lblSearchResultsCount->setText(strResults);
+
 	m_bLastCalcSuccess = true;
 	m_nLastSearchOccurrences = nResults;
 	m_nLastSearchVerses = nVerses;

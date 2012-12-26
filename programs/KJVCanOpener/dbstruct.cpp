@@ -8,6 +8,9 @@
 
 #include <assert.h>
 
+// Global Entire Bible Stats:
+CTestamentEntry g_EntireBible;
+
 // Global Testament List:
 TTestamentList g_lstTestaments;
 

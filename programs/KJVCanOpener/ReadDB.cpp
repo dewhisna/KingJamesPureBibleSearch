@@ -78,6 +78,8 @@ bool CReadDatabase::ReadTOCTable()
 		return false;
 	}
 
+	g_EntireBible = CTestamentEntry("Entire Bible");
+
 	g_lstTOC.clear();
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM TOC");
@@ -100,6 +102,11 @@ bool CReadDatabase::ReadTOCTable()
 		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumChp += entryTOC.m_nNumChp;
 		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumVrs += entryTOC.m_nNumVrs;
 		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumWrd += entryTOC.m_nNumWrd;
+
+		g_EntireBible.m_nNumBk++;
+		g_EntireBible.m_nNumChp += entryTOC.m_nNumChp;
+		g_EntireBible.m_nNumVrs += entryTOC.m_nNumVrs;
+		g_EntireBible.m_nNumWrd += entryTOC.m_nNumWrd;
 	}
 
 // Used for debugging:
