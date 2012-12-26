@@ -1,6 +1,7 @@
 #include "VerseListDelegate.h"
 #include "PhraseEdit.h"
 #include "Highlighter.h"
+#include "ToolTipEdit.h"
 
 #include <QModelIndex>
 #include <QApplication>
@@ -115,15 +116,15 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
-			QHelpEvent *he = static_cast<QHelpEvent*>(event);
 			if (!m_model.hasExceededDisplayLimit()) {
 				QVariant tooltip = index.data(Qt::ToolTipRole);
 				if (tooltip.canConvert<QString>()) {
-					QToolTip::showText(he->globalPos(), tooltip.toString(), view);
+//					QToolTip::showText(event->globalPos(), tooltip.toString(), view);
+					CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view);
 					return true;
 				}
 			} else {
-				QToolTip::showText(he->globalPos(), "Too many search results to display in this mode!!\nTry Switching to View References Only mode.", view);
+				QToolTip::showText(event->globalPos(), "Too many search results to display in this mode!!\nTry Switching to View References Only mode.", view);
 				return true;
 			}
 			break;
@@ -134,10 +135,9 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 			break;
 		case QEvent::WhatsThis:
 		{
-			QHelpEvent *he = static_cast<QHelpEvent*>(event);
 			QVariant whatsthis = index.data(Qt::WhatsThisRole);
 			if (whatsthis.canConvert<QString>()) {
-				QWhatsThis::showText(he->globalPos(), whatsthis.toString(), view);
+				QWhatsThis::showText(event->globalPos(), whatsthis.toString(), view);
 				return true;
 			}
 			break;

@@ -20,6 +20,8 @@
 
 #include <assert.h>
 
+QWidget *g_pMainWindow = NULL;
+
 namespace {
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
 
@@ -110,6 +112,7 @@ int main(int argc, char *argv[])
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener wMain(fiUserDatabase.absoluteFilePath());
+	g_pMainWindow = &wMain;
 	wMain.show();
 	splash->finish(&wMain);
 	delete splash;
