@@ -26,6 +26,8 @@ public slots:
 	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 protected:
+	void SetDocumentText(QTextDocument &doc, const QModelIndex &index) const;
+
 	QAbstractItemView* parentView() const { return static_cast<QAbstractItemView*>(QObject::parent()); }
 
 	inline void setVerseListPalette(QPalette *palette) const {

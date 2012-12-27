@@ -7,59 +7,230 @@ CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractItemModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING),
-		m_nTreeMode(VTME_LINEAR)
+		m_nTreeMode(VTME_LIST),
+		m_bShowMissingLeafs(false)
 {
 }
 
-CVerseListModel::CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_ENUM nDisplayMode, QObject *parent)
+CVerseListModel::CVerseListModel(const CVerseList &verses, QObject *parent)
 	:	QAbstractItemModel(parent),
-		m_lstVerses(verses),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
-		m_nDisplayMode(nDisplayMode),
-		m_nTreeMode(VTME_LINEAR)
+		m_nDisplayMode(VDME_HEADING),
+		m_nTreeMode(VTME_LIST),
+		m_bShowMissingLeafs(false)
 {
+	setVerseList(verses);
 }
 
 int CVerseListModel::rowCount(const QModelIndex &parent) const
 {
-	if (parent.isValid()) return 0;
+	switch (m_nTreeMode) {
+		case VTME_LIST:
+		{
+			if (parent.isValid()) return 0;
+			return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
+		}
+		case VTME_TREE_BOOKS:
+		{
+			if (!parent.isValid()) return GetBookCount();
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) return GetVerseCount(ndxRel.book());
+			return 0;
+		}
+		case VTME_TREE_CHAPTERS:
+		{
+			if (!parent.isValid()) return GetBookCount();
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) return GetChapterCount(ndxRel.book());
+			if (ndxRel.verse() == 0) return GetVerseCount(ndxRel.book(), ndxRel.chapter());
+			return 0;
+		}
+		default:
+			break;
+	}
 
-	return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
+	return 0;
 }
 
 int CVerseListModel::columnCount(const QModelIndex &parent) const
 {
-	if (parent.isValid()) return 0;
+	switch (m_nTreeMode) {
+		case VTME_LIST:
+		{
+			if (!parent.isValid()) return 1;
+			return 0;
+		}
+		case VTME_TREE_BOOKS:
+		{
+			if (!parent.isValid()) return 1;
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) return 1;
+			return 0;
+		}
+		case VTME_TREE_CHAPTERS:
+		{
+			if (!parent.isValid()) return 1;
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) return 1;
+			if (ndxRel.verse() == 0) return 1;
+			return 0;
+		}
+		default:
+			break;
+	}
 
-	return 1;
+	return 0;
 }
 
 QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &parent) const
 {
-	return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+	if (!hasIndex(row, column, parent)) return QModelIndex();
+
+	switch (m_nTreeMode) {
+		case VTME_LIST:
+		{
+			return createIndex(row, column, m_lstVerses.at(row).getIndex().index());
+		}
+		case VTME_TREE_BOOKS:
+		{
+			if (!parent.isValid()) {
+				return createIndex(row, column, CRelIndex(BookByIndex(row), 0, 0, 0).index());
+			}
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) {
+				int nVerse = GetVerse(row, ndxRel.book());
+				if (nVerse == -1) return QModelIndex();
+				return createIndex(row, column, m_lstVerses.at(nVerse).getIndex().index());
+			}
+			return QModelIndex();
+		}
+		case VTME_TREE_CHAPTERS:
+		{
+			if (!parent.isValid()) {
+				return createIndex(row, column, CRelIndex(BookByIndex(row), 0, 0, 0).index());
+			}
+			CRelIndex ndxRel(parent.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.chapter() == 0) {
+				return createIndex(row, column, CRelIndex(ndxRel.book(), ChapterByIndex(parent.row(), row), 0, 0).index());
+			}
+			if (ndxRel.verse() == 0) {
+				int nVerse = GetVerse(row, ndxRel.book(), ndxRel.chapter());
+				if (nVerse == -1) return QModelIndex();
+				return createIndex(row, column, m_lstVerses.at(nVerse).getIndex().index());
+			}
+			return QModelIndex();
+		}
+		default:
+			break;
+	}
+
+	return QModelIndex();
 }
 
 QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 {
-	Q_UNUSED(index);
+	if (!index.isValid()) return QModelIndex();
+
+	switch (m_nTreeMode) {
+		case VTME_LIST:
+		{
+			return QModelIndex();
+		}
+		case VTME_TREE_BOOKS:
+		{
+			CRelIndex ndxRel(index.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.verse() != 0) {
+				if (!m_mapVerses.contains(ndxRel.index())) return QModelIndex();
+				return createIndex(IndexByBook(ndxRel.book()), 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());
+			}
+			return QModelIndex();
+		}
+		case VTME_TREE_CHAPTERS:
+		{
+			CRelIndex ndxRel(index.internalId());
+			assert(ndxRel.isSet());
+			if (ndxRel.verse() != 0) {
+				if (!m_mapVerses.contains(ndxRel.index())) return QModelIndex();
+				return createIndex(IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0).index());
+			}
+			if (ndxRel.chapter() != 0) {
+				return createIndex(IndexByBook(ndxRel.book()), 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());
+			}
+			return QModelIndex();
+		}
+		default:
+			break;
+	}
+
 	return QModelIndex();
 }
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 {
-	if (index.row() < 0 || index.row() >= m_lstVerses.size())
+	if (!index.isValid()) return QVariant();
+
+	CRelIndex ndxRel(index.internalId());
+	assert(ndxRel.isSet());
+	if (!ndxRel.isSet()) return QVariant();
+
+	if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			QString strBookText = ndxRel.bookName();
+			if (m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
+			int nResults = GetResultsByBook(ndxRel.book());
+			if (nResults) strBookText = QString("(%1) ").arg(nResults) + strBookText;
+			return strBookText;
+		}
+		if ((role == Qt::ToolTipRole) ||
+			(role == TOOLTIP_PLAINTEXT_ROLE) ||
+			(role == TOOLTIP_NOHEADING_ROLE) ||
+			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+			return QString();
+		}
+		return QVariant();
+	}
+
+	if (ndxRel.verse() == 0) {
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			QString strChapterText = ndxRel.bookName() + QString(" %1").arg(ndxRel.chapter());
+			if (m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
+			int nResults = GetResultsByChapter(ndxRel.book(), ndxRel.chapter());
+			if (nResults) strChapterText = QString("(%1) ").arg(nResults) + strChapterText;
+			return strChapterText;
+		}
+		if ((role == Qt::ToolTipRole) ||
+			(role == TOOLTIP_PLAINTEXT_ROLE) ||
+			(role == TOOLTIP_NOHEADING_ROLE) ||
+			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+			return QString();
+		}
+		return QVariant();
+	}
+
+	if (!m_mapVerses.contains(ndxRel.index())) return QVariant();
+	int nVerse = m_mapVerses[ndxRel.index()];
+	assert((nVerse>=0) && (nVerse<m_lstVerses.size()));
+
+	if (nVerse < 0 || nVerse >= m_lstVerses.size())
 		return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 		switch (m_nDisplayMode) {
 			case VDME_HEADING:
-				return m_lstVerses.at(index.row()).getHeading();
+				return m_lstVerses.at(nVerse).getHeading();
 			case VDME_VERYPLAIN:
-				return m_lstVerses.at(index.row()).getVerseVeryPlainText();
+				return m_lstVerses.at(nVerse).getVerseVeryPlainText();
 			case VDME_RICHTEXT:
-				return m_lstVerses.at(index.row()).getVerseRichText();
+				return m_lstVerses.at(nVerse).getVerseRichText();
 			case VDME_COMPLETE:
-				return m_lstVerses.at(index.row()).getVerseRichText();		// TODO : FINISH THIS ONE!!!
+				return m_lstVerses.at(nVerse).getVerseRichText();		// TODO : FINISH THIS ONE!!!
 			default:
 				return QString();
 		}
@@ -69,13 +240,13 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		(role == TOOLTIP_PLAINTEXT_ROLE) ||
 		(role == TOOLTIP_NOHEADING_ROLE) ||
 		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-		const CVerseListItem &refVerse = m_lstVerses[index.row()];
+		const CVerseListItem &refVerse = m_lstVerses[nVerse];
 		bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
 		QString strToolTip;
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
 		if (bHeading) strToolTip += refVerse.getHeading() + "\n";
-		QPair<int, int> nResultsIndexes = GetResultsIndexes(index.row());
+		QPair<int, int> nResultsIndexes = GetResultsIndexes(nVerse);
 		if (nResultsIndexes.first != nResultsIndexes.second) {
 			strToolTip += QString("%1Search Results %2-%3 of %4 phrase occurrences\n")
 									.arg(bHeading ? "    " : "")
@@ -89,11 +260,11 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 									.arg(nResultsIndexes.first)
 									.arg(GetTotalResultsCount());
 		}
-		QPair<int, int> nVerseResult = GetVerseIndexAndCount(index.row());
+		QPair<int, int> nVerseResult = GetVerseIndexAndCount(nVerse);
 		strToolTip += QString("%1    Verse %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
-		QPair<int, int> nChapterResult = GetChapterIndexAndCount(index.row());
+		QPair<int, int> nChapterResult = GetChapterIndexAndCount(nVerse);
 		strToolTip += QString("%1    Chapter %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
-		QPair<int, int> nBookResult = GetBookIndexAndCount(index.row());
+		QPair<int, int> nBookResult = GetBookIndexAndCount(nVerse);
 		strToolTip += QString("%1    Book %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
 		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
@@ -102,7 +273,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {
-		return QVariant::fromValue(m_lstVerses.at(index.row()));
+		return QVariant::fromValue(m_lstVerses.at(nVerse));
 	}
 
 	return QVariant();
@@ -110,6 +281,10 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+	Q_UNUSED(index);
+	Q_UNUSED(value);
+	Q_UNUSED(role);
+/*
 	if (index.row() < 0 || index.row() >= m_lstVerses.size()) return false;
 
 	if ((role == Qt::EditRole) || (role == Qt::DisplayRole)) {
@@ -134,6 +309,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 		emit dataChanged(index, index);
 		return true;
 	}
+*/
 
 	return false;
 }
@@ -141,13 +317,23 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
-	return QAbstractItemModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+//	CRelIndex ndxRel(index.internalId());
+//	assert(ndxRel.isSet());
+//	if (ndxRel.verse() == 0) return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+	Q_UNUSED(row);
+	Q_UNUSED(count);
+	Q_UNUSED(parent);
+
+	return false;
+/*
 	if (count < 1 || row < 0 || row > m_lstVerses.size())
 		return false;
 	if (parent.isValid()) return false;
@@ -160,10 +346,18 @@ bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
 	endInsertRows();
 
 	return true;
+*/
 }
 
 bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+	Q_UNUSED(row);
+	Q_UNUSED(count);
+	Q_UNUSED(parent);
+
+	return false;
+
+/*
 	if (count <= 0 || row < 0 || (row + count) > m_lstVerses.size())
 		return false;
 	if (parent.isValid()) return false;
@@ -176,6 +370,7 @@ bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
 	endRemoveRows();
 
 	return true;
+*/
 }
 
 static bool ascendingLessThan(const QPair<CVerseListItem, int> &s1, const QPair<CVerseListItem, int> &s2)
@@ -226,6 +421,8 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
 
+// ----------------------------------------------------------------------------
+
 CVerseList CVerseListModel::verseList() const
 {
 	return m_lstVerses;
@@ -235,6 +432,10 @@ void CVerseListModel::setVerseList(const CVerseList &verses)
 {
 	emit beginResetModel();
 	m_lstVerses = verses;
+	m_mapVerses.clear();
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		m_mapVerses[m_lstVerses.at(ndx).getIndex().index()] = ndx;
+	}
 	emit endResetModel();
 }
 
@@ -284,19 +485,28 @@ void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 	emit endResetModel();
 }
 
-QPair<int, int> CVerseListModel::GetResultsIndexes(int nRow) const
+void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
+{
+	if (m_nTreeMode != VTME_LIST) beginResetModel();
+	m_bShowMissingLeafs = bShowMissing;
+	if (m_nTreeMode != VTME_LIST) endResetModel();
+}
+
+// ----------------------------------------------------------------------------
+
+QPair<int, int> CVerseListModel::GetResultsIndexes(int nVerse) const
 {
 	QPair<int, int> nResultsIndexes;
 	nResultsIndexes.first = 0;
 	nResultsIndexes.second = 0;
 
-	for (int ndx = 0; ((ndx < nRow) && (ndx < m_lstVerses.size())); ++ndx) {
+	for (int ndx = 0; ((ndx < nVerse) && (ndx < m_lstVerses.size())); ++ndx) {
 		nResultsIndexes.first += m_lstVerses.at(ndx).phraseTags().size();
 	}
 	nResultsIndexes.second = nResultsIndexes.first;
-	if (nRow < m_lstVerses.size()) {
+	if (nVerse < m_lstVerses.size()) {
 		nResultsIndexes.first++;
-		nResultsIndexes.second += m_lstVerses.at(nRow).phraseTags().size();
+		nResultsIndexes.second += m_lstVerses.at(nVerse).phraseTags().size();
 	}
 
 	return nResultsIndexes;		// Result first = first result index, second = last result index for specified row
@@ -313,14 +523,14 @@ int CVerseListModel::GetTotalResultsCount() const
 	return nResultsCount;
 }
 
-QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nRow) const
+QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nVerse) const
 {
 	int ndxBook = 0;		// Index into Books
 	int nBooks = 0;			// Results counts in Books
 
 	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
 		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
-		if (ndx <= nRow) ndxBook++;
+		if (ndx <= nVerse) ndxBook++;
 		if (ndx < (m_lstVerses.size()-1)) {
 			bool bNextIsSameReference=false;
 			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
@@ -338,14 +548,14 @@ QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nRow) const
 	return QPair<int, int>(ndxBook, nBooks);
 }
 
-QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nRow) const
+QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nVerse) const
 {
 	int ndxChapter = 0;		// Index into Chapters
 	int nChapters = 0;		// Results counts in Chapters
 
 	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
 		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
-		if (ndx <= nRow) ndxChapter++;
+		if (ndx <= nVerse) ndxChapter++;
 		if (ndx < (m_lstVerses.size()-1)) {
 			bool bNextIsSameReference=false;
 			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
@@ -365,10 +575,225 @@ QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nRow) const
 	return QPair<int, int>(ndxChapter, nChapters);
 }
 
-QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nRow) const
+QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nVerse) const
 {
-	return QPair<int, int>(nRow+1, m_lstVerses.size());
+	return QPair<int, int>(nVerse+1, m_lstVerses.size());
 }
+
+// ----------------------------------------------------------------------------
+
+int CVerseListModel::GetBookCount() const
+{
+	return (m_bShowMissingLeafs ? g_lstTOC.size() : GetBookIndexAndCount().second);
+}
+
+int CVerseListModel::IndexByBook(unsigned int nBk) const
+{
+	if (m_bShowMissingLeafs) {
+		if ((nBk < 1) || (nBk > g_lstTOC.size())) return -1;
+		return (nBk-1);
+	}
+
+	int nBooks = 0;			// Counts of Books
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() == nBk) return nBooks;
+		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
+			do {
+				if (nCurrentBook == m_lstVerses.at(ndx+1).getBook()) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return -1;
+}
+
+unsigned int CVerseListModel::BookByIndex(int ndxBook) const
+{
+	if (m_bShowMissingLeafs) {
+		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= g_lstTOC.size())) return 0;
+		return (ndxBook+1);
+	}
+
+	int nBooks = 0;			// Counts of Books
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (nBooks == ndxBook) return m_lstVerses.at(ndx).getBook();
+		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
+			do {
+				if (nCurrentBook == m_lstVerses.at(ndx+1).getBook()) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return 0;
+}
+
+int CVerseListModel::GetResultsByBook(unsigned int nBk) const
+{
+	int nResults = 0;
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() == nBk) nResults++;
+	}
+	return nResults;
+}
+
+int CVerseListModel::GetChapterCount(unsigned int nBk) const
+{
+	if (nBk == 0) return 0;
+	if (m_bShowMissingLeafs) {
+		if (nBk > g_lstTOC.size()) return 0;
+		return g_lstTOC[nBk-1].m_nNumChp;
+	}
+
+	int nChapters = 0;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() != nBk) continue;
+		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
+		uint32_t nCurrentChapter = m_lstVerses.at(ndx).getChapter();
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			do {
+				if ((nBk == m_lstVerses.at(ndx+1).getBook()) &&
+					(nCurrentChapter == m_lstVerses.at(ndx+1).getChapter())) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return nChapters;
+}
+
+int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
+{
+	if ((nBk == 0) || (nChp == 0)) return -1;
+	if (m_bShowMissingLeafs) {
+		if (nBk > g_lstTOC.size()) return -1;
+		if (nChp > g_lstTOC[nBk-1].m_nNumChp) return -1;
+		return (nChp-1);
+	}
+
+	int nChapters = 0;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() != nBk) continue;
+		if (m_lstVerses.at(ndx).getChapter() == nChp) return nChapters;
+		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
+		uint32_t nCurrentChapter = m_lstVerses.at(ndx).getChapter();
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			do {
+				if ((nBk == m_lstVerses.at(ndx+1).getBook()) &&
+					(nCurrentChapter == m_lstVerses.at(ndx+1).getChapter())) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return -1;
+}
+
+unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
+{
+	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
+	if (m_bShowMissingLeafs) {
+		if (static_cast<unsigned int>(ndxBook) >= g_lstTOC.size()) return 0;
+		if (static_cast<unsigned int>(ndxChapter) >= g_lstTOC[ndxBook].m_nNumChp) return 0;
+		return (ndxChapter+1);
+	}
+
+	int nChapters = 0;
+	unsigned int nBk = BookByIndex(ndxBook);
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() != nBk) continue;
+		if (ndxChapter == nChapters) return m_lstVerses.at(ndx).getChapter();
+		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
+		uint32_t nCurrentChapter = m_lstVerses.at(ndx).getChapter();
+		if (ndx < (m_lstVerses.size()-1)) {
+			bool bNextIsSameReference=false;
+			do {
+				if ((nBk == m_lstVerses.at(ndx+1).getBook()) &&
+					(nCurrentChapter == m_lstVerses.at(ndx+1).getChapter())) {
+					bNextIsSameReference=true;
+					ndx++;
+				} else {
+					bNextIsSameReference=false;
+				}
+			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		}
+	}
+
+	return 0;
+}
+
+int CVerseListModel::GetResultsByChapter(unsigned int nBk, unsigned int nChp) const
+{
+	int nResults = 0;
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if ((m_lstVerses.at(ndx).getBook() == nBk) &&
+			(m_lstVerses.at(ndx).getChapter() == nChp)) nResults++;
+	}
+	return nResults;
+}
+
+int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+{
+	if (nBk == 0) return 0;
+
+	int nVerses = 0;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() != nBk) continue;
+		if ((nChp != 0) && (m_lstVerses.at(ndx).getChapter() != nChp)) continue;
+		nVerses++;
+	}
+
+	return nVerses;
+}
+
+int CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
+{
+	if ((nBk == 0) || (ndxVerse < 0)) return -1;
+
+	int nVerses = 0;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if (m_lstVerses.at(ndx).getBook() != nBk) continue;
+		if ((nChp != 0) && (m_lstVerses.at(ndx).getChapter() != nChp)) continue;
+		if (ndxVerse == nVerses) return ndx;
+		nVerses++;
+	}
+
+	return -1;
+}
+
+// ----------------------------------------------------------------------------
 
 void CVerseListModel::buildScopedResultsInParsedPhrases()
 {

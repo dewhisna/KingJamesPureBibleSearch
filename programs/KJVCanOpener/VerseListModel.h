@@ -8,6 +8,7 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QList>
+#include <QMap>
 #include <QStringList>
 #include <QVariant>
 #include <QPair>
@@ -172,9 +173,9 @@ public:
 	};
 
 	enum VERSE_TREE_MODE_ENUM {
-		VTME_LINEAR = 0,				// Linear = As a list
-		VTME_BOOKS = 1,					// Books = Branch verses under Books
-		VTME_CHAPTERS = 2				// Chapters = Branch verses under Chapters
+		VTME_LIST = 0,					// Display as a linear list (like old QListView used to)
+		VTME_TREE_BOOKS = 1,			// Tree by Books = Branch verses under Books w/o Chapters
+		VTME_TREE_CHAPTERS = 2			// Tree by Chapters = Branch verses under Chapters under Books
 	};
 
 	enum VERSE_DATA_ROLES_ENUM {
@@ -185,7 +186,7 @@ public:
 	};
 
 	explicit CVerseListModel(QObject *parent = 0);
-	CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_ENUM nDisplayMode = VDME_HEADING, QObject *parent = 0);
+	CVerseListModel(const CVerseList &verses, QObject *parent = 0);
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -217,17 +218,34 @@ public:
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
 	void setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode);
 
-	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
+	bool showMissingLeafs() const { return m_bShowMissingLeafs; }
+	void setShowMissingLeafs(bool bShowMissing);
+
+	QPair<int, int> GetResultsIndexes(int nVerse) const;	// Calculates the starting and ending results indexes for the specified Verse List entry index
 	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
-	QPair<int, int> GetBookIndexAndCount(int nRow = -1) const;		// Returns the Search Result Book number and total number of books with results
-	QPair<int, int> GetChapterIndexAndCount(int nRow = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
-	QPair<int, int> GetVerseIndexAndCount(int nRow = -1) const;		// Returns the Search Result Verse and total number of verses with results (for completeness only)
+	QPair<int, int> GetBookIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Book number and total number of books with results
+	QPair<int, int> GetChapterIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
+	QPair<int, int> GetVerseIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Verse and total number of verses with results (for completeness only)
 
 	bool hasExceededDisplayLimit() const;
 
 signals:
 
 public slots:
+
+public:
+	int GetResultsByBook(unsigned int nBk) const;	// Returns number of results for specified Book Number
+	int GetResultsByChapter(unsigned int nBk, unsigned int nChp) const;	// Return number of results for specified Book/Chapter Number
+
+protected:
+	int GetBookCount() const;						// Returns the number of books in the model based on mode
+	int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number
+	unsigned int BookByIndex(int ndxBook) const;	// Returns the Book Number for the specified index (in the number of books)
+	int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
+	int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
+	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
+	int GetVerseCount(unsigned int nBk, unsigned int nChp = 0) const;
+	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter
 
 private:
 	void buildScopedResultsInParsedPhrases();
@@ -237,10 +255,12 @@ private:
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	CVerseList m_lstVerses;
+	QMap<uint32_t, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex->index() to index within m_lstVerses.  Set during setVerseList.
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 	VERSE_TREE_MODE_ENUM m_nTreeMode;
+	bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
 };
 
 // ============================================================================

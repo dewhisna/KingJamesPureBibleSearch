@@ -20,10 +20,44 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 {
 }
 
+void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &index) const
+{
+	CRelIndex ndxRel(index.internalId());
+	assert(ndxRel.isSet());
+
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n");
+
+	if (ndxRel.verse() != 0) {
+		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+		CPhraseNavigator navigator(doc);
+		CSearchResultHighlighter highlighter(item.phraseTags());
+
+		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
+		navigator.doHighlighting(highlighter);
+	} else if (ndxRel.chapter() != 0) {
+		int nResults = m_model.GetResultsByChapter(ndxRel.book(), ndxRel.chapter());
+		if (nResults) {
+			strHTML += QString("<p>(%1) %2</p>\n").arg(nResults).arg(Qt::escape(index.data().toString()));
+		} else {
+			strHTML += QString("<p>%1</p>\n").arg(Qt::escape(index.data().toString()));
+		}
+		strHTML += "</body></html>";
+		doc.setHtml(strHTML);
+	} else {
+		int nResults = m_model.GetResultsByBook(ndxRel.book());
+		if (nResults) {
+			strHTML += QString("<p>(%1) <b>%2</b></p>\n").arg(nResults).arg(Qt::escape(index.data().toString()));
+		} else {
+			strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
+		}
+		strHTML += "</body></html>";
+		doc.setHtml(strHTML);
+	}
+}
+
 void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-
 	QStyleOptionViewItemV4 optionV4 = option;
 	QStyle* style = (optionV4.widget ? optionV4.widget->style() : QApplication::style());
 
@@ -50,11 +84,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 //					painter->fillRect(optionV4.rect, optionV4.palette.highlight());
 
 				QTextDocument doc;
-				CPhraseNavigator navigator(doc);
-				CSearchResultHighlighter highlighter(item.phraseTags());
-
-				navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
-				navigator.doHighlighting(highlighter);
+				SetDocumentText(doc, index);
 
 				doc.setTextWidth(textRect.width());
 				painter->save();
@@ -70,7 +100,6 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 			style->drawControl(QStyle::CE_ItemViewItem, &optionV4, painter, optionV4.widget);
 			break;
 	}
-
 }
 
 QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -81,14 +110,8 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 	initStyleOption(&optionV4, index);
 
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
-		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-
 		QTextDocument doc;
-		CPhraseNavigator navigator(doc);
-		CSearchResultHighlighter highlighter(item.phraseTags());
-
-		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
-		navigator.doHighlighting(highlighter);
+		SetDocumentText(doc, index);
 
 		if(parentView()) {
 			doc.setTextWidth(parentView()->width());

@@ -143,6 +143,11 @@ protected slots:
 	void on_viewVerseHeading();
 	void on_viewVerseRichText();
 
+	void on_viewAsList();
+	void on_viewAsTreeBooks();
+	void on_viewAsTreeChapters();
+	void on_viewShowMissingsLeafs();
+
 	void on_indexChanged(const TPhraseTag &tag);
 
 	void on_browserHistoryChanged();
@@ -168,6 +173,10 @@ private:
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
 	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext
+	QAction *m_pActionShowAsList;			// Toggle action to show in list mode
+	QAction *m_pActionShowAsTreeBooks;		// Toggle action to show in tree books mode
+	QAction *m_pActionShowAsTreeChapters;	// Toggle action to show in tree chapters mode
+	QAction *m_pActionShowMissingLeafs;		// Toggle action for tree modes to show missing leafs
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
 	QAction *m_pActionBookForward;	// Navigate Book Forward
 	QAction *m_pActionChapterBackward;	// Navigate Chapter Backward

@@ -403,6 +403,10 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pViewMenu(NULL),
 	m_pActionShowVerseHeading(NULL),
 	m_pActionShowVerseRichText(NULL),
+	m_pActionShowAsList(NULL),
+	m_pActionShowAsTreeBooks(NULL),
+	m_pActionShowAsTreeChapters(NULL),
+	m_pActionShowMissingLeafs(NULL),
 	m_pActionBookBackward(NULL),
 	m_pActionBookForward(NULL),
 	m_pActionChapterBackward(NULL),
@@ -433,6 +437,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	// TODO : Set preference for start mode!:
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
+	CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode = CVerseListModel::VTME_LIST;
+	bool bShowMissingLeafs = false;
 
 	// --------------------
 
@@ -477,13 +483,44 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pViewMenu->addSeparator();
 	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowVerseHeading = m_pViewMenu->addAction(QIcon(), "View &References Only", this, SLOT(on_viewVerseHeading()));
+	m_pActionShowAsList = m_pViewMenu->addAction("View as &List", this, SLOT(on_viewAsList()));
+	m_pActionShowAsList->setStatusTip("Show Search Results as a List");
+	m_pActionShowAsList->setCheckable(true);
+	m_pActionShowAsList->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsList);
+
+	m_pActionShowAsTreeBooks = m_pViewMenu->addAction("View as Tree by &Book", this, SLOT(on_viewAsTreeBooks()));
+	m_pActionShowAsTreeBooks->setStatusTip("Show Search Results in a Tree by Book");
+	m_pActionShowAsTreeBooks->setCheckable(true);
+	m_pActionShowAsTreeBooks->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsTreeBooks);
+
+	m_pActionShowAsTreeChapters = m_pViewMenu->addAction("View as Tree by Book/&Chapter", this, SLOT(on_viewAsTreeChapters()));
+	m_pActionShowAsTreeChapters->setStatusTip("Show Search Results in a Tree by Book and Chapter");
+	m_pActionShowAsTreeChapters->setCheckable(true);
+	m_pActionShowAsTreeChapters->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsTreeChapters);
+
+	m_pViewMenu->addSeparator();
+	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+
+	m_pActionShowMissingLeafs = m_pViewMenu->addAction("View &Missing Books/Chapters", this, SLOT(on_viewShowMissingsLeafs()));
+	m_pActionShowMissingLeafs->setStatusTip("Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)");
+	m_pActionShowMissingLeafs->setCheckable(true);
+	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
+	m_pActionShowMissingLeafs->setEnabled(nTreeMode != CVerseListModel::VTME_LIST);
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowMissingLeafs);
+
+	m_pViewMenu->addSeparator();
+	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+
+	m_pActionShowVerseHeading = m_pViewMenu->addAction("View &References Only", this, SLOT(on_viewVerseHeading()));
 	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse References Only");
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
 	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
 
-	m_pActionShowVerseRichText = m_pViewMenu->addAction(QIcon(), "View Verse &Preview", this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText = m_pViewMenu->addAction("View Verse &Preview", this, SLOT(on_viewVerseRichText()));
 	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Text Verse Preview");
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
@@ -604,7 +641,10 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	CVerseListModel *model = new CVerseListModel(ui->treeViewSearchResults);
 	model->setDisplayMode(nDisplayMode);
+	model->setTreeMode(nTreeMode);
+	model->setShowMissingLeafs(bShowMissingLeafs);
 	ui->treeViewSearchResults->setModel(model);
+	ui->treeViewSearchResults->setRootIsDecorated(nTreeMode != CVerseListModel::VTME_LIST);
 
 	CVerseListDelegate *delegate = new CVerseListDelegate(*model, ui->treeViewSearchResults);
 	ui->treeViewSearchResults->setItemDelegate(delegate);
@@ -1017,6 +1057,7 @@ void CKJVCanOpener::on_viewVerseHeading()
 	m_bDoingUpdate = false;
 
 	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
 }
 
 void CKJVCanOpener::on_viewVerseRichText()
@@ -1027,7 +1068,7 @@ void CKJVCanOpener::on_viewVerseRichText()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_HEADING;
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_RICHTEXT;
 
 	if (m_pActionShowVerseRichText->isChecked()) {
 		m_pActionShowVerseHeading->setChecked(false);
@@ -1045,6 +1086,123 @@ void CKJVCanOpener::on_viewVerseRichText()
 	m_bDoingUpdate = false;
 
 	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
+}
+
+
+void CKJVCanOpener::on_viewAsList()
+{
+	assert(m_pActionShowAsList != NULL);
+	assert(m_pActionShowAsTreeBooks != NULL);
+	assert(m_pActionShowAsTreeChapters != NULL);
+	assert(m_pActionShowMissingLeafs != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+
+	if (m_pActionShowAsList->isChecked()) {
+		m_pActionShowAsTreeBooks->setChecked(false);
+		m_pActionShowAsTreeChapters->setChecked(false);
+		pModel->setTreeMode(CVerseListModel::VTME_LIST);
+		ui->treeViewSearchResults->setRootIsDecorated(false);
+		m_pActionShowMissingLeafs->setEnabled(false);
+	} else {
+		if (pModel->treeMode() == CVerseListModel::VTME_LIST) {
+			m_pActionShowAsList->setChecked(true);
+		}
+	}
+
+	m_bDoingUpdate = false;
+
+	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
+}
+
+void CKJVCanOpener::on_viewAsTreeBooks()
+{
+	assert(m_pActionShowAsList != NULL);
+	assert(m_pActionShowAsTreeBooks != NULL);
+	assert(m_pActionShowAsTreeChapters != NULL);
+	assert(m_pActionShowMissingLeafs != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+
+	if (m_pActionShowAsTreeBooks->isChecked()) {
+		m_pActionShowAsList->setChecked(false);
+		m_pActionShowAsTreeChapters->setChecked(false);
+		pModel->setTreeMode(CVerseListModel::VTME_TREE_BOOKS);
+		ui->treeViewSearchResults->setRootIsDecorated(true);
+		m_pActionShowMissingLeafs->setEnabled(true);
+	} else {
+		if (pModel->treeMode() == CVerseListModel::VTME_TREE_BOOKS) {
+			m_pActionShowAsTreeBooks->setChecked(true);
+		}
+	}
+
+	m_bDoingUpdate = false;
+
+	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
+}
+
+void CKJVCanOpener::on_viewAsTreeChapters()
+{
+	assert(m_pActionShowAsList != NULL);
+	assert(m_pActionShowAsTreeBooks != NULL);
+	assert(m_pActionShowAsTreeChapters != NULL);
+	assert(m_pActionShowMissingLeafs != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+
+	if (m_pActionShowAsTreeChapters->isChecked()) {
+		m_pActionShowAsList->setChecked(false);
+		m_pActionShowAsTreeBooks->setChecked(false);
+		pModel->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
+		ui->treeViewSearchResults->setRootIsDecorated(true);
+		m_pActionShowMissingLeafs->setEnabled(true);
+	} else {
+		if (pModel->treeMode() == CVerseListModel::VTME_TREE_CHAPTERS) {
+			m_pActionShowAsTreeChapters->setChecked(true);
+		}
+	}
+
+	m_bDoingUpdate = false;
+
+	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
+}
+
+void CKJVCanOpener::on_viewShowMissingsLeafs()
+{
+	assert(m_pActionShowMissingLeafs != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+
+	if (pModel->treeMode() == CVerseListModel::VTME_LIST) {
+		if (pModel->showMissingLeafs()) pModel->setShowMissingLeafs(false);
+	} else {
+		pModel->setShowMissingLeafs(m_pActionShowMissingLeafs->isChecked());
+	}
+
+	m_bDoingUpdate = false;
+
+	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	ui->treeViewSearchResults->setFocus();
 }
 
 void CKJVCanOpener::on_indexChanged(const TPhraseTag &tag)
