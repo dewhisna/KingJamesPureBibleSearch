@@ -158,6 +158,7 @@ private:
 Q_DECLARE_METATYPE(CVerseListItem)
 
 typedef QList<CVerseListItem> CVerseList;
+extern void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order);
 
 // ============================================================================
 
@@ -195,6 +196,7 @@ public:
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	QVariant dataForVerse(const CVerseListItem &aVerse, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;

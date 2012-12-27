@@ -134,14 +134,22 @@ void CSearchResultsTreeView::on_copyVerseText()
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	int nCount = 0;
-	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
-		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
-		nCount++;
-		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+	CVerseList lstVerses;
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+				lstVerses.append(item);
+			}
+		}
+	}
+	sortVerseList(lstVerses, Qt::AscendingOrder);
+
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
@@ -157,8 +165,8 @@ void CSearchResultsTreeView::on_copyVerseText()
 
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
-//		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("<hr />\n");
-		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("<br />\n");
+//		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
+		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
@@ -182,12 +190,22 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	QMimeData *mime = new QMimeData();
 	QString strText;
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
-		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
-		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+	CVerseList lstVerses;
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+				lstVerses.append(item);
+			}
+		}
+	}
+	sortVerseList(lstVerses, Qt::AscendingOrder);
+
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		navigator.setDocumentToVerse(item.getIndex(), false);
@@ -213,12 +231,22 @@ void CSearchResultsTreeView::on_copyVerseHeadings()
 	QMimeData *mime = new QMimeData();
 	QString strVerseHeadings;
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
-		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
-		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+	CVerseList lstVerses;
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+				lstVerses.append(item);
+			}
+		}
+	}
+	sortVerseList(lstVerses, Qt::AscendingOrder);
+
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(lstVerses.at(ndx));
 		strVerseHeadings += item.getHeading() + "\n";
 	}
 
@@ -236,16 +264,26 @@ void CSearchResultsTreeView::on_copyReferenceDetails()
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
 	assert(pModel != NULL);
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	int nCount = 0;
-	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
-		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
-		nCount++;
-		if (nCount > 1) {
+
+	CVerseList lstVerses;
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+				lstVerses.append(item);
+			}
+		}
+	}
+	sortVerseList(lstVerses, Qt::AscendingOrder);
+
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		if (ndx > 0) {
 			strPlainText += "--------------------\n";
 			strRichText += "<hr />\n";
 		}
-		strPlainText += pModel->index(ndx).data(CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += pModel->index(ndx).data(Qt::ToolTipRole).toString();
+		strPlainText += pModel->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += pModel->dataForVerse(lstVerses.at(ndx), Qt::ToolTipRole).toString();
 	}
 
 	mime->setText(strPlainText);
@@ -263,11 +301,21 @@ void CSearchResultsTreeView::on_copyComplete()
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
 	assert(pModel != NULL);
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	int nCount = 0;
-	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
-		if (!lstSelectedItems.contains(pModel->index(ndx))) continue;
-		nCount++;
-		const CVerseListItem &item(pModel->index(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+	CVerseList lstVerses;
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+				lstVerses.append(item);
+			}
+		}
+	}
+	sortVerseList(lstVerses, Qt::AscendingOrder);
+
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
@@ -284,8 +332,8 @@ void CSearchResultsTreeView::on_copyComplete()
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
-		cursorDocList.insertHtml("<br />\n<pre>" + pModel->index(ndx).data(CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
-		if (nCount != lstSelectedItems.size()) cursorDocList.insertHtml("\n<hr /><br />\n");
+		cursorDocList.insertHtml("<br />\n<pre>" + pModel->dataForVerse(item, CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
+		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
 	}
 
 	mime->setText(docList.toPlainText());
@@ -330,7 +378,17 @@ void CSearchResultsTreeView::selectionChanged(const QItemSelection & selected, c
 
 void CSearchResultsTreeView::handle_selectionChanged()
 {
-	int nNumResultsSelected = selectionModel()->selectedRows().size();
+	int nNumResultsSelected = 0;
+
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+				nNumResultsSelected++;
+			}
+		}
+	}
 
 	if (nNumResultsSelected) {
 		m_pActionCopyVerseText->setEnabled(true);

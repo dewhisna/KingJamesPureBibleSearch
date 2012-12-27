@@ -3,6 +3,32 @@
 #include <QVector>
 #include <QModelIndexList>
 
+// ============================================================================
+
+static bool ascendingLessThanVLI(const CVerseListItem &s1, const CVerseListItem &s2)
+{
+	// Both normalized and denormalized are in order, but it's more expensive
+	//	 to convert to normal when we already have relative
+	return s1.getIndexDenormalized() < s2.getIndexDenormalized();
+}
+
+static bool decendingLessThanVLI(const CVerseListItem &s1, const CVerseListItem &s2)
+{
+	// Both normalized and denormalized are in order, but it's more expensive
+	//	 to convert to normal when we already have relative
+	return s1.getIndexDenormalized() > s2.getIndexDenormalized();
+}
+
+void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
+{
+	if (order == Qt::AscendingOrder)
+		qSort(aVerseList.begin(), aVerseList.end(), ascendingLessThanVLI);
+	else
+		qSort(aVerseList.begin(), aVerseList.end(), decendingLessThanVLI);
+}
+
+// ============================================================================
+
 CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractItemModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
@@ -223,16 +249,25 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	if (nVerse < 0 || nVerse >= m_lstVerses.size())
 		return QVariant();
 
+	return dataForVerse(m_lstVerses.at(nVerse), role);
+}
+
+QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) const
+{
+	if (!m_mapVerses.contains(aVerse.getIndex().index())) return QVariant();
+	int nVerse = m_mapVerses[aVerse.getIndex().index()];
+	assert((nVerse>=0) && (nVerse<m_lstVerses.size()));
+
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 		switch (m_nDisplayMode) {
 			case VDME_HEADING:
-				return m_lstVerses.at(nVerse).getHeading();
+				return aVerse.getHeading();
 			case VDME_VERYPLAIN:
-				return m_lstVerses.at(nVerse).getVerseVeryPlainText();
+				return aVerse.getVerseVeryPlainText();
 			case VDME_RICHTEXT:
-				return m_lstVerses.at(nVerse).getVerseRichText();
+				return aVerse.getVerseRichText();
 			case VDME_COMPLETE:
-				return m_lstVerses.at(nVerse).getVerseRichText();		// TODO : FINISH THIS ONE!!!
+				return aVerse.getVerseRichText();		// TODO : FINISH THIS ONE!!!
 			default:
 				return QString();
 		}
@@ -242,12 +277,11 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		(role == TOOLTIP_PLAINTEXT_ROLE) ||
 		(role == TOOLTIP_NOHEADING_ROLE) ||
 		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-		const CVerseListItem &refVerse = m_lstVerses[nVerse];
 		bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
 		QString strToolTip;
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
-		if (bHeading) strToolTip += refVerse.getHeading() + "\n";
+		if (bHeading) strToolTip += aVerse.getHeading() + "\n";
 		QPair<int, int> nResultsIndexes = GetResultsIndexes(nVerse);
 		if (nResultsIndexes.first != nResultsIndexes.second) {
 			strToolTip += QString("%1Search Results %2-%3 of %4 phrase occurrences\n")
@@ -268,14 +302,14 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		strToolTip += QString("%1    Chapter %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
 		QPair<int, int> nBookResult = GetBookIndexAndCount(nVerse);
 		strToolTip += QString("%1    Book %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
-		strToolTip += refVerse.getToolTip(m_lstParsedPhrases);
+		strToolTip += aVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 		return strToolTip;
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {
-		return QVariant::fromValue(m_lstVerses.at(nVerse));
+		return QVariant::fromValue(aVerse);
 	}
 
 	return QVariant();
@@ -377,14 +411,14 @@ bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
 
 static bool ascendingLessThan(const QPair<CVerseListItem, int> &s1, const QPair<CVerseListItem, int> &s2)
 {
-	// Both normalized and denormalized are in order, but it's less expensive
+	// Both normalized and denormalized are in order, but it's more expensive
 	//	 to convert to normal when we already have relative
 	return s1.first.getIndexDenormalized() < s2.first.getIndexDenormalized();
 }
 
 static bool decendingLessThan(const QPair<CVerseListItem, int> &s1, const QPair<CVerseListItem, int> &s2)
 {
-	// Both normalized and denormalized are in order, but it's less expensive
+	// Both normalized and denormalized are in order, but it's more expensive
 	//	 to convert to normal when we already have relative
 	return s1.first.getIndexDenormalized() > s2.first.getIndexDenormalized();
 }
@@ -944,4 +978,5 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria
 	return indexScoped;
 }
 
+// ============================================================================
 
