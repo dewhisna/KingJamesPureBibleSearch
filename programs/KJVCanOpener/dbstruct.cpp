@@ -236,7 +236,7 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName());
 		}
 		if (Vrs.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of Chapter\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second);
+			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName()).arg(chapter());
 		}
 	}
 
@@ -258,10 +258,10 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName());
 		}
 		if (Wrd.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of Chapter\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second);
+			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName()).arg(chapter());
 		}
 		if (Wrd.ofVerse().first != 0) {
-			strTemp += QString("    %1 of %2 of Verse\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second);
+			strTemp += QString("    %1 of %2 of %3 %4:%5\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName()).arg(chapter()).arg(verse());
 		}
 	}
 

@@ -70,11 +70,19 @@ void CKJVBrowser::Initialize(const TPhraseTag &nInitialIndex)
 
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
+	TPhraseTag tagActual = tag;
+
 	begin_update();
-	ui->textBrowserMainText->setSource(QString("#%1").arg(tag.first.asAnchor()));
+
+	// If branching to a "book only", goto chapter 1 of that book:
+	if ((tagActual.first.book() != 0) &&
+		(tagActual.first.chapter() == 0)) tagActual.first.setChapter(1);
+
+	ui->textBrowserMainText->setSource(QString("#%1").arg(tagActual.first.asAnchor()));
+
 	end_update();
 
-	gotoIndex2(tag);
+	gotoIndex2(tagActual);
 }
 
 void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)

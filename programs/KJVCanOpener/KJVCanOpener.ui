@@ -107,6 +107,9 @@
           <property name="rootIsDecorated">
            <bool>false</bool>
           </property>
+          <property name="expandsOnDoubleClick">
+           <bool>false</bool>
+          </property>
           <property name="isWrapping" stdset="0">
            <bool>false</bool>
           </property>

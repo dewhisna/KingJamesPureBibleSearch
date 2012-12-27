@@ -184,8 +184,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 			QString strBookText = ndxRel.bookName();
 			if (m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
-			int nResults = GetResultsByBook(ndxRel.book());
-			if (nResults) strBookText = QString("(%1) ").arg(nResults) + strBookText;
+			int nVerses = GetVerseCount(ndxRel.book());
+			int nResults = GetResultsCount(ndxRel.book());
+			if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
 			return strBookText;
 		}
 		if ((role == Qt::ToolTipRole) ||
@@ -201,8 +202,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 			QString strChapterText = ndxRel.bookName() + QString(" %1").arg(ndxRel.chapter());
 			if (m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
-			int nResults = GetResultsByChapter(ndxRel.book(), ndxRel.chapter());
-			if (nResults) strChapterText = QString("(%1) ").arg(nResults) + strChapterText;
+			int nVerses = GetVerseCount(ndxRel.book(), ndxRel.chapter());
+			int nResults = GetResultsCount(ndxRel.book(), ndxRel.chapter());
+			if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
 			return strChapterText;
 		}
 		if ((role == Qt::ToolTipRole) ||
@@ -252,13 +254,13 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 									.arg(bHeading ? "    " : "")
 									.arg(nResultsIndexes.first)
 									.arg(nResultsIndexes.second)
-									.arg(GetTotalResultsCount());
+									.arg(GetResultsCount());
 		} else {
 			assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
 			strToolTip += QString("%1Search Result %2 of %3 phrase occurrences\n")
 									.arg(bHeading ? "    " : "")
 									.arg(nResultsIndexes.first)
-									.arg(GetTotalResultsCount());
+									.arg(GetResultsCount());
 		}
 		QPair<int, int> nVerseResult = GetVerseIndexAndCount(nVerse);
 		strToolTip += QString("%1    Verse %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
@@ -461,6 +463,7 @@ TPhraseTagList CVerseListModel::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOP
 
 bool CVerseListModel::hasExceededDisplayLimit() const
 {
+	if (m_nTreeMode != VTME_LIST) return false;
 	if (g_bEnableNoLimits) return false;
 	return ((m_lstVerses.size() > g_nSearchLimit) && (m_nDisplayMode != VDME_HEADING));
 }
@@ -494,6 +497,21 @@ void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 
 // ----------------------------------------------------------------------------
 
+int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+{
+	int nResults = 0;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if ((nBk != 0) && (m_lstVerses.at(ndx).getBook() != nBk)) continue;
+		if ((nBk != 0) && (nChp != 0) && (m_lstVerses.at(ndx).getChapter() != nChp)) continue;
+		nResults += m_lstVerses.at(ndx).phraseTags().size();
+	}
+
+	return nResults;
+}
+
+// ----------------------------------------------------------------------------
+
 QPair<int, int> CVerseListModel::GetResultsIndexes(int nVerse) const
 {
 	QPair<int, int> nResultsIndexes;
@@ -510,17 +528,6 @@ QPair<int, int> CVerseListModel::GetResultsIndexes(int nVerse) const
 	}
 
 	return nResultsIndexes;		// Result first = first result index, second = last result index for specified row
-}
-
-int CVerseListModel::GetTotalResultsCount() const
-{
-	int nResultsCount = 0;
-
-	for (int ndx = 0; ndx < m_lstVerses.size(); ++ndx) {
-		nResultsCount += m_lstVerses.at(ndx).phraseTags().size();
-	}
-
-	return nResultsCount;
 }
 
 QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nVerse) const
@@ -645,15 +652,6 @@ unsigned int CVerseListModel::BookByIndex(int ndxBook) const
 	return 0;
 }
 
-int CVerseListModel::GetResultsByBook(unsigned int nBk) const
-{
-	int nResults = 0;
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
-		if (m_lstVerses.at(ndx).getBook() == nBk) nResults++;
-	}
-	return nResults;
-}
-
 int CVerseListModel::GetChapterCount(unsigned int nBk) const
 {
 	if (nBk == 0) return 0;
@@ -752,20 +750,8 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 	return 0;
 }
 
-int CVerseListModel::GetResultsByChapter(unsigned int nBk, unsigned int nChp) const
-{
-	int nResults = 0;
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
-		if ((m_lstVerses.at(ndx).getBook() == nBk) &&
-			(m_lstVerses.at(ndx).getChapter() == nChp)) nResults++;
-	}
-	return nResults;
-}
-
 int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 {
-	if (nBk == 0) return 0;
-
 	int nVerses = 0;
 
 	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {

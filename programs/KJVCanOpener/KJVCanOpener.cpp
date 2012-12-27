@@ -1306,7 +1306,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	nVerses = pModel->GetVerseIndexAndCount().second;
 	nChapters = pModel->GetChapterIndexAndCount().second;
 	nBooks = pModel->GetBookIndexAndCount().second;
-	nResults = pModel->GetTotalResultsCount();
+	nResults = pModel->GetResultsCount();
 
 	// ----------------------------
 
@@ -1349,27 +1349,13 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 {
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
-	CVerseListItem verse = pModel->data(index, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>();
+	if (!index.isValid()) return;
 
-//	unsigned int nWordCount = 1;
-//	if (verse.phraseTags().size() == 1) {
-//		nWordCount = verse.phraseTags().at(0).second;
-//		ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, nWordCount);
-//	} else {
-//		if (verse.phraseTags().size() > 1) {
-//			ui->widgetKJVBrowser->gotoIndex(verse.phraseTags().at(0).first, 0);
-//		} else {
-//			ui->widgetKJVBrowser->gotoIndex(verse.getIndex());
-//		}
-//	}
+	CRelIndex ndxRel(index.internalId());
+	assert(ndxRel.isSet());
+	if (!ndxRel.isSet()) return;
 
-	if (verse.phraseTags().size() != 0) {
-		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.phraseTags().at(0).first));
-	} else {
-		ui->widgetKJVBrowser->gotoIndex(TPhraseTag(verse.getIndex()));
-	}
-
+	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(ndxRel));
 	ui->widgetKJVBrowser->focusBrowser();
 }
 

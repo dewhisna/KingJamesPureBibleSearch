@@ -40,7 +40,7 @@ public:
 
 	inline QString getHeading() const {
 		QString strHeading;
-		if (m_lstTags.size() > 1) strHeading += QString("(%1) ").arg(m_lstTags.size());
+		if (m_lstTags.size() > 0) strHeading += QString("(%1) ").arg(m_lstTags.size());
 		for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 			if (ndx == 0) {
 				strHeading += m_lstTags.at(ndx).first.PassageReferenceText();
@@ -221,8 +221,9 @@ public:
 	bool showMissingLeafs() const { return m_bShowMissingLeafs; }
 	void setShowMissingLeafs(bool bShowMissing);
 
+	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
+
 	QPair<int, int> GetResultsIndexes(int nVerse) const;	// Calculates the starting and ending results indexes for the specified Verse List entry index
-	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
 	QPair<int, int> GetBookIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Book number and total number of books with results
 	QPair<int, int> GetChapterIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
 	QPair<int, int> GetVerseIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Verse and total number of verses with results (for completeness only)
@@ -233,10 +234,6 @@ signals:
 
 public slots:
 
-public:
-	int GetResultsByBook(unsigned int nBk) const;	// Returns number of results for specified Book Number
-	int GetResultsByChapter(unsigned int nBk, unsigned int nChp) const;	// Return number of results for specified Book/Chapter Number
-
 protected:
 	int GetBookCount() const;						// Returns the number of books in the model based on mode
 	int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number
@@ -244,6 +241,7 @@ protected:
 	int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
 	int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
 	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
+public:
 	int GetVerseCount(unsigned int nBk, unsigned int nChp = 0) const;
 	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter
 

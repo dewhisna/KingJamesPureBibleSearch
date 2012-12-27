@@ -36,18 +36,20 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
 		navigator.doHighlighting(highlighter);
 	} else if (ndxRel.chapter() != 0) {
-		int nResults = m_model.GetResultsByChapter(ndxRel.book(), ndxRel.chapter());
-		if (nResults) {
-			strHTML += QString("<p>(%1) %2</p>\n").arg(nResults).arg(Qt::escape(index.data().toString()));
+		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+		int nResults = m_model.GetResultsCount(ndxRel.book(), ndxRel.chapter());
+		if ((nResults) || (nVerses)) {
+			strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 		} else {
 			strHTML += QString("<p>%1</p>\n").arg(Qt::escape(index.data().toString()));
 		}
 		strHTML += "</body></html>";
 		doc.setHtml(strHTML);
 	} else {
-		int nResults = m_model.GetResultsByBook(ndxRel.book());
-		if (nResults) {
-			strHTML += QString("<p>(%1) <b>%2</b></p>\n").arg(nResults).arg(Qt::escape(index.data().toString()));
+		int nVerses = m_model.GetVerseCount(ndxRel.book());
+		int nResults = m_model.GetResultsCount(ndxRel.book());
+		if ((nResults) || (nVerses)) {
+			strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 		} else {
 			strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
 		}
