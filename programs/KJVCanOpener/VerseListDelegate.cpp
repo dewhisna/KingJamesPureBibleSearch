@@ -33,7 +33,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 	if(parentView()) {
 		textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &optionV4, parentView());
 	} else {
-		textRect = option.rect;
+		textRect = optionV4.rect;
 	}
 
 	switch (m_model.displayMode()) {
@@ -46,6 +46,8 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 
 				// draw the background:
 				style->drawPrimitive(QStyle::PE_PanelItemViewItem, &optionV4, painter, parentView());
+//				if (optionV4.state & QStyle::State_Selected)
+//					painter->fillRect(optionV4.rect, optionV4.palette.highlight());
 
 				QTextDocument doc;
 				CPhraseNavigator navigator(doc);
@@ -74,8 +76,9 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	QStyleOptionViewItemV4 optionV4 = option;
-	initStyleOption(&optionV4, index);
 	QStyle* style = (optionV4.widget ? optionV4.widget->style() : QApplication::style());
+
+	initStyleOption(&optionV4, index);
 
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
 		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
@@ -87,10 +90,14 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
 		navigator.doHighlighting(highlighter);
 
-		if (optionV4.rect.isValid()) {
-			doc.setTextWidth(optionV4.rect.width());
+		if(parentView()) {
+			doc.setTextWidth(parentView()->width());
 		} else {
-			doc.setTextWidth(doc.idealWidth());
+			if (optionV4.rect.isValid()) {
+				doc.setTextWidth(optionV4.rect.width());
+			} else {
+				doc.setTextWidth(doc.idealWidth());
+			}
 		}
 
 		return doc.size().toSize();

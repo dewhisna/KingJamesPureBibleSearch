@@ -85,7 +85,7 @@
          </widget>
         </item>
         <item>
-         <widget class="CSearchResultsListView" name="listViewSearchResults">
+         <widget class="CSearchResultsTreeView" name="treeViewSearchResults">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>10</horstretch>
@@ -93,7 +93,7 @@
            </sizepolicy>
           </property>
           <property name="mouseTracking">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
@@ -104,12 +104,15 @@
           <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
+          <property name="rootIsDecorated">
+           <bool>false</bool>
+          </property>
           <property name="isWrapping" stdset="0">
            <bool>false</bool>
           </property>
-          <property name="resizeMode">
-           <enum>QListView::Adjust</enum>
-          </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
          </widget>
         </item>
        </layout>
@@ -164,8 +167,8 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CSearchResultsListView</class>
-   <extends>QListView</extends>
+   <class>CSearchResultsTreeView</class>
+   <extends>QTreeView</extends>
    <header>KJVCanOpener.h</header>
   </customwidget>
  </customwidgets>

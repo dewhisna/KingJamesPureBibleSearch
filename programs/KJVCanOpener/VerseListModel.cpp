@@ -6,7 +6,8 @@
 CVerseListModel::CVerseListModel(QObject *parent)
 	:	QAbstractItemModel(parent),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
-		m_nDisplayMode(VDME_HEADING)
+		m_nDisplayMode(VDME_HEADING),
+		m_nTreeMode(VTME_LINEAR)
 {
 }
 
@@ -14,7 +15,8 @@ CVerseListModel::CVerseListModel(const CVerseList &verses, VERSE_DISPLAY_MODE_EN
 	:	QAbstractItemModel(parent),
 		m_lstVerses(verses),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
-		m_nDisplayMode(nDisplayMode)
+		m_nDisplayMode(nDisplayMode),
+		m_nTreeMode(VTME_LINEAR)
 {
 }
 
@@ -273,6 +275,13 @@ void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 		m_nDisplayMode = nDisplayMode;
 		emit endResetModel();
 	}
+}
+
+void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
+{
+	emit beginResetModel();
+	m_nTreeMode = nTreeMode;
+	emit endResetModel();
 }
 
 QPair<int, int> CVerseListModel::GetResultsIndexes(int nRow) const

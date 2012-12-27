@@ -171,6 +171,12 @@ public:
 		VDME_COMPLETE = 3
 	};
 
+	enum VERSE_TREE_MODE_ENUM {
+		VTME_LINEAR = 0,				// Linear = As a list
+		VTME_BOOKS = 1,					// Books = Branch verses under Books
+		VTME_CHAPTERS = 2				// Chapters = Branch verses under Chapters
+	};
+
 	enum VERSE_DATA_ROLES_ENUM {
 		VERSE_ENTRY_ROLE = Qt::UserRole + 0,
 		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 1,			// Same as Qt::ToolTipRole, but as PlainText instead of RichText
@@ -208,6 +214,9 @@ public:
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 
+	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
+	void setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode);
+
 	QPair<int, int> GetResultsIndexes(int nRow) const;	// Calculates the starting and ending results indexes for the specified row
 	int GetTotalResultsCount() const;			// Calculates the total number of results from the Parsed Phrases
 	QPair<int, int> GetBookIndexAndCount(int nRow = -1) const;		// Returns the Search Result Book number and total number of books with results
@@ -231,6 +240,7 @@ private:
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
+	VERSE_TREE_MODE_ENUM m_nTreeMode;
 };
 
 // ============================================================================

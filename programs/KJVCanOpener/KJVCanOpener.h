@@ -13,9 +13,10 @@
 #include <QAction>
 #include <QCloseEvent>
 #include <QFocusEvent>
+#include <QResizeEvent>
 #include <QContextMenuEvent>
 #include <QString>
-#include <QListView>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 #include <assert.h>
@@ -36,12 +37,12 @@ public:
 
 // ============================================================================
 
-class CSearchResultsListView : public QListView
+class CSearchResultsTreeView : public QTreeView
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultsListView(QWidget *parent = 0);
-	virtual ~CSearchResultsListView();
+	explicit CSearchResultsTreeView(QWidget *parent = 0);
+	virtual ~CSearchResultsTreeView();
 
 	QMenu *getEditMenu() { return m_pEditMenu; }
 	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
@@ -68,6 +69,8 @@ protected:
 
 	void copyRawCommon(bool bVeryRaw) const;
 	void handle_selectionChanged();
+
+	virtual void resizeEvent(QResizeEvent *event);
 
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
