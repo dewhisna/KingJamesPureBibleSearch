@@ -355,9 +355,9 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	if (!index.isValid())
 		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
-//	CRelIndex ndxRel(index.internalId());
-//	assert(ndxRel.isSet());
-//	if (ndxRel.verse() == 0) return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	CRelIndex ndxRel(index.internalId());
+	assert(ndxRel.isSet());
+	if (ndxRel.verse() == 0) return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }

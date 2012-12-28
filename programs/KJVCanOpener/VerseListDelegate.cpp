@@ -13,6 +13,7 @@
 #include <QAbstractTextDocumentLayout>
 #include <QToolTip>
 #include <QWhatsThis>
+#include <QTreeView>
 
 CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 	:	QStyledItemDelegate(parent),
@@ -33,7 +34,7 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		CPhraseNavigator navigator(doc);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
-		navigator.setDocumentToVerse(item.getIndex(), (index.row() != 0));
+		navigator.setDocumentToVerse(item.getIndex() /*, (index.row() != 0) */ );
 		navigator.doHighlighting(highlighter);
 	} else if (ndxRel.chapter() != 0) {
 		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());
@@ -80,8 +81,44 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 			{
 				setVerseListPalette(&optionV4.palette);
 
+				if (optionV4.state & QStyle::State_Selected) {
+//					painter->fillRect(optionV4.rect, optionV4.palette.highlight());
+					painter->fillRect(textRect, optionV4.palette.highlight());
+				}
+				if (optionV4.state & QStyle::State_HasFocus) {
+					qDrawShadeRect(painter, textRect, optionV4.palette, false);
+				}
+				CRelIndex ndxRel(index.internalId());
+				assert(ndxRel.isSet());
+				if (ndxRel.verse() != 0) {
+					// Ideally we would just draw the line on the top of all entries except for
+					//		when index.row() == 0. However, there seems to be a one row overlap
+					//		in the rectangles from one cell to the next (QTreeView bug?) and the
+					//		qDrawShadeRect for the HasFocus above causes the lines to disappear
+					//		when moving the cursor in the up direction and reappear in the
+					//		down direction.  So, we'll just draw them on both top and bottom.
+					//		It still looks OK, but does have a funky doubling effect when
+					//		moving up and down.
+					qDrawShadeLine(painter, textRect.topLeft(), textRect.topRight(), optionV4.palette);
+					qDrawShadeLine(painter, textRect.bottomLeft(), textRect.bottomRight(), optionV4.palette);
+				}
+
+//				QStyleOption branchOption;
+//				branchOption.rect = style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView());
+//				branchOption.palette = optionV4.palette;
+//				branchOption.state = 0;
+//
+//				if (optionV4.state & QStyle::State_Children)
+//					branchOption.state |= QStyle::State_Children;
+//
+//				if (optionV4.state & QStyle::State_Open)
+//					branchOption.state |= QStyle::State_Open;
+//
+//				style->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, parentView());
+
+
 				// draw the background:
-				style->drawPrimitive(QStyle::PE_PanelItemViewItem, &optionV4, painter, parentView());
+//				style->drawPrimitive(QStyle::PE_PanelItemViewItem, &optionV4, painter, parentView());
 //				if (optionV4.state & QStyle::State_Selected)
 //					painter->fillRect(optionV4.rect, optionV4.palette.highlight());
 
@@ -111,12 +148,35 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 	initStyleOption(&optionV4, index);
 
+//	QSize szHint = QStyledItemDelegate::sizeHint(optionV4, index);
+
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
 		QTextDocument doc;
 		SetDocumentText(doc, index);
 
 		if(parentView()) {
-			doc.setTextWidth(parentView()->width());
+			CRelIndex ndxRel(index.internalId());
+			assert(ndxRel.isSet());
+			QTreeView *pTree = static_cast<QTreeView *>(parentView());
+			int nIndentation = pTree->indentation();
+			int nWidth = parentView()->width() - nIndentation;
+
+//			int nWidth = parentView()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
+
+			switch (m_model.treeMode()) {
+				case CVerseListModel::VTME_LIST:
+					break;
+				case CVerseListModel::VTME_TREE_BOOKS:
+					if (ndxRel.verse() != 0) nWidth -= nIndentation;
+					nWidth -= nIndentation;
+					break;
+				case CVerseListModel::VTME_TREE_CHAPTERS:
+					if (ndxRel.verse() != 0) nWidth -= nIndentation;
+					if (ndxRel.chapter() != 0) nWidth -= nIndentation;
+					nWidth -= nIndentation;
+					break;
+			}
+			doc.setTextWidth(nWidth);
 		} else {
 			if (optionV4.rect.isValid()) {
 				doc.setTextWidth(optionV4.rect.width());
