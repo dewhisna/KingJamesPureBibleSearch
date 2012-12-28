@@ -345,11 +345,18 @@ void CSearchResultsTreeView::on_passageNavigator()
 {
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() != 1) return;
+	if (!lstSelectedItems.at(0).isValid()) return;
 
-	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CRelIndex ndxRel(lstSelectedItems.at(0).internalId());
+	assert(ndxRel.isSet());
+	if (!ndxRel.isSet()) return;
+
+//	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVPassageNavigatorDlg dlg(this);
 
-	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
+//	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
+
+	dlg.navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
 	if (dlg.exec() == QDialog::Accepted) {
 		emit gotoIndex(dlg.passage());
 	}
@@ -407,7 +414,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 		m_pActionCopyComplete->setEnabled(false);
 		m_pActionClearSelection->setEnabled(false);
 	}
-	m_pActionNavigator->setEnabled(nNumResultsSelected == 1);		// Only allow navigation on a single entry
+	m_pActionNavigator->setEnabled(selectionModel()->selectedRows().size() == 1);		// Only allow navigation on a node (verse or otherwise)
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
 	assert(pModel != NULL);
