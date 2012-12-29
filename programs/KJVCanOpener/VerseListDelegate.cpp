@@ -34,7 +34,7 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		CPhraseNavigator navigator(doc);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
-		navigator.setDocumentToVerse(item.getIndex() /*, (index.row() != 0) */ );
+		navigator.setDocumentToVerse(item.getIndex());
 		navigator.doHighlighting(highlighter);
 	} else if (ndxRel.chapter() != 0) {
 		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());
@@ -88,9 +88,10 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 				if (optionV4.state & QStyle::State_HasFocus) {
 					qDrawShadeRect(painter, textRect, optionV4.palette, false);
 				}
+
 				CRelIndex ndxRel(index.internalId());
 				assert(ndxRel.isSet());
-				if (ndxRel.verse() != 0) {
+				if ((index.row() != 0) && (ndxRel.verse() != 0)) {
 					// Ideally we would just draw the line on the top of all entries except for
 					//		when index.row() == 0. However, there seems to be a one row overlap
 					//		in the rectangles from one cell to the next (QTreeView bug?) and the
@@ -99,8 +100,9 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 					//		down direction.  So, we'll just draw them on both top and bottom.
 					//		It still looks OK, but does have a funky doubling effect when
 					//		moving up and down.
-					qDrawShadeLine(painter, textRect.topLeft(), textRect.topRight(), optionV4.palette);
-					qDrawShadeLine(painter, textRect.bottomLeft(), textRect.bottomRight(), optionV4.palette);
+					// ... update...  Adding 1 to the top row fixes the drawing issue and we
+					//		can now just draw it on the rows we want...
+					qDrawShadeLine(painter, textRect.left(), textRect.top()+1, textRect.right(), textRect.top()+1, /*, textRect.topLeft(), textRect.topRight() */ optionV4.palette);
 				}
 
 //				QStyleOption branchOption;
