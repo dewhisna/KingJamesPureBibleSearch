@@ -208,6 +208,8 @@ public:
 
 	virtual Qt::DropActions supportedDropActions() const;
 
+	QModelIndex locateIndex(const CRelIndex &ndxRel) const;
+
 	CVerseList verseList() const;
 	void setVerseList(const CVerseList &verses);
 
@@ -243,6 +245,7 @@ protected:
 	int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
 	int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
 	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
+	int FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in the m_lstVerses array and returns its index
 public:
 	int GetVerseCount(unsigned int nBk, unsigned int nChp = 0) const;
 	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter

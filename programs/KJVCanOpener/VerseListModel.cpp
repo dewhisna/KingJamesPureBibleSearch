@@ -457,6 +457,46 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
 
+QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
+{
+	if (!ndxRel.isSet()) return QModelIndex();
+
+	int ndxTarget;
+	int ndxFirst;
+
+	// See if this is a verse (search result) reference.  If so resolve:
+	if (ndxRel.verse() != 0) {
+		// Set ndxVerse to first verse m_lstVerses array for this parent node:
+		if (m_nTreeMode == VTME_LIST) {
+			ndxFirst = 0;			// For list mode, the list includes everything, so start with the first index
+		} else {
+			ndxFirst = GetVerse(0, ndxRel.book(), ((m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
+		}
+		ndxTarget = FindVerseIndex(ndxRel);
+		if (ndxTarget == -1) return QModelIndex();
+		return createIndex(ndxTarget-ndxFirst, 0, m_lstVerses.at(ndxTarget).getIndex().index());		// Use index from actual verse instead of ndxRel since word() isn't required to match
+	}
+
+	// If we are in list mode and caller only gave us a book/chapter reference,
+	//		then we simply don't have an index to return.  That makes more
+	//		sense than possibly returning the first one that might match:
+	if (m_nTreeMode == VTME_LIST) return QModelIndex();
+
+	if ((ndxRel.chapter() != 0) && (m_nTreeMode == VTME_TREE_CHAPTERS)) {
+		// If this is a book/chapter reference, resolve it:
+		ndxTarget = IndexByChapter(ndxRel.book(), ndxRel.chapter());
+		if (ndxTarget == -1) return QModelIndex();
+		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0).index());		// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+	} else {
+		// If this is a book-only reference, resolve it:
+		ndxTarget = IndexByBook(ndxRel.book());
+		if (ndxTarget == -1) return QModelIndex();
+		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());	// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+	}
+
+	return QModelIndex();
+}
+
 // ----------------------------------------------------------------------------
 
 CVerseList CVerseListModel::verseList() const
@@ -808,6 +848,19 @@ int CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp)
 		if ((nChp != 0) && (m_lstVerses.at(ndx).getChapter() != nChp)) continue;
 		if (ndxVerse == nVerses) return ndx;
 		nVerses++;
+	}
+
+	return -1;
+}
+
+int CVerseListModel::FindVerseIndex(const CRelIndex &ndxRel) const
+{
+	if (!ndxRel.isSet()) return -1;
+
+	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+		if ((m_lstVerses.at(ndx).getBook() == ndxRel.book()) &&
+			(m_lstVerses.at(ndx).getChapter() == ndxRel.chapter()) &&
+			(m_lstVerses.at(ndx).getVerse() == ndxRel.verse())) return ndx;
 	}
 
 	return -1;

@@ -148,6 +148,8 @@ protected slots:
 	void on_viewAsTreeChapters();
 	void on_viewShowMissingsLeafs();
 
+	void setCurrentIndex(const CRelIndex &ndxCurrent);
+
 	void on_indexChanged(const TPhraseTag &tag);
 
 	void on_browserHistoryChanged();

@@ -1114,15 +1114,15 @@ void CKJVCanOpener::on_viewVerseHeading()
 		nMode = CVerseListModel::VDME_RICHTEXT;
 	}
 
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
-	if (pModel) {
-		pModel->setDisplayMode(nMode);
-	}
+	assert(pModel != NULL);
+	pModel->setDisplayMode(nMode);
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	setCurrentIndex(ndxCurrent);
 }
 
 void CKJVCanOpener::on_viewVerseRichText()
@@ -1143,15 +1143,15 @@ void CKJVCanOpener::on_viewVerseRichText()
 		nMode = CVerseListModel::VDME_HEADING;
 	}
 
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
-	if (pModel) {
-		pModel->setDisplayMode(nMode);
-	}
+	assert(pModel != NULL);
+	pModel->setDisplayMode(nMode);
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	setCurrentIndex(ndxCurrent);
 }
 
 
@@ -1164,6 +1164,8 @@ void CKJVCanOpener::on_viewAsList()
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
+
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
@@ -1182,8 +1184,7 @@ void CKJVCanOpener::on_viewAsList()
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	setCurrentIndex(ndxCurrent);
 }
 
 void CKJVCanOpener::on_viewAsTreeBooks()
@@ -1195,6 +1196,8 @@ void CKJVCanOpener::on_viewAsTreeBooks()
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
+
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
@@ -1213,8 +1216,7 @@ void CKJVCanOpener::on_viewAsTreeBooks()
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	setCurrentIndex(ndxCurrent);
 }
 
 void CKJVCanOpener::on_viewAsTreeChapters()
@@ -1226,6 +1228,8 @@ void CKJVCanOpener::on_viewAsTreeChapters()
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
+
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
@@ -1244,8 +1248,7 @@ void CKJVCanOpener::on_viewAsTreeChapters()
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	setCurrentIndex(ndxCurrent);
 }
 
 void CKJVCanOpener::on_viewShowMissingsLeafs()
@@ -1254,6 +1257,8 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
+
+	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
@@ -1266,7 +1271,17 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 
 	m_bDoingUpdate = false;
 
-	ui->treeViewSearchResults->scrollTo(ui->treeViewSearchResults->currentIndex(), QAbstractItemView::EnsureVisible);
+	setCurrentIndex(ndxCurrent);
+}
+
+void CKJVCanOpener::setCurrentIndex(const CRelIndex &ndxCurrent)
+{
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+
+	QModelIndex mndxCurrent = pModel->locateIndex(ndxCurrent);
+	ui->treeViewSearchResults->setCurrentIndex(mndxCurrent);
+	ui->treeViewSearchResults->scrollTo(mndxCurrent, QAbstractItemView::EnsureVisible);
 	ui->treeViewSearchResults->setFocus();
 }
 
