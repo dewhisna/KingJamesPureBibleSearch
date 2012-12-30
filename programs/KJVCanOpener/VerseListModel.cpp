@@ -826,6 +826,8 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 
 int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 {
+	if (nBk == 0) return m_lstVerses.size();		// Quick special-case
+
 	int nVerses = 0;
 
 	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {

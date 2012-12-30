@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
 			g_bEnableNoLimits = true;
 		} else if ((!strArg.startsWith("/")) && (strKJSFile.isEmpty())) {
 			strKJSFile = strArg;
+		} else {
+			QMessageBox::warning(splash, g_constrInitialization, QString("Unrecognized command-line option \"%1\"").arg(strArg));
 		}
 	}
 

@@ -61,6 +61,8 @@ public slots:
 signals:
 	void activatedSearchResults();
 	void gotoIndex(const TPhraseTag &tag);
+	void canExpandAll(bool bEnable);
+	void canCollapseAll(bool bEnable);
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
@@ -179,6 +181,8 @@ private:
 	QAction *m_pActionShowAsTreeBooks;		// Toggle action to show in tree books mode
 	QAction *m_pActionShowAsTreeChapters;	// Toggle action to show in tree chapters mode
 	QAction *m_pActionShowMissingLeafs;		// Toggle action for tree modes to show missing leafs
+	QAction *m_pActionExpandAll;	// View menu Expand All
+	QAction *m_pActionCollapseAll;	// View menu Collapse All
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
 	QAction *m_pActionBookForward;	// Navigate Book Forward
 	QAction *m_pActionChapterBackward;	// Navigate Chapter Backward

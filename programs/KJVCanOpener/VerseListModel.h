@@ -247,7 +247,7 @@ protected:
 	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
 	int FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in the m_lstVerses array and returns its index
 public:
-	int GetVerseCount(unsigned int nBk, unsigned int nChp = 0) const;
+	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter
 
 private:

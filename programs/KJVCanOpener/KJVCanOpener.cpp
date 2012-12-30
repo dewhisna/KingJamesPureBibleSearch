@@ -107,6 +107,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(QWidget *parent)
 	m_pEditMenuLocal->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip("Select all Search Results");
+	m_pActionSelectAll->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionSelectAll);
 	m_pActionClearSelection = m_pEditMenu->addAction("C&lear Selection", this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
 	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
@@ -432,6 +433,17 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 void CSearchResultsTreeView::on_listChanged()
 {
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+
+	int nResultsCount = pModel->GetResultsCount();
+
+	m_pActionSelectAll->setEnabled(nResultsCount != 0);
+	emit canExpandAll((pModel->treeMode() != CVerseListModel::VTME_LIST) &&
+						(pModel->hasChildren()) &&
+						(!((nResultsCount > g_nSearchLimit) && (!g_bEnableNoLimits))));
+	emit canCollapseAll((pModel->treeMode() != CVerseListModel::VTME_LIST) && (pModel->hasChildren()));
+
 	handle_selectionChanged();
 }
 
@@ -472,6 +484,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionShowAsTreeBooks(NULL),
 	m_pActionShowAsTreeChapters(NULL),
 	m_pActionShowMissingLeafs(NULL),
+	m_pActionExpandAll(NULL),
+	m_pActionCollapseAll(NULL),
 	m_pActionBookBackward(NULL),
 	m_pActionBookForward(NULL),
 	m_pActionChapterBackward(NULL),
@@ -575,6 +589,18 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
 	m_pActionShowMissingLeafs->setEnabled(nTreeMode != CVerseListModel::VTME_LIST);
 	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowMissingLeafs);
+
+	m_pActionExpandAll = m_pViewMenu->addAction("E&xpand All", ui->treeViewSearchResults, SLOT(expandAll()));
+	m_pActionExpandAll->setStatusTip("Expand all tree nodes in Search Results (Warning: May be slow if there are a lot of search results!)");
+	m_pActionExpandAll->setEnabled(false);
+	connect(ui->treeViewSearchResults, SIGNAL(canExpandAll(bool)), m_pActionExpandAll, SLOT(setEnabled(bool)));
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionExpandAll);
+
+	m_pActionCollapseAll = m_pViewMenu->addAction("Collap&se All", ui->treeViewSearchResults, SLOT(collapseAll()));
+	m_pActionCollapseAll->setStatusTip("Collapse all tree nodes in Search Results");
+	m_pActionCollapseAll->setEnabled(false);
+	connect(ui->treeViewSearchResults, SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionCollapseAll);
 
 	m_pViewMenu->addSeparator();
 	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();

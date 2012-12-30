@@ -79,6 +79,7 @@ private:
 	QIcon m_icoDroplist;
 	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
+	QAction *m_pActionSelectAll;	// Edit menu select all function (needed to enable/disable based on text available)
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 };
 

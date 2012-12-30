@@ -26,6 +26,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_icoDroplist(":/res/droplist.png"),
 		m_pButtonDroplist(NULL),
 		m_pEditMenu(NULL),
+		m_pActionSelectAll(NULL),
 		m_pStatusAction(NULL)
 {
 	setAcceptRichText(false);
@@ -65,10 +66,10 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	pAction = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	pAction->setStatusTip("Select All Text in the Search Phrase Editor");
-	pAction->setEnabled(true);
-	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
+	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip("Select All Text in the Search Phrase Editor");
+	m_pActionSelectAll->setEnabled(false);
+	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
 	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
 	m_pCompleter = new QCompleter(pModel, this);
@@ -171,6 +172,8 @@ void CPhraseLineEdit::on_textChanged()
 
 		emit phraseChanged();
 	}
+
+	m_pActionSelectAll->setEnabled(!document()->isEmpty());
 }
 
 void CPhraseLineEdit::on_cursorPositionChanged()
