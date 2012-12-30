@@ -23,6 +23,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
 		m_bUpdateInProgress(false),
+		m_bDoingPopup(false),
 		m_icoDroplist(":/res/droplist.png"),
 		m_pButtonDroplist(NULL),
 		m_pEditMenu(NULL),
@@ -35,6 +36,9 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	QAction *pAction;
 	m_pEditMenu = new QMenu("&Edit");
 	m_pEditMenu->setStatusTip("Search Phrase Editor Operations");
+/*
+	TODO : If we ever address what to do with undo/redo, then put this code back in:
+
 	pAction = m_pEditMenu->addAction("&Undo", this, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
 	pAction->setStatusTip("Undo last operation to the Serach Phrase Editor");
 	pAction->setEnabled(false);
@@ -46,6 +50,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	connect(this, SIGNAL(redoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
+*/
 	pAction = m_pEditMenu->addAction("Cu&t", this, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
 	pAction->setStatusTip("Cut selected text from the Search Phrase Editor to the clipboard");
 	pAction->setEnabled(false);
@@ -359,6 +364,13 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)
 {
 	m_pButtonDroplist->move(width()-m_pButtonDroplist->width(),0);
+}
+
+void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+	m_bDoingPopup = true;
+	m_pEditMenu->exec(event->globalPos());
+	m_bDoingPopup = false;
 }
 
 void CPhraseLineEdit::on_dropCommonPhrasesClicked()

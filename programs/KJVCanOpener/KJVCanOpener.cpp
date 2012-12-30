@@ -374,8 +374,6 @@ void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 	m_bDoingPopup = true;
 	m_pEditMenuLocal->exec(event->globalPos());
 	m_bDoingPopup = false;
-
-	QTreeView::contextMenuEvent(event);
 }
 
 void CSearchResultsTreeView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)

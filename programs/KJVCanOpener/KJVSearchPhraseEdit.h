@@ -9,6 +9,7 @@
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QResizeEvent>
+#include <QContextMenuEvent>
 #include <QPushButton>
 #include <QMimeData>
 
@@ -65,6 +66,7 @@ protected:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event);
 	QString textUnderCursor() const;
 
 // Data Private:
@@ -76,6 +78,7 @@ private:
 
 // UI Private:
 private:
+	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
 	QIcon m_icoDroplist;
 	QPushButton *m_pButtonDroplist;		// Phrase Suggestions Droplist
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
