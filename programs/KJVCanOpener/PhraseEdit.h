@@ -188,9 +188,10 @@ class CPhraseEditNavigator : public CPhraseNavigator
 {
 	Q_OBJECT
 public:
-	CPhraseEditNavigator(QTextEdit &textEditor, QObject *parent = NULL)
+	CPhraseEditNavigator(QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = NULL)
 		:	CPhraseNavigator(*textEditor.document(), parent),
-			m_TextEditor(textEditor)
+			m_TextEditor(textEditor),
+			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
 	}
 
@@ -209,6 +210,7 @@ public:
 
 private:
 	QTextEdit &m_TextEditor;
+	bool m_bUseToolTipEdit;			// True = Use CToolTipEdit instead of QToolTip
 };
 
 // ============================================================================

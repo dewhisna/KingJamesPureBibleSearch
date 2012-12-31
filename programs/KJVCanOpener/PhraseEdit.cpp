@@ -1,4 +1,5 @@
 #include "PhraseEdit.h"
+#include "ToolTipEdit.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -1257,10 +1258,18 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 
 	if (!strToolTip.isEmpty()) {
 		highlightTag(aHighlighter, TPhraseTag(ndxReference, 1));
-		QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
+		if (m_bUseToolTipEdit) {
+			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip);
+		} else {
+			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
+		}
 	} else {
 		highlightTag(aHighlighter);
-		QToolTip::hideText();
+		if (m_bUseToolTipEdit) {
+			CToolTipEdit::hideText();
+		} else {
+			QToolTip::hideText();
+		}
 		return false;
 	}
 

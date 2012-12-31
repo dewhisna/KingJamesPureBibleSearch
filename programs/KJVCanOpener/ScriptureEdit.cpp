@@ -21,7 +21,7 @@ template <class T, class U>
 CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	:	T(parent),
 		m_bDoingPopup(false),
-		m_navigator(*this),
+		m_navigator(*this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),

@@ -138,6 +138,8 @@ public:
 		:	QTextEdit(parent)
 	{ }
 
+	static bool useToolTipEdit() { return false; }
+
 signals:
 	void gotoIndex(const TPhraseTag &tag);
 	void activatedScriptureText();
@@ -168,6 +170,8 @@ public:
 	explicit i_CScriptureBrowser(QWidget *parent = 0)
 		:	QTextBrowser(parent)
 	{ }
+
+	static bool useToolTipEdit() { return true; }
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);
