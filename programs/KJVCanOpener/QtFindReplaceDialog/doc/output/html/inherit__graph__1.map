@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" href="$class_find_replace_form.html" title="The form for the find/replace dialog." alt="" coords="7,5,129,35"/>
+<area shape="rect" href="$class_find_form.html" title="The form for the find dialog (it is basically the same as FindReplaceForm without..." alt="" coords="180,5,255,35"/>
+</map>
