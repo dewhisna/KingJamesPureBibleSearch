@@ -26,12 +26,19 @@
 [Setup]
 AppName=KJVCanOpener
 #expr VersionInstaller("..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KJVCanOpener.exe")
-AppPublisher=Bethel Church
+AppCopyright=Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+AppPublisher=Dewtronics
+AppPublisherURL=http://www.dewtronics.com/
+AppContact=Bethel Church
+AppSupportURL=http://visitbethelchurch.com/
+AppSupportPhone=(636)-931-3999
+AppComments=King James Bible Search ("Can Opener") Program.  Brought to you by the fervent prayers of Bethel Church, Festus, MO.
 DefaultDirName={pf}\KJVCanOpener
 DefaultGroupName=KJVCanOpener
 ShowLanguageDialog=auto
-LicenseFile=gpl-3.0.txt
+LicenseFile=LICENSE.txt
 Compression=lzma
+ChangesAssociations=yes
 
 
 [Files]
@@ -64,6 +71,13 @@ Source: "gpl-3.0.txt"; DestDir: {app}\license; Flags: ignoreversion;
 
 ; {fonts}
 Source: "fonts/SCRIPTBL.TTF"; DestDir: "{fonts}"; FontInstall: "Script MT Bold"; Flags: onlyifdoesntexist uninsneveruninstall;
+
+
+ [Registry]
+Root: HKCR; Subkey: ".kjs"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletevalue;
+Root: HKCR; Subkey: "KJVCanOpener"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletekey;
+Root: HKCR; Subkey: "KJVCanOpener\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\app\KJVCanOpener.exe,0";
+Root: HKCR; Subkey: "KJVCanOpener\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\app\KJVCanOpener.exe"" ""%1""";
 
 [Icons]
 Name: {group}\{#SetupSetting("AppName")}; Filename: "{app}\app\KJVCanOpener.exe"
