@@ -134,7 +134,6 @@ public slots:
 protected:
 	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
 	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
-	QString groupCombine(const QString &strSubgroup, const QString &strGroup) const;
 
 protected slots:
 	void on_NewSearch();

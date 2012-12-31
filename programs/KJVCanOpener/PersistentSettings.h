@@ -4,6 +4,10 @@
 #include <QObject>
 #include <QSettings>
 
+
+extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
+
+
 class CPersistentSettings : public QObject
 {
 	Q_OBJECT

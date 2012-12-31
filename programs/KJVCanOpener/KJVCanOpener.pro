@@ -34,7 +34,11 @@ SOURCES += main.cpp\
     SearchPhraseListModel.cpp \
     MimeHelper.cpp \
     ToolTipEdit.cpp \
-    PersistentSettings.cpp
+    PersistentSettings.cpp \
+    QtFindReplaceDialog/dialogs/findreplaceform.cpp \
+    QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
+    QtFindReplaceDialog/dialogs/findform.cpp \
+    QtFindReplaceDialog/dialogs/finddialog.cpp
 
 HEADERS  += KJVCanOpener.h \
     CSV.h \
@@ -58,7 +62,12 @@ HEADERS  += KJVCanOpener.h \
     SearchPhraseListModel.h \
     MimeHelper.h \
     ToolTipEdit.h \
-    PersistentSettings.h
+    PersistentSettings.h \
+    QtFindReplaceDialog/dialogs/findreplaceform.h \
+    QtFindReplaceDialog/dialogs/findreplacedialog.h \
+    QtFindReplaceDialog/dialogs/findform.h \
+    QtFindReplaceDialog/dialogs/finddialog.h \
+    QtFindReplaceDialog/dialogs/findreplace_global.h
 
 FORMS    += KJVCanOpener.ui \
     KJVBrowser.ui \
@@ -66,7 +75,9 @@ FORMS    += KJVCanOpener.ui \
     KJVSearchCriteria.ui \
     KJVPassageNavigator.ui \
     KJVPassageNavigatorDlg.ui \
-    KJVAboutDlg.ui
+    KJVAboutDlg.ui \
+    QtFindReplaceDialog/dialogs/findreplaceform.ui \
+    QtFindReplaceDialog/dialogs/findreplacedialog.ui
 
 RESOURCES += \
     KJVCanOpener.qrc

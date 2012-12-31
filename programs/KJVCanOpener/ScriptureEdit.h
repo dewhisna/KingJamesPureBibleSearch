@@ -5,6 +5,8 @@
 #include "Highlighter.h"
 #include "PhraseEdit.h"
 
+#include "QtFindReplaceDialog/dialogs/finddialog.h"
+
 #include <QWidget>
 #include <QTextBrowser>
 #include <QTextEdit>
@@ -40,6 +42,9 @@ public:
 	explicit CScriptureText(QWidget *parent = 0);
 	virtual ~CScriptureText();
 
+	void savePersistentSettings(const QString &strGroup);
+	void restorePersistentSettings(const QString &strGroup);
+
 	CPhraseEditNavigator &navigator()
 	{
 		return m_navigator;
@@ -73,6 +78,8 @@ protected:
 
 //private slots:
 protected:
+	virtual void on_findDialog();
+
 	virtual void on_cursorPositionChanged();
 	virtual void on_selectionChanged();
 	virtual void clearHighlighting();
@@ -91,6 +98,7 @@ public:
 	virtual void on_copyEntirePassageDetails();
 
 private:
+	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	CPhraseEditNavigator m_navigator;
 	CCursorFollowHighlighter m_Highlighter;
@@ -114,6 +122,10 @@ private:
 	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy
 	// ----
 	QAction *m_pActionSelectAll;	// Edit menu select all
+	// ----
+	QAction *m_pActionFind;
+	QAction *m_pActionFindNext;
+	QAction *m_pActionFindPrev;
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
@@ -139,6 +151,7 @@ public:
 	{ }
 
 	static bool useToolTipEdit() { return false; }
+	static bool useFindDialog() { return false; }
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);
@@ -146,6 +159,8 @@ signals:
 	void copyRawAvailable(bool bAvailable);
 
 protected slots:
+	virtual void on_findDialog() = 0;
+
 	virtual void on_cursorPositionChanged() = 0;
 	virtual void on_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
@@ -172,6 +187,7 @@ public:
 	{ }
 
 	static bool useToolTipEdit() { return true; }
+	static bool useFindDialog() { return true; }
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);
@@ -179,6 +195,8 @@ signals:
 	void copyRawAvailable(bool bAvailable);
 
 protected slots:
+	virtual void on_findDialog() = 0;
+
 	virtual void on_cursorPositionChanged() = 0;
 	virtual void on_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;

@@ -3,6 +3,7 @@
 #include "dbstruct.h"
 #include "KJVPassageNavigatorDlg.h"
 #include "MimeHelper.h"
+#include "PersistentSettings.h"
 
 #include <assert.h>
 
@@ -15,11 +16,26 @@
 #include <QEvent>
 #include <QHelpEvent>
 
+
+// ============================================================================
+
+namespace {
+	//////////////////////////////////////////////////////////////////////
+	// File-scoped constants
+	//////////////////////////////////////////////////////////////////////
+
+	// Key constants:
+	// --------------
+	// Find Dialog:
+	const QString constrFindDialogGroup("FindDialog");
+}
+
 // ============================================================================
 
 template <class T, class U>
 CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	:	T(parent),
+		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
 		m_navigator(*this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
@@ -34,6 +50,9 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 		m_pActionCopyPassageStatistics(NULL),
 		m_pActionCopyEntirePassageDetails(NULL),
 		m_pActionSelectAll(NULL),
+		m_pActionFind(NULL),
+		m_pActionFindNext(NULL),
+		m_pActionFindPrev(NULL),
 		m_pStatusAction(NULL)
 {
 	T::setMouseTracking(true);
@@ -42,6 +61,11 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	T::viewport()->setCursor(QCursor(Qt::ArrowCursor));
 
 	m_HighlightTimer.stop();
+
+	// FindDialog:
+	m_pFindDialog = new FindDialog(this);
+	m_pFindDialog->setModal(false);
+	m_pFindDialog->setTextEdit(this);
 
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(on_selectionChanged()));
@@ -85,6 +109,18 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
+	m_pEditMenu->addSeparator();
+	m_pActionFind = m_pEditMenu->addAction("&Find...", this, SLOT(on_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+	m_pActionFind->setStatusTip("Find text within the passage browser");
+	m_pActionFind->setEnabled(T::useFindDialog());
+	m_pActionFindNext = m_pEditMenu->addAction("Find &Next", m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
+	m_pActionFindNext->setStatusTip("Find next occurrence of text within the passage browser");
+	m_pActionFindNext->setEnabled(T::useFindDialog());
+	m_pActionFindPrev = m_pEditMenu->addAction("Find &Previous", m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
+	m_pActionFindPrev->setStatusTip("Find previous occurrence of text within the passage browser");
+	m_pActionFindPrev->setEnabled(T::useFindDialog());
+
+//	connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
 	m_pStatusAction = new QAction(this);
 }
@@ -94,6 +130,39 @@ CScriptureText<T,U>::~CScriptureText()
 {
 
 }
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
+{
+	QSettings &settings(CPersistentSettings::instance()->settings());
+	m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
+{
+	QSettings &settings(CPersistentSettings::instance()->settings());
+	m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::on_findDialog()
+{
+	if (haveSelection()) {
+		m_pFindDialog->setTextToFind(m_selectedPhrase.first.phraseRaw());
+	}
+	if (m_pFindDialog->isVisible()) {
+		m_pFindDialog->activateWindow();
+	} else {
+		m_pFindDialog->show();
+	}
+}
+
+// ----------------------------------------------------------------------------
 
 template<class T, class U>
 void CScriptureText<T,U>::clearHighlighting()
@@ -248,6 +317,12 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	menu.addAction(m_pActionCopyEntirePassageDetails);
 	menu.addSeparator();
 	menu.addAction(m_pActionSelectAll);
+	if (T::useFindDialog()) {
+		menu.addSeparator();
+		menu.addAction(m_pActionFind);
+		menu.addAction(m_pActionFindNext);
+		menu.addAction(m_pActionFindPrev);
+	}
 	menu.addSeparator();
 	QAction *pActionNavigator = menu.addAction("Passage &Navigator...");
 	pActionNavigator->setEnabled(connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));

@@ -21,6 +21,18 @@ namespace
 
 // ============================================================================
 
+QString groupCombine(const QString &strSubgroup, const QString &strGroup)
+{
+	QString strCombinedGroup = strSubgroup;
+
+	if ((!strSubgroup.isEmpty()) && (!strSubgroup.endsWith('/'))) strCombinedGroup += '/';
+	strCombinedGroup += strGroup;
+
+	return strCombinedGroup;
+}
+
+// ============================================================================
+
 CPersistentSettings::CPersistentSettings(QObject *parent)
 	:	QObject(parent)
 {

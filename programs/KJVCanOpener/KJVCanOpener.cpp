@@ -794,7 +794,8 @@ void CKJVCanOpener::Initialize()
 	TPhraseTag tag;
 	settings.beginGroup(constrBrowserViewGroup);
 	// Read last location : Default initial location is Genesis 1
-	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());
+	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
+	if (!tag.first.isSet()) tag.first = CRelIndex(1,1,0,0);		// Default for zero key
 	tag.second = settings.value(constrLastSelectionSizeKey, 0).toUInt();
 	settings.endGroup();
 
@@ -837,6 +838,9 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrLastSelectionSizeKey, tag.second);
 	settings.setValue(constrHasFocusKey, ui->widgetKJVBrowser->hasFocusBrowser());
 	settings.endGroup();
+
+	// Browser Object (used for FindDialog, etc):
+	ui->widgetKJVBrowser->browser()->savePersistentSettings(constrBrowserViewGroup);
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -883,6 +887,9 @@ void CKJVCanOpener::restorePersistentSettings()
 		if (ndxLastBrowsed.isSet()) setCurrentIndex(ndxLastBrowsed, false);
 	}
 	settings.endGroup();
+
+	// Browser Object (used for FindDialog, etc):
+	ui->widgetKJVBrowser->browser()->restorePersistentSettings(constrBrowserViewGroup);
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
@@ -1107,16 +1114,6 @@ void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSub
 		ndxCurrent++;
 	}
 	kjsFile.endArray();
-}
-
-QString CKJVCanOpener::groupCombine(const QString &strSubgroup, const QString &strGroup) const
-{
-	QString strCombinedGroup = strSubgroup;
-
-	if ((!strSubgroup.isEmpty()) && (!strSubgroup.endsWith('/'))) strCombinedGroup += '/';
-	strCombinedGroup += strGroup;
-
-	return strCombinedGroup;
 }
 
 // ------------------------------------------------------------------
