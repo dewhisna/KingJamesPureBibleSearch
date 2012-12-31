@@ -25,13 +25,15 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0)));		// Default initial location is Genesis 1
+//	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0)));		// Default initial location is Genesis 1
+	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag());
 
 	CScriptureBrowser *browser();
 
 public slots:
 	void gotoIndex(const TPhraseTag &tag);
 	void focusBrowser();
+	bool hasFocusBrowser() const;
 	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
 
 	// Navigation Shortcut Processing:

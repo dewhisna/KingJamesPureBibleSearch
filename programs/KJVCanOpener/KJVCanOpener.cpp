@@ -11,6 +11,7 @@
 #include "PhraseListModel.h"
 #include "Highlighter.h"
 #include "version.h"
+#include "PersistentSettings.h"
 
 #include <assert.h>
 
@@ -36,7 +37,41 @@
 #include <QFileDialog>
 #include <QSettings>
 
-#define KJS_FILE_VERSION 1			// Current KJS File Version
+// ============================================================================
+
+#define KJS_FILE_VERSION 1				// Current KJS File Version
+#define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
+
+namespace {
+	//////////////////////////////////////////////////////////////////////
+	// File-scoped constants
+	//////////////////////////////////////////////////////////////////////
+
+	// Key constants:
+	// --------------
+	// MainApp:
+	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
+	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
+	const QString constrGeometryKey("Geometry");
+	const QString constrWindowStateKey("WindowState");
+
+	// Search Phrases:
+	const QString constrLastSearchGroup("LastSearch");
+
+	// Search Results View:
+	const QString constrSearchResultsViewGroup("SearchResultsView");
+	const QString constrVerseDisplayModeKey("VerseDisplayMode");
+	const QString constrVerseTreeModeKey("VerseTreeMode");
+	const QString constrViewMissingNodesKey("TreeShowsMissingNodes");
+	const QString constrCurrentIndexKey("CurrentIndex");
+	const QString constrHasFocusKey("HasFocus");
+
+	// Browser View:
+	const QString constrBrowserViewGroup("Browser");
+	const QString constrLastReferenceKey("LastReference");
+	const QString constrLastSelectionSizeKey("SelectionSize");
+	//const QString constrHasFocusKey("HasFocus");
+}
 
 // ============================================================================
 
@@ -512,7 +547,6 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->splitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
-	// TODO : Set preference for start mode!:
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
 	CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode = CVerseListModel::VTME_LIST;
 	bool bShowMissingLeafs = false;
@@ -743,6 +777,9 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	connect(this, SIGNAL(changedSearchResults()), ui->treeViewSearchResults, SLOT(on_listChanged()));
 	connect(model, SIGNAL(modelReset()), ui->treeViewSearchResults, SLOT(on_listChanged()));
 	connect(model, SIGNAL(layoutChanged()), ui->treeViewSearchResults, SLOT(on_listChanged()));
+
+	// -------------------- Persistent Settings:
+	restorePersistentSettings();
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -750,9 +787,111 @@ CKJVCanOpener::~CKJVCanOpener()
 	delete ui;
 }
 
-void CKJVCanOpener::Initialize(const TPhraseTag &nInitialIndex)
+void CKJVCanOpener::Initialize()
 {
-	ui->widgetKJVBrowser->gotoIndex(nInitialIndex);
+	QSettings &settings(CPersistentSettings::instance()->settings());
+
+	TPhraseTag tag;
+	settings.beginGroup(constrBrowserViewGroup);
+	// Read last location : Default initial location is Genesis 1
+	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());
+	tag.second = settings.value(constrLastSelectionSizeKey, 0).toUInt();
+	settings.endGroup();
+
+	ui->widgetKJVBrowser->gotoIndex(tag);
+}
+
+void CKJVCanOpener::savePersistentSettings()
+{
+	QSettings &settings(CPersistentSettings::instance()->settings());
+
+	// Main App and Toolbars:
+	settings.beginGroup(constrMainAppRestoreStateGroup);
+	settings.setValue(constrGeometryKey, saveGeometry());
+	settings.setValue(constrWindowStateKey, saveState(KJVAPP_REGISTRY_VERSION));
+	settings.endGroup();
+
+	// Splitter:
+	settings.beginGroup(constrSplitterRestoreStateGroup);
+	settings.setValue(constrWindowStateKey, ui->splitter->saveState());
+	settings.endGroup();
+
+	// Search Results mode:
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+	settings.beginGroup(constrSearchResultsViewGroup);
+	settings.setValue(constrVerseDisplayModeKey, pModel->displayMode());
+	settings.setValue(constrVerseTreeModeKey, pModel->treeMode());
+	settings.setValue(constrViewMissingNodesKey, pModel->showMissingLeafs());
+	settings.setValue(constrCurrentIndexKey, CRelIndex(ui->treeViewSearchResults->currentIndex().internalId()).asAnchor());
+	settings.setValue(constrHasFocusKey, ui->treeViewSearchResults->hasFocus());
+	settings.endGroup();
+
+	// Last Search:
+	writeKJVSearchFile(settings, constrLastSearchGroup);
+
+	// Current Browser Reference:
+	settings.beginGroup(constrBrowserViewGroup);
+	TPhraseTag tag = ui->widgetKJVBrowser->browser()->selection();
+	settings.setValue(constrLastReferenceKey, tag.first.asAnchor());
+	settings.setValue(constrLastSelectionSizeKey, tag.second);
+	settings.setValue(constrHasFocusKey, ui->widgetKJVBrowser->hasFocusBrowser());
+	settings.endGroup();
+}
+
+void CKJVCanOpener::restorePersistentSettings()
+{
+	QSettings &settings(CPersistentSettings::instance()->settings());
+
+	// Main App and Toolbars:
+	settings.beginGroup(constrMainAppRestoreStateGroup);
+	restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+	restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+	settings.endGroup();
+
+	// Splitter:
+	settings.beginGroup(constrSplitterRestoreStateGroup);
+	ui->splitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+	settings.endGroup();
+
+	// Search Results mode:
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	assert(pModel != NULL);
+	settings.beginGroup(constrSearchResultsViewGroup);
+	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, pModel->displayMode()).toUInt()));
+	setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, pModel->treeMode()).toUInt()));
+	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, pModel->showMissingLeafs()).toBool());
+	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
+	bool bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
+	settings.endGroup();
+
+	// Last Search:
+	readKJVSearchFile(settings, constrLastSearchGroup);
+
+	// Current Browser Reference:
+	//		Note: The actual browser reference has already been loaded in
+	//			initialize().  However, this will lookup the reference and
+	//			see if the user was displaying a search result and if so,
+	//			will set the current index for the search result to that
+	//			as a fallback for when there is no Last Current Index:
+	bool bLastSet = false;
+	if (ndxLastCurrentIndex.isSet()) bLastSet = setCurrentIndex(ndxLastCurrentIndex, false);
+	settings.beginGroup(constrBrowserViewGroup);
+	bool bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
+	if (!bLastSet) {
+		CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
+		if (ndxLastBrowsed.isSet()) setCurrentIndex(ndxLastBrowsed, false);
+	}
+	settings.endGroup();
+
+	// If the Search Result was focused last time, focus it again, else if
+	//	the browser was focus last time, focus it again.  Otherwise, leave
+	//	the phrase editor focus:
+	if (bFocusSearchResults) {
+		QTimer::singleShot(1, ui->treeViewSearchResults, SLOT(setFocus()));
+	} else if (bFocusBrowser) {
+		QTimer::singleShot(1, ui->widgetKJVBrowser, SLOT(focusBrowser()));
+	}
 }
 
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
@@ -774,7 +913,63 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		}
 	}
 
+	savePersistentSettings();
+
 	return QMainWindow::closeEvent(event);
+}
+
+// ------------------------------------------------------------------
+
+void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
+{
+	assert(m_pActionShowVerseHeading != NULL);
+	assert(m_pActionShowVerseRichText != NULL);
+
+	switch (nDisplayMode) {
+		case CVerseListModel::VDME_HEADING:
+			m_pActionShowVerseHeading->setChecked(true);
+			on_viewVerseHeading();
+			break;
+		case CVerseListModel::VDME_RICHTEXT:
+			m_pActionShowVerseHeading->setChecked(true);
+			on_viewVerseRichText();
+			break;
+		default:
+			assert(false);		// Did you add some modes and forget to add them here?
+			break;
+	}
+}
+
+void CKJVCanOpener::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
+{
+	assert(m_pActionShowAsList != NULL);
+	assert(m_pActionShowAsTreeBooks != NULL);
+	assert(m_pActionShowAsTreeChapters != NULL);
+
+	switch (nTreeMode) {
+		case CVerseListModel::VTME_LIST:
+			m_pActionShowAsList->setChecked(true);
+			on_viewAsList();
+			break;
+		case CVerseListModel::VTME_TREE_BOOKS:
+			m_pActionShowAsTreeBooks->setChecked(true);
+			on_viewAsTreeBooks();
+			break;
+		case CVerseListModel::VTME_TREE_CHAPTERS:
+			m_pActionShowAsTreeChapters->setChecked(true);
+			on_viewAsTreeChapters();
+			break;
+		default:
+			assert(false);		// Did you add some modes and forget to add them here?
+			break;
+	}
+}
+
+void CKJVCanOpener::setShowMissingLeafs(bool bShowMissing)
+{
+	assert(m_pActionShowMissingLeafs != NULL);
+	m_pActionShowMissingLeafs->setChecked(bShowMissing);
+	on_viewShowMissingsLeafs();
 }
 
 // ------------------------------------------------------------------
@@ -815,7 +1010,6 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 	if (kjsFile.status() != QSettings::NoError) return false;
 
 	unsigned int nFileVersion = 0;
-	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
 
 	kjsFile.beginGroup("KJVCanOpener");
 	nFileVersion = kjsFile.value("KJSFileVersion").toUInt();
@@ -832,26 +1026,7 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 									"ignored.");
 	}
 
-	closeAllSearchPhrases();
-
-	kjsFile.beginGroup("SearchCriteria");
-	nSearchScope = static_cast<CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CKJVSearchCriteria::SSME_WHOLE_BIBLE).toInt());
-	if ((nSearchScope < CKJVSearchCriteria::SSME_WHOLE_BIBLE) ||
-		(nSearchScope > CKJVSearchCriteria::SSME_VERSE))
-		nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
-	kjsFile.endGroup();
-
-	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
-
-	int nPhrases = kjsFile.beginReadArray("SearchPhrases");
-	for (int ndx = 0; ndx < nPhrases; ++ndx) {
-		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-		assert(pPhraseEditor != NULL);
-		kjsFile.setArrayIndex(ndx);
-		pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
-		pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
-	}
-	kjsFile.endArray();
+	readKJVSearchFile(kjsFile);
 
 	return (kjsFile.status() == QSettings::NoError);
 }
@@ -868,12 +1043,62 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
 	kjsFile.endGroup();
 
-	kjsFile.beginGroup("SearchCriteria");
+	writeKJVSearchFile(kjsFile);
+
+	kjsFile.sync();
+
+	return (kjsFile.status() == QSettings::NoError);
+}
+
+void CKJVCanOpener::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
+{
+	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+
+	closeAllSearchPhrases();
+
+	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
+	nSearchScope = static_cast<CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CKJVSearchCriteria::SSME_WHOLE_BIBLE).toInt());
+	if ((nSearchScope < CKJVSearchCriteria::SSME_WHOLE_BIBLE) ||
+		(nSearchScope > CKJVSearchCriteria::SSME_VERSE))
+		nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+	kjsFile.endGroup();
+
+	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
+
+	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = NULL;
+	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
+	if (nPhrases != 0) {
+		for (int ndx = 0; ndx < nPhrases; ++ndx) {
+			CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+			assert(pPhraseEditor != NULL);
+			if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
+			kjsFile.setArrayIndex(ndx);
+			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
+			pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
+		}
+	} else {
+		// If the search had no phrases (like default loading from registry), start
+		//		with a single empty search phrase:
+		pFirstSearchPhraseEditor = addSearchPhrase();
+	}
+	kjsFile.endArray();
+
+	// Set focus to our first editor.  Note that calling of focusEditor
+	//	doesn't work when running from the constructor during a restore
+	//	operation.  So we'll set it to trigger later:
+	assert(pFirstSearchPhraseEditor != NULL);
+	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
+}
+
+void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup) const
+{
+	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
 	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchScopeMode());
 	kjsFile.endGroup();
 
 	int ndxCurrent = 0;
-	kjsFile.beginWriteArray("SearchPhrases");
+	kjsFile.beginWriteArray(groupCombine(strSubgroup, "SearchPhrases"));
+	kjsFile.remove("");
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase().isEmpty()) continue;
 		kjsFile.setArrayIndex(ndxCurrent);
@@ -882,10 +1107,16 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 		ndxCurrent++;
 	}
 	kjsFile.endArray();
+}
 
-	kjsFile.sync();
+QString CKJVCanOpener::groupCombine(const QString &strSubgroup, const QString &strGroup) const
+{
+	QString strCombinedGroup = strSubgroup;
 
-	return (kjsFile.status() == QSettings::NoError);
+	if ((!strSubgroup.isEmpty()) && (!strSubgroup.endsWith('/'))) strCombinedGroup += '/';
+	strCombinedGroup += strGroup;
+
+	return strCombinedGroup;
 }
 
 // ------------------------------------------------------------------
@@ -1128,21 +1359,19 @@ void CKJVCanOpener::on_viewVerseHeading()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_HEADING;
-
-	if (m_pActionShowVerseHeading->isChecked()) {
-		m_pActionShowVerseRichText->setChecked(false);
-		nMode = CVerseListModel::VDME_HEADING;
-	} else {
-		m_pActionShowVerseRichText->setChecked(true);
-		nMode = CVerseListModel::VDME_RICHTEXT;
-	}
-
 	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
-	pModel->setDisplayMode(nMode);
+
+	if (m_pActionShowVerseHeading->isChecked()) {
+		m_pActionShowVerseRichText->setChecked(false);
+		pModel->setDisplayMode(CVerseListModel::VDME_HEADING);
+	} else {
+		if (pModel->displayMode() == CVerseListModel::VDME_HEADING) {
+			m_pActionShowVerseHeading->setChecked(true);
+		}
+	}
 
 	m_bDoingUpdate = false;
 
@@ -1157,27 +1386,24 @@ void CKJVCanOpener::on_viewVerseRichText()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nMode = CVerseListModel::VDME_RICHTEXT;
-
-	if (m_pActionShowVerseRichText->isChecked()) {
-		m_pActionShowVerseHeading->setChecked(false);
-		nMode = CVerseListModel::VDME_RICHTEXT;
-	} else {
-		m_pActionShowVerseHeading->setChecked(true);
-		nMode = CVerseListModel::VDME_HEADING;
-	}
-
 	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
 
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
-	pModel->setDisplayMode(nMode);
+
+	if (m_pActionShowVerseRichText->isChecked()) {
+		m_pActionShowVerseHeading->setChecked(false);
+		pModel->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
+	} else {
+		if (pModel->displayMode() == CVerseListModel::VDME_RICHTEXT) {
+			m_pActionShowVerseRichText->setChecked(true);
+		}
+	}
 
 	m_bDoingUpdate = false;
 
 	setCurrentIndex(ndxCurrent);
 }
-
 
 void CKJVCanOpener::on_viewAsList()
 {
@@ -1298,7 +1524,7 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 	setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::setCurrentIndex(const CRelIndex &ndxCurrent)
+bool CKJVCanOpener::setCurrentIndex(const CRelIndex &ndxCurrent, bool bFocusTreeView)
 {
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
 	assert(pModel != NULL);
@@ -1306,7 +1532,8 @@ void CKJVCanOpener::setCurrentIndex(const CRelIndex &ndxCurrent)
 	QModelIndex mndxCurrent = pModel->locateIndex(ndxCurrent);
 	ui->treeViewSearchResults->setCurrentIndex(mndxCurrent);
 	ui->treeViewSearchResults->scrollTo(mndxCurrent, QAbstractItemView::EnsureVisible);
-	ui->treeViewSearchResults->setFocus();
+	if (bFocusTreeView) ui->treeViewSearchResults->setFocus();
+	return mndxCurrent.isValid();
 }
 
 void CKJVCanOpener::on_indexChanged(const TPhraseTag &tag)

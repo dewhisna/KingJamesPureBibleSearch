@@ -42,8 +42,9 @@ int main(int argc, char *argv[])
 	bool bBuildDB = false;
 
 	app.setApplicationVersion(VER_QT);
-	app.setOrganizationDomain(VER_COMPANYDOMAIN_STR);
-	app.setOrganizationName(VER_COMPANYNAME_STR);
+	app.setApplicationName(VER_APPNAME_STR_QT);
+	app.setOrganizationName(VER_ORGNAME_STR_QT);
+	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 

@@ -114,6 +114,11 @@ void CKJVBrowser::focusBrowser()
 	ui->textBrowserMainText->setFocus();
 }
 
+bool CKJVBrowser::hasFocusBrowser() const
+{
+	return ui->textBrowserMainText->hasFocus();
+}
+
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)

@@ -5,6 +5,7 @@
 #include "KJVSearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
 #include "KJVSearchCriteria.h"
+#include "VerseListModel.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -18,6 +19,7 @@
 #include <QString>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <QSettings>
 
 #include <assert.h>
 
@@ -110,9 +112,11 @@ public:
 	explicit CKJVCanOpener(const QString &strUserDatabase = QString(), QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0)));		// Default initial location is Genesis 1
+	void Initialize();
 
 protected:
+	void savePersistentSettings();
+	void restorePersistentSettings();
 	virtual void closeEvent(QCloseEvent * event);
 	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
@@ -122,6 +126,15 @@ signals:
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
 	bool saveKJVSearchFile(const QString &strFilePathName) const;
+
+	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
+	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
+	void setShowMissingLeafs(bool bShowMissing);
+
+protected:
+	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
+	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
+	QString groupCombine(const QString &strSubgroup, const QString &strGroup) const;
 
 protected slots:
 	void on_NewSearch();
@@ -150,7 +163,7 @@ protected slots:
 	void on_viewAsTreeChapters();
 	void on_viewShowMissingsLeafs();
 
-	void setCurrentIndex(const CRelIndex &ndxCurrent);
+	bool setCurrentIndex(const CRelIndex &ndxCurrent, bool bFocusTreeView = true);
 
 	void on_indexChanged(const TPhraseTag &tag);
 

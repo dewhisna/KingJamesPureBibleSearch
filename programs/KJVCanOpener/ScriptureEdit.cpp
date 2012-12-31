@@ -381,11 +381,7 @@ void CScriptureText<T,U>::on_copyReferenceDetails()
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
-	if (haveSelection()) {
-		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
-	} else {
-		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
-	}
+	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
 
@@ -395,11 +391,7 @@ void CScriptureText<T,U>::on_copyPassageStatistics()
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
-	if (haveSelection()) {
-		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
-	} else {
-		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
-	}
+	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
 
@@ -409,11 +401,7 @@ void CScriptureText<T,U>::on_copyEntirePassageDetails()
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, true));
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, false));
-	if (haveSelection()) {
-		CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
-	} else {
-		CMimeHelper::addPhraseTagToMimeData(mime, TPhraseTag(m_tagLast.first, 0));
-	}
+	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
 

@@ -8,6 +8,10 @@
 #define VER_PRODUCTVERSION			0,0,2,1
 #define VER_PRODUCTVERSION_STR		"0,0,2,1\0"
 
+#define VER_APPNAME_STR_QT			VER_PRODUCTNAME_STR
+#define VER_ORGNAME_STR_QT			VER_COMPANYNAME_STR
+#define VER_ORGDOMAIN_STR_QT		VER_COMPANYDOMAIN_STR
+
 #define VER_COMMENTS_STR			"Don't make me have to open a can on you!\n\0"
 #define VER_COMPANYNAME_STR			"Bethel Church, Festus, MO\0"
 #define VER_FILEDESCRIPTION_STR		"KJVCanOpener\0"
