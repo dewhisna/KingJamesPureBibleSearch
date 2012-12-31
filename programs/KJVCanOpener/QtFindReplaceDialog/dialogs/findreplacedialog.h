@@ -11,7 +11,7 @@
 #include "findreplace_global.h"
 
 namespace Ui {
-    class FindReplaceDialog;
+	class FindReplaceDialog;
 }
 
 class QTextEdit;
@@ -23,46 +23,56 @@ class QSettings;
   * It relies on a FindReplaceForm object (see that class for the functionalities provided).
   */
 class FINDREPLACESHARED_EXPORT FindReplaceDialog : public QDialog {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    FindReplaceDialog(QWidget *parent = 0);
-    virtual ~FindReplaceDialog();
+	FindReplaceDialog(QWidget *parent = 0);
+	virtual ~FindReplaceDialog();
 
-    /**
-      * Associates the text editor where to perform the search
-      * @param textEdit
-      */
-    void setTextEdit(QTextEdit *textEdit);
+	/**
+	  * Associates the text editor where to perform the search
+	  * @param textEdit
+	  */
+	void setTextEdit(QTextEdit *textEdit);
 
-    /**
-      * Writes the state of the form to the passed settings.
-      * @param settings
-      * @param prefix the prefix to insert in the settings
-      */
-    virtual void writeSettings(QSettings &settings, const QString &prefix = "FindReplaceDialog");
+	/**
+	  * Writes the state of the form to the passed settings.
+	  * @param settings
+	  * @param prefix the prefix to insert in the settings
+	  */
+	virtual void writeSettings(QSettings &settings, const QString &prefix = "FindReplaceDialog");
 
-    /**
-      * Reads the state of the form from the passed settings.
-      * @param settings
-      * @param prefix the prefix to look for in the settings
-      */
-    virtual void readSettings(QSettings &settings, const QString &prefix = "FindReplaceDialog");
+	/**
+	  * Reads the state of the form from the passed settings.
+	  * @param settings
+	  * @param prefix the prefix to look for in the settings
+	  */
+	virtual void readSettings(QSettings &settings, const QString &prefix = "FindReplaceDialog");
 
 public slots:
-    /**
-     * Finds the next occurrence
-     */
-    void findNext();
+	/**
+	 * Sets the current textToFind (used to set it from specialized current selection, etc)
+	 */
+	 void setTextToFind(const QString &strText);
 
-    /**
-     * Finds the previous occurrence
-     */
-    void findPrev();
+	/**
+	 * Finds the next or previous occurrence:
+	 */
+	void find();
+
+	/**
+	 * Finds the next occurrence
+	 */
+	void findNext();
+
+	/**
+	 * Finds the previous occurrence
+	 */
+	void findPrev();
 
 protected:
-    void changeEvent(QEvent *e);
+	void changeEvent(QEvent *e);
 
-    Ui::FindReplaceDialog *ui;
+	Ui::FindReplaceDialog *ui;
 };
 
 #endif // FINDREPLACEDIALOG_H
