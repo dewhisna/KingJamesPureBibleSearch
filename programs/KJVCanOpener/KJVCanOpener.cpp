@@ -887,7 +887,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
 	//	the phrase editor focus:
-	if (bFocusSearchResults) {
+	if ((bFocusSearchResults) && (pModel->hasChildren())) {
 		QTimer::singleShot(1, ui->treeViewSearchResults, SLOT(setFocus()));
 	} else if (bFocusBrowser) {
 		QTimer::singleShot(1, ui->widgetKJVBrowser, SLOT(focusBrowser()));
