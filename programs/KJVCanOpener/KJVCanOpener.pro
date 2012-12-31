@@ -56,7 +56,6 @@ HEADERS  += KJVCanOpener.h \
     ScriptureEdit.h \
     Highlighter.h \
     VerseListDelegate.h \
-    DelegateMisc.h \
     KJVAboutDlg.h \
     version.h \
     SearchPhraseListModel.h \
