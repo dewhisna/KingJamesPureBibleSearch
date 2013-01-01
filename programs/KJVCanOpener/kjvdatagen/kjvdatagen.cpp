@@ -10,11 +10,17 @@
 //	Reads a specialized (with '@' symbols) Sword OutPlain dump file with OSIS
 //		Key names and text from <Filename-In>.  Sends the following to <Filename-Out>
 //		depending on the specified mode:
-//		layout :	Writes the LAYOUT table (sans footnotes)
+//		layout :	Writes the LAYOUT table
 //		book :		Writes the BOOK table for the specified book name
 //		words :		Writes the WORDS table
-//		worddump :	Dumps all words, trimmed on individual lines
+//		footnotes :	Writes the FOOTNOTES table for the data provided in the OSIS file (which is usually incomplete)
+//		worddump :	Dumps all words, trimmed on individual lines (book name optional)
+//		worddumpkeys :	Dumps all key words (book name optional)
+//		worddumpunique :	Dumps all unique words, trimmed on individual lines (book name optional)
+//		worddumpuniqlc :	Dumps all unique words lowercase, trimmed on individual lines (book name optional)
+//		altworddump :	Dumps the alternate words table (book name optional)
 //		bookdump :	Dumps the content of the specified book, one verse per line
+//		summary :	Dump word usage Summary CSV (book name ignored)
 //
 // Input should be formatted so the OSIS reference is preceeded by "$$$" and
 //	the verse text is preceeded by "@" and ended with "@".  Newline (\a) characters
@@ -54,10 +60,12 @@
 //	@And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.@
 //	@And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.@
 //
+//
 // Output Format (for LAYOUT):
-//	{nBk|nChp},countVrs,countWrd,BkAbbr$,nChp
+//	{0|0|nBk|nChp},countVrs,countWrd,BkAbbr$,nChp
 //
 // Example:
+//	BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
 //	257,31,797,Gen,1
 //	258,25,632,Gen,2
 //	259,24,695,Gen,3
@@ -66,17 +74,44 @@
 //	262,22,579,Gen,6
 //	263,24,584,Gen,7
 //
+//
 // Output Format (for BOOK):
-//	{nChp|nVrs},countWrd,bPilcrow,PlainText$,RichText$,Footnote$
+//	{0|0|nChp|nVrs},countWrd,bPilcrow,PlainText$,RichText$
 //
 // Example:
+//	ChpVrsNdx,NumWrd,bPilcrow,PText,RText
+//	257,17,0,"Paul, a servant of Jesus Christ, called to be an apostle, separated unto the gospel of God,","Paul, a servant of Jesus Christ, called <i>to be</i> an apostle, separated unto the gospel of God,"
+//	258,12,0,"(Which he had promised afore by his prophets in the holy scriptures,)","(Which he had promised afore by his prophets in the holy scriptures,)"
+//	259,19,0,"Concerning his Son Jesus Christ our Lord, which was made of the seed of David according to the flesh;","Concerning his Son Jesus Christ our Lord, which was made of the seed of David according to the flesh;"
 //
 //
+// Output Format (for WORDS):
+//	WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap
+//
+// Example:
+//	WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap
+//	7,"Abana",0,1,"Abana","1","271425"
+//	8,"Abarim",0,4,"Abarim","4","120664,126091,126101,155493"
+//	...
+//	11,"abasing",0,1,"abasing","1","740857"
+//	12,"abated",0,6,"abated","6","4499,4606,4709,95033,156603,181941"
+//	...
+//	1556,"boil",0,16,"Boil,boil","1,15","77128,44268,44306,44330,80447,80457,80517,80591,285865,378397,465963,480048,545906,565388,565514,565522"
+//
+//
+// Output Format (for FOOTNOTES):
+//	{nBk|nChp|nVrs|0},PlainFootnote$,RichFootnote$
+//			-- note nChp and/or nVrs can be 0
+//
+// Example:
+//	BkChpVrsWrdNdx,PFootnote,RFootnote
+//	754974720,"Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.","Written to the Romans from Corinthus, <i>and sent</i> by Phebe servant of the church at Cenchrea."
 //
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <fcntl.h>
 #include <io.h>
 #include <string>
@@ -490,6 +525,7 @@ int main(int argc, const char *argv[])
 	char buffPlain[10000];		// Plain Text version
 	char buffRich[10000];		// Rich Text version
 	char buffFootnote[2000];	// Footnote Text
+	char buffRichFootnote[2000];	// Rich Footnote Text
 	char word[50];
 	int countChp[NUM_BK];		// # of Chapters in books
 	int countVrs[NUM_BK];		// # of Verses in entire book for Book mode or # of Verses in current Chapter for Layout mode
@@ -497,6 +533,7 @@ int main(int argc, const char *argv[])
 	bool bDoingLayout = false;		// TRUE if outputing LAYOUT table
 	bool bDoingBook = false;		// TRUE if outputing BOOK table (nBkNdx = book to output)
 	bool bDoingWords = false;		// TRUE if outputing WORDS table
+	bool bDoingFootnotes = false;	// TRUE if outputing FOOTNOTES table
 	bool bDoingWordDump = false;	// TRUE if dumping words used (nBkNdx = book to output or 0 for all)
 	bool bDoingWordDumpKeys = false;	// TRUE if dumping unique Key words used (nBkNdx = book to output or 0 for all)
 	bool bDoingWordDumpUnique = false;	// TRUE if dumping unique words used (nBkNdx = book to output or 0 for all)
@@ -512,7 +549,12 @@ int main(int argc, const char *argv[])
 	int nChp;			// Chapter counter
 	int nVrs;			// Verse counter
 	int nWrd;			// Word counter
+	int nRichWrd;		// Rich Text Word Counter
+	bool bRichTag;		// True when inside Rich Text Tag
+	bool bRichWord;		// True when inside Rich Text Word
+	bool bRichDrop;		// True when we are dropping extra (footnote) text out of Rich Text parsing
 	unsigned int ndx;	// Index into buffer;
+	unsigned int ndx2;	// Index into buffer (used for richtext footnotes)
 	uint32_t nNormalizedNdx = 0;	// Normalized index -- incremented for each word processed and added to collection
 	bool bIsPilcrow;		// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (either Plain/Rich)
 	bool bIsPilcrowPlain;	// Set to TRUE if the current verse is a Pilcrow (¶) start point, else is FALSE (in Plain Text)
@@ -540,6 +582,9 @@ int main(int argc, const char *argv[])
 		bDoingBook = true;
 	} else if (stricmp(argv[1], "words") == 0) {
 		bDoingWords = true;
+		// Book name is ignored
+	} else if (stricmp(argv[1], "footnotes") == 0) {
+		bDoingFootnotes = true;
 		// Book name is ignored
 	} else if (stricmp(argv[1], "worddump") == 0) {
 		bDoingWordDump = true;
@@ -593,6 +638,7 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "      layout         -- Dump LAYOUT table data (book name not used)\n");
 		fprintf(stderr, "      book           -- Dump BOOK table data for the specified book\n");
 		fprintf(stderr, "      words          -- Dump WORDS table data (book name not used)\n");
+		fprintf(stderr, "      footnotes      -- Dump FOOTNOTES table data (book name not used)\n");
 		fprintf(stderr, "      worddump       -- Dumps all words (book name optional)\n");
 		fprintf(stderr, "      worddumpkeys   -- Dumps all key words (book name optional)\n");
 		fprintf(stderr, "      worddumpunique -- Dumps all unique words (book name optional)\n");
@@ -650,7 +696,14 @@ int main(int argc, const char *argv[])
 		// Excel will normally try to treat the file as Latin-1, but since we
 		//		have some embedded UTF-8, we need to output a BOM:
 		fputcUTF8(0x0FEFF, fileOut);
-		fprintf(fileOut, "ChpVrsNdx,NumWrd,bPilcrow,PText,RText,Footnote\r\n");
+		fprintf(fileOut, "ChpVrsNdx,NumWrd,bPilcrow,PText,RText\r\n");
+	}
+
+	if (bDoingFootnotes) {
+		// Excel will normally try to treat the file as Latin-1, but since we
+		//		have some embedded UTF-8, we need to output a BOM:
+		fputcUTF8(0x0FEFF, fileOut);
+		fprintf(fileOut, "BkChpVrsWrdNdx,PFootnote,RFootnote\r\n");
 	}
 
 /////////////////////////////////////
@@ -796,9 +849,51 @@ int main(int argc, const char *argv[])
 		}
 		buffFootnote[ndx] = 0;			// End footnote
 
+
+/////////////////////////////////////
+// Parse Text and Determine Words,
+//	Word Indexes, and Word Counts
+/////////////////////////////////////
+
+		nWrd = 0;
+		pTemp = strpbrk(buffPlain, g_strCharset);
+		while (pTemp) {								// pTemp = start of word
+			nWrd++;
+			pTemp2 = pTemp+1;
+			while ((*pTemp2 != 0) && (strchr(g_strCharset, *pTemp2) != NULL)) ++pTemp2;
+			memcpy(word, pTemp, pTemp2-pTemp);
+			word[pTemp2-pTemp] = 0;
+			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(fileOut, "%s\r\n", word);
+			if ((nBkNdx == 0) || (nBk == nBkNdx)) {
+				std::string strWordKey(word);
+
+				// Set possible alternate word form:
+				std::transform(strWordKey.begin(), strWordKey.end(), strWordKey.begin(), XformLower());
+				TAltWordSet &wrdSet = g_mapAltWordList[strWordKey];
+				wrdSet.insert(word);
+
+				CWordEntry &wrdEntry = g_mapWordList[word];
+
+				wrdEntry.m_arrUsage[nBk-1]++;
+
+				wrdEntry.m_ndxMapping.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
+				++nNormalizedNdx;
+				wrdEntry.m_ndxNormalized.push_back(nNormalizedNdx);
+
+				g_NormalizationVerification.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
+			}
+			pTemp = strpbrk(pTemp2, g_strCharset);
+		}		// Here, nWrd = Number of words in this verse
+
+
 /////////////////////////////////////
 // Find and Parse Rich Text
 /////////////////////////////////////
+
+		nRichWrd = 0;
+		bRichTag = false;
+		bRichWord = false;
+		bRichDrop = false;
 
 		do {							// Find "@" marker
 			c = fgetcUTF8(fileIn);
@@ -808,6 +903,7 @@ int main(int argc, const char *argv[])
 		// Read and fill buffRich with verse text up to final "@" marker:
 		bIsPilcrowRich = false;
 		ndx = 0;
+		ndx2 = 0;
 
 		// First, fill in missing Hebrew alphabet in Psalm 119 in both Hebrew and English for text to be rendered:
 		if ((nBk == 19) && (nChp == 119) && (((nVrs-1)%8) == 0)) {
@@ -994,18 +1090,25 @@ int main(int argc, const char *argv[])
 		do {
 			c = fgetcUTF8(fileIn);
 			if ((c != '@') && (c != EOF)) {
-				if (ndx == 0) {
-					if (c == 0xb6) {				// Translate Pilcrow (but only at start of verse!)
-						bIsPilcrowRich = true;
-					} else {
-						// Source text tends to have mismatches of pilcrows between plain and rich.  So
-						//		we'll make our rich output the combined pilcrows so it's complete:
-						if (bIsPilcrowPlain) ndx += sputcUTF8(0x00b6, &buffRich[ndx]);
+				if (!bRichDrop) {
+					if (ndx == 0) {
+						if (c == 0xb6) {				// Translate Pilcrow (but only at start of verse!)
+							bIsPilcrowRich = true;
+						} else {
+							// Source text tends to have mismatches of pilcrows between plain and rich.  So
+							//		we'll make our rich output the combined pilcrows so it's complete:
+							if (bIsPilcrowPlain) ndx += sputcUTF8(0x00b6, &buffRich[ndx]);
+						}
 					}
-				}
-				if (c == '\"') {				// Escape " with "" by adding one more to our buffer
-					buffRich[ndx] = '\"';
-					ndx++;
+					if (c == '\"') {				// Escape " with "" by adding one more to our buffer
+						buffRich[ndx] = '\"';
+						ndx++;
+					}
+				} else {
+					if (c == '\"') {				// Escape " with "" by adding one more to our buffer
+						buffRichFootnote[ndx2] = '\"';
+						ndx2++;
+					}
 				}
 
 // Can't do this or else we'll lose our special hyphens and such.  Replaced with BOM output above.  Left here for reference:
@@ -1017,11 +1120,44 @@ int main(int argc, const char *argv[])
 //					ndx++;
 //				}
 
-				ndx += sputcUTF8(c, &buffRich[ndx]);	// UTF8 transfer character
+				if (c == '<') {						// See if we are starting a Rich Text tag.  If so, we'll not count the enclosed as words
+					bRichTag = true;
+				}
 
+				if (!bRichTag) {
+					if ((!bRichWord) && (!isspace(c)) && (c != 0xb6)) {			// If not in word and we encounter something that's not a space or a Pilcrow, we are entering a word:
+						nRichWrd++;
+						bRichWord = true;
+					} else if ((bRichWord) && (isspace(c))) {
+						bRichWord = false;
+					}
+				}
+
+				if (nRichWrd <= nWrd) {
+					ndx += sputcUTF8(c, &buffRich[ndx]);	// UTF8 transfer character
+				} else {
+					if (!bRichDrop) {
+						bRichDrop = true;
+						if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
+							fprintf(stderr, "Found Rich Footnote: %s %0d.%0d : ", g_arrstrBkAbbr[nBk-1], nChp, nVrs);
+						}
+					}
+					if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
+						fprintf(stderr, "%c", c);
+					}
+					ndx2 += sputcUTF8(c, &buffRichFootnote[ndx2]);		// UTF8 transfer character
+				}
+
+				if (c == '>') {						// Check for end of Rich Text tag.
+					bRichTag = false;
+				}
 			}
-		} while ((!feof(fileIn)) && (ndx < sizeof(buffRich)-1) && (c != '@'));
+		} while ((!feof(fileIn)) && (ndx < sizeof(buffRich)-1) && (ndx2 < sizeof(buffRichFootnote)-1) && (c != '@'));
 		buffRich[ndx] = 0;
+		buffRichFootnote[ndx2] = 0;
+
+		if ((bRichDrop) && (bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx)))
+			fprintf(stderr, "\n");
 
 /////////////////////////////////////
 // Parse and Write Output File
@@ -1060,41 +1196,18 @@ int main(int argc, const char *argv[])
 		//		and it doesn't matter on the order, or else this word count
 		//		is for the next chp or bk and should count toward it instead
 		//		after we've written the output for our current Chp/Bk.
-		nWrd = 0;
-		pTemp = strpbrk(buffPlain, g_strCharset);
-		while (pTemp) {								// pTemp = start of word
-			nWrd++;
-			pTemp2 = pTemp+1;
-			while ((*pTemp2 != 0) && (strchr(g_strCharset, *pTemp2) != NULL)) ++pTemp2;
-			memcpy(word, pTemp, pTemp2-pTemp);
-			word[pTemp2-pTemp] = 0;
-			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(fileOut, "%s\r\n", word);
-			if ((nBkNdx == 0) || (nBk == nBkNdx)) {
-				std::string strWordKey(word);
-
-				// Set possible alternate word form:
-				std::transform(strWordKey.begin(), strWordKey.end(), strWordKey.begin(), XformLower());
-				TAltWordSet &wrdSet = g_mapAltWordList[strWordKey];
-				wrdSet.insert(word);
-
-				CWordEntry &wrdEntry = g_mapWordList[word];
-
-				wrdEntry.m_arrUsage[nBk-1]++;
-
-				wrdEntry.m_ndxMapping.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
-				++nNormalizedNdx;
-				wrdEntry.m_ndxNormalized.push_back(nNormalizedNdx);
-
-				g_NormalizationVerification.push_back(MakeIndex(nBk, nChp, nVrs, nWrd));
-			}
-			pTemp = strpbrk(pTemp2, g_strCharset);
-		}		// Here, nWrd = Number of words in this verse
 		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
 
+
 		if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(fileOut, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
+			fprintf(fileOut, "%d,%d,%d,\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich);
 		}
 
+		// Notes: Currently all Footnotes in the OSIS is per book, like Romans and other episles.
+		//			It's missing the chapter notes in Psalms.  Those must be added manually after exporting.
+		if ((bDoingFootnotes) && ((strlen(buffFootnote) > 0) || (strlen(buffRichFootnote) > 0)))  {
+			fprintf(fileOut, "%lu,\"%s\",\"%s\"\r\n", nBk*16777216ul, buffFootnote, buffRichFootnote);
+		}
 	}
 
 	if (bDoingLayout) {
