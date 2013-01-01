@@ -675,12 +675,14 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
-						assert(nEndAnchorPos >= 0);
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					if (!strAnchorName.isEmpty()) {
+						CRelIndex ndxAnchor(strAnchorName);
+						assert(ndxAnchor.isSet());
+						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+							assert(nEndAnchorPos >= 0);
+							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+						}
 					}
 					nSelEnd = myCursor.position();
 					if (!myCursor.moveCursorWordRight()) break;
@@ -714,12 +716,14 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-						assert(nEndAnchorPos >= 0);
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					if (!strAnchorName.isEmpty()) {
+						CRelIndex ndxAnchor(strAnchorName);
+						assert(ndxAnchor.isSet());
+						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+							assert(nEndAnchorPos >= 0);
+							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+						}
 					}
 					if (!myCursor.moveCursorWordRight()) break;
 				}
@@ -756,7 +760,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		emit changedDocumentText();
 		return;
 	}
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
 //	QString strHTML = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body><br />";
 
@@ -782,16 +786,31 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 
 	// Print Heading for this Book/Chapter:
 	if (!bNoAnchors) {
+		CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(ndxBookChap.asAnchor())
 						.arg(Qt::escape(toc.m_strBkName));
+		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
+			strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")
+							.arg(ndxBookChap.asAnchor())
+							.arg(Qt::escape(toc.m_strDesc));
+		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
+			strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")
+							.arg(ndxBookChap.asAnchor())
+							.arg(Qt::escape(toc.m_strCat));
 		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
+						.arg(ndxBookChap.asAnchor())
 						.arg(ndx.chapter())
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+						.arg(ndxBookChap.asAnchor());
 	} else {
 		strHTML += QString("<div class=book>%1</div>\n")
 						.arg(Qt::escape(toc.m_strBkName));
+		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
+			strHTML += QString("<div class=subtitle>(%1)</div>\n")
+							.arg(Qt::escape(toc.m_strDesc));
+		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
+			strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
+							.arg(Qt::escape(toc.m_strCat));
 		strHTML += QString("<div class=chapter>Chapter %1</div>\n")
 						.arg(ndx.chapter());
 	}
@@ -1104,6 +1123,13 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					if (!strPhrase.isEmpty()) strPhrase += " ";
 					strPhrase += myCursor.wordUnderCursor();
 				}
+				// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
+				//		text from a verse.  We must be in a special tag section of heading:
+				if ((nIndex.verse() == 0) || (nIndex.word() == 0)) {
+					nIndex = CRelIndex();
+					nWords = 0;
+					strPhrase.clear();
+				}
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
 				// If we hit an anchor, see if it's either a special section A-B marker or if
@@ -1116,12 +1142,14 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
-						assert(nEndAnchorPos >= 0);
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					if (!strAnchorName.isEmpty()) {
+						CRelIndex ndxAnchor(strAnchorName);
+						assert(ndxAnchor.isSet());
+						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+							assert(nEndAnchorPos >= 0);
+							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+						}
 					}
 					if (!myCursor.moveCursorWordRight()) break;
 				}
@@ -1215,12 +1243,14 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
-						assert(nEndAnchorPos >= 0);
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+					if (!strAnchorName.isEmpty()) {
+						CRelIndex ndxAnchor(strAnchorName);
+						assert(ndxAnchor.isSet());
+						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+							assert(nEndAnchorPos >= 0);
+							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
+						}
 					}
 					nSelEnd = myCursor.position();
 					if (!myCursor.moveCursorWordRight()) break;
@@ -1250,12 +1280,14 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
 				} else {
-					CRelIndex ndxAnchor(strAnchorName);
-					assert(ndxAnchor.isSet());
-					if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-						int nEndAnchorPos = anchorPosition("X" + fmt.anchorName());
-						assert(nEndAnchorPos >= 0);
-						if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+					if (!strAnchorName.isEmpty()) {
+						CRelIndex ndxAnchor(strAnchorName);
+						assert(ndxAnchor.isSet());
+						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
+							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
+							assert(nEndAnchorPos >= 0);
+							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
+						}
 					}
 					nSelEnd = myCursor.position();
 					if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
