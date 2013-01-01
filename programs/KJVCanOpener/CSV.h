@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************/
+
 #ifndef CSV_H
 #define CSV_H
 
@@ -7,77 +30,81 @@
 #include <QBuffer>
 #include <QTextStream>
 
-class CSVstream {
+// ============================================================================
+
+class CCSVStream {
 public:
-	CSVstream();
-	CSVstream(QIODevice *iod);
-	CSVstream(QString *str, QIODevice::OpenMode filemode);
+	CCSVStream();
+	CCSVStream(QIODevice *pIOD);
+	CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode);
 
-	QIODevice *device();
-	void setDevice(QIODevice * iod);
-	void unsetDevice();
+	QIODevice *device() { return m_stream.device(); }
+	void setDevice(QIODevice *pIOD) { m_stream.setDevice(pIOD); }
+	void unsetDevice() { m_stream.setDevice(NULL); }
 
-	bool atEnd() { return m_stream.atEnd(); }
-	bool atEndOfLine() { return atEnd() || m_atEndOfLine; } // for reading
-	bool atBeginningOfLine() { return m_atBeginningOfLine; } // for writing
-	CSVstream &endLine();
+	bool atEndOfStream() { return m_stream.atEnd(); }
+	bool atEndOfLine() { return m_bEndOfLine; }
+	bool atEnding() { return atEndOfStream() || atEndOfLine(); }
+	bool atBeginningOfLine() { return m_bBeginningOfLine; }
 
+	// Excel seems to do identical quoting for tab-delimited text and
+	//	seemingly other delimiters like '|', so allow changing the delimiter:
+	QChar delimiter() { return m_chrDelim; }
+	void setDelimiter(QChar ch) { m_chrDelim = ch; }
 
-	// utility method to transpose list of columsn to a list of rows
-	static QList<QStringList> transpose(const QList<QStringList> &values);
+	CCSVStream &endLine();
+	static QString escape(const QString &aString, bool bForceQuote = false, QChar chrDelim = L',');
 
-
-	// template overload allowing this class to handle any data types that QTextStream can
-	template <class T> CSVstream &operator <<(const T&val) {
-		QBuffer tmp;
-		tmp.open(QIODevice::WriteOnly);
-		QTextStream stream(&tmp);
-		stream.setCodec("UTF-16");
-		stream << val;
-		tmp.close();
-		return (*this << QString((QChar *)tmp.buffer().data(),tmp.buffer().size() / sizeof(QChar)));
+	// template overloads allowing this class to handle any data types that QTextStream can:
+	template <class T> CCSVStream &operator <<(const T &val) {
+		QBuffer tmpBuff;
+		tmpBuff.open(QIODevice::WriteOnly);
+		QTextStream aStream(&tmpBuff);
+		aStream.setCodec("UTF-16");
+		aStream << val;
+		tmpBuff.close();
+		return (*this << QString((QChar *)tmpBuff.buffer().data(), tmpBuff.buffer().size() / sizeof(QChar)));
+	}
+	template <class T> CCSVStream &operator >>(T &val) {
+		QString strTemp;
+		CCSVStream &retVal = (*this >> strTemp);
+		QByteArray data(strTemp.utf16(), strTemp.size() * sizeof(ushort));
+		QBuffer tmpBuff(data);
+		tmpBuff.open(QIODevice::ReadOnly);
+		QTextStream aStream(&tmpBuff);
+		aStream.setCodec("UTF-16");
+		aStream >> val;
+		tmpBuff.close();
+		return retVal;
 	}
 
-	template <class T> CSVstream &operator >>(T&val) {
-		QString s;
-		CSVstream &r = (*this >> s);
-		QByteArray data(s.utf16(),s.size() * sizeof(ushort));
-		QBuffer tmp(data);
-		tmp.open(QIODevice::ReadOnly);
-		QTextStream stream(&tmp);
-		stream.setCodec("UTF-16");
-		stream >> val;
-		tmp.close();
-		return r;
-	}
-	static QString escape(const QString &s,bool forceQuote = false,QChar delimChar = L',');
+	CCSVStream &operator <<(const QString &aString);			// Write individual fields
+	CCSVStream &operator >>(QString &aString);					// Read individual fields
+	CCSVStream &operator <<(const QStringList &aStringList);	// Write individual rows
+	CCSVStream &operator >>(QStringList &aStringList);			// Read individual rows
 
-	CSVstream &operator << (const QString &s); // read individual fields
-	CSVstream &operator >> (QString &s);
-	CSVstream &operator << (const QStringList &sl); // individual rows
-	CSVstream &operator >> (QStringList &sl);
-
-	QList<QStringList> readAll();
-
-	// excel seems to do identical quoting for tab-delimited text,
-	// and I've seen the same with '|', so we'll allow changing the delimiter
-	QChar delimiter() { return m_delimchar; }
-	void setDelimiter(QChar ch) { m_delimchar = ch; }
+	QList<QStringList> readAll();								// Read entire file
+	void writeAll(const QList<QStringList> &lstStringLists);	// Write entire file
 
 private:
 	QTextStream m_stream;
-	bool m_atEndOfLine;
-	bool m_atBeginningOfLine;
-	QString m_unget;
-	QChar m_delimchar;
+	bool m_bEndOfLine;					// Used primarily for reading
+	bool m_bBeginningOfLine;			// Used primarily for writing
+	QString m_strUngetBuff;
+	QChar m_chrDelim;
 };
 
-typedef CSVstream& (*CSVFUNC)(CSVstream&);// manipulator function
-inline CSVstream& operator<<(CSVstream&s, CSVFUNC f ) {
-	return (*f)(s);
+// ============================================================================
+
+extern CCSVStream &endl(CCSVStream &aStream);		// insert EOL ('\n') into stream
+extern CCSVStream &flush(CCSVStream &aStream);		// flush stream output
+
+typedef CCSVStream& (*TCSVFUNC)(CCSVStream&);		// manipulator function
+inline CCSVStream& operator<<(CCSVStream &aStream, TCSVFUNC aFunction)
+{
+	return (*aFunction)(aStream);
 }
 
-CSVstream &endl( CSVstream &s );	// insert EOL ('\n')
-CSVstream &flush( CSVstream &s );	// flush output
+// ============================================================================
 
 #endif // CSV_H

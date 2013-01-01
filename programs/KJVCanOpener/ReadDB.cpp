@@ -227,21 +227,19 @@ bool CReadDatabase::ReadBookTables()
 			entryBook.m_nNumWrd = query.value(1).toUInt();
 			entryBook.m_bPilcrow = ((query.value(2).toInt() != 0) ? true : false);
 			entryBook.SetRichText(query.value(4).toString());
-			entryBook.m_strFootnote = query.value(5).toString();
 		}
 
 // Used for debugging:
 #ifdef NEVER
 		QFile fileTest(QString("testit%1.txt").arg(i, 2, 10, QChar('0')));
 		if (fileTest.open(QIODevice::WriteOnly)) {
-			CSVstream csv(&fileTest);
+			CCSVStream csv(&fileTest);
 			for (TBookEntryMap::const_iterator itr = mapBook.begin(); itr != mapBook.end(); ++itr) {
 				QStringList sl;
 				sl.push_back(QString("%1").arg(itr->first.index()>>8));
 				sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
 				sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
 				sl.push_back(itr->second.GetRichText());
-				sl.push_back(itr->second.m_strFootnote);
 				csv << sl;
 			}
 			fileTest.close();
@@ -306,17 +304,17 @@ bool CReadDatabase::ReadWORDSTable()
 		entryWord.m_strWord = strWord;
 		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
 
-		QString strAltWords = query.value(4).toString() + '\n';
-		CSVstream csvWord(&strAltWords, QIODevice::ReadOnly);
-		while (!csvWord.atEnd()) {
+		QString strAltWords = query.value(4).toString();
+		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
+		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp);
 		}
-		QString strAltWordCounts = query.value(5).toString() + '\n';
-		CSVstream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
+		QString strAltWordCounts = query.value(5).toString();
+		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
 		unsigned int nAltCount = 0;
-		while (!csvWordCount.atEnd()) {
+		while (!csvWordCount.atEndOfStream()) {
 			QString strTemp;
 			csvWordCount >> strTemp;
 			if (!strTemp.isEmpty()) {

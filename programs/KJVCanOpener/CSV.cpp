@@ -1,222 +1,239 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************/
+
 #include "CSV.h"
 #include <QFile>
 
-CSVstream &flush( CSVstream&s )
+#include <assert.h>
+
+// ============================================================================
+
+CCSVStream &endl(CCSVStream &aStream)
 {
-	if ( s.device() )
-		qobject_cast<QFile *>(s.device())->flush();
-	return s;
+	return aStream.endLine();
 }
 
-CSVstream &endl( CSVstream&s )
+CCSVStream &flush(CCSVStream &aStream)
 {
-	return s.endLine();
-}
-
-CSVstream::CSVstream()
-{
-	m_stream.setCodec("UTF-8");
-	m_atEndOfLine = false;
-	m_atBeginningOfLine = true;
-	m_delimchar = L',';
-}
-
-CSVstream::CSVstream(QIODevice *iod)
-	: m_stream(iod)
-{
-	m_stream.setCodec("UTF-8");
-	m_atEndOfLine = false;
-	m_atBeginningOfLine = true;
-	m_delimchar = L',';
-}
-
-CSVstream::CSVstream(QString *str, QIODevice::OpenMode filemode)
-	: m_stream(str,filemode)
-{
-	m_atEndOfLine = false;
-	m_atBeginningOfLine = true;
-	m_delimchar = L',';
-}
-
-
-//converts a (potentially ragged) list of rows to a rectangular list of columns
-QList<QStringList> CSVstream::transpose(const QList<QStringList> &values)
-{
-	int maxRows = 0; // number of rows in the output
-	for(int row = 0; row < values.count(); ++row)
-		maxRows = qMax(maxRows,values[row].count());
-
-	QList<QStringList> tValues;
-	for(int row = 0; row < maxRows; ++row)
-	{
-		tValues.append(QStringList());
-		for(int col = 0; col < values.count(); ++col)
-		{
-			if(row < values[col].count())
-				tValues[row].append(values[col][row]);
-			else
-				tValues[row].append(QString());
-		}
+	if (aStream.device()) {
+		QFile *pFile = qobject_cast<QFile *>(aStream.device());
+		assert(pFile != NULL);
+		pFile->flush();
 	}
-	return tValues;
+	return aStream;
 }
 
+// ============================================================================
 
-QIODevice *CSVstream::device() { return m_stream.device(); }
-void CSVstream::setDevice(QIODevice * iod) { m_stream.setDevice(iod); }
-void CSVstream::unsetDevice() { m_stream.setDevice(0); }
+CCSVStream::CCSVStream()
+	:	m_bEndOfLine(false),
+		m_bBeginningOfLine(true),
+		m_chrDelim(L',')
+{
+	m_stream.setCodec("UTF-8");
+}
 
-CSVstream &CSVstream::endLine()
+CCSVStream::CCSVStream(QIODevice *pIOD)
+	:	m_stream(pIOD),
+		m_bEndOfLine(false),
+		m_bBeginningOfLine(true),
+		m_chrDelim(L',')
+{
+	m_stream.setCodec("UTF-8");
+}
+
+CCSVStream::CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode)
+	:	m_stream(pStr, nFilemode),
+		m_bEndOfLine(false),
+		m_bBeginningOfLine(true),
+		m_chrDelim(L',')
+{
+	m_stream.setCodec("UTF-8");
+}
+
+CCSVStream &CCSVStream::endLine()
 {
 	m_stream << endl;
-	m_atBeginningOfLine = true;
+	m_bBeginningOfLine = true;
 	return *this;
 }
 
-// based on the field quoting rules of http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
+// Based on the field quoting rules of http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
 // conforms to RFC4180 (definition of text/csv) except for ignoring unquoted leading whitespace
-QString CSVstream::escape(const QString &s,bool forceQuote,QChar delimChar)
+QString CCSVStream::escape(const QString &aString, bool bForceQuote, QChar chrDelim)
 {
-	bool quoted = false;
-	QString outS;
-	if(s.at(0) == ' ' || s.at(0) == '\t')
-		quoted = true; // leading whitespace has to be quoted
-	for(int i = 0; i < s.length(); ++i)
-	{
-		QChar ch = s.at(i);
-		if(ch == '"') {
-			outS.append(ch); // insert it an extra time
-			quoted = true;
-		} else if(ch == delimChar || ch == '\n') {
-			quoted = true;
+	bool bQuoted = false;
+	QString strOut;
+
+	if ((!aString.isEmpty()) && ((aString.at(0) == ' ') || (aString.at(0) == '\t')))
+		bQuoted = true;		// Leading whitespace must to be quoted
+
+	for (int i=0; i<aString.size(); ++i) {
+		QChar ch = aString.at(i);
+		if (ch == '"') {
+			strOut.append(ch);		// Insert quote an extra time to escape
+			bQuoted = true;
+		} else if ((ch == chrDelim) || (ch == '\n')) {
+			bQuoted = true;
 		}
-		outS.append(ch);
+		strOut.append(ch);
 	}
-	if(forceQuote || quoted || (outS.isEmpty() && !s.isNull())) {
-		outS.prepend('"');
-		outS.append('"');
+	if ((bForceQuote) || (bQuoted) || (strOut.isEmpty() && (!aString.isNull()))) {
+		strOut.prepend('"');
+		strOut.append('"');
 	}
-	return outS;
+	return strOut;
 }
 
-CSVstream &CSVstream::operator << (const QString &s)
+CCSVStream &CCSVStream::operator <<(const QString &aString)
 {
-	bool forceQuote = false;
+	bool bForceQuote = false;
+
 	// Excel will (rather stupidly) detect a file as SYLK instead of CSV
-	// if it begins with the characters ID. Force quoting of the cell
+	// if it begins with the characters ID. We'll force quoting of the cell
 	// (so it starts with "ID instead) if this looks like a potential problem.
 	// See http://support.microsoft.com/kb/323626
-	if(m_stream.device()->pos() == 0 && s.left(2) == "ID")
-		forceQuote = true;
-	QString outS = escape(s,forceQuote,m_delimchar);
+	if ((m_stream.device()->pos() == 0) && (aString.left(2) == "ID"))
+		bForceQuote = true;
 
-	if(!m_atBeginningOfLine)
-		m_stream << m_delimchar;
-	m_atBeginningOfLine = false;
+	QString strOut = escape(aString, bForceQuote, m_chrDelim);
 
-	m_stream << outS;
+	if (!m_bBeginningOfLine) m_stream << m_chrDelim;
+	m_bBeginningOfLine = false;
+
+	m_stream << strOut;
 	return *this;
 }
 
-CSVstream &CSVstream::operator >> (QString &s)
+CCSVStream &CCSVStream::operator >>(QString &aString)
 {
-	m_atEndOfLine = false;
-	s = QString();
+	m_bEndOfLine = false;
+	aString = QString();
 
-	bool quoted = false;
-	bool quoteLiteral = false;
-	bool nonWhitespaceSeen = false;
-	bool atEndOfField = false;
+	bool bQuoted = false;
+	bool bQuoteLiteral = false;
+	bool bNonWhitespaceSeen = false;
+	bool bEndOfField = ((m_stream.atEnd()) && (m_strUngetBuff.isEmpty()));
 
 	QChar ch;
-	while(!atEndOfField) {
-		if(m_unget.length()) {
-			ch = m_unget.left(1)[0];
-			m_unget = m_unget.mid(1);
+	while (!bEndOfField) {
+		if (m_strUngetBuff.size()) {
+			ch = m_strUngetBuff.at(0);
+			m_strUngetBuff = m_strUngetBuff.mid(1);
 		} else {
 			m_stream >> ch;
 		}
 
-		if(!nonWhitespaceSeen) { // quoting can only begin at the first character
-			if(ch == ' ' || ch == '\t') {
+		if (!bNonWhitespaceSeen) {		// Quoting can only begin at the first character
+			if ((ch == ' ') || (ch == '\t')) {
 				continue; // ignore all leading whitespace
 			} else {
-				nonWhitespaceSeen = true;
+				bNonWhitespaceSeen = true;
 			}
-			if(ch == '"') {
-				s = ""; // not a null field anymore, but still an empty string
-				quoted = true;
+			if (ch == '"') {
+				aString = "";		// not a null field anymore, but still an empty string
+				bQuoted = true;
 				continue;
 			}
 		}
 
-		if(!quoted) {
+		if (ch == '"') {
+			if (!bQuoted) {
+				// no special treatment in this case
+			} else if (bQuoteLiteral) {
+				bQuoteLiteral = false;
+			} else {
+				bQuoteLiteral = true;
+				continue;
+			}
+		} else if (bQuoteLiteral) {		// Un-doubled " in quoted string, that's the end of the quoted portion
+			bQuoted = false;
+			bQuoteLiteral = true;
+		}
+
+		if (!bQuoted) {
 			// handle linefeed variations - CR or CRLF or LF all get consumed in one step, and returned as '\n'
-			if(ch == '\x0D') { //CR
+			if (ch == '\x0D') {			// CR
 				m_stream >> ch;
-				if(ch == '\x0A') // windows-style CRLF
+				if (ch == '\x0A') {		// windows-style CRLF
 					ch = '\n';
-				else { // something unexpected, guess it was a mac-style bare CR
-					m_unget.prepend(ch);
+				} else {				// Non-LF, guess it was a Mac-style bare CR
+					m_strUngetBuff.prepend(ch);
 					ch = '\n';
 				}
-			} else if(ch == '\x0A') { // unix-style LF
+			} else if (ch == '\x0A') {	// Unix-style LF
 				ch = '\n';
 			}
 		}
 
-		if(ch == '"') {
-			if(!quoted) {
-				// no special treatment in this case
-			} else if(quoteLiteral) {
-				quoteLiteral = false;
-			} else {
-				quoteLiteral = true;
-				continue;
-			}
-		} else if(quoteLiteral) { // un-doubled " in quoted string, that's the end of the quoted portion
-			quoted = false;
-			quoteLiteral = true;
-		}
-
-		if( !quoted && ch == m_delimchar) {
-			atEndOfField = true;
-		} else if(!quoted && ch == '\n') {
-			atEndOfField = true;
-			m_atEndOfLine = true;
+		if ((!bQuoted) && (ch == m_chrDelim)) {
+			bEndOfField = true;
+		} else if (((!bQuoted) && (ch == '\n')) || ((m_stream.atEnd()) && (m_strUngetBuff.isEmpty()))) {
+			if (ch != '\n') aString.append(ch);
+			bEndOfField = true;
+			m_bEndOfLine = true;
 		} else {
-			s.append(ch);
+			aString.append(ch);
 		}
 	}
 	return *this;
 }
 
-CSVstream &CSVstream::operator << (const QStringList &sl)
+CCSVStream &CCSVStream::operator <<(const QStringList &aStringList)
 {
-	for(QStringList::const_iterator i = sl.begin(); i != sl.end(); ++i)
-		*this << *i;
+	for (QStringList::const_iterator itr = aStringList.begin(); itr != aStringList.end(); ++itr)
+		*this << *itr;
 	return (*this << endl);
 }
 
-CSVstream &CSVstream::operator >> (QStringList &sl)
+CCSVStream &CCSVStream::operator >>(QStringList &aStringList)
 {
-	sl.clear();
+	aStringList.clear();
 	do {
-		QString s;
-		*this >> s;
-		sl.append(s);
+		QString strTemp;
+		*this >> strTemp;
+		aStringList.append(strTemp);
 	} while(!atEndOfLine());
 	return *this;
 }
 
-QList<QStringList> CSVstream::readAll()
+QList<QStringList> CCSVStream::readAll()
 {
-	QList<QStringList> sll;
-	while(!atEnd()) {
-		QStringList sl;
-		*this >> sl;
-		sll.append(sl);
+	QList<QStringList> lstStringLists;
+	while (!atEndOfStream()) {
+		QStringList aStringList;
+		*this >> aStringList;
+		lstStringLists.append(aStringList);
 	}
-	return sll;
+	return lstStringLists;
 }
+
+void CCSVStream::writeAll(const QList<QStringList> &lstStringLists)
+{
+	foreach(const QStringList aList, lstStringLists) {
+		*this << aList;
+	}
+}
+
+// ============================================================================
 

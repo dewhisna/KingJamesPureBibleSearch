@@ -314,7 +314,6 @@ public:
 	{
 		m_strRichText = strRichText;
 	}
-	QString m_strFootnote;		// Footnote text for this verse (if any)
 
 private:
 	QString m_strRichText;		// Rich text for the verse (Note: for mobile versions, this element will be removed and fetched from the database)

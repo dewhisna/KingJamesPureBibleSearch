@@ -221,7 +221,7 @@ bool CBuildDatabase::BuildTOCTable()
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
 				// Read file and populate table:
-				CSVstream csv(&fileBook);
+				CCSVStream csv(&fileBook);
 
 				QStringList slHeaders;
 				csv >> slHeaders;              // Read Headers (verify and discard)
@@ -247,7 +247,7 @@ bool CBuildDatabase::BuildTOCTable()
 
 				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
-				while (!csv.atEnd()) {
+				while (!csv.atEndOfStream()) {
 					QStringList sl;
 					csv >> sl;
 
@@ -322,7 +322,7 @@ bool CBuildDatabase::BuildLAYOUTTable()
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
 				// Read file and populate table:
-				CSVstream csv(&fileBook);
+				CCSVStream csv(&fileBook);
 
 				QStringList slHeaders;
 				csv >> slHeaders;              // Read Headers (verify and discard)
@@ -342,7 +342,7 @@ bool CBuildDatabase::BuildLAYOUTTable()
 
 				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
-				while (!csv.atEnd()) {
+				while (!csv.atEndOfStream()) {
 					QStringList sl;
 					csv >> sl;
 
@@ -405,7 +405,7 @@ bool CBuildDatabase::BuildBookTables()
 
 		// Create the table in the database:
 		strCmd = QString("create table %1 "
-						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, bPilcrow NUMERIC, PText TEXT, RText TEXT, Footnote TEXT)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, bPilcrow NUMERIC, PText TEXT, RText TEXT)").arg(g_arrstrBkTblNames[i]);
 
 		if (!queryCreate.exec(strCmd)) {
 			fileBook.close();
@@ -416,18 +416,17 @@ bool CBuildDatabase::BuildBookTables()
 		}
 
 		// Read file and populate table:
-		CSVstream csv(&fileBook);
+		CCSVStream csv(&fileBook);
 
 		QStringList slHeaders;
 		csv >> slHeaders;              // Read Headers (verify and discard)
 
-		if ((slHeaders.size()!=6) ||
+		if ((slHeaders.size()!=5) ||
 			(slHeaders.at(0).compare("ChpVrsNdx") != 0) ||
 			(slHeaders.at(1).compare("NumWrd") != 0) ||
 			(slHeaders.at(2).compare("bPilcrow") != 0) ||
 			(slHeaders.at(3).compare("PText") != 0) ||
-			(slHeaders.at(4).compare("RText") != 0) ||
-			(slHeaders.at(5).compare("Footnote") != 0)) {
+			(slHeaders.at(4).compare("RText") != 0)) {
 			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for %1 data file!").arg(g_arrstrBkTblNames[i]),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 				fileBook.close();
@@ -439,16 +438,16 @@ bool CBuildDatabase::BuildBookTables()
 
 		QSqlQuery queryInsert(m_myDatabase);
 		queryInsert.exec("BEGIN TRANSACTION");
-		while (!csv.atEnd()) {
+		while (!csv.atEndOfStream()) {
 			QStringList sl;
 			csv >> sl;
 
-			assert(sl.count() == 6);
-			if (sl.count() < 6) continue;
+			assert(sl.count() == 5);
+			if (sl.count() < 5) continue;
 
 			strCmd = QString("INSERT INTO %1 "
-						"(ChpVrsNdx, NumWrd, bPilcrow, PText, RText, Footnote) "
-						"VALUES (:ChpVrsNdx, :NumWrd, :bPilcrow, :PText, :RText, :Footnote)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx, NumWrd, bPilcrow, PText, RText) "
+						"VALUES (:ChpVrsNdx, :NumWrd, :bPilcrow, :PText, :RText)").arg(g_arrstrBkTblNames[i]);
 
 			queryInsert.prepare(strCmd);
 			queryInsert.bindValue(":ChpVrsNdx", sl.at(0).toUInt());
@@ -456,7 +455,6 @@ bool CBuildDatabase::BuildBookTables()
 			queryInsert.bindValue(":bPilcrow", sl.at(2).toInt());
 			queryInsert.bindValue(":PText", sl.at(3));
 			queryInsert.bindValue(":RText", sl.at(4));
-			queryInsert.bindValue(":Footnote", sl.at(5));
 			if (!queryInsert.exec()) {
 				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
@@ -472,12 +470,12 @@ bool CBuildDatabase::BuildBookTables()
 
 QByteArray CBuildDatabase::CSVStringToIndexBlob(const QString &str)
 {
-	QString strBuff = str + '\n';
-	CSVstream csv(&strBuff, QIODevice::ReadOnly);
+	QString strBuff = str;
+	CCSVStream csv(&strBuff, QIODevice::ReadOnly);
 	QStringList slValues;
 	csv >> slValues;
 
-	// Special case handle empty lists or else CSVstream will process it as
+	// Special case handle empty lists or else CCSVStream will process it as
 	//  a list with one empty member:
 	if ((slValues.size() == 1) && (slValues.at(0).isEmpty())) return QByteArray();
 
@@ -532,7 +530,7 @@ bool CBuildDatabase::BuildWORDSTable()
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
 				// Read file and populate table:
-				CSVstream csv(&fileBook);
+				CCSVStream csv(&fileBook);
 
 				QStringList slHeaders;
 				csv >> slHeaders;              // Read Headers (verify and discard)
@@ -554,7 +552,7 @@ bool CBuildDatabase::BuildWORDSTable()
 
 				QSqlQuery queryInsert(m_myDatabase);
 				queryInsert.exec("BEGIN TRANSACTION");
-				while (!csv.atEnd()) {
+				while (!csv.atEndOfStream()) {
 					QStringList sl;
 					csv >> sl;
 
@@ -622,7 +620,7 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 			}
 
 			// Read file and populate phrase list:
-			CSVstream csv(&filePhrases);
+			CCSVStream csv(&filePhrases);
 
 			QStringList slHeaders;
 			csv >> slHeaders;              // Read Headers (verify and discard)
@@ -640,7 +638,7 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 
 			g_lstCommonPhrases.clear();
 
-			while (!csv.atEnd()) {
+			while (!csv.atEndOfStream()) {
 				QStringList sl;
 				csv >> sl;
 
