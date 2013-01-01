@@ -333,13 +333,11 @@ bool CReadDatabase::ReadWORDSTable()
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad AltWordCounts for \"%1\"").arg(strWord));
 		}
 
-		if ((!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxMapping)) ||
-			(!IndexBlobToIndexList(query.value(7).toByteArray(), entryWord.m_ndxNormalized))) {
+		if (!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalizedMapping)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}
-		if ((entryWord.m_ndxMapping.size() != query.value(3).toUInt()) ||
-			(entryWord.m_ndxNormalized.size() != query.value(3).toUInt())) {
+		if (entryWord.m_ndxNormalizedMapping.size() != query.value(3).toUInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, "Index/Count consistency error in WORDS table!");
 			return false;
 		}
@@ -349,7 +347,7 @@ bool CReadDatabase::ReadWORDSTable()
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			g_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
-				g_lstConcordanceMapping[entryWord.m_ndxNormalized[ndxMapping]] = g_lstConcordanceWords.size();
+				g_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = g_lstConcordanceWords.size();
 				ndxMapping++;
 			}
 		}
@@ -371,21 +369,16 @@ bool CReadDatabase::ReadWORDSTable()
 			} else {
 				ts << "0,";
 			}
-			ts << QString("%1,").arg(itr->second.m_ndxMapping.size());
+			ts << QString("%1,").arg(itr->second.m_ndxNormalizedMapping.size());
 			ts << "\"";
 			for (unsigned int i=0; i<itr->second.m_lstAltWords.size(); ++i) {
 				if (i!=0) ts << ",";
 				ts << itr->second.m_lstAltWords.at(i);
 			}
 			ts << "\",\"";
-			for (unsigned int i=0; i<itr->second.m_ndxMapping.size(); ++i) {
+			for (unsigned int i=0; i<itr->second.m_ndxNormalizedMapping.size(); ++i) {
 				if (i!=0) ts << ",";
-				ts << QString("%1").arg(itr->second.m_ndxMapping.at(i));
-			}
-			ts << "\",\"";
-			for (unsigned int i=0; i<itr->second.m_ndxNormalized.size(); ++i) {
-				if (i!=0) ts << ",";
-				ts << QString("%1").arg(itr->second.m_ndxNormalized.at(i));
+				ts << QString("%1").arg(itr->second.m_ndxNormalizedMapping.at(i));
 			}
 			ts << "\"\n";
 		}
@@ -523,43 +516,7 @@ bool CReadDatabase::ValidateData()
 
 	unsigned int nWordListTot = 0;
 	for (TWordListMap::const_iterator itrWords = g_mapWordList.begin(); itrWords != g_mapWordList.end(); ++itrWords) {
-		nWordListTot += itrWords->second.m_ndxMapping.size();
-
-		if (itrWords->second.m_ndxMapping.size() != itrWords->second.m_ndxNormalized.size()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error:  Word \"%1\" has %2 indexes and %3 normalized indexes!")
-									.arg(itrWords->second.m_strWord).arg(itrWords->second.m_ndxMapping.size()).arg(itrWords->second.m_ndxNormalized.size()));
-			return false;
-		}
-
-		// Make sure normalized and relative indexes match.  This will
-		//		also verify/debug the normalize/denormalize functions:
-		for (unsigned int ndx=0; ndx<itrWords->second.m_ndxMapping.size(); ++ndx) {
-			uint32_t nCalcNormal = NormalizeIndex(itrWords->second.m_ndxMapping[ndx]);
-			uint32_t nCalcRelative = DenormalizeIndex(itrWords->second.m_ndxNormalized[ndx]);
-			if (nCalcNormal != itrWords->second.m_ndxNormalized[ndx]) {
-				CRelIndex relIndex(itrWords->second.m_ndxMapping[ndx]);
-				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Mapping of 0x%2 (%3:%4:%5:%6) and Normal Mapping of 0x%7\nCalculated Normal Mapping is: 0x%8")
-											.arg(itrWords->second.m_strWord)
-											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndex.book()).arg(relIndex.chapter()).arg(relIndex.verse()).arg(relIndex.word())
-											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
-											.arg(nCalcNormal, 8, 16, QChar('0')),
-											"Next Index", "Next Word", "Abort", 0, 2);
-				if (nAction == 2) return false;
-				if (nAction == 1) break;
-			}
-			if (nCalcRelative != itrWords->second.m_ndxMapping[ndx]) {
-				CRelIndex relIndexWord(itrWords->second.m_ndxMapping[ndx]);
-				CRelIndex relIndexCalc(nCalcRelative);
-				int nAction = QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word \"%1\" has Normal Mapping of 0x%2 and Mapping of 0x%3 (%4:%5:%6:%7)\nCalculated Mapping is: 0x%8 (%9:%10:%11:%12)")
-											.arg(itrWords->second.m_strWord)
-											.arg(itrWords->second.m_ndxNormalized[ndx], 8, 16, QChar('0'))
-											.arg(itrWords->second.m_ndxMapping[ndx], 8, 16, QChar('0')).arg(relIndexWord.book()).arg(relIndexWord.chapter()).arg(relIndexWord.verse()).arg(relIndexWord.word())
-											.arg(nCalcRelative, 8, 16, QChar('0')).arg(relIndexCalc.book()).arg(relIndexCalc.chapter()).arg(relIndexCalc.verse()).arg(relIndexCalc.word()),
-											"Next Index", "Next Word", "Abort", 0, 2);
-				if (nAction == 2) return false;
-				if (nAction == 1) break;
-			}
-		}
+		nWordListTot += itrWords->second.m_ndxNormalizedMapping.size();
 	}
 	if (nWordListTot != ncntWrdTot) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
@@ -596,8 +553,8 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 		(!ReadLAYOUTTable()) ||
 		(!ReadBookTables()) ||
 		(!ReadWORDSTable()) ||
-		(!ReadPHRASESTable(false)) /* ||
-		(!ValidateData()) */ ) bSuccess = false;
+		(!ReadPHRASESTable(false)) ||
+		(!ValidateData())) bSuccess = false;
 
 	m_myDatabase.close();
 

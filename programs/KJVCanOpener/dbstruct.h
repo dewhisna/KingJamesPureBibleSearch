@@ -342,8 +342,7 @@ public:
 	bool m_bCasePreserve;		// Special Word Case Preserve
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
-	TIndexList m_ndxMapping;	// Indexes
-	TIndexList m_ndxNormalized;	// Normalized index into entire Bible (Number of entries here should match number of indexes in Mapping above)
+	TIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
 
 	struct SortPredicate {
 		bool operator() (const QString &s1, const QString &s2) const

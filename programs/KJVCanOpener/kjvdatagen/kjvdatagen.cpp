@@ -1138,7 +1138,7 @@ int main(int argc, const char *argv[])
 	}
 
 	if (bDoingWords) {
-		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,Mapping,NormalMap\r\n");
+		fprintf(fileOut, "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n");
 		nWrd = 0;
 		for (TAltWordListMap::const_iterator itrUniqWrd = g_mapAltWordList.begin(); itrUniqWrd != g_mapAltWordList.end(); ++itrUniqWrd) {
 			const TAltWordSet &setAltWords = itrUniqWrd->second;
@@ -1180,14 +1180,13 @@ int main(int argc, const char *argv[])
 				nIndexCount += itrWrd->second.m_ndxMapping.size();
 			}
 			++nWrd;
-			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\",\"%s\"\r\n",
+			fprintf(fileOut, "%d,\"%s\",%d,%d,\"%s\",\"%s\",\"%s\"\r\n",
 								nWrd,
 								WordFromWordSet(setAltWords).c_str(),
 								(bPreserve ? 1 : 0),
 								nIndexCount,
 								strAltWords.c_str(),
 								strAltWordCounts.c_str(),
-								strMapping.c_str(),
 								strNormalMap.c_str());
 		}
 		for (int i=0; i<(g_NormalizationVerification.size()-1); ++i) {

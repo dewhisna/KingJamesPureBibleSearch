@@ -286,7 +286,7 @@ void CParsedPhrase::FindWords()
 				if (!isCaseSensitive()) {
 					bMatch = true;
 					if (ndx == 0) {
-						m_lstMatchMapping.insert(m_lstMatchMapping.end(), itrWordMap->second.m_ndxNormalized.begin(), itrWordMap->second.m_ndxNormalized.end());
+						m_lstMatchMapping.insert(m_lstMatchMapping.end(), itrWordMap->second.m_ndxNormalizedMapping.begin(), itrWordMap->second.m_ndxNormalizedMapping.end());
 					} else {
 						break;		// If we aren't adding more indices, once we get a match, we are done...
 					}
@@ -299,8 +299,8 @@ void CParsedPhrase::FindWords()
 							bMatch = true;
 							if (ndx == 0) {
 								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
-												&wordEntry.m_ndxNormalized[nCount],
-												&wordEntry.m_ndxNormalized[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
+												&wordEntry.m_ndxNormalizedMapping[nCount],
+												&wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
 							} else {
 								break;		// If we aren't adding more indices, once we get a match, we are done...
 							}
