@@ -778,7 +778,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
-		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].GetRichText() + "\n";
+		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].text() + "\n";
 		strHTML += "</p>";
 	}
 
@@ -842,7 +842,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			strHTML += QString("<b> %1 </b>")
 						.arg(ndxVrs+1);
 		}
-		strHTML += verse.GetRichText() + "\n";
+		strHTML += verse.text() + "\n";
 	}
 	if (bParagraph) {
 		strHTML += "</p>";
@@ -854,23 +854,39 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print first verse of next chapter if available:
 	if (nRelNextChapter != 0) {
 		CRelIndex relNext(nRelNextChapter);
+		CRelIndex ndxBookChap(relNext.book(), relNext.chapter(), 0, 0);
+		const CTOCEntry &tocNext = g_lstTOC[relNext.book()-1];
 
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != ndx.book()) {
 			if (!bNoAnchors) {
 				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
-								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0 ,0).asAnchor())
-								.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+								.arg(ndxBookChap.asAnchor())
+								.arg(tocNext.m_strBkName);
+				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
+					strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")
+									.arg(ndxBookChap.asAnchor())
+									.arg(Qt::escape(tocNext.m_strDesc));
+				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
+					strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")
+									.arg(ndxBookChap.asAnchor())
+									.arg(Qt::escape(tocNext.m_strCat));
 			} else {
 				strHTML += QString("<div class=book>%1</div>\n")
 								.arg(g_lstTOC[relNext.book()-1].m_strBkName);
+				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
+					strHTML += QString("<div class=subtitle>(%1)</div>\n")
+									.arg(Qt::escape(tocNext.m_strDesc));
+				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
+					strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
+									.arg(Qt::escape(tocNext.m_strCat));
 			}
 		}
 		if (!bNoAnchors) {
 			strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
-								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor())
+								.arg(ndxBookChap.asAnchor())
 								.arg(relNext.chapter())
-								.arg(CRelIndex(relNext.book(), relNext.chapter(), 0, 0).asAnchor());
+								.arg(ndxBookChap.asAnchor());
 		} else {
 			strHTML += QString("<div class=chapter>Chapter %1</div>\n")
 								.arg(relNext.chapter());
@@ -882,7 +898,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
-		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].GetRichText() + "\n";
+		strHTML += (g_lstBooks[relNext.book()-1])[CRelIndex(0,relNext.chapter(),relNext.verse(),0)].text() + "\n";
 		strHTML += "</p>";
 	}
 
@@ -972,7 +988,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 					.arg(ndx.chapter())
 					.arg(ndx.verse());
 	}
-	strHTML += verse.GetRichText() + "\n";
+	strHTML += verse.text() + "\n";
 
 	strHTML += "</p></body></html>";
 	m_TextDocument.setHtml(strHTML);
@@ -1067,7 +1083,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 		}
 		const CBookEntry &verse(mapLookupVerse->second);
 
-		strHTML += verse.GetRichText();
+		strHTML += verse.text();
 
 		ndxPrev = ndx;
 	}

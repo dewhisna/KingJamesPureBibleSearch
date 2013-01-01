@@ -222,11 +222,14 @@ bool CReadDatabase::ReadBookTables()
 		query.setForwardOnly(true);
 		query.exec(QString("SELECT * FROM %1").arg(g_lstTOC[i].m_strTblName));
 		while (query.next()) {
+			QString strVerseText;
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
 			CBookEntry &entryBook = mapBook[CRelIndex(nChpVrsNdx << 8)];
 			entryBook.m_nNumWrd = query.value(1).toUInt();
 			entryBook.m_bPilcrow = ((query.value(2).toInt() != 0) ? true : false);
-			entryBook.SetRichText(query.value(4).toString());
+			strVerseText = query.value(4).toString();
+			if (strVerseText.isEmpty()) strVerseText = query.value(3).toString();
+			entryBook.setText(strVerseText);
 		}
 
 // Used for debugging:
@@ -239,7 +242,7 @@ bool CReadDatabase::ReadBookTables()
 				sl.push_back(QString("%1").arg(itr->first.index()>>8));
 				sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
 				sl.push_back(QString("%1").arg(itr->second.m_bPilcrow));
-				sl.push_back(itr->second.GetRichText());
+				sl.push_back(itr->second.text());
 				csv << sl;
 			}
 			fileTest.close();

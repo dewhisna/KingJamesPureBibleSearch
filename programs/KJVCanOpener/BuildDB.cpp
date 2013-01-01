@@ -449,6 +449,12 @@ bool CBuildDatabase::BuildBookTables()
 						"(ChpVrsNdx, NumWrd, bPilcrow, PText, RText) "
 						"VALUES (:ChpVrsNdx, :NumWrd, :bPilcrow, :PText, :RText)").arg(g_arrstrBkTblNames[i]);
 
+			// No need to have both plain text and rich text in our database, since
+			//	we only need one data source for these.  So if we have Rich, we'll
+			//	use that, but leave a placeholder for Plain.  Otherwise, we'll leave
+			//	the placeholder for Rich and use Plain:
+			if (!sl.at(4).isEmpty()) sl[3].clear();
+
 			queryInsert.prepare(strCmd);
 			queryInsert.bindValue(":ChpVrsNdx", sl.at(0).toUInt());
 			queryInsert.bindValue(":NumWrd", sl.at(1).toUInt());

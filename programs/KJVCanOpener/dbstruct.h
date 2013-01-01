@@ -306,17 +306,17 @@ public:
 
 	unsigned int m_nNumWrd;		// Number of words in this verse
 	bool m_bPilcrow;			// Start of verse Pilcrow Flag
-	QString GetRichText() const		// We'll use a function to fetch the rich text (on mobile this will be a database lookup)
+	QString text() const		// We'll use a function to fetch the rich text (on mobile this can be a database lookup if need be)
 	{
-		return m_strRichText;
+		return m_strText;
 	}
-	void SetRichText(const QString &strRichText)		// This will be a noop on mobile
+	void setText(const QString &strText)		// This can be a no-op on mobile
 	{
-		m_strRichText = strRichText;
+		m_strText = strText;
 	}
 
 private:
-	QString m_strRichText;		// Rich text for the verse (Note: for mobile versions, this element will be removed and fetched from the database)
+	QString m_strText;			// Rich text (or plain if Rich unavailable) for the verse (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 };
 
 typedef std::map<CRelIndex, CBookEntry, IndexSortPredicate> TBookEntryMap;		// Index by [0|nChp|nVrs|0]

@@ -170,7 +170,7 @@ public:
 	QString getVerseRichText() const
 	{
 		if (!isSet()) return QString();
-		return (g_lstBooks[getBook()-1])[CRelIndex(0,getChapter(),getVerse(),0)].GetRichText();
+		return (g_lstBooks[getBook()-1])[CRelIndex(0,getChapter(),getVerse(),0)].text();
 	}
 
 private:
