@@ -769,9 +769,12 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	uint32_t nRelPrevChapter = DenormalizeIndex(nFirstWordNormal - 1);				// Find previous book/chapter/verse (and word)
 	uint32_t nRelNextChapter = DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
 
+	TFootnoteEntryMap::const_iterator mapLookupFootnote;
+
 	// Print last verse of previous chapter if available:
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
+		const CTOCEntry &tocPrev = g_lstTOC[relPrev.book()-1];
 		strHTML += "<p>";
 		if (!bNoAnchors) {
 			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
@@ -780,6 +783,23 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 		strHTML += (g_lstBooks[relPrev.book()-1])[CRelIndex(0,relPrev.chapter(),relPrev.verse(),0)].text() + "\n";
 		strHTML += "</p>";
+
+		// If we have a footnote for this book and this is the end of the last chapter,
+		//		print it too:
+		if (relPrev.chapter() == tocPrev.m_nNumChp) {
+			mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relPrev.book(),0,0,0));
+			if (mapLookupFootnote != g_mapFootnotes.end()) {
+				if (!bNoAnchors) {
+					strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\"> </a></p>\n")
+									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
+									.arg(mapLookupFootnote->second.text())
+									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor());
+				} else {
+					strHTML += QString("<p>%1</p>\n")
+									.arg(mapLookupFootnote->second.text());
+				}
+			}
+		}
 	}
 
 	strHTML += "<hr />\n";
@@ -787,32 +807,46 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print Heading for this Book/Chapter:
 	if (!bNoAnchors) {
 		CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
-		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
+		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 						.arg(ndxBookChap.asAnchor())
 						.arg(Qt::escape(toc.m_strBkName));
 		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")
+			strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 							.arg(ndxBookChap.asAnchor())
-							.arg(Qt::escape(toc.m_strDesc));
+							.arg(toc.m_strDesc);
 		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")
+			strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 							.arg(ndxBookChap.asAnchor())
-							.arg(Qt::escape(toc.m_strCat));
-		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
+							.arg(toc.m_strCat);
+		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a><a id=\"X%3\"> </a></div>\n")
 						.arg(ndxBookChap.asAnchor())
 						.arg(ndx.chapter())
 						.arg(ndxBookChap.asAnchor());
+		// If we have a chapter note for this chapter, print it too:
+		mapLookupFootnote = g_mapFootnotes.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+		if (mapLookupFootnote != g_mapFootnotes.end()) {
+			strHTML += QString("<div class=subtitle><a id=\"%1\">%2</a><a id=\"X%3\"> </a></div>\n")
+						.arg(ndxBookChap.asAnchor())
+						.arg(mapLookupFootnote->second.text())
+						.arg(ndxBookChap.asAnchor());
+		}
 	} else {
 		strHTML += QString("<div class=book>%1</div>\n")
 						.arg(Qt::escape(toc.m_strBkName));
 		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(Qt::escape(toc.m_strDesc));
+							.arg(toc.m_strDesc);
 		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
-							.arg(Qt::escape(toc.m_strCat));
+							.arg(toc.m_strCat);
 		strHTML += QString("<div class=chapter>Chapter %1</div>\n")
 						.arg(ndx.chapter());
+		// If we have a chapter note for this chapter, print it too:
+		mapLookupFootnote = g_mapFootnotes.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+		if (mapLookupFootnote != g_mapFootnotes.end()) {
+			strHTML += QString("<div class=subtitle>%1</div>\n")
+						.arg(mapLookupFootnote->second.text());
+		}
 	}
 
 	// Print this Chapter Text:
@@ -849,6 +883,23 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		bParagraph = false;
 	}
 
+	// If we have a footnote for this book and this is the end of the last chapter,
+	//		print it too:
+	if (ndx.chapter() == toc.m_nNumChp) {
+		mapLookupFootnote = g_mapFootnotes.find(CRelIndex(ndx.book(),0,0,0));
+		if (mapLookupFootnote != g_mapFootnotes.end()) {
+			if (!bNoAnchors) {
+				strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\"> </a></p>\n")
+								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
+								.arg(mapLookupFootnote->second.text())
+								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor());
+			} else {
+				strHTML += QString("<p>%1</p>\n")
+								.arg(mapLookupFootnote->second.text());
+			}
+		}
+	}
+
 	strHTML += "<hr />\n";
 
 	// Print first verse of next chapter if available:
@@ -860,36 +911,50 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		// Print Heading for this Book/Chapter:
 		if (relNext.book() != ndx.book()) {
 			if (!bNoAnchors) {
-				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")
+				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 								.arg(ndxBookChap.asAnchor())
-								.arg(tocNext.m_strBkName);
+								.arg(Qt::escape(tocNext.m_strBkName));
 				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")
+					strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 									.arg(ndxBookChap.asAnchor())
-									.arg(Qt::escape(tocNext.m_strDesc));
+									.arg(tocNext.m_strDesc);
 				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")
+					strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 									.arg(ndxBookChap.asAnchor())
-									.arg(Qt::escape(tocNext.m_strCat));
+									.arg(tocNext.m_strCat);
 			} else {
 				strHTML += QString("<div class=book>%1</div>\n")
 								.arg(g_lstTOC[relNext.book()-1].m_strBkName);
 				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(Qt::escape(tocNext.m_strDesc));
+									.arg(tocNext.m_strDesc);
 				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
-									.arg(Qt::escape(tocNext.m_strCat));
+									.arg(tocNext.m_strCat);
 			}
 		}
 		if (!bNoAnchors) {
-			strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div><a id=\"X%3\"> </a>\n")
+			strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a><a id=\"X%3\"> </a></div>\n")
 								.arg(ndxBookChap.asAnchor())
 								.arg(relNext.chapter())
 								.arg(ndxBookChap.asAnchor());
+			// If we have a chapter note for this chapter, print it too:
+			mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+			if (mapLookupFootnote != g_mapFootnotes.end()) {
+				strHTML += QString("<div class=subtitle><a id=\"%1\">%2</a><a id=\"X%3\"> </a></div>\n")
+							.arg(ndxBookChap.asAnchor())
+							.arg(mapLookupFootnote->second.text())
+							.arg(ndxBookChap.asAnchor());
+			}
 		} else {
 			strHTML += QString("<div class=chapter>Chapter %1</div>\n")
 								.arg(relNext.chapter());
+			// If we have a chapter note for this chapter, print it too:
+			mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+			if (mapLookupFootnote != g_mapFootnotes.end()) {
+				strHTML += QString("<div class=subtitle>%1</div>\n")
+							.arg(mapLookupFootnote->second.text());
+			}
 		}
 
 		strHTML += "<p>";
