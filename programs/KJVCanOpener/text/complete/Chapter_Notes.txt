@@ -1,361 +1,131 @@
-GENESIS
-EXODUS
-LEVITICUS
-NUMBERS
-DEUTERONOMY
-JOSHUA
-JUDGES
-RUTH
-1 SAMUEL
-2 SAMUEL
-1 KINGS
-2 KINGS
-1 CHRONICLES
-2 CHRONICLES
-EZRA
-NEHEMIAH
-ESTHER
-JOB
-PSALMS
-PSALM 1
-PSALM 2
-PSALM 3
-A Psalm of David, when he fled from Absalom his son.
-PSALM 4
-To the chief Musician on Neginoth, A Psalm of David.
-PSALM 5
-To the chief Musician upon Nehiloth, A Psalm of David.
-PSALM 6
-To the chief Musician on Neginoth upon Sheminith, A Psalm of David.
-PSALM 7
-Shiggaion of David, which he sang unto the LORD, concerning the words of Cush the Benjamite.
-PSALM 8
-To the chief Musician upon Gittith, A Psalm of David.
-PSALM 9
-To the chief Musician upon Muth-labben, A Psalm of David.
-PSALM 10
-PSALM 11
-To the chief Musician, [A Psalm] of David.
-PSALM 12
-To the chief Musician upon Sheminith, A Psalm of David.
-PSALM 13
-To the chief Musician, A Psalm of David.
-PSALM 14
-To the chief Musician, [A Psalm] of David.
-PSALM 15
-A Psalm of David.
-PSALM 16
-Michtam of David.
-PSALM 17
-A Prayer of David.
-PSALM 18
-To the chief Musician, [A Psalm] of David, the servant of the LORD, who spake unto the LORD the words of this song in the day [that] the LORD delivered him from the hand of all his enemies, and from the hand of Saul: And he said,
-PSALM 19
-To the chief Musician, A Psalm of David.
-PSALM 20
-To the chief Musician, A Psalm of David.
-PSALM 21
-To the chief Musician, A Psalm of David.
-PSALM 22
-To the chief Musician upon Aijeleth Shahar, A Psalm of David.
-PSALM 23
-A Psalm of David.
-PSALM 24
-A Psalm of David.
-PSALM 25
-[A Psalm] of David.
-PSALM 26
-[A Psalm] of David.
-PSALM 27
-[A Psalm] of David.
-PSALM 28
-[A Psalm] of David.
-PSALM 29
-A Psalm of David.
-PSALM 30
-A Psalm [and] Song [at] the dedication of the house of David.
-PSALM 31
-To the chief Musician, A Psalm of David.
-PSALM 32
-[A Psalm] of David, Maschil.
-PSALM 33
-PSALM 34
-[A Psalm] of David, when he changed his behaviour before Abimelech; who drove him away, and he departed.
-PSALM 35
-[A Psalm] of David.
-PSALM 36
-To the chief Musician, [A Psalm] of David the servant of the LORD.
-PSALM 37
-[A Psalm] of David.
-PSALM 38
-A Psalm of David, to bring to remembrance.
-PSALM 39
-To the chief Musician, [even] to Jeduthun, A Psalm of David.
-PSALM 40
-To the chief Musician, A Psalm of David.
-PSALM 41
-To the chief Musician, A Psalm of David.
-PSALM 42
-To the chief Musician, Maschil, for the sons of Korah.
-PSALM 43
-PSALM 44
-To the chief Musician for the sons of Korah, Maschil.
-PSALM 45
-To the chief Musician upon Shoshannim, for the sons of Korah, Maschil, A Song of loves.
-PSALM 46
-To the chief Musician for the sons of Korah, A Song upon Alamoth.
-PSALM 47
-To the chief Musician, A Psalm for the sons of Korah.
-PSALM 48
-A Song [and] Psalm for the sons of Korah.
-PSALM 49
-To the chief Musician, A Psalm for the sons of Korah.
-PSALM 50
-A Psalm of Asaph.
-PSALM 51
-To the chief Musician, A Psalm of David, when Nathan the prophet came unto him, after he had gone in to Bath-sheba.
-PSALM 52
-To the chief Musician, Maschil, [A Psalm] of David, when Doeg the Edomite came and told Saul, and said unto him, David is come to the house of Ahimelech.
-PSALM 53
-To the chief Musician upon Mahalath, Maschil, [A Psalm] of David.
-PSALM 54
-To the chief Musician on Neginoth, Maschil, [A Psalm] of David, when the Ziphims came and said to Saul, Doth not David hide himself with us?
-PSALM 55
-To the chief Musician on Neginoth, Maschil, [A Psalm] of David.
-PSALM 56
-To the chief Musician upon Jonath-elem-rechokim, Michtam of David, when the Philistines took him in Gath.
-PSALM 57
-To the chief Musician, Al-taschith, Michtam of David, when he fled from Saul in the cave.
-PSALM 58
-To the chief Musician, Al-taschith, Michtam of David.
-PSALM 59
-To the chief Musician, Al-taschith, Michtam of David; when Saul sent, and they watched the house to kill him.
-PSALM 60
-To the chief Musician upon Shushan-eduth, Michtam of David, to teach; when he strove with Aram-naharaim and with Aram-zobah, when Joab returned, and smote of Edom in the valley of salt twelve thousand.
-PSALM 61
-To the chief Musician upon Neginah, [A Psalm] of David.
-PSALM 62
-To the chief Musician, to Jeduthun, A Psalm of David.
-PSALM 63
-A Psalm of David, when he was in the wilderness of Judah.
-PSALM 64
-To the chief Musician, A Psalm of David.
-PSALM 65
-To the chief Musician, A Psalm [and] Song of David.
-PSALM 66
-To the chief Musician, A Song [or] Psalm.
-PSALM 67
-To the chief Musician on Neginoth, A Psalm [or] Song.
-PSALM 68
-To the chief Musician, A Psalm [or] Song of David.
-PSALM 69
-To the chief Musician upon Shoshannim, [A Psalm] of David.
-PSALM 70
-To the chief Musician, [A Psalm] of David, to bring to remembrance.
-PSALM 71
-PSALM 72
-[A Psalm] for Solomon.
-PSALM 73
-A Psalm of Asaph.
-PSALM 74
-Maschil of Asaph.
-PSALM 75
-To the chief Musician, Al-taschith, A Psalm [or] Song of Asaph.
-PSALM 76
-To the chief Musician on Neginoth, A Psalm [or] Song of Asaph.
-PSALM 77
-To the chief Musician, to Jeduthun, A Psalm of Asaph.
-PSALM 78
-Maschil of Asaph.
-PSALM 79
-A Psalm of Asaph.
-PSALM 80
-To the chief Musician upon Shoshannim-Eduth, A Psalm of Asaph.
-PSALM 81
-To the chief Musician upon Gittith, [A Psalm] of Asaph.
-PSALM 82
-A Psalm of Asaph.
-PSALM 83
-A Song [or] Psalm of Asaph.
-PSALM 84
-To the chief Musician upon Gittith, A Psalm for the sons of Korah.
-PSALM 85
-To the chief Musician, A Psalm for the sons of Korah.
-PSALM 86
-A Prayer of David.
-PSALM 87
-A Psalm [or] Song for the sons of Korah.
-PSALM 88
-A Song [or] Psalm for the sons of Korah, to the chief Musician upon Mahalath Leannoth, Maschil of Heman the Ezrahite.
-PSALM 89
-Maschil of Ethan the Ezrahite.
-PSALM 90
-A Prayer of Moses the man of God.
-PSALM 91
-PSALM 92
-A Psalm [or] Song for the sabbath day.
-PSALM 93
-PSALM 94
-PSALM 95
-PSALM 96
-PSALM 97
-PSALM 98
-A Psalm.
-PSALM 99
-PSALM 100
-A Psalm of praise.
-PSALM 101
-A Psalm of David.
-PSALM 102
-A Prayer of the afflicted, when he is overwhelmed, and poureth out his complaint before the LORD.
-PSALM 103
-[A Psalm] of David.
-PSALM 104
-PSALM 105
-PSALM 106
-PSALM 107
-PSALM 108
-A Song [or] Psalm of David.
-PSALM 109
-To the chief Musician, A Psalm of David.
-PSALM 110
-A Psalm of David.
-PSALM 111
-PSALM 112
-PSALM 113
-PSALM 114
-PSALM 115
-PSALM 116
-PSALM 117
-PSALM 118
-PSALM 119
-PSALM 120
-A Song of degrees.
-PSALM 121
-A Song of degrees.
-PSALM 122
-A Song of degrees of David.
-PSALM 123
-A Song of degrees.
-PSALM 124
-A Song of degrees of David.
-PSALM 125
-A Song of degrees.
-PSALM 126
-A Song of degrees.
-PSALM 127
-A Song of degrees for Solomon.
-PSALM 128
-A Song of degrees.
-PSALM 129
-A Song of degrees.
-PSALM 130
-A Song of degrees.
-PSALM 131
-A Song of degrees of David.
-PSALM 132
-A Song of degrees.
-PSALM 133
-A Song of degrees of David.
-PSALM 134
-A Song of degrees.
-PSALM 135
-PSALM 136
-PSALM 137
-PSALM 138
-[A Psalm] of David.
-PSALM 139
-To the chief Musician, A Psalm of David.
-PSALM 140
-To the chief Musician, A Psalm of David.
-PSALM 141
-A Psalm of David.
-PSALM 142
-Maschil of David; A Prayer when he was in the cave.
-PSALM 143
-A Psalm of David.
-PSALM 144
-[A Psalm] of David.
-PSALM 145
-David's [Psalm] of praise.
-PSALM 146
-PSALM 147
-PSALM 148
-PSALM 149
-PSALM 150
-PROVERBS
-ECCLESIASTES
-SONG OF SOLOMON
-ISAIAH
-JEREMIAH
-LAMENTATIONS
-EZEKIEL
-DANIEL
-HOSEA
-JOEL
-AMOS
-OBADIAH
-JONAH
-MICAH
-NAHUM
-HABAKKUK
-ZEPHANIAH
-HAGGAI
-ZECHARIAH
-MALACHI
-*******************************************************************************
-MATTHEW
-MARK
-LUKE
-JOHN
-ACTS
-ROMANS
-CHAPTER 16
-# Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.
-1 CORINTHIANS
-CHAPTER 16
-# The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.
-2 CORINTHIANS
-CHAPTER 13
-# The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.
-GALATIANS
-CHAPTER 6
-# Unto the Galatians written from Rome.
-EPHESIANS
-CHAPTER 6
-# Written from Rome unto the Ephesians by Tychicus.
-PHILIPPIANS
-CHAPTER 4
-# It was written to the Philippians from Rome by Epaphroditus.
-COLOSSIANS
-CHAPTER 4
-# Written from Rome to the Colossians by Tychicus and Onesimus.
-1 THESSALONIANS
-CHAPTER 5
-# The first [epistle] unto the Thessalonians was written from Athens.
-2 THESSALONIANS
-CHAPTER 3
-# The second [epistle] to the Thessalonians was written from Athens.
-1 TIMOTHY
-CHAPTER 6
-# The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.
-2 TIMOTHY
-CHAPTER 4
-# The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.
-TITUS
-CHAPTER 3
-# It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.
-PHILEMON
-CHAPTER 1
-# Written from Rome to Philemon, by Onesimus, a servant.
-HEBREWS
-CHAPTER 13
-# Written to the Hebrews from Italy by Timothy.
-JAMES
-1 PETER
-2 PETER
-1 JOHN
-2 JOHN
-3 JOHN
-JUDE
-REVELATION
+PSALM 3: A Psalm of David, when he fled from Absalom his son.
+PSALM 4: To the chief Musician on Neginoth, A Psalm of David.
+PSALM 5: To the chief Musician upon Nehiloth, A Psalm of David.
+PSALM 6: To the chief Musician on Neginoth upon Sheminith, A Psalm of David.
+PSALM 7: Shiggaion of David, which he sang unto the LORD, concerning the words of Cush the Benjamite.
+PSALM 8: To the chief Musician upon Gittith, A Psalm of David.
+PSALM 9: To the chief Musician upon Muth-labben, A Psalm of David.
+PSALM 11: To the chief Musician, [A Psalm] of David.
+PSALM 12: To the chief Musician upon Sheminith, A Psalm of David.
+PSALM 13: To the chief Musician, A Psalm of David.
+PSALM 14: To the chief Musician, [A Psalm] of David.
+PSALM 15: A Psalm of David.
+PSALM 16: Michtam of David.
+PSALM 17: A Prayer of David.
+PSALM 18: To the chief Musician, [A Psalm] of David, the servant of the LORD, who spake unto the LORD the words of this song in the day [that] the LORD delivered him from the hand of all his enemies, and from the hand of Saul: And he said,
+PSALM 19: To the chief Musician, A Psalm of David.
+PSALM 20: To the chief Musician, A Psalm of David.
+PSALM 21: To the chief Musician, A Psalm of David.
+PSALM 22: To the chief Musician upon Aijeleth Shahar, A Psalm of David.
+PSALM 23: A Psalm of David.
+PSALM 24: A Psalm of David.
+PSALM 25: [A Psalm] of David.
+PSALM 26: [A Psalm] of David.
+PSALM 27: [A Psalm] of David.
+PSALM 28: [A Psalm] of David.
+PSALM 29: A Psalm of David.
+PSALM 30: A Psalm [and] Song [at] the dedication of the house of David.
+PSALM 31: To the chief Musician, A Psalm of David.
+PSALM 32: [A Psalm] of David, Maschil.
+PSALM 34: [A Psalm] of David, when he changed his behaviour before Abimelech; who drove him away, and he departed.
+PSALM 35: [A Psalm] of David.
+PSALM 36: To the chief Musician, [A Psalm] of David the servant of the LORD.
+PSALM 37: [A Psalm] of David.
+PSALM 38: A Psalm of David, to bring to remembrance.
+PSALM 39: To the chief Musician, [even] to Jeduthun, A Psalm of David.
+PSALM 40: To the chief Musician, A Psalm of David.
+PSALM 41: To the chief Musician, A Psalm of David.
+PSALM 42: To the chief Musician, Maschil, for the sons of Korah.
+PSALM 44: To the chief Musician for the sons of Korah, Maschil.
+PSALM 45: To the chief Musician upon Shoshannim, for the sons of Korah, Maschil, A Song of loves.
+PSALM 46: To the chief Musician for the sons of Korah, A Song upon Alamoth.
+PSALM 47: To the chief Musician, A Psalm for the sons of Korah.
+PSALM 48: A Song [and] Psalm for the sons of Korah.
+PSALM 49: To the chief Musician, A Psalm for the sons of Korah.
+PSALM 50: A Psalm of Asaph.
+PSALM 51: To the chief Musician, A Psalm of David, when Nathan the prophet came unto him, after he had gone in to Bath-sheba.
+PSALM 52: To the chief Musician, Maschil, [A Psalm] of David, when Doeg the Edomite came and told Saul, and said unto him, David is come to the house of Ahimelech.
+PSALM 53: To the chief Musician upon Mahalath, Maschil, [A Psalm] of David.
+PSALM 54: To the chief Musician on Neginoth, Maschil, [A Psalm] of David, when the Ziphims came and said to Saul, Doth not David hide himself with us?
+PSALM 55: To the chief Musician on Neginoth, Maschil, [A Psalm] of David.
+PSALM 56: To the chief Musician upon Jonath-elem-rechokim, Michtam of David, when the Philistines took him in Gath.
+PSALM 57: To the chief Musician, Al-taschith, Michtam of David, when he fled from Saul in the cave.
+PSALM 58: To the chief Musician, Al-taschith, Michtam of David.
+PSALM 59: To the chief Musician, Al-taschith, Michtam of David; when Saul sent, and they watched the house to kill him.
+PSALM 60: To the chief Musician upon Shushan-eduth, Michtam of David, to teach; when he strove with Aram-naharaim and with Aram-zobah, when Joab returned, and smote of Edom in the valley of salt twelve thousand.
+PSALM 61: To the chief Musician upon Neginah, [A Psalm] of David.
+PSALM 62: To the chief Musician, to Jeduthun, A Psalm of David.
+PSALM 63: A Psalm of David, when he was in the wilderness of Judah.
+PSALM 64: To the chief Musician, A Psalm of David.
+PSALM 65: To the chief Musician, A Psalm [and] Song of David.
+PSALM 66: To the chief Musician, A Song [or] Psalm.
+PSALM 67: To the chief Musician on Neginoth, A Psalm [or] Song.
+PSALM 68: To the chief Musician, A Psalm [or] Song of David.
+PSALM 69: To the chief Musician upon Shoshannim, [A Psalm] of David.
+PSALM 70: To the chief Musician, [A Psalm] of David, to bring to remembrance.
+PSALM 72: [A Psalm] for Solomon.
+PSALM 73: A Psalm of Asaph.
+PSALM 74: Maschil of Asaph.
+PSALM 75: To the chief Musician, Al-taschith, A Psalm [or] Song of Asaph.
+PSALM 76: To the chief Musician on Neginoth, A Psalm [or] Song of Asaph.
+PSALM 77: To the chief Musician, to Jeduthun, A Psalm of Asaph.
+PSALM 78: Maschil of Asaph.
+PSALM 79: A Psalm of Asaph.
+PSALM 80: To the chief Musician upon Shoshannim-Eduth, A Psalm of Asaph.
+PSALM 81: To the chief Musician upon Gittith, [A Psalm] of Asaph.
+PSALM 82: A Psalm of Asaph.
+PSALM 83: A Song [or] Psalm of Asaph.
+PSALM 84: To the chief Musician upon Gittith, A Psalm for the sons of Korah.
+PSALM 85: To the chief Musician, A Psalm for the sons of Korah.
+PSALM 86: A Prayer of David.
+PSALM 87: A Psalm [or] Song for the sons of Korah.
+PSALM 88: A Song [or] Psalm for the sons of Korah, to the chief Musician upon Mahalath Leannoth, Maschil of Heman the Ezrahite.
+PSALM 89: Maschil of Ethan the Ezrahite.
+PSALM 90: A Prayer of Moses the man of God.
+PSALM 92: A Psalm [or] Song for the sabbath day.
+PSALM 98: A Psalm.
+PSALM 100: A Psalm of praise.
+PSALM 101: A Psalm of David.
+PSALM 102: A Prayer of the afflicted, when he is overwhelmed, and poureth out his complaint before the LORD.
+PSALM 103: [A Psalm] of David.
+PSALM 108: A Song [or] Psalm of David.
+PSALM 109: To the chief Musician, A Psalm of David.
+PSALM 110: A Psalm of David.
+PSALM 120: A Song of degrees.
+PSALM 121: A Song of degrees.
+PSALM 122: A Song of degrees of David.
+PSALM 123: A Song of degrees.
+PSALM 124: A Song of degrees of David.
+PSALM 125: A Song of degrees.
+PSALM 126: A Song of degrees.
+PSALM 127: A Song of degrees for Solomon.
+PSALM 128: A Song of degrees.
+PSALM 129: A Song of degrees.
+PSALM 130: A Song of degrees.
+PSALM 131: A Song of degrees of David.
+PSALM 132: A Song of degrees.
+PSALM 133: A Song of degrees of David.
+PSALM 134: A Song of degrees.
+PSALM 138: [A Psalm] of David.
+PSALM 139: To the chief Musician, A Psalm of David.
+PSALM 140: To the chief Musician, A Psalm of David.
+PSALM 141: A Psalm of David.
+PSALM 142: Maschil of David; A Prayer when he was in the cave.
+PSALM 143: A Psalm of David.
+PSALM 144: [A Psalm] of David.
+PSALM 145: David's [Psalm] of praise.
+-----
+ROMANS: # Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.
+1 CORINTHIANS: # The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.
+2 CORINTHIANS: # The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.
+GALATIANS: # Unto the Galatians written from Rome.
+EPHESIANS: # Written from Rome unto the Ephesians by Tychicus.
+PHILIPPIANS: # It was written to the Philippians from Rome by Epaphroditus.
+COLOSSIANS: # Written from Rome to the Colossians by Tychicus and Onesimus.
+1 THESSALONIANS: # The first [epistle] unto the Thessalonians was written from Athens.
+2 THESSALONIANS: # The second [epistle] to the Thessalonians was written from Athens.
+1 TIMOTHY: # The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.
+2 TIMOTHY: # The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.
+TITUS: # It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.
+PHILEMON: # Written from Rome to Philemon, by Onesimus, a servant.
+HEBREWS: # Written to the Hebrews from Italy by Timothy.
