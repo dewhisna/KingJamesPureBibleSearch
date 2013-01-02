@@ -1195,11 +1195,12 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					nWords = 0;
 					strPhrase.clear();
 				}
-				if (!nIndex.isSet()) {
-					CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
-					nIndex = ResolveCursorReference(tempCursor);
-				}
-				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
+				CRelIndex nCurrentIndex;
+				CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
+				nCurrentIndex = ResolveCursorReference(tempCursor);
+				if (!nIndex.isSet()) nIndex = nCurrentIndex;
+				if (((nCurrentIndex.verse() != 0) && (nCurrentIndex.word() != 0)) &&
+					(!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())) {
 					nWords++;
 					if (!strPhrase.isEmpty()) strPhrase += " ";
 					strPhrase += myCursor.wordUnderCursor();
