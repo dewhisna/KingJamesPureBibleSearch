@@ -790,10 +790,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relPrev.book(),0,0,0));
 			if (mapLookupFootnote != g_mapFootnotes.end()) {
 				if (!bNoAnchors) {
-					strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\"> </a></p>\n")
+					strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
 									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
 									.arg(mapLookupFootnote->second.text())
-									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor());
+									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
+									.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 				} else {
 					strHTML += QString("<p>%1</p>\n")
 									.arg(mapLookupFootnote->second.text());
@@ -811,23 +812,22 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(ndxBookChap.asAnchor())
 						.arg(Qt::escape(toc.m_strBkName));
 		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-							.arg(ndxBookChap.asAnchor())
+			strHTML += QString("<div class=subtitle>(%1)</div>\n")
 							.arg(toc.m_strDesc);
 		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-							.arg(ndxBookChap.asAnchor())
+			strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
 							.arg(toc.m_strCat);
-		strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a><a id=\"X%3\"> </a></div>\n")
-						.arg(ndxBookChap.asAnchor())
-						.arg(ndx.chapter())
-						.arg(ndxBookChap.asAnchor());
 		// If we have a chapter note for this chapter, print it too:
 		mapLookupFootnote = g_mapFootnotes.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 		if (mapLookupFootnote != g_mapFootnotes.end()) {
-			strHTML += QString("<div class=subtitle><a id=\"%1\">%2</a><a id=\"X%3\"> </a></div>\n")
-						.arg(ndxBookChap.asAnchor())
+			strHTML += QString("<div class=chapter>Chapter %1</div>\n")
+						.arg(ndx.chapter());
+			strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
 						.arg(mapLookupFootnote->second.text())
+						.arg(ndxBookChap.asAnchor());
+		} else {
+			strHTML += QString("<div class=chapter>Chapter %1<a id=\"X%2\"> </a></div>\n")
+						.arg(ndx.chapter())
 						.arg(ndxBookChap.asAnchor());
 		}
 	} else {
@@ -851,7 +851,9 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 
 	// Print this Chapter Text:
 	bool bParagraph = false;
+	CRelIndex ndxVerse;
 	for (unsigned int ndxVrs=0; ndxVrs<layout.m_nNumVrs; ++ndxVrs) {
+		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
 		TBookEntryMap::const_iterator mapLookupVerse = book.find(CRelIndex(0,ndx.chapter(),ndxVrs+1,0));
 		if (mapLookupVerse == book.end()) {
 			assert(false);
@@ -870,13 +872,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 		if (!bNoAnchors) {
 			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>")
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0).asAnchor())
+						.arg(ndxVerse.asAnchor())
 						.arg(ndxVrs+1);
 		} else {
 			strHTML += QString("<b> %1 </b>")
 						.arg(ndxVrs+1);
 		}
 		strHTML += verse.text() + "\n";
+		ndxVerse.setWord(verse.m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
 	}
 	if (bParagraph) {
 		strHTML += "</p>";
@@ -889,10 +892,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		mapLookupFootnote = g_mapFootnotes.find(CRelIndex(ndx.book(),0,0,0));
 		if (mapLookupFootnote != g_mapFootnotes.end()) {
 			if (!bNoAnchors) {
-				strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\"> </a></p>\n")
+				strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
 								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
 								.arg(mapLookupFootnote->second.text())
-								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor());
+								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
+								.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 			} else {
 				strHTML += QString("<p>%1</p>\n")
 								.arg(mapLookupFootnote->second.text());
@@ -909,18 +913,18 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		const CTOCEntry &tocNext = g_lstTOC[relNext.book()-1];
 
 		// Print Heading for this Book/Chapter:
+		bool bNextChapterDifferentBook = false;
 		if (relNext.book() != ndx.book()) {
+			bNextChapterDifferentBook = true;
 			if (!bNoAnchors) {
 				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 								.arg(ndxBookChap.asAnchor())
 								.arg(Qt::escape(tocNext.m_strBkName));
 				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=subtitle><a id=\"%1\">(%2)</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-									.arg(ndxBookChap.asAnchor())
+					strHTML += QString("<div class=subtitle>(%1)</div>\n")
 									.arg(tocNext.m_strDesc);
 				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=category><a id=\"%1\"><b>Category:</b> %2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-									.arg(ndxBookChap.asAnchor())
+					strHTML += QString("<div class=category><b>Category:</b> %1</div>\n")
 									.arg(tocNext.m_strCat);
 			} else {
 				strHTML += QString("<div class=book>%1</div>\n")
@@ -934,17 +938,36 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			}
 		}
 		if (!bNoAnchors) {
-			strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a><a id=\"X%3\"> </a></div>\n")
-								.arg(ndxBookChap.asAnchor())
-								.arg(relNext.chapter())
-								.arg(ndxBookChap.asAnchor());
-			// If we have a chapter note for this chapter, print it too:
-			mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relNext.book(),relNext.chapter(),0,0));
-			if (mapLookupFootnote != g_mapFootnotes.end()) {
-				strHTML += QString("<div class=subtitle><a id=\"%1\">%2</a><a id=\"X%3\"> </a></div>\n")
-							.arg(ndxBookChap.asAnchor())
-							.arg(mapLookupFootnote->second.text())
-							.arg(ndxBookChap.asAnchor());
+			if (bNextChapterDifferentBook) {
+				// If we have a chapter note for this chapter, print it too:
+				mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+				if (mapLookupFootnote != g_mapFootnotes.end()) {
+					strHTML += QString("<div class=chapter>Chapter %1</div>\n")
+									.arg(relNext.chapter());
+					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
+									.arg(mapLookupFootnote->second.text())
+									.arg(ndxBookChap.asAnchor());
+				} else {
+					strHTML += QString("<div class=chapter>Chapter %1<a id=\"X%2\"> </a></div>\n")
+									.arg(relNext.chapter())
+									.arg(ndxBookChap.asAnchor());
+				}
+			} else {
+				// If we have a chapter note for this chapter, print it too:
+				mapLookupFootnote = g_mapFootnotes.find(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+				if (mapLookupFootnote != g_mapFootnotes.end()) {
+					strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a></div>\n")
+									.arg(ndxBookChap.asAnchor())
+									.arg(relNext.chapter());
+					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
+									.arg(mapLookupFootnote->second.text())
+									.arg(ndxBookChap.asAnchor());
+				} else {
+					strHTML += QString("<div class=chapter><a id=\"%1\">Chapter %2</a><a id=\"X%3\"> </a></div>\n")
+									.arg(ndxBookChap.asAnchor())
+									.arg(relNext.chapter())
+									.arg(ndxBookChap.asAnchor());
+				}
 			}
 		} else {
 			strHTML += QString("<div class=chapter>Chapter %1</div>\n")
@@ -967,7 +990,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		strHTML += "</p>";
 	}
 
-	strHTML += "<br /></body></html>";
+	strHTML += "</body></html>";
 	m_TextDocument.setHtml(strHTML);
 	emit changedDocumentText();
 }
@@ -1195,15 +1218,9 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					nWords = 0;
 					strPhrase.clear();
 				}
-				CRelIndex nCurrentIndex;
-				CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
-				nCurrentIndex = ResolveCursorReference(tempCursor);
-				if (!nIndex.isSet()) nIndex = nCurrentIndex;
-				if (((nCurrentIndex.verse() != 0) && (nCurrentIndex.word() != 0)) &&
-					(!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())) {
-					nWords++;
-					if (!strPhrase.isEmpty()) strPhrase += " ";
-					strPhrase += myCursor.wordUnderCursor();
+				if (!nIndex.isSet()) {
+					CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
+					nIndex = ResolveCursorReference(tempCursor);
 				}
 				// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
 				//		text from a verse.  We must be in a special tag section of heading:
@@ -1211,6 +1228,12 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					nIndex = CRelIndex();
 					nWords = 0;
 					strPhrase.clear();
+				} else {
+					if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
+						nWords++;
+						if (!strPhrase.isEmpty()) strPhrase += " ";
+						strPhrase += myCursor.wordUnderCursor();
+					}
 				}
 				if (!myCursor.moveCursorWordRight()) break;
 			} else {
@@ -1224,7 +1247,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 					assert(nEndAnchorPos >= 0);
 					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
 				} else {
-					if (!strAnchorName.isEmpty()) {
+					if ((!strAnchorName.isEmpty()) && (!strAnchorName.startsWith('X'))) {
 						CRelIndex ndxAnchor(strAnchorName);
 						assert(ndxAnchor.isSet());
 						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
