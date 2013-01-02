@@ -49,6 +49,7 @@ protected:
 	bool ReadLAYOUTTable();
 	bool ReadBookTables();
 	bool ReadWORDSTable();
+	bool ReadFOOTNOTESTable();
 	bool ReadPHRASESTable(bool bUserPhrases = false);
 	bool ValidateData();
 

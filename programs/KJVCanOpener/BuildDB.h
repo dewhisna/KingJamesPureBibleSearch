@@ -49,6 +49,7 @@ protected:
 	bool BuildLAYOUTTable();
 	bool BuildBookTables();
 	bool BuildWORDSTable();
+	bool BuildFOOTNOTESTables();
 	bool BuildPHRASESTable(bool bUserPhrases);
 
 private:

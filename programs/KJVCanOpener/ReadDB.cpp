@@ -390,6 +390,44 @@ bool CReadDatabase::ReadWORDSTable()
 	return true;
 }
 
+bool CReadDatabase::ReadFOOTNOTESTable()
+{
+	// Read the FOOTNOTES table:
+
+	QSqlQuery query(m_myDatabase);
+
+	// Check to see if the table exists:
+	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='FOOTNOTES'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(query.lastError().text()));
+		return false;
+	}
+	query.next();
+	if (!query.value(0).toInt()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Unable to find \"FOOTNOTES\" Table in database!");
+		return false;
+	}
+
+	g_mapFootnotes.clear();
+
+	query.setForwardOnly(true);
+	query.exec("SELECT * FROM FOOTNOTES");
+	while (query.next()) {
+		QString strFootnoteText;
+		CFootnoteEntry footnote;
+		CRelIndex ndxRel(query.value(0).toUInt());
+		assert(ndxRel.isSet());
+		if (!ndxRel.isSet()) continue;
+		strFootnoteText = query.value(2).toString();
+		if (strFootnoteText.isEmpty()) strFootnoteText = query.value(1).toString();
+		if (!strFootnoteText.isEmpty()) {
+			footnote.setText(strFootnoteText);
+			g_mapFootnotes[ndxRel] = footnote;
+		}
+	}
+
+	return true;
+}
+
 bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 {
 	// Read the PHRASES table:
@@ -554,6 +592,7 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 		(!ReadLAYOUTTable()) ||
 		(!ReadBookTables()) ||
 		(!ReadWORDSTable()) ||
+		(!ReadFOOTNOTESTable()) ||
 		(!ReadPHRASESTable(false)) ||
 		(!ValidateData())) bSuccess = false;
 

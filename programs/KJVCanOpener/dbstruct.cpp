@@ -55,6 +55,9 @@ TConcordanceList g_lstConcordanceWords;
 // List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text:
 TIndexList g_lstConcordanceMapping;
 
+// Global Footnotes
+TFootnoteEntryMap g_mapFootnotes;
+
 // Common phrases read from database:
 CPhraseList g_lstCommonPhrases;
 

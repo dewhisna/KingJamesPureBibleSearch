@@ -306,11 +306,11 @@ public:
 
 	unsigned int m_nNumWrd;		// Number of words in this verse
 	bool m_bPilcrow;			// Start of verse Pilcrow Flag
-	QString text() const		// We'll use a function to fetch the rich text (on mobile this can be a database lookup if need be)
+	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
 	{
 		return m_strText;
 	}
-	void setText(const QString &strText)		// This can be a no-op on mobile
+	void setText(const QString &strText)		// This can be a no-op on mobile if doing direct database lookups
 	{
 		m_strText = strText;
 	}
@@ -364,6 +364,42 @@ typedef QStringList TConcordanceList;
 
 extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
 extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+
+
+// ============================================================================
+
+// FOOTNOTES -- Footnote List and Mapping
+//		Note: This works consistently for book-only footnotes, chapter footnotes,
+//		verse footnotes, and even word footnotes if we wish.  The index into the
+//		map is the complete CRelIndex style.  For book-only, for example, the
+//		chapter, verse, and word will be 0.  For a chapter note, the verse and
+//		word will be 0, etc.  This allows us to easily and quickly query for the
+//		type of note we need.
+//
+
+class CFootnoteEntry
+{
+public:
+	CFootnoteEntry() { }
+	~CFootnoteEntry() { }
+
+	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
+	{
+		return m_strText;
+	}
+	void setText(const QString &strText)		// This can be a no-op on mobile if doing direct database lookups
+	{
+		m_strText = strText;
+	}
+
+private:
+	QString m_strText;			// Rich text (or plain if Rich unavailable) for the footnote (Note: for mobile versions, this element can be removed and fetched from the database if needed)
+};
+
+typedef std::map<CRelIndex, CFootnoteEntry, IndexSortPredicate> TFootnoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
+
+extern TFootnoteEntryMap g_mapFootnotes;		// Global Footnotes
+
 
 // ============================================================================
 

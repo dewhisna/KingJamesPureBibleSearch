@@ -453,6 +453,8 @@ bool CBuildDatabase::BuildBookTables()
 			//	we only need one data source for these.  So if we have Rich, we'll
 			//	use that, but leave a placeholder for Plain.  Otherwise, we'll leave
 			//	the placeholder for Rich and use Plain:
+			sl[3] = sl[3].trimmed();
+			sl[4] = sl[4].trimmed();
 			if (!sl.at(4).isEmpty()) sl[3].clear();
 
 			queryInsert.prepare(strCmd);
@@ -579,6 +581,99 @@ bool CBuildDatabase::BuildWORDSTable()
 
 					if (!queryInsert.exec()) {
 						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for WORDS!\n%1\n  %2  (%3)").arg(queryInsert.lastError().text()).arg(sl.at(1)).arg(sl.at(4)),
+												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
+					}
+				}
+				queryInsert.exec("COMMIT");
+
+				fileBook.close();
+			}
+		}
+	}
+
+	return true;
+}
+
+bool CBuildDatabase::BuildFOOTNOTESTables()
+{
+	// Build the FOOTNOTES table:
+
+	QString strCmd;
+	QSqlQuery queryCreate(m_myDatabase);
+
+	// Check to see if the table exists already:
+	if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='FOOTNOTES'")) {
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(queryCreate.lastError().text()),
+								QMessageBox::Ok);
+		return false;
+	} else {
+		queryCreate.next();
+		if (!queryCreate.value(0).toInt()) {
+			// Open the table data file:
+			QFile fileBook(QString("../KJVCanOpener/db/data/FOOTNOTES.csv"));
+			while (1) {
+				if (!fileBook.open(QIODevice::ReadOnly)) {
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
+							QString("Failed to open %1 for reading.").arg(fileBook.fileName()),
+							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+				} else break;
+			}
+
+			// Create the table in the database:
+			strCmd = QString("create table FOOTNOTES "
+							"(BkChpVrsWrdNdx INTEGER PRIMARY KEY, PFootnote TEXT, RFootnote TEXT)");
+
+			if (!queryCreate.exec(strCmd)) {
+				fileBook.close();
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
+						QString("Failed to create table for FOOTNOTES\n%1").arg(queryCreate.lastError().text()),
+						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+			} else {
+				// Read file and populate table:
+				CCSVStream csv(&fileBook);
+
+				QStringList slHeaders;
+				csv >> slHeaders;              // Read Headers (verify and discard)
+
+				if ((slHeaders.size()!=3) ||
+					(slHeaders.at(0).compare("BkChpVrsWrdNdx") != 0) ||
+					(slHeaders.at(1).compare("PFootnote") != 0) ||
+					(slHeaders.at(2).compare("RFootnote") != 0)) {
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Unexpected Header Layout for FOOTNOTES data file!"),
+										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+						fileBook.close();
+						return false;
+					}
+				}
+
+				QSqlQuery queryInsert(m_myDatabase);
+				queryInsert.exec("BEGIN TRANSACTION");
+				while (!csv.atEndOfStream()) {
+					QStringList sl;
+					csv >> sl;
+
+					assert(sl.count() == 3);
+					if (sl.count() < 3) continue;
+
+					strCmd = QString("INSERT INTO FOOTNOTES "
+									"(BkChpVrsWrdNdx, PFootnote, RFootnote) "
+									"VALUES (:BkChpVrsWrdNdx, :PFootnote, :RFootnote)");
+
+					// No need to have both plain text and rich text in our database, since
+					//	we only need one data source for these.  So if we have Rich, we'll
+					//	use that, but leave a placeholder for Plain.  Otherwise, we'll leave
+					//	the placeholder for Rich and use Plain:
+					sl[1] = sl[1].trimmed();
+					sl[2] = sl[2].trimmed();
+					if (!sl.at(2).isEmpty()) sl[1].clear();
+
+					queryInsert.prepare(strCmd);
+					queryInsert.bindValue(":BkChpVrsWrdNdx", sl.at(0).toUInt());
+					queryInsert.bindValue(":PFootnote", sl.at(1));
+					queryInsert.bindValue(":RFootnote", sl.at(2));
+
+					if (!queryInsert.exec()) {
+						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Insert Failed for FOOTNOTES!\n%1\n%2\n%3\n%4").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)),
 												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 					}
 				}
@@ -730,6 +825,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 		(!BuildLAYOUTTable()) ||
 		(!BuildBookTables()) ||
 		(!BuildWORDSTable()) ||
+		(!BuildFOOTNOTESTables()) ||
 		(!BuildPHRASESTable(false))) bSuccess = false;
 
 	m_myDatabase.close();
