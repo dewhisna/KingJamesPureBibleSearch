@@ -1141,11 +1141,11 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 	CRelIndex ndxPrev = ndxFirst;
 	for (CRelIndex ndx = ndxFirst; ndx.index() < ndxLast.index(); ndx=CRefCountCalc::calcRelIndex(0,1,0,0,0,ndx)) {
 		if (ndx.book() != ndxPrev.book()) {
-			strHTML += QString("  <b>%1 %2:%3</b> ").arg(Qt::escape(ndx.bookName())).arg(ndx.chapter()).arg(ndx.verse());
+			strHTML += QString("  <b>(%1 %2:%3)</b> ").arg(Qt::escape(ndx.bookName())).arg(ndx.chapter()).arg(ndx.verse());
 		} else if (ndx.chapter() != ndxPrev.chapter()) {
-			strHTML += QString("  <b>%1:%2</b> ").arg(ndx.chapter()).arg(ndx.verse());
+			strHTML += QString("  <b>{%1:%2}</b> ").arg(ndx.chapter()).arg(ndx.verse());
 		} else if (ndx.verse() != ndxPrev.verse()) {
-			strHTML += QString("  <b>%1</b> ").arg(ndx.verse());
+			strHTML += QString("  <b>{%1}</b> ").arg(ndx.verse());
 		}
 
 		if (ndx.book() > g_lstTOC.size()) {
