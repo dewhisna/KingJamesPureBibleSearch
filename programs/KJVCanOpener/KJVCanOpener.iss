@@ -33,13 +33,24 @@ AppContact=Bethel Church
 AppSupportURL=http://visitbethelchurch.com/
 AppSupportPhone=(636)-931-3999
 AppComments=King James Bible Search ("Can Opener") Program.  Brought to you by the fervent prayers of Bethel Church, Festus, MO.
-DefaultDirName={sd}\KJVCanOpener
+DefaultDirName={pf}\KJVCanOpener
 DefaultGroupName=KJVCanOpener
 ShowLanguageDialog=auto
 LicenseFile=LICENSE.txt
 Compression=lzma
 ChangesAssociations=yes
 PrivilegesRequired=admin
+
+[InstallDelete]
+; Remove old database since it was still opening read/write and user's computer will
+; create a "virtual store" for it in the user's folder.  See if we can find it and
+; remove it.  Darn Windoze!
+Type: files; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener\db\kjvtext.s3db"; 
+Type: files; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener\db\kjvtext.s3db";
+Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener";
+Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener\db";
+Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener";
+Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener\db";
 
 
 [Files]
@@ -64,7 +75,7 @@ Source: {#GetEnv('QTDIR')}\plugins\imageformats\qmng4.dll; DestDir: "{app}\plugi
 ;Source: {#GetEnv('QTDIR')}\plugins\imageformats\qtiff4.dll; DestDir: "{app}\plugins\imageformats"; Flags: ignoreversion;
 
 ; db
-Source: "db\kjvtext.s3db"; DestDir: "{app}\db"; Flags: ignoreversion;
+Source: "db\kjvtext2.s3db"; DestDir: "{app}\db"; Flags: ignoreversion; Permissions: users-modify;
 Source: "db\kjvuser.s3db"; DestDir: "{app}\db"; Flags: onlyifdoesntexist uninsneveruninstall; Permissions: users-modify;
 
 ; license
