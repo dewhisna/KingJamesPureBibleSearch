@@ -74,6 +74,8 @@ int main(int argc, char *argv[])
 	QSplashScreen *splash = new QSplashScreen;
 	splash->setPixmap(QPixmap(":/res/can-of-KJV.png"));
 	splash->show();
+	splash->showMessage("<html><body><br /><br /><br /><div align=\"center\"><font size=+1 color=#FFFFFF><b>Please Wait...</b></font></div></body></html>", Qt::AlignCenter);
+	qApp->processEvents();
 
 	QTime splashTimer;
 	splashTimer.start();
@@ -135,10 +137,13 @@ int main(int argc, char *argv[])
 		nElapsed = splashTimer.elapsed();
 	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
+	app.setFont(QFont("Sans", 8));
+
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener wMain(fiUserDatabase.absoluteFilePath());
 	g_pMainWindow = &wMain;
+	wMain.setWindowIcon(QIcon(":/res/bible.ico"));
 	wMain.show();
 	splash->finish(&wMain);
 	delete splash;

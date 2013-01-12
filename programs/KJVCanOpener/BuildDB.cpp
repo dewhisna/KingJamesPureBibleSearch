@@ -493,12 +493,12 @@ QByteArray CBuildDatabase::CSVStringToIndexBlob(const QString &str)
 		nValue = slValues.at(i).toUInt();
 		assert(nValue != 0);
 		for (unsigned int j=1; j<=sizeof(uint32_t); ++j) {
-			baBlob[(i*sizeof(uint32_t))+(sizeof(uint32_t)-j)] = (nValue & 0xFF);
+			baBlob[static_cast<unsigned int>((i*sizeof(uint32_t))+(sizeof(uint32_t)-j))] = (nValue & 0xFF);
 			nValue = nValue >> 8;
 		}
 	}
 	assert((baBlob.size() % sizeof(uint32_t)) == 0);
-	assert(baBlob.size() == (slValues.size() * sizeof(uint32_t)));
+	assert(baBlob.size() == static_cast<int>(slValues.size() * sizeof(uint32_t)));
 
 	return baBlob;
 }

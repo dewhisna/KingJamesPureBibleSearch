@@ -789,11 +789,15 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	model->setDisplayMode(nDisplayMode);
 	model->setTreeMode(nTreeMode);
 	model->setShowMissingLeafs(bShowMissingLeafs);
+	QAbstractItemModel *pOldModel = ui->treeViewSearchResults->model();
 	ui->treeViewSearchResults->setModel(model);
+	if (pOldModel) delete pOldModel;
 	ui->treeViewSearchResults->setRootIsDecorated(nTreeMode != CVerseListModel::VTME_LIST);
 
 	CVerseListDelegate *delegate = new CVerseListDelegate(*model, ui->treeViewSearchResults);
+	QAbstractItemDelegate *pOldDelegate = ui->treeViewSearchResults->itemDelegate();
 	ui->treeViewSearchResults->setItemDelegate(delegate);
+	if (pOldDelegate) delete pOldDelegate;
 
 	connect(ui->treeViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
 	connect(ui->treeViewSearchResults, SIGNAL(gotoIndex(const TPhraseTag &)), ui->widgetKJVBrowser, SLOT(gotoIndex(TPhraseTag)));
@@ -807,6 +811,11 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 CKJVCanOpener::~CKJVCanOpener()
 {
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		delete m_lstSearchPhraseEditors[ndx];
+	}
+	m_lstSearchPhraseEditors.clear();
+
 	delete ui;
 }
 
@@ -1149,6 +1158,7 @@ CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
 	pPhraseWidget->showSeperatorLine(m_lstSearchPhraseEditors.size() > 1);
+	pPhraseWidget->resize(pPhraseWidget->minimumSizeHint());
 	m_pLayoutPhrases->addWidget(pPhraseWidget);
 	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
 	int nHeight = 0;
@@ -1158,6 +1168,7 @@ CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 	ui->scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
 	ui->scrollAreaSearchPhrases->ensureVisible((pPhraseWidget->sizeHint().width()/2),
 												nHeight - (pPhraseWidget->sizeHint().height()/2));
+	pPhraseWidget->phraseStatisticsChanged();
 	pPhraseWidget->focusEditor();
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
@@ -1168,6 +1179,13 @@ CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	assert(pSearchPhrase != NULL);
+
+	// If this search phrase's editor was currently active, remove it or else
+	//		we'll crash later accessing data for a deleted object:
+	if ((m_bPhraseEditorActive) && ((m_pActionSearchPhraseEditMenu != NULL) &&
+									(m_pActionSearchPhraseEditMenu->menu() == pSearchPhrase->phraseEditor()->getEditMenu()))) {
+		on_addSearchPhraseEditMenu(false);
+	}
 
 	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
 							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
@@ -1315,7 +1333,10 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 		}
 	} else {
 		if (m_pActionPassageBrowserEditMenu) {
-			ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
+			// The following 'if' is needed for insert race conditions to
+			//		keep us from crashing:
+			if (ui->menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
+				ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
 			m_pActionPassageBrowserEditMenu = NULL;
 		}
 	}
@@ -1331,7 +1352,10 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 		}
 	} else {
 		if (m_pActionSearchResultsEditMenu) {
-			ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
+			// The following 'if' is needed for insert race conditions to
+			//		keep us from crashing:
+			if (ui->menuBar->actions().contains(m_pActionSearchResultsEditMenu))
+				ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
 			m_pActionSearchResultsEditMenu = NULL;
 		}
 	}
@@ -1342,7 +1366,10 @@ void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 	m_bPhraseEditorActive = bAdd;
 
 	if (m_pActionSearchPhraseEditMenu) {
-		ui->menuBar->removeAction(m_pActionSearchPhraseEditMenu);
+		// The following 'if' is needed for insert race conditions to
+		//		keep us from crashing:
+		if (ui->menuBar->actions().contains(m_pActionSearchPhraseEditMenu))
+			ui->menuBar->removeAction(m_pActionSearchPhraseEditMenu);
 		m_pActionSearchPhraseEditMenu = NULL;
 	}
 	if ((bAdd) && (pEditor != NULL)) {

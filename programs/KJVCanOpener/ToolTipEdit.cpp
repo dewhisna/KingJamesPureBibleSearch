@@ -44,6 +44,7 @@
 // ============================================================================
 
 CTipEdit *CTipEdit::instance = 0;
+QPalette g_tooltipedit_palette(QToolTip::palette());
 
 // ============================================================================
 
@@ -62,9 +63,11 @@ CTipEdit::CTipEdit(const QString &text, QWidget *parent)
 
 	delete instance;
 	instance = this;
+	setForegroundRole(QPalette::ToolTipText);
+	setBackgroundRole(QPalette::ToolTipBase);
 	QPalette pal;
-	pal.setColor(QPalette::Text, CToolTipEdit::palette().toolTipText().color());
-	pal.setColor(QPalette::Base, CToolTipEdit::palette().toolTipBase().color());
+	pal.setBrush(QPalette::All, QPalette::Base, CToolTipEdit::palette().toolTipBase());
+	pal.setBrush(QPalette::All, QPalette::Text, CToolTipEdit::palette().toolTipText());
 	setPalette(pal);
 	ensurePolished();
 	setFrameStyle(QFrame::Box);
@@ -73,6 +76,7 @@ CTipEdit::CTipEdit(const QString &text, QWidget *parent)
 	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / qreal(255.0));
 	setMouseTracking(true);
 	fadingOut = false;
+	if (parent) setTipRect(parent, parent->rect());
 	reuseTip(text);
 }
 
@@ -108,7 +112,9 @@ void CTipEdit::reuseTip(const QString &text)
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
 	extern QWidget *g_pMainWindow;
-	if (g_pMainWindow) {
+	if (widget) {
+		resize(QSize(docSize.width(), qMin(widget->height(), docSize.height())) + extra);
+	} else if (g_pMainWindow) {
 		resize(QSize(docSize.width(), qMin(g_pMainWindow->height(), docSize.height())) + extra);
 	} else {
 		resize(docSize + extra);
@@ -285,7 +291,7 @@ int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
 void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 {
 //	if (testAttribute(Qt::WA_StyleSheet) || (w && qobject_cast<QStyleSheetStyle *>(w->style()))) {
-	if (testAttribute(Qt::WA_StyleSheet) || (w && w->style())) {
+	if (testAttribute(Qt::WA_StyleSheet) || (w && w->style() && w->style()->inherits("QStyleSheetStyle"))) {
 		//the stylesheet need to know the real parent
 		CTipEdit::instance->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
 		//we force the style to be the QStyleSheetStyle, and force to clear the cache as well.
@@ -387,7 +393,7 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 #endif
 		CTipEdit::instance->setTipRect(w, rect);
 		CTipEdit::instance->placeTip(pos, w);
-		CTipEdit::instance->setObjectName(QLatin1String("qtooltip_label"));
+		CTipEdit::instance->setObjectName(QLatin1String("qtooltip_label"));		//"ctooltip_edit"));
 
 
 //#if !defined(QT_NO_EFFECTS) && !defined(Q_WS_MAC)
@@ -419,8 +425,6 @@ QString CToolTipEdit::text()
 		return CTipEdit::instance->toHtml();
 	return QString();
 }
-
-QPalette g_tooltipedit_palette(QToolTip::palette());
 
 QPalette CToolTipEdit::palette()
 {

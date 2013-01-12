@@ -57,7 +57,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
 
 	QAction *pAction;
-	m_pEditMenu = new QMenu("&Edit");
+	m_pEditMenu = new QMenu("&Edit", this);
 	m_pEditMenu->setStatusTip("Search Phrase Editor Operations");
 /*
 	TODO : If we ever address what to do with undo/redo, then put this code back in:
@@ -99,7 +99,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
-	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords);
+	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords, this);
 	m_pCompleter = new QCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -109,6 +109,8 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pButtonDroplist->setFlat(true);
 	m_pButtonDroplist->setToolTip("Show Phrase List");
 	m_pButtonDroplist->setStatusTip("Show List of Common Phrases and User Phrases from Database");
+	m_pButtonDroplist->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	m_pButtonDroplist->setMaximumSize(24, 24);
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
 								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 

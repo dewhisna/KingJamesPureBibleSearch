@@ -1419,7 +1419,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	if (!strToolTip.isEmpty()) {
 		highlightTag(aHighlighter, TPhraseTag(ndxReference, 1));
 		if (m_bUseToolTipEdit) {
-			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip);
+			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
 		} else {
 			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 		}

@@ -100,28 +100,28 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopy = m_pEditMenu->addAction("&Copy as shown", this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
 	m_pActionCopy->setStatusTip("Copy selected passage browser text, as shown, to the clipboard");
 	m_pActionCopy->setEnabled(false);
-	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
 	m_pActionCopyPlain = m_pEditMenu->addAction("Copy as shown (&plain)", this, SLOT(on_copyPlain()));
 	m_pActionCopyPlain->setStatusTip("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard");
 	m_pActionCopyPlain->setEnabled(false);
-	connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
 	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip("Copy selected passage browser text as raw phrase words to the clipboard");
 	m_pActionCopyRaw->setEnabled(false);
-	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
 	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	m_pActionCopyVeryRaw->setStatusTip("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard");
 	m_pActionCopyVeryRaw->setEnabled(false);
-	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
 	m_pActionCopyVerses = m_pEditMenu->addAction("Copy as &Verses", this, SLOT(on_copyVerses()));
 	m_pActionCopyVerses->setStatusTip("Copy selected passage browser text as Formatted Verses to the clipboard");
 	m_pActionCopyVerses->setEnabled(false);
-	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
 	m_pActionCopyVersesPlain = m_pEditMenu->addAction("Copy as Verses (plai&n)", this, SLOT(on_copyVersesPlain()));
 	m_pActionCopyVersesPlain->setStatusTip("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard");
 	m_pActionCopyVersesPlain->setEnabled(false);
-	connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
@@ -143,7 +143,7 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionFindPrev->setStatusTip("Find previous occurrence of text within the passage browser");
 	m_pActionFindPrev->setEnabled(T::useFindDialog());
 
-//	connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
+//	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
 	m_pStatusAction = new QAction(this);
 }
@@ -348,7 +348,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	}
 	menu.addSeparator();
 	QAction *pActionNavigator = menu.addAction("Passage &Navigator...");
-	pActionNavigator->setEnabled(connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
+	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.exec(ev->globalPos());
 

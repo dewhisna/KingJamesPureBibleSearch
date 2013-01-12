@@ -263,7 +263,7 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 		uint32_t nValue = 0;
 		for (unsigned int j=0; j<sizeof(uint32_t); ++j) {
 			nValue = nValue << 8;
-			nValue = nValue | (baBlob[(i*sizeof(uint32_t))+j] & 0xFF);
+			nValue = nValue | (baBlob[static_cast<unsigned int>((i*sizeof(uint32_t))+j)] & 0xFF);
 		}
 		anIndexList.push_back(nValue);
 	}
