@@ -450,7 +450,7 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 void CKJVSearchPhraseEdit::closeSearchPhrase()
 {
 	emit closingSearchPhrase(this);
-	deleteLater();
+	delete this;
 }
 
 void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
