@@ -1057,7 +1057,9 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 	if (nFileVersion < KJS_FILE_VERSION) {
 		QMessageBox::warning(this, "Opening King James Search File", "Warning: The file you are opening was saved on "
 									"an older version of King James Pure Bible Search.  Some manual editing may be necessary "
-									"to configure any new search options added since that older version.");
+									"to configure any new search options added since that older version.\n\n"
+									"To avoid this message when opening this file in the future, then resave your "
+									"search phrases over top of this file, replacing this old version.");
 	} else if (nFileVersion > KJS_FILE_VERSION) {
 		QMessageBox::warning(this, "Opening King James Search File", "Warning: The file you are opening was created on "
 									"a newer version of King James Pure Bible Search.  It may contain settings for options not "
