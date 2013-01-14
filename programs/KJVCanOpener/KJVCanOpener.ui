@@ -33,7 +33,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>King James Can Opener</string>
+   <string>King James Pure Bible Search</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">

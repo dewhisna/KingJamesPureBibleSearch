@@ -33,7 +33,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About King James Can Opener</string>
+   <string>About King James Pure Bible Search</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

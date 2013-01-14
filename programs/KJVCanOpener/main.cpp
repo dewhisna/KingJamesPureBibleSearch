@@ -48,7 +48,7 @@ QWidget *g_pMainWindow = NULL;
 namespace {
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
 
-	const char *g_constrInitialization = "KJVCanOpener Initialization";
+	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
 
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext2.s3db";

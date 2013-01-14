@@ -48,7 +48,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pKJVCan = scene->addPixmap(QPixmap(":/res/can-of-KJV.png"));
 	m_pKJVCan->setToolTip(VER_COMMENTS_STR);
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg"));
-	m_pAppTitle = scene->addText("King James Can Opener - Version: " + qApp->applicationVersion(), QFont("Times New Roman", 21));
+	m_pAppTitle = scene->addText("King James Pure Bible Search - Version: " + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBroughtToYouBy = scene->addText("Brought to you by the fervent prayers of Bethel Church; Festus, MO", QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -71,7 +71,7 @@ CKJVAboutDlg::~CKJVAboutDlg()
 
 void CKJVAboutDlg::on_licenseDisplay()
 {
-	QMessageBox::information(this, "About King James Can Opener License",
+	QMessageBox::information(this, "About King James Pure Bible Search License",
 						"This program is free software; you can redistribute it and/or modify it under the terms "
 						"of the GNU General Public License as published by the Free Software Foundation; either "
 						"version 3 of the License, or (at your option) any later version.\n\n"

@@ -586,22 +586,22 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
 	ui->mainToolBar->addAction(pAction);
 
-	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), "&Open Search...", this, SLOT(on_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
-	pAction->setStatusTip("Open a previously saved KJV Search File");
-	pAction->setToolTip("Open a previously saved KJV Search File");
+	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), "L&oad Search File...", this, SLOT(on_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
+	pAction->setStatusTip("Load Search Phrases from a previously saved King James Search File");
+	pAction->setToolTip("Load Search Phrases from a previously saved King James Search File");
 	ui->mainToolBar->addAction(pAction);
 
 	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), "&Save Search...", this, SLOT(on_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
-	pAction->setStatusTip("Save current Search Phrases to a KJV Search File");
-	pAction->setToolTip("Save current Search Phrases to a KJV Search File");
+	pAction->setStatusTip("Save current Search Phrases to a King James Search File");
+	pAction->setToolTip("Save current Search Phrases to a King James Search File");
 	ui->mainToolBar->addAction(pAction);
 
 	pFileMenu->addSeparator();
 	ui->mainToolBar->addSeparator();
 
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
-	pAction->setStatusTip("Exit the King James Can Opener Application");
-	pAction->setToolTip("Exit KJVCanOpener");
+	pAction->setStatusTip("Exit the King James Pure Bible Search Application");
+	pAction->setToolTip("Exit Application");
 
 	// --- Edit Menu
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
@@ -750,8 +750,8 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), "About...", this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
-	m_pActionAbout->setStatusTip("About the King James Can Opener");
-	m_pActionAbout->setToolTip("About the King James Can Opener...");
+	m_pActionAbout->setStatusTip("About the King James Pure Bible Search");
+	m_pActionAbout->setToolTip("About the King James Pure Bible Search...");
 	m_pActionAbout->setMenuRole(QAction::AboutRole);
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(on_HelpAbout()));
 	ui->mainToolBar->addSeparator();
@@ -1050,18 +1050,18 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 	unsigned int nFileVersion = 0;
 
-	kjsFile.beginGroup("KJVCanOpener");
+	kjsFile.beginGroup("KJVPureBibleSearch");
 	nFileVersion = kjsFile.value("KJSFileVersion").toUInt();
 	kjsFile.endGroup();
 
 	if (nFileVersion < KJS_FILE_VERSION) {
-		QMessageBox::warning(this, "Opening KJV Search File", "Warning: The file you are opening was saved on "
-									"an older version of KJVCanOpener.  Some manual editing may be necessary "
+		QMessageBox::warning(this, "Opening King James Search File", "Warning: The file you are opening was saved on "
+									"an older version of King James Pure Bible Search.  Some manual editing may be necessary "
 									"to configure any new search options added since that older version.");
 	} else if (nFileVersion > KJS_FILE_VERSION) {
-		QMessageBox::warning(this, "Opening KJV Search File", "Warning: The file you are opening was created on "
-									"a newer version of KJVCanOpener.  It may contain settings for options not "
-									"available on this version of KJVCanOpener.  If so, those options will be "
+		QMessageBox::warning(this, "Opening King James Search File", "Warning: The file you are opening was created on "
+									"a newer version of King James Pure Bible Search.  It may contain settings for options not "
+									"available on this version of King James Pure Bible Search.  If so, those options will be "
 									"ignored.");
 	}
 
@@ -1077,7 +1077,7 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 	kjsFile.clear();
 
-	kjsFile.beginGroup("KJVCanOpener");
+	kjsFile.beginGroup("KJVPureBibleSearch");
 	kjsFile.setValue("AppVersion", VER_QT);
 	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
 	kjsFile.endGroup();
@@ -1757,7 +1757,7 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 
 void CKJVCanOpener::on_HelpManual()
 {
-	QMessageBox::information(this, windowTitle(), "An online help manual is coming soon for the KJV Can Opener.\n\nKeep your eyes open for future updates.");
+	QMessageBox::information(this, windowTitle(), "An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates.");
 }
 
 void CKJVCanOpener::on_HelpAbout()

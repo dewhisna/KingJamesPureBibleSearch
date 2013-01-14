@@ -24,12 +24,12 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_QT						"0.3.1"
-#define VER_FILEVERSION				0,0,3,1
-#define VER_FILEVERSION_STR			"0,0,3,1\0"
+#define VER_QT						"0.4.1"
+#define VER_FILEVERSION				0,0,4,1
+#define VER_FILEVERSION_STR			"0,0,4,1\0"
 
-#define VER_PRODUCTVERSION			0,0,3,1
-#define VER_PRODUCTVERSION_STR		"0,0,3,1\0"
+#define VER_PRODUCTVERSION			0,0,4,1
+#define VER_PRODUCTVERSION_STR		"0,0,4,1\0"
 
 #define VER_APPNAME_STR_QT			VER_PRODUCTNAME_STR
 #define VER_ORGNAME_STR_QT			VER_COMPANYNAME_STR
@@ -37,11 +37,11 @@
 
 #define VER_COMMENTS_STR			"Don't make me have to open a can on you!\n\0"
 #define VER_COMPANYNAME_STR			"Dewtronics\0"
-#define VER_FILEDESCRIPTION_STR		"KJVCanOpener\0"
-#define VER_INTERNALNAME_STR		"KJVCanOpener\0"
+#define VER_FILEDESCRIPTION_STR		"King James Pure Bible Search\0"
+#define VER_INTERNALNAME_STR		"King James Pure Bible Search\0"
 #define VER_LEGALCOPYRIGHT_STR		"Copyright(c)2012 Donna Whisnant, a.k.a. Dewtronics\0"
 #define VER_ORIGINALFILENAME_STR	"KJVCanOpener.exe\0"
-#define VER_PRODUCTNAME_STR			"KJVCanOpener\0"
+#define VER_PRODUCTNAME_STR			"King James Pure Bible Search\0"
 
 #define VER_COMPANYDOMAIN_STR		"dewtronics.com\0"
 
