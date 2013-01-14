@@ -42,18 +42,6 @@ Compression=lzma
 ChangesAssociations=yes
 PrivilegesRequired=admin
 
-[InstallDelete]
-; Remove old database since it was still opening read/write and user's computer will
-; create a "virtual store" for it in the user's folder.  See if we can find it and
-; remove it.  Darn Windoze!
-Type: files; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener\db\kjvtext.s3db"; 
-Type: files; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener\db\kjvtext.s3db";
-Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener";
-Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files\KJVCanOpener\db";
-Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener";
-Type: dirifempty; Name: "{localappdata}\VirtualStore\Program Files (x86)\KJVCanOpener\db";
-
-
 [Files]
 ; app
 Source: "..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KJVCanOpener.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
