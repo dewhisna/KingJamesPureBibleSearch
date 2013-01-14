@@ -48,7 +48,7 @@ QPalette g_tooltipedit_palette(QToolTip::palette());
 
 // ============================================================================
 
-CTipEdit::CTipEdit(const QString &text, QWidget *parent)
+CTipEdit::CTipEdit(QWidget *parent)
 	:	QTextEdit(parent),
 		styleSheetParent(0),
 		widget(0)
@@ -76,8 +76,6 @@ CTipEdit::CTipEdit(const QString &text, QWidget *parent)
 	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / qreal(255.0));
 	setMouseTracking(true);
 	fadingOut = false;
-	if (parent) setTipRect(parent, parent->rect());
-	reuseTip(text);
 }
 
 CTipEdit::~CTipEdit()
@@ -375,8 +373,8 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 			if (w)
 				localPos = w->mapFromGlobal(pos);
 			if (CTipEdit::instance->tipChanged(localPos, text, w)){
-				CTipEdit::instance->reuseTip(text);
 				CTipEdit::instance->setTipRect(w, rect);
+				CTipEdit::instance->reuseTip(text);
 				CTipEdit::instance->placeTip(pos, w);
 			}
 			return;
@@ -385,13 +383,14 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 
 	if (!text.isEmpty()){ // no tip can be reused, create new tip:
 #ifndef Q_WS_WIN
-		new CTipEdit(text, w); // sets CTipEdit::instance to itself
+		new CTipEdit(w); // sets CTipEdit::instance to itself
 #else
 		// On windows, we can't use the widget as parent otherwise the window will be
 		// raised when the tooltip will be shown
-		new CTipEdit(text, QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
+		new CTipEdit(QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
 #endif
 		CTipEdit::instance->setTipRect(w, rect);
+		CTipEdit::instance->reuseTip(text);
 		CTipEdit::instance->placeTip(pos, w);
 		CTipEdit::instance->setObjectName(QLatin1String("qtooltip_label"));		//"ctooltip_edit"));
 

@@ -38,7 +38,7 @@ class CTipEdit : public QTextEdit
 {
 	Q_OBJECT
 public:
-	CTipEdit(const QString &text, QWidget *parent);
+	CTipEdit(QWidget *parent);
 	virtual ~CTipEdit();
 	static CTipEdit *instance;
 
