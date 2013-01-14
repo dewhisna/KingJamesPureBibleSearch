@@ -62,15 +62,20 @@ public:
 
 // ============================================================================
 
+class CKJVCanOpener;		// Forward declaration
+
 class CSearchResultsTreeView : public QTreeView
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultsTreeView(QWidget *parent = 0);
+	explicit CSearchResultsTreeView(QWidget *parent);
 	virtual ~CSearchResultsTreeView();
 
 	QMenu *getEditMenu() { return m_pEditMenu; }
 	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
+
+	bool haveDetails() const;
+	bool isActive() const;
 
 public slots:
 	void on_copyVerseText();
@@ -83,16 +88,20 @@ public slots:
 
 	void on_listChanged();
 
+	void showDetails();
+
 signals:
 	void activatedSearchResults();
 	void gotoIndex(const TPhraseTag &tag);
 	void canExpandAll(bool bEnable);
 	void canCollapseAll(bool bEnable);
+	void currentItemChanged();
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
-	virtual void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
+	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+	virtual void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);
 
 	void copyRawCommon(bool bVeryRaw) const;
 	void handle_selectionChanged();
@@ -100,6 +109,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 
 private:
+	CKJVCanOpener *m_pMainWindow;	// Main Window Parent so we can check if we are the enabled/active view
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
@@ -137,6 +147,10 @@ public:
 
 	void Initialize();
 
+	bool isBrowserActive() const { return m_bBrowserActive; }
+	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
+	bool isPhraseEditorActive() const { return m_bPhraseEditorActive; }
+
 protected:
 	void savePersistentSettings();
 	void restorePersistentSettings();
@@ -145,6 +159,7 @@ protected:
 
 signals:
 	void changedSearchResults();
+	void canShowDetails(bool bHaveDetails);
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
@@ -196,6 +211,9 @@ protected slots:
 
 	void on_PassageNavigatorTriggered();
 
+	void on_viewDetails();
+	void setDetailsEnable();
+
 	void on_HelpManual();
 	void on_HelpAbout();
 
@@ -218,6 +236,7 @@ private:
 	QAction *m_pActionShowMissingLeafs;		// Toggle action for tree modes to show missing leafs
 	QAction *m_pActionExpandAll;	// View menu Expand All
 	QAction *m_pActionCollapseAll;	// View menu Collapse All
+	QAction *m_pActionViewDetails;	// View Details
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
 	QAction *m_pActionBookForward;	// Navigate Book Forward
 	QAction *m_pActionChapterBackward;	// Navigate Chapter Backward

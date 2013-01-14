@@ -62,6 +62,8 @@ protected:
 	void paintEvent(QPaintEvent *e);
 	void mouseMoveEvent(QMouseEvent *e);
 	void resizeEvent(QResizeEvent *e);
+	void contextMenuEvent(QContextMenuEvent *e);
+	bool event(QEvent *e);
 
 public slots:
 	// Cleanup the _q_stylesheet_parent propery.
@@ -76,6 +78,7 @@ private:
 private:
 	QWidget *widget;
 	QRect rect;
+	bool m_bDoingContextMenu;
 };
 
 // ============================================================================

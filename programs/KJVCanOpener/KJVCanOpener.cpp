@@ -59,6 +59,8 @@
 #include <QTimer>
 #include <QFileDialog>
 #include <QSettings>
+#include <QToolTip>
+#include <ToolTipEdit.h>
 
 // ============================================================================
 
@@ -112,6 +114,7 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 CSearchResultsTreeView::CSearchResultsTreeView(QWidget *parent)
 	:	QTreeView(parent),
+		m_pMainWindow(static_cast<CKJVCanOpener *>(parent)),
 		m_bDoingPopup(false),
 		m_pEditMenu(NULL),
 		m_pEditMenuLocal(NULL),
@@ -126,6 +129,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(QWidget *parent)
 		m_pActionNavigator(NULL),
 		m_pStatusAction(NULL)
 {
+	assert(m_pMainWindow != NULL);
+
 	setMouseTracking(true);
 	setRootIsDecorated(false);
 
@@ -152,7 +157,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(QWidget *parent)
 	m_pActionCopyVerseHeadings->setStatusTip("Copy Verse References for the selected Search Results to the clipboard");
 	m_pActionCopyVerseHeadings->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy Reference &Details (Word/Phrase Counts)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy Reference Detai&ls (Word/Phrase Counts)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard");
 	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
@@ -342,7 +347,7 @@ void CSearchResultsTreeView::on_copyReferenceDetails()
 			strRichText += "<hr />\n";
 		}
 		strPlainText += pModel->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += pModel->dataForVerse(lstVerses.at(ndx), Qt::ToolTipRole).toString();
+		strRichText += pModel->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
 	}
 
 	mime->setText(strPlainText);
@@ -434,6 +439,12 @@ void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 	m_bDoingPopup = false;
 }
 
+void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+	QTreeView::currentChanged(current, previous);
+	emit currentItemChanged();
+}
+
 void CSearchResultsTreeView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
 	handle_selectionChanged();
@@ -503,6 +514,39 @@ void CSearchResultsTreeView::on_listChanged()
 	handle_selectionChanged();
 }
 
+void CSearchResultsTreeView::showDetails()
+{
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+
+	QVariant varTooltip = pModel->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
+	if (varTooltip.canConvert<QString>()) {
+//		QToolTip::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this);
+		QToolTip::hideText();
+		CToolTipEdit::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
+	}
+}
+
+bool CSearchResultsTreeView::haveDetails() const
+{
+	if (!currentIndex().isValid()) return false;
+
+	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
+	assert(pModel != NULL);
+
+	QVariant varTooltip = pModel->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
+	if ((varTooltip.canConvert<QString>()) &&
+		(!varTooltip.toString().isEmpty())) return true;
+
+	return false;
+}
+
+bool CSearchResultsTreeView::isActive() const
+{
+	assert(m_pMainWindow != NULL);
+	return ((hasFocus()) || (m_pMainWindow->isSearchResultsActive()));
+}
+
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 {
 	assert(event != NULL);
@@ -542,6 +586,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionShowMissingLeafs(NULL),
 	m_pActionExpandAll(NULL),
 	m_pActionCollapseAll(NULL),
+	m_pActionViewDetails(NULL),
 	m_pActionBookBackward(NULL),
 	m_pActionBookForward(NULL),
 	m_pActionChapterBackward(NULL),
@@ -671,6 +716,15 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
 	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
+
+	m_pViewMenu->addSeparator();
+	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+
+	m_pActionViewDetails = m_pViewMenu->addAction("View &Details...", this, SLOT(on_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionViewDetails->setStatusTip("View Passage Details");
+	m_pActionViewDetails->setEnabled(false);
+	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
+	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionViewDetails);
 
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
@@ -804,6 +858,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	connect(this, SIGNAL(changedSearchResults()), ui->treeViewSearchResults, SLOT(on_listChanged()));
 	connect(model, SIGNAL(modelReset()), ui->treeViewSearchResults, SLOT(on_listChanged()));
 	connect(model, SIGNAL(layoutChanged()), ui->treeViewSearchResults, SLOT(on_listChanged()));
+	connect(ui->treeViewSearchResults, SIGNAL(currentItemChanged()), this, SLOT(setDetailsEnable()));
 
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
@@ -1384,6 +1439,7 @@ void CKJVCanOpener::on_activatedBrowser()
 	on_addPassageBrowserEditMenu(true);
 	on_addSearchResultsEditMenu(false);
 	on_addSearchPhraseEditMenu(false);
+	setDetailsEnable();
 }
 
 void CKJVCanOpener::on_activatedSearchResults()
@@ -1391,6 +1447,7 @@ void CKJVCanOpener::on_activatedSearchResults()
 	on_addPassageBrowserEditMenu(false);
 	on_addSearchResultsEditMenu(true);
 	on_addSearchPhraseEditMenu(false);
+	setDetailsEnable();
 }
 
 void CKJVCanOpener::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
@@ -1398,6 +1455,7 @@ void CKJVCanOpener::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	on_addPassageBrowserEditMenu(false);
 	on_addSearchResultsEditMenu(false);
 	on_addSearchPhraseEditMenu(true, pEditor);
+	setDetailsEnable();
 }
 
 void CKJVCanOpener::on_viewVerseHeading()
@@ -1755,6 +1813,32 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 			ui->widgetKJVBrowser->focusBrowser();
 		}
 	}
+}
+
+void CKJVCanOpener::on_viewDetails()
+{
+	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
+		(m_bBrowserActive)) {
+		// TODO : Call browser detail view
+	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
+				(ui->treeViewSearchResults->haveDetails())) {
+		ui->treeViewSearchResults->showDetails();
+	}
+}
+
+void CKJVCanOpener::setDetailsEnable()
+{
+	bool bDetailsEnable = false;
+
+	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
+		(m_bBrowserActive)) {
+		bDetailsEnable = true;
+	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
+				(ui->treeViewSearchResults->haveDetails())) {
+		bDetailsEnable = true;
+	}
+
+	emit canShowDetails(bDetailsEnable);
 }
 
 void CKJVCanOpener::on_HelpManual()

@@ -239,6 +239,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return strBookText;
 		}
 		if ((role == Qt::ToolTipRole) ||
+			(role == TOOLTIP_ROLE) ||
 			(role == TOOLTIP_PLAINTEXT_ROLE) ||
 			(role == TOOLTIP_NOHEADING_ROLE) ||
 			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
@@ -257,6 +258,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return strChapterText;
 		}
 		if ((role == Qt::ToolTipRole) ||
+			(role == TOOLTIP_ROLE) ||
 			(role == TOOLTIP_PLAINTEXT_ROLE) ||
 			(role == TOOLTIP_NOHEADING_ROLE) ||
 			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
@@ -271,6 +273,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 	if (nVerse < 0 || nVerse >= m_lstVerses.size())
 		return QVariant();
+
+	if (role == Qt::ToolTipRole) return QString();		// on_viewDetails replaces normal ToolTip
 
 	return dataForVerse(m_lstVerses.at(nVerse), role);
 }
@@ -296,7 +300,7 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 		}
 	}
 
-	if ((role == Qt::ToolTipRole) ||
+	if ((role == TOOLTIP_ROLE) ||
 		(role == TOOLTIP_PLAINTEXT_ROLE) ||
 		(role == TOOLTIP_NOHEADING_ROLE) ||
 		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
@@ -356,7 +360,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 		}
 	}
 
-	if ((role == Qt::ToolTipRole) ||
+	if ((role == TOOLTIP_ROLE) ||
 		(role == TOOLTIP_PLAINTEXT_ROLE) ||
 		(role == TOOLTIP_NOHEADING_ROLE) ||
 		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {

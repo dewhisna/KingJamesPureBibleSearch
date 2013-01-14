@@ -25,7 +25,7 @@
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 #include "ToolTipEdit.h"
-
+#include "KJVCanOpener.h"
 #include <QModelIndex>
 #include <QApplication>
 #include <QStyle>
@@ -227,17 +227,24 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 {
 	Q_UNUSED(option);
 
-	if (!event || !view)
+	CSearchResultsTreeView *pSearchResultsView = static_cast<CSearchResultsTreeView*>(view);
+
+	if (!event || !view || !pSearchResultsView)
 		return false;
 
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
 			if (!m_model.hasExceededDisplayLimit()) {
-				QVariant tooltip = index.data(Qt::ToolTipRole);
-				if (tooltip.canConvert<QString>()) {
-//					QToolTip::showText(event->globalPos(), tooltip.toString(), view);
-					CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view);
+				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails()) {
+//					QVariant tooltip = index.data(Qt::ToolTipRole);
+//					if (tooltip.canConvert<QString>()) {
+////						QToolTip::showText(event->globalPos(), tooltip.toString(), view);
+//						CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view, view->rect());
+//						return true;
+//					}
+
+					QToolTip::showText(event->globalPos(), "Press Ctrl-D to see Phrase Details", view);
 					return true;
 				}
 			} else {

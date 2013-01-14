@@ -30,6 +30,7 @@
 #include <QTimerEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QContextMenuEvent>
 #include <QKeyEvent>
 #include <QHash>
 #include <QPointer>
@@ -40,6 +41,7 @@
 #include <QScrollBar>
 #include <QDebug>
 #include <QToolTip>
+#include <QMenu>
 
 // ============================================================================
 
@@ -51,15 +53,16 @@ QPalette g_tooltipedit_palette(QToolTip::palette());
 CTipEdit::CTipEdit(QWidget *parent)
 	:	QTextEdit(parent),
 		styleSheetParent(0),
-		widget(0)
+		widget(0),
+		m_bDoingContextMenu(false)
 {
 	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
 	setAcceptRichText(true);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	setContextMenuPolicy(Qt::NoContextMenu);
-	setTextInteractionFlags(Qt::NoTextInteraction);
+	setContextMenuPolicy(Qt::DefaultContextMenu /* Qt::NoContextMenu */);
+	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard /* Qt::NoTextInteraction */);
 
 	delete instance;
 	instance = this;
@@ -85,7 +88,7 @@ CTipEdit::~CTipEdit()
 
 void CTipEdit::restartExpireTimer()
 {
-	int time = 10000 + 40 * qMax(0, toPlainText().length()-100);
+	int time = 10000 + 10 * qMax(0, toPlainText().length()-1000);
 	expireTimer.start(time, this);
 	hideTimer.stop();
 }
@@ -146,15 +149,27 @@ void CTipEdit::resizeEvent(QResizeEvent *e)
 	QTextEdit::resizeEvent(e);
 }
 
+void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
+{
+	m_bDoingContextMenu = true;
+	QMenu *pMenu = createStandardContextMenu();
+	pMenu->exec(e->globalPos());
+	delete pMenu;
+	m_bDoingContextMenu = false;
+}
+
 void CTipEdit::mouseMoveEvent(QMouseEvent *e)
 {
-	if (rect.isNull())
-		return;
-	QPoint pos = e->globalPos();
-	if (widget)
-		pos = widget->mapFromGlobal(pos);
-	if ((!rect.contains(pos)) && (!geometry().contains(pos)))
-		hideTip();
+//	if (rect.isNull())
+//		return;
+//	QPoint pos = e->globalPos();
+//	if (widget)
+//		pos = widget->mapFromGlobal(pos);
+//	if ((!rect.contains(pos)) && (!geometry().contains(pos)))
+//		hideTip();
+
+//	if (geometry().contains(e->pos())) restartExpireTimer();
+
 	QTextEdit::mouseMoveEvent(e);
 }
 
@@ -182,100 +197,72 @@ void CTipEdit::setTipRect(QWidget *w, const QRect &r)
 
 void CTipEdit::timerEvent(QTimerEvent *e)
 {
+	if (m_bDoingContextMenu) {
+		restartExpireTimer();
+		return;
+	}
 	if (e->timerId() == hideTimer.timerId()
 		|| e->timerId() == expireTimer.timerId()){
 		hideTimer.stop();
 		expireTimer.stop();
-#if defined(Q_WS_MAC) && !defined(QT_NO_EFFECTS)
-		if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)){
-			// Fade out tip on mac (makes it invisible).
-			// The tip will not be deleted until a new tip is shown.
-
-						// DRSWAT - Cocoa
-						macWindowFade(qt_mac_window_for(this));
-			CTipEdit::instance->fadingOut = true; // will never be false again.
-		}
-		else
-			hideTipImmediately();
-#else
 		hideTipImmediately();
-#endif
 	}
 }
 
 bool CTipEdit::eventFilter(QObject *o, QEvent *e)
 {
-#ifdef Q_WS_MAC
-	switch (e->type()) {
-		case QEvent::KeyPress:
-		case QEvent::KeyRelease:
-		{
-			int key = static_cast<QKeyEvent *>(e)->key();
-			Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(e)->modifiers();
-			if (!(mody & Qt::KeyboardModifierMask)
-				&& key != Qt::Key_Shift && key != Qt::Key_Control
-				&& key != Qt::Key_Alt && key != Qt::Key_Meta) {
-				hideTip();
-				return false;
-			}
-			break;
-		}
-	}
-#endif
-
 	switch (e->type()) {
 		case QEvent::KeyPress:
 		{
 			int key = static_cast<QKeyEvent *>(e)->key();
-			if ((key == Qt::Key_Escape) ||
-				(key == Qt::Key_Enter)) {
+			if ((!m_bDoingContextMenu) &&
+				((key == Qt::Key_Escape) ||
+				 (key == Qt::Key_Enter))) {
 				hideTipImmediately();
 				return true;
-			} else if ((key != Qt::Key_Up) &&
-						(key != Qt::Key_Down) &&
-						(key != Qt::Key_Left) &&
-						(key != Qt::Key_Right) &&
-						(key != Qt::Key_PageUp) &&
-						(key != Qt::Key_PageDown) &&
-						(key != Qt::Key_Home) &&
-						(key != Qt::Key_End)) {
-				hideTipImmediately();
 			}
 			break;
 		}
 
 		case QEvent::MouseButtonDblClick:
-			hideTipImmediately();
-			break;
-
-		case QEvent::Leave:				// Leaving us or the parent view hides us
-			hideTip();
-			break;
-		case QEvent::WindowDeactivate:	// Deactivating or focusing us out hides us (but not parent or we'll close prematurely)
+		case QEvent::Leave:
+		case QEvent::WindowDeactivate:
 		case QEvent::FocusOut:
-			if (o == this)
+		case QEvent::Enter:
+		case QEvent::WindowActivate:
+		case QEvent::FocusIn:
+		case QEvent::MouseMove:
+			return false;
+
+		default:
+			break;
+	}
+
+	return QTextEdit::eventFilter(o, e);
+}
+
+bool CTipEdit::event(QEvent *e)
+{
+	switch (e->type()) {
+		case QEvent::Leave:				// Leaving us, deactivating, or focusing us out hides us
+		case QEvent::WindowDeactivate:
+		case QEvent::FocusOut:
+			if (!m_bDoingContextMenu)
 				hideTip();
 			break;
 
 		case QEvent::Enter:				// Entering us, activating us, or focusing us halts hiding us
 		case QEvent::WindowActivate:
 		case QEvent::FocusIn:
-			if (o == this)
-				hideTimer.stop();
+			hideTimer.stop();
+			expireTimer.stop();
 			break;
 
-		case QEvent::MouseMove:
-		{
-			QMouseEvent *mev = static_cast<QMouseEvent*>(e);
-
-			if (o == widget && !rect.isNull() && !rect.contains(mev->pos()) && (!geometry().contains(mev->pos())))
-				hideTip();
-			break;
-		}
 		default:
 			break;
 	}
-	return false;
+
+	return QTextEdit::event(e);
 }
 
 int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
@@ -393,18 +380,7 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 		CTipEdit::instance->reuseTip(text);
 		CTipEdit::instance->placeTip(pos, w);
 		CTipEdit::instance->setObjectName(QLatin1String("qtooltip_label"));		//"ctooltip_edit"));
-
-
-//#if !defined(QT_NO_EFFECTS) && !defined(Q_WS_MAC)
-//		if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip))
-//			qFadeEffect(CTipEdit::instance);
-//		else if (QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))
-//			qScrollEffect(CTipEdit::instance);
-//		else
-//			CTipEdit::instance->show();
-//#else
 		CTipEdit::instance->show();
-//#endif
 	}
 }
 
