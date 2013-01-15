@@ -125,9 +125,9 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
-	m_pActionCopyPassageStatistics = m_pEditMenu->addAction("Copy Passage &Statistics (Book/Chapter/Verse)", this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_S));
+	m_pActionCopyPassageStatistics = m_pEditMenu->addAction("Copy Passage Stat&istics (Book/Chapter/Verse)", this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
 	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction("Copy Entire Passage &Details", this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction("Copy Entire Passage Detai&ls", this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
 	m_pActionCopyEntirePassageDetails->setStatusTip("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard");
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
@@ -229,13 +229,18 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_selectedPhrase.second)) {
-					m_HighlightTimer.stop();
-				} else {
-					pHelpEvent->ignore();
+				if ((!U::hasFocus()) || (!haveDetails())) {
+					ev->ignore();
+					return true;
 				}
-				return true;
+
+//				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
+//				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_selectedPhrase.second)) {
+//					m_HighlightTimer.stop();
+//				} else {
+//					pHelpEvent->ignore();
+//				}
+//				return true;
 			}
 			break;
 
@@ -265,6 +270,21 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	}
 
 	return U::event(ev);
+}
+
+template<class T, class U>
+bool CScriptureText<T,U>::haveDetails() const
+{
+	QString strToolTip = m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second);
+	return (!strToolTip.isEmpty());
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::showDetails()
+{
+	U::ensureCursorVisible();
+	if (m_navigator.handleToolTipEvent(m_Highlighter, m_tagLast, m_selectedPhrase.second))
+		m_HighlightTimer.stop();
 }
 
 template<>
@@ -350,6 +370,11 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	QAction *pActionNavigator = menu.addAction("Passage &Navigator...");
 	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+	menu.addSeparator();
+	QAction *pActionDetails = menu.addAction("View &Details...");
+	pActionDetails->setEnabled(haveDetails());
+	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
 	menu.exec(ev->globalPos());
 
 	end_popup();
@@ -416,6 +441,13 @@ void CScriptureText<T,U>::updateSelection()
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
+
+	if (!haveSelection()) {
+		TPhraseTagList lstTags(m_Highlighter.getHighlightTags());
+		TPhraseTag nNewSel = TPhraseTag(m_tagLast.first, 1);
+		if  ((lstTags.size() == 0) || (lstTags[0] != nNewSel))
+			m_navigator.highlightTag(m_Highlighter, nNewSel);
+	}
 	m_Highlighter.setEnabled(!haveSelection());
 }
 

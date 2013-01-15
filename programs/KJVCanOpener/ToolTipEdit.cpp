@@ -121,10 +121,16 @@ void CTipEdit::reuseTip(const QString &text)
 		resize(docSize + extra);
 	}
 
+	QTimer::singleShot(50, this, SLOT(activate()));
 //	activateWindow();
 	raise();
 
 	restartExpireTimer();
+}
+
+void CTipEdit::activate()
+{
+	activateWindow();
 }
 
 void CTipEdit::paintEvent(QPaintEvent *ev)
@@ -151,11 +157,22 @@ void CTipEdit::resizeEvent(QResizeEvent *e)
 
 void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
 {
+	hideTimer.stop();
+	expireTimer.stop();
 	m_bDoingContextMenu = true;
 	QMenu *pMenu = createStandardContextMenu();
 	pMenu->exec(e->globalPos());
 	delete pMenu;
 	m_bDoingContextMenu = false;
+
+	// If user is running totally by keyboard to activate the menu,
+	//		the mouse isn't over us and our parent window (or other
+	//		window) may active, particularly if X-Mouse is in use.
+	//		So, trigger our reactivation to make sure we stay active
+	//		and not prematurely dismiss.  This must be larger than
+	//		the X-Mouse activation time and less than the hideTip
+	//		time:
+	QTimer::singleShot(250, this, SLOT(activate()));
 }
 
 void CTipEdit::mouseMoveEvent(QMouseEvent *e)

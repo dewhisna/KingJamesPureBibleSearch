@@ -521,6 +521,8 @@ void CSearchResultsTreeView::showDetails()
 
 	QVariant varTooltip = pModel->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
 	if (varTooltip.canConvert<QString>()) {
+		scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
+
 //		QToolTip::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this);
 		QToolTip::hideText();
 		CToolTipEdit::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
@@ -1817,9 +1819,9 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 
 void CKJVCanOpener::on_viewDetails()
 {
-	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
-		(m_bBrowserActive)) {
-		// TODO : Call browser detail view
+	if (((ui->widgetKJVBrowser->browser()->hasFocus()) || (m_bBrowserActive)) &&
+		 (ui->widgetKJVBrowser->browser()->haveDetails())) {
+		ui->widgetKJVBrowser->browser()->showDetails();
 	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
 				(ui->treeViewSearchResults->haveDetails())) {
 		ui->treeViewSearchResults->showDetails();
@@ -1830,8 +1832,8 @@ void CKJVCanOpener::setDetailsEnable()
 {
 	bool bDetailsEnable = false;
 
-	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
-		(m_bBrowserActive)) {
+	if (((ui->widgetKJVBrowser->browser()->hasFocus()) || (m_bBrowserActive)) &&
+		 (ui->widgetKJVBrowser->browser()->haveDetails())) {
 		bDetailsEnable = true;
 	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
 				(ui->treeViewSearchResults->haveDetails())) {

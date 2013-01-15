@@ -1417,8 +1417,9 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, TPhraseTag(ndxReference, 1));
+		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(ndxReference, 1)));
 		if (m_bUseToolTipEdit) {
+			QToolTip::hideText();
 			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
 		} else {
 			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
@@ -1426,6 +1427,33 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	} else {
 		highlightTag(aHighlighter);
 		if (m_bUseToolTipEdit) {
+			QToolTip::hideText();
+			CToolTipEdit::hideText();
+		} else {
+			QToolTip::hideText();
+		}
+		return false;
+	}
+
+	return true;
+}
+
+bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const
+{
+	QString strToolTip = getToolTip(tag, selection);
+
+	if (!strToolTip.isEmpty()) {
+		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.first, 1)));
+		if (m_bUseToolTipEdit) {
+			QToolTip::hideText();
+			CToolTipEdit::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
+		} else {
+			QToolTip::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip);
+		}
+	} else {
+		highlightTag(aHighlighter);
+		if (m_bUseToolTipEdit) {
+			QToolTip::hideText();
 			CToolTipEdit::hideText();
 		} else {
 			QToolTip::hideText();

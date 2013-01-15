@@ -83,6 +83,8 @@ public:
 		return (m_selectedPhrase.second);
 	}
 
+	bool haveDetails() const;
+
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
@@ -109,6 +111,7 @@ protected:
 
 //public slots:
 public:
+	virtual void showDetails();
 	virtual void on_passageNavigator();
 	virtual void on_copy();
 	virtual void on_copyPlain();
@@ -189,6 +192,7 @@ protected slots:
 	virtual void clearHighlighting() = 0;
 
 public slots:
+	virtual void showDetails() = 0;
 //	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 	virtual void on_copy() = 0;
 	virtual void on_copyPlain() = 0;
@@ -225,6 +229,7 @@ protected slots:
 	virtual void clearHighlighting() = 0;
 
 public slots:
+	virtual void showDetails() = 0;
 	virtual void on_passageNavigator() = 0;
 	virtual void on_copy() = 0;
 	virtual void on_copyPlain() = 0;

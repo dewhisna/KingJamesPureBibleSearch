@@ -228,6 +228,7 @@ public:
 	void selectWords(const TPhraseTag &tag);
 	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const;
+	bool handleToolTipEvent(CBasicHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const;
 	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;
 	QString getToolTip(const TPhraseTag &tag, const TPhraseTag &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 

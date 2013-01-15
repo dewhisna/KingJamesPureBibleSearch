@@ -480,6 +480,11 @@ public:
 		return ((first.index() == otherTag.first.index()) &&
 				(second == otherTag.second));
 	}
+
+	bool operator!=(const TPhraseTag &otherTag) {
+		return ((first.index() != otherTag.first.index()) ||
+				(second != otherTag.second));
+	}
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

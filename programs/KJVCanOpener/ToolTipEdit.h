@@ -72,6 +72,9 @@ public slots:
 		styleSheetParent = 0;
 	}
 
+protected slots:
+	void activate();
+
 private:
 	QWidget *styleSheetParent;
 
