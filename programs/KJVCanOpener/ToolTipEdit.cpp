@@ -389,9 +389,13 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 #ifndef Q_WS_WIN
 		new CTipEdit(w); // sets CTipEdit::instance to itself
 #else
-		// On windows, we can't use the widget as parent otherwise the window will be
-		// raised when the tooltip will be shown
-		new CTipEdit(QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
+//		// On windows, we can't use the widget as parent otherwise the window will be
+//		// raised when the tooltip will be shown
+//		new CTipEdit(QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
+
+		// For normal tooptips, the above applies, but since we are a special popup
+		//	scroll widget, we need to or user can't activate us in a modal dialog!
+		new CTipEdit(w);
 #endif
 		CTipEdit::instance->setTipRect(w, rect);
 		CTipEdit::instance->reuseTip(text);

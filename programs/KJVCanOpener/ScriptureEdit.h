@@ -176,7 +176,7 @@ public:
 		:	QTextEdit(parent)
 	{ }
 
-	static bool useToolTipEdit() { return false; }
+	static bool useToolTipEdit() { return true; }
 	static bool useFindDialog() { return false; }
 
 signals:

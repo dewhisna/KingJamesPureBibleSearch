@@ -68,6 +68,11 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	startAbsoluteMode();
 	reset();
 
+	QAction *pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), ui->editVersePreview, SLOT(showDetails()));
+
 	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
 	connect(ui->spinWord, SIGNAL(valueChanged(int)), this, SLOT(WordChanged(int)));
 	connect(ui->spinVerse, SIGNAL(valueChanged(int)), this, SLOT(VerseChanged(int)));
