@@ -217,6 +217,8 @@ protected slots:
 	void on_HelpManual();
 	void on_HelpAbout();
 
+	void on_QuickActivate();
+
 // Data Private:
 private:
 	QString m_strUserDatabase;
@@ -247,6 +249,7 @@ private:
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	QAction *m_pActionAbout;		// About Application
+	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
 
 	bool m_bBrowserActive;
 	bool m_bSearchResultsActive;

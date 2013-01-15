@@ -67,6 +67,8 @@
 #define KJS_FILE_VERSION 1				// Current KJS File Version
 #define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
 
+#define NUM_QUICK_ACTIONS 10
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
@@ -813,6 +815,15 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
+
+	// -------------------- Quick Activate:
+
+	for (int ndx=0; ndx<NUM_QUICK_ACTIONS; ++ndx) {
+		m_lstpQuickActivate.append(new QAction(this));
+		m_lstpQuickActivate.at(ndx)->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0 + ndx));
+		connect(m_lstpQuickActivate.at(ndx), SIGNAL(triggered()), this, SLOT(on_QuickActivate()));
+	}
+	addActions(m_lstpQuickActivate);
 
 	// -------------------- Search Phrase Widgets:
 
@@ -1854,3 +1865,39 @@ void CKJVCanOpener::on_HelpAbout()
 	dlg.exec();
 }
 
+void CKJVCanOpener::on_QuickActivate()
+{
+	bool bServiced = false;
+
+	for (int ndx=0; ndx<m_lstpQuickActivate.size(); ++ndx) {
+		if (m_lstpQuickActivate.at(ndx) == static_cast<QAction*>(sender())) {
+			switch (ndx) {
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					if ((ndx-1) < m_lstSearchPhraseEditors.size()) {
+						m_lstSearchPhraseEditors.at(ndx-1)->focusEditor();
+					}
+					break;
+				case 9:
+					ui->treeViewSearchResults->setFocus();
+					break;
+				case 0:
+					ui->widgetKJVBrowser->focusBrowser();
+					break;
+				default:
+					assert(false);
+					break;
+			}
+			bServiced = true;
+			break;
+		}
+	}
+
+	assert(bServiced);
+}
