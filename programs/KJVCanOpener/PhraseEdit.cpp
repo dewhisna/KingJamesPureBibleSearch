@@ -242,7 +242,7 @@ void CParsedPhrase::FindWords()
 		TWordListMap::const_iterator itrWordMap;
 		TWordListMap::const_iterator itrWordMapEnd = g_mapWordList.end();
 
-		QString strCurWord = m_lstWords.at(ndx);
+		QString strCurWord = m_lstWords.at(ndx);			// Note: This becomes the "Word*" value later, so can't substitute strCurWord for all m_lstWords.at(ndx)
 		std::size_t nPreRegExp = strCurWord.toStdString().find_first_of("*?[]");
 		if (nPreRegExp == std::string::npos) {
 			if ((ndx == (m_lstWords.size()-1)) &&
@@ -311,8 +311,19 @@ void CParsedPhrase::FindWords()
 				}
 			}
 			if (ndx == 0) {
-				QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
-				if (exp.exactMatch(itrWordMap->first)) bFirstWordExactMatch = true;
+				if (isCaseSensitive()) {
+					QRegExp exp(m_lstWords[ndx], Qt::CaseSensitive, QRegExp::Wildcard);
+					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
+					for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
+						if (exp.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
+							bFirstWordExactMatch = true;
+							break;
+						}
+					}
+				} else {
+					QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
+					if (exp.exactMatch(itrWordMap->first)) bFirstWordExactMatch = true;
+				}
 			}
 		}
 		if (!bMatch) m_lstMatchMapping.clear();
