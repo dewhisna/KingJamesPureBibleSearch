@@ -248,7 +248,7 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 					return true;
 				}
 			} else {
-				QToolTip::showText(event->globalPos(), "Too many search results to display in this mode!!\nTry Switching to View References Only mode.", view);
+				QToolTip::showText(event->globalPos(), "Too many search results to display in this mode!!\nTry Switching to either View References Only mode or to Tree Mode.", view);
 				return true;
 			}
 			break;

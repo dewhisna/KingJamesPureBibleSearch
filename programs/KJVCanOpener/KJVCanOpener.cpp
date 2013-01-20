@@ -493,7 +493,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	if (!pModel->hasExceededDisplayLimit()) {
 		strStatusText = QString("%1 Search Result(s) Selected").arg(nNumResultsSelected);
 	} else {
-		strStatusText = "Too many search results to display in this mode!!  Try Switching to View References Only mode.";
+		strStatusText = "Too many search results to display in this mode!!  Try Switching to either View References Only mode or to Tree Mode.";
 	}
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
