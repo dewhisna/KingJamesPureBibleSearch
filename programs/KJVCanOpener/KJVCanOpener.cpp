@@ -808,11 +808,11 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui->menuBar->addMenu("Se&ttings");
 
-	pAction = pSettingsMenu->addAction("Scripture Browser Font...", this, SLOT(on_setBrowserFont()));
+	pAction = pSettingsMenu->addAction("Scripture &Browser Font...", this, SLOT(on_setBrowserFont()));
 	pAction->setStatusTip("Adjust the Scripture Browser Font");
 	pAction->setToolTip("Adjust the Scripture Browser Font");
 
-	pAction = pSettingsMenu->addAction("Search Results Font...", this, SLOT(on_setSearchResultsFont()));
+	pAction = pSettingsMenu->addAction("Search &Results Font...", this, SLOT(on_setSearchResultsFont()));
 	pAction->setStatusTip("Adjust the Search Results Font");
 	pAction->setToolTip("Adjust the Search Results Font");
 
