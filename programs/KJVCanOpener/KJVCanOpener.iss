@@ -68,7 +68,7 @@ Source: {#GetEnv('QTDIR')}\plugins\imageformats\qmng4.dll; DestDir: "{app}\KJVCa
 ;Source: {#GetEnv('QTDIR')}\plugins\imageformats\qtiff4.dll; DestDir: "{app}\KJVCanOpener\plugins\imageformats"; Flags: ignoreversion;
 
 ; db
-Source: "db\kjvtext2.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion; Permissions: users-modify;
+Source: "db\kjvtext.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion; Permissions: users-modify;
 Source: "db\kjvuser.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: onlyifdoesntexist uninsneveruninstall; Permissions: users-modify;
 
 ; license

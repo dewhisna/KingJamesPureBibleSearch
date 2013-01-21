@@ -51,7 +51,7 @@ namespace {
 	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
 
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext2.s3db";
+	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 
 }	// namespace
