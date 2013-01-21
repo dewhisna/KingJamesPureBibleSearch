@@ -26,7 +26,7 @@
 
 #include <QObject>
 #include <QSettings>
-
+#include <QFont>
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -42,12 +42,20 @@ public:
 	static CPersistentSettings *instance();
 	inline QSettings &settings() { return *m_pSettings; }
 
+	const QFont &fontBrowser() const { return m_fntBrowser; }
+	const QFont &fontSearchResults() const { return m_fntSearchResults; }
+
 signals:
+	void fontChangedBrowser(const QFont &aFont);
+	void fontChangedSearchResults(const QFont &aFont);
 
 public slots:
-
+	void setFontBrowser(const QFont &aFont);
+	void setFontSearchResults(const QFont &aFont);
 
 private:
+	QFont m_fntBrowser;
+	QFont m_fntSearchResults;
 	QSettings *m_pSettings;
 };
 

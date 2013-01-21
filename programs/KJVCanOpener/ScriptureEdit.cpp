@@ -85,6 +85,9 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 
 	m_HighlightTimer.stop();
 
+	// Setup Default Font:
+	setFont(CPersistentSettings::instance()->fontBrowser());
+
 	// FindDialog:
 	m_pFindDialog = new FindDialog(this);
 	m_pFindDialog->setModal(false);
@@ -152,6 +155,14 @@ template<class T, class U>
 CScriptureText<T,U>::~CScriptureText()
 {
 
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::setFont(const QFont& aFont)
+{
+	U::document()->setDefaultFont(aFont);
 }
 
 // ----------------------------------------------------------------------------

@@ -1060,5 +1060,14 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria
 	return indexScoped;
 }
 
+// ----------------------------------------------------------------------------
+
+void CVerseListModel::setFont(const QFont& aFont)
+{
+	Q_UNUSED(aFont);
+	emit layoutAboutToBeChanged();
+	emit layoutChanged();
+}
+
 // ============================================================================
 

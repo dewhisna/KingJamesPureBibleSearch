@@ -111,6 +111,7 @@ protected:
 
 //public slots:
 public:
+	virtual void setFont(const QFont& aFont);
 	virtual void showDetails();
 	virtual void on_passageNavigator();
 	virtual void on_copy();
@@ -192,6 +193,7 @@ protected slots:
 	virtual void clearHighlighting() = 0;
 
 public slots:
+	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
 //	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 	virtual void on_copy() = 0;
@@ -229,6 +231,7 @@ protected slots:
 	virtual void clearHighlighting() = 0;
 
 public slots:
+	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
 	virtual void on_passageNavigator() = 0;
 	virtual void on_copy() = 0;

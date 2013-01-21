@@ -219,6 +219,9 @@ protected slots:
 
 	void on_QuickActivate();
 
+	void on_setBrowserFont();
+	void on_setSearchResultsFont();
+
 // Data Private:
 private:
 	QString m_strUserDatabase;

@@ -261,6 +261,7 @@ public:
 signals:
 
 public slots:
+	virtual void setFont(const QFont& aFont);
 
 protected:
 	int GetBookCount() const;						// Returns the number of books in the model based on mode

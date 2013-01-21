@@ -61,6 +61,7 @@
 #include <QSettings>
 #include <QToolTip>
 #include <ToolTipEdit.h>
+#include <QFontDialog>
 
 // ============================================================================
 
@@ -92,12 +93,14 @@ namespace {
 	const QString constrViewMissingNodesKey("TreeShowsMissingNodes");
 	const QString constrCurrentIndexKey("CurrentIndex");
 	const QString constrHasFocusKey("HasFocus");
+	const QString constrFontKey("Font");
 
 	// Browser View:
 	const QString constrBrowserViewGroup("Browser");
 	const QString constrLastReferenceKey("LastReference");
 	const QString constrLastSelectionSizeKey("SelectionSize");
 	//const QString constrHasFocusKey("HasFocus");
+	//const QString constrFontKey("Font");
 }
 
 // ============================================================================
@@ -646,11 +649,12 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui->mainToolBar->addAction(pAction);
 
 	pFileMenu->addSeparator();
-	ui->mainToolBar->addSeparator();
 
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip("Exit the King James Pure Bible Search Application");
 	pAction->setToolTip("Exit Application");
+
+	ui->mainToolBar->addSeparator();
 
 	// --- Edit Menu
 	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
@@ -801,6 +805,17 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
 
+	// --- Settings Menu
+	QMenu *pSettingsMenu = ui->menuBar->addMenu("Se&ttings");
+
+	pAction = pSettingsMenu->addAction("Scripture Browser Font...", this, SLOT(on_setBrowserFont()));
+	pAction->setStatusTip("Adjust the Scripture Browser Font");
+	pAction->setToolTip("Adjust the Scripture Browser Font");
+
+	pAction = pSettingsMenu->addAction("Search Results Font...", this, SLOT(on_setSearchResultsFont()));
+	pAction->setStatusTip("Adjust the Search Results Font");
+	pAction->setToolTip("Adjust the Search Results Font");
+
 	// --- Help Menu
 	QMenu *pHelpMenu = ui->menuBar->addMenu("&Help");
 	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), "&Help", this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
@@ -873,6 +888,12 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	connect(model, SIGNAL(layoutChanged()), ui->treeViewSearchResults, SLOT(on_listChanged()));
 	connect(ui->treeViewSearchResults, SIGNAL(currentItemChanged()), this, SLOT(setDetailsEnable()));
 
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), model, SLOT(setFont(const QFont &)));
+
+	// -------------------- Scripture Browser:
+
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedBrowser(const QFont &)), ui->widgetKJVBrowser->browser(), SLOT(setFont(const QFont &)));
+
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
 }
@@ -926,6 +947,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrViewMissingNodesKey, pModel->showMissingLeafs());
 	settings.setValue(constrCurrentIndexKey, CRelIndex(ui->treeViewSearchResults->currentIndex().internalId()).asAnchor());
 	settings.setValue(constrHasFocusKey, ui->treeViewSearchResults->hasFocus());
+	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
 
 	// Last Search:
@@ -937,6 +959,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrLastReferenceKey, tag.first.asAnchor());
 	settings.setValue(constrLastSelectionSizeKey, tag.second);
 	settings.setValue(constrHasFocusKey, ui->widgetKJVBrowser->hasFocusBrowser());
+	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontBrowser().toString());
 	settings.endGroup();
 
 	// Browser Object (used for FindDialog, etc):
@@ -946,6 +969,7 @@ void CKJVCanOpener::savePersistentSettings()
 void CKJVCanOpener::restorePersistentSettings()
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
+	QString strFont;
 
 	// Main App and Toolbars:
 	settings.beginGroup(constrMainAppRestoreStateGroup);
@@ -967,6 +991,12 @@ void CKJVCanOpener::restorePersistentSettings()
 	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, pModel->showMissingLeafs()).toBool());
 	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
 	bool bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
+	strFont = settings.value(constrFontKey).toString();
+	if (!strFont.isEmpty()) {
+		QFont aFont;
+		aFont.fromString(strFont);
+		CPersistentSettings::instance()->setFontSearchResults(aFont);
+	}
 	settings.endGroup();
 
 	// Last Search:
@@ -985,6 +1015,12 @@ void CKJVCanOpener::restorePersistentSettings()
 	if (!bLastSet) {
 		CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
 		if (ndxLastBrowsed.isSet()) setCurrentIndex(ndxLastBrowsed, false);
+	}
+	strFont = settings.value(constrFontKey).toString();
+	if (!strFont.isEmpty()) {
+		QFont aFont;
+		aFont.fromString(strFont);
+		CPersistentSettings::instance()->setFontBrowser(aFont);
 	}
 	settings.endGroup();
 
@@ -1901,3 +1937,20 @@ void CKJVCanOpener::on_QuickActivate()
 
 	assert(bServiced);
 }
+
+void CKJVCanOpener::on_setBrowserFont()
+{
+	QFontDialog *pfntdlgBrowser = new QFontDialog(CPersistentSettings::instance()->fontBrowser(), this);
+	pfntdlgBrowser->setOption(QFontDialog::DontUseNativeDialog);
+	pfntdlgBrowser->setWindowTitle("Select Scripture Browser Font");
+	pfntdlgBrowser->open(CPersistentSettings::instance(), SLOT(setFontBrowser(const QFont&)));
+}
+
+void CKJVCanOpener::on_setSearchResultsFont()
+{
+	QFontDialog *pfntdlgSearchResults = new QFontDialog(CPersistentSettings::instance()->fontSearchResults(), this);
+	pfntdlgSearchResults->setOption(QFontDialog::DontUseNativeDialog);
+	pfntdlgSearchResults->setWindowTitle("Select Search Results Font");
+	pfntdlgSearchResults->open(CPersistentSettings::instance(), SLOT(setFontSearchResults(const QFont&)));
+}
+
