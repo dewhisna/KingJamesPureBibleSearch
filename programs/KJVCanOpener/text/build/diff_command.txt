@@ -1,0 +1,2 @@
+ diff --unchanged-line-format="" --old-line-format="%L" --new-line-format="%L%dn%c'\012'" av1611_allwords_cleaned_noheb.txt sw1769_allwords_cleaned.txt >diff_full.txt
+ 
