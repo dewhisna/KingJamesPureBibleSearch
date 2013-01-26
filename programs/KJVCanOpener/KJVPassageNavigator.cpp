@@ -204,7 +204,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->chkboxReverse->setChecked(bReverse);
 
 	ui->lblBook->setText("&Books:");
-	ui->lblChapter->setText("&Chapters:");
+	ui->lblChapter->setText("C&hapters:");
 	ui->lblVerse->setText("&Verses:");
 	ui->lblWord->setText("&Words:");
 
@@ -235,7 +235,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui->comboTestament->show();
 
 	ui->lblBook->setText("&Book:");
-	ui->lblChapter->setText("&Chapter:");
+	ui->lblChapter->setText("C&hapter:");
 	ui->lblVerse->setText("&Verse:");
 	ui->lblWord->setText("&Word:");
 

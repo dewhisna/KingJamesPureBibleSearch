@@ -643,7 +643,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pAction->setToolTip("Load Search Phrases from a previously saved King James Search File");
 	ui->mainToolBar->addAction(pAction);
 
-	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), "&Save Search...", this, SLOT(on_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
+	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), "&Save Search File...", this, SLOT(on_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	pAction->setStatusTip("Save current Search Phrases to a King James Search File");
 	pAction->setToolTip("Save current Search Phrases to a King James Search File");
 	ui->mainToolBar->addAction(pAction);
