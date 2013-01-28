@@ -55,6 +55,27 @@ Source: {#GetEnv('QTDIR')}\bin\QtSql4.dll; DestDir: "{app}\KJVCanOpener\app"; Fl
 Source: {#GetEnv('QTDIR')}\..\..\..\MinGW\bin\libstdc++-6.dll; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 Source: {#GetEnv('QTDIR')}\..\..\..\MinGW\bin\libgcc_s_dw2-1.dll; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 
+; doc
+Source: "doc\KingJamesPureBibleSearch.pdf"; DestDir: "{app}\KJVCanOpener\doc"; Flags: ignoreversion;
+Source: "kjvdatagen\kjv_summary.xls"; DestDir: "{app}\KJVCanOpener\doc"; Flags: ignoreversion;
+Source: "articles\kjv_stats.xls"; DestDir: "{app}\KJVCanOpener\doc"; Flags: ignoreversion;
+
+; examples:
+Source: "examples\example01.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example02.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example03.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example04.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example05.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example06.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example07.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example08.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example09.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example10.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example11.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example12.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example13.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example14.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+
 ; plugins/sqldrivers
 Source: {#GetEnv('QTDIR')}\plugins\sqldrivers\qsqlite4.dll; DestDir: "{app}\KJVCanOpener\plugins\sqldrivers"; Flags: ignoreversion;
 

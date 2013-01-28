@@ -62,6 +62,9 @@
 #include <QToolTip>
 #include <ToolTipEdit.h>
 #include <QFontDialog>
+#include <QFileInfo>
+#include <QDesktopServices>
+#include <QDir>
 
 // ============================================================================
 
@@ -74,6 +77,8 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
+
+	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 
 	// Key constants:
 	// --------------
@@ -1892,7 +1897,15 @@ void CKJVCanOpener::setDetailsEnable()
 
 void CKJVCanOpener::on_HelpManual()
 {
-	QMessageBox::information(this, windowTitle(), "An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates.");
+	QFileInfo fiHelpDoc(QApplication::applicationDirPath(), g_constrHelpDocFilename);
+	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
+		QMessageBox::warning(this, windowTitle(), QString("Unable to open the King James Pure Bible Search Users Manual.\n"
+															"Verify that you have a PDF Viewer, such as Adobe Acrobat, installed.\n"
+															"And check installation of King James Pure Bible Search User Manual at:\n\n"
+															"%1").arg(QDir::toNativeSeparators(fiHelpDoc.absoluteFilePath())));
+	}
+
+//	QMessageBox::information(this, windowTitle(), "An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates.");
 }
 
 void CKJVCanOpener::on_HelpAbout()
