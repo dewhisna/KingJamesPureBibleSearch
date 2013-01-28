@@ -1,0 +1,15 @@
+[KJVPureBibleSearch]
+AppVersion=1.0.0
+KJSFileVersion=1
+
+[SearchCriteria]
+SearchScope=2
+
+[SearchPhrases]
+1\Phrase=in Christ
+1\CaseSensitive=false
+2\Phrase=church
+2\CaseSensitive=false
+3\Phrase=baptiz*
+3\CaseSensitive=false
+size=3

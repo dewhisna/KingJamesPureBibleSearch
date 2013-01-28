@@ -1,0 +1,11 @@
+[KJVPureBibleSearch]
+AppVersion=1.0.0
+KJSFileVersion=1
+
+[SearchCriteria]
+SearchScope=0
+
+[SearchPhrases]
+1\Phrase=in Christ
+1\CaseSensitive=false
+size=1
