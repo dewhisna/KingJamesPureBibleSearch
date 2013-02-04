@@ -26,6 +26,7 @@
 [Setup]
 AppName=King James Pure Bible Search
 AppId=KJVPureBibleSearch
+AppMutex=KJVCanOpenerMutex
 #expr VersionInstaller("..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KJVCanOpener.exe")
 AppCopyright=Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
 AppPublisher=Dewtronics/Bethel Church

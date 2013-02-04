@@ -43,6 +43,12 @@
 
 #include <assert.h>
 
+#ifdef Q_WS_WIN
+// Needed to call CreateMutex to lockout installer running while we are:
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 QWidget *g_pMainWindow = NULL;
 
 namespace {
@@ -76,6 +82,13 @@ int main(int argc, char *argv[])
 	splash->show();
 	splash->showMessage("<html><body><br /><br /><br /><div align=\"center\"><font size=+1 color=#FFFFFF><b>Please Wait...</b></font></div></body></html>", Qt::AlignCenter);
 	qApp->processEvents();
+
+#ifdef Q_WS_WIN
+	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
+	assert(hMutex != NULL);
+	// Note: System will automatically close the mutex object when we
+	//			exit and InnoSetup actually suggest we leave it open
+#endif
 
 	QTime splashTimer;
 	splashTimer.start();
