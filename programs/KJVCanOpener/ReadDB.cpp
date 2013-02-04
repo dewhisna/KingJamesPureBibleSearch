@@ -332,6 +332,7 @@ bool CReadDatabase::ReadWORDSTable()
 		}
 		if (nAltCount != query.value(3).toUInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Bad AltWordCounts for \"%1\"").arg(strWord));
+			return false;
 		}
 
 		if (!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalizedMapping)) {
@@ -348,6 +349,10 @@ bool CReadDatabase::ReadWORDSTable()
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			g_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
+				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
+					QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));
+					return false;
+				}
 				g_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = g_lstConcordanceWords.size();
 				ndxMapping++;
 			}
