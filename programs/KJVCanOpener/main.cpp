@@ -33,6 +33,8 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QFileInfo>
+//#include <QtPlugin>
+#include <QFontDatabase>
 
 #include "KJVCanOpener.h"
 
@@ -49,6 +51,8 @@
 #include <windows.h>
 #endif
 
+//Q_IMPORT_PLUGIN(qsqlite)
+
 QWidget *g_pMainWindow = NULL;
 
 namespace {
@@ -59,6 +63,59 @@ namespace {
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseFilename = "../../KJVCanOpener/db/kjvuser.s3db";
+
+	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
+#ifndef Q_WS_WIN
+//	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
+//	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
+//	const char *g_constrDejaVuSansCondensed_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
+//	const char *g_constrDejaVuSansMono_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansMono_Bold = "../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "../../KJVCanOpener/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "../../KJVCanOpener/fonts/DejaVuSans.ttf";
+//	const char *g_constrDejaVuSerif_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerif_Bold = "../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Italic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
+//	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
+//	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
+//	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
+#endif
+
+	const char *g_constrarrFontFilenames[] = {
+		g_constrScriptBLFontFilename,
+#ifndef Q_WS_WIN
+//		g_constrDejaVuSans_BoldOblique,
+//		g_constrDejaVuSans_Bold,
+//		g_constrDejaVuSansCondensed_BoldOblique,
+//		g_constrDejaVuSansCondensed_Bold,
+		g_constrDejaVuSansCondensed_Oblique,
+		g_constrDejaVuSansCondensed,
+		g_constrDejaVuSans_ExtraLight,
+//		g_constrDejaVuSansMono_BoldOblique,
+//		g_constrDejaVuSansMono_Bold,
+		g_constrDejaVuSansMono_Oblique,
+		g_constrDejaVuSansMono,
+		g_constrDejaVuSans_Oblique,
+		g_constrDejaVuSans,
+//		g_constrDejaVuSerif_BoldItalic,
+//		g_constrDejaVuSerif_Bold,
+//		g_constrDejaVuSerifCondensed_BoldItalic,
+//		g_constrDejaVuSerifCondensed_Bold,
+//		g_constrDejaVuSerifCondensed_Italic,
+//		g_constrDejaVuSerifCondensed,
+//		g_constrDejaVuSerif_Italic,
+//		g_constrDejaVuSerif,
+#endif
+		NULL
+	};
 
 }	// namespace
 
@@ -92,6 +149,17 @@ int main(int argc, char *argv[])
 
 	QTime splashTimer;
 	splashTimer.start();
+
+	// Setup our Fonts:
+	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
+		QFileInfo fiFont(app.applicationDirPath(), g_constrarrFontFilenames[ndxFont]);
+		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
+		if (nFontStatus == -1) {
+#ifdef QT_DEBUG
+			QMessageBox::warning(splash, g_constrInitialization, QString("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
+#endif
+		}
+	}
 
 	// Setup our SQL Plugin paths:
 	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
@@ -150,7 +218,13 @@ int main(int argc, char *argv[])
 		nElapsed = splashTimer.elapsed();
 	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
-	app.setFont(QFont("Sans", 8));
+#ifdef Q_WS_WIN
+	app.setFont(QFont("MS Shell Dlg 2", 8));
+#else
+//	app.setFont(QFont("Sans", 8));
+//	app.setFont(QFont("DejaVu Sans Condensed", 8));
+	app.setFont(QFont("DejaVu Sans", 8));
+#endif
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
@@ -165,6 +239,10 @@ int main(int argc, char *argv[])
 
 	if (!strKJSFile.isEmpty()) wMain.openKJVSearchFile(strKJSFile);
 
-	return app.exec();
+	int nRetVal = app.exec();
+
+	QFontDatabase::removeAllApplicationFonts();
+
+	return nRetVal;
 }
 

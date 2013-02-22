@@ -89,6 +89,7 @@ public:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
 //	void copyRawAvailable(bool bAvailable);
+//	void copyVersesAvailable(bool bAvailable);
 
 protected:
 	virtual bool event(QEvent *ev);
@@ -184,6 +185,7 @@ signals:
 	void gotoIndex(const TPhraseTag &tag);
 	void activatedScriptureText();
 	void copyRawAvailable(bool bAvailable);
+	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
 	virtual void on_findDialog() = 0;
@@ -222,6 +224,7 @@ signals:
 	void gotoIndex(const TPhraseTag &tag);
 	void activatedScriptureText();
 	void copyRawAvailable(bool bAvailable);
+	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
 	virtual void on_findDialog() = 0;

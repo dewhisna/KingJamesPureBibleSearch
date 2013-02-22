@@ -587,7 +587,7 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		return false;
 	}
 
@@ -614,7 +614,7 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		return false;
 	}
 

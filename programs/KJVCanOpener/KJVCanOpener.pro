@@ -8,6 +8,11 @@ QT       += core gui sql
 
 CONFIG += rtti
 
+unix:CONFIG += static
+unix:QMAKE_CXXFLAGS += -static
+
+#QTPLUGIN += qsqlite
+
 TARGET = KJVCanOpener
 TEMPLATE = app
 

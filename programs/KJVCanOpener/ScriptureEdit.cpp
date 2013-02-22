@@ -38,6 +38,7 @@
 #include <QString>
 #include <QEvent>
 #include <QHelpEvent>
+#include <QKeyEvent>
 
 
 // ============================================================================
@@ -120,11 +121,11 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_pActionCopyVerses = m_pEditMenu->addAction("Copy as &Verses", this, SLOT(on_copyVerses()));
 	m_pActionCopyVerses->setStatusTip("Copy selected passage browser text as Formatted Verses to the clipboard");
 	m_pActionCopyVerses->setEnabled(false);
-	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
 	m_pActionCopyVersesPlain = m_pEditMenu->addAction("Copy as Verses (plai&n)", this, SLOT(on_copyVersesPlain()));
 	m_pActionCopyVersesPlain->setStatusTip("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard");
 	m_pActionCopyVersesPlain->setEnabled(false);
-	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
+	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
@@ -265,6 +266,20 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		case QEvent::MouseButtonPress:
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseButtonDblClick:
+			if (ev->type() == QEvent::KeyPress) {
+				QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+				if (keyEvent->modifiers() & Qt::ControlModifier) {
+					if (keyEvent->key() == Qt::Key_Plus) {
+						U::zoomIn();
+						ev->accept();
+						return true;
+					} else if (keyEvent->key() == Qt::Key_Minus) {
+						U::zoomOut();
+						ev->accept();
+						return true;
+					}
+				}
+			}
 			// Unfortunately, there doesn't seem to be any event we can hook to to determine
 			//		when the ToolTip disappears.  Looking at the Qt code, it looks to be on
 			//		a 2 second timeout.  So, we'll do a similar timeout here for the highlight:
@@ -438,6 +453,7 @@ void CScriptureText<T,U>::updateSelection()
 	bool bOldSel = haveSelection();
 	m_selectedPhrase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
+	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0));
 	QString strStatusText;
 	if (haveSelection()) {
 		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText();
@@ -507,13 +523,13 @@ void CScriptureText<T,U>::on_copyVeryRaw()
 template<class T, class U>
 void CScriptureText<T,U>::on_copyVerses()
 {
-	if (haveSelection()) copyVersesCommon(false);
+	if (haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0)) copyVersesCommon(false);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyVersesPlain()
 {
-	if (haveSelection()) copyVersesCommon(true);
+	if (haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0)) copyVersesCommon(true);
 }
 
 template<class T, class U>
@@ -551,7 +567,13 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 {
 	QTextDocument docFormattedVerses;
 	CPhraseNavigator navigator(docFormattedVerses);
-	navigator.setDocumentToFormattedVerses(m_selectedPhrase.second);
+	if (haveSelection()) {
+		navigator.setDocumentToFormattedVerses(m_selectedPhrase.second);
+	} else {
+		TPhraseTag tagVerse = m_tagLast;
+		if (tagVerse.first.word() == 0) tagVerse.first.setWord(1);
+		navigator.setDocumentToFormattedVerses(tagVerse);
+	}
 
 	QMimeData *mime = new QMimeData();
 	mime->setText(docFormattedVerses.toPlainText());

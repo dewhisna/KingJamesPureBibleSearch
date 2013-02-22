@@ -64,6 +64,11 @@ protected:
 	void resizeEvent(QResizeEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
 	bool event(QEvent *e);
+	void wheelEvent(QWheelEvent *e);
+
+	void adjustToolTipSize();
+	void savePersistentSettings();
+	void restorePersistentSettings();
 
 public slots:
 	// Cleanup the _q_stylesheet_parent propery.

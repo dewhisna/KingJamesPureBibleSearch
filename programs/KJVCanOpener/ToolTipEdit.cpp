@@ -23,6 +23,8 @@
 
 #include "ToolTipEdit.h"
 
+#include "PersistentSettings.h"
+
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QEvent>
@@ -32,6 +34,7 @@
 #include <QResizeEvent>
 #include <QContextMenuEvent>
 #include <QKeyEvent>
+#include <QWheelEvent>
 #include <QHash>
 #include <QPointer>
 #include <QStyle>
@@ -42,6 +45,17 @@
 #include <QDebug>
 #include <QToolTip>
 #include <QMenu>
+
+namespace {
+	//////////////////////////////////////////////////////////////////////
+	// File-scoped constants
+	//////////////////////////////////////////////////////////////////////
+
+	// Key constants:
+	// --------------
+	const QString constrToolTipEditGroup("ToolTipEdit");
+	const QString constrFontSizeKey("FontSize");
+}
 
 // ============================================================================
 
@@ -79,12 +93,41 @@ CTipEdit::CTipEdit(QWidget *parent)
 	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / qreal(255.0));
 	setMouseTracking(true);
 	fadingOut = false;
+	restorePersistentSettings();
 }
 
 CTipEdit::~CTipEdit()
 {
+	savePersistentSettings();
 	instance = 0;
 }
+
+void CTipEdit::savePersistentSettings()
+{
+	const int nFontSize = font().pointSize();
+
+	QSettings &settings(CPersistentSettings::instance()->settings());
+	settings.beginGroup(constrToolTipEditGroup);
+	settings.setValue(constrFontSizeKey, nFontSize);
+	settings.endGroup();
+}
+
+void CTipEdit::restorePersistentSettings()
+{
+	QSettings &settings(CPersistentSettings::instance()->settings());
+
+	QFont fnt = font();
+
+	settings.beginGroup(constrToolTipEditGroup);
+	const int nFontSize = settings.value(constrFontSizeKey, fnt.pointSize()).toInt();
+	settings.endGroup();
+
+	if (nFontSize>0) {
+		fnt.setPointSize(nFontSize);
+		setFont(fnt);
+	}
+}
+
 
 void CTipEdit::restartExpireTimer()
 {
@@ -103,6 +146,18 @@ void CTipEdit::reuseTip(const QString &text)
 
 //	setWordWrap(Qt::mightBeRichText(text));
 	setText(text);
+
+	adjustToolTipSize();
+
+	QTimer::singleShot(50, this, SLOT(activate()));
+//	activateWindow();
+	raise();
+
+	restartExpireTimer();
+}
+
+void CTipEdit::adjustToolTipSize()
+{
 	QFontMetrics fm(font());
 	QSize extra(1 + verticalScrollBar()->sizeHint().width() + frameWidth()*2, frameWidth()*2);
 
@@ -120,12 +175,6 @@ void CTipEdit::reuseTip(const QString &text)
 	} else {
 		resize(docSize + extra);
 	}
-
-	QTimer::singleShot(50, this, SLOT(activate()));
-//	activateWindow();
-	raise();
-
-	restartExpireTimer();
 }
 
 void CTipEdit::activate()
@@ -275,11 +324,36 @@ bool CTipEdit::event(QEvent *e)
 			expireTimer.stop();
 			break;
 
+		case QEvent::KeyPress:
+		{
+			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+			if (keyEvent->modifiers() & Qt::ControlModifier) {
+				if (keyEvent->key() == Qt::Key_Plus) {
+					zoomIn();
+					adjustToolTipSize();
+					e->accept();
+					return true;
+				} else if (keyEvent->key() == Qt::Key_Minus) {
+					zoomOut();
+					adjustToolTipSize();
+					e->accept();
+					return true;
+				}
+			}
+			break;
+		}
+
 		default:
 			break;
 	}
 
 	return QTextEdit::event(e);
+}
+
+void CTipEdit::wheelEvent(QWheelEvent *e)
+{
+	QTextEdit::wheelEvent(e);
+	adjustToolTipSize();
 }
 
 int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
