@@ -43,6 +43,8 @@
 #include "BuildDB.h"
 #include "ReadDB.h"
 
+#include "PersistentSettings.h"
+
 #include <assert.h>
 
 #ifdef Q_WS_WIN
@@ -55,7 +57,13 @@
 
 QWidget *g_pMainWindow = NULL;
 
+// ============================================================================
+
 namespace {
+	//////////////////////////////////////////////////////////////////////
+	// File-scoped constants
+	//////////////////////////////////////////////////////////////////////
+
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
 
 	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
@@ -117,7 +125,16 @@ namespace {
 		NULL
 	};
 
+
+	// Key constants:
+	// --------------
+	const QString constrMainAppControlGroup("MainApp/Controls");
+	const QString constrFontNameKey("FontName");
+	const QString constrFontSizeKey("FontSize");
+
 }	// namespace
+
+// ============================================================================
 
 
 int main(int argc, char *argv[])
@@ -161,6 +178,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Sometimes the splash screen fails to paint, so we'll pump events again
+	//	between the fonts and database:
+	qApp->processEvents();
+
 	// Setup our SQL Plugin paths:
 	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
 	app.addLibraryPath(fiPlugins.absolutePath());
@@ -178,11 +199,11 @@ int main(int argc, char *argv[])
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
-		if (strArg.compare("/builddb", Qt::CaseInsensitive) == 0) {
+		if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 			bBuildDB = true;
-		} else if (strArg.compare("/nolimits", Qt::CaseInsensitive) == 0) {
+		} else if (strArg.compare("-nolimits", Qt::CaseInsensitive) == 0) {
 			g_bEnableNoLimits = true;
-		} else if ((!strArg.startsWith("/")) && (strKJSFile.isEmpty())) {
+		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
 			strKJSFile = strArg;
 		} else {
 			QMessageBox::warning(splash, g_constrInitialization, QString("Unrecognized command-line option \"%1\"").arg(strArg));
@@ -218,13 +239,36 @@ int main(int argc, char *argv[])
 		nElapsed = splashTimer.elapsed();
 	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
+
+	// Setup our default font for our controls:
+
 #ifdef Q_WS_WIN
-	app.setFont(QFont("MS Shell Dlg 2", 8));
+	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
 #else
-//	app.setFont(QFont("Sans", 8));
-//	app.setFont(QFont("DejaVu Sans Condensed", 8));
-	app.setFont(QFont("DejaVu Sans", 8));
+	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif
+
+	QSettings &settings(CPersistentSettings::instance()->settings());
+
+	settings.beginGroup(constrMainAppControlGroup);
+	QString strFontName = settings.value(constrFontNameKey, fntAppControls.family()).toString();
+	int nFontSize = settings.value(constrFontSizeKey, fntAppControls.pointSize()).toInt();
+	settings.endGroup();
+
+	if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+		fntAppControls.setFamily(strFontName);
+		fntAppControls.setPointSize(nFontSize);
+	}
+
+	app.setFont(fntAppControls);
+
+	// Update settings for next time.  Use application font instead of
+	//		our variables in case Qt substituted for another available font:
+	settings.beginGroup(constrMainAppControlGroup);
+	settings.setValue(constrFontNameKey, app.font().family());
+	settings.setValue(constrFontSizeKey, app.font().pointSize());
+	settings.endGroup();
+
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
