@@ -837,13 +837,14 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 	return bSuccess;
 }
 
-bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename)
+bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings)
 {
 	m_myDatabase = g_sqldbBuildUser;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
+		if (!bHideWarnings)
+			QMessageBox::warning(m_pParent, g_constrBuildDatabase, QString("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
 		return false;
 	}
 

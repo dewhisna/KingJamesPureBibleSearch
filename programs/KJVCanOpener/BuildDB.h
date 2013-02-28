@@ -39,7 +39,7 @@ public:
 	~CBuildDatabase() { }
 
 	bool BuildDatabase(const QString &strDatabaseFilename);
-	bool BuildUserDatabase(const QString &strDatabaseFilename);
+	bool BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
 
 	static QByteArray CSVStringToIndexBlob(const QString &str);
 

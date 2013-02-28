@@ -120,7 +120,7 @@ class CKJVSearchPhraseEdit : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchPhraseEdit(QWidget *parent = 0);
+	explicit CKJVSearchPhraseEdit(bool bHaveUserData = true, QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
 
 	const CParsedPhrase *parsedPhrase() const;
@@ -148,6 +148,7 @@ protected slots:
 
 // Data Private:
 private:
+	bool m_bHaveUserData;				// True if there is a user database defined (used for enabling add/remove icons)
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
 	bool m_bLastPhraseChangeHadResults;	// True if the last on_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications
 	bool m_bUpdateInProgress;			// case-sensitivity update in progress (to guard against re-entrance)

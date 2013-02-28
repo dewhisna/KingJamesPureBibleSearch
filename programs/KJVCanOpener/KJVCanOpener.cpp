@@ -1263,7 +1263,7 @@ void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSub
 
 CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 {
-	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(this);
+	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(haveUserDatabase(), this);
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));

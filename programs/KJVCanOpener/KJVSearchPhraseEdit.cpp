@@ -406,8 +406,9 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 
 // ============================================================================
 
-CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(QWidget *parent) :
+CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(bool bHaveUserData, QWidget *parent) :
 	QWidget(parent),
+	m_bHaveUserData(bHaveUserData),
 	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
@@ -491,8 +492,8 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
 	bool bHaveText = (!m_phraseEntry.m_strPhrase.isEmpty());
-	ui->buttonAddPhrase->setEnabled(bHaveText && !bUserFound && !bCommonFound);
-	ui->buttonDelPhrase->setEnabled(bHaveText && bUserFound);
+	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && bHaveText && !bUserFound && !bCommonFound);
+	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && bHaveText && bUserFound);
 	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
 
 	// If last time, this phrase didn't have anything meaningful, if it still doesn't
@@ -544,7 +545,7 @@ void CKJVSearchPhraseEdit::on_phraseAdd()
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
 	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setEnabled(!ui->editPhrase->phrase().isEmpty());
+	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && !ui->editPhrase->phrase().isEmpty());
 	emit phraseListChanged();
 }
 
@@ -556,7 +557,7 @@ void CKJVSearchPhraseEdit::on_phraseDel()
 		g_lstUserPhrases.removeAt(ndx);
 		g_bUserPhrasesDirty = true;
 	}
-	ui->buttonAddPhrase->setEnabled(!ui->editPhrase->phrase().isEmpty());
+	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && !ui->editPhrase->phrase().isEmpty());
 	ui->buttonDelPhrase->setEnabled(false);
 	emit phraseListChanged();
 }

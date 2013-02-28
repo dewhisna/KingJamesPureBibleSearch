@@ -35,6 +35,8 @@
 #include <QFileInfo>
 //#include <QtPlugin>
 #include <QFontDatabase>
+#include <QDesktopServices>
+#include <QDir>
 
 #include "KJVCanOpener.h"
 
@@ -70,7 +72,8 @@ namespace {
 
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
-	const char *g_constrUserDatabaseFilename = "../../KJVCanOpener/db/kjvuser.s3db";
+	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
+	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
 #ifndef Q_WS_WIN
@@ -188,7 +191,11 @@ int main(int argc, char *argv[])
 
 	// Database Paths:
 	QFileInfo fiDatabase(app.applicationDirPath(), g_constrDatabaseFilename);
-	QFileInfo fiUserDatabase(app.applicationDirPath(), g_constrUserDatabaseFilename);
+	QFileInfo fiUserDatabaseTemplate(app.applicationDirPath(), g_constrUserDatabaseTemplateFilename);
+	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+	QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
+	QDir dirDataFolder;
+	dirDataFolder.mkpath(strDataFolder);
 
 //	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
@@ -210,8 +217,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	CBuildDatabase bdb(splash);
 	if (bBuildDB) {
-		CBuildDatabase bdb(splash);
 		if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
 			QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
 			return -1;
@@ -226,10 +233,43 @@ int main(int argc, char *argv[])
 	}
 
 	// Read User Database if it exists:
-	if (fiUserDatabase.exists()) {
+	QString strUserDatabaseFilename;
+
+	if (!fiUserDatabase.exists()) {
+		// If the user's database doesn't exist, see if the template one
+		//		does.  And if so, see if we can copy from it to the user's:
+		if (fiUserDatabaseTemplate.exists()) {
+			if (rdb.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true)) {
+				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+					// Use the copy if that was successful.  Strings will have already
+					//	been set, so no need to read again:
+					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+				}
+				// If we were successful with reading the template database, we'll
+				//	already have the strings loaded, so the user can use them.  But,
+				//	we'll leave the pathname empty to disable user changes since
+				//	the template will be a read-only copy
+			} else {
+				// Otherwise, if reading the template failed and there was no user
+				//	database, see if we can just create a user database:
+				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+				}
+			}
+		} else {
+			// If there was no template and no user database, see if we can just create
+			//	the user database.  If so, use it (this is like the failure case above,
+			//	but where the template doesn't exist at all):
+			if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+			}
+		}
+	} else {
 		if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
 			QMessageBox::warning(splash, g_constrInitialization, "Failed to Read KJV User Database!\nCheck Installation and Verify Database File!");
 			return -3;
+		} else {
+			strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
 		}
 	}
 
@@ -272,7 +312,7 @@ int main(int argc, char *argv[])
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener wMain(fiUserDatabase.absoluteFilePath());
+	CKJVCanOpener wMain(strUserDatabaseFilename);
 	g_pMainWindow = &wMain;
 	wMain.setWindowIcon(QIcon(":/res/bible.ico"));
 	wMain.show();

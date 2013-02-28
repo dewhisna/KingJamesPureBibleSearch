@@ -39,7 +39,7 @@ public:
 	~CReadDatabase() { }
 
 	bool ReadDatabase(const QString &strDatabaseFilename);
-	bool ReadUserDatabase(const QString &strDatabaseFilename);
+	bool ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
 
 	static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList);
 

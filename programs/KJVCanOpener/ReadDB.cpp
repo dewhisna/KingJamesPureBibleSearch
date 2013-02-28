@@ -612,14 +612,15 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 	return bSuccess;
 }
 
-bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
+bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings)
 {
 	m_myDatabase = g_sqldbReadUser;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
+		if (!bHideWarnings)
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		return false;
 	}
 
