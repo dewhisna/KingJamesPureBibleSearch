@@ -60,7 +60,7 @@ You can proceed with the installation, but this software will likely
 fail to run until you've properly installed "lsb".
 
 EOF
-    echo -n "Continue to install anyway? "
+    echo -n "Continue to install anyway? (y/n): "
     read answer
     answer=`echo ${answer} | cut -c1`
     if [ "${answer}" '!=' "y" -a "${answer}" '!=' "Y" ]; then
@@ -121,7 +121,7 @@ fi
 # Now that we've printed what we think, check to make sure we're
 # right.
 
-echo -n "Is this correct? "
+echo -n "Is this correct? (y/n): "
 read answer
 answer=`echo ${answer} | cut -c1`
 if [ "${answer}" '!=' "y" -a "${answer}" '!=' "Y" ]; then
@@ -142,7 +142,7 @@ EOF
     SU_CMD="su root -c"
     which sudo 2>&1 > /dev/null
     if [ $? -eq 0 ]; then
-	echo -n "You have sudo available.  Should I use it? "
+	echo -n "You have sudo available.  Should I use it? (y/n): "
 	read answer
 	answer=`echo ${answer} | cut -c1`
 	if [ "${answer}" = "y" -o "${answer}" = "Y" ]; then
@@ -170,9 +170,11 @@ ${SU_CMD} "${RPM_INSTALL_CMD} ${PACKAGES} 2>error-log.txt"
 INSTALL_STATUS=$?
 if [ -s error-log.txt ]; then
     cat <<EOF
-There may have been problems with the package installation.  Check
-error-log.txt for more information.
+There may have been problems with the package installation.  The
+following errors were reported by the system: 
+
 EOF
+    cat error-log.txt
 elif [ $INSTALL_STATUS -ne 0 ]; then
     cat <<EOF
 
@@ -184,3 +186,4 @@ else
 	./post-install.sh
     fi
 fi
+

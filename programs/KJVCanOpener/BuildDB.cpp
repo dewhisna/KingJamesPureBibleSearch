@@ -41,6 +41,9 @@
 #include <QStringList>
 #include <QByteArray>
 
+QSqlDatabase g_sqldbBuildMain = QSqlDatabase::addDatabase("QSQLITE", "MainBuildConnection");
+QSqlDatabase g_sqldbBuildUser = QSqlDatabase::addDatabase("QSQLITE", "UserBuildConnection");
+
 namespace {
 	const char *g_constrBuildDatabase = "Building Database";
 
@@ -808,7 +811,7 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 
 bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 {
-	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase = g_sqldbBuildMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 //	QMessageBox::information(m_pParent, g_constrBuildDatabase, m_myDatabase.databaseName());
@@ -836,7 +839,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 
 bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename)
 {
-	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase = g_sqldbBuildUser;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 	if (!m_myDatabase.open()) {

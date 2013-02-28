@@ -48,6 +48,9 @@
 #include <QTextStream>
 #endif
 
+QSqlDatabase g_sqldbReadMain = QSqlDatabase::addDatabase("QSQLITE", "MainReadConnection");
+QSqlDatabase g_sqldbReadUser = QSqlDatabase::addDatabase("QSQLITE", "UserReadConnection");
+
 namespace {
 	const char *g_constrReadDatabase = "Reading Database";
 }		// Namespace
@@ -580,7 +583,7 @@ bool CReadDatabase::ValidateData()
 
 bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 {
-	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase = g_sqldbReadMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
@@ -604,12 +607,14 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 
 	m_myDatabase.close();
 
+	m_myDatabase = QSqlDatabase();
+
 	return bSuccess;
 }
 
 bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
 {
-	m_myDatabase = QSqlDatabase::addDatabase("QSQLITE");
+	m_myDatabase = g_sqldbReadUser;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
@@ -627,6 +632,8 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename)
 	}
 
 	m_myDatabase.close();
+
+	m_myDatabase = QSqlDatabase();
 
 	return bSuccess;
 }
