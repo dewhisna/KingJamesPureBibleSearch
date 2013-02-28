@@ -1,0 +1,6 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+
+binary:
+        @echo "We're just packing binary files"
+

@@ -1,0 +1,15 @@
+<!-- XML file to define special file perms for kjvpurebiblesearch to build under makelsbpkg -->
+<files>
+   <defdirs>
+       <mode></mode>
+       <user>root</user>
+       <group>root</group>
+   </defdirs>
+   <deffiles>
+       <mode></mode>
+       <user>root</user>
+       <group>root</group>
+   </deffiles>
+</files>
+
+

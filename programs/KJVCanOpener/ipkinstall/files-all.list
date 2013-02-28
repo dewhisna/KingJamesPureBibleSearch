@@ -1,0 +1,56 @@
+# IPK file list for KJVCanOpener
+
+> $APP
+kjvpurebiblesearch.desktop
+> $APP/../mime/packages
+kjvpurebiblesearch.xml
+> $INST/KJVCanOpener/app
+../KJVCanOpener-build-Desktop_Qt_4_8_4_lsb/Release/KJVCanOpener
+> $INST/KJVCanOpener/doc
+doc/KingJamesPureBibleSearch.pdf
+kjvdatagen/kjv_summary.xls
+articles/kjv_stats.xls
+> $INST/KJVCanOpener/examples
+examples/example01.kjs
+examples/example02.kjs
+examples/example03.kjs
+examples/example04.kjs
+examples/example05.kjs
+examples/example06.kjs
+examples/example07.kjs
+examples/example08.kjs
+examples/example09.kjs
+examples/example10.kjs
+examples/example11.kjs
+examples/example12.kjs
+examples/example13.kjs
+examples/example14.kjs
+> $INST/KJVCanOpener/db
+db/kjvtext.s3db
+db/kjvuser.s3db
+> $INST/KJVCanOpener/license
+gpl-3.0.txt
+> $INST/KJVCanOpener/fonts
+fonts/SCRIPTBL.TTF
+fonts/DejaVuSansCondensed-Oblique.ttf
+fonts/DejaVuSansCondensed.ttf
+fonts/DejaVuSans-ExtraLight.ttf
+fonts/DejaVuSansMono-Oblique.ttf
+fonts/DejaVuSansMono.ttf
+fonts/DejaVuSans-Oblique.ttf
+fonts/DejaVuSans.ttf
+> $ICON-16
+res/bible_16.png KJVPureBibleSearch.png
+> $ICON-32/../../24x24/apps
+res/bible_24.png KJVPureBibleSearch.png
+> $ICON-32
+res/bible_32.png KJVPureBibleSearch.png
+> $ICON-32/../../48x48/apps
+res/bible_48.png KJVPureBibleSearch.png
+> $ICON-64
+res/bible_64.png KJVPureBibleSearch.png
+> $ICON-128
+res/bible_128.png KJVPureBibleSearch.png
+> $ICON-32/../../256x256/apps
+res/bible_256.png KJVPureBibleSearch.png
+

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.dewtronics.kjvcanopener.kjsfile">
+         <sub-class-of type="text/plain" />
+         <comment xml:lang="en">King James Search File</comment>
+         <glob pattern="*.kjs"/>
+  </mime-type>
+</mime-info>
+

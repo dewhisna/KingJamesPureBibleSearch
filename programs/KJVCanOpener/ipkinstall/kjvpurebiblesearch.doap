@@ -1,0 +1,41 @@
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:admin="http://webns.net/mvcb/">
+ <name>KingJamesPureBibleSearch</name>
+ <shortname>KJVPureBibleSearch</shortname>
+ <shortdesc>GUI Application to Search and Count the Pure King James Bible</shortdesc>
+ <description>Study and analyze the Fingerprint of God in the mathematical structure, known as the King James Code, of the King James text of the Holy Bible. Allows instant real-time searches, with an autocompleter droplist to assist with words which come next.  Jump to specific words, verses, or chapters by number, and see all possible count statistics of phrases within the text.
+</description>
+ <homepage rdf:resource="http://www.dewtronics.com/KingJamesPureBibleSearch/" />
+ <download-page rdf:resource="http://www.dewtronics.com/KingJamesPureBibleSearch/" />
+ <category rdf:resource="Education" />
+ <os>Windows</os>
+ <os>Linux</os>
+ <os>Mac</os>
+ <os>Android</os>
+ <programming-language>C++</programming-language>
+ <license>GNU GPL 3.0</license>
+ <maintainer>
+  <foaf:Person>
+     <foaf:name>Donna Whisnant</foaf:name>
+     <foaf:homepage rdf:resource="http://www.dewtronics.com/"/>
+     <foaf:mbox_sha1sum>5a51310326723af7cce3e29c882d4519abb5ee3c</foaf:mbox_sha1sum>
+  </foaf:Person>
+ </maintainer>
+ <developer>
+  <foaf:Person>
+     <foaf:name>Donna Whisnant</foaf:name>
+     <foaf:homepage rdf:resource="http://www.dewtronics.com/"/>
+     <foaf:mbox_sha1sum>5a51310326723af7cce3e29c882d4519abb5ee3c</foaf:mbox_sha1sum>
+  </foaf:Person>
+ </developer>
+
+ <!-- the first release of FooBar -->
+ <release>
+  <Version>
+   <name>stable</name>
+   <created>2013-02-04</created>
+   <revision>1.0.0</revision>
+  </Version>
+ </release>
+
+</Project>
+

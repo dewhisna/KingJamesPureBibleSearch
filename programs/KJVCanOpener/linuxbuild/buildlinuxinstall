@@ -1,0 +1,140 @@
+#!/usr/bin/make -sf
+# -*- mode: makefile; coding: utf-8 -*-
+
+#****************************************************************************
+#**
+#** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+#** Contact: http://www.dewtronics.com/
+#**
+#** This file is part of the KJVCanOpener Application as originally written
+#** and developed for Bethel Church, Festus, MO.
+#**
+#** GNU General Public License Usage
+#** This file may be used under the terms of the GNU General Public License
+#** version 3.0 as published by the Free Software Foundation and appearing
+#** in the file gpl-3.0.txt included in the packaging of this file. Please
+#** review the following information to ensure the GNU General Public License
+#** version 3.0 requirements will be met:
+#** http://www.gnu.org/copyleft/gpl.html.
+#**
+#** Other Usage
+#** Alternatively, this file may be used in accordance with the terms and
+#** conditions contained in a signed written agreement between you and
+#** Dewtronics.
+#**
+#****************************************************************************
+
+#
+# buildlinuxinstall
+#
+# This make file works in conjunction with makeself.sh (www.megastep.org)
+#	and makelsbpkg to make a LSB compliant RPM and wrap it in a
+#	self-extracting installer for KJVPureBibleSearch for Linux.
+#
+
+.PHONY: makeit clean
+
+uid := $(shell id -u)
+
+
+# Package Name:
+PACKAGE		= kjvpurebiblesearch
+
+# Source Base relative to this script:
+BASE		= ..
+
+# Shadow Build to use (relative to base):
+SHADOW		= ../KJVCanOpener-build-Desktop_Qt_4_8_4_lsb/Release
+
+# RPMROOT -- base folder of temporary RPM image during build (is deleted/recreated by this makefile!)
+RPMROOT		= _rpmroot
+RPMPKGROOT	= $(RPMROOT)/$(PACKAGE)
+
+RPMFILES	= rpmfiles
+
+# deployroot -- base folder of temporary files during makeself build (is deleted/recreated by this makefile!)
+DEPLOYROOT	= kjvpbs_deploy
+
+DEPLOYFILES	= deployfiles
+
+# Install path:
+INST		= opt/$(PACKAGE)
+
+# /usr/share paths as per http://www.freedesktop.org spec
+USRSHARE	= usr/share
+APP		= $(USRSHARE)/applications
+MIME		= $(USRSHARE)/mime
+MIMEPACKAGES	= $(MIME)/packages
+ICONS		= $(USRSHARE)/icons/hicolor
+
+
+makeit: clean
+	-mkdir --mode=755 $(RPMROOT) 2>/dev/null
+	-mkdir --mode=755 $(RPMPKGROOT) 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(USRSHARE) 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(APP) 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(MIME) 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(MIMEPACKAGES) 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/16x16/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/24x24/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/32x32/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/48x48/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/64x64/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/128x128/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(ICONS)/256x256/apps 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/app 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/db 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/license 2>/dev/null
+	cp $(BASE)/kjvpurebiblesearch.desktop $(RPMPKGROOT)/$(APP)/
+	cp $(BASE)/kjvpurebiblesearch.xml $(RPMPKGROOT)/$(MIMEPACKAGES)/
+	cp $(BASE)/$(SHADOW)/KJVCanOpener $(RPMPKGROOT)/$(INST)/KJVCanOpener/app/
+	cp $(BASE)/doc/KingJamesPureBibleSearch.pdf $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
+	cp $(BASE)/kjvdatagen/kjv_summary.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
+	cp $(BASE)/articles/kjv_stats.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
+	cp $(BASE)/examples/*.kjs $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples/
+	cp $(BASE)/db/kjvtext.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+	cp $(BASE)/db/kjvuser.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+	cp $(BASE)/gpl-3.0.txt $(RPMPKGROOT)/$(INST)/KJVCanOpener/license/
+	cp $(BASE)/fonts/SCRIPTBL.TTF $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansCondensed-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansCondensed.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSans-ExtraLight.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSans-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSans.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/res/bible_16.png $(RPMPKGROOT)/$(ICONS)/16x16/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_24.png $(RPMPKGROOT)/$(ICONS)/24x24/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_32.png $(RPMPKGROOT)/$(ICONS)/32x32/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_48.png $(RPMPKGROOT)/$(ICONS)/48x48/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_64.png $(RPMPKGROOT)/$(ICONS)/64x64/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_128.png $(RPMPKGROOT)/$(ICONS)/128x128/apps/KJVPureBibleSearch.png
+	cp $(BASE)/res/bible_256.png $(RPMPKGROOT)/$(ICONS)/256x256/apps/KJVPureBibleSearch.png
+	chmod -R --preserve-root g-w $(RPMPKGROOT)
+# Don't need this since _perms file in rpm build will do it for us:
+#	sudo /bin/sh -c "chown -R --preserve-root root:root $(RPMPKGROOT)"
+	makelsbpkg --tagfile $(RPMFILES)/KJVCanOpener_tags.xml --permsfile $(RPMFILES)/KJVCanOpener_perms.xml $(PACKAGE) $(RPMPKGROOT)
+# Can't sign v3 rpm with v4 RPM.  doh!
+#	rpmsign --addsign $(PACKAGE)*.rpm
+	-mkdir --mode=755 $(DEPLOYROOT) 2>/dev/null
+	mv $(PACKAGE)*.rpm $(DEPLOYROOT)
+	cp $(DEPLOYFILES)/* $(DEPLOYROOT)
+	echo -n PACKAGES=\" >$(DEPLOYROOT)/inst-config
+	for files in `basename $(DEPLOYROOT)/$(PACKAGE)*rpm`; do echo "$$files \\" >>$(DEPLOYROOT)/inst-config; done
+	echo \" >>$(DEPLOYROOT)/inst-config
+	makeself.sh $(DEPLOYROOT) `basename $(DEPLOYROOT)/$(PACKAGE)*rpm .rpm`.run 'King James Pure Bible Search Package' ./install.sh
+	cp $(PACKAGE)*.run $(BASE)/Output/
+
+clean:
+# Don't need to be sudo since we are not longer changing owner:
+#	-sudo /bin/sh -c "rm -f -r $(RPMROOT)"
+	-rm -f -r $(RPMROOT)
+	-rm -f $(PACKAGE)*.rpm
+	-rm -f -r $(DEPLOYROOT)
+	-rm -f $(PACKAGE)*.run
+
+
+
