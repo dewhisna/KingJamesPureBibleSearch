@@ -167,8 +167,7 @@ namespace {
 	// Key constants:
 	// --------------
 	const QString constrMainAppControlGroup("MainApp/Controls");
-	const QString constrFontNameKey("FontName");
-	const QString constrFontSizeKey("FontSize");
+	const QString constrStyleSheetKey("StyleSheet");
 
 }	// namespace
 
@@ -315,33 +314,29 @@ int main(int argc, char *argv[])
 	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
 
-	// Setup our default font for our controls:
+	// Setup our default styleSheet for our controls:
 
 #ifdef Q_WS_WIN
-	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
+	QString strAppControlsStyle ="QWidget { font-family:\"MS Shell Dlg 2\", sans; font-size:8pt; }";
 #else
-	QFont fntAppControls = QFont("DejaVu Sans", 8);
+	QString strAppControlsStyle ="QWidget { font-family:\"DejaVu Sans\", sans; font-size:8pt; }";
 #endif
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
 	settings.beginGroup(constrMainAppControlGroup);
-	QString strFontName = settings.value(constrFontNameKey, fntAppControls.family()).toString();
-	int nFontSize = settings.value(constrFontSizeKey, fntAppControls.pointSize()).toInt();
+	strAppControlsStyle = settings.value(constrStyleSheetKey, strAppControlsStyle).toString();
 	settings.endGroup();
 
-	if ((!strFontName.isEmpty()) && (nFontSize>0)) {
-		fntAppControls.setFamily(strFontName);
-		fntAppControls.setPointSize(nFontSize);
-	}
+	// The styleSheet() will be empty unless user specified styleSheet on the command-line
+	//	(as per Qt docs).  This allows them to still override our setting:
+	if ((app.styleSheet().isEmpty()) &&
+		(!strAppControlsStyle.isEmpty()))
+		app.setStyleSheet(strAppControlsStyle);
 
-	app.setFont(fntAppControls);
-
-	// Update settings for next time.  Use application font instead of
-	//		our variables in case Qt substituted for another available font:
+	// Update settings for next time:
 	settings.beginGroup(constrMainAppControlGroup);
-	settings.setValue(constrFontNameKey, app.font().family());
-	settings.setValue(constrFontSizeKey, app.font().pointSize());
+	settings.setValue(constrStyleSheetKey, strAppControlsStyle);
 	settings.endGroup();
 
 
