@@ -149,6 +149,8 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
+	U::setToolTip(QString("Press %1 to see Passage Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
+
 	m_pStatusAction = new QAction(this);
 }
 

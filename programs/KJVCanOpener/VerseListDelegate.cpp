@@ -250,7 +250,7 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 //						return true;
 //					}
 
-					QToolTip::showText(event->globalPos(), "Press Ctrl-D to see Phrase Details", view);
+					QToolTip::showText(event->globalPos(), QString("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
 					return true;
 				}
 			} else {

@@ -314,9 +314,6 @@
      <property name="acceptDrops">
       <bool>false</bool>
      </property>
-     <property name="toolTip">
-      <string>Press Ctrl-D to see Passage Details</string>
-     </property>
      <property name="tabChangesFocus">
       <bool>true</bool>
      </property>
