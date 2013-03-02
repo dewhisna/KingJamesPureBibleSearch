@@ -78,7 +78,11 @@ namespace {
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
+#ifndef Q_WS_MAC
 	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
+#else
+	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
+#endif
 
 	// Key constants:
 	// --------------

@@ -70,10 +70,18 @@ namespace {
 
 	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
 
+#ifndef Q_WS_MAC
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
+#else
+	const char *g_constrPluginsPath = "../Frameworks/";
+	const char *g_constrDatabaseFilename = "../Resources/db/kjvtext.s3db";
+	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
+#endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
+
+#ifndef Q_WS_MAC
 
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
 #ifndef Q_WS_WIN
@@ -98,7 +106,34 @@ namespace {
 //	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
 //	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 //	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
-#endif
+#endif	// Q_WS_WIN
+
+#else
+	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
+
+//	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
+//	const char *g_constrDejaVuSans_Bold = "../Resources/fonts/DejaVuSans-Bold.ttf";
+//	const char *g_constrDejaVuSansCondensed_BoldOblique = "../Resources/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansCondensed_Bold = "../Resources/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "../Resources/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "../Resources/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "../Resources/fonts/DejaVuSans-ExtraLight.ttf";
+//	const char *g_constrDejaVuSansMono_BoldOblique = "../Resources/fonts/DejaVuSansMono-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansMono_Bold = "../Resources/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "../Resources/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "../Resources/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "../Resources/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "../Resources/fonts/DejaVuSans.ttf";
+//	const char *g_constrDejaVuSerif_BoldItalic = "../Resources/fonts/DejaVuSerif-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerif_Bold = "../Resources/fonts/DejaVuSerif-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../Resources/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Bold = "../Resources/fonts/DejaVuSerifCondensed-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Italic = "../Resources/fonts/DejaVuSerifCondensed-Italic.ttf";
+//	const char *g_constrDejaVuSerifCondensed = "../Resources/fonts/DejaVuSerifCondensed.ttf";
+//	const char *g_constrDejaVuSerif_Italic = "../Resources/fonts/DejaVuSerif-Italic.ttf";
+//	const char *g_constrDejaVuSerif = "../Resources/fonts/DejaVuSerif.ttf";
+#endif	// Q_WS_MAC
+
 
 	const char *g_constrarrFontFilenames[] = {
 		g_constrScriptBLFontFilename,

@@ -46,6 +46,13 @@ public:
 	{
 		m_lstPhraseTags.append(aTag);
 	}
+	CBasicHighlighter(const CBasicHighlighter &aHighlighter)
+		:	QObject(aHighlighter.parent()),
+			m_lstPhraseTags(aHighlighter.m_lstPhraseTags),
+			m_bEnabled(aHighlighter.m_bEnabled)
+	{
+
+	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const = 0;
 	virtual bool enabled() const { return m_bEnabled; }

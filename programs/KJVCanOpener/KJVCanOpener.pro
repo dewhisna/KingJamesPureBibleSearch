@@ -8,8 +8,12 @@ QT       += core gui sql
 
 CONFIG += rtti
 
-unix:CONFIG += static
-unix:QMAKE_CXXFLAGS += -static
+unix:!macx {
+    CONFIG += static
+    QMAKE_CXXFLAGS += -static
+}
+
+macx:CONFIG += x86 x86_64
 
 #QTPLUGIN += qsqlite
 

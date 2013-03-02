@@ -386,12 +386,12 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	// the whole screen for displaying the tooltip. However when not in
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
-	extern bool qt_mac_app_fullscreen; //qapplication_mac.mm
+//	extern bool qt_mac_app_fullscreen; //qapplication_mac.mm
 	QRect screen;
-	if(qt_mac_app_fullscreen)
+//	if(qt_mac_app_fullscreen)
 		screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
-	else
-		screen = QApplication::desktop()->availableGeometry(getTipScreen(pos, w));
+//	else
+//		screen = QApplication::desktop()->availableGeometry(getTipScreen(pos, w));
 #else
 	QRect screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
 #endif
