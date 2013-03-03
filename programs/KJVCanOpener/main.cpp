@@ -167,7 +167,8 @@ namespace {
 	// Key constants:
 	// --------------
 	const QString constrMainAppControlGroup("MainApp/Controls");
-	const QString constrStyleSheetKey("StyleSheet");
+	const QString constrFontNameKey("FontName");
+	const QString constrFontSizeKey("FontSize");
 
 }	// namespace
 
@@ -177,14 +178,14 @@ namespace {
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
-	QString strKJSFile;
-	bool bBuildDB = false;
-
 	app.setApplicationVersion(VER_QT);
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);
 	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
+
+	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+	QString strKJSFile;
+	bool bBuildDB = false;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
@@ -314,29 +315,50 @@ int main(int argc, char *argv[])
 	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
 
 
-	// Setup our default styleSheet for our controls:
+	// Setup our default font for our controls:
 
 #ifdef Q_WS_WIN
-	QString strAppControlsStyle ="QWidget { font-family:\"MS Shell Dlg 2\", sans; font-size:8pt; }";
+	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
+#elif defined(Q_WS_MAC)
+	QFont fntAppControls = QFont("DejaVu Sans", 10);
 #else
-	QString strAppControlsStyle ="QWidget { font-family:\"DejaVu Sans\", sans; font-size:8pt; }";
+	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
 	settings.beginGroup(constrMainAppControlGroup);
-	strAppControlsStyle = settings.value(constrStyleSheetKey, strAppControlsStyle).toString();
+	QString strFontName = settings.value(constrFontNameKey, fntAppControls.family()).toString();
+	int nFontSize = settings.value(constrFontSizeKey, fntAppControls.pointSize()).toInt();
 	settings.endGroup();
 
-	// The styleSheet() will be empty unless user specified styleSheet on the command-line
-	//	(as per Qt docs).  This allows them to still override our setting:
-	if ((app.styleSheet().isEmpty()) &&
-		(!strAppControlsStyle.isEmpty()))
-		app.setStyleSheet(strAppControlsStyle);
+	if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+		fntAppControls.setFamily(strFontName);
+		fntAppControls.setPointSize(nFontSize);
+	}
 
-	// Update settings for next time:
+	app.setFont(fntAppControls);
+
+	// Set setDesktopSettingsAware here instead of before app being
+	//	created.  Yes, I know that Qt documentation says that this
+	//	must be set before creating your QApplication object.
+	//	However, that will cause all desktop properties to not
+	//	propogate at all.  We actually want them to propogate through,
+	//	but not to reprogate when the screen is toggled.  So,
+	//	calling it here after it's been created propogates them
+	//	the first time, just not if the user (or system) changes
+	//	the properties.  This works around the Qt Mac bug as
+	//	reported at the bottom of this blog:
+	//	http://blog.qt.digia.com/blog/2008/11/16/font-and-palette-propagation-in-qt/
+#ifdef Q_WS_MAC
+	app.setDesktopSettingsAware(false);
+#endif
+
+	// Update settings for next time.  Use application font instead of
+	//		our variables in case Qt substituted for another available font:
 	settings.beginGroup(constrMainAppControlGroup);
-	settings.setValue(constrStyleSheetKey, strAppControlsStyle);
+	settings.setValue(constrFontNameKey, app.font().family());
+	settings.setValue(constrFontSizeKey, app.font().pointSize());
 	settings.endGroup();
 
 

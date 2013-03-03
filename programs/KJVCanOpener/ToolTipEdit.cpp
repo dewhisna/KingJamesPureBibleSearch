@@ -104,7 +104,7 @@ CTipEdit::~CTipEdit()
 
 void CTipEdit::savePersistentSettings()
 {
-	const int nFontSize = font().pointSize();
+	const int nFontSize = fontInfo().pointSize();
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	settings.beginGroup(constrToolTipEditGroup);

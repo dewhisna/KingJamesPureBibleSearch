@@ -662,6 +662,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), "E&xit", this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip("Exit the King James Pure Bible Search Application");
 	pAction->setToolTip("Exit Application");
+	pAction->setMenuRole(QAction::QuitRole);
 
 	ui->mainToolBar->addSeparator();
 
@@ -1957,17 +1958,15 @@ void CKJVCanOpener::on_QuickActivate()
 
 void CKJVCanOpener::on_setBrowserFont()
 {
-	QFontDialog *pfntdlgBrowser = new QFontDialog(CPersistentSettings::instance()->fontBrowser(), this);
-	pfntdlgBrowser->setOption(QFontDialog::DontUseNativeDialog);
-	pfntdlgBrowser->setWindowTitle("Select Scripture Browser Font");
-	pfntdlgBrowser->open(CPersistentSettings::instance(), SLOT(setFontBrowser(const QFont&)));
+	bool bUpdate = false;
+	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontBrowser(), this, "Select Scripture Browser Font");
+	if (bUpdate) CPersistentSettings::instance()->setFontBrowser(fnt);
 }
 
 void CKJVCanOpener::on_setSearchResultsFont()
 {
-	QFontDialog *pfntdlgSearchResults = new QFontDialog(CPersistentSettings::instance()->fontSearchResults(), this);
-	pfntdlgSearchResults->setOption(QFontDialog::DontUseNativeDialog);
-	pfntdlgSearchResults->setWindowTitle("Select Search Results Font");
-	pfntdlgSearchResults->open(CPersistentSettings::instance(), SLOT(setFontSearchResults(const QFont&)));
+	bool bUpdate = false;
+	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontSearchResults(), this, "Select Search Results Font");
+	if (bUpdate) CPersistentSettings::instance()->setFontSearchResults(fnt);
 }
 
