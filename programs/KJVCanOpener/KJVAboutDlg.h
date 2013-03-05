@@ -50,7 +50,6 @@ private:
 // UI Private:
 private:
 	Ui::CKJVAboutDlg *ui;
-	QGraphicsPixmapItem *m_pKJVCan;
 	QGraphicsPixmapItem *m_pBethelChurch;
 	QGraphicsTextItem *m_pAppTitle;
 	QGraphicsTextItem *m_pBroughtToYouBy;

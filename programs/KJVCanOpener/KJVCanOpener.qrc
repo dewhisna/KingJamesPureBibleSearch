@@ -1,12 +1,14 @@
 <RCC>
     <qresource prefix="/">
+        <file>res/KJPBS_SplashScreen800x500.png</file>
+        <file>res/KJPBS_MiniSplash-130304-054424.png</file>
         <file>res/can-of-KJV.png</file>
-		<file>res/church02-e.jpg</file>
+        <file>res/church02-e.jpg</file>
         <file>res/addPhrase.png</file>
-		<file>res/delPhrase.png</file>
+        <file>res/delPhrase.png</file>
         <file>res/Close.png</file>
         <file>res/bible.ico</file>
-		<file>res/bible.icns</file>
+        <file>res/bible.icns</file>
         <file>res/list_add.png</file>
         <file>res/droplist.png</file>
         <file>res/go_jump.png</file>
@@ -23,16 +25,16 @@
         <file>res/Nav3_Arrow_Right.png</file>
         <file>res/Nav3_Arrow_Down.png</file>
         <file>res/Nav3_Arrow_Up.png</file>
-		<file>res/edit_clear.png</file>
-		<file>res/go_home.png</file>
-		<file>res/green_arrow.png</file>
-		<file>res/green_info.png</file>
-		<file>res/green_about_question.png</file>
-		<file>res/help_icon1.png</file>
-		<file>res/help_book.png</file>
-		<file>res/file-new-icon2.png</file>
-		<file>res/save-file-icon3.png</file>
-		<file>res/open-file-icon3.png</file>
-		<file>res/exit.png</file>
+        <file>res/edit_clear.png</file>
+        <file>res/go_home.png</file>
+        <file>res/green_arrow.png</file>
+        <file>res/green_info.png</file>
+        <file>res/green_about_question.png</file>
+        <file>res/help_icon1.png</file>
+        <file>res/help_book.png</file>
+        <file>res/file-new-icon2.png</file>
+        <file>res/save-file-icon3.png</file>
+        <file>res/open-file-icon3.png</file>
+        <file>res/exit.png</file>
     </qresource>
 </RCC>
