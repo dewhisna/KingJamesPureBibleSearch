@@ -14,10 +14,11 @@ unix:!macx {
 }
 
 macx:CONFIG += x86 x86_64
+macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
 
 #QTPLUGIN += qsqlite
 
-TARGET = KJVCanOpener
+TARGET = KingJamesPureBibleSearch
 TEMPLATE = app
 
 RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
