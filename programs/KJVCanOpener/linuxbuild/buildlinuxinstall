@@ -99,13 +99,27 @@ makeit: clean
 	cp $(BASE)/db/kjvuser.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/gpl-3.0.txt $(RPMPKGROOT)/$(INST)/KJVCanOpener/license/
 	cp $(BASE)/fonts/SCRIPTBL.TTF $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansCondensed-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansCondensed-BoldOblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSansCondensed-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSansCondensed.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSans-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSans-BoldOblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSans-ExtraLight.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
-	cp $(BASE)/fonts/DejaVuSansMono-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
-	cp $(BASE)/fonts/DejaVuSansMono.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSans-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSans.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono-BoldOblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono-Oblique.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSansMono.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerif-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerif-BoldItalic.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerif-Italic.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerif.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerifCondensed-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerifCondensed-BoldItalic.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerifCondensed-Italic.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
+	cp $(BASE)/fonts/DejaVuSerifCondensed.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/res/bible_16.png $(RPMPKGROOT)/$(ICONS)/16x16/apps/KJVPureBibleSearch.png
 	cp $(BASE)/res/bible_24.png $(RPMPKGROOT)/$(ICONS)/24x24/apps/KJVPureBibleSearch.png
 	cp $(BASE)/res/bible_32.png $(RPMPKGROOT)/$(ICONS)/32x32/apps/KJVPureBibleSearch.png
