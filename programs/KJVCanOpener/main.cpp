@@ -49,7 +49,7 @@
 
 #include <assert.h>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 // Needed to call CreateMutex to lockout installer running while we are:
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -70,7 +70,7 @@ namespace {
 
 	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
@@ -81,10 +81,8 @@ namespace {
 #endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
-#ifndef Q_WS_MAC
-
+#ifndef Q_OS_MAC
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
-#ifndef Q_WS_WIN
 	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
 	const char *g_constrDejaVuSansCondensed_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
@@ -106,11 +104,8 @@ namespace {
 	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
 	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
-#endif	// Q_WS_WIN
-
 #else
 	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
-
 	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../Resources/fonts/DejaVuSans-Bold.ttf";
 	const char *g_constrDejaVuSansCondensed_BoldOblique = "../Resources/fonts/DejaVuSansCondensed-BoldOblique.ttf";
@@ -132,12 +127,11 @@ namespace {
 	const char *g_constrDejaVuSerifCondensed = "../Resources/fonts/DejaVuSerifCondensed.ttf";
 	const char *g_constrDejaVuSerif_Italic = "../Resources/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "../Resources/fonts/DejaVuSerif.ttf";
-#endif	// Q_WS_MAC
+#endif	// Q_OS_MAC
 
 
 	const char *g_constrarrFontFilenames[] = {
 		g_constrScriptBLFontFilename,
-#ifndef Q_WS_WIN
 		g_constrDejaVuSans_BoldOblique,
 		g_constrDejaVuSans_Bold,
 		g_constrDejaVuSansCondensed_BoldOblique,
@@ -159,7 +153,6 @@ namespace {
 		g_constrDejaVuSerifCondensed,
 		g_constrDejaVuSerif_Italic,
 		g_constrDejaVuSerif,
-#endif
 		NULL
 	};
 
@@ -195,7 +188,7 @@ int main(int argc, char *argv[])
 	splash->showMessage("<html><body><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><div align=\"center\"><font size=+1 color=#FFFFFF><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Wait...</b></font></div></body></html>", Qt::AlignBottom | Qt::AlignLeft);
 	qApp->processEvents();
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
 	assert(hMutex != NULL);
 	// Note: System will automatically close the mutex object when we

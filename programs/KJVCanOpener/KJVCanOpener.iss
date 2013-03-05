@@ -27,7 +27,7 @@
 AppName=King James Pure Bible Search
 AppId=KJVPureBibleSearch
 AppMutex=KJVCanOpenerMutex
-#expr VersionInstaller("..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KJVCanOpener.exe")
+#expr VersionInstaller("..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KingJamesPureBibleSearch.exe")
 AppCopyright=Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
 AppPublisher=Dewtronics/Bethel Church
 AppPublisherURL=http://www.dewtronics.com/
@@ -49,7 +49,7 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 
 [Files]
 ; app
-Source: "..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KJVCanOpener.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 Source: {#GetEnv('QTDIR')}\bin\QtCore4.dll; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 Source: {#GetEnv('QTDIR')}\bin\QtGui4.dll; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 Source: {#GetEnv('QTDIR')}\bin\QtSql4.dll; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
@@ -96,25 +96,45 @@ Source: "db\kjvuser.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: onlyifdoesnt
 ; license
 Source: "gpl-3.0.txt"; DestDir: "{app}\KJVCanOpener\license"; Flags: ignoreversion;
 
-; {fonts}
-Source: "fonts/SCRIPTBL.TTF"; DestDir: "{fonts}"; FontInstall: "Script MT Bold"; Flags: onlyifdoesntexist uninsneveruninstall;
-
+; fonts
+Source: "fonts\SCRIPTBL.TTF"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSans-Bold.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSans-BoldOblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSans-ExtraLight.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSans-Oblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSans.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansCondensed-Bold.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansCondensed-BoldOblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansCondensed-Oblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansCondensed.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansMono-Bold.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansMono-BoldOblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansMono-Oblique.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSansMono.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerif-Bold.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerif-BoldItalic.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerif-Italic.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerif.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerifCondensed-Bold.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerifCondensed-BoldItalic.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerifCondensed-Italic.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
+Source: "fonts\DejaVuSerifCondensed.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; Flags: ignoreversion;
 
 [Registry]
 Root: HKCR; Subkey: ".kjs"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletevalue;
 Root: HKCR; Subkey: "KJVCanOpener"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletekey;
-Root: HKCR; Subkey: "KJVCanOpener\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\KJVCanOpener\app\KJVCanOpener.exe,0";
-Root: HKCR; Subkey: "KJVCanOpener\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\KJVCanOpener\app\KJVCanOpener.exe"" ""%1""";
+Root: HKCR; Subkey: "KJVCanOpener\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe,0";
+Root: HKCR; Subkey: "KJVCanOpener\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe"" ""%1""";
 
 [Icons]
-Name: "{group}\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KJVCanOpener.exe";
+Name: "{group}\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe";
 Name: "{group}\{cm:UninstallProgram,{#SetupSetting("AppName")}}"; Filename: "{uninstallexe}";
 Name: "{group}\King James Pure Bible Search User Manual"; Filename: "{app}\KJVCanOpener\doc\KingJamesPureBibleSearch.pdf";
 Name: "{group}\King James Statistics"; Filename: "{app}\KJVCanOpener\doc\kjv_stats.xls";
 Name: "{group}\King James Word Summary"; Filename: "{app}\KJVCanOpener\doc\kjv_summary.xls";
-Name: "{commondesktop}\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KJVCanOpener.exe"; Tasks: desktopicon;
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KJVCanOpener.exe"; Tasks: quicklaunchicon;
+Name: "{commondesktop}\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe"; Tasks: desktopicon;
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe"; Tasks: quicklaunchicon;
 
 [Run]
-Filename: {app}\KJVCanOpener\app\KJVCanOpener.exe; Description: {cm:LaunchProgram,{#SetupSetting("AppName")}}; Flags: nowait postinstall skipifsilent
+Filename: {app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe; Description: {cm:LaunchProgram,{#SetupSetting("AppName")}}; Flags: nowait postinstall skipifsilent
 
