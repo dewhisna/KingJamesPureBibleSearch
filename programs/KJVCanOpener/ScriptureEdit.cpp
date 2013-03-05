@@ -271,7 +271,9 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			if (ev->type() == QEvent::KeyPress) {
 				QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
 				if (keyEvent->modifiers() & Qt::ControlModifier) {
-					if (keyEvent->key() == Qt::Key_Plus) {
+					if ((keyEvent->key() == Qt::Key_Plus) ||	// This one handles the on the keypad
+						((keyEvent->modifiers() & Qt::ShiftModifier) &&
+						 (keyEvent->key() == Qt::Key_Equal))) {	// On the main keyboard, Ctrl-+ is on the Equal Key with a Shift (Ctrl-Shift-+)
 						U::zoomIn();
 						ev->accept();
 						return true;

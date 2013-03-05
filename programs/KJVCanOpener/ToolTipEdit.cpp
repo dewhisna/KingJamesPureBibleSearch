@@ -280,12 +280,29 @@ bool CTipEdit::eventFilter(QObject *o, QEvent *e)
 	switch (e->type()) {
 		case QEvent::KeyPress:
 		{
-			int key = static_cast<QKeyEvent *>(e)->key();
+			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+			int key = keyEvent->key();
 			if ((!m_bDoingContextMenu) &&
 				((key == Qt::Key_Escape) ||
 				 (key == Qt::Key_Enter))) {
 				hideTipImmediately();
 				return true;
+			}
+
+			if (keyEvent->modifiers() & Qt::ControlModifier) {
+				if ((key == Qt::Key_Plus) ||	// This one handles the on the keypad
+					((keyEvent->modifiers() & Qt::ShiftModifier) &&
+					 (key == Qt::Key_Equal))) {	// On the main keyboard, Ctrl-+ is on the Equal Key with a Shift (Ctrl-Shift-+)
+					zoomIn();
+					adjustToolTipSize();
+					e->accept();
+					return true;
+				} else if (key == Qt::Key_Minus) {
+					zoomOut();
+					adjustToolTipSize();
+					e->accept();
+					return true;
+				}
 			}
 			break;
 		}
@@ -323,25 +340,6 @@ bool CTipEdit::event(QEvent *e)
 			hideTimer.stop();
 			expireTimer.stop();
 			break;
-
-		case QEvent::KeyPress:
-		{
-			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
-			if (keyEvent->modifiers() & Qt::ControlModifier) {
-				if (keyEvent->key() == Qt::Key_Plus) {
-					zoomIn();
-					adjustToolTipSize();
-					e->accept();
-					return true;
-				} else if (keyEvent->key() == Qt::Key_Minus) {
-					zoomOut();
-					adjustToolTipSize();
-					e->accept();
-					return true;
-				}
-			}
-			break;
-		}
 
 		default:
 			break;
