@@ -47,6 +47,10 @@ PrivilegesRequired=admin
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription: {cm:AdditionalIcons};
 
+[InstallDelete]
+; Remove Old Named Program:
+Type: files; Name: "{app}\KJVCanOpener\app\KJVCanOpener.exe";
+
 [Files]
 ; app
 Source: "..\KJVCanOpener-build-desktop-Qt_4_8_3\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
@@ -132,6 +136,7 @@ Name: "{group}\{cm:UninstallProgram,{#SetupSetting("AppName")}}"; Filename: "{un
 Name: "{group}\King James Pure Bible Search User Manual"; Filename: "{app}\KJVCanOpener\doc\KingJamesPureBibleSearch.pdf";
 Name: "{group}\King James Statistics"; Filename: "{app}\KJVCanOpener\doc\kjv_stats.xls";
 Name: "{group}\King James Word Summary"; Filename: "{app}\KJVCanOpener\doc\kjv_summary.xls";
+Name: "{group}\Search Examples"; Filename: "{app}\KJVCanOpener\examples";
 Name: "{commondesktop}\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe"; Tasks: desktopicon;
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#SetupSetting("AppName")}"; Filename: "{app}\KJVCanOpener\app\KingJamesPureBibleSearch.exe"; Tasks: quicklaunchicon;
 
