@@ -1,0 +1,33 @@
+King James Pure Bible Search
+Change Notes
+1.0 to 1.1
+----------------------------
+- Fixed the Ctrl-Plus and Ctrl-Minus shortcut keys for zooming Scripture
+	Browser and Details Popup
+- Set the Detail Popup to remember its font size when the user Zooms it
+	with Ctrl-Plus and/or Ctrl-Minus (or Control-MouseWheel) so that
+	it stays set on future popups.
+- Changed "Copy as Verses" to work with the current Scripture Browser
+	cursor position when there is no selection.
+- Moved the User Database (kjvuser.s3db) to the User's Application Data
+	folder so that it can be updated and maintained consistently on all
+	three platforms.  Changed the copy of kjvuser.s3db that ships with
+	KJPBS to only be a template for building the initial User Database in
+	their home folder.
+- Complete Native Builds and Installers for Linux and Mac!
+- Updated Documentation, porting to LibreOffice and dropped MS Office use
+- New graphics and splash screen (Thanks Laura!)
+- Shipping DejaVu fonts and using programmatic font loading on all
+	platforms so the look-and-feel is consistent on all three.
+- No longer registering shipped fonts with the Window System.  They
+	are now loaded programmatically only.
+- Added saving of the application window-control font to preserve
+	look-and-feel when relaunching the app.
+- Changed the command-line arguments flag from / to - due to our new
+	Linux and Mac platforms.
+- Fixed a bug in the Font dialogs that could cause it to hang on some
+	platforms and switched to native font dialogs.  Qt seems to still have
+	a bug where the Normal/Book/Regular font style doesn't properly select
+- Fixed database memory leak issue with the query object.  It was minor
+	since the database is only used at startup.
+
