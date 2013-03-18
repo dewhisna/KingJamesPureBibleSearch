@@ -46,7 +46,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 
 	QGraphicsScene *scene = new QGraphicsScene(this);
 
-	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg"));
+	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
 	m_pAppTitle = scene->addText("King James Pure Bible Search - Version: " + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBroughtToYouBy = scene->addText("Brought to you by the fervent prayers of Bethel Church; Festus, MO", QFont("Script MT Bold", 12));

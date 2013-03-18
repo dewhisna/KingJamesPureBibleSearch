@@ -38,6 +38,7 @@
 #include <QDesktopServices>
 #include <QDir>
 
+#include "main.h"
 #include "KJVCanOpener.h"
 
 #include "version.h"
@@ -167,10 +168,20 @@ namespace {
 
 // ============================================================================
 
+bool CMyApplication::event(QEvent *event) {
+	if (event->type() == QEvent::FileOpen) {
+		m_strFileToLoad = static_cast<QFileOpenEvent *>(event)->file();
+		emit loadFile(m_strFileToLoad);
+		return true;
+	}
+	return QApplication::event(event);
+}
+
+// ============================================================================
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+	CMyApplication app(argc, argv);
 	app.setApplicationVersion(VER_QT);
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);
@@ -231,6 +242,8 @@ int main(int argc, char *argv[])
 //CBuildDatabase adb(splash);
 //adb.BuildDatabase(fiDatabase.absoluteFilePath());
 //return 0;
+
+	if (strKJSFile.isEmpty() && !app.fileToLoad().isEmpty()) strKJSFile = app.fileToLoad();
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
@@ -358,6 +371,7 @@ int main(int argc, char *argv[])
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener wMain(strUserDatabaseFilename);
+	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
 	g_pMainWindow = &wMain;
 	wMain.setWindowIcon(QIcon(":/res/bible.ico"));
 	wMain.show();

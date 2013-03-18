@@ -23,7 +23,7 @@ TEMPLATE = app
 
 RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 
-SOURCES += main.cpp\
+SOURCES += main.cpp \
 	KJVCanOpener.cpp \
 	CSV.cpp \
 	dbstruct.cpp \
@@ -50,7 +50,8 @@ SOURCES += main.cpp\
 	QtFindReplaceDialog/dialogs/findform.cpp \
 	QtFindReplaceDialog/dialogs/finddialog.cpp
 
-HEADERS  += KJVCanOpener.h \
+HEADERS  += main.h \
+	KJVCanOpener.h \
 	CSV.h \
 	dbstruct.h \
 	ReadDB.h \
@@ -93,4 +94,8 @@ RESOURCES += \
 
 # ICON for Mac OSX:
 ICON = res/bible.icns
+
+# Info.plist for Mac OSX:
+# This is broken in qmake.  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
+#QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
 
