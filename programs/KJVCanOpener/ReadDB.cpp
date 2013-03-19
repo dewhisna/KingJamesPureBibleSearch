@@ -48,12 +48,26 @@
 #include <QTextStream>
 #endif
 
-QSqlDatabase g_sqldbReadMain = QSqlDatabase::addDatabase("QSQLITE", "MainReadConnection");
-QSqlDatabase g_sqldbReadUser = QSqlDatabase::addDatabase("QSQLITE", "UserReadConnection");
+QSqlDatabase g_sqldbReadMain;
+QSqlDatabase g_sqldbReadUser;
 
 namespace {
 	const char *g_constrReadDatabase = "Reading Database";
 }		// Namespace
+
+// ============================================================================
+
+CReadDatabase::CReadDatabase(QWidget *pParent)
+	:	m_pParent(pParent)
+{
+	if (!g_sqldbReadMain.contains("MainReadConnection")) {
+		g_sqldbReadMain = QSqlDatabase::addDatabase("QSQLITE", "MainReadConnection");
+	}
+
+	if (!g_sqldbReadUser.contains("UserReadConnection")) {
+		g_sqldbReadUser = QSqlDatabase::addDatabase("QSQLITE", "UserReadConnection");
+	}
+}
 
 // ============================================================================
 

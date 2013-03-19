@@ -33,9 +33,7 @@
 class CReadDatabase
 {
 public:
-	CReadDatabase(QWidget *pParent = NULL)
-		:	m_pParent(pParent)
-	{ }
+	CReadDatabase(QWidget *pParent = NULL);
 	~CReadDatabase() { }
 
 	bool ReadDatabase(const QString &strDatabaseFilename);

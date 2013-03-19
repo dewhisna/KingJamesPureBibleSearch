@@ -41,8 +41,8 @@
 #include <QStringList>
 #include <QByteArray>
 
-QSqlDatabase g_sqldbBuildMain = QSqlDatabase::addDatabase("QSQLITE", "MainBuildConnection");
-QSqlDatabase g_sqldbBuildUser = QSqlDatabase::addDatabase("QSQLITE", "UserBuildConnection");
+QSqlDatabase g_sqldbBuildMain;
+QSqlDatabase g_sqldbBuildUser;
 
 namespace {
 	const char *g_constrBuildDatabase = "Building Database";
@@ -124,6 +124,20 @@ namespace {
 			};
 
 }		// Namespace
+
+// ============================================================================
+
+CBuildDatabase::CBuildDatabase(QWidget *pParent)
+	:	m_pParent(pParent)
+{
+	if (!g_sqldbBuildMain.contains("MainBuildConnection")) {
+		g_sqldbBuildMain = QSqlDatabase::addDatabase("QSQLITE", "MainBuildConnection");
+	}
+
+	if (!g_sqldbBuildUser.contains("UserBuildConnection")) {
+		g_sqldbBuildUser = QSqlDatabase::addDatabase("QSQLITE", "UserBuildConnection");
+	}
+}
 
 // ============================================================================
 

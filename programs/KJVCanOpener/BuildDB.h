@@ -33,9 +33,7 @@
 class CBuildDatabase
 {
 public:
-	CBuildDatabase(QWidget *pParent = NULL)
-		:	m_pParent(pParent)
-	{ }
+	CBuildDatabase(QWidget *pParent = NULL);
 	~CBuildDatabase() { }
 
 	bool BuildDatabase(const QString &strDatabaseFilename);
