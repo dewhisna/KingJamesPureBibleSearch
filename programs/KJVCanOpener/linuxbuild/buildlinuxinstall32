@@ -44,13 +44,13 @@ PACKAGE		= kjvpurebiblesearch
 BASE		= ..
 
 # Shadow Build to use (relative to base):
-SHADOW		= ../KJVCanOpener-build-Desktop_Qt_4_8_4_lsb/Release
+SHADOW		= ../KJVCanOpener-build-Desktop_Qt_4_8_4_32_lsb/Release
 
 # RPMROOT -- base folder of temporary RPM image during build (is deleted/recreated by this makefile!)
 RPMROOT		= _rpmroot
 RPMPKGROOT	= $(RPMROOT)/$(PACKAGE)
 
-RPMFILES	= rpmfiles
+RPMFILES	= rpmfiles32
 
 # deployroot -- base folder of temporary files during makeself build (is deleted/recreated by this makefile!)
 DEPLOYROOT	= kjvpbs_deploy
@@ -90,7 +90,7 @@ makeit: clean
 	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/license 2>/dev/null
 	cp $(BASE)/kjvpurebiblesearch.desktop $(RPMPKGROOT)/$(APP)/
 	cp $(BASE)/kjvpurebiblesearch.xml $(RPMPKGROOT)/$(MIMEPACKAGES)/
-	cp $(BASE)/$(SHADOW)/KJVCanOpener $(RPMPKGROOT)/$(INST)/KJVCanOpener/app/
+	cp $(BASE)/$(SHADOW)/KingJamesPureBibleSearch $(RPMPKGROOT)/$(INST)/KJVCanOpener/app/
 	cp $(BASE)/doc/KingJamesPureBibleSearch.pdf $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
 	cp $(BASE)/kjvdatagen/kjv_summary.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
 	cp $(BASE)/articles/kjv_stats.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
@@ -140,7 +140,7 @@ makeit: clean
 	for files in `basename $(DEPLOYROOT)/$(PACKAGE)*rpm`; do echo "$$files \\" >>$(DEPLOYROOT)/inst-config; done
 	echo \" >>$(DEPLOYROOT)/inst-config
 	makeself.sh $(DEPLOYROOT) `basename $(DEPLOYROOT)/$(PACKAGE)*rpm .rpm`.run 'King James Pure Bible Search Package' ./install.sh
-	cp $(PACKAGE)*.run $(BASE)/Output/
+#	cp $(PACKAGE)*.run $(BASE)/Output/
 
 clean:
 # Don't need to be sudo since we are not longer changing owner:

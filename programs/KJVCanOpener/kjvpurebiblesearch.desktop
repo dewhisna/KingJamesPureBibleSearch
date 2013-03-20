@@ -6,7 +6,7 @@ Name=King James Pure Bible Search
 Comment=Search and Count the Pure King James Bible
 Icon=KJVPureBibleSearch
 Terminal=false
-Exec=/opt/kjvpurebiblesearch/KJVCanOpener/app/KJVCanOpener %f
+Exec=/opt/kjvpurebiblesearch/KJVCanOpener/app/KingJamesPureBibleSearch %f
 Categories=Education;Application;
 MimeType=application/vnd.dewtronics.kjvcanopener.kjsfile;
 

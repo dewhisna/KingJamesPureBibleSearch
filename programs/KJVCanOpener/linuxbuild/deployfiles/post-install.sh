@@ -29,6 +29,6 @@ read answer
 answer=`echo ${answer} | cut -c1`
 echo
 if [ "${answer}" = "y" -o "${answer}" = "Y" ]; then
-    nohup /bin/sh -c /opt/kjvpurebiblesearch/KJVCanOpener/app/KJVCanOpener </dev/null >/dev/null 2>/dev/null &
+    nohup /bin/sh -c /opt/kjvpurebiblesearch/KJVCanOpener/app/KingJamesPureBibleSearch </dev/null >/dev/null 2>/dev/null &
 fi
 
