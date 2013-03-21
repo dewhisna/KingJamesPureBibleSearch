@@ -181,6 +181,8 @@ protected slots:
 	void closeAllSearchPhrases();
 
 	CKJVSearchPhraseEdit *addSearchPhrase();
+	void ensureSearchPhraseVisible(int nIndex);
+	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_changedSearchCriteria();
 	void on_copySearchPhraseSummary();

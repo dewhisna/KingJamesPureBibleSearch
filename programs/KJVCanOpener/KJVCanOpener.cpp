@@ -1282,14 +1282,32 @@ CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
 	ui->scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
-	ui->scrollAreaSearchPhrases->ensureVisible((pPhraseWidget->sizeHint().width()/2),
-												nHeight - (pPhraseWidget->sizeHint().height()/2));
+	ensureSearchPhraseVisible(pPhraseWidget);
 	pPhraseWidget->phraseStatisticsChanged();
 	pPhraseWidget->focusEditor();
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
 	return pPhraseWidget;
+}
+
+void CKJVCanOpener::ensureSearchPhraseVisible(int nIndex)
+{
+	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
+		ensureSearchPhraseVisible(m_lstSearchPhraseEditors.at(nIndex));
+	}
+}
+
+void CKJVCanOpener::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase)
+{
+	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
+	int nHeight = 0;
+	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
+		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
+		if (m_lstSearchPhraseEditors.at(ndx) == pSearchPhrase) break;
+	}
+	ui->scrollAreaSearchPhrases->ensureVisible((pSearchPhrase->sizeHint().width()/2),
+												nHeight - (pSearchPhrase->sizeHint().height()/2));
 }
 
 void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
@@ -1936,6 +1954,7 @@ void CKJVCanOpener::on_QuickActivate()
 				case 8:
 					if ((ndx-1) < m_lstSearchPhraseEditors.size()) {
 						m_lstSearchPhraseEditors.at(ndx-1)->focusEditor();
+						ensureSearchPhraseVisible(m_lstSearchPhraseEditors.at(ndx-1));
 					}
 					break;
 				case 9:
