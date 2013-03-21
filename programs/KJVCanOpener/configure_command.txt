@@ -1,0 +1,40 @@
+Command-Lines for configuring Qt Build for KingJamesPureBibleSearch
+===================================================================
+
+./configure -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-dist
+
+
+LSB x32 (old):
+./configure -platform linux-lsb-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-lsb
+
+
+LSB x32:
+../4.8.4-src-patched/configure -platform linux-lsb-g++-32 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-32-lsb
+
+LSB x64:
+../4.8.4-src-patched/configure -platform linux-lsb-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-64-lsb
+
+
+
+LOCAL BUILD (x64 release):
+../4.8.4-src/configure -platform linux-g++-64 -developer-build -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.4-64-local
+
+
+
+MAC Cocoa:
+../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -arch ppc64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
+
+Cocoa x86/x64 Static:
+../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-run
+
+Cocoa x86/x64 Dynamic:
+../4.8.4-src/configure -platform macx-g++ -opensource -release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
+
+Cocoa x86/x64/PPC (universal):
+../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-univ-run
+
+
+Carbon x86/PPC (universal):
+../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -carbon -universal -arch x86 -arch ppc -prefix /Users/donna/Qt/4.8.4-carbon-static-univ-run
+
+
