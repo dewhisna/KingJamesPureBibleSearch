@@ -373,7 +373,11 @@ int main(int argc, char *argv[])
 	CKJVCanOpener wMain(strUserDatabaseFilename);
 	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
 	g_pMainWindow = &wMain;
+#ifdef Q_WS_WIN
 	wMain.setWindowIcon(QIcon(":/res/bible.ico"));
+#else
+	wMain.setWindowIcon(QIcon(":/res/bible_48.png"));
+#endif
 	wMain.show();
 	splash->finish(&wMain);
 	delete splash;
