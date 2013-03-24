@@ -42,8 +42,9 @@
 class CParsedPhrase
 {
 public:
-	CParsedPhrase(bool bCaseSensitive = false)
-		:	m_nContributingMatchCount(0),
+	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false)
+		:	m_pBibleDatabase(pBibleDatabase),
+			m_nContributingMatchCount(0),
 			m_bIsDuplicate(false),
 			m_bCaseSensitive(bCaseSensitive),
 			m_nLevel(0),
@@ -51,7 +52,7 @@ public:
 			m_nCursorWord(-1),
 			m_nLastMatchWord(-1)
 	{ }
-	~CParsedPhrase()
+	virtual ~CParsedPhrase()
 	{ }
 
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
@@ -98,7 +99,6 @@ public:
 				(phrase().compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
 
-protected:
 	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
@@ -107,6 +107,7 @@ private:
 	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMapping, and m_nLevel
 
 protected:
+	CBibleDatabasePtr m_pBibleDatabase;
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
@@ -166,8 +167,9 @@ class CPhraseNavigator : public QObject
 {
 	Q_OBJECT
 public:
-	CPhraseNavigator(QTextDocument &textDocument, QObject *parent = NULL)
+	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL)
 		:	QObject(parent),
+			m_pBibleDatabase(pBibleDatabase),
 			m_TextDocument(textDocument)
 	{ }
 
@@ -201,6 +203,9 @@ public:
 signals:
 	void changedDocumentText();
 
+protected:
+	CBibleDatabasePtr m_pBibleDatabase;
+
 private:
 	QTextDocument &m_TextDocument;
 };
@@ -211,8 +216,8 @@ class CPhraseEditNavigator : public CPhraseNavigator
 {
 	Q_OBJECT
 public:
-	CPhraseEditNavigator(QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = NULL)
-		:	CPhraseNavigator(*textEditor.document(), parent),
+	CPhraseEditNavigator(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = NULL)
+		:	CPhraseNavigator(pBibleDatabase, *textEditor.document(), parent),
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
@@ -223,6 +228,8 @@ public:
 		TTE_REFERENCE_ONLY = 1,
 		TTE_STATISTICS_ONLY = 2
 	};
+
+	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);

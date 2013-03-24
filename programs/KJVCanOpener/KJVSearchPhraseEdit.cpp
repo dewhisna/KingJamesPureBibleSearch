@@ -42,6 +42,7 @@
 
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	QTextEdit(pParent),
+		m_pParsedPhrase(NULL),
 		m_pCompleter(NULL),
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
@@ -99,7 +100,31 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
-	QStringListModel *pModel = new QStringListModel(g_lstConcordanceWords, this);
+	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
+	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
+	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
+	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
+	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+
+	m_pStatusAction = new QAction(this);
+}
+
+CPhraseLineEdit::~CPhraseLineEdit()
+{
+	if (m_pParsedPhrase != NULL) {
+		delete m_pParsedPhrase;
+		m_pParsedPhrase = NULL;
+	}
+}
+
+void CPhraseLineEdit::initialize(CBibleDatabasePtr pBibleDatabase)
+{
+	assert(m_pParsedPhrase == NULL);			// Initialize must be called only once
+	assert(pBibleDatabase.data() != NULL);
+	m_pParsedPhrase = new CParsedPhrase(pBibleDatabase);
+	m_pBibleDatabase = pBibleDatabase;
+
+	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->concordanceWordList(), this);
 	m_pCompleter = new QCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -114,7 +139,7 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
 								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 
-	CPhraseList phrases = g_lstCommonPhrases;
+	CPhraseList phrases = m_pBibleDatabase->phraseList();
 	phrases.append(g_lstUserPhrases);
 	phrases.removeDuplicates();
 	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases, this);
@@ -123,19 +148,12 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
-
-	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
-	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
-	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
-	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
-	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
-
-	m_pStatusAction = new QAction(this);
 }
 
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 {
-	CParsedPhrase::setCaseSensitive(bCaseSensitive);
+	assert(m_pParsedPhrase != NULL);
+	m_pParsedPhrase->setCaseSensitive(bCaseSensitive);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	if (!m_bUpdateInProgress) {
@@ -147,6 +165,8 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 
 void CPhraseLineEdit::on_phraseListChanged()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	assert(m_pCommonPhrasesCompleter != NULL);
 	if (m_pCommonPhrasesCompleter == NULL) return;
 
@@ -154,7 +174,7 @@ void CPhraseLineEdit::on_phraseListChanged()
 	assert(pModel != NULL);
 	if (pModel == NULL) return;
 
-	CPhraseList phrases = g_lstCommonPhrases;
+	CPhraseList phrases = m_pBibleDatabase->phraseList();
 	phrases.append(g_lstUserPhrases);
 	phrases.removeDuplicates();
 	pModel->setPhraseList(phrases);
@@ -163,7 +183,8 @@ void CPhraseLineEdit::on_phraseListChanged()
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
 {
-	CParsedPhrase::insertCompletion(textCursor(), completion);
+	assert(m_pParsedPhrase != NULL);
+	m_pParsedPhrase->insertCompletion(textCursor(), completion);
 }
 
 void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
@@ -213,7 +234,8 @@ void CPhraseLineEdit::on_cursorPositionChanged()
 
 void CPhraseLineEdit::UpdateCompleter()
 {
-	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
+	assert(m_pParsedPhrase != NULL);
+	m_pParsedPhrase->UpdateCompleter(textCursor(), *m_pCompleter);
 
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -235,10 +257,10 @@ void CPhraseLineEdit::UpdateCompleter()
 	do {
 		cursor.selectWordUnderCursor();
 		if (/* (GetCursorWordPos() != nWord) && */
-			(static_cast<int>(GetMatchLevel()) <= nWord) &&
-			(static_cast<int>(GetCursorMatchLevel()) <= nWord) &&
-			((nWord != GetCursorWordPos()) ||
-			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
+			(static_cast<int>(m_pParsedPhrase->GetMatchLevel()) <= nWord) &&
+			(static_cast<int>(m_pParsedPhrase->GetCursorMatchLevel()) <= nWord) &&
+			((nWord != m_pParsedPhrase->GetCursorWordPos()) ||
+			 ((!m_pParsedPhrase->GetCursorWord().isEmpty()) && (nWord == m_pParsedPhrase->GetCursorWordPos()))
 			 )
 			) {
 			fmt.setFontStrikeOut(true);
@@ -255,9 +277,11 @@ void CPhraseLineEdit::UpdateCompleter()
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 {
+	assert(m_pParsedPhrase != NULL);
+
 	// TODO : Remove this function after done debugging!
 
-	CParsedPhrase::ParsePhrase(curInsert);
+	m_pParsedPhrase->ParsePhrase(curInsert);
 
 /*
 	if (m_pStatusAction) {
@@ -289,6 +313,8 @@ bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
 
 void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
 
 // For reference if we ever re-enable rich text:  (don't forget to change acceptRichText setting in constructor)
@@ -307,11 +333,11 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 	if (source->hasFormat(g_constrPhraseTagMimeType)) {
 		QString strPhrase;
 		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(source);
-		uint32_t ndxNormal = NormalizeIndex(tag.first);
+		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(tag.first);
 		if ((ndxNormal != 0) && (tag.second > 0)) {
-			for (unsigned int ndx = 0; ((ndx < tag.second) && ((ndxNormal + ndx) <= g_lstConcordanceMapping.size())); ++ndx) {
+			for (unsigned int ndx = 0; ((ndx < tag.second) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 				if (ndx) strPhrase += " ";
-				strPhrase += g_lstConcordanceWords.at(g_lstConcordanceMapping.at(ndxNormal + ndx)-1);
+				strPhrase += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
 			}
 			clear();
 			setText(strPhrase);
@@ -343,6 +369,8 @@ void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 {
+	assert(m_pParsedPhrase != NULL);
+
 	bool bForceCompleter = false;
 
 //	if (m_pCompleter->popup()->isVisible())
@@ -365,7 +393,7 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 	ParsePhrase(textCursor());
 
-	QString strPrefix = m_strCursorWord;
+	QString strPrefix = m_pParsedPhrase->GetCursorWord();
 	std::size_t nPreRegExp = strPrefix.toStdString().find_first_of("*?[]");
 	if (nPreRegExp != std::string::npos) {
 		strPrefix = strPrefix.left(nPreRegExp);
@@ -374,14 +402,14 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 	if (strPrefix != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(strPrefix);
 		UpdateCompleter();
-		if (m_nLastCursorWord != m_nCursorWord) {
+		if (m_nLastCursorWord != m_pParsedPhrase->GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
-			m_nLastCursorWord = m_nCursorWord;
+			m_nLastCursorWord = m_pParsedPhrase->GetCursorWordPos();
 		}
 		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index(0, 0));
 	}
 
-	if (bForceCompleter || (!event->text().isEmpty() && ((m_strCursorWord.length() > 0) || (textCursor().atEnd()))))
+	if (bForceCompleter || (!event->text().isEmpty() && ((m_pParsedPhrase->GetCursorWord().length() > 0) || (textCursor().atEnd()))))
 		m_pCompleter->complete();
 
 }
@@ -406,14 +434,18 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 
 // ============================================================================
 
-CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(bool bHaveUserData, QWidget *parent) :
+CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserData, QWidget *parent) :
 	QWidget(parent),
+	m_pBibleDatabase(pBibleDatabase),
 	m_bHaveUserData(bHaveUserData),
 	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
 {
 	ui->setupUi(this);
+
+	assert(m_pBibleDatabase.data() != NULL);
+	phraseEditor()->initialize(m_pBibleDatabase);
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
 	ui->buttonAddPhrase->setEnabled(false);
@@ -472,7 +504,7 @@ void CKJVSearchPhraseEdit::focusEditor() const
 
 const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 {
-	return ui->editPhrase;
+	return ui->editPhrase->parsedPhrase();
 }
 
 CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
@@ -482,14 +514,16 @@ CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 
 void CKJVSearchPhraseEdit::on_phraseChanged()
 {
-	const CParsedPhrase *pPhrase = ui->editPhrase;
+	assert(m_pBibleDatabase.data() != NULL);
+
+	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
 
 	m_phraseEntry.m_strPhrase=pPhrase->phrase();		// Use reconstituted phrase for save/restore
 	m_phraseEntry.m_bCaseSensitive=pPhrase->isCaseSensitive();
 	m_phraseEntry.m_nNumWrd=pPhrase->phraseSize();
 
-	bool bCommonFound = g_lstCommonPhrases.contains(m_phraseEntry);
+	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
 	bool bHaveText = (!m_phraseEntry.m_strPhrase.isEmpty());
 	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && bHaveText && !bUserFound && !bCommonFound);
@@ -523,10 +557,10 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 {
 	QString strTemp = "Number of Occurrences: ";
-	if (ui->editPhrase->IsDuplicate()) {
+	if (parsedPhrase()->IsDuplicate()) {
 		strTemp += "(Duplicate)";
 	} else {
-		strTemp += QString("%1/%2").arg(ui->editPhrase->GetContributingNumberOfMatches()).arg(ui->editPhrase->GetNumberOfMatches());
+		strTemp += QString("%1/%2").arg(parsedPhrase()->GetContributingNumberOfMatches()).arg(parsedPhrase()->GetNumberOfMatches());
 	}
 	ui->lblOccurrenceCount->setText(strTemp);
 }
@@ -545,7 +579,7 @@ void CKJVSearchPhraseEdit::on_phraseAdd()
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
 	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && !ui->editPhrase->phrase().isEmpty());
+	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && !parsedPhrase()->phrase().isEmpty());
 	emit phraseListChanged();
 }
 
@@ -557,7 +591,7 @@ void CKJVSearchPhraseEdit::on_phraseDel()
 		g_lstUserPhrases.removeAt(ndx);
 		g_bUserPhrasesDirty = true;
 	}
-	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && !ui->editPhrase->phrase().isEmpty());
+	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && !parsedPhrase()->phrase().isEmpty());
 	ui->buttonDelPhrase->setEnabled(false);
 	emit phraseListChanged();
 }

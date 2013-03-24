@@ -48,8 +48,7 @@ public:
 	explicit CKJVBrowser(QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-//	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag(CRelIndex(1,1,0,0)));		// Default initial location is Genesis 1
-	void Initialize(const TPhraseTag &nInitialIndex = TPhraseTag());
+	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	CScriptureBrowser *browser();
 
@@ -92,6 +91,7 @@ private:
 
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	CRelIndex m_ndxCurrent;
 	CSearchResultHighlighter m_Highlighter;
 

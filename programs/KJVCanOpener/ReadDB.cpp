@@ -73,6 +73,8 @@ CReadDatabase::CReadDatabase(QWidget *pParent)
 
 bool CReadDatabase::ReadTestamentTable()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the Testament Table
 
 	QSqlQuery query(m_myDatabase);
@@ -88,13 +90,13 @@ bool CReadDatabase::ReadTestamentTable()
 		return false;
 	}
 
-	g_lstTestaments.clear();
+	m_pBibleDatabase->m_lstTestaments.clear();
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM TESTAMENT");
 	while (query.next()) {
 		unsigned int nTstNdx = query.value(0).toUInt();
-		if (nTstNdx > g_lstTestaments.size()) g_lstTestaments.resize(nTstNdx);
-		CTestamentEntry &entryTestament = g_lstTestaments[nTstNdx-1];
+		if (nTstNdx > m_pBibleDatabase->m_lstTestaments.size()) m_pBibleDatabase->m_lstTestaments.resize(nTstNdx);
+		CTestamentEntry &entryTestament = m_pBibleDatabase->m_lstTestaments[nTstNdx-1];
 		entryTestament.m_strTstName = query.value(1).toString();
 	}
 
@@ -103,6 +105,8 @@ bool CReadDatabase::ReadTestamentTable()
 
 bool CReadDatabase::ReadTOCTable()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the TOC Table
 
 	QSqlQuery query(m_myDatabase);
@@ -118,15 +122,16 @@ bool CReadDatabase::ReadTOCTable()
 		return false;
 	}
 
-	g_EntireBible = CTestamentEntry("Entire Bible");
+	m_pBibleDatabase->m_EntireBible = CBibleEntry();		// Clear out the main Bible entry, just in case we're being called a second time
+	m_pBibleDatabase->m_EntireBible.m_nNumTst = m_pBibleDatabase->m_lstTestaments.size();
 
-	g_lstTOC.clear();
+	m_pBibleDatabase->m_lstTOC.clear();
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM TOC");
 	while (query.next()) {
 		unsigned int nBkNdx = query.value(0).toUInt();
-		if (nBkNdx > g_lstTOC.size()) g_lstTOC.resize(nBkNdx);
-		CTOCEntry &entryTOC = g_lstTOC[nBkNdx-1];
+		if (nBkNdx > m_pBibleDatabase->m_lstTOC.size()) m_pBibleDatabase->m_lstTOC.resize(nBkNdx);
+		CTOCEntry &entryTOC = m_pBibleDatabase->m_lstTOC[nBkNdx-1];
 		entryTOC.m_nTstBkNdx = query.value(1).toUInt();
 		entryTOC.m_nTstNdx = query.value(2).toUInt();
 		entryTOC.m_strBkName = query.value(3).toString();
@@ -138,15 +143,15 @@ bool CReadDatabase::ReadTOCTable()
 		entryTOC.m_strCat = query.value(9).toString();
 		entryTOC.m_strDesc = query.value(10).toString();
 
-		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumBk++;
-		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumChp += entryTOC.m_nNumChp;
-		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumVrs += entryTOC.m_nNumVrs;
-		g_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumWrd += entryTOC.m_nNumWrd;
+		m_pBibleDatabase->m_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumBk++;
+		m_pBibleDatabase->m_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumChp += entryTOC.m_nNumChp;
+		m_pBibleDatabase->m_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumVrs += entryTOC.m_nNumVrs;
+		m_pBibleDatabase->m_lstTestaments[entryTOC.m_nTstNdx-1].m_nNumWrd += entryTOC.m_nNumWrd;
 
-		g_EntireBible.m_nNumBk++;
-		g_EntireBible.m_nNumChp += entryTOC.m_nNumChp;
-		g_EntireBible.m_nNumVrs += entryTOC.m_nNumVrs;
-		g_EntireBible.m_nNumWrd += entryTOC.m_nNumWrd;
+		m_pBibleDatabase->m_EntireBible.m_nNumBk++;
+		m_pBibleDatabase->m_EntireBible.m_nNumChp += entryTOC.m_nNumChp;
+		m_pBibleDatabase->m_EntireBible.m_nNumVrs += entryTOC.m_nNumVrs;
+		m_pBibleDatabase->m_EntireBible.m_nNumWrd += entryTOC.m_nNumWrd;
 	}
 
 // Used for debugging:
@@ -154,7 +159,7 @@ bool CReadDatabase::ReadTOCTable()
 	QFile fileTest("testit.txt");
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
-		for (TTOCList::const_iterator itr = g_lstTOC.begin(); itr != g_lstTOC.end(); ++itr) {
+		for (TTOCList::const_iterator itr = m_pBibleDatabase->m_lstTOC.begin(); itr != m_pBibleDatabase->m_lstTOC.end(); ++itr) {
 			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_strBkAbbr)
 									.arg(itr->m_strTblName).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(itr->m_strCat).arg(itr->m_strDesc);
 			ts << strTemp;
@@ -168,6 +173,8 @@ bool CReadDatabase::ReadTOCTable()
 
 bool CReadDatabase::ReadLAYOUTTable()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the LAYOUT table:
 
 	QSqlQuery query(m_myDatabase);
@@ -183,13 +190,13 @@ bool CReadDatabase::ReadLAYOUTTable()
 		return false;
 	}
 
-	g_mapLayout.clear();
+	m_pBibleDatabase->m_mapLayout.clear();
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM LAYOUT");
 	while (query.next()) {
 		uint32_t nBkChpNdx = query.value(0).toUInt();
-		CLayoutEntry &entryLayout = g_mapLayout[CRelIndex(nBkChpNdx << 16)];
+		CLayoutEntry &entryLayout = m_pBibleDatabase->m_mapLayout[CRelIndex(nBkChpNdx << 16)];
 		entryLayout.m_nNumVrs = query.value(1).toUInt();
 		entryLayout.m_nNumWrd = query.value(2).toUInt();
 	}
@@ -199,7 +206,7 @@ bool CReadDatabase::ReadLAYOUTTable()
 	QFile fileTest("testit.txt");
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
-		for (TLayoutMap::const_iterator itr = g_mapLayout.begin(); itr != g_mapLayout.end(); ++itr) {
+		for (TLayoutMap::const_iterator itr = m_pBibleDatabase->m_mapLayout.begin(); itr != m_pBibleDatabase->m_mapLayout.end(); ++itr) {
 			QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first.index()>>16).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
 			ts << strTemp;
 		}
@@ -212,32 +219,34 @@ bool CReadDatabase::ReadLAYOUTTable()
 
 bool CReadDatabase::ReadBookTables()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the BOOK tables:
 
-	assert(g_lstTOC.size() != 0);		// Must read TOC before BOOKS
+	assert(m_pBibleDatabase->m_lstTOC.size() != 0);		// Must read TOC before BOOKS
 
-	g_lstBooks.clear();
-	g_lstBooks.resize(g_lstTOC.size());
-	for (unsigned int i=0; i<g_lstTOC.size(); ++i) {
+	m_pBibleDatabase->m_lstBooks.clear();
+	m_pBibleDatabase->m_lstBooks.resize(m_pBibleDatabase->m_lstTOC.size());
+	for (unsigned int i=0; i<m_pBibleDatabase->m_lstTOC.size(); ++i) {
 		QSqlQuery query(m_myDatabase);
 
 		// Check to see if the table exists:
-		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(g_lstTOC[i].m_strTblName))) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(g_lstTOC[i].m_strTblName).arg(query.lastError().text()));
+		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName))) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName).arg(query.lastError().text()));
 			return false;
 		}
 		query.next();
 		if (!query.value(0).toInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(g_lstTOC[i].m_strTblName));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName));
 			return false;
 		}
 
-		TBookEntryMap &mapBook = g_lstBooks[i];
+		TBookEntryMap &mapBook = m_pBibleDatabase->m_lstBooks[i];
 
 		mapBook.clear();
 
 		query.setForwardOnly(true);
-		query.exec(QString("SELECT * FROM %1").arg(g_lstTOC[i].m_strTblName));
+		query.exec(QString("SELECT * FROM %1").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName));
 		while (query.next()) {
 			QString strVerseText;
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
@@ -290,6 +299,8 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 
 bool CReadDatabase::ReadWORDSTable()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the WORDS table:
 
 	QSqlQuery query(m_myDatabase);
@@ -306,21 +317,21 @@ bool CReadDatabase::ReadWORDSTable()
 	}
 
 	unsigned int nNumWordsInText = 0;
-	for (unsigned int ndxTOC=0; ndxTOC<g_lstTOC.size(); ++ndxTOC) {
-		nNumWordsInText += g_lstTOC[ndxTOC].m_nNumWrd;
+	for (unsigned int ndxTOC=0; ndxTOC<m_pBibleDatabase->m_lstTOC.size(); ++ndxTOC) {
+		nNumWordsInText += m_pBibleDatabase->m_lstTOC[ndxTOC].m_nNumWrd;
 	}
 
-	g_mapWordList.clear();
-	g_lstConcordanceWords.clear();
-	g_lstConcordanceMapping.clear();
-	g_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
+	m_pBibleDatabase->m_mapWordList.clear();
+	m_pBibleDatabase->m_lstConcordanceWords.clear();
+	m_pBibleDatabase->m_lstConcordanceMapping.clear();
+	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
 	while (query.next()) {
 		QString strWord = query.value(1).toString();
 		QString strKey = strWord.toLower();
-		CWordEntry &entryWord = g_mapWordList[strKey];
+		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
 		entryWord.m_strWord = strWord;
 		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
 
@@ -364,13 +375,13 @@ bool CReadDatabase::ReadWORDSTable()
 		//	point to the the specific word:
 		unsigned int ndxMapping=0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			g_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
+			m_pBibleDatabase->m_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
 					QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));
 					return false;
 				}
-				g_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = g_lstConcordanceWords.size();
+				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = m_pBibleDatabase->m_lstConcordanceWords.size();
 				ndxMapping++;
 			}
 		}
@@ -382,7 +393,7 @@ bool CReadDatabase::ReadWORDSTable()
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
 		int cnt = 0;
-		for (TWordListMap::const_iterator itr = g_mapWordList.begin(); itr != g_mapWordList.end(); ++itr) {
+		for (TWordListMap::const_iterator itr = m_pBibleDatabase->m_mapWordList.begin(); itr != m_pBibleDatabase->m_mapWordList.end(); ++itr) {
 			cnt++;
 			ts << QString("%1,").arg(cnt);
 //			ts << "\"" + itr->first + "\",";
@@ -414,6 +425,8 @@ bool CReadDatabase::ReadWORDSTable()
 
 bool CReadDatabase::ReadFOOTNOTESTable()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the FOOTNOTES table:
 
 	QSqlQuery query(m_myDatabase);
@@ -429,7 +442,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 		return false;
 	}
 
-	g_mapFootnotes.clear();
+	m_pBibleDatabase->m_mapFootnotes.clear();
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM FOOTNOTES");
@@ -443,7 +456,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 		if (strFootnoteText.isEmpty()) strFootnoteText = query.value(1).toString();
 		if (!strFootnoteText.isEmpty()) {
 			footnote.setText(strFootnoteText);
-			g_mapFootnotes[ndxRel] = footnote;
+			m_pBibleDatabase->m_mapFootnotes[ndxRel] = footnote;
 		}
 	}
 
@@ -452,6 +465,8 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	// Read the PHRASES table:
 
 	QSqlQuery query(m_myDatabase);
@@ -470,7 +485,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 	if (bUserPhrases) {
 		g_lstUserPhrases.clear();
 	} else {
-		g_lstCommonPhrases.clear();
+		m_pBibleDatabase->m_lstCommonPhrases.clear();
 	}
 
 	query.setForwardOnly(true);
@@ -480,13 +495,13 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		phrase.m_strPhrase = query.value(1).toString();
 		phrase.m_bCaseSensitive = ((query.value(2).toInt() != 0) ? true : false);
 		if (!phrase.m_strPhrase.isEmpty()) {
-			CParsedPhrase parsedPhrase;
+			CParsedPhrase parsedPhrase(m_pBibleDatabase);
 			parsedPhrase.ParsePhrase(phrase.m_strPhrase);
 			phrase.m_nNumWrd = parsedPhrase.phraseSize();
 			if (bUserPhrases) {
 				g_lstUserPhrases.push_back(phrase);
 			} else {
-				g_lstCommonPhrases.push_back(phrase);
+				m_pBibleDatabase->m_lstCommonPhrases.push_back(phrase);
 			}
 		}
 	}
@@ -496,6 +511,8 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 bool CReadDatabase::ValidateData()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
 	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
 	unsigned int ncntChpTot = 0;	// Total number of Chapters (all Books)
@@ -511,32 +528,32 @@ bool CReadDatabase::ValidateData()
 
 	unsigned int ncntWrd_Vrs = 0;	// Word count in current Verse
 
-	if (g_lstBooks.size() != g_lstTOC.size()) {
+	if (m_pBibleDatabase->m_lstBooks.size() != m_pBibleDatabase->m_lstTOC.size()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, "Error: Book List and Table of Contents have different sizes!\nCheck the database!");
 		return false;
 	}
 
-	ncntTstTot = g_lstTestaments.size();
-	for (unsigned int nBk=0; nBk<g_lstTOC.size(); ++ nBk) {		// Books
-		if ((g_lstTOC[nBk].m_nTstNdx < 1) || (g_lstTOC[nBk].m_nTstNdx > ncntTstTot)) {
+	ncntTstTot = m_pBibleDatabase->m_lstTestaments.size();
+	for (unsigned int nBk=0; nBk<m_pBibleDatabase->m_lstTOC.size(); ++ nBk) {		// Books
+		if ((m_pBibleDatabase->m_lstTOC[nBk].m_nTstNdx < 1) || (m_pBibleDatabase->m_lstTOC[nBk].m_nTstNdx > ncntTstTot)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) References Invalid Testament %3")
-								.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(g_lstTOC[nBk].m_nTstNdx));
+								.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(m_pBibleDatabase->m_lstTOC[nBk].m_nTstNdx));
 			return false;
 		}
 		ncntChp_Bk = 0;
 		ncntVrs_Bk = 0;
 		ncntWrd_Bk = 0;
 		ncntBkTot++;
-		for (unsigned int nChp=0; nChp<g_lstTOC[nBk].m_nNumChp; ++nChp) {	// Chapters
+		for (unsigned int nChp=0; nChp<m_pBibleDatabase->m_lstTOC[nBk].m_nNumChp; ++nChp) {	// Chapters
 			ncntVrs_Chp = 0;
 			ncntWrd_Chp = 0;
-			TLayoutMap::const_iterator itrLayout = g_mapLayout.find(CRelIndex(nBk+1,nChp+1,0,0));
-			if (itrLayout == g_mapLayout.end()) continue;
+			TLayoutMap::const_iterator itrLayout = m_pBibleDatabase->m_mapLayout.find(CRelIndex(nBk+1,nChp+1,0,0));
+			if (itrLayout == m_pBibleDatabase->m_mapLayout.end()) continue;
 			ncntChpTot++;
 			ncntChp_Bk++;
 			for (unsigned int nVrs=0; nVrs<itrLayout->second.m_nNumVrs; ++nVrs) {	// Verses
 				ncntWrd_Vrs = 0;
-				const TBookEntryMap &aBook = g_lstBooks[nBk];
+				const TBookEntryMap &aBook = m_pBibleDatabase->m_lstBooks[nBk];
 				TBookEntryMap::const_iterator itrBook = aBook.find(CRelIndex(0,nChp+1,nVrs+1,0));
 				if (itrBook == aBook.end()) continue;
 				ncntVrsTot++;
@@ -549,34 +566,34 @@ bool CReadDatabase::ValidateData()
 			}
 			if (ncntVrs_Chp != itrLayout->second.m_nNumVrs) {
 				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
-									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
+									.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrLayout->second.m_nNumVrs));
 				return false;
 			}
 			if (ncntWrd_Chp != itrLayout->second.m_nNumWrd) {
 				QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
-									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
+									.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrLayout->second.m_nNumWrd));
 				return false;
 			}
 		}
-		if (ncntChp_Bk != g_lstTOC[nBk].m_nNumChp) {
+		if (ncntChp_Bk != m_pBibleDatabase->m_lstTOC[nBk].m_nNumChp) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
-									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntChp_Bk).arg(g_lstTOC[nBk].m_nNumChp));
+									.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntChp_Bk).arg(m_pBibleDatabase->m_lstTOC[nBk].m_nNumChp));
 			return false;
 		}
-		if (ncntVrs_Bk != g_lstTOC[nBk].m_nNumVrs) {
+		if (ncntVrs_Bk != m_pBibleDatabase->m_lstTOC[nBk].m_nNumVrs) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
-									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntVrs_Bk).arg(g_lstTOC[nBk].m_nNumVrs));
+									.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntVrs_Bk).arg(m_pBibleDatabase->m_lstTOC[nBk].m_nNumVrs));
 			return false;
 		}
-		if (ncntWrd_Bk != g_lstTOC[nBk].m_nNumWrd) {
+		if (ncntWrd_Bk != m_pBibleDatabase->m_lstTOC[nBk].m_nNumWrd) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
-									.arg(g_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntWrd_Bk).arg(g_lstTOC[nBk].m_nNumWrd));
+									.arg(m_pBibleDatabase->m_lstTOC[nBk].m_strBkName).arg(nBk+1).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_lstTOC[nBk].m_nNumWrd));
 			return false;
 		}
 	}
 
 	unsigned int nWordListTot = 0;
-	for (TWordListMap::const_iterator itrWords = g_mapWordList.begin(); itrWords != g_mapWordList.end(); ++itrWords) {
+	for (TWordListMap::const_iterator itrWords = m_pBibleDatabase->m_mapWordList.begin(); itrWords != m_pBibleDatabase->m_mapWordList.end(); ++itrWords) {
 		nWordListTot += itrWords->second.m_ndxNormalizedMapping.size();
 	}
 	if (nWordListTot != ncntWrdTot) {
@@ -585,8 +602,8 @@ bool CReadDatabase::ValidateData()
 	}
 
 	// Check concordance:
-	if ((nWordListTot+1) != g_lstConcordanceMapping.size()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(g_lstConcordanceMapping.size()));
+	if ((nWordListTot+1) != m_pBibleDatabase->m_lstConcordanceMapping.size()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(m_pBibleDatabase->m_lstConcordanceMapping.size()));
 		return false;
 	}
 
@@ -595,13 +612,16 @@ bool CReadDatabase::ValidateData()
 
 // ============================================================================
 
-bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
+bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, bool bSetAsMain)
 {
 	m_myDatabase = g_sqldbReadMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
+
+	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(strName, strDescription));
+	assert(m_pBibleDatabase.data() != NULL);
 
 	if (!m_myDatabase.open()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
@@ -620,8 +640,12 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename)
 		(!ValidateData())) bSuccess = false;
 
 	m_myDatabase.close();
-
 	m_myDatabase = QSqlDatabase();
+
+	if (bSuccess) {
+		g_lstBibleDatabases.push_back(m_pBibleDatabase);
+		if (bSetAsMain) g_pMainBibleDatabase = m_pBibleDatabase;
+	}
 
 	return bSuccess;
 }

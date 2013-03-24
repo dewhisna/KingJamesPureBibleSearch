@@ -43,8 +43,6 @@ CKJVBrowser::CKJVBrowser(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	Initialize();
-
 // UI Connections:
 	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(ui->textBrowserMainText, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
@@ -69,26 +67,30 @@ CScriptureBrowser *CKJVBrowser::browser()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::Initialize(const TPhraseTag &nInitialIndex)
+void CKJVBrowser::initialize(CBibleDatabasePtr pBibleDatabase)
 {
 	begin_update();
+
+	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
+	assert(pBibleDatabase.data() != NULL);
+	browser()->initialize(pBibleDatabase);
+	m_pBibleDatabase = pBibleDatabase;
 
 	unsigned int nBibleChp = 0;
 	ui->comboBk->clear();
 	ui->comboBibleBk->clear();
-	for (unsigned int ndxBk=0; ndxBk<g_lstTOC.size(); ++ndxBk) {
-		ui->comboBk->addItem(g_lstTOC[ndxBk].m_strBkName, ndxBk+1);
-		ui->comboBibleBk->addItem(QString("%1").arg(ndxBk+1), ndxBk+1);
-		nBibleChp += g_lstTOC[ndxBk].m_nNumChp;
+	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
+		const CTOCEntry *pTOC = m_pBibleDatabase->tocEntry(ndxBk);
+		ui->comboBk->addItem(pTOC->m_strBkName, ndxBk);
+		ui->comboBibleBk->addItem(QString("%1").arg(ndxBk), ndxBk);
+		nBibleChp += pTOC->m_nNumChp;
 	}
 	ui->comboBibleChp->clear();
-	for (unsigned int ndxBibleChp=0; ndxBibleChp<nBibleChp; ++ ndxBibleChp) {
-		ui->comboBibleChp->addItem(QString("%1").arg(ndxBibleChp+1), ndxBibleChp+1);
+	for (unsigned int ndxBibleChp=1; ndxBibleChp<=nBibleChp; ++ndxBibleChp) {
+		ui->comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
 	}
 
 	end_update();
-
-	if (nInitialIndex.first.isSet()) gotoIndex(nInitialIndex);
 }
 
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
@@ -122,13 +124,15 @@ void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 
 void CKJVBrowser::on_sourceChanged(const QUrl &src)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	QString strURL = src.toString();		// Internal URLs are in the form of "#nnnnnnnn" as anchors
 	int nPos = strURL.indexOf('#');
 	if (nPos > -1) {
 		CRelIndex ndxRel(strURL.mid(nPos+1));
-		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(ndxRel));
+		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(m_pBibleDatabase, ndxRel));
 	}
 }
 
@@ -160,49 +164,63 @@ void CKJVBrowser::doHighlighting(bool bClear)
 
 void CKJVBrowser::on_Bible_Beginning()
 {
-	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1)));
+	assert(m_pBibleDatabase.data() != NULL);
+
+	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(1,1,1,1)));
 }
 
 void CKJVBrowser::on_Bible_Ending()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	CRelIndex ndx;
-	ndx.setBook(g_lstTOC.size());
-	ndx.setChapter(g_lstTOC.at(g_lstTOC.size()-1).m_nNumChp);
-	ndx.setVerse(g_mapLayout[CRelIndex(ndx.book(), ndx.chapter(), 0, 0)].m_nNumVrs);
-	ndx.setWord((g_lstBooks[ndx.book()-1])[CRelIndex(0, ndx.chapter(), ndx.verse(), 0)].m_nNumWrd);
-	gotoIndex(TPhraseTag(ndx));
+	ndx.setBook(m_pBibleDatabase->bibleEntry().m_nNumBk);
+	ndx.setChapter(m_pBibleDatabase->tocEntry(ndx.book())->m_nNumChp);
+	ndx.setVerse(m_pBibleDatabase->layoutEntry(ndx)->m_nNumVrs);
+	ndx.setWord(m_pBibleDatabase->bookEntry(ndx)->m_nNumWrd);
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
 }
 
 void CKJVBrowser::on_Book_Backward()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_ndxCurrent.book() < 2) return;
 
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_Book_Forward()
 {
-	if (m_ndxCurrent.book() >= g_lstTOC.size()) return;
+	assert(m_pBibleDatabase.data() != NULL);
 
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
+	if (m_ndxCurrent.book() >= m_pBibleDatabase->bibleEntry().m_nNumBk) return;
+
+	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_ChapterBackward()
 {
-	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
+	assert(m_pBibleDatabase.data() != NULL);
+
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
 }
 
 void CKJVBrowser::on_ChapterForward()
 {
-	CRelIndex ndx = CRefCountCalc::calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
+	assert(m_pBibleDatabase.data() != NULL);
+
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
 }
 
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::setBook(const CRelIndex &ndx)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (ndx.book() == 0) return;
 	if (ndx.book() == m_ndxCurrent.book()) return;
 
@@ -210,32 +228,32 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 	m_ndxCurrent.setIndex(ndx.book(), 0, 0, 0);
 
-	if (m_ndxCurrent.book() > g_lstTOC.size()) {
+	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
 		end_update();
 		return;
 	}
 
-	const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
+	const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(m_ndxCurrent.book());
 
 	ui->comboBk->setCurrentIndex(ui->comboBk->findData(m_ndxCurrent.book()));
 	ui->comboBibleBk->setCurrentIndex(ui->comboBibleBk->findData(m_ndxCurrent.book()));
 
 	unsigned int nTst = toc.m_nTstNdx;
-	ui->lblTestament->setText(g_lstTestaments[nTst-1].m_strTstName + ":");
+	ui->lblTestament->setText(m_pBibleDatabase->testamentEntry(nTst)->m_strTstName + ":");
 	ui->comboTstBk->clear();
-	for (unsigned int ndxTstBk=0; ndxTstBk<g_lstTestaments[nTst-1].m_nNumBk; ++ndxTstBk) {
-		ui->comboTstBk->addItem(QString("%1").arg(ndxTstBk+1), ndxTstBk+1);
+	for (unsigned int ndxTstBk=1; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
+		ui->comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
 	}
 	ui->comboTstBk->setCurrentIndex(ui->comboTstBk->findData(toc.m_nTstBkNdx));
 
 	ui->comboBkChp->clear();
-	for (unsigned int ndxBkChp=0; ndxBkChp<toc.m_nNumChp; ++ndxBkChp) {
-		ui->comboBkChp->addItem(QString("%1").arg(ndxBkChp+1), ndxBkChp+1);
+	for (unsigned int ndxBkChp=1; ndxBkChp<=toc.m_nNumChp; ++ndxBkChp) {
+		ui->comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
 	}
 	ui->comboTstChp->clear();
-	for (unsigned int ndxTstChp=0; ndxTstChp<g_lstTestaments[nTst-1].m_nNumChp; ++ndxTstChp) {
-		ui->comboTstChp->addItem(QString("%1").arg(ndxTstChp+1), ndxTstChp+1);
+	for (unsigned int ndxTstChp=1; ndxTstChp<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumChp; ++ndxTstChp) {
+		ui->comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
 	}
 
 	end_update();
@@ -243,6 +261,8 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 void CKJVBrowser::setChapter(const CRelIndex &ndx)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_update();
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);
@@ -255,19 +275,20 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 		return;
 	}
 
-	if (m_ndxCurrent.book() > g_lstTOC.size()) {
+	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
 		end_update();
 		return;
 	}
 
-	const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
+	const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(m_ndxCurrent.book());
 	unsigned int nTstChp = 0;
 	unsigned int nBibleChp = 0;
-	for (unsigned int ndxBk=0; ndxBk<(m_ndxCurrent.book()-1); ++ndxBk) {
-		if (g_lstTOC[ndxBk].m_nTstNdx == toc.m_nTstNdx)
-			nTstChp += g_lstTOC[ndxBk].m_nNumChp;
-		nBibleChp += g_lstTOC[ndxBk].m_nNumChp;
+	for (unsigned int ndxBk=1; ndxBk<m_ndxCurrent.book(); ++ndxBk) {
+		const CTOCEntry *pTOC = m_pBibleDatabase->tocEntry(ndxBk);
+		if (pTOC->m_nTstNdx == toc.m_nTstNdx)
+			nTstChp += pTOC->m_nNumChp;
+		nBibleChp += pTOC->m_nNumChp;
 	}
 	nTstChp += m_ndxCurrent.chapter();
 	nBibleChp += m_ndxCurrent.chapter();
@@ -296,6 +317,8 @@ void CKJVBrowser::setWord(const TPhraseTag &tag)
 
 void CKJVBrowser::BkComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
@@ -303,11 +326,13 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
@@ -315,41 +340,47 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	if (index != -1) {
 		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get TOC for current book so we know what testament we're currently in:
-		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
-		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), toc.m_nTstNdx);
+		const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(m_ndxCurrent.book());
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), toc.m_nTstNdx);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get TOC for current book so we know what testament we're currently in:
-		const CTOCEntry &toc = g_lstTOC[m_ndxCurrent.book()-1];
-		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, toc.m_nTstNdx);
+		const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(m_ndxCurrent.book());
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, toc.m_nTstNdx);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
@@ -357,20 +388,22 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget;
 	if (index != -1) {
-		ndxTarget = CRefCountCalc::calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(ndxTarget));
+	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
 }
 
 // ----------------------------------------------------------------------------

@@ -40,7 +40,7 @@ class CKJVPassageNavigatorDlg : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CKJVPassageNavigatorDlg(QWidget *parent = 0);
+	explicit CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent);
 	virtual ~CKJVPassageNavigatorDlg();
 
 	TPhraseTag passage() const;

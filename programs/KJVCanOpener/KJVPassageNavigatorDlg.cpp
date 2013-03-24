@@ -25,8 +25,9 @@
 #include "ui_KJVPassageNavigatorDlg.h"
 
 #include <QTimer>
+#include <assert.h>
 
-CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(QWidget *parent) :
+CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 	m_pApplyButton(NULL),
 	m_pModeButton(NULL),
@@ -36,6 +37,9 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(QWidget *parent) :
 	ui(new Ui::CKJVPassageNavigatorDlg)
 {
 	ui->setupUi(this);
+
+	assert(pBibleDatabase.data() != NULL);
+	ui->widgetKJVPassageNavigator->initialize(pBibleDatabase);
 
 	m_pApplyButton = ui->buttonBox->addButton("&Apply Resolved to From Location", QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(on_ApplyResolvedClicked()));

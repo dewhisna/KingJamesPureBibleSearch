@@ -71,6 +71,8 @@ public:
 	explicit CSearchResultsTreeView(QWidget *parent);
 	virtual ~CSearchResultsTreeView();
 
+	void initialize(CBibleDatabasePtr pBibleDatabase);
+
 	QMenu *getEditMenu() { return m_pEditMenu; }
 	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
 
@@ -109,6 +111,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	CKJVCanOpener *m_pMainWindow;	// Main Window Parent so we can check if we are the enabled/active view
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
@@ -142,10 +145,10 @@ class CKJVCanOpener : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CKJVCanOpener(const QString &strUserDatabase = QString(), QWidget *parent = 0);
+	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase = QString(), QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void Initialize();
+	void initialize();
 
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
@@ -226,6 +229,7 @@ protected slots:
 
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	QString m_strUserDatabase;
 
 // UI Private:

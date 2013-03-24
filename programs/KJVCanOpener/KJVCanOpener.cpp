@@ -205,8 +205,17 @@ CSearchResultsTreeView::~CSearchResultsTreeView()
 {
 }
 
+void CSearchResultsTreeView::initialize(CBibleDatabasePtr pBibleDatabase)
+{
+	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
+	assert(pBibleDatabase.data() != NULL);
+	m_pBibleDatabase = pBibleDatabase;
+}
+
 void CSearchResultsTreeView::on_copyVerseText()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	QTextDocument docList;
@@ -229,7 +238,7 @@ void CSearchResultsTreeView::on_copyVerseText()
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
-		CPhraseNavigator navigator(docVerse);
+		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
 		// Note:  Qt bug with fragments causes leading <hr /> tags
@@ -264,6 +273,8 @@ void CSearchResultsTreeView::on_copyVeryRaw()
 
 void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	QString strText;
@@ -285,7 +296,7 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
-		CPhraseNavigator navigator(docVerse);
+		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
 		navigator.setDocumentToVerse(item.getIndex(), false);
 
 		QTextCursor cursorDocVerse(&docVerse);
@@ -371,6 +382,8 @@ void CSearchResultsTreeView::on_copyReferenceDetails()
 
 void CSearchResultsTreeView::on_copyComplete()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	QTextDocument docList;
@@ -395,7 +408,7 @@ void CSearchResultsTreeView::on_copyComplete()
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(lstVerses.at(ndx));
 		QTextDocument docVerse;
-		CPhraseNavigator navigator(docVerse);
+		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
 		// Note:  Qt bug with fragments causes leading <hr /> tags
@@ -421,6 +434,8 @@ void CSearchResultsTreeView::on_copyComplete()
 
 void CSearchResultsTreeView::on_passageNavigator()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() != 1) return;
 	if (!lstSelectedItems.at(0).isValid()) return;
@@ -430,11 +445,11 @@ void CSearchResultsTreeView::on_passageNavigator()
 	if (!ndxRel.isSet()) return;
 
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-	CKJVPassageNavigatorDlg dlg(this);
+	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
 
-//	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
+//	dlg.navigator().startAbsoluteMode(TPhraseTag(m_pBibleDatabase, item.getIndex(), 0));
 
-	dlg.navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
+	dlg.navigator().startAbsoluteMode(TPhraseTag(m_pBibleDatabase, ndxRel, 0));
 	if (dlg.exec() == QDialog::Accepted) {
 		emit gotoIndex(dlg.passage());
 	}
@@ -586,8 +601,9 @@ void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 
 // ============================================================================
 
-CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
+CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
+	m_pBibleDatabase(pBibleDatabase),
 	m_strUserDatabase(strUserDatabase),
 	m_bDoingUpdate(false),
 	m_pActionPassageBrowserEditMenu(NULL),
@@ -625,6 +641,10 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 	ui(new Ui::CKJVCanOpener)
 {
 	ui->setupUi(this);
+
+	assert(m_pBibleDatabase.data() != NULL);
+	ui->treeViewSearchResults->initialize(m_pBibleDatabase);
+	ui->widgetKJVBrowser->initialize(m_pBibleDatabase);
 
 // The following is supposed to be another workaround for QTBUG-13768
 //	ui->splitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
@@ -877,7 +897,7 @@ CKJVCanOpener::CKJVCanOpener(const QString &strUserDatabase, QWidget *parent) :
 
 	// -------------------- Search Results List View:
 
-	CVerseListModel *model = new CVerseListModel(ui->treeViewSearchResults);
+	CVerseListModel *model = new CVerseListModel(m_pBibleDatabase, ui->treeViewSearchResults);
 	model->setDisplayMode(nDisplayMode);
 	model->setTreeMode(nTreeMode);
 	model->setShowMissingLeafs(bShowMissingLeafs);
@@ -918,11 +938,13 @@ CKJVCanOpener::~CKJVCanOpener()
 	delete ui;
 }
 
-void CKJVCanOpener::Initialize()
+void CKJVCanOpener::initialize()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
-	TPhraseTag tag;
+	TPhraseTag tag(m_pBibleDatabase);
 	settings.beginGroup(constrBrowserViewGroup);
 	// Read last location : Default initial location is Genesis 1
 	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
@@ -1268,7 +1290,9 @@ void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSub
 
 CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
 {
-	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(haveUserDatabase(), this);
+	assert(m_pBibleDatabase.data() != NULL);
+
+	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
@@ -1442,9 +1466,9 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 		strSummary += QString("    in %1 Chapter%2\n").arg(m_nLastSearchChapters).arg((m_nLastSearchChapters != 1) ? "s" : "");
 		strSummary += QString("    in %1 Book%2\n").arg(m_nLastSearchBooks).arg((m_nLastSearchBooks != 1) ? "s" : "");
 		strSummary += "\n";
-		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumVrs - m_nLastSearchVerses).arg(((g_EntireBible.m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumChp - m_nLastSearchChapters).arg(((g_EntireBible.m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_EntireBible.m_nNumBk - m_nLastSearchBooks).arg(((g_EntireBible.m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_pMainBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_pMainBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((nNumPhrases > 1) && (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(g_pMainBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
 	} else {
 		strSummary += QString("Search was incomplete -- too many possible matches\n");
 	}
@@ -1732,11 +1756,12 @@ void CKJVCanOpener::on_indexChanged(const TPhraseTag &tag)
 		(m_pActionChapterForward == NULL)) return;
 
 	m_pActionBookBackward->setEnabled(tag.first.book() >= 2);
-	m_pActionBookForward->setEnabled(tag.first.book() < g_lstTOC.size());
+	m_pActionBookForward->setEnabled(tag.first.book() < g_pMainBibleDatabase->bibleEntry().m_nNumBk);
 	m_pActionChapterBackward->setEnabled((tag.first.book() >= 2) ||
 										((tag.first.book() == 1) && (tag.first.chapter() >= 2)));
-	m_pActionChapterForward->setEnabled((tag.first.book() < g_lstTOC.size()) ||
-										((tag.first.book() == g_lstTOC.size()) && (tag.first.chapter() < g_lstTOC.at(tag.first.book()-1).m_nNumChp)));
+	const CTOCEntry *pTOCEntry = g_pMainBibleDatabase->tocEntry(tag.first.book());
+	m_pActionChapterForward->setEnabled((tag.first.book() < g_pMainBibleDatabase->bibleEntry().m_nNumBk) ||
+										((tag.first.book() == g_pMainBibleDatabase->bibleEntry().m_nNumBk) && (tag.first.chapter() < (pTOCEntry ? pTOCEntry->m_nNumChp : 0))));
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()
@@ -1841,11 +1866,11 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	if (nResults > 0) {
 		strResults += "\n";
 		strResults += QString("    Not found at all in %1 Verse%2 of the Bible\n")
-								.arg(g_EntireBible.m_nNumVrs - nVerses).arg(((g_EntireBible.m_nNumVrs - nVerses) != 1) ? "s" : "");
+								.arg(g_pMainBibleDatabase->bibleEntry().m_nNumVrs - nVerses).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumVrs - nVerses) != 1) ? "s" : "");
 		strResults += QString("    Not found at all in %1 Chapter%2 of the Bible\n")
-								.arg(g_EntireBible.m_nNumChp - nChapters).arg(((g_EntireBible.m_nNumChp - nChapters) != 1) ? "s" : "");
+								.arg(g_pMainBibleDatabase->bibleEntry().m_nNumChp - nChapters).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumChp - nChapters) != 1) ? "s" : "");
 		strResults += QString("    Not found at all in %1 Book%2 of the Bible")
-								.arg(g_EntireBible.m_nNumBk - nBooks).arg(((g_EntireBible.m_nNumBk - nBooks) != 1) ? "s" : "");
+								.arg(g_pMainBibleDatabase->bibleEntry().m_nNumBk - nBooks).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumBk - nBooks) != 1) ? "s" : "");
 	}
 
 	ui->lblSearchResultsCount->setText(strResults);
@@ -1864,18 +1889,22 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (!index.isValid()) return;
 
 	CRelIndex ndxRel(index.internalId());
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return;
 
-	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(ndxRel));
+	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(m_pBibleDatabase, ndxRel));
 	ui->widgetKJVBrowser->focusBrowser();
 }
 
 void CKJVCanOpener::on_PassageNavigatorTriggered()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
 		(m_bBrowserActive)) {
 		ui->widgetKJVBrowser->browser()->on_passageNavigator();
@@ -1883,7 +1912,7 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 				(ui->treeViewSearchResults->selectionModel()->selectedRows().count()== 1)) {
 		ui->treeViewSearchResults->on_passageNavigator();
 	} else {
-		CKJVPassageNavigatorDlg dlg(this);
+		CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
 
 		if (dlg.exec() == QDialog::Accepted) {
 			ui->widgetKJVBrowser->gotoIndex(dlg.passage());

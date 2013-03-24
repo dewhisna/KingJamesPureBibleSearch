@@ -31,6 +31,10 @@
 
 #include <assert.h>
 
+/*
+
+TODO : CLEAN THIS UP
+
 // Global Entire Bible Stats:
 CTestamentEntry g_EntireBible;
 
@@ -60,6 +64,14 @@ TFootnoteEntryMap g_mapFootnotes;
 
 // Common phrases read from database:
 CPhraseList g_lstCommonPhrases;
+
+*/
+
+
+// Our Bible Databases:
+CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
+TBibleDatabaseList g_lstBibleDatabases;
+
 
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;
@@ -95,12 +107,7 @@ int CPhraseList::removeDuplicates()
 
 // ============================================================================
 
-uint32_t NormalizeIndex(const CRelIndex &nRelIndex)
-{
-	return NormalizeIndex(nRelIndex.index());
-}
-
-uint32_t NormalizeIndex(uint32_t nRelIndex)
+uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 {
 	uint32_t nNormalIndex = 0;
 	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);
@@ -112,28 +119,28 @@ uint32_t NormalizeIndex(uint32_t nRelIndex)
 
 	// Add the number of words for all books prior to the target book:
 	if (nBk < 1) return 0;
-	if (nBk > g_lstTOC.size()) return 0;
+	if (nBk > m_lstTOC.size()) return 0;
 	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
-		nNormalIndex += g_lstTOC[ndxBk-1].m_nNumWrd;
+		nNormalIndex += m_lstTOC[ndxBk-1].m_nNumWrd;
 	}
 	// Add the number of words for all chapters in this book prior to the target chapter:
-	if (nChp > g_lstTOC[nBk-1].m_nNumChp) return 0;
+	if (nChp > m_lstTOC[nBk-1].m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
-		nNormalIndex += g_mapLayout[CRelIndex(nBk,ndxChp,0,0)].m_nNumWrd;
+		nNormalIndex += m_mapLayout.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
 	}
 	// Add the number of words for all verses in this book prior to the target verse:
-	if (nVrs > g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) return 0;
+	if (nVrs > m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
-		nNormalIndex += (g_lstBooks[nBk-1])[CRelIndex(0,nChp,ndxVrs,0)].m_nNumWrd;
+		nNormalIndex += (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,ndxVrs,0)).m_nNumWrd;
 	}
 	// Add the target word:
-	if (nWrd > (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd) return 0;
+	if (nWrd > (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 	nNormalIndex += nWrd;
 
 	return nNormalIndex;
 }
 
-uint32_t DenormalizeIndex(uint32_t nNormalIndex)
+uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 {
 	unsigned int nBk = 0;
 	unsigned int nChp = 1;
@@ -142,76 +149,76 @@ uint32_t DenormalizeIndex(uint32_t nNormalIndex)
 
 	if (nNormalIndex == 0) return 0;
 
-	while (nBk < g_lstTOC.size()) {
-		if (g_lstTOC[nBk].m_nNumWrd >= nWrd) break;
-		nWrd -= g_lstTOC[nBk].m_nNumWrd;
+	while (nBk < m_lstTOC.size()) {
+		if (m_lstTOC[nBk].m_nNumWrd >= nWrd) break;
+		nWrd -= m_lstTOC[nBk].m_nNumWrd;
 		nBk++;
 	}
-	if (nBk >= g_lstTOC.size()) return 0;
+	if (nBk >= m_lstTOC.size()) return 0;
 	nBk++;
 
-	while (nChp <= g_lstTOC[nBk-1].m_nNumChp) {
-		if (g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumWrd >= nWrd) break;
-		nWrd -= g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumWrd;
+	while (nChp <= m_lstTOC.at(nBk-1).m_nNumChp) {
+		if (m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
+		nWrd -= m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
 		nChp++;
 	}
-	if (nChp > g_lstTOC[nBk-1].m_nNumChp) return 0;
+	if (nChp > m_lstTOC[nBk-1].m_nNumChp) return 0;
 
-	while (nVrs <= g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) {
-		if ((g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd >= nWrd) break;
-		nWrd -= (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd;
+	while (nVrs <= m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+		if ((m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
+		nWrd -= (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd;
 		nVrs++;
 	}
-	if (nVrs > g_mapLayout[CRelIndex(nBk,nChp,0,0)].m_nNumVrs) return 0;
+	if (nVrs > m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 
-	if (nWrd > (g_lstBooks[nBk-1])[CRelIndex(0,nChp,nVrs,0)].m_nNumWrd) return 0;
+	if (nWrd > (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 
 	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
 }
 
 // ============================================================================
 
-QString CRelIndex::testamentName() const
+QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
 {
-	uint32_t nTst = testament();
-	if ((nTst < 1) || (nTst > g_lstTestaments.size())) return QString();
-	return g_lstTestaments[nTst-1].m_strTstName;
+	uint32_t nTst = testament(nRelIndex);
+	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return QString();
+	return m_lstTestaments[nTst-1].m_strTstName;
 }
 
-uint32_t CRelIndex::testament() const
+uint32_t CBibleDatabase::testament(const CRelIndex &nRelIndex) const
 {
-	uint32_t nBk = book();
-	if ((nBk < 1) || (nBk > g_lstTOC.size())) return 0;
-	const CTOCEntry &toc = g_lstTOC[nBk-1];
+	uint32_t nBk = nRelIndex.book();
+	if ((nBk < 1) || (nBk > m_lstTOC.size())) return 0;
+	const CTOCEntry &toc = m_lstTOC[nBk-1];
 	return toc.m_nTstNdx;
 }
 
-QString CRelIndex::bookName() const
+QString CBibleDatabase::bookName(const CRelIndex &nRelIndex) const
 {
-	uint32_t nBk = book();
-	if ((nBk < 1) || (nBk > g_lstTOC.size())) return QString();
-	const CTOCEntry &toc = g_lstTOC[nBk-1];
+	uint32_t nBk = nRelIndex.book();
+	if ((nBk < 1) || (nBk > m_lstTOC.size())) return QString();
+	const CTOCEntry &toc = m_lstTOC[nBk-1];
 	return toc.m_strBkName;
 }
 
-QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize) const
+QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask, unsigned int nSelectionSize) const
 {
-	CRefCountCalc Bk(CRefCountCalc::RTE_BOOK, *this);
-	CRefCountCalc Chp(CRefCountCalc::RTE_CHAPTER, *this);
-	CRefCountCalc Vrs(CRefCountCalc::RTE_VERSE, *this);
-	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, *this);
+	CRefCountCalc Bk(this, CRefCountCalc::RTE_BOOK, nRelIndex);
+	CRefCountCalc Chp(this, CRefCountCalc::RTE_CHAPTER, nRelIndex);
+	CRefCountCalc Vrs(this, CRefCountCalc::RTE_VERSE, nRelIndex);
+	CRefCountCalc Wrd(this, CRefCountCalc::RTE_WORD, nRelIndex);
 
 	QString strTemp;
 
 	if (nRIMask & RIMASK_HEADING) {
 		if (nSelectionSize > 1) {
-			strTemp += PassageReferenceText();
+			strTemp += PassageReferenceText(nRelIndex);
 			strTemp += " - ";
-			strTemp += CRelIndex(DenormalizeIndex(NormalizeIndex(index()) + nSelectionSize - 1)).PassageReferenceText();
+			strTemp += PassageReferenceText(CRelIndex(DenormalizeIndex(NormalizeIndex(nRelIndex) + nSelectionSize - 1)));
 			strTemp += QString(" (%1 Words)").arg(nSelectionSize);
 			strTemp += "\n\n";
 		} else {
-			strTemp += PassageReferenceText();
+			strTemp += PassageReferenceText(nRelIndex);
 			strTemp += "\n\n";
 		}
 	}
@@ -224,12 +231,12 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of Bible\n").arg(Bk.ofBible().first).arg(Bk.ofBible().second);
 		}
 		if (Bk.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex));
 		}
 	}
 
 	if ((nRIMask & RIMASK_CHAPTER) &&
-		(chapter() != 0) &&
+		(nRelIndex.chapter() != 0) &&
 		((Chp.ofBible().first != 0) ||
 		 (Chp.ofTestament().first != 0) ||
 		 (Chp.ofBook().first != 0))) {
@@ -238,15 +245,15 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of Bible\n").arg(Chp.ofBible().first).arg(Chp.ofBible().second);
 		}
 		if (Chp.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex));
 		}
 		if (Chp.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex));
 		}
 	}
 
 	if ((nRIMask & RIMASK_VERSE) &&
-		(verse() != 0) &&
+		(nRelIndex.verse() != 0) &&
 		((Vrs.ofBible().first != 0) ||
 		 (Vrs.ofTestament().first != 0) ||
 		 (Vrs.ofBook().first != 0) ||
@@ -256,18 +263,18 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of Bible\n").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second);
 		}
 		if (Vrs.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex));
 		}
 		if (Vrs.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex));
 		}
 		if (Vrs.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName()).arg(chapter());
+			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter());
 		}
 	}
 
 	if ((nRIMask & RIMASK_WORD) &&
-		(word() != 0) &&
+		(nRelIndex.word() != 0) &&
 		((Wrd.ofBible().first != 0) ||
 		 (Wrd.ofTestament().first != 0) ||
 		 (Wrd.ofBook().first != 0) ||
@@ -278,40 +285,40 @@ QString CRelIndex::SearchResultToolTip(int nRIMask, unsigned int nSelectionSize)
 			strTemp += QString("    %1 of %2 of Bible\n").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second);
 		}
 		if (Wrd.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex));
 		}
 		if (Wrd.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName());
+			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex));
 		}
 		if (Wrd.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName()).arg(chapter());
+			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter());
 		}
 		if (Wrd.ofVerse().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4:%5\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName()).arg(chapter()).arg(verse());
+			strTemp += QString("    %1 of %2 of %3 %4:%5\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
 		}
 	}
 
 	return strTemp;
 }
 
-QString CRelIndex::PassageReferenceText() const
+QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 {
-	if ((!isSet()) || (book() == 0)) return "<Invalid Reference>";
-	if (chapter() == 0) {
-		return QString("%1").arg(bookName());
+	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return "<Invalid Reference>";
+	if (nRelIndex.chapter() == 0) {
+		return QString("%1").arg(bookName(nRelIndex));
 	}
-	if (verse() == 0) {
-		return QString("%1 %2").arg(bookName()).arg(chapter());
+	if (nRelIndex.verse() == 0) {
+		return QString("%1 %2").arg(bookName(nRelIndex)).arg(nRelIndex.chapter());
 	}
-	if (word() == 0) {
-		return QString("%1 %2:%3").arg(bookName()).arg(chapter()).arg(verse());
+	if (nRelIndex.word() == 0) {
+		return QString("%1 %2:%3").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
 	}
-	return QString("%1 %2:%3 [%4]").arg(bookName()).arg(chapter()).arg(verse()).arg(word());
+	return QString("%1 %2:%3 [%4]").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
 }
 
 // ============================================================================
 
-CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
+CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 :	m_ndxRef(refIndex),
 	m_nRefType(nRefType),
 	m_nOfBible(0,0),
@@ -320,38 +327,41 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 	m_nOfChp(0,0),
 	m_nOfVrs(0,0)
 {
+	assert(pBibleDatabase != NULL);
 	switch (nRefType) {
 		case RTE_TESTAMENT:				// Calculate the Testament of the Bible
-			m_nOfBible.first = m_ndxRef.testament();
-			m_nOfBible.second = g_lstTestaments.size();
+			m_nOfBible.first = pBibleDatabase->testament(m_ndxRef);
+			m_nOfBible.second = pBibleDatabase->bibleEntry().m_nNumTst;
 			break;
 
 		case RTE_BOOK:					// Calculate the Book of the Testament and Bible
 			m_nOfBible.first = m_ndxRef.book();
-			m_nOfBible.second = g_lstTOC.size();
+			m_nOfBible.second = pBibleDatabase->bibleEntry().m_nNumBk;
 			if (m_ndxRef.book() != 0) {
-				const CTOCEntry &toc = g_lstTOC[m_ndxRef.book()-1];
+				const CTOCEntry &toc = *pBibleDatabase->tocEntry(m_ndxRef.book());
 				m_nOfTst.first = toc.m_nTstBkNdx;
-				m_nOfTst.second = g_lstTestaments[toc.m_nTstNdx-1].m_nNumBk;
+				m_nOfTst.second = pBibleDatabase->testamentEntry(toc.m_nTstNdx)->m_nNumBk;
 			}
 			break;
 
 		case RTE_CHAPTER:				// Calculate the Chapter of the Book, Testament, and Bible
 			m_nOfBk.first = m_ndxRef.chapter();
-			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size())) {
-				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumChp;
+			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= pBibleDatabase->bibleEntry().m_nNumBk)) {
+				m_nOfBk.second = pBibleDatabase->tocEntry(m_ndxRef.book())->m_nNumChp;
 				// Number of Chapters in books prior to target:
-				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
-						m_nOfTst.first += g_lstTOC[ndxBk].m_nNumChp;
-					m_nOfBible.first += g_lstTOC[ndxBk].m_nNumChp;
+				for (unsigned int ndxBk=1; ndxBk<m_ndxRef.book(); ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
+						m_nOfTst.first += pTOC->m_nNumChp;
+					m_nOfBible.first += pTOC->m_nNumChp;
 				}
 				m_nOfTst.second = m_nOfTst.first;
 				m_nOfBible.second = m_nOfBible.first;
-				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
-						m_nOfTst.second += g_lstTOC[ndxBk].m_nNumChp;
-					m_nOfBible.second += g_lstTOC[ndxBk].m_nNumChp;
+				for (unsigned int ndxBk=m_ndxRef.book(); ndxBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
+						m_nOfTst.second += pTOC->m_nNumChp;
+					m_nOfBible.second += pTOC->m_nNumChp;
 				}
 				// Number of Chapter in target:
 				m_nOfTst.first += m_ndxRef.chapter();
@@ -361,28 +371,30 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 
 		case RTE_VERSE:					// Calculate the Verse of the Chapter, Book, Testament, and Bible
 			m_nOfChp.first = m_ndxRef.verse();
-			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size()) &&
-				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= g_lstTOC[m_ndxRef.book()-1].m_nNumChp)) {
-				m_nOfChp.second = g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumVrs;
-				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumVrs;
+			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= pBibleDatabase->bibleEntry().m_nNumBk) &&
+				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= pBibleDatabase->tocEntry(m_ndxRef.book())->m_nNumChp)) {
+				m_nOfChp.second = pBibleDatabase->layoutEntry(m_ndxRef)->m_nNumVrs;
+				m_nOfBk.second = pBibleDatabase->tocEntry(m_ndxRef.book())->m_nNumVrs;
 				// Number of Verses in books prior to target:
-				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
-					unsigned int nVerses = g_lstTOC[ndxBk].m_nNumVrs;
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+				for (unsigned int ndxBk=1; ndxBk<m_ndxRef.book(); ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					unsigned int nVerses = pTOC->m_nNumVrs;
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
 						m_nOfTst.first += nVerses;
 					m_nOfBible.first += nVerses;
 				}
 				m_nOfTst.second = m_nOfTst.first;
 				m_nOfBible.second = m_nOfBible.first;
-				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
-					unsigned int nVerses = g_lstTOC[ndxBk].m_nNumVrs;
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+				for (unsigned int ndxBk=m_ndxRef.book(); ndxBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					unsigned int nVerses = pTOC->m_nNumVrs;
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
 						m_nOfTst.second += nVerses;
 					m_nOfBible.second += nVerses;
 				}
 				// Number of Verses in Chapters prior to target in target book:
 				for (unsigned int ndxChp=1; ndxChp<m_ndxRef.chapter(); ++ndxChp) {
-					unsigned int nVerses = g_mapLayout[CRelIndex(m_ndxRef.book(),ndxChp,0,0)].m_nNumVrs;
+					unsigned int nVerses = pBibleDatabase->layoutEntry(CRelIndex(m_ndxRef.book(),ndxChp,0,0))->m_nNumVrs;
 					m_nOfBk.first += nVerses;
 					m_nOfTst.first += nVerses;
 					m_nOfBible.first += nVerses;
@@ -396,37 +408,39 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 
 		case RTE_WORD:					// Calculate the Word of the Verse, Book, Testament, and Bible
 			m_nOfVrs.first = m_ndxRef.word();
-			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= g_lstTOC.size()) &&
-				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= g_lstTOC[m_ndxRef.book()-1].m_nNumChp) &&
-				(m_ndxRef.verse() > 0) && (m_ndxRef.verse() <= g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumVrs)) {
-				m_nOfVrs.second = (g_lstBooks[m_ndxRef.book()-1])[CRelIndex(0,m_ndxRef.chapter(),m_ndxRef.verse(),0)].m_nNumWrd;
-				m_nOfChp.second = g_mapLayout[CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),0,0)].m_nNumWrd;
-				m_nOfBk.second = g_lstTOC[m_ndxRef.book()-1].m_nNumWrd;
+			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= pBibleDatabase->bibleEntry().m_nNumBk) &&
+				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= pBibleDatabase->tocEntry(m_ndxRef.book())->m_nNumChp) &&
+				(m_ndxRef.verse() > 0) && (m_ndxRef.verse() <= pBibleDatabase->layoutEntry(m_ndxRef)->m_nNumVrs)) {
+				m_nOfVrs.second = pBibleDatabase->bookEntry(m_ndxRef)->m_nNumWrd;
+				m_nOfChp.second = pBibleDatabase->layoutEntry(m_ndxRef)->m_nNumWrd;
+				m_nOfBk.second = pBibleDatabase->tocEntry(m_ndxRef.book())->m_nNumWrd;
 				// Number of Words in books prior to target:
-				for (unsigned int ndxBk=0; ndxBk<(m_ndxRef.book()-1); ++ndxBk) {
-					unsigned int nWords = g_lstTOC[ndxBk].m_nNumWrd;
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+				for (unsigned int ndxBk=1; ndxBk<m_ndxRef.book(); ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					unsigned int nWords = pTOC->m_nNumWrd;
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
 						m_nOfTst.first += nWords;
 					m_nOfBible.first += nWords;
 				}
 				m_nOfTst.second = m_nOfTst.first;
 				m_nOfBible.second = m_nOfBible.first;
-				for (unsigned int ndxBk=(m_ndxRef.book()-1); ndxBk<g_lstTOC.size(); ++ndxBk) {
-					unsigned int nWords = g_lstTOC[ndxBk].m_nNumWrd;
-					if (g_lstTOC[ndxBk].m_nTstNdx == m_ndxRef.testament())
+				for (unsigned int ndxBk=m_ndxRef.book(); ndxBk<= pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
+					const CTOCEntry *pTOC = pBibleDatabase->tocEntry(ndxBk);
+					unsigned int nWords = pTOC->m_nNumWrd;
+					if (pTOC->m_nTstNdx == pBibleDatabase->testament(m_ndxRef))
 						m_nOfTst.second += nWords;
 					m_nOfBible.second += nWords;
 				}
 				// Number of Words in Chapters prior to target in target Book:
 				for (unsigned int ndxChp=1; ndxChp<m_ndxRef.chapter(); ++ndxChp) {
-					unsigned int nWords = g_mapLayout[CRelIndex(m_ndxRef.book(),ndxChp,0,0)].m_nNumWrd;
+					unsigned int nWords = pBibleDatabase->layoutEntry(CRelIndex(m_ndxRef.book(),ndxChp,0,0))->m_nNumWrd;
 					m_nOfBk.first += nWords;
 					m_nOfTst.first += nWords;
 					m_nOfBible.first += nWords;
 				}
 				// Number of Words in Verses prior to target in target Chapter:
 				for (unsigned int ndxVrs=1; ndxVrs<m_ndxRef.verse(); ++ndxVrs) {
-					unsigned int nWords = (g_lstBooks[m_ndxRef.book()-1])[CRelIndex(0,m_ndxRef.chapter(),ndxVrs,0)].m_nNumWrd;
+					unsigned int nWords = pBibleDatabase->bookEntry(CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),ndxVrs,0))->m_nNumWrd;
 					m_nOfChp.first += nWords;
 					m_nOfBk.first += nWords;
 					m_nOfTst.first += nWords;
@@ -442,21 +456,13 @@ CRefCountCalc::CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex)
 	}
 }
 
-QString CRefCountCalc::SearchResultToolTip(const CRelIndex &refIndex, int nRIMask, unsigned int nSelectionSize)
-{
-	return refIndex.SearchResultToolTip(nRIMask, nSelectionSize);
-}
+// ============================================================================
 
-QString CRefCountCalc::PassageReferenceText(const CRelIndex &refIndex)
-{
-	return refIndex.PassageReferenceText();
-}
-
-CRelIndex CRefCountCalc::calcRelIndex(
+CRelIndex CBibleDatabase::calcRelIndex(
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 					unsigned int nBook, unsigned int nTestament,
 					CRelIndex ndxStart,
-					bool bReverse)
+					bool bReverse) const
 {
 	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
 	CRelIndex ndxResult;
@@ -479,26 +485,26 @@ CRelIndex CRefCountCalc::calcRelIndex(
 		// ===================
 		// Testament of Bible:
 		if (nTestament) {
-			if (nTestament > g_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
+			if (nTestament > m_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
 			for (unsigned int ndx=1; ndx<nTestament; ++ndx) {
 				// Ripple down to children:
-				nBook += g_lstTestaments[ndx-1].m_nNumBk;
+				nBook += m_lstTestaments[ndx-1].m_nNumBk;
 			}
 		}	// At this point, top specified index will be relative to the Bible, nTestament isn't needed beyond this point
 
 		// ===================
 		// Book of Bible/Testament:
-		if (nBook > g_lstTOC.size()) return CRelIndex();
+		if (nBook > m_lstTOC.size()) return CRelIndex();
 		for (unsigned int ndx=1; ndx<nBook; ++ndx)
-			ndxWord += g_lstTOC[ndx-1].m_nNumWrd;					// Add words for Books prior to target
+			ndxWord += m_lstTOC[ndx-1].m_nNumWrd;					// Add words for Books prior to target
 
 		// ===================
 		// Chapter of Bible/Testament:
-		while (nChapter > g_lstTOC[nBook-1].m_nNumChp) {	// Resolve nBook
-			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;			// Add words for books prior to target book
-			nChapter -= g_lstTOC[nBook-1].m_nNumChp;
+		while (nChapter > m_lstTOC[nBook-1].m_nNumChp) {	// Resolve nBook
+			ndxWord += m_lstTOC[nBook-1].m_nNumWrd;			// Add words for books prior to target book
+			nChapter -= m_lstTOC[nBook-1].m_nNumChp;
 			nBook++;
-			if (nBook > g_lstTOC.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
+			if (nBook > m_lstTOC.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
 		}
 		// Chapter of Book:
 		//	Note:  Here we'll push the verses of the chapter down to nVerse and
@@ -512,26 +518,26 @@ CRelIndex CRefCountCalc::calcRelIndex(
 		//			especially since we have to do that anyway.  We won't
 		//			update ndxWord here since that will get done in the Verse
 		//			loop below once we push this down to that:
-		if (nChapter>g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
+		if (nChapter>m_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
 		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
-			nVerse += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumVrs;	// Push all chapters prior to target down to nVerse level
+			nVerse += m_mapLayout.at(CRelIndex(nBook, ndx, 0, 0)).m_nNumVrs;	// Push all chapters prior to target down to nVerse level
 		}
 		nChapter = 1;	// Reset to beginning of book so nVerse can count from there
 
 		// ===================
 		// Verse of Bible/Testament:
-		while (nVerse > g_lstTOC[nBook-1].m_nNumVrs) {	// Resolve nBook
-			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;		// Add words for books prior to target book
-			nVerse -= g_lstTOC[nBook-1].m_nNumVrs;
+		while (nVerse > m_lstTOC[nBook-1].m_nNumVrs) {	// Resolve nBook
+			ndxWord += m_lstTOC[nBook-1].m_nNumWrd;		// Add words for books prior to target book
+			nVerse -= m_lstTOC[nBook-1].m_nNumVrs;
 			nBook++;
-			if (nBook > g_lstTOC.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
+			if (nBook > m_lstTOC.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
 		}
 		// Verse of Book:
-		if (nVerse>g_lstTOC[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
-		while (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) {		// Resolve nChapter
-			nVerse -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs;
+		if (nVerse>m_lstTOC[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
+		while (nVerse > m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) {		// Resolve nChapter
+			nVerse -= m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs;
 			nChapter++;
-			if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
+			if (nChapter > m_lstTOC[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
 		}
 		// Verse of Chapter:
 		//	Note:  Here we'll push the words of the verses down to nWord and
@@ -545,44 +551,44 @@ CRelIndex CRefCountCalc::calcRelIndex(
 		//			especially since we have to do that anyway.  We won't
 		//			update ndxWord here since that will get done in the Word
 		//			loop below once we push this down to that:
-		if (nVerse>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
+		if (nVerse>m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
 		for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
-			nWord += (g_lstBooks[nBook-1])[CRelIndex(0, nChapter, ndx, 0)].m_nNumWrd;		// Push all verses prior to target down to nWord level
+			nWord += m_lstBooks[nBook-1].at(CRelIndex(0, nChapter, ndx, 0)).m_nNumWrd;		// Push all verses prior to target down to nWord level
 		}
 		nVerse = 1;		// Reset to beginning of chapter so nWord can count from there
 
 		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
-			nWord += g_mapLayout[CRelIndex(nBook, ndx, 0, 0)].m_nNumWrd;	// Push all chapters prior to target down to nWord level
+			nWord += m_mapLayout.at(CRelIndex(nBook, ndx, 0, 0)).m_nNumWrd;	// Push all chapters prior to target down to nWord level
 		}
 		nChapter = 1;	// Reset to beginning of book so nWord can count from there
 
 		// ===================
 		// Word of Bible/Testament:
-		while (nWord > g_lstTOC[nBook-1].m_nNumWrd) {		// Resolve nBook
-			ndxWord += g_lstTOC[nBook-1].m_nNumWrd;
-			nWord -= g_lstTOC[nBook-1].m_nNumWrd;
+		while (nWord > m_lstTOC[nBook-1].m_nNumWrd) {		// Resolve nBook
+			ndxWord += m_lstTOC[nBook-1].m_nNumWrd;
+			nWord -= m_lstTOC[nBook-1].m_nNumWrd;
 			nBook++;
-			if (nBook > g_lstTOC.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
+			if (nBook > m_lstTOC.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
 		}
 		// Word of Book:
-		if (nWord>g_lstTOC[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
-		while (nWord > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) {	// Resolve nChapter
-			ndxWord += g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
-			nWord -= g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd;
+		if (nWord>m_lstTOC[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
+		while (nWord > m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) {	// Resolve nChapter
+			ndxWord += m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
+			nWord -= m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
 			nChapter++;
-			if (nChapter > g_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
+			if (nChapter > m_lstTOC[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
 		}
 		// Word of Chapter:
-		if (nWord>g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
-		const TBookEntryMap &book = g_lstBooks[nBook-1];
+		if (nWord>m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
+		const TBookEntryMap &book = m_lstBooks[nBook-1];
 		while (nWord > book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse
 			ndxWord += book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
 			nWord -= book.at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd;
 			nVerse++;
-			if (nVerse > g_mapLayout[CRelIndex(nBook, nChapter, 0, 0)].m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
+			if (nVerse > m_mapLayout.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
 		}
 		// Word of Verse:
-		if (nWord>(g_lstBooks[nBook-1])[CRelIndex(0, nChapter, nVerse, 0)].m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
+		if (nWord>m_lstBooks[nBook-1].at(CRelIndex(0, nChapter, nVerse, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
 		ndxWord += nWord;		// Add up to include target word
 
 		// ===================
@@ -598,8 +604,8 @@ CRelIndex CRefCountCalc::calcRelIndex(
 		ndxWord = NormalizeIndex(ndxStart.index());
 		if (ndxWord == 0) {
 			// Set ndxWord to the total number of words in Bible:
-			for (unsigned int ndx = 0; ndx<g_lstTestaments.size(); ++ndx) {
-				ndxWord += g_lstTestaments[ndx].m_nNumWrd;
+			for (unsigned int ndx = 0; ndx<m_lstTestaments.size(); ++ndx) {
+				ndxWord += m_lstTestaments[ndx].m_nNumWrd;
 			}
 		}
 		// ndxWord is now pointing to the last word of the last verse of
@@ -668,6 +674,74 @@ CRelIndex CRefCountCalc::calcRelIndex(
 	}
 
 	return ndxResult;
+}
+
+// ============================================================================
+
+
+CBibleDatabase::CBibleDatabase(const QString &strName, const QString &strDescription)
+	:	m_strName(strName),
+		m_strDescription(strDescription)
+{
+
+}
+
+CBibleDatabase::~CBibleDatabase()
+{
+
+}
+
+const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
+{
+	assert((nTst >= 1) && (nTst <= m_lstTestaments.size()));
+	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return NULL;
+	return &m_lstTestaments.at(nTst-1);
+}
+
+const CTOCEntry *CBibleDatabase::tocEntry(uint32_t nBk) const
+{
+	assert((nBk >= 1) && (nBk <= m_lstTOC.size()));
+	if ((nBk < 1) || (nBk > m_lstTOC.size())) return NULL;
+	return &m_lstTOC.at(nBk-1);
+}
+
+const CLayoutEntry *CBibleDatabase::layoutEntry(const CRelIndex &ndx) const
+{
+	TLayoutMap::const_iterator layout = m_mapLayout.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (layout == m_mapLayout.end()) return NULL;
+	return &(layout->second);
+}
+
+const CBookEntry *CBibleDatabase::bookEntry(const CRelIndex &ndx) const
+{
+	if ((ndx.book() < 1) || (ndx.book() > m_lstBooks.size())) return NULL;
+	const TBookEntryMap &book = m_lstBooks[ndx.book()-1];
+	const TBookEntryMap::const_iterator mapVerse = book.find(CRelIndex(0, ndx.chapter(), ndx.verse(), 0));
+	if (mapVerse == book.end()) return NULL;
+	return &(mapVerse->second);
+}
+
+const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
+{
+	TWordListMap::const_iterator word = m_mapWordList.find(strWord);
+	if (word == m_mapWordList.end()) return NULL;
+	return &(word->second);
+}
+
+QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
+{
+	assert((ndxNormal >= 1) && (ndxNormal <= m_lstConcordanceMapping.size()));
+	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+		return QString();
+
+	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)-1);
+}
+
+const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
+{
+	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(ndx);
+	if (footnote == m_mapFootnotes.end()) return NULL;
+	return &(footnote->second);
 }
 
 // ============================================================================

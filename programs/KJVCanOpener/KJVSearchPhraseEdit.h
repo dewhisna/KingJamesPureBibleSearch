@@ -47,16 +47,20 @@
 
 // ============================================================================
 
-class CPhraseLineEdit : public QTextEdit, public CParsedPhrase
+class CPhraseLineEdit : public QTextEdit
 {
 	Q_OBJECT
 
 public:
 	CPhraseLineEdit(QWidget *pParent = 0);
+	virtual ~CPhraseLineEdit();
+
+	virtual void initialize(CBibleDatabasePtr pBibleDatabase);
+	const CParsedPhrase *parsedPhrase() const { return m_pParsedPhrase; }
 
 	QMenu *getEditMenu() const { return m_pEditMenu; }
 
-	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
+	virtual bool isCaseSensitive() const { return m_pParsedPhrase->isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
 
 public slots:
@@ -94,6 +98,8 @@ protected:
 
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
+	CParsedPhrase *m_pParsedPhrase;
 	QCompleter *m_pCompleter;					// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
@@ -120,7 +126,7 @@ class CKJVSearchPhraseEdit : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchPhraseEdit(bool bHaveUserData = true, QWidget *parent = 0);
+	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserData = true, QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
 
 	const CParsedPhrase *parsedPhrase() const;
@@ -148,6 +154,7 @@ protected slots:
 
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bHaveUserData;				// True if there is a user database defined (used for enabling add/remove icons)
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
 	bool m_bLastPhraseChangeHadResults;	// True if the last on_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications

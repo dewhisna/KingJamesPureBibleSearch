@@ -60,7 +60,7 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 	if (ndxRel.verse() != 0) {
 		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
-		CPhraseNavigator navigator(doc);
+		CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
 		CSearchResultHighlighter highlighter(item.phraseTags());
 
 		navigator.setDocumentToVerse(item.getIndex());

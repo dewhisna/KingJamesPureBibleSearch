@@ -717,6 +717,8 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 								QMessageBox::Ok);
 		return false;
 	} else {
+		CPhraseList phrases;
+
 		queryCreate.next();
 		if (queryCreate.value(0).toInt()) {
 			// If we found it, drop it so we can recreate it:
@@ -754,8 +756,6 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 				}
 			}
 
-			g_lstCommonPhrases.clear();
-
 			while (!csv.atEndOfStream()) {
 				QStringList sl;
 				csv >> sl;
@@ -767,11 +767,11 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 				phrase.m_strPhrase = sl.at(1);
 				phrase.m_bCaseSensitive = ((sl.at(2).toInt() != 0) ? true : false);
 				if (!phrase.m_strPhrase.isEmpty()) {
-					CParsedPhrase parsedPhrase;
+					CParsedPhrase parsedPhrase(CBibleDatabasePtr(), false);			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
 					parsedPhrase.ParsePhrase(phrase.m_strPhrase);
 					phrase.m_nNumWrd = parsedPhrase.phraseSize();
 
-					g_lstCommonPhrases.push_back(phrase);
+					phrases.push_back(phrase);
 				}
 			}
 
@@ -789,10 +789,7 @@ bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
 		}
 
 		// Get the phrases and use the CPhraseListModel to sort it (since that will be displaying it later):
-		CPhraseList phrases;
-		if (!bUserPhrases) {
-			phrases.append(g_lstCommonPhrases);
-		} else {
+		if (bUserPhrases) {
 			phrases.append(g_lstUserPhrases);
 		}
 		CPhraseListModel mdlPhrases(phrases);

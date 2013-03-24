@@ -28,10 +28,10 @@
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 
+#include <assert.h>
+
 CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	:	QWidget(parent),
-		m_tagStartRef(TPhraseTag(CRelIndex(), 1)),		// Start with default word-size of one so we highlight at least one word when tracking
-		m_tagPassage(TPhraseTag(CRelIndex(), 1)),		// ""  (ditto)
 		m_nTestament(0),
 		m_nBook(0),
 		m_nChapter(0),
@@ -41,32 +41,6 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		ui(new Ui::CKJVPassageNavigator)
 {
 	ui->setupUi(this);
-
-	int nBooks = 0;
-	int nChapters = 0;
-	int nVerses = 0;
-	int nWords = 0;
-
-	ui->comboTestament->clear();
-	for (unsigned int ndx=0; ndx<=g_lstTestaments.size(); ++ndx){
-		if (ndx == 0) {
-			ui->comboTestament->addItem("Entire Bible", ndx);
-		} else {
-			ui->comboTestament->addItem(g_lstTestaments[ndx-1].m_strTstName, ndx);
-			nBooks += g_lstTestaments[ndx-1].m_nNumBk;
-			nChapters += g_lstTestaments[ndx-1].m_nNumChp;
-			nVerses += g_lstTestaments[ndx-1].m_nNumVrs;
-			nWords += g_lstTestaments[ndx-1].m_nNumWrd;
-		}
-	}
-
-	ui->spinBook->setRange(0, nBooks);
-	ui->spinChapter->setRange(0, nChapters);
-	ui->spinVerse->setRange(0, nVerses);
-	ui->spinWord->setRange(0, nWords);
-
-	startAbsoluteMode();
-	reset();
 
 	QAction *pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
@@ -87,12 +61,51 @@ CKJVPassageNavigator::~CKJVPassageNavigator()
 	delete ui;
 }
 
+void CKJVPassageNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
+{
+	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
+	assert(pBibleDatabase.data() != NULL);
+	m_pBibleDatabase = pBibleDatabase;
+	ui->editVersePreview->initialize(pBibleDatabase);
+
+	m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// Start with default word-size of one so we highlight at least one word when tracking
+	m_tagPassage = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// ""  (ditto)
+
+	int nBooks = 0;
+	int nChapters = 0;
+	int nVerses = 0;
+	int nWords = 0;
+
+	ui->comboTestament->clear();
+	for (unsigned int ndx=0; ndx<=m_pBibleDatabase->bibleEntry().m_nNumTst; ++ndx){
+		if (ndx == 0) {
+			ui->comboTestament->addItem("Entire Bible", ndx);
+		} else {
+			ui->comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
+			nBooks += m_pBibleDatabase->testamentEntry(ndx)->m_nNumBk;
+			nChapters += m_pBibleDatabase->testamentEntry(ndx)->m_nNumChp;
+			nVerses += m_pBibleDatabase->testamentEntry(ndx)->m_nNumVrs;
+			nWords += m_pBibleDatabase->testamentEntry(ndx)->m_nNumWrd;
+		}
+	}
+
+	ui->spinBook->setRange(0, nBooks);
+	ui->spinChapter->setRange(0, nChapters);
+	ui->spinVerse->setRange(0, nVerses);
+	ui->spinWord->setRange(0, nWords);
+
+	startAbsoluteMode(TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
+	reset();
+}
+
 void CKJVPassageNavigator::reset()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (isAbsolute()) {
-		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
+		setPassage(TPhraseTag(m_pBibleDatabase, CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
 	} else {
-		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.second));
+		setPassage(TPhraseTag(m_pBibleDatabase, CRelIndex(), m_tagPassage.second));
 	}
 }
 
@@ -171,11 +184,27 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	m_tagPassage.first = CRefCountCalc::calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
-	ui->editResolved->setText(m_tagPassage.first.PassageReferenceText());
-	CPhraseEditNavigator navigator(*ui->editVersePreview);
+	assert(m_pBibleDatabase.data() != NULL);
+
+	m_tagPassage.first = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
+	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.first));
+	CPhraseEditNavigator navigator(m_pBibleDatabase, *ui->editVersePreview);
 	navigator.setDocumentToVerse(m_tagPassage.first);
 	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
+}
+
+void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart)
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	startRelativeMode(tagStart, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
+}
+
+void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse)
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	startRelativeMode(tagStart, bReverse, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 }
 
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
@@ -185,12 +214,14 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tag
 
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_update();
 
 	if (tagStart.first.isSet()) {
 		m_tagStartRef = tagStart;
 	} else {
-		m_tagStartRef = TPhraseTag(CRelIndex(1,1,1,1), 1);
+		m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(1,1,1,1), 1);
 	}
 
 	ui->lblTestament->hide();
@@ -200,7 +231,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->editStartRef->show();
 	ui->chkboxReverse->show();
 
-	ui->editStartRef->setText(m_tagStartRef.first.PassageReferenceText());
+	ui->editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.first));
 	ui->chkboxReverse->setChecked(bReverse);
 
 	ui->lblBook->setText("&Books:");
@@ -222,9 +253,11 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 
 void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_update();
 
-	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
+	m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
 
 	ui->lblStartRef->hide();
 	ui->editStartRef->hide();

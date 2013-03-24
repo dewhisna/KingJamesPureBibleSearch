@@ -37,6 +37,9 @@
 #include <QPair>
 #include <QMetaType>
 #include <QDataStream>
+#include <QSharedPointer>
+
+#include <assert.h>
 
 #ifndef uint32_t
 #define uint32_t unsigned int
@@ -81,13 +84,6 @@ public:
 		return QString("%1").arg(m_ndx);
 	}
 
-	QString SearchResultToolTip(int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
-	QString PassageReferenceText() const;		// Creates a reference text string like "Genesis 1:1 [5]"
-
-	QString testamentName() const;
-	uint32_t testament() const;
-
-	QString bookName() const;
 	inline uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
 	inline void setBook(uint32_t nBk) {
 		m_ndx = ((m_ndx & 0x00FFFFFF) | ((nBk & 0xFF) << 24));
@@ -128,10 +124,6 @@ inline QDataStream& operator>>(QDataStream &in, CRelIndex &ndx) {
 	return in;
 }
 
-extern uint32_t NormalizeIndex(const CRelIndex &nRelIndex);
-extern uint32_t NormalizeIndex(uint32_t nRelIndex);
-extern uint32_t DenormalizeIndex(uint32_t nNormalIndex);
-
 // ============================================================================
 
 // Pair representing X (first) of Y (second) things:
@@ -141,6 +133,8 @@ public:
 	explicit inline TCountOf(unsigned int x = 0, unsigned int y = 0)
 		:	QPair<unsigned int, unsigned int>(x, y) { }
 };
+
+class CBibleDatabase;		// Forward declaration:
 
 class CRefCountCalc			// Calculates the reference count information for creating ToolTips and indices
 {
@@ -153,11 +147,8 @@ public:
 		RTE_WORD = 4
 	};
 
-	CRefCountCalc(REF_TYPE_ENUM nRefType, const CRelIndex &refIndex);
+	CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM nRefType, const CRelIndex &refIndex);
 	~CRefCountCalc() { }
-
-	static QString SearchResultToolTip(const CRelIndex &refIndex, int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1);		// Create complete reference statistics report
-	static QString PassageReferenceText(const CRelIndex &refIndex);		// Creates a reference text string like "Genesis 1:1 [5]"
 
 	REF_TYPE_ENUM refType() const { return m_nRefType; }
 	CRelIndex refIndex() const { return m_ndxRef; }
@@ -167,19 +158,6 @@ public:
 	TCountOf ofBook() const { return m_nOfBk; }
 	TCountOf ofChapter() const { return m_nOfChp; }
 	TCountOf ofVerse() const { return m_nOfVrs; }
-
-	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
-	//			calcRelIndex(1, 1, 666, 0, 1);						// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
-	//			calcRelIndex(1, 393, 0, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 393 of Book 5 of the Bible
-	//			calcRelIndex(1, 13, 13, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Bible
-	//			calcRelIndex(1, 13, 13, 5, 1);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Old Testament
-	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
-	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
-	static CRelIndex calcRelIndex(
-						unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
-						unsigned int nBook, unsigned int nTestament,
-						CRelIndex ndxStart = CRelIndex(),
-						bool bReverse = false);
 
 private:
 	CRelIndex m_ndxRef;			// Relative Index
@@ -238,9 +216,18 @@ public:
 
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
 
-extern TTestamentList g_lstTestaments;		// Global Testament List
+// BIBLE -- Bible Entry (Derived from CTestamentEntry to keep stats for the whole Bible)
+class CBibleEntry : public CTestamentEntry
+{
+public:
+	CBibleEntry()
+	:	CTestamentEntry("Entire Bible"),
+		m_nNumTst(0)
+	{ }
+	~CBibleEntry() { }
 
-extern CTestamentEntry g_EntireBible;		// Entire Bible stats, calculated from testament stats in ReadDB.
+	unsigned int m_nNumTst;		// Number of Testaments
+};
 
 // ============================================================================
 
@@ -272,8 +259,6 @@ public:
 
 typedef std::vector<CTOCEntry> TTOCList;	// Index by nBk-1
 
-extern TTOCList g_lstTOC;		// Global Table of Contents
-
 // ============================================================================
 
 // LAYOUT -- Book/Chapter Layout:
@@ -292,8 +277,6 @@ public:
 };
 
 typedef std::map<CRelIndex, CLayoutEntry, IndexSortPredicate> TLayoutMap;	// Index by [nBk|nChp|0|0]
-
-extern TLayoutMap g_mapLayout;	// Global Layout
 
 // ============================================================================
 
@@ -327,8 +310,6 @@ typedef std::map<CRelIndex, CBookEntry, IndexSortPredicate> TBookEntryMap;		// I
 
 typedef std::vector<TBookEntryMap> TBookList;	// Index by nBk-1
 
-extern TBookList g_lstBooks;	// Global Books
-
 // ============================================================================
 
 // WORDS -- Word List and Mapping
@@ -355,9 +336,7 @@ public:
 	};
 };
 
-typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;
-
-extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed by lowercase word)
+typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		// Indexed by lowercase words from word-list
 
 // ============================================================================
 
@@ -365,9 +344,6 @@ extern TWordListMap g_mapWordList;	// Our one and only master word list (Indexed
 //
 
 typedef QStringList TConcordanceList;
-
-extern TConcordanceList g_lstConcordanceWords;		// List of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
-extern TIndexList g_lstConcordanceMapping;			// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 
 
 // ============================================================================
@@ -401,9 +377,6 @@ private:
 };
 
 typedef std::map<CRelIndex, CFootnoteEntry, IndexSortPredicate> TFootnoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
-
-extern TFootnoteEntryMap g_mapFootnotes;		// Global Footnotes
-
 
 // ============================================================================
 
@@ -454,9 +427,106 @@ inline uint qHash(const CPhraseEntry &key)
 	return (key.m_bCaseSensitive ? (nHash*2) : nHash);
 }
 
-extern CPhraseList g_lstCommonPhrases;			// Common phrases read from database
 extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database
 extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
+
+
+// ============================================================================
+
+class CReadDatabase;			// Forward declaration for class friendship
+
+// CBibleDatabase - Class to define a Bible Database file
+class CBibleDatabase
+{
+private:
+	CBibleDatabase(const QString &strName, const QString &strDescription);		// Creatable by CReadDatabase
+public:
+	~CBibleDatabase();
+
+	QString name() const { return m_strName; }
+	QString description() const { return m_strDescription; }
+
+	// CRelIndex Name/Report Functions:
+	QString SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
+	QString PassageReferenceText(const CRelIndex &nRelIndex) const;		// Creates a reference text string like "Genesis 1:1 [5]"
+
+	QString testamentName(const CRelIndex &nRelIndex) const;
+	uint32_t testament(const CRelIndex &nRelIndex) const;
+
+	QString bookName(const CRelIndex &nRelIndex) const;
+
+	// CRelIndex Transformation Functions:
+	inline uint32_t NormalizeIndex(const CRelIndex &nRelIndex) const { return NormalizeIndex(nRelIndex.index()); }
+	uint32_t NormalizeIndex(uint32_t nRelIndex) const;
+	uint32_t DenormalizeIndex(uint32_t nNormalIndex) const;
+
+	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
+	//			calcRelIndex(1, 1, 666, 0, 1);						// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
+	//			calcRelIndex(1, 393, 0, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 393 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 0);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Bible
+	//			calcRelIndex(1, 13, 13, 5, 1);						// Returns (5, 13, 13, 1) or Deuteronomy 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the Old Testament
+	//			calcRelIndex(1, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+	//			calcRelIndex(0, 13, 13, 5, 2);						// Returns (44, 13, 13, 1) or Acts 13:13 [1], Word 1 of Verse 13 of Chapter 13 of Book 5 of the New Testament
+	CRelIndex calcRelIndex(
+					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
+					unsigned int nBook, unsigned int nTestament,
+					CRelIndex ndxStart = CRelIndex(),
+					bool bReverse = false) const;
+
+	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
+	{
+		return m_EntireBible;
+	}
+	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
+	const CTOCEntry *tocEntry(uint32_t nBk) const;						// Table of Contents (Books)
+	const CLayoutEntry *layoutEntry(const CRelIndex &ndx) const;		// Layout Use CRelIndex:[Book | Chapter | 0 | 0]
+	const CBookEntry *bookEntry(const CRelIndex &ndx) const;			// Book Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
+	const CWordEntry *wordlistEntry(const QString &strWord) const;		// WordList Data Entry: Index by lowercase keyword
+	inline const TWordListMap &mapWordList() const						// Master word-list Map
+	{
+		return m_mapWordList;
+	}
+	inline const TConcordanceList &concordanceWordList() const			// List of all words in sorted order.  Used for initial list for FindWords()
+	{
+		return m_lstConcordanceWords;
+	}
+	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
+	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
+	inline const CPhraseList &phraseList() const						// Returns the Common Phrases List from the Main Database for this Bible Database
+	{
+		return m_lstCommonPhrases;
+	}
+
+private:
+	// CReadDatabase needed to load the database.  After that everything
+	//	is read-only.  Database building is done directly from the CSV files
+	//
+	friend class CReadDatabase;
+
+// Main Database Data:
+	CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
+	TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
+	TTOCList m_lstTOC;						// Table of Contents: List(nBk-1)
+	TLayoutMap m_mapLayout;					// Layout Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
+	TBookList m_lstBooks;					// Book Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
+	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
+	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
+	TIndexList m_lstConcordanceMapping;		// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
+	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
+
+// Local Data:
+	QString m_strName;						// Name for this database
+	QString m_strDescription;				// Database description
+};
+
+
+typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
+
+typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
+
+extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
+extern TBibleDatabaseList g_lstBibleDatabases;
 
 // ============================================================================
 
@@ -464,14 +534,21 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 class TPhraseTag : public QPair<CRelIndex, unsigned int>
 {
 public:
-	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
-		:	QPair<CRelIndex, unsigned int>(ndx, nCount) { }
+	explicit inline TPhraseTag(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
+		:	QPair<CRelIndex, unsigned int>(ndx, nCount),
+			m_pBibleDatabase(pBibleDatabase)
+	{ }
+
+	inline CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
 	QString PassageReferenceRangeText() const {
-		QString strReferenceRangeText = first.PassageReferenceText();
+		assert(m_pBibleDatabase.data() != NULL);
+
+		if (m_pBibleDatabase.data() == NULL) return QString();
+		QString strReferenceRangeText = m_pBibleDatabase->PassageReferenceText(first);
 		if (second > 1) {
-			uint32_t nNormal = NormalizeIndex(first);
-			strReferenceRangeText += " - " + CRelIndex(DenormalizeIndex(nNormal + second - 1)).PassageReferenceText();
+			uint32_t nNormal = m_pBibleDatabase->NormalizeIndex(first);
+			strReferenceRangeText += " - " + m_pBibleDatabase->PassageReferenceText(CRelIndex(m_pBibleDatabase->DenormalizeIndex(nNormal + second - 1)));
 		}
 		return strReferenceRangeText;
 	}
@@ -489,6 +566,9 @@ public:
 		return ((first.index() != otherTag.first.index()) ||
 				(second != otherTag.second));
 	}
+
+private:
+	CBibleDatabasePtr m_pBibleDatabase;
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

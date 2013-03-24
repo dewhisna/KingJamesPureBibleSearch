@@ -65,6 +65,8 @@ public:
 	explicit CScriptureText(QWidget *parent = 0);
 	virtual ~CScriptureText();
 
+	void initialize(CBibleDatabasePtr pBibleDatabase);
+
 	void savePersistentSettings(const QString &strGroup);
 	void restorePersistentSettings(const QString &strGroup);
 
@@ -79,7 +81,7 @@ public:
 		return (m_selectedPhrase.second.haveSelection());
 	}
 	TPhraseTag selection() const {
-		if (!m_selectedPhrase.second.haveSelection()) return TPhraseTag(m_tagLast.first, 0);
+		if (!m_selectedPhrase.second.haveSelection()) return TPhraseTag(m_pBibleDatabase, m_tagLast.first, 0);
 		return (m_selectedPhrase.second);
 	}
 
@@ -126,6 +128,7 @@ public:
 	virtual void on_copyEntirePassageDetails();
 
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	CPhraseEditNavigator m_navigator;

@@ -52,8 +52,9 @@ void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 
 // ============================================================================
 
-CVerseListModel::CVerseListModel(QObject *parent)
+CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
 	:	QAbstractItemModel(parent),
+		m_pBibleDatabase(pBibleDatabase),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
@@ -61,8 +62,9 @@ CVerseListModel::CVerseListModel(QObject *parent)
 {
 }
 
-CVerseListModel::CVerseListModel(const CVerseList &verses, QObject *parent)
+CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, const CVerseList &verses, QObject *parent)
 	:	QAbstractItemModel(parent),
+		m_pBibleDatabase(pBibleDatabase),
 		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
@@ -223,6 +225,8 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (!index.isValid()) return QVariant();
 
 	CRelIndex ndxRel(index.internalId());
@@ -231,7 +235,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 	if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-			QString strBookText = ndxRel.bookName();
+			QString strBookText = m_pBibleDatabase->bookName(ndxRel);
 			if (m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
 			int nVerses = GetVerseCount(ndxRel.book());
 			int nResults = GetResultsCount(ndxRel.book());
@@ -250,7 +254,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 	if (ndxRel.verse() == 0) {
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-			QString strChapterText = ndxRel.bookName() + QString(" %1").arg(ndxRel.chapter());
+			QString strChapterText = m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
 			if (m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
 			int nVerses = GetVerseCount(ndxRel.book(), ndxRel.chapter());
 			int nResults = GetResultsCount(ndxRel.book(), ndxRel.chapter());
@@ -692,13 +696,17 @@ QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nVerse) const
 
 int CVerseListModel::GetBookCount() const
 {
-	return (m_bShowMissingLeafs ? g_lstTOC.size() : GetBookIndexAndCount().second);
+	assert(m_pBibleDatabase.data() != NULL);
+
+	return (m_bShowMissingLeafs ? m_pBibleDatabase->bibleEntry().m_nNumBk : GetBookIndexAndCount().second);
 }
 
 int CVerseListModel::IndexByBook(unsigned int nBk) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bShowMissingLeafs) {
-		if ((nBk < 1) || (nBk > g_lstTOC.size())) return -1;
+		if ((nBk < 1) || (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk)) return -1;
 		return (nBk-1);
 	}
 
@@ -726,8 +734,10 @@ int CVerseListModel::IndexByBook(unsigned int nBk) const
 
 unsigned int CVerseListModel::BookByIndex(int ndxBook) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (m_bShowMissingLeafs) {
-		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= g_lstTOC.size())) return 0;
+		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= m_pBibleDatabase->bibleEntry().m_nNumBk)) return 0;
 		return (ndxBook+1);
 	}
 
@@ -755,10 +765,12 @@ unsigned int CVerseListModel::BookByIndex(int ndxBook) const
 
 int CVerseListModel::GetChapterCount(unsigned int nBk) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if (nBk == 0) return 0;
 	if (m_bShowMissingLeafs) {
-		if (nBk > g_lstTOC.size()) return 0;
-		return g_lstTOC[nBk-1].m_nNumChp;
+		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
+		return m_pBibleDatabase->tocEntry(nBk)->m_nNumChp;
 	}
 
 	int nChapters = 0;
@@ -786,10 +798,12 @@ int CVerseListModel::GetChapterCount(unsigned int nBk) const
 
 int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if ((nBk == 0) || (nChp == 0)) return -1;
 	if (m_bShowMissingLeafs) {
-		if (nBk > g_lstTOC.size()) return -1;
-		if (nChp > g_lstTOC[nBk-1].m_nNumChp) return -1;
+		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
+		if (nChp > m_pBibleDatabase->tocEntry(nBk)->m_nNumChp) return -1;
 		return (nChp-1);
 	}
 
@@ -819,10 +833,12 @@ int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 
 unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
 	if (m_bShowMissingLeafs) {
-		if (static_cast<unsigned int>(ndxBook) >= g_lstTOC.size()) return 0;
-		if (static_cast<unsigned int>(ndxChapter) >= g_lstTOC[ndxBook].m_nNumChp) return 0;
+		if (static_cast<unsigned int>(ndxBook) >= m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
+		if (static_cast<unsigned int>(ndxChapter) >= m_pBibleDatabase->tocEntry(ndxBook+1)->m_nNumChp) return 0;
 		return (ndxChapter+1);
 	}
 
@@ -974,6 +990,8 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 
 TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	CVerseList lstReferences;
 	TPhraseTagList lstResults;
 
@@ -988,7 +1006,7 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
 		if (!lstResults.at(ndxResults).first.isSet()) {
 			assert(false);
-			lstReferences.push_back(CVerseListItem(0, 0));
+			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
 			continue;
 		}
 		lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
@@ -1021,6 +1039,8 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 
 CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	CRelIndex indexScoped;
 
 	switch (nMode) {
@@ -1031,12 +1051,12 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria
 		case (CKJVSearchCriteria::SSME_TESTAMENT):
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
 			if (index.book()) {
-				if (index.book() <= g_lstTOC.size()) {
-					const CTOCEntry &toc = g_lstTOC[index.book()-1];
+				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
+					const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(index.book());
 					unsigned int nTestament = toc.m_nTstNdx;
 					unsigned int nBook = 1;
 					for (unsigned int i=1; i<nTestament; ++i)
-						nBook += g_lstTestaments[i-1].m_nNumBk;
+						nBook += m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
 					indexScoped = CRelIndex(nBook, 0, 0 ,0);
 				}
 			}

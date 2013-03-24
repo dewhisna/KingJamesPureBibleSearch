@@ -61,7 +61,7 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	:	T(parent),
 		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
-		m_navigator(*this, T::useToolTipEdit()),
+		m_navigator(CBibleDatabasePtr(), *this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
@@ -158,6 +158,17 @@ template<class T, class U>
 CScriptureText<T,U>::~CScriptureText()
 {
 
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::initialize(CBibleDatabasePtr pBibleDatabase)
+{
+	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
+	assert(pBibleDatabase.data() != NULL);
+	m_pBibleDatabase = pBibleDatabase;
+	m_navigator.initialize(pBibleDatabase);
 }
 
 // ----------------------------------------------------------------------------
@@ -320,10 +331,12 @@ void CScriptureText<T,U>::showDetails()
 template<>
 void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_popup();
 
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_tagLast = TPhraseTag(m_pBibleDatabase, ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
@@ -339,6 +352,8 @@ void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QM
 template<class T, class U>
 void CScriptureText<T,U>::on_passageNavigator()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_popup();
 
 	// This now works exclusively by edit cursor position, not the mouse position from
@@ -353,13 +368,13 @@ void CScriptureText<T,U>::on_passageNavigator()
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
 	TPhraseTag tagHighlight = tagSel;
-	CRefCountCalc Wrd(CRefCountCalc::RTE_WORD, tagHighlight.first);
+	CRefCountCalc Wrd(m_pBibleDatabase.data(), CRefCountCalc::RTE_WORD, tagHighlight.first);
 	tagHighlight.second = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.second);
 
 	m_Highlighter.setEnabled(true);
 	m_navigator.highlightTag(m_Highlighter, tagHighlight);
-	CKJVPassageNavigatorDlg dlg(T::parentWidget());
-//	dlg.navigator().startRelativeMode(tagSel, false);
+	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, T::parentWidget());
+//	dlg.navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	dlg.navigator().startAbsoluteMode(tagSel);
 	if (dlg.exec() == QDialog::Accepted) {
 		emit T::gotoIndex(dlg.passage());
@@ -371,10 +386,12 @@ void CScriptureText<T,U>::on_passageNavigator()
 template<class T, class U>
 void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	begin_popup();
 
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_tagLast = TPhraseTag(m_pBibleDatabase, ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
@@ -413,6 +430,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 template<class T, class U>
 QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QMimeData *mime = U::createMimeDataFromSelection();
 	if (m_bDoPlainCopyOnly) {
 		// Let the base class do the copy, but snag the plaintext
@@ -424,7 +443,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 		if (mime->hasHtml()) {
 			QTextDocument docCopy;
 			docCopy.setHtml(mime->html());
-			CPhraseNavigator navigator(docCopy);
+			CPhraseNavigator navigator(m_pBibleDatabase, docCopy);
 			navigator.removeAnchors();
 			mime->setHtml(docCopy.toHtml());
 		}
@@ -454,6 +473,8 @@ void CScriptureText<T,U>::on_selectionChanged()
 template<class T, class U>
 void CScriptureText<T,U>::updateSelection()
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	bool bOldSel = haveSelection();
 	m_selectedPhrase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
@@ -462,7 +483,7 @@ void CScriptureText<T,U>::updateSelection()
 	if (haveSelection()) {
 		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText();
 	} else if (m_tagLast.first.isSet()) {
-		strStatusText = m_tagLast.first.PassageReferenceText();
+		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.first);
 	}
 
 	if (m_selectedPhrase.second.second > 0) {
@@ -475,7 +496,7 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (!haveSelection()) {
 		TPhraseTagList lstTags(m_Highlighter.getHighlightTags());
-		TPhraseTag nNewSel = TPhraseTag(m_tagLast.first, 1);
+		TPhraseTag nNewSel = TPhraseTag(m_pBibleDatabase, m_tagLast.first, 1);
 		if  ((lstTags.size() == 0) || (lstTags[0] != nNewSel))
 			m_navigator.highlightTag(m_Highlighter, nNewSel);
 	}
@@ -569,8 +590,10 @@ void CScriptureText<T,U>::on_copyEntirePassageDetails()
 template<class T, class U>
 void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QTextDocument docFormattedVerses;
-	CPhraseNavigator navigator(docFormattedVerses);
+	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
 	if (haveSelection()) {
 		navigator.setDocumentToFormattedVerses(m_selectedPhrase.second);
 	} else {

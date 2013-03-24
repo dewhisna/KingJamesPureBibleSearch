@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 
 	// Read Main Database
 	CReadDatabase rdb(splash);
-	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath())) {
+	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), "King James", "King James Version (1769)", true)) {
 		QMessageBox::warning(splash, g_constrInitialization, "Failed to Read and Validate KJV Database!\nCheck Installation!");
 		return -2;
 	}
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener wMain(strUserDatabaseFilename);
+	CKJVCanOpener wMain(g_pMainBibleDatabase, strUserDatabaseFilename);
 	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
 	g_pMainWindow = &wMain;
 #ifdef Q_WS_WIN
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
 	splash->finish(&wMain);
 	delete splash;
 
-	wMain.Initialize();
+	wMain.initialize();
 
 	if (!strKJSFile.isEmpty()) wMain.openKJVSearchFile(strKJSFile);
 

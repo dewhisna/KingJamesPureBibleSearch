@@ -40,6 +40,8 @@ public:
 	explicit CKJVPassageNavigator(QWidget *parent = 0);
 	virtual ~CKJVPassageNavigator();
 
+	void initialize(CBibleDatabasePtr pBibleDatabase);
+
 	TPhraseTag passage() const { return m_tagPassage; }
 	void setPassage(const TPhraseTag &tag);
 	TPhraseTag startRef() const { return m_tagStartRef; }
@@ -49,9 +51,11 @@ public:
 	bool isAbsolute() const { return (!m_tagStartRef.first.isSet()); }
 
 public slots:
-	void startRelativeMode(TPhraseTag tagStart = TPhraseTag(CRelIndex(), 1), TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
-	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
-	void startAbsoluteMode(TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
+	void startRelativeMode(TPhraseTag tagStart);
+	void startRelativeMode(TPhraseTag tagStart, bool bReverse);
+	void startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage);
+	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage);
+	void startAbsoluteMode(TPhraseTag tagPassage);
 	void reset();
 
 signals:
@@ -81,6 +85,7 @@ private:
 
 // UI Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()							\
