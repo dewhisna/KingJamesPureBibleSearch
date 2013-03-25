@@ -336,7 +336,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 	begin_popup();
 
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag(m_pBibleDatabase, ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_tagLast = TPhraseTag( ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
@@ -391,7 +391,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	begin_popup();
 
 	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag(m_pBibleDatabase, ndxLast, (ndxLast.isSet() ? 1 : 0));
+	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
@@ -481,7 +481,7 @@ void CScriptureText<T,U>::updateSelection()
 	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0));
 	QString strStatusText;
 	if (haveSelection()) {
-		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText();
+		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText(m_pBibleDatabase);
 	} else if (m_tagLast.first.isSet()) {
 		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.first);
 	}
@@ -496,7 +496,7 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (!haveSelection()) {
 		TPhraseTagList lstTags(m_Highlighter.getHighlightTags());
-		TPhraseTag nNewSel = TPhraseTag(m_pBibleDatabase, m_tagLast.first, 1);
+		TPhraseTag nNewSel = TPhraseTag(m_tagLast.first, 1);
 		if  ((lstTags.size() == 0) || (lstTags[0] != nNewSel))
 			m_navigator.highlightTag(m_Highlighter, nNewSel);
 	}

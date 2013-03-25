@@ -68,8 +68,8 @@ void CKJVPassageNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pBibleDatabase = pBibleDatabase;
 	ui->editVersePreview->initialize(pBibleDatabase);
 
-	m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// Start with default word-size of one so we highlight at least one word when tracking
-	m_tagPassage = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// ""  (ditto)
+	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Start with default word-size of one so we highlight at least one word when tracking
+	m_tagPassage = TPhraseTag(CRelIndex(), 1);		// ""  (ditto)
 
 	int nBooks = 0;
 	int nChapters = 0;
@@ -94,7 +94,7 @@ void CKJVPassageNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
 	ui->spinVerse->setRange(0, nVerses);
 	ui->spinWord->setRange(0, nWords);
 
-	startAbsoluteMode(TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
+	startAbsoluteMode(TPhraseTag(CRelIndex(), 1));
 	reset();
 }
 
@@ -103,9 +103,9 @@ void CKJVPassageNavigator::reset()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	if (isAbsolute()) {
-		setPassage(TPhraseTag(m_pBibleDatabase, CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
+		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
 	} else {
-		setPassage(TPhraseTag(m_pBibleDatabase, CRelIndex(), m_tagPassage.second));
+		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.second));
 	}
 }
 
@@ -193,20 +193,6 @@ void CKJVPassageNavigator::CalcPassage()
 	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 }
 
-void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart)
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	startRelativeMode(tagStart, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
-}
-
-void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse)
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	startRelativeMode(tagStart, bReverse, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
-}
-
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
 {
 	startRelativeMode(tagStart, isReversed(), tagPassage);
@@ -221,7 +207,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	if (tagStart.first.isSet()) {
 		m_tagStartRef = tagStart;
 	} else {
-		m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(1,1,1,1), 1);
+		m_tagStartRef = TPhraseTag(CRelIndex(1,1,1,1), 1);
 	}
 
 	ui->lblTestament->hide();
@@ -257,7 +243,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 
 	begin_update();
 
-	m_tagStartRef = TPhraseTag(m_pBibleDatabase, CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
+	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
 
 	ui->lblStartRef->hide();
 	ui->editStartRef->hide();

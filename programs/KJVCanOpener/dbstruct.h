@@ -534,21 +534,18 @@ extern TBibleDatabaseList g_lstBibleDatabases;
 class TPhraseTag : public QPair<CRelIndex, unsigned int>
 {
 public:
-	explicit inline TPhraseTag(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
-		:	QPair<CRelIndex, unsigned int>(ndx, nCount),
-			m_pBibleDatabase(pBibleDatabase)
+	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
+		:	QPair<CRelIndex, unsigned int>(ndx, nCount)
 	{ }
 
-	inline CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
+	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
+		assert(pBibleDatabase.data() != NULL);
 
-	QString PassageReferenceRangeText() const {
-		assert(m_pBibleDatabase.data() != NULL);
-
-		if (m_pBibleDatabase.data() == NULL) return QString();
-		QString strReferenceRangeText = m_pBibleDatabase->PassageReferenceText(first);
+		if (pBibleDatabase.data() == NULL) return QString();
+		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(first);
 		if (second > 1) {
-			uint32_t nNormal = m_pBibleDatabase->NormalizeIndex(first);
-			strReferenceRangeText += " - " + m_pBibleDatabase->PassageReferenceText(CRelIndex(m_pBibleDatabase->DenormalizeIndex(nNormal + second - 1)));
+			uint32_t nNormal = pBibleDatabase->NormalizeIndex(first);
+			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + second - 1)));
 		}
 		return strReferenceRangeText;
 	}
@@ -566,9 +563,6 @@ public:
 		return ((first.index() != otherTag.first.index()) ||
 				(second != otherTag.second));
 	}
-
-private:
-	CBibleDatabasePtr m_pBibleDatabase;
 };
 Q_DECLARE_METATYPE(TPhraseTag)
 

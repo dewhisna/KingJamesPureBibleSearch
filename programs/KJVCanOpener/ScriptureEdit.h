@@ -81,7 +81,7 @@ public:
 		return (m_selectedPhrase.second.haveSelection());
 	}
 	TPhraseTag selection() const {
-		if (!m_selectedPhrase.second.haveSelection()) return TPhraseTag(m_pBibleDatabase, m_tagLast.first, 0);
+		if (!m_selectedPhrase.second.haveSelection()) return TPhraseTag(m_tagLast.first, 0);
 		return (m_selectedPhrase.second);
 	}
 

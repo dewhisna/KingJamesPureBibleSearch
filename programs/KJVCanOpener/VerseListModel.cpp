@@ -1009,7 +1009,7 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
 			continue;
 		}
-		lstReferences.push_back(CVerseListItem(lstResults.at(ndxResults)));
+		lstReferences.push_back(CVerseListItem(m_pBibleDatabase, lstResults.at(ndxResults)));
 
 		CVerseListItem &verseItem(lstReferences.last());
 

@@ -51,10 +51,10 @@ public:
 	{
 		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
 		if (nPhraseSize > 0)
-			m_lstTags.push_back(TPhraseTag(m_pBibleDatabase, ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
+			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
 	}
-	CVerseListItem(const TPhraseTag &tag)
-		:	m_pBibleDatabase(tag.bibleDatabase()),
+	CVerseListItem(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag)
+		:	m_pBibleDatabase(pBibleDatabase),
 			m_ndxRelative(tag.first)
 	{
 		m_ndxRelative.setWord(0);				// Primary index will have a zero word index
@@ -138,7 +138,7 @@ public:
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return CRelIndex();
 		return m_lstTags.at(nTag).first;
 	}
-	void addPhraseTag(const CRelIndex &ndx, unsigned int nPhraseSize) { m_lstTags.push_back(TPhraseTag(m_pBibleDatabase, ndx, nPhraseSize)); }
+	void addPhraseTag(const CRelIndex &ndx, unsigned int nPhraseSize) { m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize)); }
 	void addPhraseTag(const TPhraseTag &tag) { m_lstTags.push_back(tag); }
 	const TPhraseTagList &phraseTags() const { return m_lstTags; }
 

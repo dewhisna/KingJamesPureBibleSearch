@@ -51,11 +51,9 @@ public:
 	bool isAbsolute() const { return (!m_tagStartRef.first.isSet()); }
 
 public slots:
-	void startRelativeMode(TPhraseTag tagStart);
-	void startRelativeMode(TPhraseTag tagStart, bool bReverse);
-	void startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage);
-	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage);
-	void startAbsoluteMode(TPhraseTag tagPassage);
+	void startRelativeMode(TPhraseTag tagStart = TPhraseTag(CRelIndex(), 1), TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
+	void startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
+	void startAbsoluteMode(TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));
 	void reset();
 
 signals:

@@ -447,9 +447,9 @@ void CSearchResultsTreeView::on_passageNavigator()
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
 
-//	dlg.navigator().startAbsoluteMode(TPhraseTag(m_pBibleDatabase, item.getIndex(), 0));
+//	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
 
-	dlg.navigator().startAbsoluteMode(TPhraseTag(m_pBibleDatabase, ndxRel, 0));
+	dlg.navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
 	if (dlg.exec() == QDialog::Accepted) {
 		emit gotoIndex(dlg.passage());
 	}
@@ -944,7 +944,7 @@ void CKJVCanOpener::initialize()
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
-	TPhraseTag tag(m_pBibleDatabase);
+	TPhraseTag tag;
 	settings.beginGroup(constrBrowserViewGroup);
 	// Read last location : Default initial location is Genesis 1
 	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
@@ -1897,7 +1897,7 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return;
 
-	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(m_pBibleDatabase, ndxRel));
+	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(ndxRel));
 	ui->widgetKJVBrowser->focusBrowser();
 }
 

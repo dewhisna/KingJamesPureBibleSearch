@@ -132,7 +132,7 @@ void CKJVBrowser::on_sourceChanged(const QUrl &src)
 	int nPos = strURL.indexOf('#');
 	if (nPos > -1) {
 		CRelIndex ndxRel(strURL.mid(nPos+1));
-		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(m_pBibleDatabase, ndxRel));
+		if (ndxRel.isSet()) gotoIndex2(TPhraseTag(ndxRel));
 	}
 }
 
@@ -166,7 +166,7 @@ void CKJVBrowser::on_Bible_Beginning()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(1,1,1,1)));
+	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1)));
 }
 
 void CKJVBrowser::on_Bible_Ending()
@@ -178,7 +178,7 @@ void CKJVBrowser::on_Bible_Ending()
 	ndx.setChapter(m_pBibleDatabase->tocEntry(ndx.book())->m_nNumChp);
 	ndx.setVerse(m_pBibleDatabase->layoutEntry(ndx)->m_nNumVrs);
 	ndx.setWord(m_pBibleDatabase->bookEntry(ndx)->m_nNumWrd);
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
+	gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::on_Book_Backward()
@@ -187,7 +187,7 @@ void CKJVBrowser::on_Book_Backward()
 
 	if (m_ndxCurrent.book() < 2) return;
 
-	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_Book_Forward()
@@ -196,7 +196,7 @@ void CKJVBrowser::on_Book_Forward()
 
 	if (m_ndxCurrent.book() >= m_pBibleDatabase->bibleEntry().m_nNumBk) return;
 
-	gotoIndex(TPhraseTag(m_pBibleDatabase, CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
+	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
 }
 
 void CKJVBrowser::on_ChapterBackward()
@@ -204,7 +204,7 @@ void CKJVBrowser::on_ChapterBackward()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::on_ChapterForward()
@@ -212,7 +212,7 @@ void CKJVBrowser::on_ChapterForward()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(m_pBibleDatabase, ndx));
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 // ----------------------------------------------------------------------------
@@ -326,7 +326,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
@@ -340,7 +340,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	if (index != -1) {
 		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
@@ -357,7 +357,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
@@ -374,7 +374,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
@@ -388,7 +388,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
@@ -403,7 +403,7 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
-	gotoIndex(TPhraseTag(m_pBibleDatabase, ndxTarget));
+	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 // ----------------------------------------------------------------------------

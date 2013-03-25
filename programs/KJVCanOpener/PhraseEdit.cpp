@@ -72,7 +72,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	m_cache_lstPhraseTagResults.clear();		// This call really shouldn't be needed since we already know the size is zero (above), but it just feels better with it. :-)
 	const TIndexList &lstPhraseResults(GetNormalizedSearchResults());
 	for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
-		m_cache_lstPhraseTagResults.append(TPhraseTag(m_pBibleDatabase, CRelIndex(m_pBibleDatabase->DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
+		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
 	}
 
 	return m_cache_lstPhraseTagResults;
@@ -1126,14 +1126,14 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 	ndxLast.setWord(1);			// Shift back to the first word of this verse
 	CRelIndex ndxNext = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxLast);	// Add a verse, so we ndxNext is on first word of next verse.
 	ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxNext) - 1);		// Move to next word so ndxLast is the last word of the last verse
-	TPhraseTag tagAdjusted(m_pBibleDatabase, ndxFirst, m_pBibleDatabase->NormalizeIndex(ndxNext) - m_pBibleDatabase->NormalizeIndex(ndxFirst));
+	TPhraseTag tagAdjusted(ndxFirst, m_pBibleDatabase->NormalizeIndex(ndxNext) - m_pBibleDatabase->NormalizeIndex(ndxFirst));
 
 //	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 //						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText()));		// Document Title
 
 //	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
 	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText()));		// Document Title
+						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText(m_pBibleDatabase)));		// Document Title
 
 	QString strReference;
 
@@ -1461,10 +1461,10 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 
 	assert(pHelpEvent != NULL);
 	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
-	QString strToolTip = getToolTip(TPhraseTag(m_pBibleDatabase, ndxReference, 1), selection);
+	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(m_pBibleDatabase, ndxReference, 1)));
+		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(ndxReference, 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
@@ -1492,7 +1492,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, c
 	QString strToolTip = getToolTip(tag, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(m_pBibleDatabase, tag.first, 1)));
+		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.first, 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
