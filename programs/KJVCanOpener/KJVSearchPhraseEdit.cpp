@@ -102,9 +102,6 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
-	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
-	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
-	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 
 	m_pStatusAction = new QAction(this);
 }
@@ -148,6 +145,10 @@ void CPhraseLineEdit::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
+
+	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
+	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
+	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 }
 
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
