@@ -38,9 +38,8 @@ class CKJVPassageNavigator : public QWidget
 
 public:
 	explicit CKJVPassageNavigator(QWidget *parent = 0);
+	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CKJVPassageNavigator();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	TPhraseTag passage() const { return m_tagPassage; }
 	void setPassage(const TPhraseTag &tag);
@@ -61,6 +60,7 @@ signals:
 	void gotoIndex(const TPhraseTag &tag);
 
 private:
+	void initialize();
 	void CalcPassage();
 
 private slots:
@@ -73,6 +73,7 @@ private slots:
 
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	TPhraseTag m_tagStartRef;	// Starting index		-- Will be unset if in Absolute Mode
 	TPhraseTag m_tagPassage;	// Index of passage
 	unsigned int m_nTestament;
@@ -83,7 +84,6 @@ private:
 
 // UI Private:
 private:
-	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()							\

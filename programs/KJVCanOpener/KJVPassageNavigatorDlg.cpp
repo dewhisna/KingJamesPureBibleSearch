@@ -24,6 +24,8 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "ui_KJVPassageNavigatorDlg.h"
 
+#include <QGridLayout>
+
 #include <QTimer>
 #include <assert.h>
 
@@ -36,10 +38,29 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	m_pCancelButton(NULL),
 	ui(new Ui::CKJVPassageNavigatorDlg)
 {
+	assert(pBibleDatabase.data() != NULL);
+
 	ui->setupUi(this);
 
-	assert(pBibleDatabase.data() != NULL);
-	ui->widgetKJVPassageNavigator->initialize(pBibleDatabase);
+	// --------------------------------------------------------------
+
+	//	Swapout the widgetKJVPassageNavigator from the layout with
+	//		one that we can set the database on:
+
+	int ndx = ui->gridLayout->indexOf(ui->widgetKJVPassageNavigator);
+	int nRow;
+	int nCol;
+	int nRowSpan;
+	int nColSpan;
+	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+
+	CKJVPassageNavigator *pPassageNavigator = new CKJVPassageNavigator(pBibleDatabase, this);
+	pPassageNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
+	delete ui->widgetKJVPassageNavigator;
+	ui->widgetKJVPassageNavigator = pPassageNavigator;
+	ui->gridLayout->addWidget(pPassageNavigator, nRow, nCol, nRowSpan, nColSpan);
+
+	// --------------------------------------------------------------
 
 	m_pApplyButton = ui->buttonBox->addButton("&Apply Resolved to From Location", QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(on_ApplyResolvedClicked()));

@@ -32,17 +32,18 @@
 
 #include <QTextDocumentFragment>
 
+#include <QGridLayout>
+
 #include <algorithm>
 #include <string>
 
 #include <assert.h>
 
-
 // ============================================================================
 
+// Placeholder Constructor:
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	QTextEdit(pParent),
-		m_pParsedPhrase(NULL),
 		m_pCompleter(NULL),
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
@@ -54,6 +55,26 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_pActionSelectAll(NULL),
 		m_pStatusAction(NULL)
 {
+
+}
+
+CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pParent)
+	:	QTextEdit(pParent),
+		CParsedPhrase(pBibleDatabase),
+		m_pBibleDatabase(pBibleDatabase),
+		m_pCompleter(NULL),
+		m_pCommonPhrasesCompleter(NULL),
+		m_nLastCursorWord(-1),
+		m_bUpdateInProgress(false),
+		m_bDoingPopup(false),
+		m_icoDroplist(":/res/droplist.png"),
+		m_pButtonDroplist(NULL),
+		m_pEditMenu(NULL),
+		m_pActionSelectAll(NULL),
+		m_pStatusAction(NULL)
+{
+	assert(pBibleDatabase.data() != NULL);
+
 	setAcceptRichText(false);
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
 
@@ -103,24 +124,6 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 
-	m_pStatusAction = new QAction(this);
-}
-
-CPhraseLineEdit::~CPhraseLineEdit()
-{
-	if (m_pParsedPhrase != NULL) {
-		delete m_pParsedPhrase;
-		m_pParsedPhrase = NULL;
-	}
-}
-
-void CPhraseLineEdit::initialize(CBibleDatabasePtr pBibleDatabase)
-{
-	assert(m_pParsedPhrase == NULL);			// Initialize must be called only once
-	assert(pBibleDatabase.data() != NULL);
-	m_pParsedPhrase = new CParsedPhrase(pBibleDatabase);
-	m_pBibleDatabase = pBibleDatabase;
-
 	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->concordanceWordList(), this);
 	m_pCompleter = new QCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
@@ -149,12 +152,18 @@ void CPhraseLineEdit::initialize(CBibleDatabasePtr pBibleDatabase)
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+
+	m_pStatusAction = new QAction(this);
+}
+
+CPhraseLineEdit::~CPhraseLineEdit()
+{
+
 }
 
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 {
-	assert(m_pParsedPhrase != NULL);
-	m_pParsedPhrase->setCaseSensitive(bCaseSensitive);
+	CParsedPhrase::setCaseSensitive(bCaseSensitive);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	if (!m_bUpdateInProgress) {
@@ -184,8 +193,7 @@ void CPhraseLineEdit::on_phraseListChanged()
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
 {
-	assert(m_pParsedPhrase != NULL);
-	m_pParsedPhrase->insertCompletion(textCursor(), completion);
+	CParsedPhrase::insertCompletion(textCursor(), completion);
 }
 
 void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
@@ -235,8 +243,7 @@ void CPhraseLineEdit::on_cursorPositionChanged()
 
 void CPhraseLineEdit::UpdateCompleter()
 {
-	assert(m_pParsedPhrase != NULL);
-	m_pParsedPhrase->UpdateCompleter(textCursor(), *m_pCompleter);
+	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
 
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -258,10 +265,10 @@ void CPhraseLineEdit::UpdateCompleter()
 	do {
 		cursor.selectWordUnderCursor();
 		if (/* (GetCursorWordPos() != nWord) && */
-			(static_cast<int>(m_pParsedPhrase->GetMatchLevel()) <= nWord) &&
-			(static_cast<int>(m_pParsedPhrase->GetCursorMatchLevel()) <= nWord) &&
-			((nWord != m_pParsedPhrase->GetCursorWordPos()) ||
-			 ((!m_pParsedPhrase->GetCursorWord().isEmpty()) && (nWord == m_pParsedPhrase->GetCursorWordPos()))
+			(static_cast<int>(GetMatchLevel()) <= nWord) &&
+			(static_cast<int>(GetCursorMatchLevel()) <= nWord) &&
+			((nWord != GetCursorWordPos()) ||
+			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
 			 )
 			) {
 			fmt.setFontStrikeOut(true);
@@ -278,11 +285,9 @@ void CPhraseLineEdit::UpdateCompleter()
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
 {
-	assert(m_pParsedPhrase != NULL);
-
 	// TODO : Remove this function after done debugging!
 
-	m_pParsedPhrase->ParsePhrase(curInsert);
+	CParsedPhrase::ParsePhrase(curInsert);
 
 /*
 	if (m_pStatusAction) {
@@ -370,8 +375,6 @@ void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 {
-	assert(m_pParsedPhrase != NULL);
-
 	bool bForceCompleter = false;
 
 //	if (m_pCompleter->popup()->isVisible())
@@ -394,7 +397,7 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 	ParsePhrase(textCursor());
 
-	QString strPrefix = m_pParsedPhrase->GetCursorWord();
+	QString strPrefix = GetCursorWord();
 	std::size_t nPreRegExp = strPrefix.toStdString().find_first_of("*?[]");
 	if (nPreRegExp != std::string::npos) {
 		strPrefix = strPrefix.left(nPreRegExp);
@@ -403,14 +406,14 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 	if (strPrefix != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(strPrefix);
 		UpdateCompleter();
-		if (m_nLastCursorWord != m_pParsedPhrase->GetCursorWordPos()) {
+		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
-			m_nLastCursorWord = m_pParsedPhrase->GetCursorWordPos();
+			m_nLastCursorWord = GetCursorWordPos();
 		}
 		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index(0, 0));
 	}
 
-	if (bForceCompleter || (!event->text().isEmpty() && ((m_pParsedPhrase->GetCursorWord().length() > 0) || (textCursor().atEnd()))))
+	if (bForceCompleter || (!event->text().isEmpty() && ((GetCursorWord().length() > 0) || (textCursor().atEnd()))))
 		m_pCompleter->complete();
 
 }
@@ -443,10 +446,36 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	ui->setupUi(this);
 
-	assert(m_pBibleDatabase.data() != NULL);
-	phraseEditor()->initialize(m_pBibleDatabase);
+	// --------------------------------------------------------------
+
+	//	Swapout the editPhrase from the layout with one that we
+	//		can set the database on:
+
+	int ndx = ui->gridLayout->indexOf(ui->editPhrase);
+	int nRow;
+	int nCol;
+	int nRowSpan;
+	int nColSpan;
+	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+
+	CPhraseLineEdit *pEditPhrase = new CPhraseLineEdit(pBibleDatabase, this);
+	pEditPhrase->setObjectName(QString::fromUtf8("editPhrase"));
+	pEditPhrase->setSizePolicy(ui->editPhrase->sizePolicy());
+	pEditPhrase->setMinimumSize(ui->editPhrase->minimumSize());
+	pEditPhrase->setMaximumSize(ui->editPhrase->maximumSize());
+	pEditPhrase->setVerticalScrollBarPolicy(ui->editPhrase->verticalScrollBarPolicy());
+	pEditPhrase->setHorizontalScrollBarPolicy(ui->editPhrase->horizontalScrollBarPolicy());
+	pEditPhrase->setTabChangesFocus(ui->editPhrase->tabChangesFocus());
+	pEditPhrase->setLineWrapMode(ui->editPhrase->lineWrapMode());
+	delete ui->editPhrase;
+	ui->editPhrase = pEditPhrase;
+	ui->gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
+
+	// --------------------------------------------------------------
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
 	ui->buttonAddPhrase->setEnabled(false);
@@ -505,7 +534,7 @@ void CKJVSearchPhraseEdit::focusEditor() const
 
 const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 {
-	return ui->editPhrase->parsedPhrase();
+	return ui->editPhrase;
 }
 
 CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const

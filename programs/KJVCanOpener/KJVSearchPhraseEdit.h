@@ -47,20 +47,18 @@
 
 // ============================================================================
 
-class CPhraseLineEdit : public QTextEdit
+class CPhraseLineEdit : public QTextEdit, public CParsedPhrase
 {
 	Q_OBJECT
 
 public:
-	CPhraseLineEdit(QWidget *pParent = 0);
+	explicit CPhraseLineEdit(QWidget *pParent = 0);
+	CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pParent = 0);
 	virtual ~CPhraseLineEdit();
-
-	virtual void initialize(CBibleDatabasePtr pBibleDatabase);
-	const CParsedPhrase *parsedPhrase() const { return m_pParsedPhrase; }
 
 	QMenu *getEditMenu() const { return m_pEditMenu; }
 
-	virtual bool isCaseSensitive() const { return m_pParsedPhrase->isCaseSensitive(); }
+	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
 
 public slots:
@@ -99,7 +97,6 @@ protected:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	CParsedPhrase *m_pParsedPhrase;
 	QCompleter *m_pCompleter;					// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing

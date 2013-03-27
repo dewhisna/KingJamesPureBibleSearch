@@ -30,6 +30,10 @@
 
 #include <assert.h>
 
+// ============================================================================
+
+// Placeholder Constructor:
+
 CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 	:	QWidget(parent),
 		m_nTestament(0),
@@ -38,9 +42,29 @@ CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
 		m_nVerse(0),
 		m_nWord(0),
 		m_bDoingUpdate(false),
+		ui(NULL)
+{
+
+}
+
+CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+	:	QWidget(parent),
+		m_pBibleDatabase(pBibleDatabase),
+		m_nTestament(0),
+		m_nBook(0),
+		m_nChapter(0),
+		m_nVerse(0),
+		m_nWord(0),
+		m_bDoingUpdate(false),
 		ui(new Ui::CKJVPassageNavigator)
 {
+	assert(pBibleDatabase.data() != NULL);
+
 	ui->setupUi(this);
+
+	ui->editVersePreview->initialize(pBibleDatabase);
+
+	initialize();
 
 	QAction *pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
@@ -61,12 +85,8 @@ CKJVPassageNavigator::~CKJVPassageNavigator()
 	delete ui;
 }
 
-void CKJVPassageNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
+void CKJVPassageNavigator::initialize()
 {
-	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
-	assert(pBibleDatabase.data() != NULL);
-	m_pBibleDatabase = pBibleDatabase;
-	ui->editVersePreview->initialize(pBibleDatabase);
 
 	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Start with default word-size of one so we highlight at least one word when tracking
 	m_tagPassage = TPhraseTag(CRelIndex(), 1);		// ""  (ditto)
@@ -94,7 +114,7 @@ void CKJVPassageNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
 	ui->spinVerse->setRange(0, nVerses);
 	ui->spinWord->setRange(0, nWords);
 
-	startAbsoluteMode(TPhraseTag(CRelIndex(), 1));
+	startAbsoluteMode();
 	reset();
 }
 

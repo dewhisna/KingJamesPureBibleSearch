@@ -65,6 +65,7 @@
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDir>
+#include <QSplitter>
 
 // ============================================================================
 
@@ -640,9 +641,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_bLastCalcSuccess(true),
 	ui(new Ui::CKJVCanOpener)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	ui->setupUi(this);
 
-	assert(m_pBibleDatabase.data() != NULL);
 	ui->treeViewSearchResults->initialize(m_pBibleDatabase);
 	ui->widgetKJVBrowser->initialize(m_pBibleDatabase);
 
