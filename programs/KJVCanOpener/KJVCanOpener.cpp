@@ -450,9 +450,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 //	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), model, SLOT(setFont(const QFont &)));
 
 
-	connect(m_pSearchResultWidget->treeView(), SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
-	connect(m_pSearchResultWidget->treeView(), SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
-	connect(m_pSearchResultWidget->treeView(), SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
+	connect(m_pSearchResultWidget, SIGNAL(on_SearchResultActivated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
+	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 
 	// -------------------- Scripture Browser:
 
@@ -640,7 +640,7 @@ void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDis
 			on_viewVerseHeading();
 			break;
 		case CVerseListModel::VDME_RICHTEXT:
-			m_pActionShowVerseHeading->setChecked(true);
+			m_pActionShowVerseRichText->setChecked(true);
 			on_viewVerseRichText();
 			break;
 		default:

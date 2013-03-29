@@ -589,14 +589,13 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	connect(this, SIGNAL(setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM)), pModel, SLOT(setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM)));
 	connect(this, SIGNAL(setShowMissingLeafs(bool)), pModel, SLOT(setShowMissingLeafs(bool)));
 
-	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(on_SearchResultActivated(const QModelIndex &)));
-	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
-
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
 	connect(model(), SIGNAL(modelReset()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
 	connect(model(), SIGNAL(layoutChanged()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
-	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
 
+	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(on_SearchResultActivated(const QModelIndex &)));
+	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
 }
 
 CKJVSearchResult::~CKJVSearchResult()

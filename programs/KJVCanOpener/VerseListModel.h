@@ -280,8 +280,8 @@ public:
 signals:
 
 public slots:
-	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode);
-	void setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode);
+	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
+	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
 	virtual void setFont(const QFont& aFont);
 
