@@ -49,7 +49,7 @@ public slots:
 	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 protected:
-	void SetDocumentText(QTextDocument &doc, const QModelIndex &index) const;
+	void SetDocumentText(QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;
 
 	QAbstractItemView* parentView() const { return static_cast<QAbstractItemView*>(QObject::parent()); }
 

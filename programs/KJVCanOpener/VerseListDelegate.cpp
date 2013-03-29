@@ -45,7 +45,7 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 {
 }
 
-void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &index) const
+void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
 {
 	CRelIndex ndxRel(index.internalId());
 	assert(ndxRel.isSet());
@@ -61,10 +61,11 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
 		CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
-		CSearchResultHighlighter highlighter(item.phraseTags());
-
 		navigator.setDocumentToVerse(item.getIndex());
-		navigator.doHighlighting(highlighter);
+		if (!bDoingSizeHint) {
+			CSearchResultHighlighter highlighter(item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		}
 	} else if (ndxRel.chapter() != 0) {
 		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 		int nResults = m_model.GetResultsCount(ndxRel.book(), ndxRel.chapter());
@@ -154,9 +155,9 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 //					painter->fillRect(optionV4.rect, optionV4.palette.highlight());
 
 				QTextDocument doc;
-				SetDocumentText(doc, index);
 
 				doc.setTextWidth(textRect.width());
+				SetDocumentText(doc, index, false);
 				painter->save();
 				painter->translate(textRect.topLeft());
 				doc.drawContents(painter, textRect.translated(-textRect.topLeft()));
@@ -183,7 +184,6 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
 		QTextDocument doc;
-		SetDocumentText(doc, index);
 
 		if(parentView()) {
 			CRelIndex ndxRel(index.internalId());
@@ -208,10 +208,13 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 					break;
 			}
 			doc.setTextWidth(nWidth);
+			SetDocumentText(doc, index, true);
 		} else {
 			if (optionV4.rect.isValid()) {
 				doc.setTextWidth(optionV4.rect.width());
+				SetDocumentText(doc, index, true);
 			} else {
+				SetDocumentText(doc, index, true);
 				doc.setTextWidth(doc.idealWidth());
 			}
 		}
