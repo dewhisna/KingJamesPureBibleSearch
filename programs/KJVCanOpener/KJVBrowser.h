@@ -45,10 +45,8 @@ class CKJVBrowser : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBrowser(QWidget *parent = 0);
+	explicit CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CKJVBrowser();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	CScriptureBrowser *browser();
 
@@ -68,6 +66,9 @@ public slots:
 
 signals:
 	void IndexChanged(const TPhraseTag &tag);
+
+protected:
+	void initialize();
 
 private slots:
 	void on_sourceChanged(const QUrl &src);

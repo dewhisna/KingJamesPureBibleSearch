@@ -25,10 +25,12 @@
 #define KJVCANOPENER_H
 
 #include "dbstruct.h"
+#include "KJVSearchCriteria.h"
 #include "KJVSearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
-#include "KJVSearchCriteria.h"
 #include "VerseListModel.h"
+#include "KJVSearchResult.h"
+#include "KJVBrowser.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -43,6 +45,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QSettings>
+#include <QSplitter>
 
 #include <assert.h>
 
@@ -61,77 +64,6 @@ public:
 };
 
 // ============================================================================
-
-class CKJVCanOpener;		// Forward declaration
-
-class CSearchResultsTreeView : public QTreeView
-{
-	Q_OBJECT
-public:
-	explicit CSearchResultsTreeView(QWidget *parent);
-	virtual ~CSearchResultsTreeView();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
-
-	QMenu *getEditMenu() { return m_pEditMenu; }
-	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
-
-	bool haveDetails() const;
-	bool isActive() const;
-
-public slots:
-	void on_copyVerseText();
-	void on_copyRaw();
-	void on_copyVeryRaw();
-	void on_copyVerseHeadings();
-	void on_copyReferenceDetails();
-	void on_copyComplete();
-	void on_passageNavigator();
-
-	void on_listChanged();
-
-	void showDetails();
-
-signals:
-	void activatedSearchResults();
-	void gotoIndex(const TPhraseTag &tag);
-	void canExpandAll(bool bEnable);
-	void canCollapseAll(bool bEnable);
-	void currentItemChanged();
-
-protected:
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *event);
-	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-	virtual void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);
-
-	void copyRawCommon(bool bVeryRaw) const;
-	void handle_selectionChanged();
-
-	virtual void resizeEvent(QResizeEvent *event);
-
-private:
-	CBibleDatabasePtr m_pBibleDatabase;
-	CKJVCanOpener *m_pMainWindow;	// Main Window Parent so we can check if we are the enabled/active view
-	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
-	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
-	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
-	// ----
-	QAction *m_pActionCopyVerseText;			// Edit menu copy text
-	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text
-	QAction *m_pActionCopyVeryRaw;	// Edit menu copy very (no punctuation) raw phrase text
-	// ----
-	QAction *m_pActionCopyVerseHeadings;		// Edit menu copy headings
-	QAction *m_pActionCopyReferenceDetails;		// Edit menu Reference ToolTip Copy
-	QAction *m_pActionCopyComplete;				// Edit menu copy everything
-	// ----
-	QAction *m_pActionSelectAll;	// Edit menu select all
-	QAction *m_pActionClearSelection;	// Edit menu clear selection
-	// ----
-	QAction *m_pActionNavigator;	// Launch Passage Navigator for Search Result
-	// ----
-	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
-};
 
 
 // ============================================================================
@@ -275,6 +207,9 @@ private:
 	bool m_bLastCalcSuccess;
 
 	Ui::CKJVCanOpener *ui;
+	QSplitter *m_pSplitter;
+	CKJVSearchResult *m_pSearchResultWidget;
+	CKJVBrowser *m_pBrowserWidget;
 };
 
 #endif // KJVCANOPENER_H

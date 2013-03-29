@@ -209,6 +209,7 @@ class CVerseListModel : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
+
 	enum VERSE_DISPLAY_MODE_ENUM {
 		VDME_HEADING = 0,
 		VDME_VERYPLAIN = 1,
@@ -223,14 +224,15 @@ public:
 	};
 
 	enum VERSE_DATA_ROLES_ENUM {
-		VERSE_ENTRY_ROLE = Qt::UserRole + 0,
-		TOOLTIP_ROLE = Qt::UserRole + 1,					// Use our own ToolTip role so we can have user click Ctrl-D to see details ToolTip.  Qt::ToolTip will be a message telling them to do that.
-		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 2,			// Same as TOOLTIP_ROLE, but as PlainText instead of RichText
-		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 3,			// Same as TOOLTIP_ROLE, but without Verse Reference Heading
-		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 4	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
+		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Full verse text display mode
+		VERSE_HEADING_ROLE = Qt::UserRole + 1,				// Verse heading display text
+		TOOLTIP_ROLE = Qt::UserRole + 2,					// Use our own ToolTip role so we can have user click Ctrl-D to see details ToolTip.  Qt::ToolTip will be a message telling them to do that.
+		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 3,			// Same as TOOLTIP_ROLE, but as PlainText instead of RichText
+		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 4,			// Same as TOOLTIP_ROLE, but without Verse Reference Heading
+		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 5	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
 	};
 
-	explicit CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = 0);
+	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = 0);
 	CVerseListModel(CBibleDatabasePtr pBibleDatabase, const CVerseList &verses, QObject *parent = 0);
 
 	inline CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
@@ -263,13 +265,8 @@ public:
 	TPhraseTagList setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
-	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode);
-
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
-	void setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode);
-
 	bool showMissingLeafs() const { return m_bShowMissingLeafs; }
-	void setShowMissingLeafs(bool bShowMissing);
 
 	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
 
@@ -283,6 +280,9 @@ public:
 signals:
 
 public slots:
+	void setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode);
+	void setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode);
+	void setShowMissingLeafs(bool bShowMissing);
 	virtual void setFont(const QFont& aFont);
 
 protected:

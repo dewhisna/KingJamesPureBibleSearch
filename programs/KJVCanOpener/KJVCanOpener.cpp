@@ -24,7 +24,6 @@
 #include "KJVCanOpener.h"
 #include "ui_KJVCanOpener.h"
 
-#include "dbstruct.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
@@ -65,7 +64,6 @@
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDir>
-#include <QSplitter>
 
 // ============================================================================
 
@@ -127,481 +125,6 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 // ============================================================================
 
-CSearchResultsTreeView::CSearchResultsTreeView(QWidget *parent)
-	:	QTreeView(parent),
-		m_pMainWindow(static_cast<CKJVCanOpener *>(parent)),
-		m_bDoingPopup(false),
-		m_pEditMenu(NULL),
-		m_pEditMenuLocal(NULL),
-		m_pActionCopyVerseText(NULL),
-		m_pActionCopyRaw(NULL),
-		m_pActionCopyVeryRaw(NULL),
-		m_pActionCopyVerseHeadings(NULL),
-		m_pActionCopyReferenceDetails(NULL),
-		m_pActionCopyComplete(NULL),
-		m_pActionSelectAll(NULL),
-		m_pActionClearSelection(NULL),
-		m_pActionNavigator(NULL),
-		m_pStatusAction(NULL)
-{
-	assert(m_pMainWindow != NULL);
-
-	setMouseTracking(true);
-	setRootIsDecorated(false);
-
-	m_pEditMenu = new QMenu("&Edit", this);
-	m_pEditMenuLocal = new QMenu("&Edit", this);
-	m_pEditMenu->setStatusTip("Search Results Edit Operations");
-	// ----
-	m_pActionCopyVerseText = m_pEditMenu->addAction("Copy &Verse Text", this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	m_pActionCopyVerseText->setStatusTip("Copy Verse Text for the selected Search Results to the clipboard");
-	m_pActionCopyVerseText->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
-	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw Verse &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
-	m_pActionCopyRaw->setStatusTip("Copy selected Search Results as raw phrase words to the clipboard");
-	m_pActionCopyRaw->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Verse Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
-	m_pActionCopyVeryRaw->setStatusTip("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard");
-	m_pActionCopyVeryRaw->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
-	// ----
-	m_pEditMenu->addSeparator();
-	m_pEditMenuLocal->addSeparator();
-	m_pActionCopyVerseHeadings = m_pEditMenu->addAction("Copy &References", this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
-	m_pActionCopyVerseHeadings->setStatusTip("Copy Verse References for the selected Search Results to the clipboard");
-	m_pActionCopyVerseHeadings->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy Reference Detai&ls (Word/Phrase Counts)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
-	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard");
-	m_pActionCopyReferenceDetails->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
-	m_pActionCopyComplete = m_pEditMenu->addAction("Copy &Complete Verse Text and Reference Details", this, SLOT(on_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopyComplete->setStatusTip("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard");
-	m_pActionCopyComplete->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
-	// ----
-	m_pEditMenu->addSeparator();
-	m_pEditMenuLocal->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip("Select all Search Results");
-	m_pActionSelectAll->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionSelectAll);
-	m_pActionClearSelection = m_pEditMenu->addAction("C&lear Selection", this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
-	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
-	m_pActionClearSelection->setEnabled(false);
-	m_pEditMenuLocal->addAction(m_pActionClearSelection);
-	// ----
-	m_pEditMenuLocal->addSeparator();
-	m_pActionNavigator = m_pEditMenuLocal->addAction("Passage &Navigator...");
-	m_pActionNavigator->setEnabled(false);
-	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator()));
-	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
-	// ----
-
-	m_pStatusAction = new QAction(this);
-}
-
-CSearchResultsTreeView::~CSearchResultsTreeView()
-{
-}
-
-void CSearchResultsTreeView::initialize(CBibleDatabasePtr pBibleDatabase)
-{
-	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
-	assert(pBibleDatabase.data() != NULL);
-	m_pBibleDatabase = pBibleDatabase;
-}
-
-void CSearchResultsTreeView::on_copyVerseText()
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QTextDocument docList;
-	QTextCursor cursorDocList(&docList);
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
-		CSearchResultHighlighter highlighter(item.phraseTags());
-
-		// Note:  Qt bug with fragments causes leading <hr /> tags
-		//		to get converted to <br /> tags.  Since this may
-		//		change on us if/when they get it fixed, we'll pass
-		//		false here and set our <hr /> or <br /> below as
-		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), false);
-		navigator.doHighlighting(highlighter);
-		navigator.removeAnchors();
-
-		QTextDocumentFragment fragment(&docVerse);
-		cursorDocList.insertFragment(fragment);
-//		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
-		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<br />\n");
-	}
-
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
-	clipboard->setMimeData(mime);
-}
-
-void CSearchResultsTreeView::on_copyRaw()
-{
-	copyRawCommon(false);
-}
-
-void CSearchResultsTreeView::on_copyVeryRaw()
-{
-	copyRawCommon(true);
-}
-
-void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QString strText;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
-		navigator.setDocumentToVerse(item.getIndex(), false);
-
-		QTextCursor cursorDocVerse(&docVerse);
-		cursorDocVerse.select(QTextCursor::Document);
-		QPair<CParsedPhrase, TPhraseTag> phrase = navigator.getSelectedPhrase(cursorDocVerse);
-
-		if (!bVeryRaw) {
-			strText += phrase.first.phrase() + "\n";
-		} else {
-			strText += phrase.first.phraseRaw() + "\n";
-		}
-	}
-
-	mime->setText(strText);
-	clipboard->setMimeData(mime);
-}
-
-void CSearchResultsTreeView::on_copyVerseHeadings()
-{
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QString strVerseHeadings;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
-		strVerseHeadings += item.getHeading() + "\n";
-	}
-
-	mime->setText(strVerseHeadings);
-	clipboard->setMimeData(mime);
-}
-
-void CSearchResultsTreeView::on_copyReferenceDetails()
-{
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QString strPlainText;
-	QString strRichText;
-
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		if (ndx > 0) {
-			strPlainText += "--------------------\n";
-			strRichText += "<hr />\n";
-		}
-		strPlainText += pModel->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += pModel->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
-	}
-
-	mime->setText(strPlainText);
-	mime->setHtml(strRichText);
-	clipboard->setMimeData(mime);
-}
-
-void CSearchResultsTreeView::on_copyComplete()
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QTextDocument docList;
-	QTextCursor cursorDocList(&docList);
-
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(m_pBibleDatabase, docVerse);
-		CSearchResultHighlighter highlighter(item.phraseTags());
-
-		// Note:  Qt bug with fragments causes leading <hr /> tags
-		//		to get converted to <br /> tags.  Since this may
-		//		change on us if/when they get it fixed, we'll pass
-		//		false here and set our <hr /> or <br /> below as
-		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), false);
-		navigator.doHighlighting(highlighter);
-		navigator.removeAnchors();
-
-		QTextDocumentFragment fragment(&docVerse);
-		cursorDocList.insertFragment(fragment);
-
-		cursorDocList.insertHtml("<br />\n<pre>" + pModel->dataForVerse(item, CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
-		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
-	}
-
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
-	clipboard->setMimeData(mime);
-}
-
-void CSearchResultsTreeView::on_passageNavigator()
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	if (lstSelectedItems.size() != 1) return;
-	if (!lstSelectedItems.at(0).isValid()) return;
-
-	CRelIndex ndxRel(lstSelectedItems.at(0).internalId());
-	assert(ndxRel.isSet());
-	if (!ndxRel.isSet()) return;
-
-//	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
-
-//	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
-
-	dlg.navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
-	if (dlg.exec() == QDialog::Accepted) {
-		emit gotoIndex(dlg.passage());
-	}
-}
-
-void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
-{
-	emit activatedSearchResults();
-	QTreeView::focusInEvent(event);
-}
-
-void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
-{
-	m_bDoingPopup = true;
-	m_pEditMenuLocal->exec(event->globalPos());
-	m_bDoingPopup = false;
-}
-
-void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-	QTreeView::currentChanged(current, previous);
-	emit currentItemChanged();
-}
-
-void CSearchResultsTreeView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
-{
-	handle_selectionChanged();
-	QTreeView::selectionChanged(selected, deselected);
-}
-
-void CSearchResultsTreeView::handle_selectionChanged()
-{
-	int nNumResultsSelected = 0;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				nNumResultsSelected++;
-			}
-		}
-	}
-
-	if (nNumResultsSelected) {
-		m_pActionCopyVerseText->setEnabled(true);
-		m_pActionCopyRaw->setEnabled(true);
-		m_pActionCopyVeryRaw->setEnabled(true);
-		m_pActionCopyVerseHeadings->setEnabled(true);
-		m_pActionCopyReferenceDetails->setEnabled(true);
-		m_pActionCopyComplete->setEnabled(true);
-		m_pActionClearSelection->setEnabled(true);
-	} else {
-		m_pActionCopyVerseText->setEnabled(false);
-		m_pActionCopyRaw->setEnabled(false);
-		m_pActionCopyVeryRaw->setEnabled(false);
-		m_pActionCopyVerseHeadings->setEnabled(false);
-		m_pActionCopyReferenceDetails->setEnabled(false);
-		m_pActionCopyComplete->setEnabled(false);
-		m_pActionClearSelection->setEnabled(false);
-	}
-	m_pActionNavigator->setEnabled(selectionModel()->selectedRows().size() == 1);		// Only allow navigation on a node (verse or otherwise)
-
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-
-	QString strStatusText;
-	if (!pModel->hasExceededDisplayLimit()) {
-		strStatusText = QString("%1 Search Result(s) Selected").arg(nNumResultsSelected);
-	} else {
-		strStatusText = "Too many search results to display in this mode!!  Try Switching to either View References Only mode or to Tree Mode.";
-	}
-	setStatusTip(strStatusText);
-	m_pStatusAction->setStatusTip(strStatusText);
-	m_pStatusAction->showStatusText();
-}
-
-void CSearchResultsTreeView::on_listChanged()
-{
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-
-	int nResultsCount = pModel->GetResultsCount();
-
-	m_pActionSelectAll->setEnabled(nResultsCount != 0);
-	emit canExpandAll((pModel->treeMode() != CVerseListModel::VTME_LIST) &&
-						(pModel->hasChildren()) &&
-						(!((nResultsCount > g_nSearchLimit) && (!g_bEnableNoLimits))));
-	emit canCollapseAll((pModel->treeMode() != CVerseListModel::VTME_LIST) && (pModel->hasChildren()));
-
-	handle_selectionChanged();
-}
-
-void CSearchResultsTreeView::showDetails()
-{
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-
-	QVariant varTooltip = pModel->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
-	if (varTooltip.canConvert<QString>()) {
-		scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
-
-//		QToolTip::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this);
-		QToolTip::hideText();
-		CToolTipEdit::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
-	}
-}
-
-bool CSearchResultsTreeView::haveDetails() const
-{
-	if (!currentIndex().isValid()) return false;
-
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
-	assert(pModel != NULL);
-
-	QVariant varTooltip = pModel->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
-	if ((varTooltip.canConvert<QString>()) &&
-		(!varTooltip.toString().isEmpty())) return true;
-
-	return false;
-}
-
-bool CSearchResultsTreeView::isActive() const
-{
-	assert(m_pMainWindow != NULL);
-	return ((hasFocus()) || (m_pMainWindow->isSearchResultsActive()));
-}
-
-void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
-{
-	assert(event != NULL);
-
-	// Unlike the QListView, the QTreeView doesn't have a ResizeMode for Adjust.  So
-	//		we need to handle this event to do a new layout when the
-	//		view size changes.
-
-	QSize szDelta = event->size() - event->oldSize();
-
-	if (!szDelta.isNull()) {
-		bool bFlowDimensionChanged = (szDelta.width() != 0);
-
-		if ((state() == NoState) && (bFlowDimensionChanged)) {
-			scheduleDelayedItemsLayout();
-		}
-	}
-
-	QTreeView::resizeEvent(event);
-}
-
-// ============================================================================
-
 CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
 	m_pBibleDatabase(pBibleDatabase),
@@ -639,23 +162,46 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_nLastSearchChapters(0),
 	m_nLastSearchBooks(0),
 	m_bLastCalcSuccess(true),
-	ui(new Ui::CKJVCanOpener)
+	ui(new Ui::CKJVCanOpener),
+	m_pSplitter(NULL),
+	m_pSearchResultWidget(NULL),
+	m_pBrowserWidget(NULL)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
 
-	ui->treeViewSearchResults->initialize(m_pBibleDatabase);
-	ui->widgetKJVBrowser->initialize(m_pBibleDatabase);
+	m_pSplitter = new QSplitter(ui->centralWidget);
+	m_pSplitter->setObjectName(QString::fromUtf8("splitter"));
+	m_pSplitter->setOrientation(Qt::Horizontal);
+	m_pSplitter->setChildrenCollapsible(false);
+
+	m_pSearchResultWidget = new CKJVSearchResult(m_pBibleDatabase, m_pSplitter);
+	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
+	m_pSplitter->addWidget(m_pSearchResultWidget);
+
+	m_pBrowserWidget = new CKJVBrowser(m_pBibleDatabase, m_pSplitter);
+	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
+	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	aSizePolicy.setHorizontalStretch(20);
+	aSizePolicy.setVerticalStretch(0);
+	aSizePolicy.setHeightForWidth(m_pBrowserWidget->sizePolicy().hasHeightForWidth());
+	m_pBrowserWidget->setSizePolicy(aSizePolicy);
+	m_pSplitter->addWidget(m_pBrowserWidget);
+
+	ui->horizontalLayout->addWidget(m_pSplitter);
+
+
 
 // The following is supposed to be another workaround for QTBUG-13768
-//	ui->splitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
-	ui->splitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
+//	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
+	m_pSplitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
-	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = CVerseListModel::VDME_RICHTEXT;
-	CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode = CVerseListModel::VTME_LIST;
-	bool bShowMissingLeafs = false;
+
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = m_pSearchResultWidget->displayMode();
+	CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode = m_pSearchResultWidget->treeMode();
+	bool bShowMissingLeafs = m_pSearchResultWidget->showMissingLeafs();
 
 	// --------------------
 
@@ -689,8 +235,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->mainToolBar->addSeparator();
 
 	// --- Edit Menu
-	connect(ui->widgetKJVBrowser->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
-	connect(ui->treeViewSearchResults, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
+	connect(m_pBrowserWidget->browser(), SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
 
 	// --- View Menu
 	m_pViewMenu = ui->menuBar->addMenu("&View");
@@ -700,94 +246,94 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->mainToolBar->toggleViewAction()->setStatusTip("Show/Hide Main Tool Bar");
 
 	m_pViewMenu->addSeparator();
-	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addSeparator();
 
 	m_pActionShowAsList = m_pViewMenu->addAction("View as &List", this, SLOT(on_viewAsList()));
 	m_pActionShowAsList->setStatusTip("Show Search Results as a List");
 	m_pActionShowAsList->setCheckable(true);
 	m_pActionShowAsList->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsList);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowAsList);
 
 	m_pActionShowAsTreeBooks = m_pViewMenu->addAction("View as Tree by &Book", this, SLOT(on_viewAsTreeBooks()));
 	m_pActionShowAsTreeBooks->setStatusTip("Show Search Results in a Tree by Book");
 	m_pActionShowAsTreeBooks->setCheckable(true);
 	m_pActionShowAsTreeBooks->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsTreeBooks);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowAsTreeBooks);
 
 	m_pActionShowAsTreeChapters = m_pViewMenu->addAction("View as Tree by Book/&Chapter", this, SLOT(on_viewAsTreeChapters()));
 	m_pActionShowAsTreeChapters->setStatusTip("Show Search Results in a Tree by Book and Chapter");
 	m_pActionShowAsTreeChapters->setCheckable(true);
 	m_pActionShowAsTreeChapters->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowAsTreeChapters);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowAsTreeChapters);
 
 	m_pViewMenu->addSeparator();
-	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addSeparator();
 
 	m_pActionShowMissingLeafs = m_pViewMenu->addAction("View &Missing Books/Chapters", this, SLOT(on_viewShowMissingsLeafs()));
 	m_pActionShowMissingLeafs->setStatusTip("Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)");
 	m_pActionShowMissingLeafs->setCheckable(true);
 	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
 	m_pActionShowMissingLeafs->setEnabled(nTreeMode != CVerseListModel::VTME_LIST);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowMissingLeafs);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowMissingLeafs);
 
-	m_pActionExpandAll = m_pViewMenu->addAction("E&xpand All", ui->treeViewSearchResults, SLOT(expandAll()));
+	m_pActionExpandAll = m_pViewMenu->addAction("E&xpand All", m_pSearchResultWidget->treeView(), SLOT(expandAll()));
 	m_pActionExpandAll->setStatusTip("Expand all tree nodes in Search Results (Warning: May be slow if there are a lot of search results!)");
 	m_pActionExpandAll->setEnabled(false);
-	connect(ui->treeViewSearchResults, SIGNAL(canExpandAll(bool)), m_pActionExpandAll, SLOT(setEnabled(bool)));
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionExpandAll);
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(canExpandAll(bool)), m_pActionExpandAll, SLOT(setEnabled(bool)));
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionExpandAll);
 
-	m_pActionCollapseAll = m_pViewMenu->addAction("Collap&se All", ui->treeViewSearchResults, SLOT(collapseAll()));
+	m_pActionCollapseAll = m_pViewMenu->addAction("Collap&se All", m_pSearchResultWidget->treeView(), SLOT(collapseAll()));
 	m_pActionCollapseAll->setStatusTip("Collapse all tree nodes in Search Results");
 	m_pActionCollapseAll->setEnabled(false);
-	connect(ui->treeViewSearchResults, SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionCollapseAll);
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionCollapseAll);
 
 	m_pViewMenu->addSeparator();
-	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addSeparator();
 
 	m_pActionShowVerseHeading = m_pViewMenu->addAction("View &References Only", this, SLOT(on_viewVerseHeading()));
 	m_pActionShowVerseHeading->setStatusTip("Show Search Results Verse References Only");
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
 
 	m_pActionShowVerseRichText = m_pViewMenu->addAction("View Verse &Preview", this, SLOT(on_viewVerseRichText()));
 	m_pActionShowVerseRichText->setStatusTip("Show Search Results as Rich Text Verse Preview");
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
 
 	m_pViewMenu->addSeparator();
-	ui->treeViewSearchResults->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addSeparator();
 
 	m_pActionViewDetails = m_pViewMenu->addAction("View &Details...", this, SLOT(on_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionViewDetails->setStatusTip("View Passage Details");
 	m_pActionViewDetails->setEnabled(false);
 	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
-	ui->treeViewSearchResults->getLocalEditMenu()->addAction(m_pActionViewDetails);
+	m_pSearchResultWidget->treeView()->getLocalEditMenu()->addAction(m_pActionViewDetails);
 
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui->menuBar->addMenu("&Navigate");
 
-	pAction = pNavMenu->addAction("Beginning of Bible", ui->widgetKJVBrowser, SLOT(on_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	pAction = pNavMenu->addAction("Beginning of Bible", m_pBrowserWidget, SLOT(on_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
 	pAction->setStatusTip("Goto the very Beginning of the Bible");
-	connect(pAction, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	pAction = pNavMenu->addAction("Ending of Bible", ui->widgetKJVBrowser, SLOT(on_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
+	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	pAction = pNavMenu->addAction("Ending of Bible", m_pBrowserWidget, SLOT(on_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
 	pAction->setStatusTip("Goto the very End of the Bible");
-	connect(pAction, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionBookBackward = pNavMenu->addAction("Book Backward", ui->widgetKJVBrowser, SLOT(on_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
+	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionBookBackward = pNavMenu->addAction("Book Backward", m_pBrowserWidget, SLOT(on_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
 	m_pActionBookBackward->setStatusTip("Move Backward one Book");
-	connect(m_pActionBookBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionBookForward = pNavMenu->addAction("Book Forward", ui->widgetKJVBrowser, SLOT(on_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
+	connect(m_pActionBookBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionBookForward = pNavMenu->addAction("Book Forward", m_pBrowserWidget, SLOT(on_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
 	m_pActionBookForward->setStatusTip("Move Forward one Book");
-	connect(m_pActionBookForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionChapterBackward = pNavMenu->addAction("Chapter Backward", ui->widgetKJVBrowser, SLOT(on_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
+	connect(m_pActionBookForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionChapterBackward = pNavMenu->addAction("Chapter Backward", m_pBrowserWidget, SLOT(on_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
 	m_pActionChapterBackward->setStatusTip("Move Backward one Chapter");
-	connect(m_pActionChapterBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionChapterForward = pNavMenu->addAction("Chapter Forward", ui->widgetKJVBrowser, SLOT(on_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
+	connect(m_pActionChapterBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionChapterForward = pNavMenu->addAction("Chapter Forward", m_pBrowserWidget, SLOT(on_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
 	m_pActionChapterForward->setStatusTip("Move Forward one Chapter");
-	connect(m_pActionChapterForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	connect(ui->widgetKJVBrowser, SIGNAL(IndexChanged(const TPhraseTag &)), this, SLOT(on_indexChanged(const TPhraseTag &)));
+	connect(m_pActionChapterForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	connect(m_pBrowserWidget, SIGNAL(IndexChanged(const TPhraseTag &)), this, SLOT(on_indexChanged(const TPhraseTag &)));
 
 	pNavMenu->addSeparator();
 
@@ -795,37 +341,37 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
 	m_pActionNavBackward->setStatusTip("Go Backward in Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavBackward);
-	connect(ui->widgetKJVBrowser->browser(), SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
-	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(backward()));
-	connect(m_pActionNavBackward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionNavBackward->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable());
+	connect(m_pBrowserWidget->browser(), SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
+	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget->browser(), SLOT(backward()));
+	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionNavBackward->setEnabled(m_pBrowserWidget->browser()->isBackwardAvailable());
 	pNavMenu->addAction(m_pActionNavBackward);
 
 	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), "History &Forward", this);
 	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
 	m_pActionNavForward->setStatusTip("Go Forward in Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavForward);
-	connect(ui->widgetKJVBrowser->browser(), SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
-	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser->browser(), SLOT(forward()));
-	connect(m_pActionNavForward, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
-	m_pActionNavForward->setEnabled(ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	connect(m_pBrowserWidget->browser(), SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
+	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget->browser(), SLOT(forward()));
+	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
+	m_pActionNavForward->setEnabled(m_pBrowserWidget->browser()->isForwardAvailable());
 	pNavMenu->addAction(m_pActionNavForward);
 
-	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", ui->widgetKJVBrowser->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Up));
+	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), "History &Home", m_pBrowserWidget->browser(), SLOT(home()), QKeySequence(Qt::ALT + Qt::Key_Up));
 	m_pActionNavHome->setStatusTip("Jump to History Home Passage");
-	m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
-									ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	m_pActionNavHome->setEnabled(m_pBrowserWidget->browser()->isBackwardAvailable() ||
+									m_pBrowserWidget->browser()->isForwardAvailable());
 
 	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), "&Clear Navigation History", this);
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip("Clear All Passage Navigation History");
 	ui->mainToolBar->addAction(m_pActionNavClear);
 	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(on_clearBrowserHistory()));
-	m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
-									ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	m_pActionNavClear->setEnabled(m_pBrowserWidget->browser()->isBackwardAvailable() ||
+									m_pBrowserWidget->browser()->isForwardAvailable());
 	pNavMenu->addAction(m_pActionNavClear);
 
-	connect(ui->widgetKJVBrowser->browser(), SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
+	connect(m_pBrowserWidget->browser(), SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
 
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), "Passage Navigator", this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), "Passage &Navigator", this);
@@ -899,32 +445,18 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// -------------------- Search Results List View:
 
-	CVerseListModel *model = new CVerseListModel(m_pBibleDatabase, ui->treeViewSearchResults);
-	model->setDisplayMode(nDisplayMode);
-	model->setTreeMode(nTreeMode);
-	model->setShowMissingLeafs(bShowMissingLeafs);
-	QAbstractItemModel *pOldModel = ui->treeViewSearchResults->model();
-	ui->treeViewSearchResults->setModel(model);
-	if (pOldModel) delete pOldModel;
-	ui->treeViewSearchResults->setRootIsDecorated(nTreeMode != CVerseListModel::VTME_LIST);
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), m_pSearchResultWidget->treeView(), SLOT(setFont(const QFont &)));
+// TODO : CLEAN
+//	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), model, SLOT(setFont(const QFont &)));
 
-	CVerseListDelegate *delegate = new CVerseListDelegate(*model, ui->treeViewSearchResults);
-	QAbstractItemDelegate *pOldDelegate = ui->treeViewSearchResults->itemDelegate();
-	ui->treeViewSearchResults->setItemDelegate(delegate);
-	if (pOldDelegate) delete pOldDelegate;
 
-	connect(ui->treeViewSearchResults, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
-	connect(ui->treeViewSearchResults, SIGNAL(gotoIndex(const TPhraseTag &)), ui->widgetKJVBrowser, SLOT(gotoIndex(TPhraseTag)));
-	connect(this, SIGNAL(changedSearchResults()), ui->treeViewSearchResults, SLOT(on_listChanged()));
-	connect(model, SIGNAL(modelReset()), ui->treeViewSearchResults, SLOT(on_listChanged()));
-	connect(model, SIGNAL(layoutChanged()), ui->treeViewSearchResults, SLOT(on_listChanged()));
-	connect(ui->treeViewSearchResults, SIGNAL(currentItemChanged()), this, SLOT(setDetailsEnable()));
-
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), model, SLOT(setFont(const QFont &)));
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(m_pSearchResultWidget->treeView(), SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 
 	// -------------------- Scripture Browser:
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedBrowser(const QFont &)), ui->widgetKJVBrowser->browser(), SLOT(setFont(const QFont &)));
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedBrowser(const QFont &)), m_pBrowserWidget->browser(), SLOT(setFont(const QFont &)));
 
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
@@ -954,7 +486,7 @@ void CKJVCanOpener::initialize()
 	tag.second = settings.value(constrLastSelectionSizeKey, 0).toUInt();
 	settings.endGroup();
 
-	ui->widgetKJVBrowser->gotoIndex(tag);
+	m_pBrowserWidget->gotoIndex(tag);
 }
 
 void CKJVCanOpener::savePersistentSettings()
@@ -969,18 +501,18 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
-	settings.setValue(constrWindowStateKey, ui->splitter->saveState());
+	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
 	settings.endGroup();
 
 	// Search Results mode:
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 	settings.beginGroup(constrSearchResultsViewGroup);
 	settings.setValue(constrVerseDisplayModeKey, pModel->displayMode());
 	settings.setValue(constrVerseTreeModeKey, pModel->treeMode());
 	settings.setValue(constrViewMissingNodesKey, pModel->showMissingLeafs());
-	settings.setValue(constrCurrentIndexKey, CRelIndex(ui->treeViewSearchResults->currentIndex().internalId()).asAnchor());
-	settings.setValue(constrHasFocusKey, ui->treeViewSearchResults->hasFocus());
+	settings.setValue(constrCurrentIndexKey, CRelIndex(m_pSearchResultWidget->treeView()->currentIndex().internalId()).asAnchor());
+	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->treeView()->hasFocus());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
 
@@ -989,15 +521,15 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Current Browser Reference:
 	settings.beginGroup(constrBrowserViewGroup);
-	TPhraseTag tag = ui->widgetKJVBrowser->browser()->selection();
+	TPhraseTag tag = m_pBrowserWidget->browser()->selection();
 	settings.setValue(constrLastReferenceKey, tag.first.asAnchor());
 	settings.setValue(constrLastSelectionSizeKey, tag.second);
-	settings.setValue(constrHasFocusKey, ui->widgetKJVBrowser->hasFocusBrowser());
+	settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontBrowser().toString());
 	settings.endGroup();
 
 	// Browser Object (used for FindDialog, etc):
-	ui->widgetKJVBrowser->browser()->savePersistentSettings(constrBrowserViewGroup);
+	m_pBrowserWidget->browser()->savePersistentSettings(constrBrowserViewGroup);
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -1013,11 +545,11 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
-	ui->splitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+	m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
 	settings.endGroup();
 
 	// Search Results mode:
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 	settings.beginGroup(constrSearchResultsViewGroup);
 	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, pModel->displayMode()).toUInt()));
@@ -1059,15 +591,15 @@ void CKJVCanOpener::restorePersistentSettings()
 	settings.endGroup();
 
 	// Browser Object (used for FindDialog, etc):
-	ui->widgetKJVBrowser->browser()->restorePersistentSettings(constrBrowserViewGroup);
+	m_pBrowserWidget->browser()->restorePersistentSettings(constrBrowserViewGroup);
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
 	//	the phrase editor focus:
 	if ((bFocusSearchResults) && (pModel->hasChildren())) {
-		QTimer::singleShot(1, ui->treeViewSearchResults, SLOT(setFocus()));
+		QTimer::singleShot(1, m_pSearchResultWidget->treeView(), SLOT(setFocus()));
 	} else if (bFocusBrowser) {
-		QTimer::singleShot(1, ui->widgetKJVBrowser, SLOT(focusBrowser()));
+		QTimer::singleShot(1, m_pBrowserWidget, SLOT(focusBrowser()));
 	}
 }
 
@@ -1488,8 +1020,8 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 
 	if (bAdd) {
 		if (m_pActionPassageBrowserEditMenu == NULL) {
-			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->widgetKJVBrowser->browser()->getEditMenu());
-			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), ui->widgetKJVBrowser, SLOT(focusBrowser()));
+			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->browser()->getEditMenu());
+			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(focusBrowser()));
 		}
 	} else {
 		if (m_pActionPassageBrowserEditMenu) {
@@ -1508,7 +1040,7 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 
 	if (bAdd) {
 		if (m_pActionSearchResultsEditMenu == NULL) {
-			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), ui->treeViewSearchResults->getEditMenu());
+			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), m_pSearchResultWidget->treeView()->getEditMenu());
 		}
 	} else {
 		if (m_pActionSearchResultsEditMenu) {
@@ -1569,9 +1101,9 @@ void CKJVCanOpener::on_viewVerseHeading()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (m_pActionShowVerseHeading->isChecked()) {
@@ -1596,9 +1128,9 @@ void CKJVCanOpener::on_viewVerseRichText()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (m_pActionShowVerseRichText->isChecked()) {
@@ -1625,16 +1157,16 @@ void CKJVCanOpener::on_viewAsList()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (m_pActionShowAsList->isChecked()) {
 		m_pActionShowAsTreeBooks->setChecked(false);
 		m_pActionShowAsTreeChapters->setChecked(false);
 		pModel->setTreeMode(CVerseListModel::VTME_LIST);
-		ui->treeViewSearchResults->setRootIsDecorated(false);
+		m_pSearchResultWidget->treeView()->setRootIsDecorated(false);
 		m_pActionShowMissingLeafs->setEnabled(false);
 	} else {
 		if (pModel->treeMode() == CVerseListModel::VTME_LIST) {
@@ -1657,16 +1189,16 @@ void CKJVCanOpener::on_viewAsTreeBooks()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (m_pActionShowAsTreeBooks->isChecked()) {
 		m_pActionShowAsList->setChecked(false);
 		m_pActionShowAsTreeChapters->setChecked(false);
 		pModel->setTreeMode(CVerseListModel::VTME_TREE_BOOKS);
-		ui->treeViewSearchResults->setRootIsDecorated(true);
+		m_pSearchResultWidget->treeView()->setRootIsDecorated(true);
 		m_pActionShowMissingLeafs->setEnabled(true);
 	} else {
 		if (pModel->treeMode() == CVerseListModel::VTME_TREE_BOOKS) {
@@ -1689,16 +1221,16 @@ void CKJVCanOpener::on_viewAsTreeChapters()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (m_pActionShowAsTreeChapters->isChecked()) {
 		m_pActionShowAsList->setChecked(false);
 		m_pActionShowAsTreeBooks->setChecked(false);
 		pModel->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
-		ui->treeViewSearchResults->setRootIsDecorated(true);
+		m_pSearchResultWidget->treeView()->setRootIsDecorated(true);
 		m_pActionShowMissingLeafs->setEnabled(true);
 	} else {
 		if (pModel->treeMode() == CVerseListModel::VTME_TREE_CHAPTERS) {
@@ -1718,9 +1250,9 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(ui->treeViewSearchResults->currentIndex().internalId());
+	CRelIndex ndxCurrent(m_pSearchResultWidget->treeView()->currentIndex().internalId());
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	if (pModel->treeMode() == CVerseListModel::VTME_LIST) {
@@ -1736,13 +1268,13 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 
 bool CKJVCanOpener::setCurrentIndex(const CRelIndex &ndxCurrent, bool bFocusTreeView)
 {
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	QModelIndex mndxCurrent = pModel->locateIndex(ndxCurrent);
-	ui->treeViewSearchResults->setCurrentIndex(mndxCurrent);
-	ui->treeViewSearchResults->scrollTo(mndxCurrent, QAbstractItemView::EnsureVisible);
-	if (bFocusTreeView) ui->treeViewSearchResults->setFocus();
+	m_pSearchResultWidget->treeView()->setCurrentIndex(mndxCurrent);
+	m_pSearchResultWidget->treeView()->scrollTo(mndxCurrent, QAbstractItemView::EnsureVisible);
+	if (bFocusTreeView) m_pSearchResultWidget->treeView()->setFocus();
 	return mndxCurrent.isValid();
 }
 
@@ -1769,30 +1301,30 @@ void CKJVCanOpener::on_indexChanged(const TPhraseTag &tag)
 void CKJVCanOpener::on_browserHistoryChanged()
 {
 	if (m_pActionNavBackward) {
-		m_pActionNavBackward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(-1));
-		if (ui->widgetKJVBrowser->browser()->isBackwardAvailable()) {
-			m_pActionNavBackward->setStatusTip("Go to: " + ui->widgetKJVBrowser->browser()->historyTitle(-1));
+		m_pActionNavBackward->setToolTip(m_pBrowserWidget->browser()->historyTitle(-1));
+		if (m_pBrowserWidget->browser()->isBackwardAvailable()) {
+			m_pActionNavBackward->setStatusTip("Go to: " + m_pBrowserWidget->browser()->historyTitle(-1));
 		} else {
 			m_pActionNavBackward->setStatusTip("Go Backward in Navigation History");
 		}
 	}
 	if (m_pActionNavForward) {
-		m_pActionNavForward->setToolTip(ui->widgetKJVBrowser->browser()->historyTitle(+1));
-		if (ui->widgetKJVBrowser->browser()->isForwardAvailable()) {
-			m_pActionNavForward->setStatusTip("Go to: " + ui->widgetKJVBrowser->browser()->historyTitle(+1));
+		m_pActionNavForward->setToolTip(m_pBrowserWidget->browser()->historyTitle(+1));
+		if (m_pBrowserWidget->browser()->isForwardAvailable()) {
+			m_pActionNavForward->setStatusTip("Go to: " + m_pBrowserWidget->browser()->historyTitle(+1));
 		} else {
 			m_pActionNavForward->setStatusTip("Go Forward in Navigation History");
 		}
 	}
-	if (m_pActionNavClear) m_pActionNavClear->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
-														ui->widgetKJVBrowser->browser()->isForwardAvailable());
-	if (m_pActionNavHome) m_pActionNavHome->setEnabled(ui->widgetKJVBrowser->browser()->isBackwardAvailable() ||
-														ui->widgetKJVBrowser->browser()->isForwardAvailable());
+	if (m_pActionNavClear) m_pActionNavClear->setEnabled(m_pBrowserWidget->browser()->isBackwardAvailable() ||
+														m_pBrowserWidget->browser()->isForwardAvailable());
+	if (m_pActionNavHome) m_pActionNavHome->setEnabled(m_pBrowserWidget->browser()->isBackwardAvailable() ||
+														m_pBrowserWidget->browser()->isForwardAvailable());
 }
 
 void CKJVCanOpener::on_clearBrowserHistory()
 {
-	ui->widgetKJVBrowser->browser()->clearHistory();
+	m_pBrowserWidget->browser()->clearHistory();
 }
 
 void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
@@ -1840,7 +1372,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	int nResults = 0;		// Total number of Results in Scope
 	TPhraseTagList lstResults;
 
-	CVerseListModel *pModel = static_cast<CVerseListModel *>(ui->treeViewSearchResults->model());
+	CVerseListModel *pModel = m_pSearchResultWidget->treeView()->vlmodel();
 	assert(pModel != NULL);
 
 	lstResults = pModel->setParsedPhrases(ui->widgetSearchCriteria->searchScopeMode(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
@@ -1875,7 +1407,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 								.arg(g_pMainBibleDatabase->bibleEntry().m_nNumBk - nBooks).arg(((g_pMainBibleDatabase->bibleEntry().m_nNumBk - nBooks) != 1) ? "s" : "");
 	}
 
-	ui->lblSearchResultsCount->setText(strResults);
+	m_pSearchResultWidget->setSearchResultsCountText(strResults);
 
 	m_bLastCalcSuccess = true;
 	m_nLastSearchOccurrences = nResults;
@@ -1884,7 +1416,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	m_nLastSearchBooks = nBooks;
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(nResults > 0);
 
-	ui->widgetKJVBrowser->setHighlightTags(lstResults);
+	m_pBrowserWidget->setHighlightTags(lstResults);
 
 	emit changedSearchResults();
 }
@@ -1899,38 +1431,38 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return;
 
-	ui->widgetKJVBrowser->gotoIndex(TPhraseTag(ndxRel));
-	ui->widgetKJVBrowser->focusBrowser();
+	m_pBrowserWidget->gotoIndex(TPhraseTag(ndxRel));
+	m_pBrowserWidget->focusBrowser();
 }
 
 void CKJVCanOpener::on_PassageNavigatorTriggered()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	if ((ui->widgetKJVBrowser->browser()->hasFocus()) ||
+	if ((m_pBrowserWidget->browser()->hasFocus()) ||
 		(m_bBrowserActive)) {
-		ui->widgetKJVBrowser->browser()->on_passageNavigator();
-	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
-				(ui->treeViewSearchResults->selectionModel()->selectedRows().count()== 1)) {
-		ui->treeViewSearchResults->on_passageNavigator();
+		m_pBrowserWidget->browser()->on_passageNavigator();
+	} else if (((m_pSearchResultWidget->treeView()->hasFocus()) || (m_bSearchResultsActive)) &&
+				(m_pSearchResultWidget->treeView()->selectionModel()->selectedRows().count()== 1)) {
+		m_pSearchResultWidget->treeView()->on_passageNavigator();
 	} else {
 		CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
 
 		if (dlg.exec() == QDialog::Accepted) {
-			ui->widgetKJVBrowser->gotoIndex(dlg.passage());
-			ui->widgetKJVBrowser->focusBrowser();
+			m_pBrowserWidget->gotoIndex(dlg.passage());
+			m_pBrowserWidget->focusBrowser();
 		}
 	}
 }
 
 void CKJVCanOpener::on_viewDetails()
 {
-	if (((ui->widgetKJVBrowser->browser()->hasFocus()) || (m_bBrowserActive)) &&
-		 (ui->widgetKJVBrowser->browser()->haveDetails())) {
-		ui->widgetKJVBrowser->browser()->showDetails();
-	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
-				(ui->treeViewSearchResults->haveDetails())) {
-		ui->treeViewSearchResults->showDetails();
+	if (((m_pBrowserWidget->browser()->hasFocus()) || (m_bBrowserActive)) &&
+		 (m_pBrowserWidget->browser()->haveDetails())) {
+		m_pBrowserWidget->browser()->showDetails();
+	} else if (((m_pSearchResultWidget->treeView()->hasFocus()) || (m_bSearchResultsActive)) &&
+				(m_pSearchResultWidget->treeView()->haveDetails())) {
+		m_pSearchResultWidget->treeView()->showDetails();
 	}
 }
 
@@ -1938,11 +1470,11 @@ void CKJVCanOpener::setDetailsEnable()
 {
 	bool bDetailsEnable = false;
 
-	if (((ui->widgetKJVBrowser->browser()->hasFocus()) || (m_bBrowserActive)) &&
-		 (ui->widgetKJVBrowser->browser()->haveDetails())) {
+	if (((m_pBrowserWidget->browser()->hasFocus()) || (m_bBrowserActive)) &&
+		 (m_pBrowserWidget->browser()->haveDetails())) {
 		bDetailsEnable = true;
-	} else if (((ui->treeViewSearchResults->hasFocus()) || (m_bSearchResultsActive)) &&
-				(ui->treeViewSearchResults->haveDetails())) {
+	} else if (((m_pSearchResultWidget->treeView()->hasFocus()) || (m_bSearchResultsActive)) &&
+				(m_pSearchResultWidget->treeView()->haveDetails())) {
 		bDetailsEnable = true;
 	}
 
@@ -1989,10 +1521,10 @@ void CKJVCanOpener::on_QuickActivate()
 					}
 					break;
 				case 9:
-					ui->treeViewSearchResults->setFocus();
+					m_pSearchResultWidget->treeView()->setFocus();
 					break;
 				case 0:
-					ui->widgetKJVBrowser->focusBrowser();
+					m_pBrowserWidget->focusBrowser();
 					break;
 				default:
 					assert(false);

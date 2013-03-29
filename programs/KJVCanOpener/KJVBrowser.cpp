@@ -35,13 +35,20 @@
 
 // ============================================================================
 
-CKJVBrowser::CKJVBrowser(QWidget *parent) :
+CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
+	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
 	m_bDoingUpdate(false),
 	ui(new Ui::CKJVBrowser)
 {
+	assert(m_pBibleDatabase != NULL);
+
 	ui->setupUi(this);
+
+	initialize();
+// TODO : Remove this when we make CScriptureEdit's only constructor take it:
+	browser()->initialize(m_pBibleDatabase);
 
 // UI Connections:
 	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
@@ -67,14 +74,9 @@ CScriptureBrowser *CKJVBrowser::browser()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::initialize(CBibleDatabasePtr pBibleDatabase)
+void CKJVBrowser::initialize()
 {
 	begin_update();
-
-	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
-	assert(pBibleDatabase.data() != NULL);
-	browser()->initialize(pBibleDatabase);
-	m_pBibleDatabase = pBibleDatabase;
 
 	unsigned int nBibleChp = 0;
 	ui->comboBk->clear();
