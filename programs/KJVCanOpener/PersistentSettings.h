@@ -42,19 +42,19 @@ public:
 	static CPersistentSettings *instance();
 	inline QSettings &settings() { return *m_pSettings; }
 
-	const QFont &fontBrowser() const { return m_fntBrowser; }
+	const QFont &fontScriptureBrowser() const { return m_fntScriptureBrowser; }
 	const QFont &fontSearchResults() const { return m_fntSearchResults; }
 
 signals:
-	void fontChangedBrowser(const QFont &aFont);
+	void fontChangedScriptureBrowser(const QFont &aFont);
 	void fontChangedSearchResults(const QFont &aFont);
 
 public slots:
-	void setFontBrowser(const QFont &aFont);
+	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
 
 private:
-	QFont m_fntBrowser;
+	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
 	QSettings *m_pSettings;
 };

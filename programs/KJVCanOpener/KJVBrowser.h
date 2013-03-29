@@ -33,6 +33,8 @@
 #include <QTextBrowser>
 #include <QColor>
 #include <QTimer>
+#include <QUrl>
+#include <QMenu>
 
 // ============================================================================
 
@@ -46,14 +48,36 @@ class CKJVBrowser : public QWidget
 
 public:
 	explicit CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
-	virtual ~CKJVBrowser();
+	~CKJVBrowser();
 
-	CScriptureBrowser *browser();
+	inline void savePersistentSettings(const QString &strGroup) { browser()->savePersistentSettings(strGroup); }
+	inline void restorePersistentSettings(const QString &strGroup) { browser()->restorePersistentSettings(strGroup); }
+
+	bool hasFocusBrowser() const;
+
+	inline QMenu *getEditMenu() { return browser()->getEditMenu(); }
+
+	inline bool haveSelection() const { return browser()->haveSelection(); }
+	inline TPhraseTag selection() const { return browser()->selection(); }
+
+	inline bool haveDetails() const { return browser()->haveDetails(); }
+
+	inline bool isBackwardAvailable() const { return browser()->isBackwardAvailable(); }
+	inline bool isForwardAvailable() const { return browser()->isForwardAvailable(); }
+
+	inline int forwardHistoryCount() const { return browser()->forwardHistoryCount(); }
+	int backwardHistoryCount() const { return browser()->backwardHistoryCount(); }
+	void clearHistory() { return browser()->clearHistory(); }
+	inline QString historyTitle(int i) const { return browser()->historyTitle(i); }
+	inline QUrl historyUrl(int i) const { return browser()->historyUrl(i); }
 
 public slots:
+	void setFontScriptureBrowser(const QFont& aFont);
+	void showDetails();
+	void showPassageNavigator();
+
 	void gotoIndex(const TPhraseTag &tag);
-	void focusBrowser();
-	bool hasFocusBrowser() const;
+	void setFocusBrowser();
 	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
 
 	// Navigation Shortcut Processing:
@@ -65,7 +89,19 @@ public slots:
 	void on_ChapterForward();
 
 signals:
-	void IndexChanged(const TPhraseTag &tag);
+	void on_gotoIndex(const TPhraseTag &tag);
+
+signals:			// Outgoing Pass-Through:
+	void activatedScriptureText();
+	void backwardAvailable(bool available);
+	void forwardAvailable(bool available);
+	void historyChanged();
+
+signals:			// Incoming Pass-Through:
+	void backward();
+	void forward();
+	void home();
+	void reload();
 
 protected:
 	void initialize();
@@ -90,6 +126,9 @@ private:
 	void setVerse(const CRelIndex &ndx);	// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
 	void setWord(const TPhraseTag &tag);	// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
 
+protected:
+	CScriptureBrowser *browser() const;
+
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -100,11 +139,11 @@ private:
 private:
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
-#define begin_update()							\
-			bool bUpdateSave = m_bDoingUpdate;	\
-			m_bDoingUpdate = true;
-#define end_update()							\
-			m_bDoingUpdate = bUpdateSave;
+#define begin_update()					\
+	bool bUpdateSave = m_bDoingUpdate;	\
+	m_bDoingUpdate = true;
+#define end_update()					\
+	m_bDoingUpdate = bUpdateSave;
 
 
 	Ui::CKJVBrowser *ui;

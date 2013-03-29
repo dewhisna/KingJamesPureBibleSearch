@@ -116,7 +116,7 @@ protected:
 public:
 	virtual void setFont(const QFont& aFont);
 	virtual void showDetails();
-	virtual void on_passageNavigator();
+	virtual void showPassageNavigator();
 	virtual void on_copy();
 	virtual void on_copyPlain();
 	virtual void on_copyRaw();
@@ -200,7 +200,7 @@ protected slots:
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
-//	virtual void on_passageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
+//	virtual void showPassageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 	virtual void on_copy() = 0;
 	virtual void on_copyPlain() = 0;
 	virtual void on_copyRaw() = 0;
@@ -239,7 +239,7 @@ protected slots:
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
-	virtual void on_passageNavigator() = 0;
+	virtual void showPassageNavigator() = 0;
 	virtual void on_copy() = 0;
 	virtual void on_copyPlain() = 0;
 	virtual void on_copyRaw() = 0;

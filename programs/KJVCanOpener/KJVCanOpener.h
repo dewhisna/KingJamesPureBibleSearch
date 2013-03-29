@@ -137,12 +137,10 @@ protected slots:
 	void on_viewAsTreeChapters();
 	void on_viewShowMissingsLeafs();
 
-	bool setCurrentIndex(const CRelIndex &ndxCurrent, bool bFocusTreeView = true);
-
-	void on_indexChanged(const TPhraseTag &tag);
-
+	void on_gotoIndex(const TPhraseTag &tag);
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
+
 	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
@@ -156,8 +154,8 @@ protected slots:
 
 	void on_QuickActivate();
 
-	void on_setBrowserFont();
-	void on_setSearchResultsFont();
+	void on_setFontScriptureBrowser();
+	void on_setFontSearchResults();
 
 // Data Private:
 private:
@@ -199,12 +197,6 @@ private:
 	QVBoxLayout *m_pLayoutPhrases;
 //	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
-
-	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
-	int m_nLastSearchVerses;
-	int m_nLastSearchChapters;
-	int m_nLastSearchBooks;
-	bool m_bLastCalcSuccess;
 
 	Ui::CKJVCanOpener *ui;
 	QSplitter *m_pSplitter;

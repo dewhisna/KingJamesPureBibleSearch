@@ -31,47 +31,9 @@
 
 #include <assert.h>
 
-/*
-
-TODO : CLEAN THIS UP
-
-// Global Entire Bible Stats:
-CTestamentEntry g_EntireBible;
-
-// Global Testament List:
-TTestamentList g_lstTestaments;
-
-// Global Table of Contents:
-TTOCList g_lstTOC;
-
-// Global Layout:
-TLayoutMap g_mapLayout;
-
-// Global Books:
-TBookList g_lstBooks;
-
-// Our one and only master word list:
-TWordListMap g_mapWordList;
-
-// List of all Unique Words in the order for the concordance with names of the TWordListMap key:
-TConcordanceList g_lstConcordanceWords;
-
-// List of WordNdx# (in ConcordanceMapping) for all 789629 words of the text:
-TIndexList g_lstConcordanceMapping;
-
-// Global Footnotes
-TFootnoteEntryMap g_mapFootnotes;
-
-// Common phrases read from database:
-CPhraseList g_lstCommonPhrases;
-
-*/
-
-
 // Our Bible Databases:
 CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
 TBibleDatabaseList g_lstBibleDatabases;
-
 
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;

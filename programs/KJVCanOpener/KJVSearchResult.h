@@ -55,8 +55,8 @@ public:
 	explicit CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CSearchResultsTreeView();
 
-	QMenu *getEditMenu() { return m_pEditMenu; }
-	QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
+	inline QMenu *getEditMenu() { return m_pEditMenu; }
+	inline QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
 
 	bool haveDetails() const;
 	bool isActive() const;
@@ -70,26 +70,22 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
 
-public slots:
-
+protected slots:
 	void on_copyVerseText();
 	void on_copyRaw();
 	void on_copyVeryRaw();
 	void on_copyVerseHeadings();
 	void on_copyReferenceDetails();
 	void on_copyComplete();
-	void on_passageNavigator();
 
 	void on_listChanged();
 
+public slots:
+	void showPassageNavigator();
 	void showDetails();
-
-	virtual void setFont(const QFont& aFont);
+	void setFontSearchResults(const QFont& aFont);
 
 signals:
-	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
-	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
-	void setShowMissingLeafs(bool bShowMissing);
 	void activatedSearchResults();
 	void gotoIndex(const TPhraseTag &tag);
 	void canExpandAll(bool bEnable);
@@ -135,12 +131,6 @@ private:
 
 // ============================================================================
 
-
-// TODO : CLEAN
-//namespace Ui {
-//	class CKJVSearchResult;
-//}
-
 class CKJVSearchResult : public QWidget
 {
 	Q_OBJECT
@@ -149,23 +139,50 @@ public:
 	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVSearchResult();
 	
-	CSearchResultsTreeView *treeView() const { return m_pSearchResultsTreeView; }
+	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_pSearchResultsTreeView->displayMode(); }
+	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
+	inline bool showMissingLeafs() const { return m_pSearchResultsTreeView->showMissingLeafs(); }
 
-	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return treeView()->displayMode(); }
-	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return treeView()->treeMode(); }
-	inline bool showMissingLeafs() const { return treeView()->showMissingLeafs(); }
+	CRelIndex currentIndex() const;
+	bool hasFocusSearchResult() const;
+	bool canShowPassageNavigator() const;
+
+	inline QMenu *getEditMenu() { return m_pSearchResultsTreeView->getEditMenu(); }
+	inline QMenu *getLocalEditMenu() { return m_pSearchResultsTreeView->getLocalEditMenu(); }
+
+	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
+	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
+
+	inline bool haveResults() const { return (model()->GetResultsCount() > 0); }
+	inline const TPhraseTagList &searchResultsTags() const { return m_lstSearchResultsTags; }
+
+	QString searchResultsSummaryText() const;
 
 public slots:
-	void setSearchResultsCountText(const QString &strResults);
-
-signals:
+	bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
+	void setFocusSearchResult();
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
-	void on_SearchResultActivated(const QModelIndex &);
+	const TPhraseTagList &setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void showPassageNavigator();
+	void showDetails();
+
+signals:			// Outgoing Pass-Through:
+	void activated(const QModelIndex &);
 	void gotoIndex(const TPhraseTag &);
 	void changedSearchResults();
 	void setDetailsEnable();
+
+	void activatedSearchResults();
+	void canExpandAll(bool bEnable);
+	void canCollapseAll(bool bEnable);
+	void currentItemChanged();
+
+signals:			// Incoming Pass-Through:
+	void expandAll();
+	void collapseAll();
+	void setFontSearchResults(const QFont &aFont);
 
 protected:
 	CVerseListModel *model() const {
@@ -176,11 +193,17 @@ protected:
 // Private Data:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+	TPhraseTagList m_lstSearchResultsTags;				// Highlight tags from search results
+	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
+	int m_nLastSearchVerses;
+	int m_nLastSearchChapters;
+	int m_nLastSearchBooks;
+	bool m_bLastCalcSuccess;
+	int m_nLastSearchNumPhrases;
+	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nLastSearchScopeMode;
 
 // UI Private:
 private:
-// TODO : CLEAN
-//	Ui::CKJVSearchResult *ui;
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 	QLabel *m_pSearchResultsCount;
 };

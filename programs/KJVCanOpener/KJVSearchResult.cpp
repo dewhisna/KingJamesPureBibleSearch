@@ -22,8 +22,6 @@
 ****************************************************************************/
 
 #include "KJVSearchResult.h"
-// TODO : CLEAN
-//#include "ui_KJVSearchResult.h"
 
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
@@ -120,7 +118,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal->addSeparator();
 	m_pActionNavigator = m_pEditMenuLocal->addAction("Passage &Navigator...");
 	m_pActionNavigator->setEnabled(false);
-	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator()));
+	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	// ----
 
@@ -351,17 +349,23 @@ void CSearchResultsTreeView::on_copyComplete()
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::on_passageNavigator()
+void CSearchResultsTreeView::showPassageNavigator()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-	if (lstSelectedItems.size() != 1) return;
-	if (!lstSelectedItems.at(0).isValid()) return;
+	CRelIndex ndxRel;
 
-	CRelIndex ndxRel(lstSelectedItems.at(0).internalId());
-	assert(ndxRel.isSet());
-	if (!ndxRel.isSet()) return;
+	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+	if (lstSelectedItems.size() == 1) {
+		if (!lstSelectedItems.at(0).isValid()) return;
+		ndxRel = lstSelectedItems.at(0).internalId();
+		assert(ndxRel.isSet());
+		if (!ndxRel.isSet()) return;
+	} else {
+		ndxRel = currentIndex().internalId();
+		assert(ndxRel.isSet());			// Show have had one or the othe because of CKJVSearchResult::canShowPassageNavigator()
+		if (!ndxRel.isSet()) return;
+	}
 
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
@@ -519,9 +523,9 @@ void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 	QTreeView::resizeEvent(event);
 }
 
-void CSearchResultsTreeView::setFont(const QFont& aFont)
+void CSearchResultsTreeView::setFontSearchResults(const QFont& aFont)
 {
-	// TODO :: IMPLEMENT!!!
+	vlmodel()->setFont(aFont);
 }
 
 // ============================================================================
@@ -531,14 +535,16 @@ void CSearchResultsTreeView::setFont(const QFont& aFont)
 
 CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
-	m_pBibleDatabase(pBibleDatabase)
-// TODO : CLEAN
-//	ui(new Ui::CKJVSearchResult)
+	m_pBibleDatabase(pBibleDatabase),
+	m_nLastSearchOccurrences(0),
+	m_nLastSearchVerses(0),
+	m_nLastSearchChapters(0),
+	m_nLastSearchBooks(0),
+	m_bLastCalcSuccess(true),
+	m_nLastSearchNumPhrases(0),
+	m_nLastSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE)
 {
 	assert(m_pBibleDatabase.data() != NULL);
-
-// TODO : CLEAN
-//	ui->setupUi(this);
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setSpacing(6);
@@ -585,27 +591,149 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsTreeView->setItemDelegate(pDelegate);
 	if (pOldDelegate) delete pOldDelegate;
 
-	connect(this, SIGNAL(setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM)), pModel, SLOT(setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM)));
-	connect(this, SIGNAL(setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM)), pModel, SLOT(setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM)));
-	connect(this, SIGNAL(setShowMissingLeafs(bool)), pModel, SLOT(setShowMissingLeafs(bool)));
-
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
 	connect(model(), SIGNAL(modelReset()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
 	connect(model(), SIGNAL(layoutChanged()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
 
-	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(on_SearchResultActivated(const QModelIndex &)));
+	// Set Outgoing Pass-Through Signals:
+	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(activated(const QModelIndex &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
+
+	connect(m_pSearchResultsTreeView, SIGNAL(activatedSearchResults()), this, SIGNAL(activatedSearchResults()));
+	connect(m_pSearchResultsTreeView, SIGNAL(canExpandAll(bool)), this, SIGNAL(canExpandAll(bool)));
+	connect(m_pSearchResultsTreeView, SIGNAL(canCollapseAll(bool)), this, SIGNAL(canCollapseAll(bool)));
+	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(currentItemChanged()));
+
+	// Set Incoming Pass-Through Signals:
+	connect(this, SIGNAL(expandAll()), m_pSearchResultsTreeView, SLOT(expandAll()));
+	connect(this, SIGNAL(collapseAll()), m_pSearchResultsTreeView, SLOT(collapseAll()));
+	connect(this, SIGNAL(setFontSearchResults(const QFont &)), m_pSearchResultsTreeView, SLOT(setFontSearchResults(const QFont &)));
 }
 
 CKJVSearchResult::~CKJVSearchResult()
 {
-// TODO : CLEAN
-//	delete ui;
 }
 
-void CKJVSearchResult::setSearchResultsCountText(const QString &strResults)
+CRelIndex CKJVSearchResult::currentIndex() const
 {
+	return CRelIndex(m_pSearchResultsTreeView->currentIndex().internalId());
+}
+
+bool CKJVSearchResult::setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView)
+{
+	CVerseListModel *pModel = m_pSearchResultsTreeView->vlmodel();
+	assert(pModel != NULL);
+
+	QModelIndex ndxModel = pModel->locateIndex(ndx);
+	m_pSearchResultsTreeView->setCurrentIndex(ndxModel);
+	m_pSearchResultsTreeView->scrollTo(ndxModel, QAbstractItemView::EnsureVisible);
+	if (bFocusTreeView) m_pSearchResultsTreeView->setFocus();
+	return ndxModel.isValid();
+}
+
+void CKJVSearchResult::setFocusSearchResult()
+{
+	m_pSearchResultsTreeView->setFocus();
+}
+
+bool CKJVSearchResult::hasFocusSearchResult() const
+{
+	return m_pSearchResultsTreeView->hasFocus();
+}
+
+bool CKJVSearchResult::canShowPassageNavigator() const
+{
+	return ((m_pSearchResultsTreeView->selectionModel()->selectedRows().count() == 1) || (currentIndex().isSet()));
+}
+
+void CKJVSearchResult::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
+{
+	model()->setDisplayMode(nDisplayMode);
+}
+
+void CKJVSearchResult::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
+{
+	model()->setTreeMode(nTreeMode);
+	m_pSearchResultsTreeView->setRootIsDecorated(nTreeMode != CVerseListModel::VTME_LIST);
+}
+
+void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
+{
+	model()->setShowMissingLeafs(bShowMissing);
+}
+
+const TPhraseTagList &CKJVSearchResult::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases)
+{
+	m_nLastSearchScopeMode = nSearchScopeMode;
+	m_lstSearchResultsTags = model()->setParsedPhrases(nSearchScopeMode, phrases);
+	m_nLastSearchNumPhrases = phrases.size();
+
+	int nVerses = 0;		// Results counts in Verses
+	int nChapters = 0;		// Results counts in Chapters
+	int nBooks = 0;			// Results counts in Books
+	int nResults = 0;		// Total number of Results in Scope
+
+	nVerses = model()->GetVerseIndexAndCount().second;
+	nChapters = model()->GetChapterIndexAndCount().second;
+	nBooks = model()->GetBookIndexAndCount().second;
+	nResults = model()->GetResultsCount();
+
+	QString strResults;
+
+	strResults += QString("Found %1 Occurrence%2\n").arg(nResults).arg((nResults != 1) ? "s" : "");
+	strResults += QString("    in %1 Verse%2 in %3 Chapter%4 in %5 Book%6")
+							.arg(nVerses).arg((nVerses != 1) ? "s" : "")
+							.arg(nChapters).arg((nChapters != 1) ? "s" : "")
+							.arg(nBooks).arg((nBooks != 1) ? "s" : "");
+	if (nResults > 0) {
+		strResults += "\n";
+		strResults += QString("    Not found at all in %1 Verse%2 of the Bible\n")
+								.arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) != 1) ? "s" : "");
+		strResults += QString("    Not found at all in %1 Chapter%2 of the Bible\n")
+								.arg(m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) != 1) ? "s" : "");
+		strResults += QString("    Not found at all in %1 Book%2 of the Bible")
+								.arg(m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks) != 1) ? "s" : "");
+	}
+
 	m_pSearchResultsCount->setText(strResults);
+
+	m_bLastCalcSuccess = true;
+	m_nLastSearchOccurrences = nResults;
+	m_nLastSearchVerses = nVerses;
+	m_nLastSearchChapters = nChapters;
+	m_nLastSearchBooks = nBooks;
+
+	return m_lstSearchResultsTags;
+}
+
+QString CKJVSearchResult::searchResultsSummaryText() const
+{
+	QString strSummary;
+
+	if (m_bLastCalcSuccess) {
+		strSummary += QString("Found %1 %2Occurrence%3\n").arg(m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? "Combined " : "").arg((m_nLastSearchOccurrences != 1) ? "s" : "");
+		strSummary += QString("    in %1 Verse%2\n").arg(m_nLastSearchVerses).arg((m_nLastSearchVerses != 1) ? "s" : "");
+		strSummary += QString("    in %1 Chapter%2\n").arg(m_nLastSearchChapters).arg((m_nLastSearchChapters != 1) ? "s" : "");
+		strSummary += QString("    in %1 Book%2\n").arg(m_nLastSearchBooks).arg((m_nLastSearchBooks != 1) ? "s" : "");
+		strSummary += "\n";
+		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
+	} else {
+		strSummary += QString("Search was incomplete -- too many possible matches\n");
+	}
+
+	return strSummary;
+}
+
+void CKJVSearchResult::showPassageNavigator()
+{
+	m_pSearchResultsTreeView->showPassageNavigator();
+}
+
+void CKJVSearchResult::showDetails()
+{
+	m_pSearchResultsTreeView->showDetails();
 }
 

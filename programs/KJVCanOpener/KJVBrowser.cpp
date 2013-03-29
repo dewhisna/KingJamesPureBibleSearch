@@ -60,6 +60,17 @@ CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	connect(ui->comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(TstChpComboIndexChanged(int)));
 	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleBkComboIndexChanged(int)));
 	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleChpComboIndexChanged(int)));
+
+	// Set Outgoing Pass-Through Signals:
+	connect(ui->textBrowserMainText, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+	connect(ui->textBrowserMainText, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+	connect(ui->textBrowserMainText, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+
+	// Set Incoming Pass-Through Signals:
+	connect(this, SIGNAL(backward()), ui->textBrowserMainText, SLOT(backward()));
+	connect(this, SIGNAL(forward()), ui->textBrowserMainText, SLOT(forward()));
+	connect(this, SIGNAL(home()), ui->textBrowserMainText, SLOT(home()));
+	connect(this, SIGNAL(reload()), ui->textBrowserMainText, SLOT(reload()));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -67,7 +78,7 @@ CKJVBrowser::~CKJVBrowser()
 	delete ui;
 }
 
-CScriptureBrowser *CKJVBrowser::browser()
+CScriptureBrowser *CKJVBrowser::browser() const
 {
 	return ui->textBrowserMainText;
 }
@@ -121,7 +132,7 @@ void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 
 	doHighlighting();
 
-	emit IndexChanged(tag);
+	emit on_gotoIndex(tag);
 }
 
 void CKJVBrowser::on_sourceChanged(const QUrl &src)
@@ -138,7 +149,7 @@ void CKJVBrowser::on_sourceChanged(const QUrl &src)
 	}
 }
 
-void CKJVBrowser::focusBrowser()
+void CKJVBrowser::setFocusBrowser()
 {
 	ui->textBrowserMainText->setFocus();
 }
@@ -160,6 +171,23 @@ void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)
 void CKJVBrowser::doHighlighting(bool bClear)
 {
 	ui->textBrowserMainText->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::setFontScriptureBrowser(const QFont& aFont)
+{
+	browser()->setFont(aFont);
+}
+
+void CKJVBrowser::showDetails()
+{
+	browser()->showDetails();
+}
+
+void CKJVBrowser::showPassageNavigator()
+{
+	browser()->showPassageNavigator();
 }
 
 // ----------------------------------------------------------------------------

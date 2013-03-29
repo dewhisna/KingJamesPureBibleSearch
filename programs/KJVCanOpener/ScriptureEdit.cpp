@@ -87,7 +87,7 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 	m_HighlightTimer.stop();
 
 	// Setup Default Font:
-	setFont(CPersistentSettings::instance()->fontBrowser());
+	setFont(CPersistentSettings::instance()->fontScriptureBrowser());
 
 	// FindDialog:
 	m_pFindDialog = new FindDialog(this);
@@ -350,7 +350,7 @@ void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QM
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_passageNavigator()
+void CScriptureText<T,U>::showPassageNavigator()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -415,7 +415,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	}
 	menu.addSeparator();
 	QAction *pActionNavigator = menu.addAction("Passage &Navigator...");
-	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(on_passageNavigator())));
+	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator())));
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.addSeparator();
 	QAction *pActionDetails = menu.addAction("View &Details...");

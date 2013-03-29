@@ -58,7 +58,7 @@ QString groupCombine(const QString &strSubgroup, const QString &strGroup)
 
 CPersistentSettings::CPersistentSettings(QObject *parent)
 	:	QObject(parent),
-		m_fntBrowser("Times New Roman", 12),					// Default fonts
+		m_fntScriptureBrowser("Times New Roman", 12),					// Default fonts
 		m_fntSearchResults("Times New Roman", 12)
 {
 	// Must set these in main() before caling settings!:
@@ -79,10 +79,10 @@ CPersistentSettings *CPersistentSettings::instance()
 	return &thePersistentSettings;
 }
 
-void CPersistentSettings::setFontBrowser(const QFont &aFont)
+void CPersistentSettings::setFontScriptureBrowser(const QFont &aFont)
 {
-	m_fntBrowser = aFont;
-	emit fontChangedBrowser(aFont);
+	m_fntScriptureBrowser = aFont;
+	emit fontChangedScriptureBrowser(aFont);
 }
 
 void CPersistentSettings::setFontSearchResults(const QFont &aFont)
