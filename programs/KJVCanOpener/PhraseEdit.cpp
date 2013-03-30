@@ -175,12 +175,14 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aC
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
 {
-	CPhraseCursor cursor(curInsert);
-	cursor.clearSelection();
-	cursor.selectWordUnderCursor();							// Select word under the cursor
-	cursor.insertText(completion);							// Replace with completed word
+	CPhraseCursor myCursor(curInsert);
+	myCursor.beginEditBlock();
+	myCursor.clearSelection();
+	myCursor.selectWordUnderCursor();							// Select word under the cursor
+	myCursor.insertText(completion);							// Replace with completed word
+	myCursor.endEditBlock();
 
-	return cursor;
+	return myCursor;
 }
 
 void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
@@ -1221,6 +1223,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 	QPair<CParsedPhrase, TPhraseTag> retVal;
 
 	CPhraseCursor myCursor(aCursor);
+	myCursor.beginEditBlock();
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
 	QString strPhrase;
@@ -1296,6 +1299,7 @@ QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhra
 			}
 		}
 	}
+	myCursor.endEditBlock();
 
 	retVal.first.ParsePhrase(strPhrase);
 	retVal.second.first = nIndex;
@@ -1316,16 +1320,17 @@ void CPhraseNavigator::removeAnchors()
 	//		cobbled this up, pattered after our anchorPosition function, which
 	//		was patterned after the Qt code for doing this:
 
-	CPhraseCursor cursor(&m_TextDocument);
+	CPhraseCursor myCursor(&m_TextDocument);
+	myCursor.beginEditBlock();
 
 	for (QTextBlock block = m_TextDocument.begin(); block.isValid(); block = block.next()) {
 		QTextCharFormat format = block.charFormat();
 		if (format.isAnchor()) {
 			format.setAnchorNames(QStringList());
 			format.setAnchor(false);
-			cursor.setPosition(block.position());
-			cursor.setPosition(block.position()+1, QTextCursor::KeepAnchor);
-			cursor.setCharFormat(format);
+			myCursor.setPosition(block.position());
+			myCursor.setPosition(block.position()+1, QTextCursor::KeepAnchor);
+			myCursor.setCharFormat(format);
 			// This one is a linked list instead of an iterator, so no need to reset
 			//	any iterators here
 		}
@@ -1335,9 +1340,9 @@ void CPhraseNavigator::removeAnchors()
 			if (format.isAnchor()) {
 				format.setAnchorNames(QStringList());
 				format.setAnchor(false);
-				cursor.setPosition(fragment.position());
-				cursor.setPosition(fragment.position()+1, QTextCursor::KeepAnchor);
-				cursor.setCharFormat(format);
+				myCursor.setPosition(fragment.position());
+				myCursor.setPosition(fragment.position()+1, QTextCursor::KeepAnchor);
+				myCursor.setCharFormat(format);
 				// Note: The above affects the fragment iteration list and
 				//	if we don't reset our loop here, we'll segfault with an
 				//	invalid iterator:
@@ -1347,6 +1352,7 @@ void CPhraseNavigator::removeAnchors()
 			}
 		}
 	}
+	myCursor.endEditBlock();
 }
 
 // ============================================================================
@@ -1367,6 +1373,7 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	int nPos = anchorPosition(ndxRel.asAnchor());
 	if (nPos != -1) {
 		CPhraseCursor myCursor(m_TextEditor.textCursor());
+		myCursor.beginEditBlock();
 		myCursor.setPosition(nPos);
 		int nSelEnd = nPos;
 		while (ndxWord) {
@@ -1439,6 +1446,7 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 			}
 		}
 		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
+		myCursor.endEditBlock();
 		m_TextEditor.setTextCursor(myCursor);
 		m_TextEditor.ensureCursorVisible();				// Hmmm, for some strange reason, this doen't always work when user has used mousewheel to scroll off.  Qt bug?
 	}
