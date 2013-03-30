@@ -25,6 +25,7 @@
 #define KJVPASSAGENAVIGATOR_H
 
 #include "dbstruct.h"
+#include "ScriptureEdit.h"
 
 #include <QWidget>
 
@@ -37,7 +38,6 @@ class CKJVPassageNavigator : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVPassageNavigator(QWidget *parent = 0);
 	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CKJVPassageNavigator();
 
@@ -92,6 +92,7 @@ private:
 #define end_update()							\
 			m_bDoingUpdate = bUpdateSave;
 
+	CScriptureEdit *m_pEditVersePreview;
 	Ui::CKJVPassageNavigator *ui;
 };
 

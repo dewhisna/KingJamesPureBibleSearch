@@ -55,11 +55,13 @@ private slots:
 	void on_resizeMe();
 
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 	QPushButton *m_pApplyButton;		// Apply is to apply the resolved reference to the start reference for relative mode
 	QPushButton *m_pModeButton;			// Mode button is to switch Relative/Absolute modes
 	QPushButton *m_pResetButton;		// Clear passage offset
 	QPushButton *m_pOKButton;			// Goto passage button
 	QPushButton *m_pCancelButton;		// Abort
+	CKJVPassageNavigator *m_pNavigator;
 	Ui::CKJVPassageNavigatorDlg *ui;
 };
 

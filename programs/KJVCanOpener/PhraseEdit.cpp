@@ -677,6 +677,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 		int nPos = anchorPosition(ndxRel.asAnchor());
 		if (nPos == -1) continue;
 		CPhraseCursor myCursor(&m_TextDocument);
+		myCursor.beginEditBlock();
 		myCursor.setPosition(nPos);
 		int nSelEnd = nPos;
 		while (ndxWord) {
@@ -751,6 +752,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				}
 			}
 		}
+		myCursor.endEditBlock();
 	}
 }
 
@@ -1348,12 +1350,6 @@ void CPhraseNavigator::removeAnchors()
 }
 
 // ============================================================================
-
-void CPhraseEditNavigator::initialize(CBibleDatabasePtr pBibleDatabase)
-{
-	assert(m_pBibleDatabase.data() == NULL);		// Call initialze only once
-	m_pBibleDatabase = pBibleDatabase;
-}
 
 void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {

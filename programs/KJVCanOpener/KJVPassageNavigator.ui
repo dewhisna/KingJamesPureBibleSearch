@@ -24,18 +24,10 @@
 ****************************************************************************</comment>
  <class>CKJVPassageNavigator</class>
  <widget class="QWidget" name="CKJVPassageNavigator">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>549</width>
-    <height>277</height>
-   </rect>
-  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>PassageNavigatorForm</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>6</number>
    </property>
@@ -45,7 +37,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -301,7 +293,7 @@
     </layout>
    </item>
    <item>
-    <widget class="CScriptureEdit" name="editVersePreview">
+    <widget class="QTextEdit" name="editVersePreview">
      <property name="minimumSize">
       <size>
        <width>200</width>
@@ -327,13 +319,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CScriptureEdit</class>
-   <extends>QTextEdit</extends>
-   <header>ScriptureEdit.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>spinWord</tabstop>
   <tabstop>spinVerse</tabstop>

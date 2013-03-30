@@ -31,14 +31,16 @@
 
 CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
+	m_pBibleDatabase(pBibleDatabase),
 	m_pApplyButton(NULL),
 	m_pModeButton(NULL),
 	m_pResetButton(NULL),
 	m_pOKButton(NULL),
 	m_pCancelButton(NULL),
+	m_pNavigator(NULL),
 	ui(new Ui::CKJVPassageNavigatorDlg)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
 
@@ -54,13 +56,15 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	int nColSpan;
 	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
-	CKJVPassageNavigator *pPassageNavigator = new CKJVPassageNavigator(pBibleDatabase, this);
-	pPassageNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
+	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this);
+	m_pNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
 	delete ui->widgetKJVPassageNavigator;
-	ui->widgetKJVPassageNavigator = pPassageNavigator;
-	ui->gridLayout->addWidget(pPassageNavigator, nRow, nCol, nRowSpan, nColSpan);
+	ui->widgetKJVPassageNavigator = NULL;
+	ui->gridLayout->addWidget(m_pNavigator, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
+
+	assert(m_pNavigator != NULL);
 
 	m_pApplyButton = ui->buttonBox->addButton("&Apply Resolved to From Location", QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(on_ApplyResolvedClicked()));
@@ -69,17 +73,17 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(on_ModeClicked()));
 
 	m_pResetButton = ui->buttonBox->addButton("&Reset", QDialogButtonBox::ResetRole);
-	connect(m_pResetButton, SIGNAL(clicked()), ui->widgetKJVPassageNavigator, SLOT(reset()));
+	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
 
 	m_pOKButton = ui->buttonBox->addButton("&Goto", QDialogButtonBox::AcceptRole);
 
 	m_pCancelButton = ui->buttonBox->addButton("&Cancel", QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
-	on_modeChanged(ui->widgetKJVPassageNavigator->isRelative());
+	on_modeChanged(m_pNavigator->isRelative());
 
-	connect(ui->widgetKJVPassageNavigator, SIGNAL(modeChanged(bool)), this, SLOT(on_modeChanged(bool)));
-	connect(ui->widgetKJVPassageNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(on_gotoIndex(const TPhraseTag &)));
+	connect(m_pNavigator, SIGNAL(modeChanged(bool)), this, SLOT(on_modeChanged(bool)));
+	connect(m_pNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(on_gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
@@ -89,17 +93,17 @@ CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
 
 TPhraseTag CKJVPassageNavigatorDlg::passage() const
 {
-	return ui->widgetKJVPassageNavigator->passage();
+	return m_pNavigator->passage();
 }
 
 void CKJVPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
 {
-	ui->widgetKJVPassageNavigator->setPassage(tag);
+	m_pNavigator->setPassage(tag);
 }
 
 CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
 {
-	return *(ui->widgetKJVPassageNavigator);
+	return *(m_pNavigator);
 }
 
 void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
@@ -128,16 +132,16 @@ void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 void CKJVPassageNavigatorDlg::on_ApplyResolvedClicked()
 {
 	// Reversing and swapping passage and startRef are symmetric:
-	ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage(), ui->widgetKJVPassageNavigator->isReversed());
+	m_pNavigator->startRelativeMode(m_pNavigator->passage(), m_pNavigator->isReversed());
 }
 
 void CKJVPassageNavigatorDlg::on_ModeClicked()
 {
-	if (ui->widgetKJVPassageNavigator->isAbsolute()) {
-		ui->widgetKJVPassageNavigator->startRelativeMode(ui->widgetKJVPassageNavigator->passage());
-		ui->widgetKJVPassageNavigator->reset();
+	if (m_pNavigator->isAbsolute()) {
+		m_pNavigator->startRelativeMode(m_pNavigator->passage());
+		m_pNavigator->reset();
 	} else {
-		ui->widgetKJVPassageNavigator->startAbsoluteMode(ui->widgetKJVPassageNavigator->passage());
+		m_pNavigator->startAbsoluteMode(m_pNavigator->passage());
 	}
 }
 
@@ -147,7 +151,7 @@ void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)
 	//		absolute reference and accept it.  Otherwise, if we just setPassage,
 	//		then if we're in relative mode, we'll move by the relative offset
 	//		instead of navigating to it:
-	ui->widgetKJVPassageNavigator->startAbsoluteMode(tag);
+	m_pNavigator->startAbsoluteMode(tag);
 	accept();
 }
 

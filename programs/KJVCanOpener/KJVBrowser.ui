@@ -24,16 +24,8 @@
 ****************************************************************************</comment>
  <class>CKJVBrowser</class>
  <widget class="QWidget" name="CKJVBrowser">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>384</width>
-    <height>273</height>
-   </rect>
-  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>KJVBrowserForm</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <property name="margin">
@@ -200,7 +192,7 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="CScriptureBrowser" name="textBrowserMainText">
+      <widget class="QTextBrowser" name="textBrowserMainText">
        <property name="mouseTracking">
         <bool>true</bool>
        </property>
@@ -222,13 +214,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CScriptureBrowser</class>
-   <extends>QTextBrowser</extends>
-   <header>ScriptureEdit.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>comboBk</tabstop>
   <tabstop>comboBkChp</tabstop>

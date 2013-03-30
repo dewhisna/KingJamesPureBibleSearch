@@ -273,6 +273,7 @@ void CTipEdit::timerEvent(QTimerEvent *e)
 		hideTimer.stop();
 		expireTimer.stop();
 		hideTipImmediately();
+//		if (widget) widget->activateWindow();
 	}
 }
 
@@ -287,6 +288,7 @@ bool CTipEdit::eventFilter(QObject *o, QEvent *e)
 				((key == Qt::Key_Escape) ||
 				 (key == Qt::Key_Enter))) {
 				hideTipImmediately();
+				if (widget) widget->activateWindow();
 				return true;
 			}
 

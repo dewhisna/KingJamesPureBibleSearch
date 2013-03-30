@@ -62,10 +62,8 @@ template <class T, class U>
 class CScriptureText : public T
 {
 public:
-	explicit CScriptureText(QWidget *parent = 0);
+	CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CScriptureText();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	void savePersistentSettings(const QString &strGroup);
 	void restorePersistentSettings(const QString &strGroup);
@@ -258,16 +256,16 @@ public slots:
 class CScriptureEdit : public CScriptureText<i_CScriptureEdit, QTextEdit>
 {
 public:
-	explicit CScriptureEdit(QWidget *parent = 0)
-		:	CScriptureText<i_CScriptureEdit, QTextEdit>(parent)
+	explicit CScriptureEdit(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0)
+		:	CScriptureText<i_CScriptureEdit, QTextEdit>(pBibleDatabase, parent)
 	{ }
 };
 
 class CScriptureBrowser : public CScriptureText<i_CScriptureBrowser, QTextBrowser>
 {
 public:
-	explicit CScriptureBrowser(QWidget *parent = 0)
-		:	CScriptureText<i_CScriptureBrowser, QTextBrowser>(parent)
+	explicit CScriptureBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0)
+		:	CScriptureText<i_CScriptureBrowser, QTextBrowser>(pBibleDatabase, parent)
 	{ }
 };
 

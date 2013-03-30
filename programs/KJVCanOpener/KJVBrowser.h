@@ -50,26 +50,26 @@ public:
 	explicit CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVBrowser();
 
-	inline void savePersistentSettings(const QString &strGroup) { browser()->savePersistentSettings(strGroup); }
-	inline void restorePersistentSettings(const QString &strGroup) { browser()->restorePersistentSettings(strGroup); }
+	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
+	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
 
 	bool hasFocusBrowser() const;
 
-	inline QMenu *getEditMenu() { return browser()->getEditMenu(); }
+	inline QMenu *getEditMenu() { return m_pScriptureBrowser->getEditMenu(); }
 
-	inline bool haveSelection() const { return browser()->haveSelection(); }
-	inline TPhraseTag selection() const { return browser()->selection(); }
+	inline bool haveSelection() const { return m_pScriptureBrowser->haveSelection(); }
+	inline TPhraseTag selection() const { return m_pScriptureBrowser->selection(); }
 
-	inline bool haveDetails() const { return browser()->haveDetails(); }
+	inline bool haveDetails() const { return m_pScriptureBrowser->haveDetails(); }
 
-	inline bool isBackwardAvailable() const { return browser()->isBackwardAvailable(); }
-	inline bool isForwardAvailable() const { return browser()->isForwardAvailable(); }
+	inline bool isBackwardAvailable() const { return m_pScriptureBrowser->isBackwardAvailable(); }
+	inline bool isForwardAvailable() const { return m_pScriptureBrowser->isForwardAvailable(); }
 
-	inline int forwardHistoryCount() const { return browser()->forwardHistoryCount(); }
-	int backwardHistoryCount() const { return browser()->backwardHistoryCount(); }
-	void clearHistory() { return browser()->clearHistory(); }
-	inline QString historyTitle(int i) const { return browser()->historyTitle(i); }
-	inline QUrl historyUrl(int i) const { return browser()->historyUrl(i); }
+	inline int forwardHistoryCount() const { return m_pScriptureBrowser->forwardHistoryCount(); }
+	int backwardHistoryCount() const { return m_pScriptureBrowser->backwardHistoryCount(); }
+	void clearHistory() { return m_pScriptureBrowser->clearHistory(); }
+	inline QString historyTitle(int i) const { return m_pScriptureBrowser->historyTitle(i); }
+	inline QUrl historyUrl(int i) const { return m_pScriptureBrowser->historyUrl(i); }
 
 public slots:
 	void setFontScriptureBrowser(const QFont& aFont);
@@ -103,7 +103,7 @@ signals:			// Incoming Pass-Through:
 	void home();
 	void reload();
 
-protected:
+private:
 	void initialize();
 
 private slots:
@@ -126,9 +126,6 @@ private:
 	void setVerse(const CRelIndex &ndx);	// Scrolls browser to the specified verse for the current Bk/Tst/Chp, etc.
 	void setWord(const TPhraseTag &tag);	// Scrolls browser to the specified word for the current Bk/Tst/Chp/Vrs, etc.  And selects the number of words specified
 
-protected:
-	CScriptureBrowser *browser() const;
-
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -145,7 +142,7 @@ private:
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
 
-
+	CScriptureBrowser *m_pScriptureBrowser;
 	Ui::CKJVBrowser *ui;
 };
 

@@ -37,7 +37,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="CKJVPassageNavigator" name="widgetKJVPassageNavigator" native="true"/>
+    <widget class="QWidget" name="widgetKJVPassageNavigator" native="true"/>
    </item>
    <item row="1" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -51,14 +51,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CKJVPassageNavigator</class>
-   <extends>QWidget</extends>
-   <header>KJVPassageNavigator.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

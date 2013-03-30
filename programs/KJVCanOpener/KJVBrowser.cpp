@@ -40,19 +40,20 @@ CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
 	m_bDoingUpdate(false),
+	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
 
 	initialize();
-// TODO : Remove this when we make CScriptureEdit's only constructor take it:
-	browser()->initialize(m_pBibleDatabase);
+
+	assert(m_pScriptureBrowser != NULL);
 
 // UI Connections:
-	connect(ui->textBrowserMainText, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
-	connect(ui->textBrowserMainText, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
+	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
 
 	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BkChpComboIndexChanged(int)));
@@ -62,15 +63,16 @@ CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleChpComboIndexChanged(int)));
 
 	// Set Outgoing Pass-Through Signals:
-	connect(ui->textBrowserMainText, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-	connect(ui->textBrowserMainText, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-	connect(ui->textBrowserMainText, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SIGNAL(activatedScriptureText()));
+	connect(m_pScriptureBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+	connect(m_pScriptureBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+	connect(m_pScriptureBrowser, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
 
 	// Set Incoming Pass-Through Signals:
-	connect(this, SIGNAL(backward()), ui->textBrowserMainText, SLOT(backward()));
-	connect(this, SIGNAL(forward()), ui->textBrowserMainText, SLOT(forward()));
-	connect(this, SIGNAL(home()), ui->textBrowserMainText, SLOT(home()));
-	connect(this, SIGNAL(reload()), ui->textBrowserMainText, SLOT(reload()));
+	connect(this, SIGNAL(backward()), m_pScriptureBrowser, SLOT(backward()));
+	connect(this, SIGNAL(forward()), m_pScriptureBrowser, SLOT(forward()));
+	connect(this, SIGNAL(home()), m_pScriptureBrowser, SLOT(home()));
+	connect(this, SIGNAL(reload()), m_pScriptureBrowser, SLOT(reload()));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -78,15 +80,40 @@ CKJVBrowser::~CKJVBrowser()
 	delete ui;
 }
 
-CScriptureBrowser *CKJVBrowser::browser() const
-{
-	return ui->textBrowserMainText;
-}
-
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::initialize()
 {
+	// --------------------------------------------------------------
+
+	//	Swapout the widgetKJVPassageNavigator from the layout with
+	//		one that we can set the database on:
+
+	int ndx = ui->gridLayout->indexOf(ui->textBrowserMainText);
+	int nRow;
+	int nCol;
+	int nRowSpan;
+	int nColSpan;
+	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+
+	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
+	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
+	m_pScriptureBrowser->setMouseTracking(true);
+	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	m_pScriptureBrowser->setTabChangesFocus(false);
+	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+	m_pScriptureBrowser->setOpenLinks(false);
+
+	delete ui->textBrowserMainText;
+	ui->textBrowserMainText = NULL;
+	ui->gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
+
+	// Reinsert it in the correct TabOrder:
+	QWidget::setTabOrder(ui->comboBkChp, m_pScriptureBrowser);
+	QWidget::setTabOrder(m_pScriptureBrowser, ui->comboTstBk);
+
+	// --------------------------------------------------------------
+
 	begin_update();
 
 	unsigned int nBibleChp = 0;
@@ -116,7 +143,7 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 	if ((tagActual.first.book() != 0) &&
 		(tagActual.first.chapter() == 0)) tagActual.first.setChapter(1);
 
-	ui->textBrowserMainText->setSource(QString("#%1").arg(tagActual.first.asAnchor()));
+	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.first.asAnchor()));
 
 	end_update();
 
@@ -151,12 +178,12 @@ void CKJVBrowser::on_sourceChanged(const QUrl &src)
 
 void CKJVBrowser::setFocusBrowser()
 {
-	ui->textBrowserMainText->setFocus();
+	m_pScriptureBrowser->setFocus();
 }
 
 bool CKJVBrowser::hasFocusBrowser() const
 {
-	return ui->textBrowserMainText->hasFocus();
+	return m_pScriptureBrowser->hasFocus();
 }
 
 // ----------------------------------------------------------------------------
@@ -170,24 +197,24 @@ void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)
 
 void CKJVBrowser::doHighlighting(bool bClear)
 {
-	ui->textBrowserMainText->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
+	m_pScriptureBrowser->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
 }
 
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::setFontScriptureBrowser(const QFont& aFont)
 {
-	browser()->setFont(aFont);
+	m_pScriptureBrowser->setFont(aFont);
 }
 
 void CKJVBrowser::showDetails()
 {
-	browser()->showDetails();
+	m_pScriptureBrowser->showDetails();
 }
 
 void CKJVBrowser::showPassageNavigator()
 {
-	browser()->showPassageNavigator();
+	m_pScriptureBrowser->showPassageNavigator();
 }
 
 // ----------------------------------------------------------------------------
@@ -300,7 +327,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	ui->comboBkChp->setCurrentIndex(ui->comboBkChp->findData(ndx.chapter()));
 
 	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) {
-		ui->textBrowserMainText->clear();
+		m_pScriptureBrowser->clear();
 		end_update();
 		return;
 	}
@@ -328,7 +355,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	ui->textBrowserMainText->navigator().setDocumentToChapter(ndx);
+	m_pScriptureBrowser->navigator().setDocumentToChapter(ndx);
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)
@@ -340,7 +367,7 @@ void CKJVBrowser::setVerse(const CRelIndex &ndx)
 void CKJVBrowser::setWord(const TPhraseTag &tag)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.first.word());
-	ui->textBrowserMainText->navigator().selectWords(tag);
+	m_pScriptureBrowser->navigator().selectWords(tag);
 }
 
 // ----------------------------------------------------------------------------

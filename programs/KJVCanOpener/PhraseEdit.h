@@ -221,6 +221,7 @@ public:
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
+		assert(m_pBibleDatabase.data() != NULL);
 	}
 
 	enum TOOLTIP_TYPE_ENUM {
@@ -228,8 +229,6 @@ public:
 		TTE_REFERENCE_ONLY = 1,
 		TTE_STATISTICS_ONLY = 2
 	};
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);

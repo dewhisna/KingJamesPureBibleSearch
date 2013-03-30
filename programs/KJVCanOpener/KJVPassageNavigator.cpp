@@ -34,19 +34,6 @@
 
 // Placeholder Constructor:
 
-CKJVPassageNavigator::CKJVPassageNavigator(QWidget *parent)
-	:	QWidget(parent),
-		m_nTestament(0),
-		m_nBook(0),
-		m_nChapter(0),
-		m_nVerse(0),
-		m_nWord(0),
-		m_bDoingUpdate(false),
-		ui(NULL)
-{
-
-}
-
 CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
@@ -58,18 +45,18 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_bDoingUpdate(false),
 		ui(new Ui::CKJVPassageNavigator)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
 
-	ui->editVersePreview->initialize(pBibleDatabase);
-
 	initialize();
+
+	assert(m_pEditVersePreview != NULL);
 
 	QAction *pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	addAction(pAction);
-	connect(pAction, SIGNAL(triggered()), ui->editVersePreview, SLOT(showDetails()));
+	connect(pAction, SIGNAL(triggered()), m_pEditVersePreview, SLOT(showDetails()));
 
 	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(TestamentComboIndexChanged(int)));
 	connect(ui->spinWord, SIGNAL(valueChanged(int)), this, SLOT(WordChanged(int)));
@@ -77,7 +64,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(ui->spinChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterChanged(int)));
 	connect(ui->spinBook, SIGNAL(valueChanged(int)), this, SLOT(BookChanged(int)));
 	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(on_ReverseChanged(bool)));
-	connect(ui->editVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigator::~CKJVPassageNavigator()
@@ -87,6 +74,25 @@ CKJVPassageNavigator::~CKJVPassageNavigator()
 
 void CKJVPassageNavigator::initialize()
 {
+	// --------------------------------------------------------------
+
+	//	Swapout the editVersePreview from the layout with
+	//		one that we can set the database on:
+
+	m_pEditVersePreview = new CScriptureEdit(m_pBibleDatabase, this);
+	m_pEditVersePreview->setObjectName(QString::fromUtf8("editVersePreview"));
+	m_pEditVersePreview->setMinimumSize(QSize(200, 150));
+	m_pEditVersePreview->setMouseTracking(true);
+	m_pEditVersePreview->setAcceptDrops(false);
+	m_pEditVersePreview->setTabChangesFocus(true);
+	m_pEditVersePreview->setUndoRedoEnabled(false);
+	m_pEditVersePreview->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+	delete ui->editVersePreview;
+	ui->editVersePreview = NULL;
+	ui->verticalLayout->addWidget(m_pEditVersePreview);
+
+	// --------------------------------------------------------------
 
 	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Start with default word-size of one so we highlight at least one word when tracking
 	m_tagPassage = TPhraseTag(CRelIndex(), 1);		// ""  (ditto)
@@ -208,7 +214,7 @@ void CKJVPassageNavigator::CalcPassage()
 
 	m_tagPassage.first = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.first));
-	CPhraseEditNavigator navigator(m_pBibleDatabase, *ui->editVersePreview);
+	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
 	navigator.setDocumentToVerse(m_tagPassage.first);
 	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 }

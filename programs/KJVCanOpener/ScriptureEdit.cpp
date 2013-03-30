@@ -57,11 +57,12 @@ namespace {
 // ============================================================================
 
 template <class T, class U>
-CScriptureText<T,U>::CScriptureText(QWidget *parent)
+CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	T(parent),
+		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
-		m_navigator(CBibleDatabasePtr(), *this, T::useToolTipEdit()),
+		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
@@ -79,6 +80,8 @@ CScriptureText<T,U>::CScriptureText(QWidget *parent)
 		m_pActionFindPrev(NULL),
 		m_pStatusAction(NULL)
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	T::setMouseTracking(true);
 	T::installEventFilter(this);
 
@@ -158,17 +161,6 @@ template<class T, class U>
 CScriptureText<T,U>::~CScriptureText()
 {
 
-}
-
-// ----------------------------------------------------------------------------
-
-template<class T, class U>
-void CScriptureText<T,U>::initialize(CBibleDatabasePtr pBibleDatabase)
-{
-	assert(m_pBibleDatabase.data() == NULL);		// Call initialize only once!
-	assert(pBibleDatabase.data() != NULL);
-	m_pBibleDatabase = pBibleDatabase;
-	m_navigator.initialize(pBibleDatabase);
 }
 
 // ----------------------------------------------------------------------------
