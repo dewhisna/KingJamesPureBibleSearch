@@ -71,7 +71,6 @@ int CPhraseList::removeDuplicates()
 
 uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 {
-	uint32_t nNormalIndex = 0;
 	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);
 	unsigned int nChp = ((nRelIndex >> 16) & 0xFF);
 	unsigned int nVrs = ((nRelIndex >> 8) & 0xFF);
@@ -79,27 +78,18 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 
 	if (nRelIndex == 0) return 0;
 
-	// Add the number of words for all books prior to the target book:
-	if (nBk < 1) return 0;
+	if ((nBk < 1) ||
+		(nChp < 1) ||
+		(nVrs < 1) ||
+		(nWrd < 1)) return 0;
 	if (nBk > m_lstTOC.size()) return 0;
-	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
-		nNormalIndex += m_lstTOC[ndxBk-1].m_nNumWrd;
-	}
-	// Add the number of words for all chapters in this book prior to the target chapter:
 	if (nChp > m_lstTOC[nBk-1].m_nNumChp) return 0;
-	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
-		nNormalIndex += m_mapLayout.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
-	}
-	// Add the number of words for all verses in this book prior to the target verse:
 	if (nVrs > m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
-	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
-		nNormalIndex += (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,ndxVrs,0)).m_nNumWrd;
-	}
-	// Add the target word:
 	if (nWrd > (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
-	nNormalIndex += nWrd;
 
-	return nNormalIndex;
+	return ((m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum -
+			(m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) +
+			nWrd;
 }
 
 uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
@@ -112,26 +102,26 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 	if (nNormalIndex == 0) return 0;
 
 	while (nBk < m_lstTOC.size()) {
-		if (m_lstTOC[nBk].m_nNumWrd >= nWrd) break;
-		nWrd -= m_lstTOC[nBk].m_nNumWrd;
+		if (m_lstTOC[nBk].m_nWrdAccum >= nWrd) break;
 		nBk++;
 	}
 	if (nBk >= m_lstTOC.size()) return 0;
 	nBk++;
 
 	while (nChp <= m_lstTOC.at(nBk-1).m_nNumChp) {
-		if (m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
-		nWrd -= m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		if (m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum >= nWrd) break;
 		nChp++;
 	}
 	if (nChp > m_lstTOC[nBk-1].m_nNumChp) return 0;
 
 	while (nVrs <= m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
-		if ((m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
-		nWrd -= (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd;
+		if ((m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum >= nWrd) break;
 		nVrs++;
 	}
 	if (nVrs > m_mapLayout.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+
+	nWrd -= ((m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum -
+			 (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd);
 
 	if (nWrd > (m_lstBooks.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 

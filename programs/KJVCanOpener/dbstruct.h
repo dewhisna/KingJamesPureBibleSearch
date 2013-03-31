@@ -241,7 +241,8 @@ public:
 		m_nTstNdx(0),
 		m_nNumChp(0),
 		m_nNumVrs(0),
-		m_nNumWrd(0)
+		m_nNumWrd(0),
+		m_nWrdAccum(0)
 	{ }
 	~CTOCEntry() { }
 
@@ -253,6 +254,7 @@ public:
 	unsigned int m_nNumChp;		// Number of chapters in this book
 	unsigned int m_nNumVrs;		// Number of verses in this book
 	unsigned int m_nNumWrd;		// Number of words in this book
+	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this book
 	QString m_strCat;			// Category name
 	QString m_strDesc;			// Description (subtitle)
 };
@@ -268,12 +270,14 @@ class CLayoutEntry
 public:
 	CLayoutEntry()
 	:   m_nNumVrs(0),
-		m_nNumWrd(0)
+		m_nNumWrd(0),
+		m_nWrdAccum(0)
 	{ }
 	~CLayoutEntry() { }
 
 	unsigned int m_nNumVrs;		// Number of verses in this chapter
 	unsigned int m_nNumWrd;		// Number of words in this chapter
+	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this chapter
 };
 
 typedef std::map<CRelIndex, CLayoutEntry, IndexSortPredicate> TLayoutMap;	// Index by [nBk|nChp|0|0]
@@ -287,11 +291,13 @@ class CBookEntry
 public:
 	CBookEntry()
 	:   m_nNumWrd(0),
+		m_nWrdAccum(0),
 		m_bPilcrow(false)
 	{ }
 	~CBookEntry() { }
 
 	unsigned int m_nNumWrd;		// Number of words in this verse
+	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this verse
 	bool m_bPilcrow;			// Start of verse Pilcrow Flag
 	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
 	{

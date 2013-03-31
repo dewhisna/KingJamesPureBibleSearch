@@ -154,6 +154,16 @@ bool CReadDatabase::ReadTOCTable()
 		m_pBibleDatabase->m_EntireBible.m_nNumWrd += entryTOC.m_nNumWrd;
 	}
 
+	// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
+	//		came to us out of order:
+	unsigned int nWrdAccum = 0;
+	for (unsigned int nBk = 0; nBk < m_pBibleDatabase->m_lstTOC.size(); ++nBk) {
+		nWrdAccum += m_pBibleDatabase->m_lstTOC[nBk].m_nNumWrd;
+		m_pBibleDatabase->m_lstTOC[nBk].m_nWrdAccum = nWrdAccum;
+	}
+
+	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
+
 // Used for debugging:
 #ifdef NEVER
 	QFile fileTest("testit.txt");
@@ -201,6 +211,18 @@ bool CReadDatabase::ReadLAYOUTTable()
 		entryLayout.m_nNumWrd = query.value(2).toUInt();
 	}
 
+	// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
+	//		came to us out of order:
+	unsigned int nWrdAccum = 0;
+	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->m_lstTOC.size(); ++nBk) {
+		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstTOC[nBk-1].m_nNumChp; ++nChp) {
+			nWrdAccum += m_pBibleDatabase->m_mapLayout[CRelIndex(nBk, nChp, 0, 0)].m_nNumWrd;
+			m_pBibleDatabase->m_mapLayout[CRelIndex(nBk, nChp, 0, 0)].m_nWrdAccum = nWrdAccum;
+		}
+	}
+
+	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
+
 // Used for debugging:
 #ifdef NEVER
 	QFile fileTest("testit.txt");
@@ -225,28 +247,30 @@ bool CReadDatabase::ReadBookTables()
 
 	assert(m_pBibleDatabase->m_lstTOC.size() != 0);		// Must read TOC before BOOKS
 
+	unsigned int nWrdAccum = 0;
+
 	m_pBibleDatabase->m_lstBooks.clear();
 	m_pBibleDatabase->m_lstBooks.resize(m_pBibleDatabase->m_lstTOC.size());
-	for (unsigned int i=0; i<m_pBibleDatabase->m_lstTOC.size(); ++i) {
+	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstTOC.size(); ++nBk) {
 		QSqlQuery query(m_myDatabase);
 
 		// Check to see if the table exists:
-		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName))) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName).arg(query.lastError().text()));
+		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstTOC[nBk-1].m_strTblName))) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstTOC[nBk-1].m_strTblName).arg(query.lastError().text()));
 			return false;
 		}
 		query.next();
 		if (!query.value(0).toInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName));
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstTOC[nBk-1].m_strTblName));
 			return false;
 		}
 
-		TBookEntryMap &mapBook = m_pBibleDatabase->m_lstBooks[i];
+		TBookEntryMap &mapBook = m_pBibleDatabase->m_lstBooks[nBk-1];
 
 		mapBook.clear();
 
 		query.setForwardOnly(true);
-		query.exec(QString("SELECT * FROM %1").arg(m_pBibleDatabase->m_lstTOC[i].m_strTblName));
+		query.exec(QString("SELECT * FROM %1").arg(m_pBibleDatabase->m_lstTOC[nBk-1].m_strTblName));
 		while (query.next()) {
 			QString strVerseText;
 			uint32_t nChpVrsNdx = query.value(0).toUInt();
@@ -258,9 +282,19 @@ bool CReadDatabase::ReadBookTables()
 			entryBook.setText(strVerseText);
 		}
 
+		// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
+		//		came to us out of order:
+		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstTOC[nBk-1].m_nNumChp; ++nChp) {
+			unsigned int nNumVerses = m_pBibleDatabase->m_mapLayout[CRelIndex(nBk, nChp, 0, 0)].m_nNumVrs;
+			for (unsigned int nVrs = 1; nVrs <= nNumVerses; ++nVrs) {
+				nWrdAccum += mapBook[CRelIndex(0, nChp, nVrs, 0)].m_nNumWrd;
+				mapBook[CRelIndex(0, nChp, nVrs, 0)].m_nWrdAccum = nWrdAccum;
+			}
+		}
+
 // Used for debugging:
 #ifdef NEVER
-		QFile fileTest(QString("testit%1.txt").arg(i, 2, 10, QChar('0')));
+		QFile fileTest(QString("testit%1.txt").arg(nBk, 2, 10, QChar('0')));
 		if (fileTest.open(QIODevice::WriteOnly)) {
 			CCSVStream csv(&fileTest);
 			for (TBookEntryMap::const_iterator itr = mapBook.begin(); itr != mapBook.end(); ++itr) {
@@ -276,6 +310,8 @@ bool CReadDatabase::ReadBookTables()
 #endif
 
 	}
+
+	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
 
 	return true;
 }
@@ -606,6 +642,27 @@ bool CReadDatabase::ValidateData()
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(m_pBibleDatabase->m_lstConcordanceMapping.size()));
 		return false;
 	}
+
+	// Check overall count values:
+	if ((ncntTstTot != m_pBibleDatabase->bibleEntry().m_nNumTst) ||
+		(ncntBkTot != m_pBibleDatabase->bibleEntry().m_nNumBk) ||
+		(ncntChpTot != m_pBibleDatabase->bibleEntry().m_nNumChp) ||
+		(ncntVrsTot != m_pBibleDatabase->bibleEntry().m_nNumVrs) ||
+		(ncntWrdTot != m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Error: Overall Bible Entry Data Counts are inconsistent!  Check database!"));
+		return false;
+	}
+
+	// Check Normalize/Denormalize functions:
+#ifdef TEST_INDEXING
+	for (unsigned int nWrd = 1; nWrd <= m_pBibleDatabase->bibleEntry().m_nNumWrd; ++nWrd) {
+		uint32_t ndxRel = m_pBibleDatabase->DenormalizeIndex(nWrd);
+		if (m_pBibleDatabase->NormalizeIndex(ndxRel) != nWrd) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QString("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3").arg(nWrd).arg(ndxRel).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
+			assert(false);
+		}
+	}
+#endif
 
 	return true;
 }
