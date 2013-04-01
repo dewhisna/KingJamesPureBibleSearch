@@ -29,9 +29,6 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "BuildDB.h"
 #include "KJVAboutDlg.h"
-#include "PhraseEdit.h"
-#include "PhraseListModel.h"
-#include "Highlighter.h"
 #include "version.h"
 #include "PersistentSettings.h"
 
@@ -41,25 +38,12 @@
 #include <QIcon>
 #include <QKeySequence>
 #include <QMessageBox>
-#include <QLabel>
-#include <QComboBox>
-#include <QTextBrowser>
-#include <QStringList>
-#include <QScrollArea>
-#include <QVBoxLayout>
-#include <QScrollBar>
-#include <QItemSelection>
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
-#include <QTextDocument>
-#include <QAbstractTextDocumentLayout>
-#include <QTextDocumentFragment>
 #include <QTimer>
 #include <QFileDialog>
 #include <QSettings>
-#include <QToolTip>
-#include <ToolTipEdit.h>
 #include <QFontDialog>
 #include <QFileInfo>
 #include <QDesktopServices>
@@ -113,18 +97,6 @@ namespace {
 
 // ============================================================================
 
-QSize CSearchPhraseScrollArea::minimumSizeHint() const
-{
-	return QScrollArea::minimumSizeHint();
-}
-
-QSize CSearchPhraseScrollArea::sizeHint() const
-{
-	return QScrollArea::sizeHint();
-}
-
-// ============================================================================
-
 CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase, QWidget *parent) :
 	QMainWindow(parent),
 	m_pBibleDatabase(pBibleDatabase),
@@ -153,18 +125,25 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
 	m_pActionAbout(NULL),
-	m_bBrowserActive(false),
-	m_bSearchResultsActive(false),
 	m_bPhraseEditorActive(false),
-	m_pLayoutPhrases(NULL),
-	ui(new Ui::CKJVCanOpener),
+	m_bSearchResultsActive(false),
+	m_bBrowserActive(false),
+	m_pSearchSpecWidget(NULL),
 	m_pSplitter(NULL),
 	m_pSearchResultWidget(NULL),
-	m_pBrowserWidget(NULL)
+	m_pBrowserWidget(NULL),
+	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
+
+	// -------------------- Setup the Three Panes:
+
+	m_pSearchSpecWidget = new CKJVSearchSpec(m_pBibleDatabase, ui->centralWidget);
+	m_pSearchSpecWidget->setObjectName(QString::fromUtf8("SearchSpecWidget"));
+
+	ui->horizontalLayout->addWidget(m_pSearchSpecWidget);
 
 	m_pSplitter = new QSplitter(ui->centralWidget);
 	m_pSplitter->setObjectName(QString::fromUtf8("splitter"));
@@ -186,7 +165,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->horizontalLayout->addWidget(m_pSplitter);
 
-
+	// --------------------
 
 // The following is supposed to be another workaround for QTBUG-13768
 //	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
@@ -232,6 +211,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
+	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	// --- View Menu
 	m_pViewMenu = ui->menuBar->addMenu("&View");
@@ -415,28 +395,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// -------------------- Search Phrase Widgets:
 
-	m_pLayoutPhrases = new QVBoxLayout(ui->scrollAreaWidgetContents);
-	m_pLayoutPhrases->setSpacing(0);
-	m_pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
+	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
+	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
+	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
 
-	ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
-	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
+	// -------------------- Search Spec:
 
-	ui->scrollAreaSearchPhrases->setMinimumSize(m_pLayoutPhrases->sizeHint().width() +
-							ui->scrollAreaSearchPhrases->verticalScrollBar()->sizeHint().width() +
-							ui->scrollAreaSearchPhrases->frameWidth() * 2,
-							m_pLayoutPhrases->sizeHint().height() /* pFirstSearchPhraseEditor->sizeHint() */);
-
-
-//m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
-
-
-	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
-
-	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
-	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
-	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
+	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)), this, SLOT(on_changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)));
 
 	// -------------------- Search Results List View:
 
@@ -456,11 +421,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 CKJVCanOpener::~CKJVCanOpener()
 {
-	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-		delete m_lstSearchPhraseEditors[ndx];
-	}
-	m_lstSearchPhraseEditors.clear();
-
 	delete ui;
 }
 
@@ -507,7 +467,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	// Last Search:
-	writeKJVSearchFile(settings, constrLastSearchGroup);
+	m_pSearchSpecWidget->writeKJVSearchFile(settings, constrLastSearchGroup);
 
 	// Current Browser Reference:
 	settings.beginGroup(constrBrowserViewGroup);
@@ -554,7 +514,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	settings.endGroup();
 
 	// Last Search:
-	readKJVSearchFile(settings, constrLastSearchGroup);
+	m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
 
 	// Current Browser Reference:
 	//		Note: The actual browser reference has already been loaded in
@@ -673,9 +633,7 @@ void CKJVCanOpener::setShowMissingLeafs(bool bShowMissing)
 
 void CKJVCanOpener::on_NewSearch()
 {
-	closeAllSearchPhrases();
-	addSearchPhrase();
-	ui->widgetSearchCriteria->setSearchScopeMode(CSearchCriteria::SSME_WHOLE_BIBLE);
+	m_pSearchSpecWidget->reset();
 }
 
 void CKJVCanOpener::on_OpenSearch()
@@ -692,13 +650,6 @@ void CKJVCanOpener::on_SaveSearch()
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, "KJV Search File Save Failed", "Failed to save the specified KJV Search File!");
-}
-
-void CKJVCanOpener::closeAllSearchPhrases()
-{
-	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
-		m_lstSearchPhraseEditors.at(ndx)->closeSearchPhrase();
-	}
 }
 
 bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
@@ -725,7 +676,7 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 									"ignored.");
 	}
 
-	readKJVSearchFile(kjsFile);
+	m_pSearchSpecWidget->readKJVSearchFile(kjsFile);
 
 	return (kjsFile.status() == QSettings::NoError);
 }
@@ -742,119 +693,14 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
 	kjsFile.endGroup();
 
-	writeKJVSearchFile(kjsFile);
+	m_pSearchSpecWidget->writeKJVSearchFile(kjsFile);
 
 	kjsFile.sync();
 
 	return (kjsFile.status() == QSettings::NoError);
 }
 
-void CKJVCanOpener::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
-{
-	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
-
-	closeAllSearchPhrases();
-
-	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
-	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_WHOLE_BIBLE).toInt());
-	if ((nSearchScope < CSearchCriteria::SSME_WHOLE_BIBLE) ||
-		(nSearchScope > CSearchCriteria::SSME_VERSE))
-		nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
-	kjsFile.endGroup();
-
-	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
-
-	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = NULL;
-	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
-	if (nPhrases != 0) {
-		for (int ndx = 0; ndx < nPhrases; ++ndx) {
-			CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-			assert(pPhraseEditor != NULL);
-			if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
-			kjsFile.setArrayIndex(ndx);
-			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
-			pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
-		}
-	} else {
-		// If the search had no phrases (like default loading from registry), start
-		//		with a single empty search phrase:
-		pFirstSearchPhraseEditor = addSearchPhrase();
-	}
-	kjsFile.endArray();
-
-	// Set focus to our first editor.  Note that calling of focusEditor
-	//	doesn't work when running from the constructor during a restore
-	//	operation.  So we'll set it to trigger later:
-	assert(pFirstSearchPhraseEditor != NULL);
-	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
-}
-
-void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup) const
-{
-	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
-	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchCriteria().searchScopeMode());
-	kjsFile.endGroup();
-
-	int ndxCurrent = 0;
-	kjsFile.beginWriteArray(groupCombine(strSubgroup, "SearchPhrases"));
-	kjsFile.remove("");
-	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase().isEmpty()) continue;
-		kjsFile.setArrayIndex(ndxCurrent);
-		kjsFile.setValue("Phrase", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase());
-		kjsFile.setValue("CaseSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive());
-		ndxCurrent++;
-	}
-	kjsFile.endArray();
-}
-
 // ------------------------------------------------------------------
-
-CKJVSearchPhraseEdit *CKJVCanOpener::addSearchPhrase()
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
-	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
-	m_lstSearchPhraseEditors.append(pPhraseWidget);
-	pPhraseWidget->showSeperatorLine(m_lstSearchPhraseEditors.size() > 1);
-	pPhraseWidget->resize(pPhraseWidget->minimumSizeHint());
-	m_pLayoutPhrases->addWidget(pPhraseWidget);
-	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
-	int nHeight = 0;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
-	}
-	ui->scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
-	ensureSearchPhraseVisible(pPhraseWidget);
-	pPhraseWidget->phraseStatisticsChanged();
-	pPhraseWidget->focusEditor();
-
-//m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
-
-	return pPhraseWidget;
-}
-
-void CKJVCanOpener::ensureSearchPhraseVisible(int nIndex)
-{
-	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
-		ensureSearchPhraseVisible(m_lstSearchPhraseEditors.at(nIndex));
-	}
-}
-
-void CKJVCanOpener::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase)
-{
-	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
-	int nHeight = 0;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
-		if (m_lstSearchPhraseEditors.at(ndx) == pSearchPhrase) break;
-	}
-	ui->scrollAreaSearchPhrases->ensureVisible((pSearchPhrase->sizeHint().width()/2),
-												nHeight - (pSearchPhrase->sizeHint().height()/2));
-}
 
 void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
@@ -866,122 +712,20 @@ void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 									(m_pActionSearchPhraseEditMenu->menu() == pSearchPhrase->phraseEditor()->getEditMenu()))) {
 		on_addSearchPhraseEditMenu(false);
 	}
-
-	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
-							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
-							(pSearchPhrase->parsedPhrase()->isCompleteMatch()));
-
-	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhrase);
-	assert(ndx != -1);
-	if (ndx != -1) {
-		m_lstSearchPhraseEditors.removeAt(ndx);
-	}
-	if ((ndx == 0) && (m_lstSearchPhraseEditors.size() != 0))
-		m_lstSearchPhraseEditors.at(0)->showSeperatorLine(false);
-
-	int nHeight = 0;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
-	}
-	ui->scrollAreaWidgetContents->setMinimumSize(ui->scrollAreaWidgetContents->minimumSize().width(), nHeight);
-	if (bPhraseChanged) on_phraseChanged(NULL);
 }
 
-void CKJVCanOpener::on_changedSearchCriteria()
+void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
-	on_phraseChanged(NULL);
-}
+	Q_UNUSED(pSearchPhrase);
 
-typedef struct {
-	unsigned int m_nNumMatches;
-	unsigned int m_nNumContributingMatches;
-} TPhraseOccurrenceInfo;
-Q_DECLARE_METATYPE(TPhraseOccurrenceInfo)
+	// The former functionality of this is now handled by on_changedSearchSpec()
+}
 
 void CKJVCanOpener::on_copySearchPhraseSummary()
 {
-	int nNumPhrases = 0;
-	bool bCaseSensitive = false;
-
-	CPhraseList phrases;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != NULL);
-		if ((pPhrase->GetNumberOfMatches()) &&
-			(!pPhrase->IsDuplicate())) {
-			nNumPhrases++;
-			CPhraseEntry entry;
-			entry.m_bCaseSensitive = pPhrase->isCaseSensitive();
-			entry.m_strPhrase = pPhrase->phrase();
-			entry.m_nNumWrd = pPhrase->phraseSize();
-			TPhraseOccurrenceInfo poiUsage;
-			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
-			poiUsage.m_nNumContributingMatches = pPhrase->GetContributingNumberOfMatches();
-			entry.m_varExtraInfo = QVariant::fromValue(poiUsage);
-			phrases.append(entry);
-			if (entry.m_bCaseSensitive) bCaseSensitive = true;
-		}
-	}
-
-	CPhraseListModel mdlPhrases(phrases);
-	mdlPhrases.sort(0);
-
-	QString strScope;
-	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchCriteria().searchScopeMode();
-	switch (nScope) {
-		case (CSearchCriteria::SSME_WHOLE_BIBLE):
-			strScope = "in the Entire Bible";
-			break;
-		case (CSearchCriteria::SSME_TESTAMENT):
-			strScope = "in the same Testament";
-			break;
-		case (CSearchCriteria::SSME_BOOK):
-			strScope = "in the same Book";
-			break;
-		case (CSearchCriteria::SSME_CHAPTER):
-			strScope = "in the same Chapter";
-			break;
-		case (CSearchCriteria::SSME_VERSE):
-			strScope = "in the same Verse";
-			break;
-		default:
-			break;
-	}
-
 	QString strSummary;
-	if (nNumPhrases != 1) {
-		strSummary += QString("Search of %1 Phrases %2:\n")
-								.arg(nNumPhrases)
-								.arg(strScope);
-	} else {
-		strSummary += QString("Search of: ");
-	}
-	if (nNumPhrases > 1) strSummary += "\n";
-	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
-		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
-		if (nNumPhrases > 1) {
-			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
-				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible, %4 in Scope)\n")
-									.arg(mdlPhrases.index(ndx).data().toString())
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "")
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
-			} else {
-				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible)\n")
-									.arg(mdlPhrases.index(ndx).data().toString())
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "");
-				assert(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
-			}
-		} else {
-			strSummary += QString("\"%1\"\n").arg(mdlPhrases.index(ndx).data().toString());
-		}
-	}
-	if (bCaseSensitive) {
-		if (nNumPhrases > 1) strSummary += "\n";
-		strSummary += QString("    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
-	}
-	if (nNumPhrases) strSummary += "\n";
+
+	strSummary += m_pSearchSpecWidget->searchPhraseSummaryText();
 	strSummary += m_pSearchResultWidget->searchResultsSummaryText();
 
 	QMimeData *mime = new QMimeData();
@@ -990,6 +734,15 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	mime->setHtml("<qt><pre>\n" + strSummary + "</pre></qt>\n");
 	QApplication::clipboard()->setMimeData(mime);
 }
+
+void CKJVCanOpener::on_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+{
+	const TPhraseTagList &lstResults = m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
+	m_pSearchSpecWidget->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
+	m_pBrowserWidget->setHighlightTags(lstResults);
+}
+
+// ------------------------------------------------------------------
 
 void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 {
@@ -1069,6 +822,8 @@ void CKJVCanOpener::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	on_addSearchPhraseEditMenu(true, pEditor);
 	setDetailsEnable();
 }
+
+// ------------------------------------------------------------------
 
 void CKJVCanOpener::on_viewVerseHeading()
 {
@@ -1222,6 +977,8 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
+// ------------------------------------------------------------------
+
 void CKJVCanOpener::on_gotoIndex(const TPhraseTag &tag)
 {
 	assert(m_pActionBookBackward != NULL);
@@ -1271,59 +1028,7 @@ void CKJVCanOpener::on_clearBrowserHistory()
 	m_pBrowserWidget->clearHistory();
 }
 
-void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
-{
-	Q_UNUSED(pSearchPhrase);
-
-	TParsedPhrasesList lstPhrases;
-	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != NULL);
-		pPhrase->SetContributingNumberOfMatches(0);
-		pPhrase->SetIsDuplicate(false);
-		pPhrase->ClearScopedPhraseTagSearchResults();
-		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
-			continue;		// Don't include phrases that had no matches of themselves
-		}
-		// Check for phrases with the same text and ignore them:
-		bool bDuplicate = false;
-		for (int ndx2 = 0; ndx2 < ndx; ++ndx2) {
-			if ((*pPhrase) == (*m_lstSearchPhraseEditors.at(ndx2)->parsedPhrase())) {
-				bDuplicate = true;
-				break;
-			}
-		}
-		if (bDuplicate) {
-			pPhrase->SetIsDuplicate(true);
-			continue;
-		}
-
-		// Do sorted insertion so the results with the greatest matches comes last.  That
-		//		way it will have more things we'll discard rather than things we'll uselessly
-		//		look at:
-		int ndxInsert = 0;
-		for ( ; ndxInsert < lstPhrases.size(); ++ndxInsert) {
-			if (pPhrase->GetNumberOfMatches() < lstPhrases.at(ndxInsert)->GetNumberOfMatches()) break;
-		}
-		lstPhrases.insert(ndxInsert, pPhrase);
-	}
-
-	// ----------------------------
-
-	const TPhraseTagList &lstResults = m_pSearchResultWidget->setParsedPhrases(ui->widgetSearchCriteria->searchCriteria(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
-
-	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
-		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
-	}
-
-	// ----------------------------
-
-	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
-
-	m_pBrowserWidget->setHighlightTags(lstResults);
-
-	emit changedSearchResults();
-}
+// ------------------------------------------------------------------
 
 void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 {
@@ -1385,6 +1090,8 @@ void CKJVCanOpener::setDetailsEnable()
 	emit canShowDetails(bDetailsEnable);
 }
 
+// ------------------------------------------------------------------
+
 void CKJVCanOpener::on_HelpManual()
 {
 	QFileInfo fiHelpDoc(QApplication::applicationDirPath(), g_constrHelpDocFilename);
@@ -1419,10 +1126,7 @@ void CKJVCanOpener::on_QuickActivate()
 				case 6:
 				case 7:
 				case 8:
-					if ((ndx-1) < m_lstSearchPhraseEditors.size()) {
-						m_lstSearchPhraseEditors.at(ndx-1)->focusEditor();
-						ensureSearchPhraseVisible(m_lstSearchPhraseEditors.at(ndx-1));
-					}
+					m_pSearchSpecWidget->setFocusSearchPhrase(ndx-1);
 					break;
 				case 9:
 					m_pSearchResultWidget->setFocusSearchResult();

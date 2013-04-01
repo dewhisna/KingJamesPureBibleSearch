@@ -369,7 +369,7 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 
 void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 {
-	emit activatedPhraseEdit(this);
+	emit activatedPhraseEditor(this);
 	QTextEdit::focusInEvent(event);
 }
 
@@ -438,10 +438,10 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 
 // ============================================================================
 
-CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserData, QWidget *parent) :
+CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
-	m_bHaveUserData(bHaveUserData),
+	m_bHaveUserDatabase(bHaveUserDatabase),
 	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
 	ui(new Ui::CKJVSearchPhraseEdit)
@@ -501,7 +501,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
 	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
-	connect(ui->editPhrase, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEdit(const CPhraseLineEdit *)));
+	connect(ui->editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 }
 
@@ -556,8 +556,8 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
 	bool bHaveText = (!m_phraseEntry.m_strPhrase.isEmpty());
-	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && bHaveText && !bUserFound && !bCommonFound);
-	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && bHaveText && bUserFound);
+	ui->buttonAddPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
+	ui->buttonDelPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && bUserFound);
 	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
 
 	// If last time, this phrase didn't have anything meaningful, if it still doesn't
@@ -609,7 +609,7 @@ void CKJVSearchPhraseEdit::on_phraseAdd()
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
 	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setEnabled(m_bHaveUserData && !parsedPhrase()->phrase().isEmpty());
+	ui->buttonDelPhrase->setEnabled(m_bHaveUserDatabase && !parsedPhrase()->phrase().isEmpty());
 	emit phraseListChanged();
 }
 
@@ -621,7 +621,7 @@ void CKJVSearchPhraseEdit::on_phraseDel()
 		g_lstUserPhrases.removeAt(ndx);
 		g_bUserPhrasesDirty = true;
 	}
-	ui->buttonAddPhrase->setEnabled(m_bHaveUserData && !parsedPhrase()->phrase().isEmpty());
+	ui->buttonAddPhrase->setEnabled(m_bHaveUserDatabase && !parsedPhrase()->phrase().isEmpty());
 	ui->buttonDelPhrase->setEnabled(false);
 	emit phraseListChanged();
 }

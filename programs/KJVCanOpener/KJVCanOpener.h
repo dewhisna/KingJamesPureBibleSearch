@@ -25,46 +25,22 @@
 #define KJVCANOPENER_H
 
 #include "dbstruct.h"
-#include "KJVSearchCriteria.h"
+
 #include "KJVSearchPhraseEdit.h"
-#include "SearchPhraseListModel.h"
 #include "VerseListModel.h"
+#include "KJVSearchSpec.h"
 #include "KJVSearchResult.h"
 #include "KJVBrowser.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
-#include <QScrollArea>
 #include <QMenu>
 #include <QAction>
 #include <QCloseEvent>
-#include <QFocusEvent>
-#include <QResizeEvent>
-#include <QContextMenuEvent>
 #include <QString>
-#include <QTreeView>
-#include <QVBoxLayout>
-#include <QSettings>
 #include <QSplitter>
 
 #include <assert.h>
-
-// ============================================================================
-
-class CSearchPhraseScrollArea : public QScrollArea
-{
-public:
-	CSearchPhraseScrollArea( QWidget *parent=NULL)
-		: QScrollArea(parent)
-	{ }
-	virtual ~CSearchPhraseScrollArea() { }
-
-	virtual QSize minimumSizeHint() const;
-	virtual QSize sizeHint() const;
-};
-
-// ============================================================================
-
 
 // ============================================================================
 
@@ -104,23 +80,15 @@ public slots:
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
 
-protected:
-	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
-	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
-
 protected slots:
 	void on_NewSearch();
 	void on_OpenSearch();
 	void on_SaveSearch();
 
-	void closeAllSearchPhrases();
-
-	CKJVSearchPhraseEdit *addSearchPhrase();
-	void ensureSearchPhraseVisible(int nIndex);
-	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void on_changedSearchCriteria();
+	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_copySearchPhraseSummary();
+	void on_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
 
 	void on_addPassageBrowserEditMenu(bool bAdd);
 	void on_addSearchResultsEditMenu(bool bAdd);
@@ -141,7 +109,6 @@ protected slots:
 	void on_browserHistoryChanged();
 	void on_clearBrowserHistory();
 
-	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
 	void on_PassageNavigatorTriggered();
@@ -190,18 +157,15 @@ private:
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
 
-	bool m_bBrowserActive;
-	bool m_bSearchResultsActive;
 	bool m_bPhraseEditorActive;
+	bool m_bSearchResultsActive;
+	bool m_bBrowserActive;
 
-	QVBoxLayout *m_pLayoutPhrases;
-//	CSearchPhraseListModel m_modelSearchPhraseEditors;
-	CSearchPhraseEditList m_lstSearchPhraseEditors;
-
-	Ui::CKJVCanOpener *ui;
+	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
 	CKJVSearchResult *m_pSearchResultWidget;
 	CKJVBrowser *m_pBrowserWidget;
+	Ui::CKJVCanOpener *ui;
 };
 
 #endif // KJVCANOPENER_H

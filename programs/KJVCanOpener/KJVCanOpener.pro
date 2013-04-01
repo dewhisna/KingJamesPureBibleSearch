@@ -49,7 +49,8 @@ SOURCES += main.cpp \
 	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
 	QtFindReplaceDialog/dialogs/findform.cpp \
 	QtFindReplaceDialog/dialogs/finddialog.cpp \
-	KJVSearchResult.cpp
+	KJVSearchResult.cpp \
+	KJVSearchSpec.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -79,7 +80,8 @@ HEADERS  += main.h \
 	QtFindReplaceDialog/dialogs/findform.h \
 	QtFindReplaceDialog/dialogs/finddialog.h \
 	QtFindReplaceDialog/dialogs/findreplace_global.h \
-	KJVSearchResult.h
+	KJVSearchResult.h \
+	KJVSearchSpec.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -89,7 +91,8 @@ FORMS    += KJVCanOpener.ui \
 	KJVPassageNavigatorDlg.ui \
 	KJVAboutDlg.ui \
 	QtFindReplaceDialog/dialogs/findreplaceform.ui \
-	QtFindReplaceDialog/dialogs/findreplacedialog.ui
+	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
+	KJVSearchSpec.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

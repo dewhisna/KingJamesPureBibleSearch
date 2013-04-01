@@ -74,7 +74,7 @@ private slots:
 signals:
 	void phraseChanged();
 	void changeCaseSensitive(bool bCaseSensitive);
-	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
+	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
 //	bool eventFilter(QObject *obj, QEvent *event);
@@ -123,7 +123,7 @@ class CKJVSearchPhraseEdit : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserData = true, QWidget *parent = 0);
+	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
 
 	const CParsedPhrase *parsedPhrase() const;
@@ -133,7 +133,7 @@ signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseListChanged();
-	void activatedPhraseEdit(const CPhraseLineEdit *pEditor);
+	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 public slots:
 	void showSeperatorLine(bool bShow = true);
@@ -152,7 +152,7 @@ protected slots:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	bool m_bHaveUserData;				// True if there is a user database defined (used for enabling add/remove icons)
+	bool m_bHaveUserDatabase;			// True if there is a user database defined (used for enabling add/remove icons)
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
 	bool m_bLastPhraseChangeHadResults;	// True if the last on_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications
 	bool m_bUpdateInProgress;			// case-sensitivity update in progress (to guard against re-entrance)
