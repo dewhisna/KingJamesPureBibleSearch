@@ -55,7 +55,6 @@ void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
 	:	QAbstractItemModel(parent),
 		m_pBibleDatabase(pBibleDatabase),
-		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
 		m_bShowMissingLeafs(false)
@@ -65,7 +64,6 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pare
 CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, const CVerseList &verses, QObject *parent)
 	:	QAbstractItemModel(parent),
 		m_pBibleDatabase(pBibleDatabase),
-		m_nSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
 		m_bShowMissingLeafs(false)
@@ -551,7 +549,7 @@ TParsedPhrasesList CVerseListModel::parsedPhrases() const
 	return m_lstParsedPhrases;
 }
 
-TPhraseTagList CVerseListModel::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases)
+TPhraseTagList CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	// Note: Basic setting of this list doesn't change the model, as the phrases
 	//		themselves are used primarily for building of tooltips that are
@@ -561,7 +559,7 @@ TPhraseTagList CVerseListModel::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOP
 	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
 	//		but down in setVerseList:
 	m_lstParsedPhrases = phrases;
-	m_nSearchScopeMode = nSearchScopeMode;
+	m_SearchCriteria = aSearchCriteria;
 	buildScopedResultsInParsedPhrases();
 	return buildVerseListFromParsedPhrases();
 }
@@ -950,9 +948,9 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 				bDone = true;
 				break;
 			}
-			lstScopedRefs[ndx] = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]).first, m_nSearchScopeMode);
+			lstScopedRefs[ndx] = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]).first, m_SearchCriteria.searchScopeMode());
 			for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < phrase->GetPhraseTagSearchResults().size(); ++lstNdxEnd[ndx]) {
-				CRelIndex ndxScopedTemp = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxEnd[ndx]).first, m_nSearchScopeMode);
+				CRelIndex ndxScopedTemp = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxEnd[ndx]).first, m_SearchCriteria.searchScopeMode());
 				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 			}
 			// Here lstNdxEnd will be one more than the number of matching, either the next index
@@ -1037,18 +1035,18 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 	return lstResults;
 }
 
-CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
+CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex indexScoped;
 
 	switch (nMode) {
-		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
+		case (CSearchCriteria::SSME_WHOLE_BIBLE):
 			// For Whole Bible, we'll set the Book to 1 so that anything in the Bible matches:
 			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
 			break;
-		case (CKJVSearchCriteria::SSME_TESTAMENT):
+		case (CSearchCriteria::SSME_TESTAMENT):
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
 			if (index.book()) {
 				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
@@ -1061,15 +1059,15 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CKJVSearchCriteria
 				}
 			}
 			break;
-		case (CKJVSearchCriteria::SSME_BOOK):
+		case (CSearchCriteria::SSME_BOOK):
 			// For Book, mask off Chapter, Verse, and Word:
 			indexScoped = CRelIndex(index.book(), 0, 0, 0);
 			break;
-		case (CKJVSearchCriteria::SSME_CHAPTER):
+		case (CSearchCriteria::SSME_CHAPTER):
 			// For Chapter, mask off Verse and Word:
 			indexScoped = CRelIndex(index.book(), index.chapter(), 0, 0);
 			break;
-		case (CKJVSearchCriteria::SSME_VERSE):
+		case (CSearchCriteria::SSME_VERSE):
 			// For Verse, mask off word:
 			indexScoped = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
 			break;

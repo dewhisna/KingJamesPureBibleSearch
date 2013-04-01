@@ -40,7 +40,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="CKJVSearchCriteria" name="widgetSearchCriteria" native="true"/>
+	   <widget class="CKJVSearchCriteriaWidget" name="widgetSearchCriteria" native="true"/>
       </item>
       <item>
        <widget class="QScrollArea" name="scrollAreaSearchPhrases">
@@ -113,7 +113,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>CKJVSearchCriteria</class>
+   <class>CKJVSearchCriteriaWidget</class>
    <extends>QWidget</extends>
    <header>KJVSearchCriteria.h</header>
    <container>1</container>

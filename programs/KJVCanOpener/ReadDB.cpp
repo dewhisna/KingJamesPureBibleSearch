@@ -44,7 +44,6 @@
 
 // Used for debugging:
 #ifdef NEVER
-#include <QFile>
 #include <QTextStream>
 #endif
 

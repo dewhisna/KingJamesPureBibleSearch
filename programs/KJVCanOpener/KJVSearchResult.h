@@ -164,7 +164,7 @@ public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
-	const TPhraseTagList &setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	const TPhraseTagList &setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 	void showPassageNavigator();
 	void showDetails();
 
@@ -200,7 +200,7 @@ private:
 	int m_nLastSearchBooks;
 	bool m_bLastCalcSuccess;
 	int m_nLastSearchNumPhrases;
-	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nLastSearchScopeMode;
+	CSearchCriteria m_LastSearchCriteria;
 
 // UI Private:
 private:

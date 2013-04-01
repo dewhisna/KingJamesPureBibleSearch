@@ -26,18 +26,11 @@
 
 #include <QWidget>
 
-namespace Ui {
-class CKJVSearchCriteria;
-}
+// ============================================================================
 
-class CKJVSearchCriteria : public QWidget
+class CSearchCriteria
 {
-	Q_OBJECT
-
 public:
-	explicit CKJVSearchCriteria(QWidget *parent = 0);
-	~CKJVSearchCriteria();
-
 	enum SEARCH_SCOPE_MODE_ENUM {
 		SSME_WHOLE_BIBLE = 0,
 		SSME_TESTAMENT = 1,
@@ -46,23 +39,49 @@ public:
 		SSME_VERSE = 4
 	};
 
+	CSearchCriteria()
+		:	m_nSearchScopeMode(SSME_WHOLE_BIBLE) { }
+
+	virtual ~CSearchCriteria() { }
+
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
+	void setSearchScopeMode(SEARCH_SCOPE_MODE_ENUM nMode) { m_nSearchScopeMode = nMode; }
+
+private:
+	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
+};
+
+// ============================================================================
+
+namespace Ui {
+class CKJVSearchCriteriaWidget;
+}
+
+class CKJVSearchCriteriaWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVSearchCriteriaWidget(QWidget *parent = 0);
+	~CKJVSearchCriteriaWidget();
+
+	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
 
 signals:
-	void changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
+	void changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 	void addSearchPhraseClicked();
 	void copySearchPhraseSummary();
 
 public slots:
 	void enableCopySearchPhraseSummary(bool bEnable);
-	void setSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
+	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 
 private slots:
 	void on_changeSearchScopeMode(int ndx);
 
 // Data Private:
 private:
-	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
+	CSearchCriteria m_SearchCriteria;
 
 // UI Private:
 private:
@@ -74,7 +93,7 @@ private:
 #define end_update()							\
 			m_bDoingUpdate = bUpdateSave;
 
-	Ui::CKJVSearchCriteria *ui;
+	Ui::CKJVSearchCriteriaWidget *ui;
 };
 
 #endif // KJVSEARCHCRITERIA_H

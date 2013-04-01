@@ -262,7 +262,7 @@ public:
 	void setVerseList(const CVerseList &verses);
 
 	TParsedPhrasesList parsedPhrases() const;
-	TPhraseTagList setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	TPhraseTagList setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
@@ -300,7 +300,7 @@ public:
 private:
 	void buildScopedResultsInParsedPhrases();
 	TPhraseTagList buildVerseListFromParsedPhrases();
-	CRelIndex ScopeIndex(const CRelIndex &index, CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
+	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
@@ -308,7 +308,7 @@ private:
 	CVerseList m_lstVerses;
 	QMap<uint32_t, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex->index() to index within m_lstVerses.  Set during setVerseList.
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
-	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;	// Last search scope set during setParsedPhrases
+	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 	VERSE_TREE_MODE_ENUM m_nTreeMode;
 	bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes

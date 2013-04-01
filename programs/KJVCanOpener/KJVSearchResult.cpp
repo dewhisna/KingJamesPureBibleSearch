@@ -541,8 +541,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_nLastSearchChapters(0),
 	m_nLastSearchBooks(0),
 	m_bLastCalcSuccess(true),
-	m_nLastSearchNumPhrases(0),
-	m_nLastSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE)
+	m_nLastSearchNumPhrases(0)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -663,10 +662,10 @@ void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 	model()->setShowMissingLeafs(bShowMissing);
 }
 
-const TPhraseTagList &CKJVSearchResult::setParsedPhrases(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScopeMode, const TParsedPhrasesList &phrases)
+const TPhraseTagList &CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
-	m_nLastSearchScopeMode = nSearchScopeMode;
-	m_lstSearchResultsTags = model()->setParsedPhrases(nSearchScopeMode, phrases);
+	m_LastSearchCriteria = aSearchCriteria;
+	m_lstSearchResultsTags = model()->setParsedPhrases(aSearchCriteria, phrases);
 	m_nLastSearchNumPhrases = phrases.size();
 
 	int nVerses = 0;		// Results counts in Verses
@@ -717,9 +716,9 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		strSummary += QString("    in %1 Chapter%2\n").arg(m_nLastSearchChapters).arg((m_nLastSearchChapters != 1) ? "s" : "");
 		strSummary += QString("    in %1 Book%2\n").arg(m_nLastSearchBooks).arg((m_nLastSearchBooks != 1) ? "s" : "");
 		strSummary += "\n";
-		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_nLastSearchScopeMode != CKJVSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
+		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
 	} else {
 		strSummary += QString("Search was incomplete -- too many possible matches\n");
 	}

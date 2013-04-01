@@ -435,7 +435,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
-	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
+	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
 	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
 
 	// -------------------- Search Results List View:
@@ -675,7 +675,7 @@ void CKJVCanOpener::on_NewSearch()
 {
 	closeAllSearchPhrases();
 	addSearchPhrase();
-	ui->widgetSearchCriteria->setSearchScopeMode(CKJVSearchCriteria::SSME_WHOLE_BIBLE);
+	ui->widgetSearchCriteria->setSearchScopeMode(CSearchCriteria::SSME_WHOLE_BIBLE);
 }
 
 void CKJVCanOpener::on_OpenSearch()
@@ -751,15 +751,15 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 void CKJVCanOpener::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
 {
-	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
 
 	closeAllSearchPhrases();
 
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
-	nSearchScope = static_cast<CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CKJVSearchCriteria::SSME_WHOLE_BIBLE).toInt());
-	if ((nSearchScope < CKJVSearchCriteria::SSME_WHOLE_BIBLE) ||
-		(nSearchScope > CKJVSearchCriteria::SSME_VERSE))
-		nSearchScope = CKJVSearchCriteria::SSME_WHOLE_BIBLE;
+	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_WHOLE_BIBLE).toInt());
+	if ((nSearchScope < CSearchCriteria::SSME_WHOLE_BIBLE) ||
+		(nSearchScope > CSearchCriteria::SSME_VERSE))
+		nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
 	kjsFile.endGroup();
 
 	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
@@ -792,7 +792,7 @@ void CKJVCanOpener::readKJVSearchFile(QSettings &kjsFile, const QString &strSubg
 void CKJVCanOpener::writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup) const
 {
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
-	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchScopeMode());
+	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchCriteria().searchScopeMode());
 	kjsFile.endGroup();
 
 	int ndxCurrent = 0;
@@ -927,21 +927,21 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	mdlPhrases.sort(0);
 
 	QString strScope;
-	CKJVSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchScopeMode();
+	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchCriteria().searchScopeMode();
 	switch (nScope) {
-		case (CKJVSearchCriteria::SSME_WHOLE_BIBLE):
+		case (CSearchCriteria::SSME_WHOLE_BIBLE):
 			strScope = "in the Entire Bible";
 			break;
-		case (CKJVSearchCriteria::SSME_TESTAMENT):
+		case (CSearchCriteria::SSME_TESTAMENT):
 			strScope = "in the same Testament";
 			break;
-		case (CKJVSearchCriteria::SSME_BOOK):
+		case (CSearchCriteria::SSME_BOOK):
 			strScope = "in the same Book";
 			break;
-		case (CKJVSearchCriteria::SSME_CHAPTER):
+		case (CSearchCriteria::SSME_CHAPTER):
 			strScope = "in the same Chapter";
 			break;
-		case (CKJVSearchCriteria::SSME_VERSE):
+		case (CSearchCriteria::SSME_VERSE):
 			strScope = "in the same Verse";
 			break;
 		default:
@@ -960,7 +960,7 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
 		if (nNumPhrases > 1) {
-			if (nScope != CKJVSearchCriteria::SSME_WHOLE_BIBLE) {
+			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
 				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible, %4 in Scope)\n")
 									.arg(mdlPhrases.index(ndx).data().toString())
 									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
@@ -1310,7 +1310,7 @@ void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	// ----------------------------
 
-	const TPhraseTagList &lstResults = m_pSearchResultWidget->setParsedPhrases(ui->widgetSearchCriteria->searchScopeMode(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
+	const TPhraseTagList &lstResults = m_pSearchResultWidget->setParsedPhrases(ui->widgetSearchCriteria->searchCriteria(), lstPhrases);		// Setting the phrases will build all of the results and set the verse list on the model
 
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
