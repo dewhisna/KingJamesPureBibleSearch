@@ -129,6 +129,7 @@ private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
+	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
 	CPhraseEditNavigator m_navigator;
 	CCursorFollowHighlighter m_Highlighter;
 	QTimer m_HighlightTimer;

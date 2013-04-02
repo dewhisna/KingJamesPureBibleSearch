@@ -62,6 +62,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
+		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
@@ -467,6 +468,9 @@ void CScriptureText<T,U>::updateSelection()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	if (m_bDoingSelectionChange) return;
+	m_bDoingSelectionChange = true;
+
 	bool bOldSel = haveSelection();
 	m_selectedPhrase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
@@ -493,6 +497,8 @@ void CScriptureText<T,U>::updateSelection()
 			m_navigator.highlightTag(m_Highlighter, nNewSel);
 	}
 	m_Highlighter.setEnabled(!haveSelection());
+
+	m_bDoingSelectionChange = false;
 }
 
 template<class T, class U>
