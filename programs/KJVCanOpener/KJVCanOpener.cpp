@@ -801,6 +801,7 @@ void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 
 void CKJVCanOpener::on_activatedBrowser()
 {
+	m_pSearchSpecWidget->on_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
 	on_addPassageBrowserEditMenu(true);
 	on_addSearchResultsEditMenu(false);
 	on_addSearchPhraseEditMenu(false);
@@ -809,6 +810,7 @@ void CKJVCanOpener::on_activatedBrowser()
 
 void CKJVCanOpener::on_activatedSearchResults()
 {
+	m_pSearchSpecWidget->on_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
 	on_addPassageBrowserEditMenu(false);
 	on_addSearchResultsEditMenu(true);
 	on_addSearchPhraseEditMenu(false);

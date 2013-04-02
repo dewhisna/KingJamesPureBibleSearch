@@ -52,6 +52,8 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 		m_pBibleDatabase(pBibleDatabase),
 		m_bHaveUserDatabase(bHaveUserDatabase),
 		m_pLayoutPhrases(NULL),
+		m_pLastEditorActive(NULL),
+		m_bDoneActivation(false),
 		ui(new Ui::CKJVSearchSpec)
 {
 	ui->setupUi(this);
@@ -71,6 +73,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 							ui->scrollAreaSearchPhrases->frameWidth() * 2,
 							m_pLayoutPhrases->sizeHint().height() /* pFirstSearchPhraseEditor->sizeHint() */);
 
+	ui->scrollAreaSearchPhrases->installEventFilter(this);
 
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
@@ -91,6 +94,8 @@ CKJVSearchSpec::~CKJVSearchSpec()
 		delete m_lstSearchPhraseEditors[ndx];
 	}
 	m_lstSearchPhraseEditors.clear();
+
+	m_pLastEditorActive = NULL;
 
 	delete ui;
 }
@@ -206,6 +211,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
+	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit*)));
 
 	// Set pass-throughs:
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)));
@@ -258,6 +264,8 @@ void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	assert(pSearchPhrase != NULL);
 
+	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = NULL;
+
 	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
 							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
 							(pSearchPhrase->parsedPhrase()->isCompleteMatch()));
@@ -269,6 +277,7 @@ void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 	if ((ndx == 0) && (m_lstSearchPhraseEditors.size() != 0))
 		m_lstSearchPhraseEditors.at(0)->showSeperatorLine(false);
+	int ndxActivate = ((ndx < m_lstSearchPhraseEditors.size()) ? ndx : ndx-1);
 
 	int nHeight = 0;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
@@ -276,6 +285,8 @@ void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 	ui->scrollAreaWidgetContents->setMinimumSize(ui->scrollAreaWidgetContents->minimumSize().width(), nHeight);
 	if (bPhraseChanged) on_phraseChanged(NULL);
+
+	setFocusSearchPhrase(ndxActivate);
 }
 
 void CKJVSearchSpec::on_changedSearchCriteria()
@@ -424,3 +435,40 @@ void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 }
 
+void CKJVSearchSpec::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
+{
+	if (pEditor) {
+		m_pLastEditorActive = pEditor;
+	} else {
+		m_bDoneActivation = false;
+	}
+}
+
+bool CKJVSearchSpec::eventFilter(QObject *obj, QEvent *ev)
+{
+	if ((obj == ui->scrollAreaSearchPhrases) && (ev->type() == QEvent::FocusIn)) {
+		if (m_pLastEditorActive) {
+			for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+				if (m_lstSearchPhraseEditors.at(ndx)->phraseEditor() == m_pLastEditorActive) {
+					if (!m_bDoneActivation) {
+						setFocusSearchPhrase(m_lstSearchPhraseEditors.at(ndx));
+					} else {
+						m_lstSearchPhraseEditors.at(ndx)->focusEditor();
+					}
+				}
+			}
+		} else {
+			if (m_lstSearchPhraseEditors.size()) {
+				if (!m_bDoneActivation) {
+					setFocusSearchPhrase(0);
+				} else {
+					m_lstSearchPhraseEditors.at(0)->focusEditor();
+				}
+			}
+		}
+		m_bDoneActivation = true;
+		return true;
+	}
+
+	return QWidget::eventFilter(obj, ev);
+}

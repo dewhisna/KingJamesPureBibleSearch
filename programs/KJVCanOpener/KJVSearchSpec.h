@@ -33,6 +33,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include <QSettings>
+#include <QEvent>
 
 #include <assert.h>
 
@@ -96,9 +97,13 @@ protected slots:
 	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void on_changedSearchCriteria();
 	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+public slots:
+	void on_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
 	bool haveUserDatabase() const { return m_bHaveUserDatabase; }
+
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 // Data Private:
 private:
@@ -110,6 +115,8 @@ private:
 	QVBoxLayout *m_pLayoutPhrases;
 //	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
+	const CPhraseLineEdit *m_pLastEditorActive;		// Used to reactivate when the Search Spec Layout pane become active
+	bool m_bDoneActivation;					// Set to True when we've triggered activation
 
 	Ui::CKJVSearchSpec *ui;
 };
