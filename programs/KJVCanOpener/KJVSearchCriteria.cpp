@@ -31,16 +31,16 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	ui->buttonAdd->setToolTip("Add Phrase to Search Criteria");
-	ui->buttonAdd->setStatusTip("Add another Phrase to the current Search Criteria");
+	ui->buttonAdd->setToolTip(tr("Add Phrase to Search Criteria"));
+	ui->buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria"));
 
-	ui->comboSearchScope->addItem("Entire Bible", CSearchCriteria::SSME_WHOLE_BIBLE);
-	ui->comboSearchScope->addItem("Same Testament", CSearchCriteria::SSME_TESTAMENT);
-	ui->comboSearchScope->addItem("Same Book", CSearchCriteria::SSME_BOOK);
-	ui->comboSearchScope->addItem("Same Chapter", CSearchCriteria::SSME_CHAPTER);
-	ui->comboSearchScope->addItem("Same Verse", CSearchCriteria::SSME_VERSE);
-	ui->comboSearchScope->setToolTip("Select Search Scope");
-	ui->comboSearchScope->setStatusTip("Set Search Scope Mode for phrase searches");
+	ui->comboSearchScope->addItem(tr("Entire Bible"), CSearchCriteria::SSME_WHOLE_BIBLE);
+	ui->comboSearchScope->addItem(tr("Same Testament"), CSearchCriteria::SSME_TESTAMENT);
+	ui->comboSearchScope->addItem(tr("Same Book"), CSearchCriteria::SSME_BOOK);
+	ui->comboSearchScope->addItem(tr("Same Chapter"), CSearchCriteria::SSME_CHAPTER);
+	ui->comboSearchScope->addItem(tr("Same Verse"), CSearchCriteria::SSME_VERSE);
+	ui->comboSearchScope->setToolTip(tr("Select Search Scope"));
+	ui->comboSearchScope->setStatusTip(tr("Set Search Scope Mode for phrase searches"));
 
 	// Set Initial Mode:
 	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));

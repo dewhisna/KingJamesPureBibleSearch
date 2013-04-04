@@ -72,51 +72,51 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setMouseTracking(true);
 	setRootIsDecorated(false);
 
-	m_pEditMenu = new QMenu("&Edit", this);
-	m_pEditMenuLocal = new QMenu("&Edit", this);
-	m_pEditMenu->setStatusTip("Search Results Edit Operations");
+	m_pEditMenu = new QMenu(tr("&Edit"), this);
+	m_pEditMenuLocal = new QMenu(tr("&Edit"), this);
+	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations"));
 	// ----
-	m_pActionCopyVerseText = m_pEditMenu->addAction("Copy &Verse Text", this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	m_pActionCopyVerseText->setStatusTip("Copy Verse Text for the selected Search Results to the clipboard");
+	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text"), this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard"));
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
-	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw Verse &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
-	m_pActionCopyRaw->setStatusTip("Copy selected Search Results as raw phrase words to the clipboard");
+	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)"), this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw->setStatusTip(tr("Copy selected Search Results as raw phrase words to the clipboard"));
 	m_pActionCopyRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Verse Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
-	m_pActionCopyVeryRaw->setStatusTip("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard");
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(tr("Copy Very Ra&w Verse Text (No punctuation)"), this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw->setStatusTip(tr("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionCopyVerseHeadings = m_pEditMenu->addAction("Copy &References", this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
-	m_pActionCopyVerseHeadings->setStatusTip("Copy Verse References for the selected Search Results to the clipboard");
+	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References"), this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyVerseHeadings->setStatusTip(tr("Copy Verse References for the selected Search Results to the clipboard"));
 	m_pActionCopyVerseHeadings->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy Reference Detai&ls (Word/Phrase Counts)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
-	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard");
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(tr("Copy Reference Detai&ls (Word/Phrase Counts)"), this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
+	m_pActionCopyReferenceDetails->setStatusTip(tr("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard"));
 	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
-	m_pActionCopyComplete = m_pEditMenu->addAction("Copy &Complete Verse Text and Reference Details", this, SLOT(on_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopyComplete->setStatusTip("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard");
+	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details"), this, SLOT(on_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopyComplete->setStatusTip(tr("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard"));
 	m_pActionCopyComplete->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip("Select all Search Results");
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(tr("Select all Search Results"));
 	m_pActionSelectAll->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionSelectAll);
-	m_pActionClearSelection = m_pEditMenu->addAction("C&lear Selection", this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
-	m_pActionClearSelection->setStatusTip("Clear Search Results Selection");
+	m_pActionClearSelection = m_pEditMenu->addAction(tr("C&lear Selection"), this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
+	m_pActionClearSelection->setStatusTip(tr("Clear Search Results Selection"));
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 	// ----
 	m_pEditMenuLocal->addSeparator();
-	m_pActionNavigator = m_pEditMenuLocal->addAction("Passage &Navigator...");
+	m_pActionNavigator = m_pEditMenuLocal->addAction(tr("Passage &Navigator..."));
 	m_pActionNavigator->setEnabled(false);
 	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
@@ -441,9 +441,9 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 	QString strStatusText;
 	if (!pModel->hasExceededDisplayLimit()) {
-		strStatusText = QString("%1 Search Result(s) Selected").arg(nNumResultsSelected);
+		strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
 	} else {
-		strStatusText = "Too many search results to display in this mode!!  Try Switching to either View References Only mode or to Tree Mode.";
+		strStatusText = tr("Too many search results to display in this mode!!  Try Switching to either View References Only mode or to Tree Mode.");
 	}
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
@@ -553,8 +553,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsCount = new QLabel(this);
 	m_pSearchResultsCount->setObjectName(QString::fromUtf8("SearchResultsCount"));
 	m_pSearchResultsCount->setWordWrap(true);
-	m_pSearchResultsCount->setText("Found 0 Occurrences\n"
-								   "    in 0 Verses in 0 Chapters in 0 Books");
+	m_pSearchResultsCount->setText(tr("Found 0 Occurrences") + "\n"
+									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
 	pLayout->addWidget(m_pSearchResultsCount);
 
 	m_pSearchResultsTreeView = new CSearchResultsTreeView(m_pBibleDatabase, this);
@@ -680,19 +680,15 @@ const TPhraseTagList &CKJVSearchResult::setParsedPhrases(const CSearchCriteria &
 
 	QString strResults;
 
-	strResults += QString("Found %1 Occurrence%2\n").arg(nResults).arg((nResults != 1) ? "s" : "");
-	strResults += QString("    in %1 Verse%2 in %3 Chapter%4 in %5 Book%6")
-							.arg(nVerses).arg((nVerses != 1) ? "s" : "")
-							.arg(nChapters).arg((nChapters != 1) ? "s" : "")
-							.arg(nBooks).arg((nBooks != 1) ? "s" : "");
+	strResults += tr("Found %n Occurrence(s)", NULL, nResults) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", NULL, nVerses) +
+					" " + tr("in %n Chapter(s)", NULL, nChapters) +
+					" " + tr("in %n Book(s)", NULL, nBooks);
 	if (nResults > 0) {
 		strResults += "\n";
-		strResults += QString("    Not found at all in %1 Verse%2 of the Bible\n")
-								.arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) != 1) ? "s" : "");
-		strResults += QString("    Not found at all in %1 Chapter%2 of the Bible\n")
-								.arg(m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) != 1) ? "s" : "");
-		strResults += QString("    Not found at all in %1 Book%2 of the Bible")
-								.arg(m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks) != 1) ? "s" : "");
+		strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
+		strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
+		strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
 	}
 
 	m_pSearchResultsCount->setText(strResults);
@@ -711,16 +707,16 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	QString strSummary;
 
 	if (m_bLastCalcSuccess) {
-		strSummary += QString("Found %1 %2Occurrence%3\n").arg(m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? "Combined " : "").arg((m_nLastSearchOccurrences != 1) ? "s" : "");
-		strSummary += QString("    in %1 Verse%2\n").arg(m_nLastSearchVerses).arg((m_nLastSearchVerses != 1) ? "s" : "");
-		strSummary += QString("    in %1 Chapter%2\n").arg(m_nLastSearchChapters).arg((m_nLastSearchChapters != 1) ? "s" : "");
-		strSummary += QString("    in %1 Book%2\n").arg(m_nLastSearchBooks).arg((m_nLastSearchBooks != 1) ? "s" : "");
+		strSummary += tr("Found %n %1Occurrence(s)", NULL, m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "") + "\n";
+		strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastSearchVerses) + "\n";
+		strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastSearchChapters) + "\n";
+		strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastSearchBooks) + "\n";
 		strSummary += "\n";
-		strSummary += QString("Not found%1 at all in %2 Verse%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Chapter%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) != 1) ? "s" : "");
-		strSummary += QString("Not found%1 at all in %2 Book%3 of the Bible\n").arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? " together" : "").arg(m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks) != 1) ? "s" : "");
+		strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+		strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+		strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
 	} else {
-		strSummary += QString("Search was incomplete -- too many possible matches\n");
+		strSummary += tr("Search was incomplete -- too many possible matches") + "\n";
 	}
 
 	return strSummary;

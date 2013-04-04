@@ -28,6 +28,7 @@
 
 #include <QtAlgorithms>
 #include <QSet>
+#include <QObject>
 
 #include <assert.h>
 
@@ -167,7 +168,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += PassageReferenceText(nRelIndex);
 			strTemp += " - ";
 			strTemp += PassageReferenceText(CRelIndex(DenormalizeIndex(NormalizeIndex(nRelIndex) + nSelectionSize - 1)));
-			strTemp += QString(" (%1 Words)").arg(nSelectionSize);
+			strTemp += " " + QObject::tr("(%1 Words)").arg(nSelectionSize);
 			strTemp += "\n\n";
 		} else {
 			strTemp += PassageReferenceText(nRelIndex);
@@ -178,12 +179,12 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 	if ((nRIMask & RIMASK_BOOK) &&
 		((Bk.ofBible().first != 0) ||
 		 (Bk.ofTestament().first != 0))) {
-		strTemp += "Book:\n";
+		strTemp += QObject::tr("Book:") + "\n";
 		if (Bk.ofBible().first != 0) {
-			strTemp += QString("    %1 of %2 of Bible\n").arg(Bk.ofBible().first).arg(Bk.ofBible().second);
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Bk.ofBible().first).arg(Bk.ofBible().second) + "\n";
 		}
 		if (Bk.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 	}
 
@@ -192,15 +193,15 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		((Chp.ofBible().first != 0) ||
 		 (Chp.ofTestament().first != 0) ||
 		 (Chp.ofBook().first != 0))) {
-		strTemp += "Chapter:\n";
+		strTemp += QObject::tr("Chapter:") + "\n";
 		if (Chp.ofBible().first != 0) {
-			strTemp += QString("    %1 of %2 of Bible\n").arg(Chp.ofBible().first).arg(Chp.ofBible().second);
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Chp.ofBible().first).arg(Chp.ofBible().second) + "\n";
 		}
 		if (Chp.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Chp.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 	}
 
@@ -210,18 +211,18 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		 (Vrs.ofTestament().first != 0) ||
 		 (Vrs.ofBook().first != 0) ||
 		 (Vrs.ofChapter().first != 0))) {
-		strTemp += "Verse:\n";
+		strTemp += QObject::tr("Verse:") + "\n";
 		if (Vrs.ofBible().first != 0) {
-			strTemp += QString("    %1 of %2 of Bible\n").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second);
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second) + "\n";
 		}
 		if (Vrs.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Vrs.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 		if (Vrs.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter());
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
 		}
 	}
 
@@ -232,21 +233,21 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		 (Wrd.ofBook().first != 0) ||
 		 (Wrd.ofChapter().first != 0) ||
 		 (Wrd.ofVerse().first != 0))) {
-		strTemp += "Word/Phrase:\n";
+		strTemp += QObject::tr("Word/Phrase:") + "\n";
 		if (Wrd.ofBible().first != 0) {
-			strTemp += QString("    %1 of %2 of Bible\n").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second);
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second) + "\n";
 		}
 		if (Wrd.ofTestament().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Wrd.ofBook().first != 0) {
-			strTemp += QString("    %1 of %2 of %3\n").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex));
+			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 		if (Wrd.ofChapter().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4\n").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter());
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
 		}
 		if (Wrd.ofVerse().first != 0) {
-			strTemp += QString("    %1 of %2 of %3 %4:%5\n").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4:%5").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()) + "\n";
 		}
 	}
 
@@ -255,7 +256,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 {
-	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return "<Invalid Reference>";
+	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>");
 	if (nRelIndex.chapter() == 0) {
 		return QString("%1").arg(bookName(nRelIndex));
 	}

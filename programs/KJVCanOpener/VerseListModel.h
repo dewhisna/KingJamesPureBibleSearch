@@ -35,6 +35,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <QPair>
+#include <QObject>
 
 #include <assert.h>
 
@@ -87,9 +88,9 @@ public:
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
 			const CRelIndex &ndxTag(phraseTags().at(ndx).first);
 			if (phraseTags().size() > 1) {
-				strToolTip += QString("(%1)[%2] \"%3\" is ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx));
+				strToolTip += QString("(%1)[%2] \"%3\" %4 ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is"));
 			} else {
-				strToolTip += QString("[%1] \"%2\" is ").arg(ndxTag.word()).arg(getPhrase(ndx));
+				strToolTip += QString("[%1] \"%2\" %3 ").arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is"));
 			}
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
@@ -97,16 +98,16 @@ public:
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results in Entire Bible\n")
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
 										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase());
+										.arg(pPhrase->phrase()) + "\n";
 				}
 				if (pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += QString("    %1 of %2 of Search Phrase \"%3\" Results in Search Scope\n")
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Search Scope")
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase());
+										.arg(pPhrase->phrase()) + "\n";
 				}
 			}
 		}

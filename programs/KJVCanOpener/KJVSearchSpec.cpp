@@ -332,19 +332,19 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchCriteria().searchScopeMode();
 	switch (nScope) {
 		case (CSearchCriteria::SSME_WHOLE_BIBLE):
-			strScope = "in the Entire Bible";
+			strScope = tr("in the Entire Bible");
 			break;
 		case (CSearchCriteria::SSME_TESTAMENT):
-			strScope = "in the same Testament";
+			strScope = tr("in the same Testament");
 			break;
 		case (CSearchCriteria::SSME_BOOK):
-			strScope = "in the same Book";
+			strScope = tr("in the same Book");
 			break;
 		case (CSearchCriteria::SSME_CHAPTER):
-			strScope = "in the same Chapter";
+			strScope = tr("in the same Chapter");
 			break;
 		case (CSearchCriteria::SSME_VERSE):
-			strScope = "in the same Verse";
+			strScope = tr("in the same Verse");
 			break;
 		default:
 			break;
@@ -352,27 +352,21 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 
 	QString strSummary;
 	if (nNumPhrases != 1) {
-		strSummary += QString("Search of %1 Phrases %2:\n")
-								.arg(nNumPhrases)
-								.arg(strScope);
+		strSummary += tr("Search of %n Phrase(s) %1:\n", NULL, nNumPhrases).arg(strScope);
 	} else {
-		strSummary += QString("Search of: ");
+		strSummary += tr("Search of:") + " ";
 	}
 	if (nNumPhrases > 1) strSummary += "\n";
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
 		if (nNumPhrases > 1) {
 			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
-				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible, %4 in Scope)\n")
-									.arg(mdlPhrases.index(ndx).data().toString())
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "")
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+								tr("(Found %n Time(s) in the Entire Bible, %1 in Scope)", NULL, aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
+									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 			} else {
-				strSummary += QString("    \"%1\" (Found %2 Time%3 in the Entire Bible)\n")
-									.arg(mdlPhrases.index(ndx).data().toString())
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-									.arg((aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches != 1) ? "s" : "");
+				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+								tr("(Found %n Time(s) in the Entire Bible)", NULL, aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
 				assert(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 			}
 		} else {
@@ -381,7 +375,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	}
 	if (bCaseSensitive) {
 		if (nNumPhrases > 1) strSummary += "\n";
-		strSummary += QString("    (%1 = Case Sensitive)\n").arg(QChar(0xA7));
+		strSummary += "    " + tr("(%1 = Case Sensitive)").arg(QChar(0xA7)) + "\n";
 	}
 	if (nNumPhrases) strSummary += "\n";
 

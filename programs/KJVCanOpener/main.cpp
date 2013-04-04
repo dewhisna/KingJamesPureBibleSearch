@@ -37,6 +37,7 @@
 #include <QFontDatabase>
 #include <QDesktopServices>
 #include <QDir>
+#include <QObject>
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -69,7 +70,7 @@ namespace {
 
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
 
-	const char *g_constrInitialization = "King James Pure Bible Search Initialization";
+	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
 #ifndef Q_OS_MAC
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
@@ -196,7 +197,9 @@ int main(int argc, char *argv[])
 	QSplashScreen *splash = new QSplashScreen;
 	splash->setPixmap(QPixmap(":/res/KJPBS_SplashScreen800x500.png"));
 	splash->show();
-	splash->showMessage("<html><body><table height=425 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please Wait...</b></font></div></body></html>", Qt::AlignBottom | Qt::AlignLeft);
+	splash->showMessage(QString("<html><body><table height=425 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") +
+							QObject::tr("Please Wait...") +
+							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 	qApp->processEvents();
 
 #ifdef Q_OS_WIN
@@ -215,7 +218,7 @@ int main(int argc, char *argv[])
 		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
 		if (nFontStatus == -1) {
 #ifdef QT_DEBUG
-			QMessageBox::warning(splash, g_constrInitialization, QString("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
 #endif
 		}
 	}
@@ -254,22 +257,22 @@ int main(int argc, char *argv[])
 		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
 			strKJSFile = strArg;
 		} else {
-			QMessageBox::warning(splash, g_constrInitialization, QString("Unrecognized command-line option \"%1\"").arg(strArg));
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
 		}
 	}
 
 	CBuildDatabase bdb(splash);
 	if (bBuildDB) {
 		if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
-			QMessageBox::warning(splash, g_constrInitialization, "Failed to Build KJV Database!\nAborting...");
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
 			return -1;
 		}
 	}
 
 	// Read Main Database
 	CReadDatabase rdb(splash);
-	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), "King James", "King James Version (1769)", true)) {
-		QMessageBox::warning(splash, g_constrInitialization, "Failed to Read and Validate KJV Database!\nCheck Installation!");
+	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), true)) {
+		QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
 		return -2;
 	}
 
@@ -307,7 +310,7 @@ int main(int argc, char *argv[])
 		}
 	} else {
 		if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
-			QMessageBox::warning(splash, g_constrInitialization, "Failed to Read KJV User Database!\nCheck Installation and Verify Database File!");
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
 			return -3;
 		} else {
 			strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();

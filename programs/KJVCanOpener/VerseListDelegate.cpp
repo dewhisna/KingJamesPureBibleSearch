@@ -253,11 +253,11 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 //						return true;
 //					}
 
-					QToolTip::showText(event->globalPos(), QString("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
+					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
 					return true;
 				}
 			} else {
-				QToolTip::showText(event->globalPos(), "Too many search results to display in this mode!!\nTry Switching to either View References Only mode or to Tree Mode.", view);
+				QToolTip::showText(event->globalPos(), tr("Too many search results to display in this mode!!\nTry Switching to either View References Only mode or to Tree Mode."), view);
 				return true;
 			}
 			break;

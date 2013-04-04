@@ -38,6 +38,7 @@
 #include <QMetaType>
 #include <QDataStream>
 #include <QSharedPointer>
+#include <QObject>
 
 #include <assert.h>
 
@@ -221,7 +222,7 @@ class CBibleEntry : public CTestamentEntry
 {
 public:
 	CBibleEntry()
-	:	CTestamentEntry("Entire Bible"),
+	:	CTestamentEntry(QObject::tr("Entire Bible")),
 		m_nNumTst(0)
 	{ }
 	~CBibleEntry() { }

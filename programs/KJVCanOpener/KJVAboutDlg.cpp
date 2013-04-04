@@ -32,6 +32,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
 CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
@@ -39,7 +40,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	QPushButton *pLicenseButton = ui->buttonBox->addButton("&License", QDialogButtonBox::ActionRole);
+	QPushButton *pLicenseButton = ui->buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
 	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(on_licenseDisplay()));
 	QPushButton *pCloseButton = ui->buttonBox->button(QDialogButtonBox::Close);
 	if (pCloseButton) pCloseButton->setDefault(true);
@@ -47,12 +48,12 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QGraphicsScene *scene = new QGraphicsScene(this);
 
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
-	m_pAppTitle = scene->addText("King James Pure Bible Search - Version: " + qApp->applicationVersion(), QFont("Times New Roman", 21));
+	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	m_pBroughtToYouBy = scene->addText("Brought to you by the fervent prayers of Bethel Church; Festus, MO", QFont("Script MT Bold", 12));
+	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
-	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">Click Here to Visit Bethel Church</a></body></html>"));
+	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + Qt::escape(tr("Click Here to Visit Bethel Church")) + QString("</a></body></html>"));
 	m_pBethelURL->setOpenExternalLinks(true);
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL->setPos(m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2) - (m_pBethelURL->boundingRect().width() / 2), m_pBethelChurch->pos().y() + m_pBethelChurch->boundingRect().height());
@@ -72,8 +73,8 @@ CKJVAboutDlg::~CKJVAboutDlg()
 
 void CKJVAboutDlg::on_licenseDisplay()
 {
-	QMessageBox::information(this, "About King James Pure Bible Search License",
-						"This program is free software; you can redistribute it and/or modify it under the terms "
+	QMessageBox::information(this, tr("About King James Pure Bible Search License"),
+						tr("This program is free software; you can redistribute it and/or modify it under the terms "
 						"of the GNU General Public License as published by the Free Software Foundation; either "
 						"version 3 of the License, or (at your option) any later version.\n\n"
 						"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "
@@ -83,5 +84,5 @@ void CKJVAboutDlg::on_licenseDisplay()
 						"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
 						"Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.\n"
 						"Contact: http://www.dewtronics.com/\n"
-						"Written and Developed for Bethel Church, Festus, MO.");
+						"Written and Developed for Bethel Church, Festus, MO."));
 }

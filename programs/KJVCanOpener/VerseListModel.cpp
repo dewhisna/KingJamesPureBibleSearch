@@ -313,24 +313,24 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 		if (bHeading) strToolTip += aVerse.getHeading() + "\n";
 		QPair<int, int> nResultsIndexes = GetResultsIndexes(nVerse);
 		if (nResultsIndexes.first != nResultsIndexes.second) {
-			strToolTip += QString("%1Search Results %2-%3 of %4 phrase occurrences\n")
-									.arg(bHeading ? "    " : "")
+			strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+						tr("Search Results %1-%2 of %3 phrase occurrences")
 									.arg(nResultsIndexes.first)
 									.arg(nResultsIndexes.second)
-									.arg(GetResultsCount());
+									.arg(GetResultsCount()) + "\n";
 		} else {
 			assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
-			strToolTip += QString("%1Search Result %2 of %3 phrase occurrences\n")
-									.arg(bHeading ? "    " : "")
+			strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+						tr("Search Result %1 of %2 phrase occurrences")
 									.arg(nResultsIndexes.first)
-									.arg(GetResultsCount());
+									.arg(GetResultsCount()) + "\n";
 		}
 		QPair<int, int> nVerseResult = GetVerseIndexAndCount(nVerse);
-		strToolTip += QString("%1    Verse %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nVerseResult.first).arg(nVerseResult.second);
+		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
 		QPair<int, int> nChapterResult = GetChapterIndexAndCount(nVerse);
-		strToolTip += QString("%1    Chapter %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nChapterResult.first).arg(nChapterResult.second);
+		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 		QPair<int, int> nBookResult = GetBookIndexAndCount(nVerse);
-		strToolTip += QString("%1    Book %2 of %3 in Search Scope\n").arg(bHeading ? "    " : "").arg(nBookResult.first).arg(nBookResult.second);
+		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
 		strToolTip += aVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";

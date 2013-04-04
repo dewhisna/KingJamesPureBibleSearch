@@ -79,45 +79,45 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
 
 	QAction *pAction;
-	m_pEditMenu = new QMenu("&Edit", this);
-	m_pEditMenu->setStatusTip("Search Phrase Editor Operations");
+	m_pEditMenu = new QMenu(tr("&Edit"), this);
+	m_pEditMenu->setStatusTip(tr("Search Phrase Editor Operations"));
 /*
 	TODO : If we ever address what to do with undo/redo, then put this code back in:
 
-	pAction = m_pEditMenu->addAction("&Undo", this, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
-	pAction->setStatusTip("Undo last operation to the Serach Phrase Editor");
+	pAction = m_pEditMenu->addAction(tr("&Undo"), this, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
+	pAction->setStatusTip(tr("Undo last operation to the Serach Phrase Editor"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(undoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction("&Redo", this, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::Key_Y));
-	pAction->setStatusTip("Redo last operation on the Search Phrase Editor");
+	pAction = m_pEditMenu->addAction(tr("&Redo"), this, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::Key_Y));
+	pAction->setStatusTip(tr("Redo last operation on the Search Phrase Editor"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(redoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
 */
-	pAction = m_pEditMenu->addAction("Cu&t", this, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
-	pAction->setStatusTip("Cut selected text from the Search Phrase Editor to the clipboard");
+	pAction = m_pEditMenu->addAction(tr("Cu&t"), this, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
+	pAction->setStatusTip(tr("Cut selected text from the Search Phrase Editor to the clipboard"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction("&Copy", this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	pAction->setStatusTip("Copy selected text from the Search Phrase Editor to the clipboard");
+	pAction = m_pEditMenu->addAction(tr("&Copy"), this, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	pAction->setStatusTip(tr("Copy selected text from the Search Phrase Editor to the clipboard"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction("&Paste", this, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	pAction->setStatusTip("Paste text on clipboard into the Search Phrase Editor");
+	pAction = m_pEditMenu->addAction(tr("&Paste"), this, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	pAction->setStatusTip(tr("Paste text on clipboard into the Search Phrase Editor"));
 	pAction->setEnabled(true);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction("&Delete", this, SLOT(clear()), QKeySequence(Qt::Key_Delete));
-	pAction->setStatusTip("Delete selected text from the Search Phrase Editor");
+	pAction = m_pEditMenu->addAction(tr("&Delete"), this, SLOT(clear()), QKeySequence(Qt::Key_Delete));
+	pAction->setStatusTip(tr("Delete selected text from the Search Phrase Editor"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip("Select All Text in the Search Phrase Editor");
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(tr("Select All Text in the Search Phrase Editor"));
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
@@ -132,8 +132,8 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
-	m_pButtonDroplist->setToolTip("Show Phrase List");
-	m_pButtonDroplist->setStatusTip("Show List of Common Phrases and User Phrases from Database");
+	m_pButtonDroplist->setToolTip(tr("Show Phrase List"));
+	m_pButtonDroplist->setStatusTip(tr("Show List of Common Phrases and User Phrases from Database"));
 	m_pButtonDroplist->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	m_pButtonDroplist->setMaximumSize(24, 24);
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
@@ -479,20 +479,20 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
 	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonAddPhrase->setToolTip("Add Phrase to User Database");
-	ui->buttonAddPhrase->setStatusTip("Add this Phrase to the User Database");
+	ui->buttonAddPhrase->setToolTip(tr("Add Phrase to User Database"));
+	ui->buttonAddPhrase->setStatusTip(tr("Add this Phrase to the User Database"));
 	ui->buttonDelPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setToolTip("Delete Phrase from User Database");
-	ui->buttonDelPhrase->setStatusTip("Delete this Phrase from the User Database");
+	ui->buttonDelPhrase->setToolTip(tr("Delete Phrase from User Database"));
+	ui->buttonDelPhrase->setStatusTip(tr("Delete this Phrase from the User Database"));
 	ui->buttonClear->setEnabled(false);
-	ui->buttonClear->setToolTip("Clear Phrase Text");
-	ui->buttonClear->setStatusTip("Clear this Phrase Text");
+	ui->buttonClear->setToolTip(tr("Clear Phrase Text"));
+	ui->buttonClear->setStatusTip(tr("Clear this Phrase Text"));
 
-	ui->editPhrase->setToolTip("Enter Word or Phrase to Search");
-	ui->editPhrase->setStatusTip("Enter Word or Phrase to Search");
+	ui->editPhrase->setToolTip(tr("Enter Word or Phrase to Search"));
+	ui->editPhrase->setStatusTip(tr("Enter Word or Phrase to Search"));
 
-	ui->buttonRemove->setToolTip("Remove Phrase from Search Criteria");
-	ui->buttonRemove->setStatusTip("Remove this Phrase from the current Search Criteria");
+	ui->buttonRemove->setToolTip(tr("Remove Phrase from Search Criteria"));
+	ui->buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
 
 	connect(ui->editPhrase, SIGNAL(phraseChanged()), this, SLOT(on_phraseChanged()));
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
@@ -586,9 +586,9 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 
 void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 {
-	QString strTemp = "Number of Occurrences: ";
+	QString strTemp = tr("Number of Occurrences: ");
 	if (parsedPhrase()->IsDuplicate()) {
-		strTemp += "(Duplicate)";
+		strTemp += tr("(Duplicate)");
 	} else {
 		strTemp += QString("%1/%2").arg(parsedPhrase()->GetContributingNumberOfMatches()).arg(parsedPhrase()->GetNumberOfMatches());
 	}

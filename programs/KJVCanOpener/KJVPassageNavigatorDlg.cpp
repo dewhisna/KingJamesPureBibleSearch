@@ -66,18 +66,18 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	assert(m_pNavigator != NULL);
 
-	m_pApplyButton = ui->buttonBox->addButton("&Apply Resolved to From Location", QDialogButtonBox::ApplyRole);
+	m_pApplyButton = ui->buttonBox->addButton(tr("&Apply Resolved to From Location"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(on_ApplyResolvedClicked()));
 
-	m_pModeButton = ui->buttonBox->addButton("&Switch Mode", QDialogButtonBox::ActionRole);
+	m_pModeButton = ui->buttonBox->addButton(tr("&Switch Mode"), QDialogButtonBox::ActionRole);
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(on_ModeClicked()));
 
-	m_pResetButton = ui->buttonBox->addButton("&Reset", QDialogButtonBox::ResetRole);
+	m_pResetButton = ui->buttonBox->addButton(tr("&Reset"), QDialogButtonBox::ResetRole);
 	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
 
-	m_pOKButton = ui->buttonBox->addButton("&Goto", QDialogButtonBox::AcceptRole);
+	m_pOKButton = ui->buttonBox->addButton(tr("&Goto"), QDialogButtonBox::AcceptRole);
 
-	m_pCancelButton = ui->buttonBox->addButton("&Cancel", QDialogButtonBox::RejectRole);
+	m_pCancelButton = ui->buttonBox->addButton(tr("&Cancel"), QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
 	on_modeChanged(m_pNavigator->isRelative());
@@ -109,13 +109,13 @@ CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
 void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 {
 	if (bRelative) {
-		setWindowTitle("Passage Navigator - Relative Mode");
+		setWindowTitle(tr("Passage Navigator - Relative Mode"));
 		m_pApplyButton->show();
-		m_pModeButton->setText("&Switch to Absolute Mode");
+		m_pModeButton->setText(tr("&Switch to Absolute Mode"));
 	} else {
-		setWindowTitle("Passage Navigator - Absolute Mode");
+		setWindowTitle(tr("Passage Navigator - Absolute Mode"));
 		m_pApplyButton->hide();
-		m_pModeButton->setText("&Switch to Relative Mode");
+		m_pModeButton->setText(tr("&Switch to Relative Mode"));
 	}
 	// It's sometimes confusing knowing which mode you are
 	//	in, so we'll resize back to our minimum size each

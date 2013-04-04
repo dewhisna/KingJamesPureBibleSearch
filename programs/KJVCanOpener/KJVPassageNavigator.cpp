@@ -105,7 +105,7 @@ void CKJVPassageNavigator::initialize()
 	ui->comboTestament->clear();
 	for (unsigned int ndx=0; ndx<=m_pBibleDatabase->bibleEntry().m_nNumTst; ++ndx){
 		if (ndx == 0) {
-			ui->comboTestament->addItem("Entire Bible", ndx);
+			ui->comboTestament->addItem(tr("Entire Bible"), ndx);
 		} else {
 			ui->comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
 			nBooks += m_pBibleDatabase->testamentEntry(ndx)->m_nNumBk;
@@ -246,10 +246,10 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.first));
 	ui->chkboxReverse->setChecked(bReverse);
 
-	ui->lblBook->setText("&Books:");
-	ui->lblChapter->setText("C&hapters:");
-	ui->lblVerse->setText("&Verses:");
-	ui->lblWord->setText("&Words:");
+	ui->lblBook->setText(tr("&Books:"));
+	ui->lblChapter->setText(tr("C&hapters:"));
+	ui->lblVerse->setText(tr("&Verses:"));
+	ui->lblWord->setText(tr("&Words:"));
 
 	if (!tagPassage.first.isSet()) {
 		// If we don't have an absolute starting passage, set the passage size (that we'll calculate from
@@ -279,10 +279,10 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui->lblTestament->show();
 	ui->comboTestament->show();
 
-	ui->lblBook->setText("&Book:");
-	ui->lblChapter->setText("C&hapter:");
-	ui->lblVerse->setText("&Verse:");
-	ui->lblWord->setText("&Word:");
+	ui->lblBook->setText(tr("&Book:"));
+	ui->lblChapter->setText(tr("C&hapter:"));
+	ui->lblVerse->setText(tr("&Verse:"));
+	ui->lblWord->setText(tr("&Word:"));
 
 	ui->spinBook->setPrefix("");
 	ui->spinChapter->setPrefix("");

@@ -103,57 +103,57 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), this, SLOT(clearHighlighting()));
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 
-	m_pEditMenu = new QMenu("&Edit", this);
-	m_pEditMenu->setStatusTip("Scripture Text Edit Operations");
-	m_pActionCopy = m_pEditMenu->addAction("&Copy as shown", this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopy->setStatusTip("Copy selected passage browser text, as shown, to the clipboard");
+	m_pEditMenu = new QMenu(T::tr("&Edit"), this);
+	m_pEditMenu->setStatusTip(T::tr("Scripture Text Edit Operations"));
+	m_pActionCopy = m_pEditMenu->addAction(T::tr("&Copy as shown"), this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy->setStatusTip(T::tr("Copy selected passage browser text, as shown, to the clipboard"));
 	m_pActionCopy->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
-	m_pActionCopyPlain = m_pEditMenu->addAction("Copy as shown (&plain)", this, SLOT(on_copyPlain()));
-	m_pActionCopyPlain->setStatusTip("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard");
+	m_pActionCopyPlain = m_pEditMenu->addAction(T::tr("Copy as shown (&plain)"), this, SLOT(on_copyPlain()));
+	m_pActionCopyPlain->setStatusTip(T::tr("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard"));
 	m_pActionCopyPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
-	m_pActionCopyRaw = m_pEditMenu->addAction("Copy Raw &Text (No headings)", this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
-	m_pActionCopyRaw->setStatusTip("Copy selected passage browser text as raw phrase words to the clipboard");
+	m_pActionCopyRaw = m_pEditMenu->addAction(T::tr("Copy Raw &Text (No headings)"), this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw->setStatusTip(T::tr("Copy selected passage browser text as raw phrase words to the clipboard"));
 	m_pActionCopyRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction("Copy Very Ra&w Text (No punctuation)", this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
-	m_pActionCopyVeryRaw->setStatusTip("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard");
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Text (No punctuation)"), this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw->setStatusTip(T::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction("Copy as &Verses", this, SLOT(on_copyVerses()));
-	m_pActionCopyVerses->setStatusTip("Copy selected passage browser text as Formatted Verses to the clipboard");
+	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses"), this, SLOT(on_copyVerses()));
+	m_pActionCopyVerses->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses to the clipboard"));
 	m_pActionCopyVerses->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
-	m_pActionCopyVersesPlain = m_pEditMenu->addAction("Copy as Verses (plai&n)", this, SLOT(on_copyVersesPlain()));
-	m_pActionCopyVersesPlain->setStatusTip("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard");
+	m_pActionCopyVersesPlain = m_pEditMenu->addAction(T::tr("Copy as Verses (plai&n)"), this, SLOT(on_copyVersesPlain()));
+	m_pActionCopyVersesPlain->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard"));
 	m_pActionCopyVersesPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction("Copy &Reference Details (Word/Phrase)", this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
-	m_pActionCopyReferenceDetails->setStatusTip("Copy the Word/Phrase Reference Details in the passage browser to the clipboard");
-	m_pActionCopyPassageStatistics = m_pEditMenu->addAction("Copy Passage Stat&istics (Book/Chapter/Verse)", this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
-	m_pActionCopyPassageStatistics->setStatusTip("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard");
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction("Copy Entire Passage Detai&ls", this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
-	m_pActionCopyEntirePassageDetails->setStatusTip("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard");
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(T::tr("Copy &Reference Details (Word/Phrase)"), this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyReferenceDetails->setStatusTip(T::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard"));
+	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(T::tr("Copy Passage Stat&istics (Book/Chapter/Verse)"), this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
+	m_pActionCopyPassageStatistics->setStatusTip(T::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard"));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
+	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard"));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction("Select &All", this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip("Select all current passage browser text");
+	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text"));
 	m_pEditMenu->addSeparator();
-	m_pActionFind = m_pEditMenu->addAction("&Find...", this, SLOT(on_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
-	m_pActionFind->setStatusTip("Find text within the passage browser");
+	m_pActionFind = m_pEditMenu->addAction(T::tr("&Find..."), this, SLOT(on_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+	m_pActionFind->setStatusTip(T::tr("Find text within the passage browser"));
 	m_pActionFind->setEnabled(T::useFindDialog());
-	m_pActionFindNext = m_pEditMenu->addAction("Find &Next", m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
-	m_pActionFindNext->setStatusTip("Find next occurrence of text within the passage browser");
+	m_pActionFindNext = m_pEditMenu->addAction(T::tr("Find &Next"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
+	m_pActionFindNext->setStatusTip(T::tr("Find next occurrence of text within the passage browser"));
 	m_pActionFindNext->setEnabled(T::useFindDialog());
-	m_pActionFindPrev = m_pEditMenu->addAction("Find &Previous", m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
-	m_pActionFindPrev->setStatusTip("Find previous occurrence of text within the passage browser");
+	m_pActionFindPrev = m_pEditMenu->addAction(T::tr("Find &Previous"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
+	m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser"));
 	m_pActionFindPrev->setEnabled(T::useFindDialog());
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
-	U::setToolTip(QString("Press %1 to see Passage Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
+	U::setToolTip(QString(T::tr("Press %1 to see Passage Details")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
 
 	m_pStatusAction = new QAction(this);
 }
@@ -407,11 +407,11 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 		menu.addAction(m_pActionFindPrev);
 	}
 	menu.addSeparator();
-	QAction *pActionNavigator = menu.addAction("Passage &Navigator...");
+	QAction *pActionNavigator = menu.addAction(T::tr("Passage &Navigator..."));
 	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator())));
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.addSeparator();
-	QAction *pActionDetails = menu.addAction("View &Details...");
+	QAction *pActionDetails = menu.addAction(T::tr("View &Details..."));
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
@@ -484,7 +484,7 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (m_selectedPhrase.second.second > 0) {
 		if (!strStatusText.isEmpty()) strStatusText += " : ";
-		strStatusText += QString("%1 Word(s) Selected").arg(m_selectedPhrase.second.second);
+		strStatusText += T::tr("%n Word(s) Selected", NULL, m_selectedPhrase.second.second);
 	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
