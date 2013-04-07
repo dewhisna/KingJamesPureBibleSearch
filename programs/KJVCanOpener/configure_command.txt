@@ -1,34 +1,59 @@
 Command-Lines for configuring Qt Build for KingJamesPureBibleSearch
 ===================================================================
 
+
+Qt 4.8.4
+========
+
+Old Local Build:
 ./configure -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-dist
 
 
 LSB x32 (old):
 ./configure -platform linux-lsb-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-lsb
 
+*******************************************************************************
 
-LSB x32:
+Linux LSB Build:
+----------------
+
+LSB x32:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-32
 ../4.8.4-src-patched/configure -platform linux-lsb-g++-32 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-32-lsb
 
-LSB x64:
+LSB x64:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-64
 ../4.8.4-src-patched/configure -platform linux-lsb-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.4-64-lsb
 
+*******************************************************************************
+
+
+----------------------------------------------------
 
 
 LOCAL BUILD (x64 release):
 ../4.8.4-src/configure -platform linux-g++-64 -developer-build -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.4-64-local
 
 
+----------------------------------------------------
+
 
 MAC Cocoa:
+----------
+
 ../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -arch ppc64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
 
-Cocoa x86/x64 Static:
+*******************************************************************************
+
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
 ../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-run
 
-Cocoa x86/x64 Dynamic:
+Cocoa x86/x64 Dynamic:   <<<< This was the development build for Mac
 ../4.8.4-src/configure -platform macx-g++ -opensource -release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
+
+*******************************************************************************
+
+These never worked for me because Apple has apparently dropped PPC support on
+newer platforms and so I don't have a PPC compiler.  Here for reference in case
+someone loans me an old Mac and there is sufficient requests for an old version:
 
 Cocoa x86/x64/PPC (universal):
 ../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-univ-run
@@ -36,5 +61,144 @@ Cocoa x86/x64/PPC (universal):
 
 Carbon x86/PPC (universal):
 ../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -carbon -universal -arch x86 -arch ppc -prefix /Users/donna/Qt/4.8.4-carbon-static-univ-run
+
+===============================================================================
+===============================================================================
+
+Experimenting with Qt 5:
+========================
+
+Qt 5.0.1
+========
+These options no longer exist:
+-qt-libtiff 
+-qt-libmng
+-no-phonon
+-no-qt3support
+-no-webkit
+-no-xmlpatterns
+-no-svg
+
+LOCAL BUILD (x64 release):  <<<<<  Local build -- note: Can't build static and have tools.  Can't build with -no-opengl
+../5.0.1-src/configure -platform linux-g++-64 -developer-build -opensource -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -no-c++11 -gui -widgets -fontconfig -no-dbus -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.0.1-64-local
+
+
+Possibly needed for LSB:
+-no-directfb
+-no-linuxfb
+-no-kms
+
+
+
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../5.0.1-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+*** Won't Build QtCore on Mac with: -no-opengl
+Must delete: qttools folder (it doesn't listen to the -nomake tools!), qtwebkit, qtxmlpatterns
+
+
+./configure -platform macx-clang-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+
+./configure -platform macx-g++-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+????? It won't build 32-bit on Mac! ?????
+
+./configure -platform macx-clang -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+????? Won't build on clang due to QCocoaWindow namespace in qcocoawindow.h ?????
+
+
+This one builds for Qt5, but target KJPBS app won't compile due to duplicate symbols in qcocoawindow platform:
+--------------------------------------------------------------------------------------------------------------
+./configure -platform macx-g++ -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+
+
+./configure -platform macx-g++ -opensource -debug-and-release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-run
+
+
+===============================================================================
+===============================================================================
+
+This section is JUNK trying to figure out how to compile Qt for Android:
+------------------------------------------------------------------------
+
+Android 4.0.4 (replicant-sdk_linux-x86):
+export ANDROID_API_VERSION=android-4.0.4
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=~/android/android-ndk-r8d
+export ANDROID_NDK_ROOT=~/android/android-ndk-r8b
+export ANDROID_SDK_ROOT=~/android/replicant-sdk_linux-x86
+Warning: Disabling pkg-config since PKG_CONFIG_LIBDIR is not set.
+Warning: Disabling pkg-config since PKG_CONFIG_SYSROOT_DIR is not set.
+
+../5.0.1-src-android/stable/configure -xplatform android-g++ -opensource -gui -widgets -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk ~/android/android-ndk-r8b -android-sdk ~/android/replicant-sdk_linux-x86 -android-toolchain-version 4.4.3
+
+
+
+Warning: Disabling pkg-config since PKG_CONFIG_LIBDIR is not set.
+Warning: Disabling pkg-config since PKG_CONFIG_SYSROOT_DIR is not set.
+
+export ANDROID_API_VERSION=android-8
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=~/android/android-ndk-r8b
+export ANDROID_SDK_ROOT=~/android/android-sdks
+
+export PKG_CONFIG_LIBDIR=~/android/android-ndk-r8b/prebuilt/linux-x86/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=~/android/android-ndk-r8b/prebuilt/linux-x86
+
+
+../5.0.1-src-android/stable/configure -xplatform android-g++ -opensource -gui -widgets -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk ~/android/android-ndk-r8b -android-sdk ~/android/android-sdks -android-toolchain-version 4.4.3
+
+
+export ANDROID_API_VERSION=android-4.0.4
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8b
+export ANDROID_SDK_ROOT=/home/dewhisna/android/replicant-sdk_linux-x86
+
+./configure -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8b -android-sdk /home/dewhisna/android/replicant-sdk_linux-x86 -android-toolchain-version 4.6 -nomake tests -nomake examples 
+
+
+export ANDROID_API_VERSION=android-17
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8b
+export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8b -android-sdk /home/dewhisna/android/android-sdks -android-toolchain-version 4.6 -nomake tests -nomake examples
+
+*******************************************************************************
+
+===============================================================================
+===============================================================================
+
+
+Qt5.1 Android Build:
+====================
+
+************ THIS ONE WORKS, BUT ONLY SQL AS PLUGIN (LAST ONE): ***************
+
+export ANDROID_API_VERSION=android-4.0.4
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8e
+export ANDROID_SDK_ROOT=/home/dewhisna/android/replicant-sdk_linux-x86
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/replicant-sdk_linux-x86 -nomake tests -nomake examples 
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -system-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/replicant-sdk_linux-x86 -nomake tests -nomake examples 
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -plugin-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/replicant-sdk_linux-x86 -nomake tests -nomake examples
+
+
+************ THIS ONE WORKS, BUT ONLY SQL AS PLUGIN (LAST ONE): ***************
+
+export ANDROID_API_VERSION=android-17
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8e
+export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -qt-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/android-sdks -nomake tests -nomake examples 
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -system-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/android-sdks -nomake tests -nomake examples 
+
+./configure -developer-build -xplatform android-g++ -opensource -gui -widgets -qt-libpng -qt-libjpeg -plugin-sql-sqlite -android-ndk /home/dewhisna/android/android-ndk-r8e -android-sdk /home/dewhisna/android/android-sdks -nomake tests -nomake examples
+
+===============================================================================
+===============================================================================
 
 
