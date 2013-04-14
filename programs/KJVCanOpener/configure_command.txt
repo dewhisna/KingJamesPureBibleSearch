@@ -173,8 +173,12 @@ Qt5.1 Android Build:
 
 ************ THIS ONE WORKS, BUT ONLY SQL AS PLUGIN (LAST ONE): ***************
 
+NOTE: Android only supports JDK 6.  It would build with JDK 7, but I don't know
+if Qt uses the JDK 6 compat flag.  If not, that could explain some of the bizarre
+random crashes and behaviour on the Android device
+
 export ANDROID_API_VERSION=android-4.0.4
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8e
 export ANDROID_SDK_ROOT=/home/dewhisna/android/replicant-sdk_linux-x86
 
@@ -187,8 +191,12 @@ export ANDROID_SDK_ROOT=/home/dewhisna/android/replicant-sdk_linux-x86
 
 ************ THIS ONE WORKS, BUT ONLY SQL AS PLUGIN (LAST ONE): ***************
 
+NOTE: Android only supports JDK 6.  It would build with JDK 7, but I don't know
+if Qt uses the JDK 6 compat flag.  If not, that could explain some of the bizarre
+random crashes and behaviour on the Android device
+
 export ANDROID_API_VERSION=android-17
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r8e
 export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 
