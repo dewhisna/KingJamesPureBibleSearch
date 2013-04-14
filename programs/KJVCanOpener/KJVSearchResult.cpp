@@ -497,9 +497,10 @@ bool CSearchResultsTreeView::haveDetails() const
 
 bool CSearchResultsTreeView::isActive() const
 {
-	extern CKJVCanOpener *g_pMainWindow;
-	assert(g_pMainWindow != NULL);
-	return ((hasFocus()) || ((g_pMainWindow != NULL) && (g_pMainWindow->isSearchResultsActive())));
+	extern QMainWindow *g_pMainWindow;
+	CKJVCanOpener *pMainWindow = qobject_cast<CKJVCanOpener *>(g_pMainWindow);
+	assert(pMainWindow != NULL);
+	return ((hasFocus()) || ((pMainWindow != NULL) && (pMainWindow->isSearchResultsActive())));
 }
 
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)

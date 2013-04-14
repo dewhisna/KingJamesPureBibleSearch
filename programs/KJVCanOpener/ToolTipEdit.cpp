@@ -23,9 +23,11 @@
 
 #include "ToolTipEdit.h"
 
+#ifndef NO_PERSISTENT_SETTINGS
 #include "PersistentSettings.h"
-#include "KJVCanOpener.h"
+#endif
 
+#include <QMainWindow>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QEvent>
@@ -105,16 +107,19 @@ CTipEdit::~CTipEdit()
 
 void CTipEdit::savePersistentSettings()
 {
+#ifndef NO_PERSISTENT_SETTINGS
 	const int nFontSize = fontInfo().pointSize();
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	settings.beginGroup(constrToolTipEditGroup);
 	settings.setValue(constrFontSizeKey, nFontSize);
 	settings.endGroup();
+#endif
 }
 
 void CTipEdit::restorePersistentSettings()
 {
+#ifndef NO_PERSISTENT_SETTINGS
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
 	QFont fnt = font();
@@ -127,6 +132,7 @@ void CTipEdit::restorePersistentSettings()
 		fnt.setPointSize(nFontSize);
 		setFont(fnt);
 	}
+#endif
 }
 
 
@@ -168,7 +174,7 @@ void CTipEdit::adjustToolTipSize()
 
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
-	extern CKJVCanOpener *g_pMainWindow;
+	extern QMainWindow *g_pMainWindow;
 	if (widget) {
 		resize(QSize(docSize.width(), qMin(widget->height(), docSize.height())) + extra);
 	} else if (g_pMainWindow) {
@@ -387,7 +393,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	// the whole screen for displaying the tooltip. However when not in
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
-	extern CKJVCanOpener *g_pMainWindow;
+	extern QMainWindow *g_pMainWindow;
 	QRect screen;
 	if ((g_pMainWindow != NULL) && (g_pMainWindow->isFullScreen()))
 		screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));

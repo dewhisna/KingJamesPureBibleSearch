@@ -59,7 +59,7 @@
 
 //Q_IMPORT_PLUGIN(qsqlite)
 
-CKJVCanOpener *g_pMainWindow = NULL;
+QMainWindow *g_pMainWindow = NULL;
 
 // ============================================================================
 
