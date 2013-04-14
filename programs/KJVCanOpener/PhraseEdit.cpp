@@ -820,12 +820,12 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 				if (!bNoAnchors) {
 					strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
 									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
-									.arg(Qt::escape(pFootnote->text()))
+									.arg(pFootnote->text())
 									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
 									.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 				} else {
 					strHTML += QString("<p>%1</p>\n")
-									.arg(Qt::escape(pFootnote->text()));
+									.arg(pFootnote->text());
 				}
 			}
 		}
@@ -841,11 +841,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(Qt::escape(book.m_strBkName));
 		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(Qt::escape(book.m_strDesc));
+							.arg(book.m_strDesc);
 		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 							.arg(Qt::escape(tr("Category:")))
-							.arg(Qt::escape(book.m_strCat));
+							.arg(book.m_strCat);
 		// If we have a chapter note for this chapter, print it too:
 		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 		if (pFootnote) {
@@ -853,7 +853,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(Qt::escape(tr("Chapter")))
 						.arg(ndx.chapter());
 			strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-						.arg(Qt::escape(pFootnote->text()))
+						.arg(pFootnote->text())
 						.arg(ndxBookChap.asAnchor());
 		} else {
 			strHTML += QString("<div class=chapter>%1 %2<a id=\"X%3\"> </a></div>\n")
@@ -866,11 +866,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(Qt::escape(book.m_strBkName));
 		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(Qt::escape(book.m_strDesc));
+							.arg(book.m_strDesc);
 		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 							.arg(Qt::escape(tr("Category:")))
-							.arg(Qt::escape(book.m_strCat));
+							.arg(book.m_strCat);
 		strHTML += QString("<div class=chapter>%1 %2</div>\n")
 						.arg(Qt::escape(tr("Chapter")))
 						.arg(ndx.chapter());
@@ -878,7 +878,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 		if (pFootnote) {
 			strHTML += QString("<div class=subtitle>%1</div>\n")
-						.arg(Qt::escape(pFootnote->text()));
+						.arg(pFootnote->text());
 		}
 	}
 
@@ -926,12 +926,12 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			if (!bNoAnchors) {
 				strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
 								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
-								.arg(Qt::escape(pFootnote->text()))
+								.arg(pFootnote->text())
 								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
 								.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 			} else {
 				strHTML += QString("<p>%1</p>\n")
-								.arg(Qt::escape(pFootnote->text()));
+								.arg(pFootnote->text());
 			}
 		}
 	}
@@ -954,21 +954,21 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 								.arg(Qt::escape(bookNext.m_strBkName));
 				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(Qt::escape(bookNext.m_strDesc));
+									.arg(bookNext.m_strDesc);
 				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 									.arg(Qt::escape(tr("Category:")))
-									.arg(Qt::escape(bookNext.m_strCat));
+									.arg(bookNext.m_strCat);
 			} else {
 				strHTML += QString("<div class=book>%1</div>\n")
 								.arg(Qt::escape(bookNext.m_strBkName));
 				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(Qt::escape(bookNext.m_strDesc));
+									.arg(bookNext.m_strDesc);
 				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 									.arg(Qt::escape(tr("Category:")))
-									.arg(Qt::escape(bookNext.m_strCat));
+									.arg(bookNext.m_strCat);
 			}
 		}
 		if (!bNoAnchors) {
@@ -980,7 +980,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 									.arg(Qt::escape(tr("Chapter")))
 									.arg(relNext.chapter());
 					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-									.arg(Qt::escape(pFootnote->text()))
+									.arg(pFootnote->text())
 									.arg(ndxBookChap.asAnchor());
 				} else {
 					strHTML += QString("<div class=chapter>%1 %2<a id=\"X%3\"> </a></div>\n")
@@ -997,7 +997,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 									.arg(Qt::escape(tr("Chapter")))
 									.arg(relNext.chapter());
 					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-									.arg(Qt::escape(pFootnote->text()))
+									.arg(pFootnote->text())
 									.arg(ndxBookChap.asAnchor());
 				} else {
 					strHTML += QString("<div class=chapter><a id=\"%1\">%2 %3</a><a id=\"X%4\"> </a></div>\n")
@@ -1015,7 +1015,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relNext.book(),relNext.chapter(),0,0));
 			if (pFootnote) {
 				strHTML += QString("<div class=subtitle>%1</div>\n")
-							.arg(Qt::escape(pFootnote->text()));
+							.arg(pFootnote->text());
 			}
 		}
 
@@ -1155,19 +1155,19 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 		if (ndxFirst.chapter() == ndxLast.chapter()) {
 			if (ndxFirst.verse() == ndxLast.verse()) {
 				strReference = QString("(%1 %2:%3)")
-										.arg(Qt::escape(m_pBibleDatabase->bookName(ndxFirst)))
+										.arg(m_pBibleDatabase->bookName(ndxFirst))
 										.arg(ndxFirst.chapter())
 										.arg(ndxFirst.verse());
 			} else {
 				strReference = QString("(%1 %2:%3-%4)")
-										.arg(Qt::escape(m_pBibleDatabase->bookName(ndxFirst)))
+										.arg(m_pBibleDatabase->bookName(ndxFirst))
 										.arg(ndxFirst.chapter())
 										.arg(ndxFirst.verse())
 										.arg(ndxLast.verse());
 			}
 		} else {
 			strReference = QString("(%1 %2:%3-%4:%5)")
-									.arg(Qt::escape(m_pBibleDatabase->bookName(ndxFirst)))
+									.arg(m_pBibleDatabase->bookName(ndxFirst))
 									.arg(ndxFirst.chapter())
 									.arg(ndxFirst.verse())
 									.arg(ndxLast.chapter())
@@ -1175,10 +1175,10 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 		}
 	} else {
 		strReference = QString("(%1 %2:%3-%4 %5:%6)")
-								.arg(Qt::escape(m_pBibleDatabase->bookName(ndxFirst)))
+								.arg(m_pBibleDatabase->bookName(ndxFirst))
 								.arg(ndxFirst.chapter())
 								.arg(ndxFirst.verse())
-								.arg(Qt::escape(m_pBibleDatabase->bookName(ndxLast)))
+								.arg(m_pBibleDatabase->bookName(ndxLast))
 								.arg(ndxLast.chapter())
 								.arg(ndxLast.verse());
 	}
