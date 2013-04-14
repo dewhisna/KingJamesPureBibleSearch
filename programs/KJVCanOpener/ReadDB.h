@@ -43,10 +43,10 @@ public:
 
 protected:
 	bool ReadTestamentTable();
-	bool ReadTOCTable();
-	bool ReadLAYOUTTable();
-	bool ReadBookTables();
-	bool ReadWORDSTable();
+	bool ReadBooksTable();
+	bool ReadChaptersTable();
+	bool ReadVerseTables();
+	bool ReadWordsTable();
 	bool ReadFOOTNOTESTable();
 	bool ReadPHRASESTable(bool bUserPhrases = false);
 	bool ValidateData();

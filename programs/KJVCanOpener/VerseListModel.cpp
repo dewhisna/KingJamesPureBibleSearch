@@ -768,7 +768,7 @@ int CVerseListModel::GetChapterCount(unsigned int nBk) const
 	if (nBk == 0) return 0;
 	if (m_bShowMissingLeafs) {
 		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		return m_pBibleDatabase->tocEntry(nBk)->m_nNumChp;
+		return m_pBibleDatabase->bookEntry(nBk)->m_nNumChp;
 	}
 
 	int nChapters = 0;
@@ -801,7 +801,7 @@ int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 	if ((nBk == 0) || (nChp == 0)) return -1;
 	if (m_bShowMissingLeafs) {
 		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
-		if (nChp > m_pBibleDatabase->tocEntry(nBk)->m_nNumChp) return -1;
+		if (nChp > m_pBibleDatabase->bookEntry(nBk)->m_nNumChp) return -1;
 		return (nChp-1);
 	}
 
@@ -836,7 +836,7 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
 	if (m_bShowMissingLeafs) {
 		if (static_cast<unsigned int>(ndxBook) >= m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		if (static_cast<unsigned int>(ndxChapter) >= m_pBibleDatabase->tocEntry(ndxBook+1)->m_nNumChp) return 0;
+		if (static_cast<unsigned int>(ndxChapter) >= m_pBibleDatabase->bookEntry(ndxBook+1)->m_nNumChp) return 0;
 		return (ndxChapter+1);
 	}
 
@@ -1050,8 +1050,8 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::S
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
 			if (index.book()) {
 				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
-					const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(index.book());
-					unsigned int nTestament = toc.m_nTstNdx;
+					const CBookEntry &book = *m_pBibleDatabase->bookEntry(index.book());
+					unsigned int nTestament = book.m_nTstNdx;
 					unsigned int nBook = 1;
 					for (unsigned int i=1; i<nTestament; ++i)
 						nBook += m_pBibleDatabase->testamentEntry(i)->m_nNumBk;

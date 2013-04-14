@@ -996,9 +996,9 @@ void CKJVCanOpener::on_gotoIndex(const TPhraseTag &tag)
 	m_pActionBookForward->setEnabled(tag.first.book() < m_pBibleDatabase->bibleEntry().m_nNumBk);
 	m_pActionChapterBackward->setEnabled((tag.first.book() >= 2) ||
 										((tag.first.book() == 1) && (tag.first.chapter() >= 2)));
-	const CTOCEntry *pTOCEntry = m_pBibleDatabase->tocEntry(tag.first.book());
+	const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(tag.first.book());
 	m_pActionChapterForward->setEnabled((tag.first.book() < m_pBibleDatabase->bibleEntry().m_nNumBk) ||
-										((tag.first.book() == m_pBibleDatabase->bibleEntry().m_nNumBk) && (tag.first.chapter() < (pTOCEntry ? pTOCEntry->m_nNumChp : 0))));
+										((tag.first.book() == m_pBibleDatabase->bibleEntry().m_nNumBk) && (tag.first.chapter() < (pBookEntry ? pBookEntry->m_nNumChp : 0))));
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()

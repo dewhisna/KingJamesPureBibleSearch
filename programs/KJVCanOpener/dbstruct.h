@@ -194,7 +194,7 @@ struct XformLower {
 
 // ============================================================================
 
-// TESTAMENT -- Table of Testaments:
+// Testaments -- Table of Testaments:
 //
 class CTestamentEntry
 {
@@ -217,7 +217,7 @@ public:
 
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
 
-// BIBLE -- Bible Entry (Derived from CTestamentEntry to keep stats for the whole Bible)
+// Bible -- Bible Entry (Derived from CTestamentEntry to keep stats for the whole Bible)
 class CBibleEntry : public CTestamentEntry
 {
 public:
@@ -232,12 +232,12 @@ public:
 
 // ============================================================================
 
-// TOC -- Table of Contents:
+// Books -- (Table of Contents):
 //
-class CTOCEntry
+class CBookEntry
 {
 public:
-	CTOCEntry()
+	CBookEntry()
 	:   m_nTstBkNdx(0),
 		m_nTstNdx(0),
 		m_nNumChp(0),
@@ -245,7 +245,7 @@ public:
 		m_nNumWrd(0),
 		m_nWrdAccum(0)
 	{ }
-	~CTOCEntry() { }
+	~CBookEntry() { }
 
 	unsigned int m_nTstBkNdx;	// Testament Book Index (Index within the books of the testament) 1-39 or 1-27
 	unsigned int m_nTstNdx;		// Testament Index (1=Old, 2=New, etc)
@@ -260,46 +260,52 @@ public:
 	QString m_strDesc;			// Description (subtitle)
 };
 
-typedef std::vector<CTOCEntry> TTOCList;	// Index by nBk-1
+typedef std::vector<CBookEntry> TBookList;	// Index by nBk-1
 
 // ============================================================================
 
-// LAYOUT -- Book/Chapter Layout:
+// Chapters -- Book/Chapter Layout:
 //
-class CLayoutEntry
+class CChapterEntry
 {
 public:
-	CLayoutEntry()
+	CChapterEntry()
 	:   m_nNumVrs(0),
 		m_nNumWrd(0),
 		m_nWrdAccum(0)
 	{ }
-	~CLayoutEntry() { }
+	~CChapterEntry() { }
 
 	unsigned int m_nNumVrs;		// Number of verses in this chapter
 	unsigned int m_nNumWrd;		// Number of words in this chapter
 	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this chapter
 };
 
-typedef std::map<CRelIndex, CLayoutEntry, IndexSortPredicate> TLayoutMap;	// Index by [nBk|nChp|0|0]
+typedef std::map<CRelIndex, CChapterEntry, IndexSortPredicate> TChapterMap;	// Index by [nBk|nChp|0|0]
 
 // ============================================================================
 
-// BOOK -- Chapter/Verse Layout:
+// Verses -- Chapter/Verse Layout:
 //
-class CBookEntry
+class CVerseEntry
 {
 public:
-	CBookEntry()
+	enum PILCROW_TYPE_ENUM {
+		PTE_NONE = 0,
+		PTE_MARKER = 1,
+		PTE_EXTRA = 2
+	};
+
+	CVerseEntry()
 	:   m_nNumWrd(0),
 		m_nWrdAccum(0),
-		m_bPilcrow(false)
+		m_nPilcrow(PTE_NONE)
 	{ }
-	~CBookEntry() { }
+	~CVerseEntry() { }
 
 	unsigned int m_nNumWrd;		// Number of words in this verse
 	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this verse
-	bool m_bPilcrow;			// Start of verse Pilcrow Flag
+	PILCROW_TYPE_ENUM m_nPilcrow;	// Start of verse Pilcrow Flag (and Pilcrow type)
 	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
 	{
 		return m_strText;
@@ -313,13 +319,13 @@ private:
 	QString m_strText;			// Rich text (or plain if Rich unavailable) for the verse (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 };
 
-typedef std::map<CRelIndex, CBookEntry, IndexSortPredicate> TBookEntryMap;		// Index by [0|nChp|nVrs|0]
+typedef std::map<CRelIndex, CVerseEntry, IndexSortPredicate> TVerseEntryMap;		// Index by [0|nChp|nVrs|0]
 
-typedef std::vector<TBookEntryMap> TBookList;	// Index by nBk-1
+typedef std::vector<TVerseEntryMap> TBookVerseList;		// Index by nBk-1
 
 // ============================================================================
 
-// WORDS -- Word List and Mapping
+// Words -- Word List and Mapping
 //
 class CWordEntry
 {
@@ -355,7 +361,7 @@ typedef QStringList TConcordanceList;
 
 // ============================================================================
 
-// FOOTNOTES -- Footnote List and Mapping
+// Footnotes -- Footnote List and Mapping
 //		Note: This works consistently for book-only footnotes, chapter footnotes,
 //		verse footnotes, and even word footnotes if we wish.  The index into the
 //		map is the complete CRelIndex style.  For book-only, for example, the
@@ -441,6 +447,7 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 // ============================================================================
 
 class CReadDatabase;			// Forward declaration for class friendship
+class COSISXmlHandler;
 
 // CBibleDatabase - Class to define a Bible Database file
 class CBibleDatabase
@@ -485,9 +492,9 @@ public:
 		return m_EntireBible;
 	}
 	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
-	const CTOCEntry *tocEntry(uint32_t nBk) const;						// Table of Contents (Books)
-	const CLayoutEntry *layoutEntry(const CRelIndex &ndx) const;		// Layout Use CRelIndex:[Book | Chapter | 0 | 0]
-	const CBookEntry *bookEntry(const CRelIndex &ndx) const;			// Book Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
+	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Books]
+	const CChapterEntry *chapterEntry(const CRelIndex &ndx) const;		// Chapter Data Use CRelIndex:[Book | Chapter | 0 | 0]
+	const CVerseEntry *verseEntry(const CRelIndex &ndx) const;			// Verse Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
 	const CWordEntry *wordlistEntry(const QString &strWord) const;		// WordList Data Entry: Index by lowercase keyword
 	inline const TWordListMap &mapWordList() const						// Master word-list Map
 	{
@@ -509,13 +516,14 @@ private:
 	//	is read-only.  Database building is done directly from the CSV files
 	//
 	friend class CReadDatabase;
+	friend class COSISXmlHandler;			// COSISXmlHandler - Used by KJVDataParse for OSIS XML File processing to build KJPBS databases
 
 // Main Database Data:
 	CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
 	TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
-	TTOCList m_lstTOC;						// Table of Contents: List(nBk-1)
-	TLayoutMap m_mapLayout;					// Layout Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
-	TBookList m_lstBooks;					// Book Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
+	TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
+	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
+	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
 	TIndexList m_lstConcordanceMapping;		// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)

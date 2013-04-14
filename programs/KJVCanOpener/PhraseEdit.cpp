@@ -582,16 +582,16 @@ CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
 		assert(ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk);
 		if (ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
 			if (ndxReference.chapter() != 0) {
-				assert(ndxReference.chapter() <= m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumChp);
-				if (ndxReference.chapter() <= m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumChp) {
+				assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
+				if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
 					if (ndxReference.verse() != 0) {
-						assert(ndxReference.verse() <= m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumVrs);
-						if (ndxReference.verse() <= m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumVrs) {
-							if (ndxReference.word() > m_pBibleDatabase->bookEntry(ndxReference)->m_nNumWrd) {
+						assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
+						if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
+							if (ndxReference.word() > m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) {
 								// Clip word index at max since it's possible to be on the space
 								//		between words and have an index that is one larger than
 								//		our largest word:
-								ndxReference.setWord(m_pBibleDatabase->bookEntry(ndxReference)->m_nNumWrd);
+								ndxReference.setWord(m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd);
 							}
 						}
 					}
@@ -772,16 +772,16 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		return;
 	}
 
-	const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(ndx.book());
+	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
-	const CLayoutEntry *pLayout = m_pBibleDatabase->layoutEntry(ndx);
-	if (pLayout == NULL) {
+	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
+	if (pChapter == NULL) {
 		assert(false);
 		emit changedDocumentText();
 		return;
 	}
 
-	if (ndx.chapter() > toc.m_nNumChp) {
+	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
 		emit changedDocumentText();
 		return;
@@ -795,26 +795,26 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(Qt::escape(m_pBibleDatabase->PassageReferenceText(ndx)));		// Document Title
 
 	uint32_t nFirstWordNormal = m_pBibleDatabase->NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
-	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + pLayout->m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
+	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + pChapter->m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
 	uint32_t nRelPrevChapter = m_pBibleDatabase->DenormalizeIndex(nFirstWordNormal - 1);			// Find previous book/chapter/verse (and word)
 	uint32_t nRelNextChapter = m_pBibleDatabase->DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
 
 	// Print last verse of previous chapter if available:
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
-		const CTOCEntry &tocPrev = *m_pBibleDatabase->tocEntry(relPrev.book());
+		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		strHTML += "<p>";
 		if (!bNoAnchors) {
 			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
-		strHTML += m_pBibleDatabase->bookEntry(relPrev)->text() + "\n";
+		strHTML += m_pBibleDatabase->verseEntry(relPrev)->text() + "\n";
 		strHTML += "</p>";
 
 		// If we have a footnote for this book and this is the end of the last chapter,
 		//		print it too:
-		if (relPrev.chapter() == tocPrev.m_nNumChp) {
+		if (relPrev.chapter() == bookPrev.m_nNumChp) {
 			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relPrev.book(),0,0,0));
 			if (pFootnote) {
 				if (!bNoAnchors) {
@@ -838,14 +838,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 						.arg(ndxBookChap.asAnchor())
-						.arg(Qt::escape(toc.m_strBkName));
-		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
+						.arg(Qt::escape(book.m_strBkName));
+		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(Qt::escape(toc.m_strDesc));
-		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
+							.arg(Qt::escape(book.m_strDesc));
+		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 							.arg(Qt::escape(tr("Category:")))
-							.arg(Qt::escape(toc.m_strCat));
+							.arg(Qt::escape(book.m_strCat));
 		// If we have a chapter note for this chapter, print it too:
 		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),ndx.chapter(),0,0));
 		if (pFootnote) {
@@ -863,14 +863,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 	} else {
 		strHTML += QString("<div class=book>%1</div>\n")
-						.arg(Qt::escape(toc.m_strBkName));
-		if ((!toc.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
+						.arg(Qt::escape(book.m_strBkName));
+		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(Qt::escape(toc.m_strDesc));
-		if  ((!toc.m_strCat.isEmpty()) && (ndx.chapter() == 1))
+							.arg(Qt::escape(book.m_strDesc));
+		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
 			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 							.arg(Qt::escape(tr("Category:")))
-							.arg(Qt::escape(toc.m_strCat));
+							.arg(Qt::escape(book.m_strCat));
 		strHTML += QString("<div class=chapter>%1 %2</div>\n")
 						.arg(Qt::escape(tr("Chapter")))
 						.arg(ndx.chapter());
@@ -885,14 +885,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print this Chapter Text:
 	bool bParagraph = false;
 	CRelIndex ndxVerse;
-	for (unsigned int ndxVrs=0; ndxVrs<pLayout->m_nNumVrs; ++ndxVrs) {
+	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
-		const CBookEntry *pVerse = m_pBibleDatabase->bookEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1,0));
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1,0));
 		if (pVerse == NULL) {
 			assert(false);
 			continue;
 		}
-		if (pVerse->m_bPilcrow) {
+		if (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) {
 			if (bParagraph) {
 				strHTML += "</p>";
 				bParagraph=false;
@@ -920,7 +920,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 
 	// If we have a footnote for this book and this is the end of the last chapter,
 	//		print it too:
-	if (ndx.chapter() == toc.m_nNumChp) {
+	if (ndx.chapter() == book.m_nNumChp) {
 		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),0,0,0));
 		if (pFootnote) {
 			if (!bNoAnchors) {
@@ -942,7 +942,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	if (nRelNextChapter != 0) {
 		CRelIndex relNext(nRelNextChapter);
 		CRelIndex ndxBookChap(relNext.book(), relNext.chapter(), 0, 0);
-		const CTOCEntry &tocNext = *m_pBibleDatabase->tocEntry(relNext.book());
+		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 
 		// Print Heading for this Book/Chapter:
 		bool bNextChapterDifferentBook = false;
@@ -951,24 +951,24 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			if (!bNoAnchors) {
 				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 								.arg(ndxBookChap.asAnchor())
-								.arg(Qt::escape(tocNext.m_strBkName));
-				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
+								.arg(Qt::escape(bookNext.m_strBkName));
+				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(Qt::escape(tocNext.m_strDesc));
-				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
+									.arg(Qt::escape(bookNext.m_strDesc));
+				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 									.arg(Qt::escape(tr("Category:")))
-									.arg(Qt::escape(tocNext.m_strCat));
+									.arg(Qt::escape(bookNext.m_strCat));
 			} else {
 				strHTML += QString("<div class=book>%1</div>\n")
-								.arg(m_pBibleDatabase->tocEntry(relNext.book())->m_strBkName);
-				if ((!tocNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
+								.arg(Qt::escape(bookNext.m_strBkName));
+				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(Qt::escape(tocNext.m_strDesc));
-				if  ((!tocNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
+									.arg(Qt::escape(bookNext.m_strDesc));
+				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
 					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
 									.arg(Qt::escape(tr("Category:")))
-									.arg(Qt::escape(tocNext.m_strCat));
+									.arg(Qt::escape(bookNext.m_strCat));
 			}
 		}
 		if (!bNoAnchors) {
@@ -1025,7 +1025,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
-		strHTML += m_pBibleDatabase->bookEntry(relNext)->text() + "\n";
+		strHTML += m_pBibleDatabase->verseEntry(relNext)->text() + "\n";
 		strHTML += "</p>";
 	}
 
@@ -1051,22 +1051,22 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		return;
 	}
 
-	const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(ndx.book());
+	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
-	if (ndx.chapter() > toc.m_nNumChp) {
+	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
 		emit changedDocumentText();
 		return;
 	}
 
-	const CLayoutEntry *pLayout = m_pBibleDatabase->layoutEntry(ndx);
-	if (pLayout == NULL) {
+	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
+	if (pChapter == NULL) {
 		assert(false);
 		emit changedDocumentText();
 		return;
 	}
 
-	if (ndx.verse() > pLayout->m_nNumVrs) {
+	if (ndx.verse() > pChapter->m_nNumVrs) {
 		assert(false);
 		emit changedDocumentText();
 		return;
@@ -1088,7 +1088,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		//				a space so that we can find a dual unique anchor in our searching.  If we don't do
 		//				this with the book name, we have to insert an extra space at the end for the "X" anchor
 		//				and that extra space was just annoying me!!!
-		QString strBook = toc.m_strBkName;
+		QString strBook = book.m_strBkName;
 		strBook = strBook.leftJustified(2, ' ', false);
 		strHTML += QString("<p><a id=\"%1\"><b>%2</b></a><a id=\"X%3\"><b>%4</b></a>")
 						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
@@ -1097,11 +1097,11 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 						.arg(Qt::escape(strBook.right(1)));
 	} else {
 		strHTML += QString("<p><b>%1</b>")
-						.arg(Qt::escape(toc.m_strBkName));
+						.arg(Qt::escape(book.m_strBkName));
 	}
 
 	// Print this Verse Text:
-	const CBookEntry *pVerse = m_pBibleDatabase->bookEntry(ndx);
+	const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
 	if (pVerse == NULL) {
 		assert(false);
 		emit changedDocumentText();
@@ -1201,15 +1201,15 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 			return;
 		}
 
-		const CTOCEntry &toc = *m_pBibleDatabase->tocEntry(ndx.book());
+		const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
-		if (ndx.chapter() > toc.m_nNumChp) {
+		if (ndx.chapter() > book.m_nNumChp) {
 			assert(false);
 			emit changedDocumentText();
 			return;
 		}
 
-		const CBookEntry *pVerse = m_pBibleDatabase->bookEntry(ndx);
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
 		if (pVerse == NULL) {
 			assert(false);
 			emit changedDocumentText();
@@ -1599,20 +1599,20 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 						}
 					}
 					strToolTip += QString("\n%1 ").arg(m_pBibleDatabase->bookName(ndxReference)) + tr("contains:") + "\n"
-											"    " + tr("%n Chapter(s)", NULL, m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumChp) + "\n"
-											"    " + tr("%n Verse(s)", NULL, m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumVrs) + "\n"
-											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumWrd) + "\n";
+											"    " + tr("%n Chapter(s)", NULL, m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) + "\n"
+											"    " + tr("%n Verse(s)", NULL, m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
+											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
 					if (ndxReference.chapter() != 0) {
-						assert(ndxReference.chapter() <= m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumChp);
-						if (ndxReference.chapter() <= m_pBibleDatabase->tocEntry(ndxReference.book())->m_nNumChp) {
+						assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
+						if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
 							strToolTip += QString("\n%1 %2 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:") + "\n"
-											"    " + tr("%n Verse(s)", NULL, m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumVrs) + "\n"
-											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumWrd) + "\n";
+											"    " + tr("%n Verse(s)", NULL, m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
+											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
 							if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
-								assert(ndxReference.verse() <= m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumVrs);
-								if (ndxReference.verse() <= m_pBibleDatabase->layoutEntry(ndxReference)->m_nNumVrs) {
+								assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
+								if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
 									strToolTip += QString("\n%1 %2:%3 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:") + "\n"
-											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->bookEntry(ndxReference)->m_nNumWrd) + "\n";
+											"    " + tr("%n Word(s)", NULL, m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";
 								}
 							}
 						}

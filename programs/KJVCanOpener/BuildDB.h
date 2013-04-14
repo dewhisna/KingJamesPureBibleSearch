@@ -43,12 +43,12 @@ public:
 
 protected:
 	bool BuildTestamentTable();
-	bool BuildTOCTable();
-	bool BuildLAYOUTTable();
-	bool BuildBookTables();
-	bool BuildWORDSTable();
-	bool BuildFOOTNOTESTables();
-	bool BuildPHRASESTable(bool bUserPhrases);
+	bool BuildBooksTable();
+	bool BuildChaptersTable();
+	bool BuildVerseTables();
+	bool BuildWordsTable();
+	bool BuildFootnotesTables();
+	bool BuildPhrasesTable(bool bUserPhrases);
 
 private:
 	QWidget *m_pParent;

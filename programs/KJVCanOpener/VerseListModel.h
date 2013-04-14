@@ -170,8 +170,8 @@ public:
 		if (m_pBibleDatabase.data() == NULL) return QStringList();
 		if (!isSet()) return QStringList();
 		QStringList strWords;
-		const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
-		unsigned int nNumWords = (pBookEntry ? pBookEntry->m_nNumWrd : 0);
+		const CVerseEntry *pVerseEntry = m_pBibleDatabase->verseEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
+		unsigned int nNumWords = (pVerseEntry ? pVerseEntry->m_nNumWrd : 0);
 		uint32_t ndxNormal = getIndexNormalized();
 		while (nNumWords) {
 			strWords.push_back(m_pBibleDatabase->wordAtIndex(ndxNormal));
@@ -189,8 +189,8 @@ public:
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
-		const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
-		return (pBookEntry ? pBookEntry->text() : QString());
+		const CVerseEntry *pVerseEntry = m_pBibleDatabase->verseEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
+		return (pVerseEntry ? pVerseEntry->text() : QString());
 	}
 
 private:

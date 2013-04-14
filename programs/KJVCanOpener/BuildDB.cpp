@@ -202,9 +202,9 @@ bool CBuildDatabase::BuildTestamentTable()
 	return true;
 }
 
-bool CBuildDatabase::BuildTOCTable()
+bool CBuildDatabase::BuildBooksTable()
 {
-	// Build the TOC table:
+	// Build the Books table:
 
 	QString strCmd;
 	QSqlQuery queryCreate(m_myDatabase);
@@ -306,9 +306,9 @@ bool CBuildDatabase::BuildTOCTable()
 	return true;
 }
 
-bool CBuildDatabase::BuildLAYOUTTable()
+bool CBuildDatabase::BuildChaptersTable()
 {
-	// Build the LAYOUT table:
+	// Build the Chapters (LAYOUT) table:
 
 	QString strCmd;
 	QSqlQuery queryCreate(m_myDatabase);
@@ -393,11 +393,11 @@ bool CBuildDatabase::BuildLAYOUTTable()
 	return true;
 }
 
-bool CBuildDatabase::BuildBookTables()
+bool CBuildDatabase::BuildVerseTables()
 {
 	QString strCmd;
 
-	// Build the BOOK tables:
+	// Build the Book Verses tables:
 	for (int i=0; i<NUM_BK; ++i) {
 		QSqlQuery queryCreate(m_myDatabase);
 
@@ -424,7 +424,7 @@ bool CBuildDatabase::BuildBookTables()
 
 		// Create the table in the database:
 		strCmd = QString("create table %1 "
-						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, bPilcrow NUMERIC, PText TEXT, RText TEXT)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT)").arg(g_arrstrBkTblNames[i]);
 
 		if (!queryCreate.exec(strCmd)) {
 			fileBook.close();
@@ -443,7 +443,7 @@ bool CBuildDatabase::BuildBookTables()
 		if ((slHeaders.size()!=5) ||
 			(slHeaders.at(0).compare("ChpVrsNdx") != 0) ||
 			(slHeaders.at(1).compare("NumWrd") != 0) ||
-			(slHeaders.at(2).compare("bPilcrow") != 0) ||
+			(slHeaders.at(2).compare("nPilcrow") != 0) ||
 			(slHeaders.at(3).compare("PText") != 0) ||
 			(slHeaders.at(4).compare("RText") != 0)) {
 			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for %1 data file!").arg(g_arrstrBkTblNames[i]),
@@ -465,8 +465,8 @@ bool CBuildDatabase::BuildBookTables()
 			if (sl.count() < 5) continue;
 
 			strCmd = QString("INSERT INTO %1 "
-						"(ChpVrsNdx, NumWrd, bPilcrow, PText, RText) "
-						"VALUES (:ChpVrsNdx, :NumWrd, :bPilcrow, :PText, :RText)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx, NumWrd, nPilcrow, PText, RText) "
+						"VALUES (:ChpVrsNdx, :NumWrd, :nPilcrow, :PText, :RText)").arg(g_arrstrBkTblNames[i]);
 
 			// No need to have both plain text and rich text in our database, since
 			//	we only need one data source for these.  So if we have Rich, we'll
@@ -479,7 +479,7 @@ bool CBuildDatabase::BuildBookTables()
 			queryInsert.prepare(strCmd);
 			queryInsert.bindValue(":ChpVrsNdx", sl.at(0).toUInt());
 			queryInsert.bindValue(":NumWrd", sl.at(1).toUInt());
-			queryInsert.bindValue(":bPilcrow", sl.at(2).toInt());
+			queryInsert.bindValue(":nPilcrow", sl.at(2).toInt());
 			queryInsert.bindValue(":PText", sl.at(3));
 			queryInsert.bindValue(":RText", sl.at(4));
 			if (!queryInsert.exec()) {
@@ -522,9 +522,9 @@ QByteArray CBuildDatabase::CSVStringToIndexBlob(const QString &str)
 	return baBlob;
 }
 
-bool CBuildDatabase::BuildWORDSTable()
+bool CBuildDatabase::BuildWordsTable()
 {
-	// Build the WORDS table:
+	// Build the Words table:
 
 	QString strCmd;
 	QSqlQuery queryCreate(m_myDatabase);
@@ -613,9 +613,9 @@ bool CBuildDatabase::BuildWORDSTable()
 	return true;
 }
 
-bool CBuildDatabase::BuildFOOTNOTESTables()
+bool CBuildDatabase::BuildFootnotesTables()
 {
-	// Build the FOOTNOTES table:
+	// Build the Footnotes table:
 
 	QString strCmd;
 	QSqlQuery queryCreate(m_myDatabase);
@@ -706,9 +706,9 @@ bool CBuildDatabase::BuildFOOTNOTESTables()
 	return true;
 }
 
-bool CBuildDatabase::BuildPHRASESTable(bool bUserPhrases)
+bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 {
-	// Build the PHRASES table:
+	// Build the Phrases table:
 
 	QString strCmd;
 	QSqlQuery queryCreate(m_myDatabase);
@@ -837,12 +837,12 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 	bool bSuccess = true;
 
 	if ((!BuildTestamentTable()) ||
-		(!BuildTOCTable()) ||
-		(!BuildLAYOUTTable()) ||
-		(!BuildBookTables()) ||
-		(!BuildWORDSTable()) ||
-		(!BuildFOOTNOTESTables()) ||
-		(!BuildPHRASESTable(false))) bSuccess = false;
+		(!BuildBooksTable()) ||
+		(!BuildChaptersTable()) ||
+		(!BuildVerseTables()) ||
+		(!BuildWordsTable()) ||
+		(!BuildFootnotesTables()) ||
+		(!BuildPhrasesTable(false))) bSuccess = false;
 
 	m_myDatabase.close();
 
@@ -863,7 +863,7 @@ bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename, bool 
 
 	bool bSuccess = true;
 
-	if (!BuildPHRASESTable(true)) {
+	if (!BuildPhrasesTable(true)) {
 		bSuccess = false;
 	} else {
 		g_bUserPhrasesDirty = false;
