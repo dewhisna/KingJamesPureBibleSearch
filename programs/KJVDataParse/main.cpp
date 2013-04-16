@@ -132,10 +132,73 @@ const QString g_arrstrTstNames[NUM_TST] =
 		};
 
 
-const QString g_strSpecChar = "'-";				// Special characters that are to remain as word characters and not treated as symbols in the text.  UTF-8 versions of these (like "en dash") will be folded into these
-
+// TODO : CLEAN
+//
+//const QString g_strSpecChar = "'-";				// Special characters that are to remain as word characters and not treated as symbols in the text.  UTF-8 versions of these (like "en dash") will be folded into these
+//
 //const char *g_strCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-";		// Accept: [alphanumeric, -, '], we'll handle UTF-8 conversion and translate those to ASCII as appropriate
 
+
+
+// For processing hyphenated words, the following symbols will be treated
+//	as hyphens and rolled into the "-" symbol for processing.  Words with
+//	only hyphen differences will be added to the base word as a special
+//	alternate form, allowing users to search them with or without hyphen
+//	sensitivity:
+const QString g_strHyphens =	QString(QChar(0x002D)) +		// U+002D	&#45;		hyphen-minus 	the Ascii hyphen, with multiple usage, or “ambiguous semantic value”; the width should be “average”
+//								QString(QChar(0x007E)) +		// U+007E	&#126;		tilde 	the Ascii tilde, with multiple usage; “swung dash”
+								QString(QChar(0x00AD)) +		// U+00AD	&#173;		soft hyphen 	“discretionary hyphen”
+								QString(QChar(0x058A)) +		// U+058A	&#1418; 	armenian hyphen 	as soft hyphen, but different in shape
+								QString(QChar(0x05BE)) +		// U+05BE	&#1470; 	hebrew punctuation maqaf 	word hyphen in Hebrew
+//								QString(QChar(0x1400)) +		// U+1400	&#5120; 	canadian syllabics hyphen 	used in Canadian Aboriginal Syllabics
+//								QString(QChar(0x1806)) +		// U+1806	&#6150; 	mongolian todo soft hyphen 	as soft hyphen, but displayed at the beginning of the second line
+								QString(QChar(0x2010)) +		// U+2010	&#8208; 	hyphen 	unambiguously a hyphen character, as in “left-to-right”; narrow width
+								QString(QChar(0x2011)) +		// U+2011	&#8209; 	non-breaking hyphen 	as hyphen (U+2010), but not an allowed line break point
+								QString(QChar(0x2012)) +		// U+2012	&#8210; 	figure dash 	as hyphen-minus, but has the same width as digits
+								QString(QChar(0x2013)) +		// U+2013	&#8211; 	en dash 	used e.g. to indicate a range of values
+// >>>>>>>>>>>>					QString(QChar(0x2014)) +		// U+2014	&#8212; 	em dash 	used e.g. to make a break in the flow of a sentence
+// >>>>>>>>>>>>					QString(QChar(0x2015)) +		// U+2015	&#8213; 	horizontal bar 	used to introduce quoted text in some typographic styles; “quotation dash”; often (e.g., in the representative glyph in the Unicode standard) longer than em dash
+//								QString(QChar(0x2053)) +		// U+2053	&#8275; 	swung dash 	like a large tilde
+//								QString(QChar(0x207B)) +		// U+207B	&#8315; 	superscript minus 	a compatibility character which is equivalent to minus sign U+2212 in superscript style
+//								QString(QChar(0x208B)) +		// U+208B	&#8331; 	subscript minus 	a compatibility character which is equivalent to minus sign U+2212 in subscript style
+								QString(QChar(0x2212)) +		// U+2212	&#8722; 	minus sign 	an arithmetic operator; the glyph may look the same as the glyph for a hyphen-minus, or may be longer ;
+//								QString(QChar(0x2E17)) +		// U+2E17	&#11799; 	double oblique hyphen 	used in ancient Near-Eastern linguistics; not in Fraktur, but the glyph of Ascii hyphen or hyphen is similar to this character in Fraktur fonts
+// >>>>>>>>>>>>					QString(QChar(0x2E3A)) +		// U+2E3A	&#11834; 	two-em dash 	omission dash<(a>, 2 em units wide
+// >>>>>>>>>>>>					QString(QChar(0x2E3B)) +		// U+2E3B	&#11835; 	three-em dash 	used in bibliographies, 3 em units wide
+//								QString(QChar(0x301C)) +		// U+301C	&#12316; 	wave dash 	a Chinese/Japanese/Korean character
+//								QString(QChar(0x3030)) +		// U+3030	&#12336; 	wavy dash 	a Chinese/Japanese/Korean character
+//								QString(QChar(0x30A0)) +		// U+30A0	&#12448;	katakana-hiragana double hyphen	in Japasene kana writing
+//								QString(QChar(0xFE31)) +		// U+FE31	&#65073;	presentation form for vertical em dash	vertical variant of em dash
+//								QString(QChar(0xFE32)) +		// U+FE32	&#65074;	presentation form for vertical en dash	vertical variant of en dash
+								QString(QChar(0xFE58)) +		// U+FE58	&#65112;	small em dash	small variant of em dash
+								QString(QChar(0xFE63)) +		// U+FE63	&#65123;	small hyphen-minus	small variant of Ascii hyphen
+								QString(QChar(0xFF0D));			// U+FF0D	&#65293;	fullwidth hyphen-minus
+
+// For processing words with apostrophes, the following symbols will be treated
+//	as apostrophes and rolled into the "'" symbol for processing.  Words with
+//	only apostrophe differences will be added to the base word as a special
+//	alternate form, allowing users to search them with or without the apostrophe:
+const QString g_strApostrophes =	QString(QChar(0x0027));		// U+0027	&#39;		Ascii apostrophe
+
+// Ascii Word characters -- these will be kept in words as-is and includes
+//	alphanumerics.  Hyphen and apostrophe are kept too, but by the rules
+//	above, not here.  Non-Ascii (high UTF8 values) are also kept, but have
+//	rules of their own:
+const QString g_strAsciiWordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+
+// TODO : CLEAN
+//
+//// Special conversion characters.  These characters get translated in processing
+////	to an Ascii equivalence:
+//const QString g_strSpecChars =	QChar(0x00C6) +		// U+00C6	&#198;		AE character
+//								QChar(0x00E6) +		// U+00E6	&#230;		ae character
+//								QChar(0x0132) +		// U+0132	&#306;		IJ character
+//								QChar(0x0133) +		// U+0133	&#307;		ij character
+//								QChar(0x0152) +		// U+00152	&#338;		OE character
+//								QChar(0x0153);		// U+00153	&#339;		oe character
+
+const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse text to mark parse tags -- must NOT exist in the text
 
 
 class COSISXmlHandler : public QXmlDefaultHandler
@@ -145,7 +208,12 @@ public:
 		:	m_strNamespace(strNamespace),
 			m_bCaptureTitle(false),
 			m_bInVerse(false),
-			m_nLevel(0)
+			m_bInLemma(false),
+			m_bInTransChangeAdded(false),
+			m_bInNotes(false),
+			m_bInColophon(false),
+			m_bInSubtitle(false),
+			m_bInWordsOfJesus(false)
 	{
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString()));		// Note: We'll set the name and description later in the reading of the data
 		for (int i=0; i<NUM_BK; ++i) {
@@ -176,15 +244,47 @@ protected:
 		return -1;
 	}
 
+	QString stringifyAttributes(const QXmlAttributes &attr) {
+		QString strTemp;
+		for (int i=0; i<attr.count(); ++i) {
+			if (i) strTemp += ',';
+			strTemp += attr.localName(i) + '=' + attr.value(i);
+		}
+		return strTemp;
+	}
+
+	QXmlAttributes attributesFromString(const QString &str) {
+		QXmlAttributes attrs;
+		QStringList lstPairs = str.split(',');
+		for (int i=0; i<lstPairs.count(); ++i) {
+			QStringList lstEntry = lstPairs.at(i).split('=');
+			assert(lstEntry.count() == 2);
+			if (lstEntry.count() != 2) {
+				std::cerr << "\n*** Error: Attributes->String failure\n";
+				continue;
+			}
+			attrs.append(lstEntry.at(0), QString(), lstEntry.at(0), lstEntry.at(1));
+		}
+		return attrs;
+	}
+
 private:
 	QString m_strNamespace;
 	QStringList m_lstElementNames;
 	QStringList m_lstAttrNames;
 
 	CRelIndex m_ndxCurrent;
+	CRelIndex m_ndxColophon;
+	CRelIndex m_ndxSubtitle;
 	bool m_bCaptureTitle;
 	bool m_bInVerse;
-	int m_nLevel;			// Parse depth level
+	bool m_bInLemma;
+	bool m_bInTransChangeAdded;
+	bool m_bInNotes;
+	bool m_bInColophon;
+	bool m_bInSubtitle;
+	bool m_bInWordsOfJesus;
+	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
 	QStringList m_lstOsisBookList;
@@ -226,8 +326,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		ndx = findAttribute(atts, "osisIDWork");
 		if (ndx != -1) m_pBibleDatabase->m_strName = atts.value(ndx);
 		std::cerr << "Work: " << atts.value(ndx).toStdString() << "\n";
-	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("title", Qt::CaseInsensitive) == 0)) {
-		m_bCaptureTitle = true;
+	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
+		if (!m_ndxCurrent.isSet()) {
+			m_bCaptureTitle = true;
+		} else {
+			m_bInSubtitle = true;
+			m_ndxSubtitle = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0);		// Subtitles are for the chapter, not the first verse in it, even thought that's were this tag exists
+		}
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "type");
 		if ((ndx != -1) && (atts.value(ndx).compare("x-testament", Qt::CaseInsensitive) == 0)) {
@@ -237,6 +342,29 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			nTst++;
 			std::cerr << "Testament: " << ((m_pBibleDatabase->m_lstTestaments.size() <= NUM_TST) ? aTestament.m_strTstName.toStdString() : "<Unknown>") << "\n";
 		}
+	} else if ((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) {
+		ndx = findAttribute(atts, "osisID");
+		if (ndx != -1) {
+			QStringList lstOsisID = atts.value(ndx).split('.');
+			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toStdString() << "\n";
+				m_ndxColophon = CRelIndex();
+			} else {
+				bool bOK = true;
+				unsigned int nChp = 0;
+				unsigned int nVrs = 0;
+				m_ndxColophon = CRelIndex(nBk+1, 0, 0, 0);
+				if ((lstOsisID.size() >= 2) && ((nChp = lstOsisID.at(1).toUInt(&bOK)) != 0) && (bOK)) {
+					m_ndxColophon.setChapter(nChp);
+					if ((lstOsisID.size() >= 3) && ((nVrs = lstOsisID.at(2).toUInt(&bOK)) != 0) && (bOK)) {
+						m_ndxColophon.setVerse(nVrs);
+					}
+				}
+			}
+		} else{
+			m_ndxColophon = CRelIndex();
+		}
+		m_bInColophon = true;
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
 		if (nTst == 0) {
 			std::cerr << "\n*** Found book/chapter before testament marker!\n";
@@ -250,6 +378,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				} else {
 					std::cerr << "Book: " << lstOsisID.at(0).toStdString() << " Chapter: " << lstOsisID.at(1).toStdString();
 					m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
+					m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 					m_pBibleDatabase->m_EntireBible.m_nNumChp++;
 					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp++;
 					if (lstOsisID.at(1).toUInt() == 1) {
@@ -263,6 +392,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
 						m_pBibleDatabase->m_lstBooks[nBk].m_strCat = g_arrBooks[nBk].m_strCategory;
 						m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
+						m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
 					}
 					assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp++;
@@ -270,11 +400,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			} else {
 				m_ndxCurrent = CRelIndex();
 				std::cerr << "\n*** Chapter with no osisID : ";
-				for (int i=0; i<atts.count(); ++i) {
-					if (i) std::cerr << ",";
-					std::cerr << atts.localName(i).toStdString() << "=" << atts.value(i).toStdString();
-				}
-				std::cerr << "\n";
+				std::cerr << stringifyAttributes(atts).toStdString() << "\n";
 			}
 		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
@@ -294,14 +420,65 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				m_ndxCurrent.setWord(0);
 				std::cerr << ".";
 				m_bInVerse = true;
+				assert(m_bInLemma == false);
+				if (m_bInLemma) std::cerr << "\n*** Error: Missing end of Lemma\n";
+				m_bInLemma = false;
+				assert(m_bInTransChangeAdded == false);
+				if (m_bInTransChangeAdded) std::cerr << "\n*** Error: Missing end of TransChange Added\n";
+				m_bInTransChangeAdded = false;
+				assert(m_bInNotes == false);
+				if (m_bInNotes) std::cerr << "\n*** Error: Missing end of Notes\n";
+				m_bInNotes = false;
+				assert(m_bInColophon == false);
+				if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
+				m_bInColophon = false;
+				assert(m_bInSubtitle == false);
+				if (m_bInSubtitle) std::cerr << "\n*** Error: Missing end of Subtitle\n";
+				m_bInSubtitle = false;
+				assert(m_bInWordsOfJesus == false);
+				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+				m_bInWordsOfJesus = false;
 				m_pBibleDatabase->m_EntireBible.m_nNumVrs++;
 				assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
 				m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs++;
 				assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 				m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
+				m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
 			}
 		}
+	} else if ((m_bInVerse) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
+		m_bInLemma = true;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("L:" + stringifyAttributes(atts));
+	} else if ((m_bInVerse) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
+		ndx = findAttribute(atts, "type");
+		if ((ndx != -1) && (atts.value(ndx).compare("added", Qt::CaseInsensitive) == 0)) {
+			m_bInTransChangeAdded = true;
+			CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+			verse.setText(verse.text() + g_chrParseTag);
+			verse.m_lstParseStack.push_back("T:");
+		}
+	} else if ((m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
+		m_bInNotes = true;
+	} else if ((m_bInVerse) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
+		ndx = findAttribute(atts, "who");
+		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
+			m_bInWordsOfJesus = true;
+			CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+			verse.setText(verse.text() + g_chrParseTag);
+			verse.m_lstParseStack.push_back("J:");
+		}
 	}
+
+	// Note: In the m_lstParseStack, we'll push values on as follows:
+	//			L:<attrs>		-- Lemma Start
+	//			l:				-- Lemma End
+	//			T:				-- TransChange Added Start
+	//			t:				-- TransChange Added End
+	//			J:				-- Words of Jesus Start
+	//			j:				-- Words of Jesus End
+
 
 
 
@@ -332,14 +509,154 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 
 	if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		m_bCaptureTitle = false;
+		m_bInSubtitle = false;
+	} else if ((m_bInColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
+		m_bInColophon = false;
 	} else if (localName.compare("chapter", Qt::CaseInsensitive) == 0) {
 		m_ndxCurrent = CRelIndex();
 		std::cerr << "\n";
 		assert(m_bInVerse == false);
+		if (m_bInVerse) {
+			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
+			m_bInVerse = false;
+		}
 	} else if (localName.compare("verse", Qt::CaseInsensitive) == 0) {
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+
+		QString strTemp = verse.text();
+
+		unsigned int nWordCount = 0;
+		bool bInWord = false;
+		QString strWord;
+		QStringList lstWords;
+		bool bHaveDoneTemplateWord = false;				// Used to tag words crossing parse-stack boundary (i.e. half the word is inside the parse operator and half is outside, like the word "inasmuch")
+		while (!strTemp.isEmpty()) {
+			bool bIsHyphen = g_strHyphens.contains(strTemp.at(0));
+			bool bIsApostrophe = g_strApostrophes.contains(strTemp.at(0));
+			if (strTemp.at(0) == g_chrParseTag) {
+				if (bInWord) {
+					if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+					bHaveDoneTemplateWord = true;
+				}
+				assert(!verse.m_lstParseStack.isEmpty());
+				if (!verse.m_lstParseStack.isEmpty()) {
+					QString strParse = verse.m_lstParseStack.at(0);
+					verse.m_lstParseStack.pop_front();
+					int nPos = strParse.indexOf(':');
+					assert(nPos != -1);		// Every ParseStack entry must contain a ':'
+					QString strOp = strParse.left(nPos);
+					if (strOp.compare("L") == 0) {
+						// TODO : Parse Lemma for Strongs/Morph
+					} else if (strOp.compare("l") == 0) {
+						// TODO : End Lemma
+					} else if (strOp.compare("T") == 0) {
+						verse.m_strTemplate += "<i>";
+					} else if (strOp.compare("t") == 0) {
+						verse.m_strTemplate += "</i>";
+					} else if (strOp.compare("J") == 0) {
+						verse.m_strTemplate += "<font color=\"red\">";
+					} else if (strOp.compare("j") == 0) {
+						verse.m_strTemplate += "</font>";
+					} else {
+						assert(false);		// Unknown ParseStack Operator!
+					}
+				}
+			} else if ((strTemp.at(0).unicode() < 128) ||
+				(bIsHyphen) ||
+				(bIsApostrophe)) {
+				if ((g_strAsciiWordChars.contains(strTemp.at(0))) ||
+					(bIsHyphen) ||
+					(bIsApostrophe)) {
+					bInWord = true;
+					if (bIsHyphen) {
+						strWord += '-';
+					} else if (bIsApostrophe) {
+						strWord += '\'';
+					} else strWord += strTemp.at(0);
+				} else {
+					if (bInWord) {
+						nWordCount++;
+						m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
+						if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+						lstWords.append(strWord);
+						strWord.clear();
+						bInWord = false;
+					}
+					bHaveDoneTemplateWord = false;
+					verse.m_strTemplate += strTemp.at(0);
+				}
+			} else {
+				if (!m_strParsedUTF8Chars.contains(strTemp.at(0))) m_strParsedUTF8Chars += strTemp.at(0);
+
+				bInWord = true;
+				if (strTemp.at(0) == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
+					strWord += "Ae";
+				} else if (strTemp.at(0) == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
+					strWord += "ae";
+				} else if (strTemp.at(0) == QChar(0x0132)) {		// U+0132	&#306;		IJ character
+					strWord += "IJ";
+				} else if (strTemp.at(0) == QChar(0x0133)) {		// U+0133	&#307;		ij character
+					strWord += "ij";
+				} else if (strTemp.at(0) == QChar(0x0152)) {		// U+0152	&#338;		OE character
+					strWord += "Oe";
+				} else if (strTemp.at(0) == QChar(0x0153)) {		// U+0153	&#339;		oe character
+					strWord += "oe";
+				} else {
+					strWord += strTemp.at(0);			// All other UTF-8 leave untranslated
+				}
+			}
+
+			strTemp = strTemp.right(strTemp.size()-1);
+		}
+
+		assert(verse.m_lstParseStack.isEmpty());		// We should have exhausted the stack above!
+
+		if (bInWord) {
+			nWordCount++;
+			m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
+			if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+			lstWords.append(strWord);
+			strWord.clear();
+			bInWord = false;
+		}
+		bHaveDoneTemplateWord = false;
+
+		m_pBibleDatabase->m_EntireBible.m_nNumWrd += nWordCount;
+		m_pBibleDatabase->m_lstTestaments[m_pBibleDatabase->m_lstBooks.at(m_ndxCurrent.book()-1).m_nTstNdx-1].m_nNumWrd += nWordCount;
+		m_pBibleDatabase->m_lstBooks[m_ndxCurrent.book()-1].m_nNumWrd += nWordCount;
+		m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumWrd += nWordCount;
+		verse.m_nNumWrd += nWordCount;
+		verse.m_lstWords.append(lstWords);
+
+
+
+std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toStdString() << "\n";
+std::cout << verse.text().toStdString() << "\n" << verse.m_strTemplate.toStdString() << "\n" << verse.m_lstWords.join(",").toStdString() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toStdString();
+
+		assert(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
+		if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd)
+			std::cerr << "\n*** Error: Verse word count doesn't match template word count!!!\n";
+
 		m_ndxCurrent.setVerse(0);
 		m_ndxCurrent.setWord(0);
 		m_bInVerse = false;
+	} else if (localName.compare("w", Qt::CaseInsensitive) == 0) {
+		m_bInLemma = false;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("l:");
+	} else if (localName.compare("transChange", Qt::CaseInsensitive) == 0) {
+		m_bInTransChangeAdded = false;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("t:");
+	} else if (localName.compare("note", Qt::CaseInsensitive) == 0) {
+		m_bInNotes = false;
+	} else if (localName.compare("q", Qt::CaseInsensitive) == 0) {
+		m_bInWordsOfJesus = false;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("j:");
 	}
 
 
@@ -352,36 +669,37 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 bool COSISXmlHandler::characters(const QString &ch)
 {
 	QString strTemp = ch;
-	strTemp.replace('\n', ' ');
+// TODO : REMOVE
+//	strTemp.replace('\n', ' ');
 
 	if (m_bCaptureTitle) {
 		m_pBibleDatabase->m_strDescription = strTemp;
 		std::cerr << "Title: " << strTemp.toStdString() << "\n";
-	} else if (m_bInVerse) {
-		// TODO : Process verse text here
-
-
-/*
-		nWrd = 0;
-		pTemp = strpbrk(buffPlain, g_strCharset);
-		while (pTemp) {								// pTemp = start of word
-			nWrd++;
-			pTemp2 = pTemp+1;
-			while ((*pTemp2 != 0) && (strchr(g_strCharset, *pTemp2) != NULL)) ++pTemp2;
-			memcpy(word, pTemp, pTemp2-pTemp);
-			word[pTemp2-pTemp] = 0;
-			if ((bDoingWordDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) fprintf(stdout, "%s\r\n", word);
-			pTemp = strpbrk(pTemp2, g_strCharset);
-		}		// Here, nWrd = Number of words in this verse
-		countWrd[nBk-1] += nWrd;			// Add in the number of words we found
-
-		if ((bDoingBook) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
-			fprintf(stdout, "%d,%d,%d,\"%s\",\"%s\",\"%s\"\r\n", nChp*256+nVrs, nWrd, (bIsPilcrow ? 1 : 0), buffPlain, buffRich, buffFootnote);
+	} else if (m_bInColophon) {
+		if (m_ndxColophon.isSet()) {
+			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
+			footnote.setText(footnote.text() + strTemp);
 		}
-*/
+	} else if (m_bInSubtitle) {
+		CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSubtitle];
+		footnote.setText(footnote.text() + strTemp);
+	} else if ((m_bInVerse) && (!m_bInNotes)) {
 
+		assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+//		std::cout << strTemp.toStdString();
 
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + strTemp);
 
+		assert(!strTemp.contains(g_chrParseTag, Qt::CaseInsensitive));
+		if (strTemp.contains(g_chrParseTag, Qt::CaseInsensitive)) {
+			std::cerr << "\n*** ERROR: Text contains the special parse tag!!  Change the tag in KJVDataParse and try again!\n";
+		}
+
+	} else if ((m_bInVerse) && (m_bInNotes)) {
+		CFootnoteEntry &footnote = ((!m_bInLemma) ? m_pBibleDatabase->m_mapFootnotes[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)] :
+													m_pBibleDatabase->m_mapFootnotes[m_ndxCurrent]);
+		footnote.setText(footnote.text() + strTemp);
 	}
 
 
@@ -458,6 +776,19 @@ int main(int argc, char *argv[])
 						.arg(pBibleDatabase->bookEntry(i)->m_nNumVrs)
 						.arg(pBibleDatabase->bookEntry(i)->m_nNumWrd)
 						.toStdString();
+	}
+
+	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
+		const CBookEntry *pBook = pBibleDatabase->bookEntry(i);
+		assert(pBook != NULL);
+		for (unsigned int j=1; j<=pBook->m_nNumChp; ++j) {
+			std::cout << QString("%1 Chapter %2 : Verses: %3  Words: %4\n")
+						.arg(pBook->m_strBkName)
+						.arg(j)
+						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumVrs)
+						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumWrd)
+						.toStdString();
+		}
 	}
 
 /*
