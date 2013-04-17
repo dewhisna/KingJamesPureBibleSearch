@@ -315,6 +315,12 @@ public:
 		m_strText = strText;
 	}
 
+#ifdef OSIS_PARSER_BUILD
+	QString m_strTemplate;			// Rich Text Creation Template during build -- during write, we'll replace m_strText with this and generate the text dynamically in the app
+	QStringList m_lstWords;			// Word List for parse extraction
+	QStringList m_lstParseStack;	// Parse operation stack (used to parse red-letter tags, added word tags, morphology, concordance references, etc.
+#endif
+
 private:
 	QString m_strText;			// Rich text (or plain if Rich unavailable) for the verse (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 };
