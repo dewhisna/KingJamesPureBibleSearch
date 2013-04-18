@@ -213,7 +213,8 @@ public:
 			m_bInNotes(false),
 			m_bInColophon(false),
 			m_bInSubtitle(false),
-			m_bInWordsOfJesus(false)
+			m_bInWordsOfJesus(false),
+			m_bInDivineName(false)
 	{
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString()));		// Note: We'll set the name and description later in the reading of the data
 		for (int i=0; i<NUM_BK; ++i) {
@@ -284,6 +285,7 @@ private:
 	bool m_bInColophon;
 	bool m_bInSubtitle;
 	bool m_bInWordsOfJesus;
+	bool m_bInDivineName;
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -438,6 +440,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				assert(m_bInWordsOfJesus == false);
 				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
 				m_bInWordsOfJesus = false;
+				assert(m_bInDivineName == false);
+				if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
+				m_bInDivineName = false;
 				m_pBibleDatabase->m_EntireBible.m_nNumVrs++;
 				assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
 				m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs++;
@@ -469,6 +474,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.setText(verse.text() + g_chrParseTag);
 			verse.m_lstParseStack.push_back("J:");
 		}
+	} else if ((m_bInVerse) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+		m_bInDivineName = true;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("D:");
 	}
 
 	// Note: In the m_lstParseStack, we'll push values on as follows:
@@ -478,6 +488,8 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	//			t:				-- TransChange Added End
 	//			J:				-- Words of Jesus Start
 	//			j:				-- Words of Jesus End
+	//			D:				-- Divine Name Start
+	//			d:				-- Divine Name End
 
 
 
@@ -512,15 +524,16 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bInSubtitle = false;
 	} else if ((m_bInColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		m_bInColophon = false;
-	} else if (localName.compare("chapter", Qt::CaseInsensitive) == 0) {
+	} else if ((!m_bInVerse) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
 		m_ndxCurrent = CRelIndex();
 		std::cerr << "\n";
-		assert(m_bInVerse == false);
-		if (m_bInVerse) {
-			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
-			m_bInVerse = false;
-		}
-	} else if (localName.compare("verse", Qt::CaseInsensitive) == 0) {
+// Technically, we shouldn't have a chapter inside verse, but some modules use it as a special inner marking (like FrePGR, for example):
+//		assert(m_bInVerse == false);
+//		if (m_bInVerse) {
+//			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
+//			m_bInVerse = false;
+//		}
+	} else if ((m_bInVerse) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 
 		QString strTemp = verse.text();
@@ -550,13 +563,17 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 					} else if (strOp.compare("l") == 0) {
 						// TODO : End Lemma
 					} else if (strOp.compare("T") == 0) {
-						verse.m_strTemplate += "<i>";
+						verse.m_strTemplate += "T";
 					} else if (strOp.compare("t") == 0) {
-						verse.m_strTemplate += "</i>";
+						verse.m_strTemplate += "t";
 					} else if (strOp.compare("J") == 0) {
-						verse.m_strTemplate += "<font color=\"red\">";
+						verse.m_strTemplate += "J";
 					} else if (strOp.compare("j") == 0) {
-						verse.m_strTemplate += "</font>";
+						verse.m_strTemplate += "j";
+					} else if (strOp.compare("D") == 0) {
+						verse.m_strTemplate += "D";
+					} else if (strOp.compare("d") == 0) {
+						verse.m_strTemplate += "d";
 					} else {
 						assert(false);		// Unknown ParseStack Operator!
 					}
@@ -640,23 +657,28 @@ std::cout << verse.text().toStdString() << "\n" << verse.m_strTemplate.toStdStri
 		m_ndxCurrent.setVerse(0);
 		m_ndxCurrent.setWord(0);
 		m_bInVerse = false;
-	} else if (localName.compare("w", Qt::CaseInsensitive) == 0) {
+	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = false;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
 		verse.m_lstParseStack.push_back("l:");
-	} else if (localName.compare("transChange", Qt::CaseInsensitive) == 0) {
+	} else if ((m_bInTransChangeAdded) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
 		m_bInTransChangeAdded = false;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
 		verse.m_lstParseStack.push_back("t:");
-	} else if (localName.compare("note", Qt::CaseInsensitive) == 0) {
+	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = false;
-	} else if (localName.compare("q", Qt::CaseInsensitive) == 0) {
+	} else if ((m_bInWordsOfJesus) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		m_bInWordsOfJesus = false;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
 		verse.m_lstParseStack.push_back("j:");
+	} else if ((m_bInDivineName) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+		m_bInDivineName = false;
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		verse.setText(verse.text() + g_chrParseTag);
+		verse.m_lstParseStack.push_back("d:");
 	}
 
 
@@ -790,6 +812,89 @@ int main(int argc, char *argv[])
 						.toStdString();
 		}
 	}
+
+	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
+		assert(pBook != NULL);
+		for (unsigned int nChp=1; nChp<=pBook->m_nNumChp; ++nChp) {
+			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
+			assert(pChapter != NULL);
+			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+			for (unsigned int nVrs=1; nVrs<=pChapter->m_nNumVrs; ++nVrs) {
+				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
+				assert(pVerse != NULL);
+				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
+				int nJCount = 0;
+				int nTCount = 0;
+				int nDCount = 0;
+				QString strTemp;
+				QStringList lstWordSplit = pVerse->m_strTemplate.split('w');
+				assert(lstWordSplit.size() == (pVerse->m_lstWords.size() + 1));
+				assert(lstWordSplit.size() != 0);
+				for (int i=0; i<lstWordSplit.size(); ++i) {
+					if (i > 0) {
+						strTemp += pVerse->m_lstWords.at(i-1);
+					}
+					QString strI;
+					QStringList lstJSplit = lstWordSplit.at(i).split('J', QString::KeepEmptyParts, Qt::CaseInsensitive);
+					assert(lstJSplit.size() != 0);
+					for (int j=0; j<lstJSplit.size(); ++j) {
+						if (j > 0) {
+							nJCount++;
+							if ((nJCount%2) == 1) {
+								strI += "<font color=\"red\">";
+							} else {
+								strI += "</font>";
+							}
+						}
+						QString strJ;
+						QStringList lstTSplit = lstJSplit.at(j).split('T', QString::KeepEmptyParts, Qt::CaseInsensitive);
+						assert(lstTSplit.size() != 0);
+						for (int k=0; k<lstTSplit.size(); ++k) {
+							if (k > 0) {
+								nTCount++;
+								if ((nTCount%2) == 1) {
+									strJ += "<i>";
+								} else {
+									strJ += "</i>";
+								}
+							}
+							QString strK;
+							QStringList lstDSplit = lstTSplit.at(k).split('D', QString::KeepEmptyParts, Qt::CaseInsensitive);
+							assert(lstDSplit.size() != 0);
+							for (int l=0; l<lstDSplit.size(); ++l) {
+								if (l > 0) {
+									nDCount++;
+									if ((nDCount%2) == 1) {
+										strK += "<b>";
+									} else {
+										strK += "</b>";
+									}
+								}
+								strK += lstDSplit.at(l);
+							}
+							strJ += strK;
+						}
+						strI += strJ;
+					}
+					strTemp += strI;
+				}
+				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toStdString();
+			}
+		}
+	}
+
+
+//} else if (strOp.compare("T") == 0) {
+//	verse.m_strTemplate += "<i>";
+//} else if (strOp.compare("t") == 0) {
+//	verse.m_strTemplate += "</i>";
+//} else if (strOp.compare("J") == 0) {
+//	verse.m_strTemplate += "<font color=\"red\">";
+//} else if (strOp.compare("j") == 0) {
+//	verse.m_strTemplate += "</font>";
+
+
 
 /*
 	std::cout << "\n============================ Element Names  =================================\n";
