@@ -815,14 +815,23 @@ int main(int argc, char *argv[])
 
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
-		assert(pBook != NULL);
+		if (pBook == NULL) {
+			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toStdString();
+			continue;
+		}
 		for (unsigned int nChp=1; nChp<=pBook->m_nNumChp; ++nChp) {
 			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
-			assert(pChapter != NULL);
+			if (pChapter == NULL) {
+				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+				continue;
+			}
 			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
 			for (unsigned int nVrs=1; nVrs<=pChapter->m_nNumVrs; ++nVrs) {
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
-				assert(pVerse != NULL);
+				if (pVerse == NULL) {
+					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toStdString();
+					continue;
+				}
 				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
 				int nJCount = 0;
 				int nTCount = 0;
