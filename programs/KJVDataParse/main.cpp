@@ -272,6 +272,76 @@ const QString g_strAsciiWordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 
 const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse text to mark parse tags -- must NOT exist in the text
 
+// ============================================================================
+// ============================================================================
+
+class CVerseTextRichifier
+{
+public:
+	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL)
+		:	m_pRichNext(pRichNext),
+			m_chrMatchChar(chrMatchChar),
+			m_pVerse(NULL),
+			m_strXlateText(strXlateText)
+	{
+
+	}
+
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL)
+		:	m_pRichNext(pRichNext),
+			m_chrMatchChar(chrMatchChar),
+			m_pVerse(pVerse)
+	{
+		assert(pVerse != NULL);
+	}
+
+	~CVerseTextRichifier()
+	{
+
+	}
+
+	QString parse(const QString &strNodeIn = QString()) const
+	{
+		if (m_chrMatchChar.isNull()) return strNodeIn;
+
+		QString strTemp;
+		QStringList lstSplit;
+
+		if (m_pVerse != NULL) {
+			lstSplit = m_pVerse->m_strTemplate.split(m_chrMatchChar);
+			assert(lstSplit.size() == (m_pVerse->m_lstWords.size() + 1));
+		} else {
+			lstSplit = strNodeIn.split(m_chrMatchChar);
+		}
+		assert(lstSplit.size() != 0);
+
+		for (int i=0; i<lstSplit.size(); ++i) {
+			if (i > 0) {
+				if (m_pVerse != NULL) {
+					strTemp += m_pVerse->m_lstWords.at(i-1);
+				} else {
+					strTemp += m_strXlateText;
+				}
+			}
+			if (m_pRichNext) {
+				strTemp += m_pRichNext->parse(lstSplit.at(i));
+			} else {
+				strTemp += lstSplit.at(i);
+			}
+		}
+
+		return strTemp;
+	}
+
+private:
+	const CVerseTextRichifier *m_pRichNext;
+	const QChar m_chrMatchChar;
+	const CVerseEntry *m_pVerse;
+	QString m_strXlateText;
+};
+
+// ============================================================================
+// ============================================================================
 
 class COSISXmlHandler : public QXmlDefaultHandler
 {
@@ -809,6 +879,9 @@ bool COSISXmlHandler::error(const QXmlParseException &exception)
 	return true;
 }
 
+// ============================================================================
+// ============================================================================
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -924,61 +997,18 @@ int main(int argc, char *argv[])
 					continue;
 				}
 				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
-				int nJCount = 0;
-				int nTCount = 0;
-				int nDCount = 0;
-				QString strTemp;
-				QStringList lstWordSplit = pVerse->m_strTemplate.split('w');
-				assert(lstWordSplit.size() == (pVerse->m_lstWords.size() + 1));
-				assert(lstWordSplit.size() != 0);
-				for (int i=0; i<lstWordSplit.size(); ++i) {
-					if (i > 0) {
-						strTemp += pVerse->m_lstWords.at(i-1);
-					}
-					QString strI;
-					QStringList lstJSplit = lstWordSplit.at(i).split('J', QString::KeepEmptyParts, Qt::CaseInsensitive);
-					assert(lstJSplit.size() != 0);
-					for (int j=0; j<lstJSplit.size(); ++j) {
-						if (j > 0) {
-							nJCount++;
-							if ((nJCount%2) == 1) {
-								strI += "<font color=\"red\">";
-							} else {
-								strI += "</font>";
-							}
-						}
-						QString strJ;
-						QStringList lstTSplit = lstJSplit.at(j).split('T', QString::KeepEmptyParts, Qt::CaseInsensitive);
-						assert(lstTSplit.size() != 0);
-						for (int k=0; k<lstTSplit.size(); ++k) {
-							if (k > 0) {
-								nTCount++;
-								if ((nTCount%2) == 1) {
-									strJ += "<i>";
-								} else {
-									strJ += "</i>";
-								}
-							}
-							QString strK;
-							QStringList lstDSplit = lstTSplit.at(k).split('D', QString::KeepEmptyParts, Qt::CaseInsensitive);
-							assert(lstDSplit.size() != 0);
-							for (int l=0; l<lstDSplit.size(); ++l) {
-								if (l > 0) {
-									nDCount++;
-									if ((nDCount%2) == 1) {
-										strK += "<b>";
-									} else {
-										strK += "</b>";
-									}
-								}
-								strK += lstDSplit.at(l);
-							}
-							strJ += strK;
-						}
-						strI += strJ;
-					}
-					strTemp += strI;
-				}
+
+				CVerseTextRichifier rich_d('d', "</b>");
+				CVerseTextRichifier rich_D('D', "<b>", &rich_d);
+				CVerseTextRichifier rich_t('t', "</i>", &rich_D);
+				CVerseTextRichifier rich_T('T', "<i>", &rich_t);
+				CVerseTextRichifier rich_j('j', "</font>", &rich_T);
+				CVerseTextRichifier rich_J('J', "<font color=\"red\">", &rich_j);
+				CVerseTextRichifier richVerseText('w', pVerse, &rich_J);
+
+				QString strTemp = richVerseText.parse();
+
+
 				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toStdString();
 				nVerseWordAccum += pVerse->m_nNumWrd;
 				nWordAccum += pVerse->m_nNumWrd;
