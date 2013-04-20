@@ -275,22 +275,77 @@ const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse t
 // ============================================================================
 // ============================================================================
 
-class CVerseTextRichifier
+class CVerseTextRichifierTags
 {
 public:
-	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL)
-		:	m_pRichNext(pRichNext),
-			m_chrMatchChar(chrMatchChar),
-			m_pVerse(NULL),
-			m_strXlateText(strXlateText)
+	CVerseTextRichifierTags()
+		:	m_strTransChangeAddedBegin("<i>"),
+			m_strTransChangeAddedEnd("</i>"),
+			m_strWordsOfJesusBegin("<font color=\"red\">"),
+			m_strWordsOfJesusEnd("</font>"),
+			m_strDivideNameBegin("<b>"),
+			m_strDivideNameEnd("</b>")
 	{
 
 	}
 
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL)
+	~CVerseTextRichifierTags()
+	{
+
+	}
+
+	QString transChangeAddedBegin() const { return m_strTransChangeAddedBegin; }
+	QString transChangeAddedEnd() const { return m_strTransChangeAddedEnd; }
+	void setTransChangeAddedTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strTransChangeAddedBegin = strTagBegin;
+		m_strTransChangeAddedEnd = strTagEnd;
+	}
+
+	QString wordsOfJesusBegin() const { return m_strWordsOfJesusBegin; }
+	QString wordsOfJesusEnd() const { return m_strWordsOfJesusEnd; }
+	void setWordsOfJesusTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strWordsOfJesusBegin = strTagBegin;
+		m_strWordsOfJesusEnd = strTagEnd;
+	}
+
+	QString divineNameBegin() const { return m_strDivideNameBegin; }
+	QString divineNameEnd() const { return m_strDivideNameEnd; }
+	void setDivineNameTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strDivideNameBegin = strTagBegin;
+		m_strDivideNameEnd = strTagEnd;
+	}
+
+private:
+	QString m_strTransChangeAddedBegin;
+	QString m_strTransChangeAddedEnd;
+	QString m_strWordsOfJesusBegin;
+	QString m_strWordsOfJesusEnd;
+	QString m_strDivideNameBegin;
+	QString m_strDivideNameEnd;
+};
+
+
+class CVerseTextRichifier
+{
+private:
+	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL)
 		:	m_pRichNext(pRichNext),
 			m_chrMatchChar(chrMatchChar),
-			m_pVerse(pVerse)
+			m_pVerse(NULL),
+			m_strXlateText(strXlateText),
+			m_bAddAnchors(false)
+	{
+
+	}
+
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false)
+		:	m_pRichNext(pRichNext),
+			m_chrMatchChar(chrMatchChar),
+			m_pVerse(pVerse),
+			m_bAddAnchors(bAddAnchors)
 	{
 		assert(pVerse != NULL);
 	}
@@ -310,6 +365,7 @@ public:
 		if (m_pVerse != NULL) {
 			lstSplit = m_pVerse->m_strTemplate.split(m_chrMatchChar);
 			assert(lstSplit.size() == (m_pVerse->m_lstWords.size() + 1));
+			assert(strNodeIn.isNull());
 		} else {
 			lstSplit = strNodeIn.split(m_chrMatchChar);
 		}
@@ -318,7 +374,9 @@ public:
 		for (int i=0; i<lstSplit.size(); ++i) {
 			if (i > 0) {
 				if (m_pVerse != NULL) {
+					if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_pVerse->m_nWrdAccum-m_pVerse->m_nNumWrd+i).asAnchor());
 					strTemp += m_pVerse->m_lstWords.at(i-1);
+					if (m_bAddAnchors) strTemp += "</a>";
 				} else {
 					strTemp += m_strXlateText;
 				}
@@ -333,11 +391,31 @@ public:
 		return strTemp;
 	}
 
+public:
+	static QString parse(const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false)
+	{
+		// Note: While it would be most optimum to reverse this and
+		//		do the verse last so we don't have to call the entire
+		//		tree for every word, we can't reverse it because doing
+		//		so then creates sub-lists of 'w' tags and then we
+		//		no longer know where we are in the list:
+		CVerseTextRichifier rich_d('d', tags.divineNameEnd());
+		CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);
+		CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
+		CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
+		CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
+		CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
+		CVerseTextRichifier richVerseText('w', pVerse, &rich_J, bAddAnchors);
+
+		return richVerseText.parse();
+	}
+
 private:
 	const CVerseTextRichifier *m_pRichNext;
 	const QChar m_chrMatchChar;
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
+	bool m_bAddAnchors;
 };
 
 // ============================================================================
@@ -1013,21 +1091,14 @@ int main(int argc, char *argv[])
 				}
 				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
 
-				CVerseTextRichifier rich_d('d', "</b>");
-				CVerseTextRichifier rich_D('D', "<b>", &rich_d);
-				CVerseTextRichifier rich_t('t', "</i>", &rich_D);
-				CVerseTextRichifier rich_T('T', "<i>", &rich_t);
-				CVerseTextRichifier rich_j('j', "</font>", &rich_T);
-				CVerseTextRichifier rich_J('J', "<font color=\"red\">", &rich_j);
-				CVerseTextRichifier richVerseText('w', pVerse, &rich_J);
-
-				QString strTemp = richVerseText.parse();
-
-
-				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toStdString();
 				nVerseWordAccum += pVerse->m_nNumWrd;
 				nWordAccum += pVerse->m_nNumWrd;
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
+
+				// Needs to be after we calculate nWordAccum above so we can output anchor tags:
+				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), true);
+
+				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toStdString();
 			}
 			if (nVerseWordAccum != pChapter->m_nNumWrd) {
 				std::cerr << QString("\n*** Error: %1 Chapter Word Count (%2) doesn't match sum of Verse Word Counts (%3)!\n")
