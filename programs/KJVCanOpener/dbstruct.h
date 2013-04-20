@@ -292,8 +292,9 @@ class CVerseEntry
 public:
 	enum PILCROW_TYPE_ENUM {
 		PTE_NONE = 0,
-		PTE_MARKER = 1,
-		PTE_EXTRA = 2
+		PTE_MARKER = 1,				// Example: {verse}[osisID=Gen.5.21]{milestone}[marker=¶,type=x-p]{/milestone}
+		PTE_MARKER_ADDED = 2,		// Example: {verse}[osisID=Gen.5.3]{milestone}[marker=¶,subType=x-added,type=x-p]{/milestone}
+		PTE_EXTRA = 3				// Example: {verse}[osisID=Gen.5.6]{milestone}[type=x-extra-p]{/milestone}
 	};
 
 	CVerseEntry()
