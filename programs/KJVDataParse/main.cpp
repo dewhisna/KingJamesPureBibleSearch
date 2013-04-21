@@ -40,6 +40,7 @@
 #include <QtGlobal>
 
 #include <iostream>
+#include <set>
 
 QMainWindow *g_pMainWindow = NULL;
 
@@ -271,6 +272,124 @@ const QString g_strAsciiWordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 //								QChar(0x0153);		// U+00153	&#339;		oe character
 
 const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse text to mark parse tags -- must NOT exist in the text
+
+// ============================================================================
+// ============================================================================
+
+static bool isSpecialWord(const QString &strWord)
+{
+	if (strWord.compare("abominations", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("am", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("amen", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("ancient", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("and", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("angel", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("Babylon", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("bishop", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("branch", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("cherub", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("comforter", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("creator", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("day", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("days", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("devil", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("dominion", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("duke", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("earth", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("elect", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("father", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("father's", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("fathers", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("ghost", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("God", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("gods", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("great", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("harlots", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("heaven", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("hell", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("highest", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("him", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("himself", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("his", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("holiness", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("holy", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("is", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("Jesus", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("Jews", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("judge", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("king", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("kings", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("kings'", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lamb", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("legion", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lion", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lord", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lord's", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lords", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("lot", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("man", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("man's", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("master", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("masters", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("men", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("men's", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("mighty", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("moon", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("mother", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("mystery", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("Nazareth", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("of", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("one", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("our", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("righteousness", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("sanctuary", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("saviour", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("sceptre", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("shepherd", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("son", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("spirit", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("spirits", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("sun", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("tabernacle", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("that", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("the", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("this", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("thy", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("unknown", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("unto", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("word", Qt::CaseInsensitive) == 0) return true;
+	if (strWord.compare("wormwood", Qt::CaseInsensitive) == 0) return true;
+
+	return false;
+}
+
+// ============================================================================
+// ============================================================================
+
+// TAltWordSet will be a set containing all of the case-forms of a given word.  It's easier
+//		to map them here as a set than in the list that the database itself uses.  The
+//		TAltWordListMap will be indexed by the Lower-Case word key and will map to
+//		the set of word forms for that key:
+typedef std::set<QString, CWordEntry::SortPredicate> TAltWordSet;
+typedef std::map<QString, TAltWordSet, CWordEntry::SortPredicate> TAltWordListMap;
+
+// WordFromWordSet - Drives word toward lower-case and returns the resulting word.  The
+//		theory is that proper names will always be capitalized and non-proper names will
+//		have mixed case, being capital only when they start a new sentence.  Thus, if we
+//		drive toward lower-case, we should have an all-lower-case word for non-proper
+//		name words and mixed-case for proper names:
+static QString WordFromWordSet(const TAltWordSet &setAltWords)
+{
+	QString strWord;
+
+	for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+		if ((strWord.isEmpty()) ||
+			(((*itrAltWrd).compare(strWord)) > 0)) strWord = *itrAltWrd;
+	}
+
+	return strWord;
+}
+
 
 // ============================================================================
 // ============================================================================
@@ -882,8 +1001,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 
 
 
-std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toStdString() << "\n";
-std::cout << verse.text().toStdString() << "\n" << verse.m_strTemplate.toStdString() << "\n" << verse.m_lstWords.join(",").toStdString() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toStdString();
+//std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toStdString() << "\n";
+//std::cout << verse.text().toStdString() << "\n" << verse.m_strTemplate.toStdString() << "\n" << verse.m_lstWords.join(",").toStdString() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toStdString();
 
 		assert(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
 		if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd)
@@ -946,7 +1065,8 @@ bool COSISXmlHandler::characters(const QString &ch)
 //		std::cout << strTemp.toStdString();
 
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
-		verse.setText(verse.text() + strTemp);
+//		verse.setText(verse.text() + strTemp);
+		verse.setText(verse.text() + (m_bInDivineName ? strTemp.toUpper() : strTemp));
 
 		assert(!strTemp.contains(g_chrParseTag, Qt::CaseInsensitive));
 		if (strTemp.contains(g_chrParseTag, Qt::CaseInsensitive)) {
@@ -1011,6 +1131,7 @@ int main(int argc, char *argv[])
 
 	const CBibleDatabase *pBibleDatabase = xmlHandler.bibleDatabase();
 
+/*
 	std::cout << QString("Bible:  Testaments: %1  Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
 						.arg(pBibleDatabase->bibleEntry().m_nNumTst)
 						.arg(pBibleDatabase->bibleEntry().m_nNumBk)
@@ -1050,8 +1171,18 @@ int main(int argc, char *argv[])
 						.toStdString();
 		}
 	}
+*/
 
 	TChapterVerseCounts lstChapterVerseCounts;
+	// mapWordList will be for ALL forms of all words so that we can get mapping/counts
+	//	for all unique forms of words.  Words in this map will NOT be indexed by the
+	//	lowercase nor the base-form of the word, but by the actual word itself.
+	//	Then, once we've used this to build all of the unique indexes for the different
+	//	word forms, we'll consolidate them and ultimately build the database entries which will
+	//	contain the wordlists by lowercase word and have the main word value and all
+	//	alternates:
+	TWordListMap mapWordList;				// mapWordList is indexed by the Word form as-is (no changes in case)
+	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase form of the Word
 
 	unsigned int nWordAccum = 0;
 	for (unsigned int nBk=1; nBk<=qMax(pBibleDatabase->bibleEntry().m_nNumBk, NUM_BK); ++nBk) {
@@ -1077,7 +1208,7 @@ int main(int argc, char *argv[])
 				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
 				continue;
 			}
-			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+//			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
 			unsigned int nVerseWordAccum = 0;
 			unsigned int nVersesExpected = qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0));
 			for (unsigned int nVrs=1; nVrs<=nVersesExpected; ++nVrs) {
@@ -1089,16 +1220,26 @@ int main(int argc, char *argv[])
 					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toStdString();
 					continue;
 				}
-				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
+//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
 
 				nVerseWordAccum += pVerse->m_nNumWrd;
 				nWordAccum += pVerse->m_nNumWrd;
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 
 				// Needs to be after we calculate nWordAccum above so we can output anchor tags:
-				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), true);
+//				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), true);
+//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toUtf8();
 
-				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toStdString();
+
+				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
+				assert(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));
+				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
+					QString strWord = pVerse->m_lstWords.at(nWrd-1);
+					CWordEntry &wordEntry = mapWordList[strWord];
+					TAltWordSet &wordSet = mapAltWordList[strWord.toLower()];
+					wordSet.insert(strWord);
+					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd);
+				}
 			}
 			if (nVerseWordAccum != pChapter->m_nNumWrd) {
 				std::cerr << QString("\n*** Error: %1 Chapter Word Count (%2) doesn't match sum of Verse Word Counts (%3)!\n")
@@ -1118,6 +1259,52 @@ int main(int argc, char *argv[])
 												.toStdString();
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
+	}
+
+
+	unsigned int nWordIndex = 0;
+	std::cout << "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n";
+
+	// We've now built a list of word indexes and alternate forms, and now we
+	//	need to take this list and convert it to the form of the database:
+	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
+	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
+		const TAltWordSet &setAltWords = itrUniqWrd->second;
+		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
+		wordEntryDb.m_bCasePreserve = false;
+		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+			TWordListMap::const_iterator itrWrd = mapWordList.find(*itrAltWrd);
+			if (itrWrd == mapWordList.end()) {
+				std::cerr << QString("\n*** Error: %1 -> %2 -- Couldn't Find it (something bad happened!)\n").arg(itrUniqWrd->first).arg(*itrAltWrd).toStdString();
+				continue;
+			}
+			wordEntryDb.m_lstAltWords.push_back(*itrAltWrd);
+			wordEntryDb.m_lstAltWordCount.push_back(itrWrd->second.m_ndxNormalizedMapping.size());
+			wordEntryDb.m_ndxNormalizedMapping.insert(wordEntryDb.m_ndxNormalizedMapping.end(), itrWrd->second.m_ndxNormalizedMapping.begin(), itrWrd->second.m_ndxNormalizedMapping.end());
+			wordEntryDb.m_strWord = WordFromWordSet(setAltWords);
+			if (isSpecialWord(*itrAltWrd)) wordEntryDb.m_bCasePreserve = true;
+		}
+
+		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
+		assert(wordEntryDb.m_lstAltWords.size() > 0);
+
+		nWordIndex++;
+		std::cout << QString("%1,\"%2\",%3,%4,").arg(nWordIndex).arg(wordEntryDb.m_strWord).arg(wordEntryDb.m_bCasePreserve ? 1 :0).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8().data();
+		for (int i=0; i<wordEntryDb.m_lstAltWords.size(); ++i) {
+			std::cout << ((i == 0) ? "\"" : ",");
+			std::cout << wordEntryDb.m_lstAltWords.at(i).toUtf8().data();
+		}
+		std::cout << "\",";
+		for (int i=0; i<wordEntryDb.m_lstAltWordCount.size(); ++i) {
+			std::cout << ((i == 0) ? "\"" : ",");
+			std::cout << QString("%1").arg(wordEntryDb.m_lstAltWordCount.at(i)).toUtf8().data();
+		}
+		std::cout << "\",";
+		for (unsigned int i=0; i<wordEntryDb.m_ndxNormalizedMapping.size(); ++i) {
+			std::cout << ((i == 0) ? "\"" : ",");
+			std::cout << QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.at(i)).toUtf8().data();
+		}
+		std::cout << "\"\r\n";
 	}
 
 
