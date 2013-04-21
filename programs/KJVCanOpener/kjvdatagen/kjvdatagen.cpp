@@ -20,6 +20,7 @@
 //		worddumpuniqlc :	Dumps all unique words lowercase, trimmed on individual lines (book name optional)
 //		altworddump :	Dumps the alternate words table (book name optional)
 //		bookdump :	Dumps the content of the specified book, one verse per line
+//		richbookdump :	Dimps the content of the specified book, one verse per line, in its richtext form
 //		summary :	Dump word usage Summary CSV (book name ignored)
 //
 // Input should be formatted so the OSIS reference is preceeded by "$$$" and
@@ -113,7 +114,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
-#include <io.h>
+//#include <io.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -123,7 +124,7 @@
 //#include <locale>
 
 #ifndef stricmp
-#define stricmp _stricmp
+#define stricmp strcasecmp
 #endif
 
 #ifndef uint32_t
@@ -540,6 +541,7 @@ int main(int argc, const char *argv[])
 	bool bDoingWordDumpUniqueLC = false;	// TRUE if dumping unique words used as lower-case keys (nBkNdx = book to output or 0 for all)
 	bool bDoingAltWordDump = false;	// TRUE if dumping the Alt Words List (nBkNdx = book to output or 0 for all)
 	bool bDoingBookDump = false;	// TRUE if dumping book content (nBkNdx = book to output or 0 for all)
+	bool bDoingRichBookDump = false;	// TRUE of dumping rich book content (nBkNdx = book to output or 0 for all)
 	bool bDoingSummary = false;		// TRUE if dumping word usage summary (always for all books)
 	bool bNeedUsage = false;		// TRUE if user needs usage info
 	int nBkNdx = 0;		// Index of Book to Output (Book Mode)
@@ -604,6 +606,9 @@ int main(int argc, const char *argv[])
 	} else if (stricmp(argv[1], "bookdump") == 0) {
 		bDoingBookDump = true;
 		// Book name is optional -- used if specified, or "all" if not
+	} else if (stricmp(argv[1], "richbookdump") == 0) {
+		bDoingRichBookDump = true;
+		// Book name is optoinal -- used if specified, or "all" if not
 	} else if (stricmp(argv[1], "summary") == 0) {
 		bDoingSummary = true;
 		// Book name is ignored
@@ -645,6 +650,7 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "      worddumpuniqlc -- Dumps all unique words lowercase (book name optional)\n");
 		fprintf(stderr, "      altworddump    -- Dumps the alternate words table (book name optional)\n");
 		fprintf(stderr, "      bookdump       -- Dumps the content of specified book (Verse per line)\n");
+		fprintf(stderr, "      richbookdump   -- Dumps the rich content of specified book (Verse per line)\n"); 
 		fprintf(stderr, "      summary        -- Dump word usage Summary CSV (book name ignored)\n");
 		fprintf(stderr, "\n\n");
 		fprintf(stderr, "  Input should be specialized Sword dump file with both plain\n");
@@ -670,8 +676,9 @@ int main(int argc, const char *argv[])
 	if (strcmp(strOutFilename, "-") != 0) {
 		fileOut = fopen(strOutFilename, "wb");
 	} else {
-		_setmode(_fileno(stdout), _O_BINARY);
-		fileOut = stdout;
+//		_setmode(_fileno(stdout), _O_BINARY);
+//		fileOut = stdout;
+		fileOut = freopen(NULL, "wb", stdout);
 		strOutFilename = "<stdout>";
 	}
 	if (fileOut == NULL) {
@@ -1190,6 +1197,10 @@ int main(int argc, const char *argv[])
 		if ((bDoingBookDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
 			fprintf(fileOut, "%s\r\n", buffPlain);
 		}
+		
+		if ((bDoingRichBookDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
+			fprintf(fileOut, "%s\r\n", buffRich);
+		}
 
 		// Do this after the printing because either we are on the same
 		//		chp/bk in which case we didn't print the output line above
@@ -1272,7 +1283,7 @@ int main(int argc, const char *argv[])
 				if (!strAltWords.empty()) strAltWords += ",";
 				strAltWords += *itrAltWrd;
 				if (!strAltWordCounts.empty()) strAltWordCounts += ",";
-				sprintf(word, "%d", itrWrd->second.m_ndxMapping.size());
+				sprintf(word, "%lu", itrWrd->second.m_ndxMapping.size());
 				strAltWordCounts += word;
 
 				if (isSpecialWord(*itrAltWrd)) bPreserve = true;
@@ -1302,7 +1313,7 @@ int main(int argc, const char *argv[])
 								strAltWordCounts.c_str(),
 								strNormalMap.c_str());
 		}
-		for (int i=0; i<(g_NormalizationVerification.size()-1); ++i) {
+		for (unsigned int i=0; i<(g_NormalizationVerification.size()-1); ++i) {
 			if (g_NormalizationVerification[i+1] <= g_NormalizationVerification[i]) {
 				fprintf(stderr, "Normalization Verification Failure: %d=%d, %d=%d\n", i, g_NormalizationVerification[i], i+1, g_NormalizationVerification[i+1]);
 			}
