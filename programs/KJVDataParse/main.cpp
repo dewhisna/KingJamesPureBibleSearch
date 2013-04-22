@@ -400,10 +400,12 @@ public:
 	CVerseTextRichifierTags()
 		:	m_strTransChangeAddedBegin("<i>"),
 			m_strTransChangeAddedEnd("</i>"),
-			m_strWordsOfJesusBegin("<font color=\"red\">"),
-			m_strWordsOfJesusEnd("</font>"),
-			m_strDivideNameBegin("<b>"),
-			m_strDivideNameEnd("</b>")
+			m_strWordsOfJesusBegin("<font color=\"red\"> "),
+			m_strWordsOfJesusEnd("</font> "),
+//			m_strDivideNameBegin("<b>"),
+//			m_strDivideNameEnd("</b>")
+			m_strDivideNameBegin("<font size=\"-1\">"),
+			m_strDivideNameEnd("</font>")
 	{
 
 	}
@@ -474,7 +476,18 @@ private:
 
 	}
 
-	QString parse(const QString &strNodeIn = QString()) const
+	class CRichifierBaton
+	{
+	public:
+		CRichifierBaton()
+		{
+
+		}
+
+		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
+	};
+
+	QString parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const
 	{
 		if (m_chrMatchChar.isNull()) return strNodeIn;
 
@@ -483,7 +496,7 @@ private:
 
 		if (m_pVerse != NULL) {
 			lstSplit = m_pVerse->m_strTemplate.split(m_chrMatchChar);
-			assert(lstSplit.size() == (m_pVerse->m_lstWords.size() + 1));
+			assert(lstSplit.size() == (m_pVerse->m_lstRichWords.size() + 1));
 			assert(strNodeIn.isNull());
 		} else {
 			lstSplit = strNodeIn.split(m_chrMatchChar);
@@ -494,14 +507,25 @@ private:
 			if (i > 0) {
 				if (m_pVerse != NULL) {
 					if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_pVerse->m_nWrdAccum-m_pVerse->m_nNumWrd+i).asAnchor());
-					strTemp += m_pVerse->m_lstWords.at(i-1);
+					if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
+						strTemp += m_pVerse->m_lstRichWords.at(i-1).left(1)
+								+ parseBaton.m_strDivineNameFirstLetterParseText
+								+ m_pVerse->m_lstRichWords.at(i-1).mid(1);
+						parseBaton.m_strDivineNameFirstLetterParseText.clear();
+					} else {
+						strTemp += m_pVerse->m_lstRichWords.at(i-1);
+					}
 					if (m_bAddAnchors) strTemp += "</a>";
 				} else {
-					strTemp += m_strXlateText;
+					if (m_chrMatchChar == QChar('D')) {
+						parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
+					} else {
+						strTemp += m_strXlateText;
+					}
 				}
 			}
 			if (m_pRichNext) {
-				strTemp += m_pRichNext->parse(lstSplit.at(i));
+				strTemp += m_pRichNext->parse(parseBaton, lstSplit.at(i));
 			} else {
 				strTemp += lstSplit.at(i);
 			}
@@ -519,14 +543,17 @@ public:
 		//		so then creates sub-lists of 'w' tags and then we
 		//		no longer know where we are in the list:
 		CVerseTextRichifier rich_d('d', tags.divineNameEnd());
-		CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);
+		CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
 		CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
 		CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
 		CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
 		CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
 		CVerseTextRichifier richVerseText('w', pVerse, &rich_J, bAddAnchors);
 
-		return richVerseText.parse();
+		CRichifierBaton baton;
+		QString strTemp = richVerseText.parse(baton);
+		if (pVerse->m_nPilcrow) strTemp = QChar(0xB6) + strTemp;
+		return strTemp;
 	}
 
 private:
@@ -790,7 +817,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
 			}
 		}
-	} else if ((m_bInVerse) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
+		m_bInNotes = true;
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
 		//	PTE_MARKER			Example: {verse}[osisID=Gen.5.21]{milestone}[marker=¶,type=x-p]{/milestone}
 		//	PTE_MARKER_ADDED	Example: {verse}[osisID=Gen.5.3]{milestone}[marker=¶,subType=x-added,type=x-p]{/milestone}
 		//	PTE_EXTRA			Example: {verse}[osisID=Gen.5.6]{milestone}[type=x-extra-p]{/milestone}
@@ -805,12 +834,12 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else if (((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("x-extra-p", Qt::CaseInsensitive) == 0)) {
 			verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
 		}
-	} else if ((m_bInVerse) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
 		verse.m_lstParseStack.push_back("L:" + stringifyAttributes(atts));
-	} else if ((m_bInVerse) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "type");
 		if ((ndx != -1) && (atts.value(ndx).compare("added", Qt::CaseInsensitive) == 0)) {
 			m_bInTransChangeAdded = true;
@@ -818,9 +847,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.setText(verse.text() + g_chrParseTag);
 			verse.m_lstParseStack.push_back("T:");
 		}
-	} else if ((m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
-		m_bInNotes = true;
-	} else if ((m_bInVerse) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "who");
 		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
 			m_bInWordsOfJesus = true;
@@ -828,7 +855,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.setText(verse.text() + g_chrParseTag);
 			verse.m_lstParseStack.push_back("J:");
 		}
-	} else if ((m_bInVerse) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
 		m_bInDivineName = true;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
@@ -895,7 +922,9 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		unsigned int nWordCount = 0;
 		bool bInWord = false;
 		QString strWord;
+		QString strRichWord;
 		QStringList lstWords;
+		QStringList lstRichWords;
 		bool bHaveDoneTemplateWord = false;				// Used to tag words crossing parse-stack boundary (i.e. half the word is inside the parse operator and half is outside, like the word "inasmuch")
 		while (!strTemp.isEmpty()) {
 			bool bIsHyphen = g_strHyphens.contains(strTemp.at(0));
@@ -944,6 +973,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 					} else if (bIsApostrophe) {
 						strWord += '\'';
 					} else strWord += strTemp.at(0);
+					strRichWord += strTemp.at(0);
 				} else {
 					if (bInWord) {
 						nWordCount++;
@@ -951,6 +981,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 						if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
 						lstWords.append(strWord);
 						strWord.clear();
+						lstRichWords.append(strRichWord);
+						strRichWord.clear();
 						bInWord = false;
 					}
 					bHaveDoneTemplateWord = false;
@@ -975,6 +1007,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 				} else {
 					strWord += strTemp.at(0);			// All other UTF-8 leave untranslated
 				}
+				strRichWord += strTemp.at(0);
 			}
 
 			strTemp = strTemp.right(strTemp.size()-1);
@@ -988,6 +1021,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 			if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
 			lstWords.append(strWord);
 			strWord.clear();
+			lstRichWords.append(strRichWord);
+			strRichWord.clear();
 			bInWord = false;
 		}
 		bHaveDoneTemplateWord = false;
@@ -998,6 +1033,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumWrd += nWordCount;
 		verse.m_nNumWrd += nWordCount;
 		verse.m_lstWords.append(lstWords);
+		verse.m_lstRichWords.append(lstRichWords);
 
 
 
@@ -1011,6 +1047,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_ndxCurrent.setVerse(0);
 		m_ndxCurrent.setWord(0);
 		m_bInVerse = false;
+	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
+		m_bInNotes = false;
 	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = false;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
@@ -1021,8 +1059,6 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 		verse.setText(verse.text() + g_chrParseTag);
 		verse.m_lstParseStack.push_back("t:");
-	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
-		m_bInNotes = false;
 	} else if ((m_bInWordsOfJesus) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		m_bInWordsOfJesus = false;
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
@@ -1227,8 +1263,11 @@ int main(int argc, char *argv[])
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 
 				// Needs to be after we calculate nWordAccum above so we can output anchor tags:
-//				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), true);
-//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toUtf8();
+//				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false);
+//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toUtf8().data();
+
+				QStringList lstTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false).split('\"');
+				std::cout << lstTemp.join("\"\"").toUtf8().data() << "\r\n";
 
 
 				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
@@ -1262,8 +1301,8 @@ int main(int argc, char *argv[])
 	}
 
 
-	unsigned int nWordIndex = 0;
-	std::cout << "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n";
+//	unsigned int nWordIndex = 0;
+//	std::cout << "WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n";
 
 	// We've now built a list of word indexes and alternate forms, and now we
 	//	need to take this list and convert it to the form of the database:
@@ -1288,6 +1327,7 @@ int main(int argc, char *argv[])
 		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
 		assert(wordEntryDb.m_lstAltWords.size() > 0);
 
+/*
 		nWordIndex++;
 		std::cout << QString("%1,\"%2\",%3,%4,").arg(nWordIndex).arg(wordEntryDb.m_strWord).arg(wordEntryDb.m_bCasePreserve ? 1 :0).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8().data();
 		for (int i=0; i<wordEntryDb.m_lstAltWords.size(); ++i) {
@@ -1305,6 +1345,8 @@ int main(int argc, char *argv[])
 			std::cout << QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.at(i)).toUtf8().data();
 		}
 		std::cout << "\"\r\n";
+*/
+
 	}
 
 

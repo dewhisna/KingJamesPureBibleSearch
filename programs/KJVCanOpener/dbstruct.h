@@ -319,6 +319,7 @@ public:
 #ifdef OSIS_PARSER_BUILD
 	QString m_strTemplate;			// Rich Text Creation Template during build -- during write, we'll replace m_strText with this and generate the text dynamically in the app
 	QStringList m_lstWords;			// Word List for parse extraction
+	QStringList m_lstRichWords;		// Word List as Rich Text for parse extraction
 	QStringList m_lstParseStack;	// Parse operation stack (used to parse red-letter tags, added word tags, morphology, concordance references, etc.
 #endif
 
