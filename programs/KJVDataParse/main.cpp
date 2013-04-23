@@ -1266,9 +1266,29 @@ int main(int argc, char *argv[])
 //				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false);
 //				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toUtf8().data();
 
-				QStringList lstTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false).split('\"');
-				std::cout << lstTemp.join("\"\"").toUtf8().data() << "\r\n";
+//				QStringList lstTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false).split('\"');
+//				std::cout << lstTemp.join("\"\"").toUtf8().data() << "\r\n";
 
+				std::cout << g_arrBooks[nBk-1].m_strOsisAbbr.toStdString() << QString(" %1:%2 : ").arg(nChp).arg(nVrs).toStdString();
+				if (pVerse->m_nPilcrow == CVerseEntry::PTE_NONE) {
+					std::cout << "false \n";
+				} else {
+					std::cout << "true ";
+					switch (pVerse->m_nPilcrow) {
+						case CVerseEntry::PTE_MARKER:
+							std::cout << "(Marker)";
+							break;
+						case CVerseEntry::PTE_MARKER_ADDED:
+							std::cout << "(Added)";
+							break;
+						case CVerseEntry::PTE_EXTRA:
+							std::cout << "(Extra)";
+							break;
+						default:
+							break;
+					}
+					std::cout << "\n";
+				}
 
 				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
 				assert(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));

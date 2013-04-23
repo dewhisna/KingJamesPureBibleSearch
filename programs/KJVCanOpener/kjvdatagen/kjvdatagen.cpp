@@ -543,6 +543,7 @@ int main(int argc, const char *argv[])
 	bool bDoingBookDump = false;	// TRUE if dumping book content (nBkNdx = book to output or 0 for all)
 	bool bDoingRichBookDump = false;	// TRUE of dumping rich book content (nBkNdx = book to output or 0 for all)
 	bool bDoingSummary = false;		// TRUE if dumping word usage summary (always for all books)
+	bool bDoingPilcrowDump = false;	// TRUE if dumping pilcrow usage (nBkNdx = book to output or 0 for all)
 	bool bNeedUsage = false;		// TRUE if user needs usage info
 	int nBkNdx = 0;		// Index of Book to Output (Book Mode)
 	int nCurBk = 0;		// Current book output (Layout Mode)
@@ -612,6 +613,9 @@ int main(int argc, const char *argv[])
 	} else if (stricmp(argv[1], "summary") == 0) {
 		bDoingSummary = true;
 		// Book name is ignored
+	} else if (stricmp(argv[1], "pilcrowdump") == 0) {
+		bDoingPilcrowDump = true;
+		// Book name is optoinal -- used if specified, or "all" if not
 	} else {
 		bNeedUsage = true;
 	}
@@ -652,6 +656,7 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "      bookdump       -- Dumps the content of specified book (Verse per line)\n");
 		fprintf(stderr, "      richbookdump   -- Dumps the rich content of specified book (Verse per line)\n"); 
 		fprintf(stderr, "      summary        -- Dump word usage Summary CSV (book name ignored)\n");
+		fprintf(stderr, "      pilcrowdump    -- Dump pilcrow usage (book name optional)\n");
 		fprintf(stderr, "\n\n");
 		fprintf(stderr, "  Input should be specialized Sword dump file with both plain\n");
 		fprintf(stderr, "    and rich text.  Use '-' for filename for <stdin>/<stdout>.\n");
@@ -1182,6 +1187,10 @@ int main(int argc, const char *argv[])
 			fprintf(stderr, "Pilcrow Mismatch in file: %s %0d.%0d  (%s)\n", g_arrstrBkAbbr[nBk-1], nChp, nVrs, (bIsPilcrowPlain ? "Plain" : "Rich"));
 		}
 #endif
+
+		if ((bDoingPilcrowDump) && ((nBkNdx == 0) || (nBk == nBkNdx))) {
+			fprintf(fileOut, "%s %0d:%0d : %s %s\n", g_arrstrBkAbbr[nBk-1], nChp, nVrs, (bIsPilcrow ? "true" : "false"), (bIsPilcrow ? ((bIsPilcrowPlain && bIsPilcrowRich) ? "(both)" : ((bIsPilcrowPlain ? "(plain)" : "(rich)"))) : ""));
+		}
 
 		if (bDoingLayout) {
 			// Output the current one we were processing just before transitioning:
