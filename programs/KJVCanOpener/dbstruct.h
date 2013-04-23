@@ -514,6 +514,10 @@ public:
 	}
 	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
+	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
+	{
+		return m_mapFootnotes;
+	}
 	inline const CPhraseList &phraseList() const						// Returns the Common Phrases List from the Main Database for this Bible Database
 	{
 		return m_lstCommonPhrases;
