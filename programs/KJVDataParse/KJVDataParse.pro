@@ -12,6 +12,12 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+CODECFORSRC = UTF-8
+CODECFORTR  = UTF-8
+
+TRANSLATIONS += \
+		kjvdataparse_en.ts \
+		kjvdataparse_fr.ts
 
 SOURCES += main.cpp \
     ../KJVCanOpener/dbstruct.cpp \

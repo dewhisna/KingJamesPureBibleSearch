@@ -157,6 +157,15 @@ bool CBuildDatabase::BuildTestamentTable()
 	} else {
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
+			// Open the table data file:
+			QFile fileTestament(QString("../KJVCanOpener/db/data/TESTAMENT.csv"));
+			while (1) {
+				if (!fileTestament.open(QIODevice::ReadOnly)) {
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
+							QObject::tr("Failed to open %1 for reading.").arg(fileTestament.fileName()),
+							QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+				} else break;
+			}
 
 			// Create the table in the database:
 			strCmd = QString("create table TESTAMENT "
@@ -167,34 +176,50 @@ bool CBuildDatabase::BuildTestamentTable()
 						QObject::tr("Failed to create table for TESTAMENT\n%1").arg(queryCreate.lastError().text()),
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
-				// Populate table:
+				// Read file and populate table:
+				CCSVStream csv(&fileTestament);
+
+				QStringList slHeaders;
+				csv >> slHeaders;              // Read Headers (verify and discard)
+
+				if ((slHeaders.size()!=2) ||
+					(slHeaders.at(0).compare("TstNdx") != 0) ||
+					(slHeaders.at(1).compare("TstName") != 0)) {
+					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for TESTAMENT data file!"),
+										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+						fileTestament.close();
+						return false;
+					}
+				}
+
 				QSqlQuery queryInsert(m_myDatabase);
-				bool bSuccess = true;
-				bSuccess = queryInsert.exec("BEGIN TRANSACTION");
-				strCmd = QString("INSERT INTO TESTAMENT "
-									"(TstNdx, TstName) "
-									"VALUES (:TstNdx, :TstName)");
+				queryInsert.exec("BEGIN TRANSACTION");
 
-				if (bSuccess) {
+				while (!csv.atEndOfStream()) {
+					QStringList sl;
+					csv >> sl;
+
+					assert(sl.count() == 2);
+					if (sl.count() < 2) continue;
+
+					strCmd = QString("INSERT INTO TESTAMENT "
+										"(TstNdx, TstName) "
+										"VALUES (:TstNdx, :TstName)");
 					queryInsert.prepare(strCmd);
-					queryInsert.bindValue(":TstNdx", 1);
-					queryInsert.bindValue(":TstName", QString("Old Testament"));
-					bSuccess = queryInsert.exec();
-				}
+					queryInsert.bindValue(":TstNdx", sl.at(0).toUInt());
+					queryInsert.bindValue(":TstName", sl.at(1));
 
-				if (bSuccess) {
-					queryInsert.prepare(strCmd);
-					queryInsert.bindValue(":TstNdx", 2);
-					queryInsert.bindValue(":TstName", QString("New Testament"));
-					bSuccess = queryInsert.exec();
+					if (!queryInsert.exec()) {
+						if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for TESTAMENT!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)),
+												QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+							fileTestament.close();
+							return false;
+						}
+					}
 				}
+				queryInsert.exec("COMMIT");
 
-				bSuccess = bSuccess && queryInsert.exec("COMMIT");
-
-				if (!bSuccess) {
-					QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for TESTAMENT!\n%1").arg(queryInsert.lastError().text()));
-					return false;
-				}
+				fileTestament.close();
 			}
 		}
 	}

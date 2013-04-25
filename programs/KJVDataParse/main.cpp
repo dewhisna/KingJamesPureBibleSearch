@@ -25,6 +25,8 @@
 #include "../KJVCanOpener/BuildDB.h"
 
 #include <QCoreApplication>
+#include <QTranslator>
+#include <QLibraryInfo>
 #include <QObject>
 #include <QMainWindow>
 #include <QDir>
@@ -44,11 +46,12 @@
 #include <set>
 
 QMainWindow *g_pMainWindow = NULL;
+QTranslator g_qtTranslator;
 
 #define NUM_BK 66u
-//#define NUM_BK_OT 39
-//#define NUM_BK_NT 27
-#define NUM_TST 2
+#define NUM_BK_OT 39u
+#define NUM_BK_NT 27u
+#define NUM_TST 2u
 
 typedef QList<QStringList> TChapterVerseCounts;
 
@@ -123,87 +126,103 @@ const QString g_arrChapterVerseCounts[NUM_BK] =
 };
 
 typedef struct {
-	const QString m_strName;
-	const QString m_strOsisAbbr;
-	const QString m_strTableName;
-	const QString m_strCategory;
-	const QString m_strDescription;
+	QString m_strName;
+	QString m_strOsisAbbr;
+	QString m_strTableName;
+	QString m_strCategory;
+	QString m_strDescription;
 } TBook;
 
-TBook g_arrBooks[NUM_BK] =
+TBook g_arrBooks[NUM_BK];
+static void g_setBooks()
 {
-	{ QObject::tr("Genesis"), "Gen", "GEN", QObject::tr("Law"), QObject::tr("The First Book of Moses") },
-	{ QObject::tr("Exodus"), "Exod", "EXOD", QObject::tr("Law"), QObject::tr("The Second Book of Moses") },
-	{ QObject::tr("Leviticus"), "Lev", "LEV", QObject::tr("Law"), QObject::tr("The Third Book of Moses") },
-	{ QObject::tr("Numbers"), "Num", "NUM", QObject::tr("Law"), QObject::tr("The Fourth Book of Moses") },
-	{ QObject::tr("Deuteronomy"), "Deut", "DEUT", QObject::tr("Law"), QObject::tr("The Fifth Book of Moses") },
-	{ QObject::tr("Joshua"), "Josh", "JOSH", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("Judges"), "Judg", "JUDG", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("Ruth"), "Ruth", "RUTH", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("1 Samuel"), "1Sam", "SAM1", QObject::tr("OT Narative"), QObject::tr("The First Book of Samuel Otherwise Called, The First Book of the Kings") },
-	{ QObject::tr("2 Samuel"), "2Sam", "SAM2", QObject::tr("OT Narative"), QObject::tr("The Second Book of Samuel Otherwise Called, The Second Book of the Kings") },
-	{ QObject::tr("1 Kings"), "1Kgs", "KGS1", QObject::tr("OT Narative"), QObject::tr("The First Book of the Kings Commonly Called, The Third Book of the Kings") },
-	{ QObject::tr("2 Kings"), "2Kgs", "KGS2", QObject::tr("OT Narative"), QObject::tr("The Second Book of the Kings Commonly Called, The Fourth Book of the Kings") },
-	{ QObject::tr("1 Chronicles"), "1Chr", "CHR1", QObject::tr("OT Narative"), QObject::tr("The First Book of the Chronicles") },
-	{ QObject::tr("2 Chronicles"), "2Chr", "CHR2", QObject::tr("OT Narative"), QObject::tr("The Second Book of the Chronicles") },
-	{ QObject::tr("Ezra"), "Ezra", "EZRA", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("Nehemiah"), "Neh", "NEH", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("Esther"), "Esth", "ESTH", QObject::tr("OT Narative"), "" },
-	{ QObject::tr("Job"), "Job", "JOB", QObject::tr("Wisdom"), "" },
-	{ QObject::tr("Psalms"), "Ps", "PS", QObject::tr("Wisdom"), "" },
-	{ QObject::tr("Proverbs"), "Prov", "PROV", QObject::tr("Wisdom"), "" },
-	{ QObject::tr("Ecclesiastes"), "Eccl", "ECCL", QObject::tr("Wisdom"), QObject::tr("Ecclesiastes; Or, The Preacher") },
-	{ QObject::tr("Song Of Solomon"), "Song", "SONG", QObject::tr("Wisdom"), "" },
-	{ QObject::tr("Isaiah"), "Isa", "ISA", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Isaiah") },
-	{ QObject::tr("Jeremiah"), "Jer", "JER", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Jeremiah") },
-	{ QObject::tr("Lamentations"), "Lam", "LAM", QObject::tr("Major Prophets"), QObject::tr("The Lamentations of Jeremiah") },
-	{ QObject::tr("Ezekiel"), "Ezek", "EZEK", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Ezekiel") },
-	{ QObject::tr("Daniel"), "Dan", "DAN", QObject::tr("Major Prophets"), QObject::tr("The Book of <i>the Prophet</i> Daniel") },
-	{ QObject::tr("Hosea"), "Hos", "HOS", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Joel"), "Joel", "JOEL", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Amos"), "Amos", "AMOS", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Obadiah"), "Obad", "OBAD", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Jonah"), "Jonah", "JONAH", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Micah"), "Mic", "MIC", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Nahum"), "Nah", "NAH", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Habakkuk"), "Hab", "HAB", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Zephaniah"), "Zeph", "ZEPH", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Haggai"), "Hag", "HAG", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Zechariah"), "Zech", "ZECH", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Malachi"), "Mal", "MAL", QObject::tr("Minor Prophets"), "" },
-	{ QObject::tr("Matthew"), "Matt", "MATT", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Matthew") },
-	{ QObject::tr("Mark"), "Mark", "MARK", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Mark") },
-	{ QObject::tr("Luke"), "Luke", "LUKE", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Luke") },
-	{ QObject::tr("John"), "John", "JOHN", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint John") },
-	{ QObject::tr("Acts"), "Acts", "ACTS", QObject::tr("NT Narative"), QObject::tr("The Acts of the Apostles") },
-	{ QObject::tr("Romans"), "Rom", "ROM", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Romans") },
-	{ QObject::tr("1 Corinthians"), "1Cor", "COR1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to the Corinthians") },
-	{ QObject::tr("2 Corinthians"), "2Cor", "COR2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to the Corinthians") },
-	{ QObject::tr("Galatians"), "Gal", "GAL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Galatians") },
-	{ QObject::tr("Ephesians"), "Eph", "EPH", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Ephesians") },
-	{ QObject::tr("Philippians"), "Phil", "PHIL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Philippians") },
-	{ QObject::tr("Colossians"), "Col", "COL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Colossians") },
-	{ QObject::tr("1 Thessalonians"), "1Thess", "THESS1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to the Thessalonians") },
-	{ QObject::tr("2 Thessalonians"), "2Thess", "THESS2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to the Thessalonains") },
-	{ QObject::tr("1 Timothy"), "1Tim", "TIM1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to Timothy") },
-	{ QObject::tr("2 Timothy"), "2Tim", "TIM2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to Timothy") },
-	{ QObject::tr("Titus"), "Titus", "TITUS", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Titus") },
-	{ QObject::tr("Philemon"), "Phlm", "PHLM", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Philemon") },
-	{ QObject::tr("Hebrews"), "Heb", "HEB", QObject::tr("General Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews") },
-	{ QObject::tr("James"), "Jas", "JAS", QObject::tr("General Epistles"), QObject::tr("The General Epistle of James") },
-	{ QObject::tr("1 Peter"), "1Pet", "PET1", QObject::tr("General Epistles"), QObject::tr("The First General Epistle of Peter") },
-	{ QObject::tr("2 Peter"), "2Pet", "PET2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of Peter") },
-	{ QObject::tr("1 John"), "1John", "JOHN1", QObject::tr("General Epistles"), QObject::tr("The First General Epistle of John") },
-	{ QObject::tr("2 John"), "2John", "JOHN2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of John") },
-	{ QObject::tr("3 John"), "3John", "JOHN3", QObject::tr("General Epistles"), QObject::tr("The Third General Epistle of John") },
-	{ QObject::tr("Jude"), "Jude", "JUDE", QObject::tr("General Epistles"), QObject::tr("The General Epistle of Jude") },
-	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
-};
+	const TBook arrBooks[NUM_BK] =
+	{
+		{ QObject::tr("Genesis"), "Gen", "GEN", QObject::tr("Law"), QObject::tr("The First Book of Moses") },
+		{ QObject::tr("Exodus"), "Exod", "EXOD", QObject::tr("Law"), QObject::tr("The Second Book of Moses") },
+		{ QObject::tr("Leviticus"), "Lev", "LEV", QObject::tr("Law"), QObject::tr("The Third Book of Moses") },
+		{ QObject::tr("Numbers"), "Num", "NUM", QObject::tr("Law"), QObject::tr("The Fourth Book of Moses") },
+		{ QObject::tr("Deuteronomy"), "Deut", "DEUT", QObject::tr("Law"), QObject::tr("The Fifth Book of Moses") },
+		{ QObject::tr("Joshua"), "Josh", "JOSH", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("Judges"), "Judg", "JUDG", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("Ruth"), "Ruth", "RUTH", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("1 Samuel"), "1Sam", "SAM1", QObject::tr("OT Narative"), QObject::tr("The First Book of Samuel Otherwise Called, The First Book of the Kings") },
+		{ QObject::tr("2 Samuel"), "2Sam", "SAM2", QObject::tr("OT Narative"), QObject::tr("The Second Book of Samuel Otherwise Called, The Second Book of the Kings") },
+		{ QObject::tr("1 Kings"), "1Kgs", "KGS1", QObject::tr("OT Narative"), QObject::tr("The First Book of the Kings Commonly Called, The Third Book of the Kings") },
+		{ QObject::tr("2 Kings"), "2Kgs", "KGS2", QObject::tr("OT Narative"), QObject::tr("The Second Book of the Kings Commonly Called, The Fourth Book of the Kings") },
+		{ QObject::tr("1 Chronicles"), "1Chr", "CHR1", QObject::tr("OT Narative"), QObject::tr("The First Book of the Chronicles") },
+		{ QObject::tr("2 Chronicles"), "2Chr", "CHR2", QObject::tr("OT Narative"), QObject::tr("The Second Book of the Chronicles") },
+		{ QObject::tr("Ezra"), "Ezra", "EZRA", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("Nehemiah"), "Neh", "NEH", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("Esther"), "Esth", "ESTH", QObject::tr("OT Narative"), "" },
+		{ QObject::tr("Job"), "Job", "JOB", QObject::tr("Wisdom"), "" },
+		{ QObject::tr("Psalms"), "Ps", "PS", QObject::tr("Wisdom"), "" },
+		{ QObject::tr("Proverbs"), "Prov", "PROV", QObject::tr("Wisdom"), "" },
+		{ QObject::tr("Ecclesiastes"), "Eccl", "ECCL", QObject::tr("Wisdom"), QObject::tr("Ecclesiastes; Or, The Preacher") },
+		{ QObject::tr("Song Of Solomon"), "Song", "SONG", QObject::tr("Wisdom"), "" },
+		{ QObject::tr("Isaiah"), "Isa", "ISA", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Isaiah") },
+		{ QObject::tr("Jeremiah"), "Jer", "JER", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Jeremiah") },
+		{ QObject::tr("Lamentations"), "Lam", "LAM", QObject::tr("Major Prophets"), QObject::tr("The Lamentations of Jeremiah") },
+		{ QObject::tr("Ezekiel"), "Ezek", "EZEK", QObject::tr("Major Prophets"), QObject::tr("The Book of the Prophet Ezekiel") },
+		{ QObject::tr("Daniel"), "Dan", "DAN", QObject::tr("Major Prophets"), QObject::tr("The Book of <i>the Prophet</i> Daniel") },
+		{ QObject::tr("Hosea"), "Hos", "HOS", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Joel"), "Joel", "JOEL", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Amos"), "Amos", "AMOS", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Obadiah"), "Obad", "OBAD", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Jonah"), "Jonah", "JONAH", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Micah"), "Mic", "MIC", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Nahum"), "Nah", "NAH", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Habakkuk"), "Hab", "HAB", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Zephaniah"), "Zeph", "ZEPH", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Haggai"), "Hag", "HAG", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Zechariah"), "Zech", "ZECH", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Malachi"), "Mal", "MAL", QObject::tr("Minor Prophets"), "" },
+		{ QObject::tr("Matthew"), "Matt", "MATT", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Matthew") },
+		{ QObject::tr("Mark"), "Mark", "MARK", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Mark") },
+		{ QObject::tr("Luke"), "Luke", "LUKE", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Luke") },
+		{ QObject::tr("John"), "John", "JOHN", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint John") },
+		{ QObject::tr("Acts"), "Acts", "ACTS", QObject::tr("NT Narative"), QObject::tr("The Acts of the Apostles") },
+		{ QObject::tr("Romans"), "Rom", "ROM", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Romans") },
+		{ QObject::tr("1 Corinthians"), "1Cor", "COR1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to the Corinthians") },
+		{ QObject::tr("2 Corinthians"), "2Cor", "COR2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to the Corinthians") },
+		{ QObject::tr("Galatians"), "Gal", "GAL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Galatians") },
+		{ QObject::tr("Ephesians"), "Eph", "EPH", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Ephesians") },
+		{ QObject::tr("Philippians"), "Phil", "PHIL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Philippians") },
+		{ QObject::tr("Colossians"), "Col", "COL", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Colossians") },
+		{ QObject::tr("1 Thessalonians"), "1Thess", "THESS1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to the Thessalonians") },
+		{ QObject::tr("2 Thessalonians"), "2Thess", "THESS2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to the Thessalonains") },
+		{ QObject::tr("1 Timothy"), "1Tim", "TIM1", QObject::tr("Pauline Epistles"), QObject::tr("The First Epistle of Paul the Apostle to Timothy") },
+		{ QObject::tr("2 Timothy"), "2Tim", "TIM2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to Timothy") },
+		{ QObject::tr("Titus"), "Titus", "TITUS", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Titus") },
+		{ QObject::tr("Philemon"), "Phlm", "PHLM", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Philemon") },
+		{ QObject::tr("Hebrews"), "Heb", "HEB", QObject::tr("General Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews") },
+		{ QObject::tr("James"), "Jas", "JAS", QObject::tr("General Epistles"), QObject::tr("The General Epistle of James") },
+		{ QObject::tr("1 Peter"), "1Pet", "PET1", QObject::tr("General Epistles"), QObject::tr("The First General Epistle of Peter") },
+		{ QObject::tr("2 Peter"), "2Pet", "PET2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of Peter") },
+		{ QObject::tr("1 John"), "1John", "JOHN1", QObject::tr("General Epistles"), QObject::tr("The First General Epistle of John") },
+		{ QObject::tr("2 John"), "2John", "JOHN2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of John") },
+		{ QObject::tr("3 John"), "3John", "JOHN3", QObject::tr("General Epistles"), QObject::tr("The Third General Epistle of John") },
+		{ QObject::tr("Jude"), "Jude", "JUDE", QObject::tr("General Epistles"), QObject::tr("The General Epistle of Jude") },
+		{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
+	};
 
-const QString g_arrstrTstNames[NUM_TST] =
+	for (unsigned int i=0; i<NUM_BK; ++i) {
+		g_arrBooks[i] = arrBooks[i];
+	}
+}
+
+QString g_arrstrTstNames[NUM_TST];
+static void g_setTstNames()
+{
+	const QString arrstrTstNames[NUM_TST] =
 		{	QObject::tr("Old Testament"),
 			QObject::tr("New Testament")
 		};
+
+	for (unsigned int i=0; i<NUM_TST; ++i) {
+		g_arrstrTstNames[i] = arrstrTstNames[i];
+	}
+}
 
 
 // TODO : CLEAN
@@ -594,6 +613,8 @@ public:
 			m_bInWordsOfJesus(false),
 			m_bInDivineName(false)
 	{
+		g_setBooks();
+		g_setTstNames();
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString()));		// Note: We'll set the name and description later in the reading of the data
 		for (unsigned int i=0; i<NUM_BK; ++i) {
 			m_lstOsisBookList.append(g_arrBooks[i].m_strOsisAbbr);
@@ -699,13 +720,25 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 */
 
 	int ndx = -1;
-	int nTst = m_pBibleDatabase->m_lstTestaments.size();
+	unsigned int nTst = m_pBibleDatabase->m_lstTestaments.size();
 	int nBk = -1;
 
 	if (localName.compare("osisText", Qt::CaseInsensitive) == 0)  {
 		ndx = findAttribute(atts, "osisIDWork");
 		if (ndx != -1) m_pBibleDatabase->m_strName = atts.value(ndx);
 		std::cerr << "Work: " << atts.value(ndx).toStdString() << "\n";
+		ndx = findAttribute(atts, "lang");
+		if  (ndx != -1) {
+			std::cerr << "Language: " << atts.value(ndx).toStdString();
+			if (g_qtTranslator.load("kjvdataparse_" + atts.value(ndx))) {
+				QCoreApplication::installTranslator(&g_qtTranslator);
+				g_setBooks();
+				g_setTstNames();
+				std::cerr << " (Loaded Translations)\n";
+			} else {
+				std::cerr << " (NO Translations Found!)\n";
+			}
+		}
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		if (!m_ndxCurrent.isSet()) {
 			m_bCaptureTitle = true;
@@ -721,6 +754,32 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
 			nTst++;
 			std::cerr << "Testament: " << ((m_pBibleDatabase->m_lstTestaments.size() <= NUM_TST) ? aTestament.m_strTstName.toStdString() : "<Unknown>") << "\n";
+		} else if ((ndx != -1) && (atts.value(ndx).compare("book", Qt::CaseInsensitive) == 0)) {
+			// Some OSIS files just have book tags and no x-testament tags, so we'll try to infer
+			//		testament here:
+			ndx = findAttribute(atts, "osisID");
+			if (ndx != -1) {
+				QStringList lstOsisID = atts.value(ndx).split('.');
+				if ((lstOsisID.size() != 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+					std::cerr << "\n*** Invalid Book osisID : " << atts.value(ndx).toStdString() << "\n";
+				} else {
+					std::cerr << "Book: " << lstOsisID.at(0).toStdString() << "\n";
+					if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
+						nTst = 1;
+					} else if (static_cast<unsigned int>(nBk) < NUM_BK) {
+						nTst = 2;
+					} else {
+						nTst = 0;
+						assert(false);			// Can't happen if our NUM_BK_xx values are correct!
+					}
+					while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
+						CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
+						m_pBibleDatabase->m_EntireBible.m_nNumTst++;
+						m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
+						std::cerr << "Testament: " << aTestament.m_strTstName.toStdString() << "\n";
+					}
+				}
+			}
 		}
 	} else if ((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "osisID");
@@ -1098,7 +1157,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 
 	if (m_bCaptureTitle) {
 		m_pBibleDatabase->m_strDescription = strTemp;
-		std::cerr << "Title: " << strTemp.toStdString() << "\n";
+		std::cerr << "Title: " << strTemp.toUtf8().data() << "\n";
 	} else if (m_bInColophon) {
 		if (m_ndxColophon.isSet()) {
 			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
@@ -1230,16 +1289,31 @@ int main(int argc, char *argv[])
 */
 
 
+	QFile fileTestaments;	// Testaments CSV being written
 	QFile fileBooks;		// Books CSV being written (Originally known as "TOC")
 	QFile fileChapters;		// Chapters CSV being written (Originally known as "Layout")
 	QFile fileVerses;		// Verses CSV being written (Originally known as "BOOKS")
 	QFile fileWords;		// Words CSV being written
 	QFile fileFootnotes;	// Footnotes CSV being written
 
+	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
+	if (!fileTestaments.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Testament Output File \"%1\"\n").arg(fileTestaments.fileName()).toStdString();
+		return -5;
+	}
+
+	fileTestaments.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
+	fileTestaments.write(QString("TstNdx, TstName\r\n").toUtf8());
+	for (unsigned int nTst=1; nTst<=pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
+		fileTestaments.write(QString("%1,\"%2\"\r\n").arg(nTst).arg(pBibleDatabase->testamentEntry(nTst)->m_strTstName).toUtf8());
+	}
+	std::cerr << QFileInfo(fileTestaments).fileName().toStdString() << "\n";
+	fileTestaments.close();
+
 	fileBooks.setFileName(dirOutput.absoluteFilePath("TOC.csv"));
 	if (!fileBooks.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Books Output File \"%1\"\n").arg(fileBooks.fileName()).toStdString();
-		return -5;
+		return -6;
 	}
 
 	fileBooks.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
@@ -1248,7 +1322,7 @@ int main(int argc, char *argv[])
 	fileChapters.setFileName(dirOutput.absoluteFilePath("LAYOUT.csv"));
 	if (!fileChapters.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Chapters Output File \"%1\"\n").arg(fileChapters.fileName()).toStdString();
-		return -6;
+		return -7;
 	}
 
 	fileChapters.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
@@ -1275,7 +1349,7 @@ int main(int argc, char *argv[])
 			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
-		if (pBook == NULL) {
+		if ((pBook == NULL) || (pBook->m_strTblName.isEmpty())) {
 			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toStdString();
 			continue;
 		}
@@ -1298,7 +1372,7 @@ int main(int argc, char *argv[])
 		fileVerses.setFileName(dirOutput.absoluteFilePath(QString("BOOK_%1_%2.csv").arg(nBk, 2, 10, QChar('0')).arg(pBook->m_strTblName)));
 		if (!fileVerses.open(QIODevice::WriteOnly)) {
 			std::cerr << QString("\n\n*** Failed to open Verses Output File \"%1\"\n").arg(fileVerses.fileName()).toStdString();
-			return -7;
+			return -8;
 		}
 
 		fileVerses.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
@@ -1433,7 +1507,7 @@ int main(int argc, char *argv[])
 	fileWords.setFileName(dirOutput.absoluteFilePath("WORDS.csv"));
 	if (!fileWords.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Words Output File \"%1\"\n").arg(fileWords.fileName()).toStdString();
-		return -8;
+		return -9;
 	}
 
 	std::cerr << QFileInfo(fileWords).fileName().toStdString();
@@ -1498,7 +1572,7 @@ int main(int argc, char *argv[])
 	fileFootnotes.setFileName(dirOutput.absoluteFilePath("FOOTNOTES.csv"));
 	if (!fileFootnotes.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toStdString();
-		return -9;
+		return -10;
 	}
 
 	std::cerr << QFileInfo(fileFootnotes).fileName().toStdString();
