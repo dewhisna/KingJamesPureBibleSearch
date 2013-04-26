@@ -8,6 +8,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QByteArray>
+#include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+
+#include <assert.h>
 
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
@@ -176,7 +179,7 @@ int main(int argc, char *argv[])
 		} else {
 			if ((strLine.isEmpty()) || (strLine.at(0) == '\n')) {
 				if (!strVerseText.isEmpty()) {
-					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(strVerseText).toUtf8());
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
 					strVerseText.clear();
 				}
 				fileOut.write(QString("</chapter>\n").toUtf8());
@@ -184,24 +187,39 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			if (strLine.at(0).isDigit()) {
+			if (strLine.at(0) == QChar('^')) {
+				fileOut.write(QString("<title canonical=\"true\" subType=\"x-preverse\" type=\"section\">%1 </title>").arg(Qt::escape(strLine.mid(1).trimmed())).toUtf8());
+			} else if (strLine.at(0) == QChar('@')) {
+				//<div osisID="Heb.c" type="colophon">Written to the Hebrews from Italy by Timothy.</div>
 				if (!strVerseText.isEmpty()) {
-					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(strVerseText).toUtf8());
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
+					strVerseText.clear();
+					fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(Qt::escape(strLine.mid(1).trimmed())).toUtf8());
+					fileOut.write(QString("</verse>\n").toUtf8());
+				} else {
+					assert(false);			// Colophon tags are always following a verse!
+				}
+			} else if (strLine.at(0).isDigit()) {
+				if (!strVerseText.isEmpty()) {
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
 					strVerseText.clear();
 				}
 
 				nChp = strLine.split(' ').at(0).split(':').at(0).toUInt();
 				nVrs = strLine.split(' ').at(0).split(':').at(1).toUInt();
-				strVerseText = strLine.mid(strLine.indexOf(' ')+1);
-				strVerseText.remove('\n');
+				if (strLine.indexOf(' ') != -1) {
+					strVerseText = strLine.mid(strLine.indexOf(' ')+1);
+					strVerseText.remove('\n');
+				}
 			} else {
-				strVerseText += QChar(' ') + strLine;
+				if (!strVerseText.isEmpty()) strVerseText += QChar(' ');
+				strVerseText += strLine;
 				strVerseText.remove('\n');
 			}
 		}
 	}
 	if (!strVerseText.isEmpty()) {
-		fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(strVerseText).toUtf8());
+		fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
 		strVerseText.clear();
 	}
 	fileOut.write(QString("</chapter>\n").toUtf8());

@@ -6,8 +6,6 @@
 
 QT       += core
 
-QT       -= gui
-
 TARGET = kjfparse1
 CONFIG   += console
 CONFIG   -= app_bundle
