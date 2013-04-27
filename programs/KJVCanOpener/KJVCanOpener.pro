@@ -16,6 +16,11 @@ unix:!macx {
 macx:CONFIG += x86 x86_64
 macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
 
+# The following fixes a bad codegen, pointer diff to global weak in symbol vtable
+#   error on Mac with the QtSharedPointer that we are using for the Bible Database.
+#   It's only an issue when linking with the Static Qt we use for release:
+macx:release:QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+
 #QTPLUGIN += qsqlite
 
 TARGET = KingJamesPureBibleSearch
@@ -104,3 +109,4 @@ ICON = res/bible.icns
 # This is broken in qmake.  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
 #QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
 
+message($$CONFIG)
