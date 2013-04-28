@@ -815,6 +815,7 @@ public:
 			m_bInNotes(false),
 			m_bInColophon(false),
 			m_bInSubtitle(false),
+			m_bInForeignText(false),
 			m_bInWordsOfJesus(false),
 			m_bInDivineName(false)
 	{
@@ -888,6 +889,7 @@ private:
 	bool m_bInNotes;
 	bool m_bInColophon;
 	bool m_bInSubtitle;
+	bool m_bInForeignText;
 	bool m_bInWordsOfJesus;
 	bool m_bInDivineName;
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
@@ -948,9 +950,12 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		if (!m_ndxCurrent.isSet()) {
 			m_bCaptureTitle = true;
 		} else {
+			// Should we check these here??: canonical="true" subType="x-preverse" type="section"
 			m_bInSubtitle = true;
 			m_ndxSubtitle = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0);		// Subtitles are for the chapter, not the first verse in it, even thought that's were this tag exists
 		}
+	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
+		m_bInForeignText = true;
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "type");
 		if ((ndx != -1) && (atts.value(ndx).compare("x-testament", Qt::CaseInsensitive) == 0)) {
@@ -1079,6 +1084,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				assert(m_bInSubtitle == false);
 				if (m_bInSubtitle) std::cerr << "\n*** Error: Missing end of Subtitle\n";
 				m_bInSubtitle = false;
+				assert(m_bInForeignText == false);
+				if (m_bInForeignText) std::cerr << "\n*** Error: Missing end of Foreign text\n";
+				m_bInForeignText = false;
 				assert(m_bInWordsOfJesus == false);
 				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
 				m_bInWordsOfJesus = false;
@@ -1185,6 +1193,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 	if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		m_bCaptureTitle = false;
 		m_bInSubtitle = false;
+	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
+		m_bInForeignText = false;
 	} else if ((m_bInColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		m_bInColophon = false;
 	} else if ((!m_bInVerse) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
@@ -1381,10 +1391,10 @@ bool COSISXmlHandler::characters(const QString &ch)
 			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
 			footnote.setText(footnote.text() + strTemp);
 		}
-	} else if (m_bInSubtitle) {
+	} else if ((m_bInSubtitle) && (!m_bInForeignText)) {
 		CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSubtitle];
 		footnote.setText(footnote.text() + strTemp);
-	} else if ((m_bInVerse) && (!m_bInNotes)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
 
 		assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 //		std::cout << strTemp.toStdString();
