@@ -478,6 +478,11 @@ public:
 	QString bookName(const CRelIndex &nRelIndex) const;
 
 	// CRelIndex Transformation Functions:
+#ifdef OSIS_PARSER_BUILD
+	inline uint32_t NormalizeIndexNoAccum(const CRelIndex &nRelIndex) const { return NormalizeIndexNoAccum(nRelIndex.index()); }
+	uint32_t NormalizeIndexNoAccum(uint32_t nRelIndex) const;
+	uint32_t DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
+#endif
 	inline uint32_t NormalizeIndex(const CRelIndex &nRelIndex) const { return NormalizeIndex(nRelIndex.index()); }
 	uint32_t NormalizeIndex(uint32_t nRelIndex) const;
 	uint32_t DenormalizeIndex(uint32_t nNormalIndex) const;

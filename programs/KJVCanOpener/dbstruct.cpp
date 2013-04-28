@@ -70,6 +70,79 @@ int CPhraseList::removeDuplicates()
 
 // ============================================================================
 
+#ifdef OSIS_PARSER_BUILD
+
+uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
+{
+	uint32_t nNormalIndex = 0;
+	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);
+	unsigned int nChp = ((nRelIndex >> 16) & 0xFF);
+	unsigned int nVrs = ((nRelIndex >> 8) & 0xFF);
+	unsigned int nWrd = (nRelIndex & 0xFF);
+
+	if (nRelIndex == 0) return 0;
+
+	// Add the number of words for all books prior to the target book:
+	if (nBk < 1) return 0;
+	if (nBk > m_lstBooks.size()) return 0;
+	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
+		nNormalIndex += m_lstBooks[ndxBk-1].m_nNumWrd;
+	}
+	// Add the number of words for all chapters in this book prior to the target chapter:
+	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
+		nNormalIndex += m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
+	}
+	// Add the number of words for all verses in this book prior to the target verse:
+	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
+		nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,ndxVrs,0)).m_nNumWrd;
+	}
+	// Add the target word:
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
+	nNormalIndex += nWrd;
+
+	return nNormalIndex;
+}
+
+uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
+{
+	unsigned int nBk = 0;
+	unsigned int nChp = 1;
+	unsigned int nVrs = 1;
+	unsigned int nWrd = nNormalIndex;
+
+	if (nNormalIndex == 0) return 0;
+
+	while (nBk < m_lstBooks.size()) {
+		if (m_lstBooks[nBk].m_nNumWrd >= nWrd) break;
+		nWrd -= m_lstBooks[nBk].m_nNumWrd;
+		nBk++;
+	}
+	if (nBk >= m_lstBooks.size()) return 0;
+	nBk++;
+
+	while (nChp <= m_lstBooks.at(nBk-1).m_nNumChp) {
+		if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
+		nWrd -= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		nChp++;
+	}
+	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+
+	while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+		if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
+		nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd;
+		nVrs++;
+	}
+	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
+
+	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
+}
+
+#endif
+
 uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 {
 	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);

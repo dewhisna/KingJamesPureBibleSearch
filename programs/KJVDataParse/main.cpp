@@ -53,6 +53,8 @@ QTranslator g_qtTranslator;
 #define NUM_BK_NT 27u
 #define NUM_TST 2u
 
+#define OUTPUT_HEBREW_PS119 1
+
 typedef QList<QStringList> TChapterVerseCounts;
 
 const QString g_arrChapterVerseCounts[NUM_BK] =
@@ -132,6 +134,8 @@ typedef struct {
 	QString m_strCategory;
 	QString m_strDescription;
 } TBook;
+
+#define PSALMS_BOOK_NUM 19
 
 TBook g_arrBooks[NUM_BK];
 static void g_setBooks()
@@ -223,6 +227,191 @@ static void g_setTstNames()
 		g_arrstrTstNames[i] = arrstrTstNames[i];
 	}
 }
+
+// ============================================================================
+// ============================================================================
+
+
+static QString psalm119HebrewPrefix(const CRelIndex &ndx)
+{
+	if ((ndx.book() != PSALMS_BOOK_NUM) || (ndx.chapter() != 119) || (((ndx.verse()-1)%8) != 0)) return QString();
+
+	QString strHebrewPrefix;
+
+	// Add special Start tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+	strHebrewPrefix += QString("<a id=\"\"A%1\"\"> </a>").arg(ndx.asAnchor());
+
+#if (OUTPUT_HEBREW_PS119)
+	switch ((ndx.verse()-1)/8) {
+		case 0:
+			// ALEPH
+			strHebrewPrefix += QChar(0x005D0);
+			break;
+		case 1:
+			// BETH
+			strHebrewPrefix += QChar(0x005D1);
+			break;
+		case 2:
+			// GIMEL
+			strHebrewPrefix += QChar(0x005D2);
+			break;
+		case 3:
+			// DALETH
+			strHebrewPrefix += QChar(0x005D3);
+			break;
+		case 4:
+			// HE
+			strHebrewPrefix += QChar(0x005D4);
+			break;
+		case 5:
+			// VAU
+			strHebrewPrefix += QChar(0x005D5);
+			break;
+		case 6:
+			// ZAIN
+			strHebrewPrefix += QChar(0x005D6);
+			break;
+		case 7:
+			// CHETH
+			strHebrewPrefix += QChar(0x005D7);
+			break;
+		case 8:
+			// TETH
+			strHebrewPrefix += QChar(0x005D8);
+			break;
+		case 9:
+			// JOD
+			strHebrewPrefix += QChar(0x005D9);
+			break;
+		case 10:
+			// CAPH
+			strHebrewPrefix += QChar(0x005DB);		// Using nonfinal-CAPH
+			break;
+		case 11:
+			// LAMED
+			strHebrewPrefix += QChar(0x005DC);
+			break;
+		case 12:
+			// MEM
+			strHebrewPrefix += QChar(0x005DE);		// Using nonfinal-Mem
+			break;
+		case 13:
+			// NUN
+			strHebrewPrefix += QChar(0x005E0);		// Using nonfinal-Nun
+			break;
+		case 14:
+			// SAMECH
+			strHebrewPrefix += QChar(0x005E1);
+			break;
+		case 15:
+			// AIN
+			strHebrewPrefix += QChar(0x005E2);
+			break;
+		case 16:
+			// PE
+			strHebrewPrefix += QChar(0x005E4);		// Using nonfinal-Pe
+			break;
+		case 17:
+			// TZADDI
+			strHebrewPrefix += QChar(0x005E6);		// Using nonfinal-Tzaddi
+			break;
+		case 18:
+			// KOPH
+			strHebrewPrefix += QChar(0x005E7);
+			break;
+		case 19:
+			// RESH
+			strHebrewPrefix += QChar(0x005E8);
+			break;
+		case 20:
+			// SCHIN
+			strHebrewPrefix += QChar(0x005E9);
+			break;
+		case 21:
+			// TAU
+			strHebrewPrefix += QChar(0x005EA);
+			break;
+	}
+	strHebrewPrefix += " ";
+#endif
+
+	switch ((ndx.verse()-1)/8) {
+		case 0:
+			strHebrewPrefix += "(ALEPH).";
+			break;
+		case 1:
+			strHebrewPrefix += "(BETH).";
+			break;
+		case 2:
+			strHebrewPrefix += "(GIMEL).";
+			break;
+		case 3:
+			strHebrewPrefix += "(DALETH).";
+			break;
+		case 4:
+			strHebrewPrefix += "(HE).";
+			break;
+		case 5:
+			strHebrewPrefix += "(VAU).";
+			break;
+		case 6:
+			strHebrewPrefix += "(ZAIN).";
+			break;
+		case 7:
+			strHebrewPrefix += "(CHETH).";
+			break;
+		case 8:
+			strHebrewPrefix += "(TETH).";
+			break;
+		case 9:
+			strHebrewPrefix += "(JOD).";
+			break;
+		case 10:
+			strHebrewPrefix += "(CAPH).";
+			break;
+		case 11:
+			strHebrewPrefix += "(LAMED).";
+			break;
+		case 12:
+			strHebrewPrefix += "(MEM).";
+			break;
+		case 13:
+			strHebrewPrefix += "(NUN).";
+			break;
+		case 14:
+			strHebrewPrefix += "(SAMECH).";
+			break;
+		case 15:
+			strHebrewPrefix += "(AIN).";
+			break;
+		case 16:
+			strHebrewPrefix += "(PE).";
+			break;
+		case 17:
+			strHebrewPrefix += "(TZADDI).";
+			break;
+		case 18:
+			strHebrewPrefix += "(KOPH).";
+			break;
+		case 19:
+			strHebrewPrefix += "(RESH).";
+			break;
+		case 20:
+			strHebrewPrefix += "(SCHIN).";
+			break;
+		case 21:
+			strHebrewPrefix += "(TAU).";
+			break;
+	}
+
+	// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+	strHebrewPrefix += QString("<a id=\"\"B%1\"\"> </a>").arg(ndx.asAnchor());
+
+	return strHebrewPrefix;
+}
+
+// ============================================================================
+// ============================================================================
 
 
 // TODO : CLEAN
@@ -418,7 +607,8 @@ class CVerseTextRichifierTags
 {
 public:
 	CVerseTextRichifierTags()
-		:	m_strTransChangeAddedBegin("<i>"),
+		:	m_bAddRichPs119HebrewPrefix(true),
+			m_strTransChangeAddedBegin("<i>"),
 			m_strTransChangeAddedEnd("</i>"),
 			m_strWordsOfJesusBegin("<font color=\"red\"> "),
 			m_strWordsOfJesusEnd("</font> "),
@@ -433,6 +623,12 @@ public:
 	~CVerseTextRichifierTags()
 	{
 
+	}
+
+	bool addRichPs119HebrewPrefix() const { return m_bAddRichPs119HebrewPrefix; }
+	void setAddRichPs119HebrewPrefix(bool bAddRichPs119HebrewPrefix)
+	{
+		m_bAddRichPs119HebrewPrefix = bAddRichPs119HebrewPrefix;
 	}
 
 	QString transChangeAddedBegin() const { return m_strTransChangeAddedBegin; }
@@ -460,6 +656,7 @@ public:
 	}
 
 protected:
+	bool m_bAddRichPs119HebrewPrefix;
 	QString m_strTransChangeAddedBegin;
 	QString m_strTransChangeAddedEnd;
 	QString m_strWordsOfJesusBegin;
@@ -474,6 +671,7 @@ public:
 	CVerseTextPlainRichifierTags()
 		:	CVerseTextRichifierTags()
 	{
+		setAddRichPs119HebrewPrefix(false);
 		setTransChangeAddedTags("[", "]");
 		setWordsOfJesusTags(QString(), QString());
 		setDivineNameTags(QString(), QString());
@@ -483,21 +681,23 @@ public:
 class CVerseTextRichifier
 {
 private:
-	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL)
+	CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL)
 		:	m_pRichNext(pRichNext),
 			m_chrMatchChar(chrMatchChar),
 			m_pVerse(NULL),
 			m_strXlateText(strXlateText),
-			m_bAddAnchors(false)
+			m_bAddAnchors(false),
+			m_ndxCurrent(ndxRelative)
 	{
 
 	}
 
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false)
+	CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false)
 		:	m_pRichNext(pRichNext),
 			m_chrMatchChar(chrMatchChar),
 			m_pVerse(pVerse),
-			m_bAddAnchors(bAddAnchors)
+			m_bAddAnchors(bAddAnchors),
+			m_ndxCurrent(ndxRelative)
 	{
 		assert(pVerse != NULL);
 	}
@@ -537,7 +737,7 @@ private:
 		for (int i=0; i<lstSplit.size(); ++i) {
 			if (i > 0) {
 				if (m_pVerse != NULL) {
-					if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_pVerse->m_nWrdAccum-m_pVerse->m_nNumWrd+i).asAnchor());
+					if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_ndxCurrent.index() + i).asAnchor());
 					if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 						strTemp += m_pVerse->m_lstRichWords.at(i-1).left(1)
 								+ parseBaton.m_strDivineNameFirstLetterParseText
@@ -566,20 +766,24 @@ private:
 	}
 
 public:
-	static QString parse(const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false)
+	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false)
 	{
+		assert(pBibleDatabase != NULL);
+		assert(pVerse != NULL);
+
 		// Note: While it would be most optimum to reverse this and
 		//		do the verse last so we don't have to call the entire
 		//		tree for every word, we can't reverse it because doing
 		//		so then creates sub-lists of 'w' tags and then we
 		//		no longer know where we are in the list:
-		CVerseTextRichifier rich_d('d', tags.divineNameEnd());
-		CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
-		CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
-		CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
-		CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
-		CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
-		CVerseTextRichifier richVerseText('w', pVerse, &rich_J, bAddAnchors);
+		CVerseTextRichifier rich_d(ndxRelative, 'd', tags.divineNameEnd());
+		CVerseTextRichifier rich_D(ndxRelative, 'D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
+		CVerseTextRichifier rich_t(ndxRelative, 't', tags.transChangeAddedEnd(), &rich_D);
+		CVerseTextRichifier rich_T(ndxRelative, 'T', tags.transChangeAddedBegin(), &rich_t);
+		CVerseTextRichifier rich_j(ndxRelative, 'j', tags.wordsOfJesusEnd(), &rich_T);
+		CVerseTextRichifier rich_J(ndxRelative, 'J', tags.wordsOfJesusBegin(), &rich_j);
+		CVerseTextRichifier rich_M(ndxRelative, 'M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelative) : ""), &rich_J);
+		CVerseTextRichifier richVerseText(ndxRelative, 'w', pVerse, &rich_M, bAddAnchors);
 
 		CRichifierBaton baton;
 		QString strTemp = richVerseText.parse(baton);
@@ -593,6 +797,7 @@ private:
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
 	bool m_bAddAnchors;
+	CRelIndex m_ndxCurrent;
 };
 
 // ============================================================================
@@ -886,6 +1091,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 				m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
 				m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
+				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+				if ((m_ndxCurrent.book() == PSALMS_BOOK_NUM) && (m_ndxCurrent.chapter() == 119) && (((m_ndxCurrent.verse()-1)%8) == 0)) {
+					verse.setText(verse.text() + g_chrParseTag);
+					verse.m_lstParseStack.push_back("M:");
+				}
 			}
 		}
 	} else if ((m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
@@ -942,6 +1152,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	//			j:				-- Words of Jesus End
 	//			D:				-- Divine Name Start
 	//			d:				-- Divine Name End
+	//			M:				-- Hebrew Psalm 119 Marker
 
 
 
@@ -1028,6 +1239,13 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 						verse.m_strTemplate += "D";
 					} else if (strOp.compare("d") == 0) {
 						verse.m_strTemplate += "d";
+					} else if (strOp.compare("M") == 0) {
+						verse.m_strTemplate += "M";
+						// For special Ps 119 Hebrew markers, add x-extra-p Pilcrow to
+						//		add a pseudo-paragraph break if there currently isn't
+						//		one, as it makes these more readable:
+						if (verse.m_nPilcrow == CVerseEntry::PTE_NONE)
+							verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
 					} else {
 						assert(false);		// Unknown ParseStack Operator!
 					}
@@ -1246,48 +1464,7 @@ int main(int argc, char *argv[])
 
 	const CBibleDatabase *pBibleDatabase = xmlHandler.bibleDatabase();
 
-/*
-	std::cout << QString("Bible:  Testaments: %1  Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
-						.arg(pBibleDatabase->bibleEntry().m_nNumTst)
-						.arg(pBibleDatabase->bibleEntry().m_nNumBk)
-						.arg(pBibleDatabase->bibleEntry().m_nNumChp)
-						.arg(pBibleDatabase->bibleEntry().m_nNumVrs)
-						.arg(pBibleDatabase->bibleEntry().m_nNumWrd)
-						.toStdString();
-
-	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumTst; ++i) {
-		std::cout << QString("%1 : Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
-						.arg(pBibleDatabase->testamentEntry(i)->m_strTstName)
-						.arg(pBibleDatabase->testamentEntry(i)->m_nNumBk)
-						.arg(pBibleDatabase->testamentEntry(i)->m_nNumChp)
-						.arg(pBibleDatabase->testamentEntry(i)->m_nNumVrs)
-						.arg(pBibleDatabase->testamentEntry(i)->m_nNumWrd)
-						.toStdString();
-	}
-
-	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
-		std::cout << QString("%1 : Chapters: %2  Verses: %3  Words: %4\n")
-						.arg(pBibleDatabase->bookEntry(i)->m_strBkName)
-						.arg(pBibleDatabase->bookEntry(i)->m_nNumChp)
-						.arg(pBibleDatabase->bookEntry(i)->m_nNumVrs)
-						.arg(pBibleDatabase->bookEntry(i)->m_nNumWrd)
-						.toStdString();
-	}
-
-	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
-		const CBookEntry *pBook = pBibleDatabase->bookEntry(i);
-		assert(pBook != NULL);
-		for (unsigned int j=1; j<=pBook->m_nNumChp; ++j) {
-			std::cout << QString("%1 Chapter %2 : Verses: %3  Words: %4\n")
-						.arg(pBook->m_strBkName)
-						.arg(j)
-						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumVrs)
-						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumWrd)
-						.toStdString();
-		}
-	}
-*/
-
+	// ------------------------------------------------------------------------
 
 	QFile fileTestaments;	// Testaments CSV being written
 	QFile fileBooks;		// Books CSV being written (Originally known as "TOC")
@@ -1421,9 +1598,12 @@ int main(int argc, char *argv[])
 				nWordAccum += pVerse->m_nNumWrd;
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 
-				QStringList lstTempRich = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false).split('\"');
+				assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1));
+				assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
+
+				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
 				QString strBuffRich = lstTempRich.join("\"\"");
-				QStringList lstTempPlain = CVerseTextRichifier::parse(pVerse, CVerseTextPlainRichifierTags(), false).split('\"');
+				QStringList lstTempPlain = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextPlainRichifierTags(), false).split('\"');
 				QString strBuffPlain = lstTempPlain.join("\"\"");
 
 				// ChpVrsNdx,NumWrd,nPilcrow,PText,RText
@@ -1504,12 +1684,13 @@ int main(int argc, char *argv[])
 	std::cerr << QFileInfo(fileBooks).fileName().toStdString() << "\n";
 	fileBooks.close();
 
+	// ------------------------------------------------------------------------
+
 	fileWords.setFileName(dirOutput.absoluteFilePath("WORDS.csv"));
 	if (!fileWords.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Words Output File \"%1\"\n").arg(fileWords.fileName()).toStdString();
 		return -9;
 	}
-
 	std::cerr << QFileInfo(fileWords).fileName().toStdString();
 
 	fileWords.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
@@ -1564,8 +1745,9 @@ int main(int argc, char *argv[])
 	}
 
 	fileWords.close();
-
 	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
 
 	unsigned int nFootnoteIndex = 0;
 
@@ -1574,7 +1756,6 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toStdString();
 		return -10;
 	}
-
 	std::cerr << QFileInfo(fileFootnotes).fileName().toStdString();
 
 	fileFootnotes.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
@@ -1596,8 +1777,77 @@ int main(int argc, char *argv[])
 	}
 
 	fileFootnotes.close();
-
 	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+/*
+	std::cerr << "Checking Indexes";
+	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
+		assert(pBook != NULL);
+		for (unsigned int nChp=1; nChp<=pBook->m_nNumChp; ++nChp) {
+			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
+			assert(pChapter != NULL);
+			for (unsigned int nVrs=1; nVrs<=pChapter->m_nNumVrs; ++nVrs) {
+				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
+				assert(pVerse != NULL);
+				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
+					assert(pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd)) == pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, nWrd)));
+					assert(pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd) == pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd));
+					assert(pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd))) == CRelIndex(nBk, nChp, nVrs, nWrd).index());
+				}
+			}
+		}
+		std::cerr << ".";
+	}
+	std::cerr << "\n";
+*/
+
+	// ------------------------------------------------------------------------
+
+/*
+	std::cout << QString("Bible:  Testaments: %1  Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
+						.arg(pBibleDatabase->bibleEntry().m_nNumTst)
+						.arg(pBibleDatabase->bibleEntry().m_nNumBk)
+						.arg(pBibleDatabase->bibleEntry().m_nNumChp)
+						.arg(pBibleDatabase->bibleEntry().m_nNumVrs)
+						.arg(pBibleDatabase->bibleEntry().m_nNumWrd)
+						.toUtf8().data();
+
+	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumTst; ++i) {
+		std::cout << QString("%1 : Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
+						.arg(pBibleDatabase->testamentEntry(i)->m_strTstName)
+						.arg(pBibleDatabase->testamentEntry(i)->m_nNumBk)
+						.arg(pBibleDatabase->testamentEntry(i)->m_nNumChp)
+						.arg(pBibleDatabase->testamentEntry(i)->m_nNumVrs)
+						.arg(pBibleDatabase->testamentEntry(i)->m_nNumWrd)
+						.toUtf8().data();
+	}
+
+	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
+		std::cout << QString("%1 : Chapters: %2  Verses: %3  Words: %4\n")
+						.arg(pBibleDatabase->bookEntry(i)->m_strBkName)
+						.arg(pBibleDatabase->bookEntry(i)->m_nNumChp)
+						.arg(pBibleDatabase->bookEntry(i)->m_nNumVrs)
+						.arg(pBibleDatabase->bookEntry(i)->m_nNumWrd)
+						.toUtf8().data();
+	}
+
+	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
+		const CBookEntry *pBook = pBibleDatabase->bookEntry(i);
+		assert(pBook != NULL);
+		for (unsigned int j=1; j<=pBook->m_nNumChp; ++j) {
+			std::cout << QString("%1 Chapter %2 : Verses: %3  Words: %4\n")
+						.arg(pBook->m_strBkName)
+						.arg(j)
+						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumVrs)
+						.arg(pBibleDatabase->chapterEntry(CRelIndex(i, j, 0, 0))->m_nNumWrd)
+						.toUtf8().data();
+		}
+	}
+*/
+
 
 /*
 	std::cout << "\n============================ Element Names  =================================\n";
