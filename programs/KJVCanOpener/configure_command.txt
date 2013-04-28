@@ -29,7 +29,7 @@ LSB x64:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-64
 ----------------------------------------------------
 
 
-LOCAL BUILD (x64 release):
+Linux LOCAL BUILD (x64 release):
 ../4.8.4-src/configure -platform linux-g++-64 -developer-build -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.4-64-local
 
 
@@ -111,6 +111,49 @@ This one builds for Qt5, but target KJPBS app won't compile due to duplicate sym
 
 
 ./configure -platform macx-g++ -opensource -debug-and-release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-run
+
+===============================================================================
+===============================================================================
+
+Qt 5.0.2
+========
+
+Linux
+-----
+
+Linux Local Build (x32 static)
+../5.0.2-src/configure -platform linux-g++-32 -developer-build -opensource -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -gui -widgets -fontconfig -no-dbus -no-opengl -nomake tools -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.0.2-32-local-static -confirm-license 
+
+
+Linux Local Build (x32 dynamic)
+../5.0.2-src/configure -platform linux-g++-32 -developer-build -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -gui -widgets -fontconfig -no-dbus -no-opengl -nomake tools -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.0.2-32-local -confirm-license 
+
+
+Linux Local Build (x64 static):  <<<<<<<<<<<< EXPERIMENTAL BUILD!!!  (note: tools will not build as static)
+../5.0.2-src/configure -platform linux-g++-64 -developer-build -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -gui -widgets -fontconfig -no-dbus -no-opengl -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.0.2-64-local -confirm-license 
+
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.0.2 (note: doesn't build docs)
+../5.0.2-src/configure -platform linux-g++-64 -developer-build -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -gui -widgets -fontconfig -no-dbus -no-opengl -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.0.2-64-local -confirm-license 
+
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
+
+
+
+MAC Cocoa:
+----------
+
+// Doesn't want to work with -no-opengl that still works in Linux!
+
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../5.0.2-src/configure -platform macx-g++-32 -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.2-cocoa-static-run -confirm-license 
+
+Cocoa x86/x64 Dynamic:   <<<< This was the development build for Mac
+../5.0.2-src/configure -platform macx-g++-32 -opensource -debug-and-release -developer-build -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.2-cocoa-run -confirm-license 
 
 
 ===============================================================================
