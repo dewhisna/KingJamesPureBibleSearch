@@ -191,9 +191,9 @@ void CTipEdit::activate()
 
 void CTipEdit::paintEvent(QPaintEvent *ev)
 {
-	QStylePainter p(this);
+	QStylePainter p(this->viewport());
 	QStyleOptionFrame opt;
-	opt.init(this);
+	opt.init(this->viewport());
 	p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
 	p.end();
 
