@@ -936,7 +936,8 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		ndx = findAttribute(atts, "lang");
 		if  (ndx != -1) {
 			std::cerr << "Language: " << atts.value(ndx).toStdString();
-			if (g_qtTranslator.load("kjvdataparse_" + atts.value(ndx))) {
+			QFileInfo fiTranslation(QCoreApplication::applicationDirPath(), "kjvdataparse_" + atts.value(ndx));
+			if (g_qtTranslator.load(fiTranslation.absoluteFilePath())) {
 				QCoreApplication::installTranslator(&g_qtTranslator);
 				g_setBooks();
 				g_setTstNames();
