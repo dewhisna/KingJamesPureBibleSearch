@@ -34,11 +34,6 @@
 #include <QFileInfo>
 #include <QString>
 #include <QtXml>
-//#include <QtXml/QXmlInputSource>
-//#include <QtXml/QXmlSimpleReader>
-//#include <QtXml/QXmlDefaultHandler>
-//#include <QtXml/QXmlAttributes>
-//#include <QtXml/QXmlParseException>
 #include <QStringList>
 #include <QtGlobal>
 
@@ -414,14 +409,6 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx)
 // ============================================================================
 
 
-// TODO : CLEAN
-//
-//const QString g_strSpecChar = "'-";				// Special characters that are to remain as word characters and not treated as symbols in the text.  UTF-8 versions of these (like "en dash") will be folded into these
-//
-//const char *g_strCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-";		// Accept: [alphanumeric, -, '], we'll handle UTF-8 conversion and translate those to ASCII as appropriate
-
-
-
 // For processing hyphenated words, the following symbols will be treated
 //	as hyphens and rolled into the "-" symbol for processing.  Words with
 //	only hyphen differences will be added to the base word as a special
@@ -460,7 +447,11 @@ const QString g_strHyphens =	QString(QChar(0x002D)) +		// U+002D	&#45;		hyphen-m
 //	as apostrophes and rolled into the "'" symbol for processing.  Words with
 //	only apostrophe differences will be added to the base word as a special
 //	alternate form, allowing users to search them with or without the apostrophe:
-const QString g_strApostrophes =	QString(QChar(0x0027));		// U+0027	&#39;		Ascii apostrophe
+const QString g_strApostrophes =	QString(QChar(0x0027)) +		// U+0027	&#39;		Ascii apostrophe (single quote)
+									QString(QChar(0x2018)) +		// U+2018	&#8216;		Quote left
+									QString(QChar(0x2019)) +		// U+2019	&#8217;		Quote right
+									QString(QChar(0x201B));			// U+201B	&#8219;		Quote reversed
+
 
 // Ascii Word characters -- these will be kept in words as-is and includes
 //	alphanumerics.  Hyphen and apostrophe are kept too, but by the rules
@@ -469,16 +460,22 @@ const QString g_strApostrophes =	QString(QChar(0x0027));		// U+0027	&#39;		Ascii
 const QString g_strAsciiWordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 
-// TODO : CLEAN
-//
-//// Special conversion characters.  These characters get translated in processing
-////	to an Ascii equivalence:
-//const QString g_strSpecChars =	QChar(0x00C6) +		// U+00C6	&#198;		AE character
-//								QChar(0x00E6) +		// U+00E6	&#230;		ae character
-//								QChar(0x0132) +		// U+0132	&#306;		IJ character
-//								QChar(0x0133) +		// U+0133	&#307;		ij character
-//								QChar(0x0152) +		// U+00152	&#338;		OE character
-//								QChar(0x0153);		// U+00153	&#339;		oe character
+// Non-Word Non-Ascii characters -- these are non-Ascii characters the do
+//	do automatically apply as a word -- things like quotes, etc:
+const QString g_strNonAsciiNonWordChars =	QString(QChar(0x201C)) +		// U+201C	&#8220;		Double-Quote Left
+											QString(QChar(0x201D)) +		// U+201D	&#8221;		Double-Quote Right
+											QString(QChar(0x201E)) +		// U+201E	&#8222;		Double-Quote Base
+											QString(QChar(0x201A)) +		// U+201A	&#8218;		Single-Quote Base
+											QString(QChar(0x2039)) +		// U+2039	&#8249;		Single-Guil Left
+											QString(QChar(0x203A)) +		// U+203A	&#8250;		Single-Guil Right
+											QString(QChar(0x203C)) +		// U+203C	&#8252;		Double Exclamation
+											QString(QChar(0x00AB)) +		// U+00AB	&#164;		Double-guillemot Left
+											QString(QChar(0x00BB)) +		// U+00BB	&#187;		Double-guillemot Right
+											QString(QChar(0x00BF)) +		// U+00BF	&#191;		Upside down question mark
+											QString(QChar(0x00A1)) +		// U+00A1	&#161;		Upside down exclamation mark
+											QString(QChar(0x00B7));			// U+00B7	&#183;		Centered period
+
+const QChar g_chrPilcrow = QChar(0x00B6);		// Pilcrow paragraph marker
 
 const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse text to mark parse tags -- must NOT exist in the text
 
@@ -787,7 +784,7 @@ public:
 
 		CRichifierBaton baton;
 		QString strTemp = richVerseText.parse(baton);
-		if (pVerse->m_nPilcrow) strTemp = QChar(0xB6) + strTemp;
+		if (pVerse->m_nPilcrow) strTemp = g_chrPilcrow + strTemp;
 		return strTemp;
 	}
 
@@ -841,6 +838,8 @@ public:
 	virtual bool error(const QXmlParseException &exception);
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
+
+	QString parsedUTF8Chars() const { return m_strParsedUTF8Chars; }
 
 protected:
 	int findAttribute(const QXmlAttributes &attr, const QString &strName) {
@@ -974,6 +973,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					std::cerr << "\n*** Invalid Book osisID : " << atts.value(ndx).toStdString() << "\n";
 				} else {
 					std::cerr << "Book: " << lstOsisID.at(0).toStdString() << "\n";
+					// note: nBk is index into array, not book number:
 					if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
 						nTst = 1;
 					} else if (static_cast<unsigned int>(nBk) < NUM_BK) {
@@ -1261,11 +1261,14 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 					}
 				}
 			} else if ((strTemp.at(0).unicode() < 128) ||
+				(g_strNonAsciiNonWordChars.contains(strTemp.at(0))) ||
+				(strTemp.at(0) == g_chrPilcrow) ||
+				(strTemp.at(0) == g_chrParseTag) ||
 				(bIsHyphen) ||
 				(bIsApostrophe)) {
 				if ((g_strAsciiWordChars.contains(strTemp.at(0))) ||
-					(bIsHyphen) ||
-					(bIsApostrophe)) {
+					((bIsHyphen) && (!strRichWord.isEmpty())) ||				// Don't let words start with hyphen or apostrophe
+					((bIsApostrophe) && (!strRichWord.isEmpty()))) {
 					bInWord = true;
 					if (bIsHyphen) {
 						strWord += '-';
@@ -1275,17 +1278,48 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 					strRichWord += strTemp.at(0);
 				} else {
 					if (bInWord) {
-						nWordCount++;
-						m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
-						if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
-						lstWords.append(strWord);
+						assert(!strRichWord.isEmpty());
+						assert(!strWord.isEmpty());
+
+						if ((strRichWord.size() == 1) &&
+							((g_strHyphens.contains(strRichWord.at(0))) ||
+							 (g_strApostrophes.contains(strRichWord.at(0))))) {
+							// Don't count words that are only a hyphen or apostrophe:
+							verse.m_strTemplate += strRichWord;
+						} else {
+							QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
+							// Remove trailing hyphens from words and put them in the template.
+							//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
+							while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
+								assert(!strWord.isEmpty());
+								strPostTemplate += strRichWord.at(strRichWord.size()-1);
+								strRichWord = strRichWord.left(strRichWord.size()-1);
+								strWord = strWord.left(strWord.size()-1);
+							}
+							if (!strRichWord.isEmpty()) {
+								nWordCount++;
+								m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
+								if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+								lstWords.append(strWord);
+								lstRichWords.append(strRichWord);
+							}
+							verse.m_strTemplate += strPostTemplate;
+						}
 						strWord.clear();
-						lstRichWords.append(strRichWord);
 						strRichWord.clear();
 						bInWord = false;
 					}
+					if (strTemp.at(0) != g_chrPilcrow) {
+						if (strTemp.at(0) == g_chrParseTag) {
+							std::cerr << "\n*** WARNING: Text contains our special parse tag character and may cause parsing issues\nTry recompiling using a different g_chrParseTag character!\n";
+						}
+						verse.m_strTemplate += strTemp.at(0);
+					} else {
+						// If we see a pilcrow marker in the text, but the OSIS didn't declare it, go ahead and add it
+						//	as a marker, but flag it of type "added":
+						if (verse.m_nPilcrow == CVerseEntry::PTE_NONE) verse.m_nPilcrow = CVerseEntry::PTE_MARKER_ADDED;
+					}
 					bHaveDoneTemplateWord = false;
-					verse.m_strTemplate += strTemp.at(0);
 				}
 			} else {
 				if (!m_strParsedUTF8Chars.contains(strTemp.at(0))) m_strParsedUTF8Chars += strTemp.at(0);
@@ -1315,12 +1349,31 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		assert(verse.m_lstParseStack.isEmpty());		// We should have exhausted the stack above!
 
 		if (bInWord) {
-			nWordCount++;
-			m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
-			if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
-			lstWords.append(strWord);
+			if ((strRichWord.size() == 1) &&
+				((g_strHyphens.contains(strRichWord.at(0))) ||
+				 (g_strApostrophes.contains(strRichWord.at(0))))) {
+				// Don't count words that are only a hyphen or apostrophe:
+				verse.m_strTemplate += strRichWord;
+			} else {
+				QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
+				// Remove trailing hyphens from words and put them in the template.
+				//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
+				while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
+					assert(!strWord.isEmpty());
+					strPostTemplate += strRichWord.at(strRichWord.size()-1);
+					strRichWord = strRichWord.left(strRichWord.size()-1);
+					strWord = strWord.left(strWord.size()-1);
+				}
+				if (!strRichWord.isEmpty()) {
+					nWordCount++;
+					m_ndxCurrent.setWord(verse.m_nNumWrd + nWordCount);
+					if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+					lstWords.append(strWord);
+					lstRichWords.append(strRichWord);
+				}
+				verse.m_strTemplate += strPostTemplate;
+			}
 			strWord.clear();
-			lstRichWords.append(strRichWord);
 			strRichWord.clear();
 			bInWord = false;
 		}
@@ -1482,6 +1535,7 @@ int main(int argc, char *argv[])
 	QFile fileVerses;		// Verses CSV being written (Originally known as "BOOKS")
 	QFile fileWords;		// Words CSV being written
 	QFile fileFootnotes;	// Footnotes CSV being written
+	QFile fileWordSummary;	// Words Summary CSV being written
 
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
 	if (!fileTestaments.open(QIODevice::WriteOnly)) {
@@ -1718,7 +1772,7 @@ int main(int argc, char *argv[])
 		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
 			TWordListMap::const_iterator itrWrd = mapWordList.find(*itrAltWrd);
 			if (itrWrd == mapWordList.end()) {
-				std::cerr << QString("\n*** Error: %1 -> %2 -- Couldn't Find it (something bad happened!)\n").arg(itrUniqWrd->first).arg(*itrAltWrd).toStdString();
+				std::cerr << QString("\n*** Error: %1 -> %2 -- Couldn't Find it (something bad happened!)\n").arg(itrUniqWrd->first).arg(*itrAltWrd).toUtf8().data();
 				continue;
 			}
 			wordEntryDb.m_lstAltWords.push_back(*itrAltWrd);
@@ -1755,6 +1809,102 @@ int main(int argc, char *argv[])
 	}
 
 	fileWords.close();
+	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+	fileWordSummary.setFileName(dirOutput.absoluteFilePath("WORDS_summary.csv"));
+	if (!fileWordSummary.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Words Summary Output File \"%1\"\n").arg(fileWordSummary.fileName()).toStdString();
+		return -9;
+	}
+	std::cerr << QFileInfo(fileWordSummary).fileName().toStdString();
+
+	unsigned int nTotalWordCount = 0;
+	unsigned int arrTotalTestamentWordCounts[NUM_TST];
+	memset(arrTotalTestamentWordCounts, 0, sizeof(arrTotalTestamentWordCounts));
+	unsigned int arrTotalBookWordCounts[NUM_BK];
+	memset(arrTotalBookWordCounts, 0, sizeof(arrTotalBookWordCounts));
+
+	fileWordSummary.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+	fileWordSummary.write(QString("\"Word\",\"AltWords\",\"Entire\nBible\"").toUtf8());
+	for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+		QString strTemp = g_arrstrTstNames[nTst];
+		strTemp.replace(' ', '\n');
+		fileWordSummary.write(QString(",\"%1\"").arg(strTemp).toUtf8());
+	}
+	for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+		fileWordSummary.write(QString(",\"%1\"").arg(g_arrBooks[nBk].m_strName).toUtf8());
+	}
+	fileWordSummary.write(QString("\r\n").toUtf8());
+
+	nWordIndex = 0;
+
+// Use previously defined mapDbWordList:
+//	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
+	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
+		const TAltWordSet &setAltWords = itrUniqWrd->second;
+		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
+		QString strAltWords;
+		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+			if (!strAltWords.isEmpty()) strAltWords += ",";
+			strAltWords += *itrAltWrd;
+		}
+
+		fileWordSummary.write(QString("\"%1\",\"%2\",%3").arg(wordEntryDb.m_strWord).arg(strAltWords).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
+
+		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
+		assert(wordEntryDb.m_lstAltWords.size() > 0);
+
+		if ((nWordIndex % 100) == 0) std::cerr << ".";
+		nWordIndex++;
+
+		unsigned int arrTestamentWordCounts[NUM_TST];
+		memset(arrTestamentWordCounts, 0, sizeof(arrTestamentWordCounts));
+		unsigned int arrBookWordCounts[NUM_BK];
+		memset(arrBookWordCounts, 0, sizeof(arrBookWordCounts));
+
+		for (TIndexList::const_iterator itr = wordEntryDb.m_ndxNormalizedMapping.begin(); itr != wordEntryDb.m_ndxNormalizedMapping.end(); ++itr) {
+			CRelIndex ndx(pBibleDatabase->DenormalizeIndex(*itr));
+			assert(ndx.isSet());
+			assert(ndx.book() != 0);
+			if (ndx.book() <= NUM_BK_OT) {
+				arrTestamentWordCounts[0]++;
+				arrTotalTestamentWordCounts[0]++;
+			} else if (ndx.book() <= NUM_BK) {
+				arrTestamentWordCounts[1]++;
+				arrTotalTestamentWordCounts[1]++;
+			} else {
+				// Word in unknown Testament -- assert here??
+			}
+			if (ndx.book() <= NUM_BK) {
+				arrBookWordCounts[ndx.book()-1]++;
+				arrTotalBookWordCounts[ndx.book()-1]++;
+			} else {
+				// Word in unknwon Book -- assert here??
+			}
+			nTotalWordCount++;
+		}
+
+		for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+			fileWordSummary.write(QString(",%1").arg(arrTestamentWordCounts[nTst]).toUtf8());
+		}
+		for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+			fileWordSummary.write(QString(",%1").arg(arrBookWordCounts[nBk]).toUtf8());
+		}
+
+		fileWordSummary.write(QString("\r\n").toUtf8());
+	}
+	fileWordSummary.write(QString("\"\",\"\",%1").arg(nTotalWordCount).toUtf8());
+	for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+		fileWordSummary.write(QString(",%1").arg(arrTotalTestamentWordCounts[nTst]).toUtf8());
+	}
+	for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+		fileWordSummary.write(QString(",%1").arg(arrTotalBookWordCounts[nBk]).toUtf8());
+	}
+	fileWordSummary.write(QString("\r\n").toUtf8());
+
+	fileWordSummary.close();
 	std::cerr << "\n";
 
 	// ------------------------------------------------------------------------
@@ -1858,6 +2008,8 @@ int main(int argc, char *argv[])
 	}
 */
 
+	// ------------------------------------------------------------------------
+
 
 /*
 	std::cout << "\n============================ Element Names  =================================\n";
@@ -1877,6 +2029,16 @@ int main(int argc, char *argv[])
 	}
 
 */
+
+	// ------------------------------------------------------------------------
+
+	QString strParsedUTF8 = xmlHandler.parsedUTF8Chars();
+	std::cerr << "UTF8 Characters Parsed: \"" << strParsedUTF8.toUtf8().data() << "\"\n";
+	for (int i = 0; i<strParsedUTF8.size(); ++i) {
+		std::cerr << "    \"" << QString(strParsedUTF8.at(i)).toUtf8().data() << "\" (" << QString("%1").arg(strParsedUTF8.at(i).unicode(), 4, 16, QChar('0')).toUtf8().data() << ")\n";
+	}
+
+	// ------------------------------------------------------------------------
 
 //	return a.exec();
 	return 0;
