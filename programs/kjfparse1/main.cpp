@@ -95,6 +95,19 @@ TBook g_arrBooks[NUM_BK] =
 	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
 };
 
+static QString convertVerseText(const QString &strVerseText)
+{
+	QString strTemp = Qt::escape(strVerseText);			// Need to do this first since we are replacing with some XML text
+
+	// Convert divineNames in the verse text
+	strTemp.replace("SEIGNEUR", "<seg><divineName>Seigneur</divineName></seg>", Qt::CaseSensitive);
+	if (strTemp.indexOf("AU DIEU INCONNU") == -1)			// Special case for Acts 17:23
+		strTemp.replace("DIEU", "<seg><divineName>Dieu</divineName></seg>", Qt::CaseSensitive);
+	strTemp.replace("JEHOVAH", "<seg><divineName>Jehovah</divineName></seg>", Qt::CaseSensitive);
+	strTemp.replace("JAH", "<seg><divineName>Jah</divineName></seg>", Qt::CaseSensitive);
+	return strTemp;
+}
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -179,7 +192,7 @@ int main(int argc, char *argv[])
 		} else {
 			if ((strLine.isEmpty()) || (strLine.at(0) == '\n')) {
 				if (!strVerseText.isEmpty()) {
-					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(convertVerseText(strVerseText)).toUtf8());
 					strVerseText.clear();
 				}
 				fileOut.write(QString("</chapter>\n").toUtf8());
@@ -188,20 +201,20 @@ int main(int argc, char *argv[])
 			}
 
 			if (strLine.at(0) == QChar('^')) {
-				fileOut.write(QString("<title canonical=\"true\" subType=\"x-preverse\" type=\"section\">%1 </title>").arg(Qt::escape(strLine.mid(1).trimmed())).toUtf8());
+				fileOut.write(QString("<title canonical=\"true\" subType=\"x-preverse\" type=\"section\">%1 </title>").arg(convertVerseText(strLine.mid(1).trimmed())).toUtf8());
 			} else if (strLine.at(0) == QChar('@')) {
 				//<div osisID="Heb.c" type="colophon">Written to the Hebrews from Italy by Timothy.</div>
 				if (!strVerseText.isEmpty()) {
-					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(convertVerseText(strVerseText)).toUtf8());
 					strVerseText.clear();
-					fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(Qt::escape(strLine.mid(1).trimmed())).toUtf8());
+					fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(convertVerseText(strLine.mid(1).trimmed())).toUtf8());
 					fileOut.write(QString("</verse>\n").toUtf8());
 				} else {
 					assert(false);			// Colophon tags are always following a verse!
 				}
 			} else if (strLine.at(0).isDigit()) {
 				if (!strVerseText.isEmpty()) {
-					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
+					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(convertVerseText(strVerseText)).toUtf8());
 					strVerseText.clear();
 				}
 
@@ -219,7 +232,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	if (!strVerseText.isEmpty()) {
-		fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(Qt::escape(strVerseText)).toUtf8());
+		fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4</verse>\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(convertVerseText(strVerseText)).toUtf8());
 		strVerseText.clear();
 	}
 	fileOut.write(QString("</chapter>\n").toUtf8());
