@@ -23,6 +23,7 @@
 
 #include "PhraseEdit.h"
 #include "ToolTipEdit.h"
+#include "ParseSymbols.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -147,12 +148,61 @@ QStringList CParsedPhrase::phraseWordsRaw() const
 
 QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
 {
-	const QString strValidChars(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'-");
+	QString strRawPhrase;
 	QString strTemp = strPhrase;
-	for (int i = (strTemp.size()-1); i >= 0; --i) {
-		if (!strValidChars.contains(strTemp.at(i))) strTemp.remove(i, 1);
+	QChar chrNext;
+	bool bNeedSpace = false;
+
+	while (!strTemp.isEmpty()) {
+		chrNext = strTemp.at(0);
+		bool bIsHyphen = g_strHyphens.contains(chrNext);
+		bool bIsApostrophe = g_strApostrophes.contains(chrNext);
+
+		if ((chrNext.unicode() < 128) ||
+			(g_strNonAsciiNonWordChars.contains(chrNext)) ||
+			(bIsHyphen) ||
+			(bIsApostrophe)) {
+			if ((g_strAsciiWordChars.contains(chrNext)) ||
+				(bIsHyphen) ||
+				(bIsApostrophe) ||
+				(chrNext == ' ')) {
+				if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
+				bNeedSpace = false;
+				if (bIsHyphen) {
+					strRawPhrase += '-';
+				} else if (bIsApostrophe) {
+					strRawPhrase += '\'';
+				} else strRawPhrase += chrNext;
+			} else {
+				// Ignore NonAsciiNonWordChars and codes <128 that aren't in AsciiWordChars.
+				//		But, make sure we have a space before a word character, or else our
+				//		word counts won't be correct:
+				bNeedSpace = true;
+			}
+		} else {
+			if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
+			bNeedSpace = false;
+
+//			if (chrNext == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
+//				strRawPhrase += "Ae";
+//			} else if (chrNext == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
+//				strRawPhrase += "ae";
+//			} else if (chrNext == QChar(0x0132)) {		// U+0132	&#306;		IJ character
+//				strRawPhrase += "IJ";
+//			} else if (chrNext == QChar(0x0133)) {		// U+0133	&#307;		ij character
+//				strRawPhrase += "ij";
+//			} else if (chrNext == QChar(0x0152)) {		// U+0152	&#338;		OE character
+//				strRawPhrase += "Oe";
+//			} else if (chrNext == QChar(0x0153)) {		// U+0153	&#339;		oe character
+//				strRawPhrase += "oe";
+//			}											// All other UTF-8 leave untranslated
+			strRawPhrase += chrNext;
+		}
+
+		strTemp = strTemp.right(strTemp.size()-1);
 	}
-	return strTemp;
+
+	return strRawPhrase;
 }
 
 void CParsedPhrase::clearCache() const
@@ -195,13 +245,16 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 
 	CPhraseCursor curLeft(curInsert);
 	while (curLeft.moveCursorWordLeft()) {
-		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
+//		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
+		m_lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_D));
 	}
 
 	CPhraseCursor curRight(curInsert);
-	m_strCursorWord = curRight.wordUnderCursor();
+//	m_strCursorWord = curRight.wordUnderCursor();
+	m_strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_D);
 	while (curRight.moveCursorWordRight()) {
-		m_lstRightWords.push_back(curRight.wordUnderCursor());
+//		m_lstRightWords.push_back(curRight.wordUnderCursor());
+		m_lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_D));
 	}
 
 	m_lstWords.clear();
@@ -224,11 +277,17 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	m_strCursorWord.clear();
 	m_lstWords.clear();
 
-	m_lstLeftWords = strPhrase.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+//	m_lstLeftWords = strPhrase.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_lstLeftWords = strPhrase.normalized(QString::NormalizationForm_D).split(QRegExp("\\s+"), QString::SkipEmptyParts);
 	m_lstWords.append(m_lstLeftWords);
 	m_nCursorWord = m_lstWords.size();
 	m_lstWords.append(m_strCursorWord);
 	m_lstWords.append(m_lstRightWords);
+}
+
+static bool ascendingLessThan(const QString &s1, const QString &s2)
+{
+	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
 }
 
 void CParsedPhrase::FindWords()
@@ -363,7 +422,7 @@ void CParsedPhrase::FindWords()
 					}
 				}
 				m_lstNextWords.removeDuplicates();
-				m_lstNextWords.sort();
+				qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThan);
 			}
 		}
 

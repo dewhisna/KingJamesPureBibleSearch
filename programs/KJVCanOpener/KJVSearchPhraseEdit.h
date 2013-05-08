@@ -29,8 +29,10 @@
 
 #include <QWidget>
 #include <QIcon>
+#include <QWheelEvent>
 #include <QFocusEvent>
 #include <QKeyEvent>
+#include <QInputMethodEvent>
 #include <QResizeEvent>
 #include <QContextMenuEvent>
 #include <QPushButton>
@@ -44,6 +46,42 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
+// ============================================================================
+
+// CComposingCompleter -- Needed to fix a bug in Qt 4.8.x QCompleter whereby
+//		inputMethod events get redirected to the popup, but don't come back
+//		to the editor because inputContext()->setFocusWidget() never gets
+//		called again for the editor:
+class CComposingCompleter : public QCompleter
+{
+	Q_OBJECT
+
+public:
+	CComposingCompleter(QObject *parent = 0)
+		:	QCompleter(parent)
+	{
+
+	}
+
+	CComposingCompleter(QAbstractItemModel *model, QObject *parent = 0)
+		:	QCompleter(model, parent)
+	{
+
+	}
+
+	CComposingCompleter(const QStringList &list, QObject *parent = 0)
+		:	QCompleter(list, parent)
+	{
+
+	}
+
+	~CComposingCompleter()
+	{
+
+	}
+
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
+};
 
 // ============================================================================
 
@@ -57,9 +95,12 @@ public:
 	virtual ~CPhraseLineEdit();
 
 	QMenu *getEditMenu() const { return m_pEditMenu; }
+	QWidget *getDropListButton() const { return m_pButtonDroplist; }
 
 	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
+
+	virtual QSize sizeHint();
 
 public slots:
 	void on_phraseListChanged();
@@ -77,8 +118,6 @@ signals:
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
-//	bool eventFilter(QObject *obj, QEvent *event);
-
 	virtual void insertFromMimeData(const QMimeData * source);
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 
@@ -88,16 +127,19 @@ protected:
 	virtual void ParsePhrase(const QTextCursor &curInsert);
 
 protected:
+	virtual void wheelEvent(QWheelEvent *event);
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void inputMethodEvent(QInputMethodEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 	QString textUnderCursor() const;
+	void setupCompleter(const QString &strText, bool bForce = false);
 
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	QCompleter *m_pCompleter;					// Word completer
+	CComposingCompleter *m_pCompleter;			// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
 	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)

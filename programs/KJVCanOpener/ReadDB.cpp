@@ -333,6 +333,11 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 	return true;
 }
 
+static bool ascendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+{
+	return (s1.first.compare(s2.first, Qt::CaseInsensitive) < 0);
+}
+
 bool CReadDatabase::ReadWordsTable()
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -361,12 +366,13 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_lstConcordanceWords.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
+	QStringList lstConcordanceWordsUnsorted;
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
 	while (query.next()) {
 		QString strWord = query.value(1).toString();
-		QString strKey = strWord.toLower();
+		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_D);
 		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
 		entryWord.m_strWord = strWord;
 		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
@@ -407,21 +413,41 @@ bool CReadDatabase::ReadWordsTable()
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Index/Count consistency error in WORDS table!"));
 			return false;
 		}
-		// Add this word and alternates to our concordance, and set all normalized indices that refer it to
-		//	point to the the specific word:
+		// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
+		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
+		//		the completer list and the FindWords sorting:
+		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+			lstConcordanceWordsUnsorted.push_back(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D));
+		}
+	}
+
+	// Sort, using an index mapping to handle locating our newly positioned word so we don't
+	//	have to hunt it the hard (slow) way with indexOf:
+	QList<QPair<QString, int> > lstSortArray;
+	for (int i = 0; i < lstConcordanceWordsUnsorted.count(); ++i)
+		lstSortArray.append(QPair<QString, int>(lstConcordanceWordsUnsorted.at(i), i));
+
+	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThan);
+
+	for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
+		const CWordEntry &entryWord(itrWordEntry->second);
+
+		// Now that we've built the concordance list and have sorted it, we'll set our normalized indices:
 		unsigned int ndxMapping=0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			m_pBibleDatabase->m_lstConcordanceWords.push_back(entryWord.m_lstAltWords.at(ndxAltWord));
+			assert(m_pBibleDatabase->m_lstConcordanceWords.size() < lstSortArray.size());
+			m_pBibleDatabase->m_lstConcordanceWords.push_back(lstSortArray.at(m_pBibleDatabase->m_lstConcordanceWords.size()).first);
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
 					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));
 					return false;
 				}
-				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = m_pBibleDatabase->m_lstConcordanceWords.size();
+				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = lstSortArray.at(m_pBibleDatabase->m_lstConcordanceWords.size()-1).second + 1;
 				ndxMapping++;
 			}
 		}
 	}
+
 
 // Used for debugging:
 #ifdef NEVER

@@ -20,24 +20,26 @@ TRANSLATIONS += \
 		kjvdataparse_fr.ts
 
 SOURCES += main.cpp \
-    ../KJVCanOpener/dbstruct.cpp \
-    ../KJVCanOpener/ReadDB.cpp \
-    ../KJVCanOpener/BuildDB.cpp \
-    ../KJVCanOpener/CSV.cpp \
-    ../KJVCanOpener/PhraseEdit.cpp \
-    ../KJVCanOpener/PhraseListModel.cpp \
-    ../KJVCanOpener/Highlighter.cpp \
-    ../KJVCanOpener/ToolTipEdit.cpp
+	../KJVCanOpener/dbstruct.cpp \
+	../KJVCanOpener/ReadDB.cpp \
+	../KJVCanOpener/BuildDB.cpp \
+	../KJVCanOpener/CSV.cpp \
+	../KJVCanOpener/PhraseEdit.cpp \
+	../KJVCanOpener/PhraseListModel.cpp \
+	../KJVCanOpener/Highlighter.cpp \
+	../KJVCanOpener/ToolTipEdit.cpp \
+	../KJVCanOpener/ParseSymbols.cpp
 
 HEADERS += \
-    ../KJVCanOpener/dbstruct.h \
-    ../KJVCanOpener/ReadDB.h \
-    ../KJVCanOpener/PhraseListModel.h \
-    ../KJVCanOpener/PhraseEdit.h \
-    ../KJVCanOpener/BuildDB.h \
-    ../KJVCanOpener/CSV.h \
-    ../KJVCanOpener/Highlighter.h \
-    ../KJVCanOpener/ToolTipEdit.h
+	../KJVCanOpener/dbstruct.h \
+	../KJVCanOpener/ReadDB.h \
+	../KJVCanOpener/PhraseListModel.h \
+	../KJVCanOpener/PhraseEdit.h \
+	../KJVCanOpener/BuildDB.h \
+	../KJVCanOpener/CSV.h \
+	../KJVCanOpener/Highlighter.h \
+	../KJVCanOpener/ToolTipEdit.h \
+	../KJVCanOpener/ParseSymbols.h
 
 
 QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS

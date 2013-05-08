@@ -29,6 +29,9 @@
 
 #include <QStringListModel>
 #include <QTextCharFormat>
+#include <QFontMetrics>
+
+#include <QInputContext>
 
 #include <QTextDocumentFragment>
 
@@ -38,6 +41,28 @@
 #include <string>
 
 #include <assert.h>
+
+#define PHRASE_COMPLETER_BUTTON_SIZE_X 24
+#define PHRASE_COMPLETER_BUTTON_SIZE_Y 24
+
+// ============================================================================
+
+bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
+{
+	// The act of popping our completer, will cause the inputContext to
+	//		shift focus from the editor to the popup and after dismissing the
+	//		popup, it doesn't go back to the editor.  So, since we are eating
+	//		FocusOut events in the popup, push the inputContext focus back to
+	//		the editor when we "focus out".  It's our focusProxy anyway:
+	if ((ev->type() == QEvent::FocusOut) && (obj == widget())) {
+		if ((popup()) && (popup()->isVisible())) {
+			QInputContext *pInputContext = popup()->inputContext();
+			if (pInputContext) pInputContext->setFocusWidget(popup());
+		}
+	}
+
+	return QCompleter::eventFilter(obj, ev);
+}
 
 // ============================================================================
 
@@ -77,6 +102,14 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 
 	setAcceptRichText(false);
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
+
+	setTabChangesFocus(true);
+	setWordWrapMode(QTextOption::NoWrap);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	setFixedHeight(sizeHint().height());
+	setLineWrapMode(QTextEdit::NoWrap);
 
 	QAction *pAction;
 	m_pEditMenu = new QMenu(tr("&Edit"), this);
@@ -125,17 +158,18 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 
 	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->concordanceWordList(), this);
-	m_pCompleter = new QCompleter(pModel, this);
+	m_pCompleter = new CComposingCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	m_pCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
 	m_pButtonDroplist->setToolTip(tr("Show Phrase List"));
 	m_pButtonDroplist->setStatusTip(tr("Show List of Common Phrases and User Phrases from Database"));
 	m_pButtonDroplist->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	m_pButtonDroplist->setMaximumSize(24, 24);
+	m_pButtonDroplist->setMaximumSize(PHRASE_COMPLETER_BUTTON_SIZE_X, PHRASE_COMPLETER_BUTTON_SIZE_Y);
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
 								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 
@@ -148,6 +182,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
+	m_pCommonPhrasesCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
@@ -171,6 +206,18 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 		emit phraseChanged();
 		emit changeCaseSensitive(bCaseSensitive);
 	}
+}
+
+QSize CPhraseLineEdit::sizeHint()
+{
+	QFontMetrics fm(font());
+	int h = qMax(fm.height(), 14) + 4;
+	int w = fm.width(QLatin1Char('x')) * 17 + 4;
+	QStyleOptionFrameV2 opt;
+	opt.initFrom(this);
+	QSize szHint = style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
+											 expandedTo(QApplication::globalStrut()), this);
+	return (QSize(szHint.width(), qMax(szHint.height(), PHRASE_COMPLETER_BUTTON_SIZE_Y)));
 }
 
 void CPhraseLineEdit::on_phraseListChanged()
@@ -367,10 +414,21 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 	ensureCursorVisible();
 }
 
+void CPhraseLineEdit::wheelEvent(QWheelEvent *event)
+{
+	event->ignore();
+}
+
 void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 {
 	emit activatedPhraseEditor(this);
 	QTextEdit::focusInEvent(event);
+
+	// The following is needed to fix the QCompleter bug
+	//	where the inputContext doesn't shift correctly
+	//	from the QCompleter->popup back to the editor:
+	QInputContext *pInputContext = inputContext();
+	if (pInputContext) pInputContext->setFocusWidget(this);
 }
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
@@ -395,13 +453,23 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 
 	QTextEdit::keyPressEvent(event);
 
+	setupCompleter(event->text(), bForceCompleter);
+}
+
+void CPhraseLineEdit::inputMethodEvent(QInputMethodEvent *event)
+{
+	// Call parent:
+	QTextEdit::inputMethodEvent(event);
+	setupCompleter(QString(), true);
+}
+
+void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
+{
 	ParsePhrase(textCursor());
 
 	QString strPrefix = GetCursorWord();
-	std::size_t nPreRegExp = strPrefix.toStdString().find_first_of("*?[]");
-	if (nPreRegExp != std::string::npos) {
-		strPrefix = strPrefix.left(nPreRegExp);
-	}
+	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
 
 	if (strPrefix != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(strPrefix);
@@ -413,9 +481,8 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index(0, 0));
 	}
 
-	if (bForceCompleter || (!event->text().isEmpty() && ((GetCursorWord().length() > 0) || (textCursor().atEnd()))))
+	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (textCursor().atEnd()))))
 		m_pCompleter->complete();
-
 }
 
 void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)
@@ -434,7 +501,6 @@ void CPhraseLineEdit::on_dropCommonPhrasesClicked()
 {
 	m_pCommonPhrasesCompleter->complete();
 }
-
 
 // ============================================================================
 
@@ -464,16 +530,12 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 
 	CPhraseLineEdit *pEditPhrase = new CPhraseLineEdit(pBibleDatabase, this);
 	pEditPhrase->setObjectName(QString::fromUtf8("editPhrase"));
-	pEditPhrase->setSizePolicy(ui->editPhrase->sizePolicy());
-	pEditPhrase->setMinimumSize(ui->editPhrase->minimumSize());
-	pEditPhrase->setMaximumSize(ui->editPhrase->maximumSize());
-	pEditPhrase->setVerticalScrollBarPolicy(ui->editPhrase->verticalScrollBarPolicy());
-	pEditPhrase->setHorizontalScrollBarPolicy(ui->editPhrase->horizontalScrollBarPolicy());
-	pEditPhrase->setTabChangesFocus(ui->editPhrase->tabChangesFocus());
-	pEditPhrase->setLineWrapMode(ui->editPhrase->lineWrapMode());
 	delete ui->editPhrase;
 	ui->editPhrase = pEditPhrase;
 	ui->gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
+	setTabOrder(ui->editPhrase, ui->chkCaseSensitive);
+	setTabOrder(ui->chkCaseSensitive, ui->editPhrase->getDropListButton());
+	setTabOrder(ui->editPhrase->getDropListButton(), ui->buttonRemove);
 
 	// --------------------------------------------------------------
 
