@@ -751,6 +751,7 @@ public:
 			m_bInForeignText(false),
 			m_bInWordsOfJesus(false),
 			m_bInDivineName(false),
+			m_nDelayedPilcrow(CVerseEntry::PTE_NONE),
 			m_strLanguage("en")
 	{
 		g_setBooks();
@@ -830,6 +831,7 @@ private:
 	bool m_bInForeignText;
 	bool m_bInWordsOfJesus;
 	bool m_bInDivineName;
+	CVerseEntry::PILCROW_TYPE_ENUM m_nDelayedPilcrow;		// Used to flag a pilcrow to appear in the next verse -- used for <CM> tag from German Schlachter text
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -1042,6 +1044,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
 				m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
 				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+				if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
+					verse.m_nPilcrow = m_nDelayedPilcrow;
+					m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
+				}
 				if ((m_ndxCurrent.book() == PSALMS_BOOK_NUM) && (m_ndxCurrent.chapter() == 119) && (((m_ndxCurrent.verse()-1)%8) == 0)) {
 					verse.setText(verse.text() + g_chrParseTag);
 					verse.m_lstParseStack.push_back("M:");
@@ -1051,19 +1057,30 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = true;
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
+		//	Note: If we already have text on this verse, then set a flag to put the pilcrow on the next verse
+		//			so we can handle the strange <CM> markers used on the German Schlachter text
+		//
 		//	PTE_MARKER			Example: {verse}[osisID=Gen.5.21]{milestone}[marker=¶,type=x-p]{/milestone}
 		//	PTE_MARKER_ADDED	Example: {verse}[osisID=Gen.5.3]{milestone}[marker=¶,subType=x-added,type=x-p]{/milestone}
 		//	PTE_EXTRA			Example: {verse}[osisID=Gen.5.6]{milestone}[type=x-extra-p]{/milestone}
-		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+
+		CVerseEntry::PILCROW_TYPE_ENUM nPilcrow = CVerseEntry::PTE_NONE;
 
 		if (((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("x-p", Qt::CaseInsensitive) == 0)) {
 			if (((ndx = findAttribute(atts, "subType")) != -1) && (atts.value(ndx).compare("x-added", Qt::CaseInsensitive) == 0)) {
-				verse.m_nPilcrow = CVerseEntry::PTE_MARKER_ADDED;
+				nPilcrow = CVerseEntry::PTE_MARKER_ADDED;
 			} else{
-				verse.m_nPilcrow = CVerseEntry::PTE_MARKER;
+				nPilcrow = CVerseEntry::PTE_MARKER;
 			}
 		} else if (((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("x-extra-p", Qt::CaseInsensitive) == 0)) {
-			verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
+			nPilcrow = CVerseEntry::PTE_EXTRA;
+		}
+
+		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		if (verse.text().isEmpty()) {
+			verse.m_nPilcrow = nPilcrow;
+		} else {
+			m_nDelayedPilcrow = nPilcrow;
 		}
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInSubtitle) && (!m_bInColophon) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
@@ -1604,8 +1621,10 @@ int main(int argc, char *argv[])
 				nWordAccum += pVerse->m_nNumWrd;
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 
-				assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1));
-				assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
+				if (pVerse->m_nNumWrd > 0) {
+					assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1));
+					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
+				}
 
 				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
 				QString strBuffRich = lstTempRich.join("\"\"");
