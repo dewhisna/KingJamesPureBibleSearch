@@ -333,7 +333,12 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 	return true;
 }
 
-static bool ascendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
+{
+	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
+}
+
+static bool ascendingLessThanPair(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
 {
 	return (s1.first.compare(s2.first, Qt::CaseInsensitive) < 0);
 }
@@ -420,17 +425,18 @@ bool CReadDatabase::ReadWordsTable()
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-//			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_C), ndxWord));
 			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord), ndxWord));
+			m_pBibleDatabase->m_lstDecomposedConcordanceWords.append(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D));
 			ndxWord++;
 		}
 	}
 
 	// Sort all of our word forms since the alternates may sort different with
 	//		with respect to the other words:
-	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThan);
+	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanPair);
+	qSort(m_pBibleDatabase->m_lstDecomposedConcordanceWords.begin(), m_pBibleDatabase->m_lstDecomposedConcordanceWords.end(), ascendingLessThanStrings);
 
-	// Now that we have the sorted indexes, we need to remap back to what came from what:
+	// Now that we have the sorted indexes, we need to remap back to what came from what for our mapping:
 	QVector<int> lstSortIndex;
 	lstSortIndex.resize(lstSortArray.size());
 	for (int i = 0; i<lstSortArray.size(); ++i)

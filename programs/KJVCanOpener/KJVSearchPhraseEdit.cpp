@@ -157,7 +157,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 
-	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->concordanceWordList(), this);
+	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->decomposedConcordanceWordList(), this);
 	m_pCompleter = new CComposingCompleter(pModel, this);
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -470,6 +470,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	QString strPrefix = GetCursorWord();
 	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
+	strPrefix = strPrefix.normalized(QString::NormalizationForm_D);
 
 	if (strPrefix != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(strPrefix);

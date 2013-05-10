@@ -245,15 +245,12 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 
 	CPhraseCursor curLeft(curInsert);
 	while (curLeft.moveCursorWordLeft()) {
-//		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
 		m_lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_C));
 	}
 
 	CPhraseCursor curRight(curInsert);
-//	m_strCursorWord = curRight.wordUnderCursor();
 	m_strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_C);
 	while (curRight.moveCursorWordRight()) {
-//		m_lstRightWords.push_back(curRight.wordUnderCursor());
 		m_lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_C));
 	}
 
@@ -277,7 +274,6 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	m_strCursorWord.clear();
 	m_lstWords.clear();
 
-//	m_lstLeftWords = strPhrase.split(QRegExp("\\s+"), QString::SkipEmptyParts);
 	m_lstLeftWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
 	m_lstWords.append(m_lstLeftWords);
 	m_nCursorWord = m_lstWords.size();
@@ -298,7 +294,7 @@ void CParsedPhrase::FindWords()
 
 	m_lstMatchMapping.clear();
 	m_lstMapping.clear();
-	m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+	m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
 	m_nLevel = 0;
 	m_nCursorLevel = 0;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
@@ -419,7 +415,7 @@ void CParsedPhrase::FindWords()
 				m_lstNextWords.clear();
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 					if ((m_lstMatchMapping[ndxWord]+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-						m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1));
+						m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1).normalized(QString::NormalizationForm_D));
 					}
 				}
 				m_lstNextWords.removeDuplicates();

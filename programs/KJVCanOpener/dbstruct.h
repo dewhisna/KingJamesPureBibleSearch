@@ -513,9 +513,13 @@ public:
 	{
 		return m_mapWordList;
 	}
-	inline const TConcordanceList &concordanceWordList() const			// List of all words in sorted order.  Used for initial list for FindWords()
+	inline const TConcordanceList &concordanceWordList() const			// List of all words as composed UTF8 in sorted order.  Used for index mapping, lookup and searching
 	{
 		return m_lstConcordanceWords;
+	}
+	inline const TConcordanceList &decomposedConcordanceWordList() const	// List of all words as decomposed UTF8 in sorted order.  Used for initial list for FindWords() and auto-completer
+	{
+		return m_lstDecomposedConcordanceWords;
 	}
 	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
@@ -542,8 +546,9 @@ private:
 	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
 	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
-	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
+	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)
 	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+	TConcordanceList m_lstDecomposedConcordanceWords;	// List (QStringList) of all Unique Words as Decomposed UTF8 in sorted order for the auto-completer (doesn't following the mapping indexes above!!)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 

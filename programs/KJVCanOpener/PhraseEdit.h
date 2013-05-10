@@ -123,7 +123,7 @@ protected:
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
 	TIndexList m_lstMapping;	// Mapping for search through current cursor (Set by FindWords())
-	QStringList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords())
+	QStringList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
 	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
 	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
