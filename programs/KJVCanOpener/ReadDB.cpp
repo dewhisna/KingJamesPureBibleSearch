@@ -366,7 +366,10 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_lstConcordanceWords.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
-	QStringList lstConcordanceWordsUnsorted;
+	// Sort, using an index mapping to handle locating our newly positioned word so we don't
+	//	have to hunt it the hard (slow) way with indexOf:
+	QList< QPair<QString, int> > lstSortArray;
+	int ndxWord = 0;
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
@@ -382,7 +385,7 @@ bool CReadDatabase::ReadWordsTable()
 		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
-			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp);
+			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.normalized(QString::NormalizationForm_D));
 		}
 		QString strAltWordCounts = query.value(5).toString();
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
@@ -417,34 +420,41 @@ bool CReadDatabase::ReadWordsTable()
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			lstConcordanceWordsUnsorted.push_back(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D));
+//			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D), ndxWord));
+			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord), ndxWord));
+			ndxWord++;
 		}
 	}
 
-	// Sort, using an index mapping to handle locating our newly positioned word so we don't
-	//	have to hunt it the hard (slow) way with indexOf:
-	QList<QPair<QString, int> > lstSortArray;
-	for (int i = 0; i < lstConcordanceWordsUnsorted.count(); ++i)
-		lstSortArray.append(QPair<QString, int>(lstConcordanceWordsUnsorted.at(i), i));
-
+	// Sort all of our word forms since the alternates may sort different with
+	//		with respect to the other words:
 	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThan);
+
+	// Now that we have the sorted indexes, we need to remap back to what came from what:
+	QVector<int> lstSortIndex;
+	lstSortIndex.resize(lstSortArray.size());
+	for (int i = 0; i<lstSortArray.size(); ++i)
+		lstSortIndex[lstSortArray.at(i).second] = i;
+
+	ndxWord = 0;
 
 	for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
 		const CWordEntry &entryWord(itrWordEntry->second);
 
 		// Now that we've built the concordance list and have sorted it, we'll set our normalized indices:
-		unsigned int ndxMapping=0;
+		unsigned int ndxMapping = 0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			assert(m_pBibleDatabase->m_lstConcordanceWords.size() < lstSortArray.size());
-			m_pBibleDatabase->m_lstConcordanceWords.push_back(lstSortArray.at(m_pBibleDatabase->m_lstConcordanceWords.size()).first);
+			assert(ndxWord < lstSortArray.size());
+			m_pBibleDatabase->m_lstConcordanceWords.push_back(lstSortArray.at(ndxWord).first);
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
 					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));
 					return false;
 				}
-				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = lstSortArray.at(m_pBibleDatabase->m_lstConcordanceWords.size()-1).second + 1;
+				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = lstSortIndex.at(ndxWord);
 				ndxMapping++;
 			}
+			ndxWord++;
 		}
 	}
 

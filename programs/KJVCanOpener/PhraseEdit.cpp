@@ -308,15 +308,16 @@ void CParsedPhrase::FindWords()
 		TWordListMap::const_iterator itrWordMapEnd = m_pBibleDatabase->mapWordList().end();
 
 		QString strCurWord = m_lstWords.at(ndx);			// Note: This becomes the "Word*" value later, so can't substitute strCurWord for all m_lstWords.at(ndx)
-		std::size_t nPreRegExp = strCurWord.toStdString().find_first_of("*?[]");
-		if (nPreRegExp == std::string::npos) {
+		int nPreRegExp = strCurWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+
+		if (nPreRegExp == -1) {
 			if ((ndx == (m_lstWords.size()-1)) &&
 				(m_pBibleDatabase->mapWordList().find(m_lstWords.at(ndx).toLower()) == m_pBibleDatabase->mapWordList().end())) {
 				nPreRegExp = strCurWord.size();
 				strCurWord += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
 			}
 		}
-		if (nPreRegExp == std::string::npos) {
+		if (nPreRegExp == -1) {
 			itrWordMap = m_pBibleDatabase->mapWordList().find(m_lstWords.at(ndx).toLower());
 			if (itrWordMap==m_pBibleDatabase->mapWordList().end()) {
 				if (m_nCursorWord > ndx) {

@@ -352,7 +352,7 @@ public:
 	struct SortPredicate {
 		bool operator() (const QString &s1, const QString &s2) const
 		{
-			return (s1.compare(s2) < 0);
+			return (s1.compare(s2, Qt::CaseInsensitive) < 0);
 		}
 	};
 };
@@ -543,7 +543,7 @@ private:
 	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words in the order for the concordance with names of the TWordListMap key (starts at index 0)
-	TIndexList m_lstConcordanceMapping;		// List of WordNdx#+1 (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 

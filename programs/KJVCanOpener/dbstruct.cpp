@@ -760,7 +760,7 @@ QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
 		return QString();
 
-	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)-1);
+	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal));
 }
 
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
