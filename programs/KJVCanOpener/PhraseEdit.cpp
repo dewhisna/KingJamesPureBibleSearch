@@ -246,15 +246,15 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 	CPhraseCursor curLeft(curInsert);
 	while (curLeft.moveCursorWordLeft()) {
 //		m_lstLeftWords.push_front(curLeft.wordUnderCursor());
-		m_lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_D));
+		m_lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_C));
 	}
 
 	CPhraseCursor curRight(curInsert);
 //	m_strCursorWord = curRight.wordUnderCursor();
-	m_strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_D);
+	m_strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_C);
 	while (curRight.moveCursorWordRight()) {
 //		m_lstRightWords.push_back(curRight.wordUnderCursor());
-		m_lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_D));
+		m_lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_C));
 	}
 
 	m_lstWords.clear();
@@ -278,7 +278,7 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	m_lstWords.clear();
 
 //	m_lstLeftWords = strPhrase.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-	m_lstLeftWords = strPhrase.normalized(QString::NormalizationForm_D).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_lstLeftWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
 	m_lstWords.append(m_lstLeftWords);
 	m_nCursorWord = m_lstWords.size();
 	m_lstWords.append(m_strCursorWord);

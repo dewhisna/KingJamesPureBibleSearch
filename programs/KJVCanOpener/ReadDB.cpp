@@ -375,7 +375,7 @@ bool CReadDatabase::ReadWordsTable()
 	query.exec("SELECT * FROM WORDS");
 	while (query.next()) {
 		QString strWord = query.value(1).toString();
-		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_D);
+		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
 		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
 		entryWord.m_strWord = strWord;
 		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
@@ -385,7 +385,7 @@ bool CReadDatabase::ReadWordsTable()
 		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
-			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.normalized(QString::NormalizationForm_D));
+			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.normalized(QString::NormalizationForm_C));
 		}
 		QString strAltWordCounts = query.value(5).toString();
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
@@ -420,7 +420,7 @@ bool CReadDatabase::ReadWordsTable()
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-//			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D), ndxWord));
+//			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_C), ndxWord));
 			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord), ndxWord));
 			ndxWord++;
 		}
