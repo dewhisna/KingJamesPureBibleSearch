@@ -874,11 +874,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	if (localName.compare("osisText", Qt::CaseInsensitive) == 0)  {
 		ndx = findAttribute(atts, "osisIDWork");
 		if (ndx != -1) m_pBibleDatabase->m_strName = atts.value(ndx);
-		std::cerr << "Work: " << atts.value(ndx).toStdString() << "\n";
+		std::cerr << "Work: " << atts.value(ndx).toUtf8().data() << "\n";
 		ndx = findAttribute(atts, "lang");
 		if  (ndx != -1) {
 			m_strLanguage = atts.value(ndx);
-			std::cerr << "Language: " << m_strLanguage.toStdString();
+			std::cerr << "Language: " << m_strLanguage.toUtf8().data();
 			QFileInfo fiTranslation(QCoreApplication::applicationDirPath(), "kjvdataparse_" + m_strLanguage);
 			if (g_qtTranslator.load(fiTranslation.absoluteFilePath())) {
 				QCoreApplication::installTranslator(&g_qtTranslator);
@@ -906,7 +906,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			m_pBibleDatabase->m_EntireBible.m_nNumTst++;
 			m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
 			nTst++;
-			std::cerr << "Testament: " << ((m_pBibleDatabase->m_lstTestaments.size() <= NUM_TST) ? aTestament.m_strTstName.toStdString() : "<Unknown>") << "\n";
+			std::cerr << "Testament: " << ((m_pBibleDatabase->m_lstTestaments.size() <= NUM_TST) ? aTestament.m_strTstName.toUtf8().data() : "<Unknown>") << "\n";
 		} else if ((ndx != -1) && (atts.value(ndx).compare("book", Qt::CaseInsensitive) == 0)) {
 			// Some OSIS files just have book tags and no x-testament tags, so we'll try to infer
 			//		testament here:
@@ -914,9 +914,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			if (ndx != -1) {
 				QStringList lstOsisID = atts.value(ndx).split('.');
 				if ((lstOsisID.size() != 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
-					std::cerr << "\n*** Invalid Book osisID : " << atts.value(ndx).toStdString() << "\n";
+					std::cerr << "\n*** Invalid Book osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 				} else {
-					std::cerr << "Book: " << lstOsisID.at(0).toStdString() << "\n";
+					std::cerr << "Book: " << lstOsisID.at(0).toUtf8().data() << "\n";
 					// note: nBk is index into array, not book number:
 					if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
 						nTst = 1;
@@ -930,7 +930,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
 						m_pBibleDatabase->m_EntireBible.m_nNumTst++;
 						m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
-						std::cerr << "Testament: " << aTestament.m_strTstName.toStdString() << "\n";
+						std::cerr << "Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
 					}
 				}
 			}
@@ -940,7 +940,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		if (ndx != -1) {
 			QStringList lstOsisID = atts.value(ndx).split('.');
 			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
-				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toStdString() << "\n";
+				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 				m_ndxColophon = CRelIndex();
 			} else {
 				bool bOK = true;
@@ -967,9 +967,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				QStringList lstOsisID = atts.value(ndx).split('.');
 				if ((lstOsisID.size() != 2) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
 					m_ndxCurrent = CRelIndex();
-					 std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toStdString() << "\n";
+					 std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 				} else {
-					std::cerr << "Book: " << lstOsisID.at(0).toStdString() << " Chapter: " << lstOsisID.at(1).toStdString();
+					std::cerr << "Book: " << lstOsisID.at(0).toUtf8().data() << " Chapter: " << lstOsisID.at(1).toUtf8().data();
 					m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
 					m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 					m_pBibleDatabase->m_EntireBible.m_nNumChp++;
@@ -993,7 +993,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			} else {
 				m_ndxCurrent = CRelIndex();
 				std::cerr << "\n*** Chapter with no osisID : ";
-				std::cerr << stringifyAttributes(atts).toStdString() << "\n";
+				std::cerr << stringifyAttributes(atts).toUtf8().data() << "\n";
 			}
 		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
@@ -1003,15 +1003,19 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			if ((lstOsisID.size() != 3) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
 				m_ndxCurrent.setVerse(0);
 				m_ndxCurrent.setWord(0);
-				std::cerr << "\n*** Unknown Verse osisID : " << atts.value(ndx).toStdString() << "\n";
+				std::cerr << "\n*** Unknown Verse osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 			} else if ((m_ndxCurrent.book() != static_cast<unsigned int>(nBk+1)) || (m_ndxCurrent.chapter() != lstOsisID.at(1).toUInt())) {
 				m_ndxCurrent.setVerse(0);
 				m_ndxCurrent.setWord(0);
-				std::cerr << "\n*** Verse osisID doesn't match Chapter osisID : " << atts.value(ndx).toStdString() << "\n";
+				std::cerr << "\n*** Verse osisID doesn't match Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 			} else {
 				m_ndxCurrent.setVerse(lstOsisID.at(2).toUInt());
 				m_ndxCurrent.setWord(0);
-				std::cerr << ".";
+				if ((m_ndxCurrent.verse() % 5) == 0) {
+					std::cerr << QString("%1").arg(m_ndxCurrent.verse() / 5).toUtf8().data();
+				} else {
+					std::cerr << ".";
+				}
 				m_bInVerse = true;
 				assert(m_bInLemma == false);
 				if (m_bInLemma) std::cerr << "\n*** Error: Missing end of Lemma\n";
@@ -1126,11 +1130,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 
 /*
 	m_lstElementNames.append(localName);
-	std::cout << "{" << localName.toStdString() << "}";
+	std::cout << "{" << localName.toUtf8().data() << "}";
 	std::cout << "[";
 	for (int i = 0; i < atts.count(); ++i) {
 		if (i) std::cout << ",";
-		std::cout << atts.localName(i).toStdString() << "=" << atts.value(i).toStdString();
+		std::cout << atts.localName(i).toUtf8().data() << "=" << atts.value(i).toUtf8().data();
 //		if (atts.localName(i).compare("type", Qt::CaseInsensitive) == 0) {
 			m_lstAttrNames.append(atts.localName(i) + "=" + atts.value(i));
 //		}
@@ -1348,8 +1352,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 
 
 
-//std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toStdString() << "\n";
-//std::cout << verse.text().toStdString() << "\n" << verse.m_strTemplate.toStdString() << "\n" << verse.m_lstWords.join(",").toStdString() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toStdString();
+//std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toUtf8().data() << "\n";
+//std::cout << verse.text().toUtf8().data() << "\n" << verse.m_strTemplate.toUtf8().data << "\n" << verse.m_lstWords.join(",").toUtf8().data() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toUtf8().data();
 
 		assert(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
 		if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd)
@@ -1384,7 +1388,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 
 
 
-//	std::cout << "{/" << localName.toStdString() << "}\n";
+//	std::cout << "{/" << localName.toUtf8().data() << "}\n";
 
 	return true;
 }
@@ -1409,7 +1413,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
 
 		assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
-//		std::cout << strTemp.toStdString();
+//		std::cout << strTemp.toUtf8().data();
 
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 //		verse.setText(verse.text() + strTemp);
@@ -1428,14 +1432,14 @@ bool COSISXmlHandler::characters(const QString &ch)
 
 
 
-//	std::cout << ch.toStdString();
+//	std::cout << ch.toUtf8().data();
 
 	return true;
 }
 
 bool COSISXmlHandler::error(const QXmlParseException &exception)
 {
-	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toStdString();
+	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
 	return true;
 }
 
@@ -1448,15 +1452,15 @@ int main(int argc, char *argv[])
 	const char *pstrFilename = NULL;
 
 	if (argc < 3) {
-		std::cerr << QString("Usage: %1 <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toStdString();
-		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toStdString();
-		std::cerr << QString("    necessary to import into KJPBS\n\n").toStdString();
+		std::cerr << QString("Usage: %1 <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
+		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
 		return -1;
 	}
 
 	QDir dirOutput(argv[2]);
 	if (!dirOutput.exists()) {
-		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.canonicalPath()).toStdString();
+		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.canonicalPath()).toUtf8().data();
 		return -2;
 	}
 
@@ -1466,7 +1470,7 @@ int main(int argc, char *argv[])
 
 	fileOSIS.setFileName(QString(pstrFilename));
 	if (!fileOSIS.open(QIODevice::ReadOnly)) {
-		std::cerr << QString("\n\n*** Failed to open OSIS database \"%1\"\n").arg(pstrFilename).toStdString();
+		std::cerr << QString("\n\n*** Failed to open OSIS database \"%1\"\n").arg(pstrFilename).toUtf8().data();
 		return -3;
 	}
 
@@ -1480,7 +1484,7 @@ int main(int argc, char *argv[])
 
 	bool bOK = xmlReader.parse(xmlInput);
 	if (!bOK) {
-		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(pstrFilename).arg(xmlHandler.errorString()).toStdString();
+		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(pstrFilename).arg(xmlHandler.errorString()).toUtf8().data();
 		return -4;
 	}
 
@@ -1498,7 +1502,7 @@ int main(int argc, char *argv[])
 
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
 	if (!fileTestaments.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Testament Output File \"%1\"\n").arg(fileTestaments.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Testament Output File \"%1\"\n").arg(fileTestaments.fileName()).toUtf8().data();
 		return -5;
 	}
 
@@ -1507,12 +1511,12 @@ int main(int argc, char *argv[])
 	for (unsigned int nTst=1; nTst<=pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
 		fileTestaments.write(QString("%1,\"%2\"\r\n").arg(nTst).arg(pBibleDatabase->testamentEntry(nTst)->m_strTstName).toUtf8());
 	}
-	std::cerr << QFileInfo(fileTestaments).fileName().toStdString() << "\n";
+	std::cerr << QFileInfo(fileTestaments).fileName().toUtf8().data() << "\n";
 	fileTestaments.close();
 
 	fileBooks.setFileName(dirOutput.absoluteFilePath("TOC.csv"));
 	if (!fileBooks.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Books Output File \"%1\"\n").arg(fileBooks.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Books Output File \"%1\"\n").arg(fileBooks.fileName()).toUtf8().data();
 		return -6;
 	}
 
@@ -1521,7 +1525,7 @@ int main(int argc, char *argv[])
 
 	fileChapters.setFileName(dirOutput.absoluteFilePath("LAYOUT.csv"));
 	if (!fileChapters.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Chapters Output File \"%1\"\n").arg(fileChapters.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Chapters Output File \"%1\"\n").arg(fileChapters.fileName()).toUtf8().data();
 		return -7;
 	}
 
@@ -1543,14 +1547,14 @@ int main(int argc, char *argv[])
 	unsigned int nWordAccum = 0;
 	for (unsigned int nBk=1; nBk<=qMax(pBibleDatabase->bibleEntry().m_nNumBk, NUM_BK); ++nBk) {
 		if (nBk > NUM_BK) {
-			std::cerr << QString("\n*** ERROR: Module has extra Book : %1\n").arg(nBk).toStdString();
+			std::cerr << QString("\n*** ERROR: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
 			lstChapterVerseCounts.push_back(QStringList());
 		} else {
 			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
 		if ((pBook == NULL) || (pBook->m_strTblName.isEmpty())) {
-			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toStdString();
+			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
 			continue;
 		}
 
@@ -1571,24 +1575,24 @@ int main(int argc, char *argv[])
 
 		fileVerses.setFileName(dirOutput.absoluteFilePath(QString("BOOK_%1_%2.csv").arg(nBk, 2, 10, QChar('0')).arg(pBook->m_strTblName)));
 		if (!fileVerses.open(QIODevice::WriteOnly)) {
-			std::cerr << QString("\n\n*** Failed to open Verses Output File \"%1\"\n").arg(fileVerses.fileName()).toStdString();
+			std::cerr << QString("\n\n*** Failed to open Verses Output File \"%1\"\n").arg(fileVerses.fileName()).toUtf8().data();
 			return -8;
 		}
 
 		fileVerses.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 		fileVerses.write(QString("ChpVrsNdx,NumWrd,nPilcrow,PText,RText\r\n").toUtf8());
 
-		std::cerr << QFileInfo(fileVerses).fileName().toStdString();
+		std::cerr << QFileInfo(fileVerses).fileName().toUtf8().data();
 
 		unsigned int nChapterWordAccum = 0;
 		unsigned int nChaptersExpected = qMax(pBook->m_nNumChp, static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()));
 		for (unsigned int nChp=1; nChp<=nChaptersExpected; ++nChp) {
 			if (nChp > static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) {
-				std::cerr << QString("\n*** ERROR: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+				std::cerr << QString("\n*** ERROR: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			}
 			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
 			if (pChapter == NULL) {
-				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				continue;
 			}
 
@@ -1603,19 +1607,19 @@ int main(int argc, char *argv[])
 							   .arg(nChp)									// 5
 							   .toUtf8());
 
-//			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toStdString();
+//			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			unsigned int nVerseWordAccum = 0;
 			unsigned int nVersesExpected = qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0));
 			for (unsigned int nVrs=1; nVrs<=nVersesExpected; ++nVrs) {
 				if (nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0)) {
-					std::cerr << QString("\n*** ERROR: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toStdString();
+					std::cerr << QString("\n*** ERROR: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
 				if (pVerse == NULL) {
-					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toStdString();
+					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 					continue;
 				}
-//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toStdString();
+//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toUtf8().data();
 
 				nVerseWordAccum += pVerse->m_nNumWrd;
 				nWordAccum += pVerse->m_nNumWrd;
@@ -1624,6 +1628,8 @@ int main(int argc, char *argv[])
 				if (pVerse->m_nNumWrd > 0) {
 					assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1));
 					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
+				} else {
+					std::cerr << QString("\n*** ERROR: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 
 				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
@@ -1647,7 +1653,7 @@ int main(int argc, char *argv[])
 
 
 /*
-				std::cout << g_arrBooks[nBk-1].m_strOsisAbbr.toStdString() << QString(" %1:%2 : ").arg(nChp).arg(nVrs).toStdString();
+				std::cout << g_arrBooks[nBk-1].m_strOsisAbbr.toUtf8().data() << QString(" %1:%2 : ").arg(nChp).arg(nVrs).toUtf8().data();
 				if (pVerse->m_nPilcrow == CVerseEntry::PTE_NONE) {
 					std::cout << "false \n";
 				} else {
@@ -1684,7 +1690,7 @@ int main(int argc, char *argv[])
 												.arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0)))
 												.arg(pChapter->m_nNumWrd)
 												.arg(nVerseWordAccum)
-												.toStdString();
+												.toUtf8().data();
 			}
 			nChapterWordAccum += pChapter->m_nNumWrd;
 			(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
@@ -1694,7 +1700,7 @@ int main(int argc, char *argv[])
 												.arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0 ,0)))
 												.arg(pBook->m_nNumWrd)
 												.arg(nChapterWordAccum)
-												.toStdString();
+												.toUtf8().data();
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
 
@@ -1703,20 +1709,20 @@ int main(int argc, char *argv[])
 		std::cerr << "\n";
 	}
 
-	std::cerr << QFileInfo(fileChapters).fileName().toStdString() << "\n";
+	std::cerr << QFileInfo(fileChapters).fileName().toUtf8().data() << "\n";
 	fileChapters.close();
 
-	std::cerr << QFileInfo(fileBooks).fileName().toStdString() << "\n";
+	std::cerr << QFileInfo(fileBooks).fileName().toUtf8().data() << "\n";
 	fileBooks.close();
 
 	// ------------------------------------------------------------------------
 
 	fileWords.setFileName(dirOutput.absoluteFilePath("WORDS.csv"));
 	if (!fileWords.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Words Output File \"%1\"\n").arg(fileWords.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Words Output File \"%1\"\n").arg(fileWords.fileName()).toUtf8().data();
 		return -9;
 	}
-	std::cerr << QFileInfo(fileWords).fileName().toStdString();
+	std::cerr << QFileInfo(fileWords).fileName().toUtf8().data();
 
 	fileWords.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 	fileWords.write(QString("WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n").toUtf8());
@@ -1776,10 +1782,10 @@ int main(int argc, char *argv[])
 
 	fileWordSummary.setFileName(dirOutput.absoluteFilePath("WORDS_summary.csv"));
 	if (!fileWordSummary.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Words Summary Output File \"%1\"\n").arg(fileWordSummary.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Words Summary Output File \"%1\"\n").arg(fileWordSummary.fileName()).toUtf8().data();
 		return -9;
 	}
-	std::cerr << QFileInfo(fileWordSummary).fileName().toStdString();
+	std::cerr << QFileInfo(fileWordSummary).fileName().toUtf8().data();
 
 	unsigned int nTotalWordCount = 0;
 	unsigned int arrTotalTestamentWordCounts[NUM_TST];
@@ -1874,10 +1880,10 @@ int main(int argc, char *argv[])
 
 	fileFootnotes.setFileName(dirOutput.absoluteFilePath("FOOTNOTES.csv"));
 	if (!fileFootnotes.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toStdString();
+		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toUtf8().data();
 		return -10;
 	}
-	std::cerr << QFileInfo(fileFootnotes).fileName().toStdString();
+	std::cerr << QFileInfo(fileFootnotes).fileName().toUtf8().data();
 
 	fileFootnotes.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 	fileFootnotes.write(QString("BkChpVrsWrdNdx,PFootnote,RFootnote\r\n").toUtf8());
@@ -1978,7 +1984,7 @@ int main(int argc, char *argv[])
 	lstElements.sort();
 	lstElements.removeDuplicates();
 	for (int i = 0; i < lstElements.count(); ++i) {
-		std::cout << lstElements.at(i).toStdString() << "\n";
+		std::cout << lstElements.at(i).toUtf8().data() << "\n";
 	}
 
 	std::cout << "\n\n============================ Attribute Names  =================================\n";
@@ -1986,7 +1992,7 @@ int main(int argc, char *argv[])
 	lstAttrib.sort();
 	lstAttrib.removeDuplicates();
 	for (int i = 0; i < lstAttrib.count(); ++i) {
-		std::cout << lstAttrib.at(i).toStdString() << "\n";
+		std::cout << lstAttrib.at(i).toUtf8().data() << "\n";
 	}
 
 */
