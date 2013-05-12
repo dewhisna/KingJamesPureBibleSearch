@@ -257,7 +257,11 @@ QString CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &s
 	for (int i=0; i<lstSplit.size(); ++i) {
 		if (i > 0) {
 			if (m_pVerse != NULL) {
+#ifdef OSIS_PARSER_BUILD
+				QString strWord = m_pVerse->m_lstRichWords.at(i-1);
+#else
 				QString strWord = parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum - m_pVerse->m_nNumWrd + i);
+#endif
 				if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_ndxCurrent.index() + i).asAnchor());
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 					strTemp += strWord.left(1)
