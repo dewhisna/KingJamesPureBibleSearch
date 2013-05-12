@@ -24,6 +24,8 @@
 #include "KJVSearchCriteria.h"
 #include "ui_KJVSearchCriteria.h"
 
+#include "BusyCursor.h"
+
 CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	QWidget(parent),
 	m_bDoingUpdate(false),

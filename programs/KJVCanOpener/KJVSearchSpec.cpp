@@ -28,6 +28,7 @@
 #include "PhraseListModel.h"
 #include "Highlighter.h"
 #include "PersistentSettings.h"
+#include "BusyCursor.h"
 
 #include <QScrollBar>
 #include <QItemSelection>
@@ -385,6 +386,8 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
+
+	CBusyCursor iAmBusy;
 
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {

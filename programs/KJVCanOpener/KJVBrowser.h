@@ -28,6 +28,7 @@
 #include "Highlighter.h"
 #include "PhraseEdit.h"
 #include "ScriptureEdit.h"
+#include "DelayedExecutionTimer.h"
 
 #include <QWidget>
 #include <QTextBrowser>
@@ -116,6 +117,13 @@ private slots:
 	void BibleBkComboIndexChanged(int index);
 	void BibleChpComboIndexChanged(int index);
 
+	void delayBkComboIndexChanged(int index);
+	void delayBkChpComboIndexChanged(int index);
+	void delayTstBkComboIndexChanged(int index);
+	void delayTstChpComboIndexChanged(int index);
+	void delayBibleBkComboIndexChanged(int index);
+	void delayBibleChpComboIndexChanged(int index);
+
 private:
 	void gotoIndex2(const TPhraseTag &tag);
 	void doHighlighting(bool bClear = false);		// Highlight the areas marked in the PhraseTags.  If bClear=True, removes the highlighting, which is used to swapout the current tag list for a new one without redrawing everything
@@ -137,11 +145,18 @@ private:
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()					\
+	CBusyCursor iAmBusy;				\
 	bool bUpdateSave = m_bDoingUpdate;	\
 	m_bDoingUpdate = true;
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
 
+	DelayedExecutionTimer m_dlyBkCombo;
+	DelayedExecutionTimer m_dlyBkChpCombo;
+	DelayedExecutionTimer m_dlyTstBkCombo;
+	DelayedExecutionTimer m_dlyTstChpCombo;
+	DelayedExecutionTimer m_dlyBibleBkCombo;
+	DelayedExecutionTimer m_dlyBibleChpCombo;
 	CScriptureBrowser *m_pScriptureBrowser;
 	Ui::CKJVBrowser *ui;
 };

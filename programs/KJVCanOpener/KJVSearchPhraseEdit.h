@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
+#include "DelayedExecutionTimer.h"
 
 #include <QWidget>
 #include <QIcon>
@@ -201,6 +202,7 @@ private:
 
 // UI Private:
 private:
+	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CKJVSearchPhraseEdit *ui;
 };
 

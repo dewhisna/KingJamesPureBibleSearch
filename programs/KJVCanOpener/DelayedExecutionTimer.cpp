@@ -3,6 +3,13 @@ Copyright (c) 2011, Andre Somers
 All rights reserved.
 
 File licence not repeated here for space reasons. See file "DelayedExecutionTimer.h" for details of licence.
+
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
 */
 
 #include "DelayedExecutionTimer.h"
@@ -24,7 +31,7 @@ DelayedExecutionTimer::DelayedExecutionTimer(int maximumDelay, int minimumDelay,
 DelayedExecutionTimer::DelayedExecutionTimer(QObject* parent):
 	QObject(parent),
 	m_minimumDelay(250),
-	m_maximumDelay(1000),
+	m_maximumDelay(-1),
 	m_minimumTimer(new QTimer(this)),
 	m_maximumTimer(new QTimer(this)),
 	m_lastInt(0)
@@ -44,11 +51,11 @@ void DelayedExecutionTimer::timeout()
 
 void DelayedExecutionTimer::trigger()
 {
-	if (!m_maximumTimer->isActive()) {
+	if ((m_maximumDelay > 0) && (!m_maximumTimer->isActive())) {
 		m_maximumTimer->start(m_maximumDelay);
 	}
 	m_minimumTimer->stop();
-	m_minimumTimer->start(m_minimumDelay);
+	if (m_minimumDelay > 0) m_minimumTimer->start(m_minimumDelay);
 }
 
 void DelayedExecutionTimer::trigger(QString string)

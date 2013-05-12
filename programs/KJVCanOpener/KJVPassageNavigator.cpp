@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "Highlighter.h"
+#include "BusyCursor.h"
 
 #include <assert.h>
 

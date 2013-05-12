@@ -24,6 +24,8 @@
 #include "KJVBrowser.h"
 #include "ui_KJVBrowser.h"
 
+#include "BusyCursor.h"
+
 #include <assert.h>
 
 #include <QComboBox>
@@ -55,12 +57,19 @@ CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
 
-	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BkComboIndexChanged(int)));
-	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BkChpComboIndexChanged(int)));
-	connect(ui->comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(TstBkComboIndexChanged(int)));
-	connect(ui->comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(TstChpComboIndexChanged(int)));
-	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleBkComboIndexChanged(int)));
-	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(BibleChpComboIndexChanged(int)));
+	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
+	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
+	connect(ui->comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstBkComboIndexChanged(int)));
+	connect(ui->comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstChpComboIndexChanged(int)));
+	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
+	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
+
+	connect(&m_dlyBkCombo, SIGNAL(triggered(int)), this, SLOT(BkComboIndexChanged(int)));
+	connect(&m_dlyBkChpCombo, SIGNAL(triggered(int)), this, SLOT(BkChpComboIndexChanged(int)));
+	connect(&m_dlyTstBkCombo, SIGNAL(triggered(int)), this, SLOT(TstBkComboIndexChanged(int)));
+	connect(&m_dlyTstChpCombo, SIGNAL(triggered(int)), this, SLOT(TstChpComboIndexChanged(int)));
+	connect(&m_dlyBibleBkCombo, SIGNAL(triggered(int)), this, SLOT(BibleBkComboIndexChanged(int)));
+	connect(&m_dlyBibleChpCombo, SIGNAL(triggered(int)), this, SLOT(BibleChpComboIndexChanged(int)));
 
 	// Set Outgoing Pass-Through Signals:
 	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SIGNAL(activatedScriptureText()));
@@ -461,6 +470,44 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 		ndxTarget.setWord(0);
 	}
 	gotoIndex(TPhraseTag(ndxTarget));
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::delayBkComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyBkCombo.trigger(index);
+}
+
+void CKJVBrowser::delayBkChpComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyBkChpCombo.trigger(index);
+}
+
+void CKJVBrowser::delayTstBkComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyTstBkCombo.trigger(index);
+}
+
+void CKJVBrowser::delayTstChpComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyTstChpCombo.trigger(index);
+}
+
+void CKJVBrowser::delayBibleBkComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyBibleBkCombo.trigger(index);
+}
+
+void CKJVBrowser::delayBibleChpComboIndexChanged(int index)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyBibleChpCombo.trigger(index);
 }
 
 // ----------------------------------------------------------------------------

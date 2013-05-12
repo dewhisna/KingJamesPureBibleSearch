@@ -23,6 +23,14 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
+
 */
 
 #ifndef DELAYEDEXECUTIONTIMER_H
@@ -38,7 +46,7 @@ class DelayedExecutionTimer : public QObject
 {
 Q_OBJECT
 public:
-	DelayedExecutionTimer(int maximumDelay = 1000, int minimumDelay = 250, QObject* parent = 0);
+	DelayedExecutionTimer(int maximumDelay = -1, int minimumDelay = 250, QObject* parent = 0);
 	DelayedExecutionTimer(QObject* parent);
 
 	/**

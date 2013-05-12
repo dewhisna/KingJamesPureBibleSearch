@@ -57,7 +57,8 @@ SOURCES += main.cpp \
 	KJVSearchResult.cpp \
 	KJVSearchSpec.cpp \
 	ParseSymbols.cpp \
-	VerseRichifier.cpp
+	VerseRichifier.cpp \
+	DelayedExecutionTimer.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -90,7 +91,9 @@ HEADERS  += main.h \
 	KJVSearchResult.h \
 	KJVSearchSpec.h \
 	ParseSymbols.h \
-	VerseRichifier.h
+	VerseRichifier.h \
+	DelayedExecutionTimer.h \
+	BusyCursor.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
