@@ -145,7 +145,7 @@ private:
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()					\
-	CBusyCursor iAmBusy;				\
+	CBusyCursor iAmBusy(NULL);			\
 	bool bUpdateSave = m_bDoingUpdate;	\
 	m_bDoingUpdate = true;
 #define end_update()					\

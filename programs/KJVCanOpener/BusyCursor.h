@@ -25,19 +25,35 @@
 #define BUSY_CURSOR_H
 
 #include <QApplication>
+#include <QWidget>
+#include <QCursor>
 
 class CBusyCursor
 {
 public:
-	CBusyCursor()
+	CBusyCursor(QWidget *pWidget)
+		:	m_pWidget(pWidget)
 	{
-		QApplication::setOverrideCursor(Qt::WaitCursor);
+		if (m_pWidget) {
+			m_originalCursor = m_pWidget->cursor();
+			m_pWidget->setCursor(Qt::WaitCursor);
+		} else {
+			QApplication::setOverrideCursor(Qt::WaitCursor);
+		}
 	}
 
 	~CBusyCursor()
 	{
-		QApplication::restoreOverrideCursor();
+		if (m_pWidget) {
+			m_pWidget->setCursor(m_originalCursor);
+		} else {
+			QApplication::restoreOverrideCursor();
+		}
 	}
+
+private:
+	QCursor m_originalCursor;
+	QWidget *m_pWidget;
 };
 
 #endif	// BUSY_CURSOR_H

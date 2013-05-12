@@ -387,7 +387,7 @@ void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
-	CBusyCursor iAmBusy;
+	CBusyCursor iAmBusy(NULL);
 
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
