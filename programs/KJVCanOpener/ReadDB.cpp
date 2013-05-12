@@ -158,8 +158,8 @@ bool CReadDatabase::ReadBooksTable()
 	//		came to us out of order:
 	unsigned int nWrdAccum = 0;
 	for (unsigned int nBk = 0; nBk < m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		nWrdAccum += m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd;
 		m_pBibleDatabase->m_lstBooks[nBk].m_nWrdAccum = nWrdAccum;
+		nWrdAccum += m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd;
 	}
 
 	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
@@ -216,8 +216,8 @@ bool CReadDatabase::ReadChaptersTable()
 	unsigned int nWrdAccum = 0;
 	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
 		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {
-			nWrdAccum += m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nNumWrd;
 			m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nWrdAccum = nWrdAccum;
+			nWrdAccum += m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nNumWrd;
 		}
 	}
 
@@ -287,8 +287,8 @@ bool CReadDatabase::ReadVerseTables()
 		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {
 			unsigned int nNumVerses = m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nNumVrs;
 			for (unsigned int nVrs = 1; nVrs <= nNumVerses; ++nVrs) {
-				nWrdAccum += mapVerses[CRelIndex(0, nChp, nVrs, 0)].m_nNumWrd;
 				mapVerses[CRelIndex(0, nChp, nVrs, 0)].m_nWrdAccum = nWrdAccum;
+				nWrdAccum += mapVerses[CRelIndex(0, nChp, nVrs, 0)].m_nNumWrd;
 			}
 		}
 

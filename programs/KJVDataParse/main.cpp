@@ -1173,6 +1173,7 @@ int main(int argc, char *argv[])
 			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
 			continue;
 		}
+		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
 
 		// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
 		fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
@@ -1211,6 +1212,7 @@ int main(int argc, char *argv[])
 				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				continue;
 			}
+			(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
 
 			std::cerr << ".";
 
@@ -1237,13 +1239,13 @@ int main(int argc, char *argv[])
 				}
 //				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toUtf8().data();
 
+				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 				nVerseWordAccum += pVerse->m_nNumWrd;
 				nWordAccum += pVerse->m_nNumWrd;
-				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 
 				if (pVerse->m_nNumWrd > 0) {
-					assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1));
-					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
+					assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum+1));
+					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
 				} else {
 					std::cerr << QString("\n*** ERROR: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
@@ -1304,7 +1306,7 @@ int main(int argc, char *argv[])
 					CWordEntry &wordEntry = mapWordList[strRichWord];
 					TAltWordSet &wordSet = mapAltWordList[strRichWord.toLower()];
 					wordSet.insert(strRichWord);
-					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd);
+					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum+nWrd);
 				}
 			}
 			if (nVerseWordAccum != pChapter->m_nNumWrd) {
@@ -1315,7 +1317,6 @@ int main(int argc, char *argv[])
 												.toUtf8().data();
 			}
 			nChapterWordAccum += pChapter->m_nNumWrd;
-			(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
 		}
 		if (nChapterWordAccum != pBook->m_nNumWrd) {
 			std::cerr << QString("\n*** Error: %1 Book Word Count (%2) doesn't match sum of Chapter Word Counts (%3)!\n")
@@ -1324,7 +1325,6 @@ int main(int argc, char *argv[])
 												.arg(nChapterWordAccum)
 												.toUtf8().data();
 		}
-		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
 
 		fileVerses.close();
 
@@ -1543,7 +1543,7 @@ int main(int argc, char *argv[])
 				assert(pVerse != NULL);
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
 					assert(pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd)) == pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, nWrd)));
-					assert(pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd) == pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum-pVerse->m_nNumWrd+nWrd));
+					assert(pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum+nWrd) == pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+nWrd));
 					assert(pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd))) == CRelIndex(nBk, nChp, nVrs, nWrd).index());
 				}
 			}

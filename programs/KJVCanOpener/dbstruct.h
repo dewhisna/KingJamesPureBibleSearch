@@ -255,7 +255,7 @@ public:
 	unsigned int m_nNumChp;		// Number of chapters in this book
 	unsigned int m_nNumVrs;		// Number of verses in this book
 	unsigned int m_nNumWrd;		// Number of words in this book
-	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this book
+	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this book
 	QString m_strCat;			// Category name
 	QString m_strDesc;			// Description (subtitle)
 };
@@ -278,7 +278,7 @@ public:
 
 	unsigned int m_nNumVrs;		// Number of verses in this chapter
 	unsigned int m_nNumWrd;		// Number of words in this chapter
-	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this chapter
+	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this chapter
 };
 
 typedef std::map<CRelIndex, CChapterEntry, IndexSortPredicate> TChapterMap;	// Index by [nBk|nChp|0|0]
@@ -305,7 +305,7 @@ public:
 	~CVerseEntry() { }
 
 	unsigned int m_nNumWrd;			// Number of words in this verse
-	unsigned int m_nWrdAccum;		// Number of accumulated words up to and including this verse
+	unsigned int m_nWrdAccum;		// Number of accumulated words prior to, but not including this verse
 	PILCROW_TYPE_ENUM m_nPilcrow;	// Start of verse Pilcrow Flag (and Pilcrow type)
 	QString m_strTemplate;			// Rich Text Creation Template
 

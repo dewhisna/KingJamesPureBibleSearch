@@ -162,43 +162,47 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 
-	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum -
-			(m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) +
-			nWrd;
+	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 }
 
 uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 {
-	unsigned int nBk = 0;
-	unsigned int nChp = 1;
-	unsigned int nVrs = 1;
 	unsigned int nWrd = nNormalIndex;
 
-	if (nNormalIndex == 0) return 0;
+	if (nWrd == 0) return 0;
 
-	while (nBk < m_lstBooks.size()) {
-		if (m_lstBooks[nBk].m_nWrdAccum >= nWrd) break;
-		nBk++;
+	unsigned int nBk = m_lstBooks.size();
+	while ((nBk > 0) && (nWrd <= m_lstBooks.at(nBk-1).m_nWrdAccum)) {
+		nBk--;
 	}
-	if (nBk >= m_lstBooks.size()) return 0;
-	nBk++;
-
-	while (nChp <= m_lstBooks.at(nBk-1).m_nNumChp) {
-		if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum >= nWrd) break;
-		nChp++;
+	if (nBk == 0) {
+		assert(false);
+		return 0;
 	}
-	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
 
-	while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
-		if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum >= nWrd) break;
-		nVrs++;
+	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
+	while ((nChp > 0) && (nWrd <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum)) {
+		nChp--;
 	}
-	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+	if (nChp == 0) {
+		assert(false);
+		return 0;
+	}
 
-	nWrd -= ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum -
-			 (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd);
+	unsigned int nVrs = m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs;
+	while ((nVrs > 0) && (nWrd <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum)) {
+		nVrs--;
+	}
+	if (nVrs == 0) {
+		assert(false);
+		return 0;
+	}
 
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
+	nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum;
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) {
+		assert(false);
+		return 0;
+	}
 
 	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
 }
