@@ -279,7 +279,7 @@ bool CReadDatabase::ReadVerseTables()
 			entryVerse.m_nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(query.value(2).toInt());
 			strVerseText = query.value(4).toString();
 			if (strVerseText.isEmpty()) strVerseText = query.value(3).toString();
-			entryVerse.setText(strVerseText);
+			entryVerse.m_strTemplate = query.value(5).toString();
 		}
 
 		// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
@@ -302,7 +302,7 @@ bool CReadDatabase::ReadVerseTables()
 				sl.push_back(QString("%1").arg(itr->first.index()>>8));
 				sl.push_back(QString("%1").arg(itr->second.m_nNumWrd));
 				sl.push_back(QString("%1").arg(itr->second.m_nPilcrow));
-				sl.push_back(itr->second.text());
+				sl.push_back(itr->second.m_strTemplate);
 				csv << sl;
 			}
 			fileTest.close();
@@ -340,7 +340,7 @@ static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 
 static bool ascendingLessThanPair(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
 {
-	return (s1.first.compare(s2.first, Qt::CaseInsensitive) < 0);
+	return (s1.first.compare(s2.first, Qt::CaseSensitive) < 0);
 }
 
 bool CReadDatabase::ReadWordsTable()

@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "KJVSearchCriteria.h"
+#include "VerseRichifier.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -189,8 +190,7 @@ public:
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
-		const CVerseEntry *pVerseEntry = m_pBibleDatabase->verseEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
-		return (pVerseEntry ? pVerseEntry->text() : QString());
+		return m_pBibleDatabase->richVerseText(CRelIndex(getBook(), getChapter(), getVerse(), 0), CVerseTextRichifierTags(), false);
 	}
 
 private:

@@ -24,6 +24,7 @@
 #include "PhraseEdit.h"
 #include "ToolTipEdit.h"
 #include "ParseSymbols.h"
+#include "VerseRichifier.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -865,7 +866,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
-		strHTML += m_pBibleDatabase->verseEntry(relPrev)->text() + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relPrev, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
 		strHTML += "</p>";
 
 		// If we have a footnote for this book and this is the end of the last chapter,
@@ -943,7 +944,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	CRelIndex ndxVerse;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
-		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1,0));
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
 		if (pVerse == NULL) {
 			assert(false);
 			continue;
@@ -966,7 +967,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			strHTML += QString("<b> %1 </b>")
 						.arg(ndxVrs+1);
 		}
-		strHTML += pVerse->text() + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
 		ndxVerse.setWord(pVerse->m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
 	}
 	if (bParagraph) {
@@ -1081,7 +1082,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
-		strHTML += m_pBibleDatabase->verseEntry(relNext)->text() + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relNext, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
 		strHTML += "</p>";
 	}
 
@@ -1173,7 +1174,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 					.arg(ndx.chapter())
 					.arg(ndx.verse());
 	}
-	strHTML += pVerse->text() + "\n";
+	strHTML += m_pBibleDatabase->richVerseText(ndx, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
 
 	strHTML += "</p></body></html>";
 	m_TextDocument.setHtml(strHTML);
@@ -1265,14 +1266,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 			return;
 		}
 
-		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
-		if (pVerse == NULL) {
-			assert(false);
-			emit changedDocumentText();
-			return;
-		}
-
-		strHTML += pVerse->text();
+		strHTML += m_pBibleDatabase->richVerseText(ndx, CVerseTextRichifierTags(), false);
 
 		ndxPrev = ndx;
 	}

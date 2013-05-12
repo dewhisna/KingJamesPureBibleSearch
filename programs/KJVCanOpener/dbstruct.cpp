@@ -25,6 +25,7 @@
 //
 
 #include "dbstruct.h"
+#include "VerseRichifier.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -768,6 +769,14 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(ndx);
 	if (footnote == m_mapFootnotes.end()) return NULL;
 	return &(footnote->second);
+}
+
+QString CBibleDatabase::richVerseText(const CRelIndex &ndx, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
+{
+	const CVerseEntry *pVerse = verseEntry(ndx);
+	assert(pVerse != NULL);
+
+	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
 }
 
 // ============================================================================

@@ -28,7 +28,8 @@ SOURCES += main.cpp \
 	../KJVCanOpener/PhraseListModel.cpp \
 	../KJVCanOpener/Highlighter.cpp \
 	../KJVCanOpener/ToolTipEdit.cpp \
-	../KJVCanOpener/ParseSymbols.cpp
+	../KJVCanOpener/ParseSymbols.cpp \
+	../KJVCanOpener/VerseRichifier.cpp
 
 HEADERS += \
 	../KJVCanOpener/dbstruct.h \
@@ -39,7 +40,8 @@ HEADERS += \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/Highlighter.h \
 	../KJVCanOpener/ToolTipEdit.h \
-	../KJVCanOpener/ParseSymbols.h
+	../KJVCanOpener/ParseSymbols.h \
+	../KJVCanOpener/VerseRichifier.h
 
 
 QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS

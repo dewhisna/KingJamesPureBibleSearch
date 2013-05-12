@@ -449,7 +449,7 @@ bool CBuildDatabase::BuildVerseTables()
 
 		// Create the table in the database:
 		strCmd = QString("create table %1 "
-						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT, TText TEXT)").arg(g_arrstrBkTblNames[i]);
 
 		if (!queryCreate.exec(strCmd)) {
 			fileBook.close();
@@ -465,12 +465,13 @@ bool CBuildDatabase::BuildVerseTables()
 		QStringList slHeaders;
 		csv >> slHeaders;              // Read Headers (verify and discard)
 
-		if ((slHeaders.size()!=5) ||
+		if ((slHeaders.size()!=6) ||
 			(slHeaders.at(0).compare("ChpVrsNdx") != 0) ||
 			(slHeaders.at(1).compare("NumWrd") != 0) ||
 			(slHeaders.at(2).compare("nPilcrow") != 0) ||
 			(slHeaders.at(3).compare("PText") != 0) ||
-			(slHeaders.at(4).compare("RText") != 0)) {
+			(slHeaders.at(4).compare("RText") != 0) ||
+			(slHeaders.at(5).compare("TText") != 0)) {
 			if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for %1 data file!").arg(g_arrstrBkTblNames[i]),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 				fileBook.close();
@@ -486,12 +487,12 @@ bool CBuildDatabase::BuildVerseTables()
 			QStringList sl;
 			csv >> sl;
 
-			assert(sl.count() == 5);
-			if (sl.count() < 5) continue;
+			assert(sl.count() == 6);
+			if (sl.count() < 6) continue;
 
 			strCmd = QString("INSERT INTO %1 "
-						"(ChpVrsNdx, NumWrd, nPilcrow, PText, RText) "
-						"VALUES (:ChpVrsNdx, :NumWrd, :nPilcrow, :PText, :RText)").arg(g_arrstrBkTblNames[i]);
+						"(ChpVrsNdx, NumWrd, nPilcrow, PText, RText, TText) "
+						"VALUES (:ChpVrsNdx, :NumWrd, :nPilcrow, :PText, :RText, :TText)").arg(g_arrstrBkTblNames[i]);
 
 			// No need to have both plain text and rich text in our database, since
 			//	we only need one data source for these.  So if we have Rich, we'll
@@ -507,6 +508,7 @@ bool CBuildDatabase::BuildVerseTables()
 			queryInsert.bindValue(":nPilcrow", sl.at(2).toInt());
 			queryInsert.bindValue(":PText", sl.at(3));
 			queryInsert.bindValue(":RText", sl.at(4));
+			queryInsert.bindValue(":TText", sl.at(5));
 			if (!queryInsert.exec()) {
 				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed!\n%1\n  %2  %3").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(3)),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;

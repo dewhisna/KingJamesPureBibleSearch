@@ -304,27 +304,18 @@ public:
 	{ }
 	~CVerseEntry() { }
 
-	unsigned int m_nNumWrd;		// Number of words in this verse
-	unsigned int m_nWrdAccum;	// Number of accumulated words up to and including this verse
+	unsigned int m_nNumWrd;			// Number of words in this verse
+	unsigned int m_nWrdAccum;		// Number of accumulated words up to and including this verse
 	PILCROW_TYPE_ENUM m_nPilcrow;	// Start of verse Pilcrow Flag (and Pilcrow type)
-	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
-	{
-		return m_strText;
-	}
-	void setText(const QString &strText)		// This can be a no-op on mobile if doing direct database lookups
-	{
-		m_strText = strText;
-	}
+	QString m_strTemplate;			// Rich Text Creation Template
 
 #ifdef OSIS_PARSER_BUILD
-	QString m_strTemplate;			// Rich Text Creation Template during build -- during write, we'll replace m_strText with this and generate the text dynamically in the app
+	QString m_strText;			// Rich text (or plain if Rich unavailable) for the verse (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 	QStringList m_lstWords;			// Word List for parse extraction
 	QStringList m_lstRichWords;		// Word List as Rich Text for parse extraction
 	QStringList m_lstParseStack;	// Parse operation stack (used to parse red-letter tags, added word tags, morphology, concordance references, etc.
 #endif
 
-private:
-	QString m_strText;			// Rich text (or plain if Rich unavailable) for the verse (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 };
 
 typedef std::map<CRelIndex, CVerseEntry, IndexSortPredicate> TVerseEntryMap;		// Index by [0|nChp|nVrs|0]
@@ -352,7 +343,7 @@ public:
 	struct SortPredicate {
 		bool operator() (const QString &s1, const QString &s2) const
 		{
-			return (s1.compare(s2, Qt::CaseInsensitive) < 0);
+			return (s1.compare(s2, Qt::CaseSensitive) < 0);
 		}
 	};
 };
@@ -457,6 +448,8 @@ extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
 class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
+class CVerseTextRichifierTags;
+
 // CBibleDatabase - Class to define a Bible Database file
 class CBibleDatabase
 {
@@ -531,6 +524,8 @@ public:
 	{
 		return m_lstCommonPhrases;
 	}
+
+	QString richVerseText(const CRelIndex &ndx, const CVerseTextRichifierTags &tags, bool bAddAnchors = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 
 private:
 	// CReadDatabase needed to load the database.  After that everything
