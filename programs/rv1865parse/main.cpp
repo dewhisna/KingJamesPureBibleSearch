@@ -120,8 +120,6 @@ TBook g_arrBooks[NUM_BK] =
 	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
 };
 
-
-
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -144,7 +142,6 @@ int main(int argc, char *argv[])
 		return -3;
 	}
 
-
 	fileOut.write(QString("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\n").toUtf8());
 	fileOut.write(QString("<osis xmlns=\"http://www.bibletechnologies.net/2003/OSIS/namespace\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.2.1.1.xsd\">\n\n").toUtf8());
 	fileOut.write(QString("<osisText osisIDWork=\"RV1865\" osisRefWork=\"defaultReferenceScheme\" lang=\"es\">\n\n").toUtf8());
@@ -158,8 +155,6 @@ int main(int argc, char *argv[])
 	fileOut.write(QString("<refSystem>Bible.KJV</refSystem>\n").toUtf8());
 	fileOut.write(QString("</work>\n").toUtf8());
 	fileOut.write(QString("</header>\n").toUtf8());
-
-// TODO : Write JSON to OSIS parser
 
 	QJsonParseError jsonParseError;
 	QJsonDocument jsonRV1865(QJsonDocument::fromJson(fileIn.readAll(), &jsonParseError));
@@ -252,6 +247,8 @@ int main(int argc, char *argv[])
 	fileOut.write(QString("\n</osisText>\n").toUtf8());
 	fileOut.write(QString("\n</osis>\n").toUtf8());
 
+	fileOut.close();
+	fileIn.close();
 
 //	return a.exec();
 	return 0;
