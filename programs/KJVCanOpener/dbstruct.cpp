@@ -736,6 +736,25 @@ const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 	return &m_lstBooks.at(nBk-1);
 }
 
+#ifdef OSIS_PARSER_BUILD
+const CChapterEntry *CBibleDatabase::chapterEntry(const CRelIndex &ndx, bool bForceCreate) const
+{
+	if (bForceCreate) (const_cast<TChapterMap &>(m_mapChapters))[CRelIndex(ndx.book(),ndx.chapter(),0,0)];		// Force the creation of this entry
+	TChapterMap::const_iterator chapter = m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (chapter == m_mapChapters.end()) return NULL;
+	return &(chapter->second);
+}
+
+const CVerseEntry *CBibleDatabase::verseEntry(const CRelIndex &ndx, bool bForceCreate) const
+{
+	if ((ndx.book() < 1) || (ndx.book() > m_lstBookVerses.size())) return NULL;
+	const TVerseEntryMap &book = m_lstBookVerses[ndx.book()-1];
+	if (bForceCreate) (const_cast<TVerseEntryMap &>(book))[CRelIndex(0, ndx.chapter(), ndx.verse(), 0)];			// Force the creation of this entry
+	const TVerseEntryMap::const_iterator mapVerse = book.find(CRelIndex(0, ndx.chapter(), ndx.verse(), 0));
+	if (mapVerse == book.end()) return NULL;
+	return &(mapVerse->second);
+}
+#else
 const CChapterEntry *CBibleDatabase::chapterEntry(const CRelIndex &ndx) const
 {
 	TChapterMap::const_iterator chapter = m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
@@ -751,6 +770,7 @@ const CVerseEntry *CBibleDatabase::verseEntry(const CRelIndex &ndx) const
 	if (mapVerse == book.end()) return NULL;
 	return &(mapVerse->second);
 }
+#endif
 
 const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 {

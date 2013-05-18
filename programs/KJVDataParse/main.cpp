@@ -574,6 +574,16 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			m_ndxColophon = CRelIndex();
 		}
 		m_bInColophon = true;
+	} else if ((m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
+		ndx = findAttribute(atts, "sID");			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
+		if (ndx != -1) {
+			if (m_ndxCurrent.verse() == 0) {
+				std::cerr << "\n*** Pilcrow marker outside of verse at: " << m_pBibleDatabase->PassageReferenceText(m_ndxCurrent).toUtf8().data() << "\n";
+			} else {
+				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+				verse.m_nPilcrow = CVerseEntry::PTE_MARKER;
+			}
+		}
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
 		if (nTst == 0) {
 			std::cerr << "\n*** Found book/chapter before testament marker!\n";
@@ -1208,9 +1218,18 @@ int main(int argc, char *argv[])
 				std::cerr << QString("\n*** ERROR: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			}
 			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
+			bool bChapterMissing = false;
+			Q_UNUSED(bChapterMissing);
 			if (pChapter == NULL) {
+				bChapterMissing = true;
 				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
-				continue;
+				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
+				if (pChapter == NULL) {
+					std::cerr << "*** Unable to create missing chapter\n";
+					continue;
+				} else {
+					(const_cast<CBookEntry*>(pBook))->m_nNumChp++;
+				}
 			}
 			(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
 
@@ -1233,9 +1252,18 @@ int main(int argc, char *argv[])
 					std::cerr << QString("\n*** ERROR: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
+				bool bVerseMissing = false;
 				if (pVerse == NULL) {
+					bVerseMissing = true;
 					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
-					continue;
+					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
+					if (pVerse == NULL) {
+						std::cerr << "*** Unable to create missing verse\n";
+						continue;
+					} else {
+						(const_cast<CBookEntry*>(pBook))->m_nNumVrs++;
+						(const_cast<CChapterEntry*>(pChapter))->m_nNumVrs++;
+					}
 				}
 //				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toUtf8().data();
 
@@ -1247,7 +1275,8 @@ int main(int argc, char *argv[])
 					assert(pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, 1)) == (pVerse->m_nWrdAccum+1));
 					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
 				} else {
-					std::cerr << QString("\n*** ERROR: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+					if (!bVerseMissing)
+						std::cerr << QString("\n*** ERROR: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 
 //				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');

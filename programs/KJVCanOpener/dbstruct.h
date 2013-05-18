@@ -499,8 +499,13 @@ public:
 	}
 	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
 	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Books]
+#ifdef OSIS_PARSER_BUILD
+	const CChapterEntry *chapterEntry(const CRelIndex &ndx, bool bForceCreate = false) const;		// Chapter Data Use CRelIndex:[Book | Chapter | 0 | 0]
+	const CVerseEntry *verseEntry(const CRelIndex &ndx, bool bForceCreate = false) const;			// Verse Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
+#else
 	const CChapterEntry *chapterEntry(const CRelIndex &ndx) const;		// Chapter Data Use CRelIndex:[Book | Chapter | 0 | 0]
 	const CVerseEntry *verseEntry(const CRelIndex &ndx) const;			// Verse Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
+#endif
 	const CWordEntry *wordlistEntry(const QString &strWord) const;		// WordList Data Entry: Index by lowercase keyword
 	inline const TWordListMap &mapWordList() const						// Master word-list Map
 	{
