@@ -183,20 +183,26 @@ public:
 	}
 	QString getVerseVeryPlainText() const		// Very Plain has no punctuation!
 	{
-		return getVerseAsWordList().join(" ");
+		if (!m_strVeryPlainTextCache.isEmpty()) return m_strVeryPlainTextCache;
+		m_strVeryPlainTextCache = getVerseAsWordList().join(" ");
+		return m_strVeryPlainTextCache;
 	}
 	QString getVerseRichText() const
 	{
+		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
-		return m_pBibleDatabase->richVerseText(CRelIndex(getBook(), getChapter(), getVerse(), 0), CVerseTextRichifierTags(), false);
+		m_strRichTextCache = m_pBibleDatabase->richVerseText(CRelIndex(getBook(), getChapter(), getVerse(), 0), CVerseTextRichifierTags(), false);
+		return m_strRichTextCache;
 	}
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CRelIndex m_ndxRelative;		// Primary Relative Index (word index == 0)
 	TPhraseTagList m_lstTags;		// Phrase Tags to highlight, includes a copy of the Primary (w/word index != 0)
+	mutable QString m_strRichTextCache;			// Caches filled in during first fetch
+	mutable QString m_strVeryPlainTextCache;
 };
 
 Q_DECLARE_METATYPE(CVerseListItem)
