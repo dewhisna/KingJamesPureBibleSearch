@@ -239,10 +239,15 @@ static QString convertVerseText(const QString &strVerseText, unsigned int nBook,
 			} else {
 				strTemp += "</div>";
 			}
+			nBracketsColophon--;
 		} else if (!strVerse.at(ndx).isDigit()) {			// For some reason, four verses end with a number: 1 Chronicles 6:62, Nehemiah 7:64, Job 32:2, 2 Chronicles 5:2 ?? Not sure why, but they shouldn't be there!
 			strTemp += strVerse.at(ndx);
 		}
 	}
+
+	assert(nBracketsAdded == 0);
+	assert(nBracketsWordsOfJesus == 0);
+	assert(nBracketsColophon == 0);
 
 	return strTemp;
 }
