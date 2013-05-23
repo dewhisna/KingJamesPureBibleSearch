@@ -77,8 +77,8 @@ const QString g_strApostrophes =	QString(QChar(0x0027)) +		// U+0027	&#39;		Asci
 const QString g_strAsciiWordChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 
-// Non-Word Non-Ascii characters -- these are non-Ascii characters the do
-//	do automatically apply as a word -- things like quotes, etc:
+// Non-Word Non-Ascii characters -- these are non-Ascii characters that do
+//	not automatically apply as a word -- things like quotes, etc:
 const QString g_strNonAsciiNonWordChars =	QString(QChar(0x201C)) +		// U+201C	&#8220;		Double-Quote Left
 											QString(QChar(0x201D)) +		// U+201D	&#8221;		Double-Quote Right
 											QString(QChar(0x201E)) +		// U+201E	&#8222;		Double-Quote Base
@@ -90,7 +90,8 @@ const QString g_strNonAsciiNonWordChars =	QString(QChar(0x201C)) +		// U+201C	&#
 											QString(QChar(0x00BB)) +		// U+00BB	&#187;		Double-guillemot Right
 											QString(QChar(0x00BF)) +		// U+00BF	&#191;		Upside down question mark
 											QString(QChar(0x00A1)) +		// U+00A1	&#161;		Upside down exclamation mark
-											QString(QChar(0x00B7));			// U+00B7	&#183;		Centered period
+											QString(QChar(0x00B7)) +		// U+00B7	&#183;		Centered period
+											QString(QChar(0x00A0));			// U+00A0	&#160;		No-Break Space
 
 const QChar g_chrPilcrow = QChar(0x00B6);		// Pilcrow paragraph marker
 
