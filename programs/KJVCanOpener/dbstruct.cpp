@@ -200,7 +200,9 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 
 	nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum;
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) {
-		assert(false);
+		// We can get here if the caller is addressing one word beyond the end-of-the-text, for example,
+		//		and this has always been defined as "0" (out-of-bounds or not-set), just like the "0"
+		//		at the beginning of the text.
 		return 0;
 	}
 
