@@ -36,9 +36,9 @@ public:
 	{
 		if (m_pWidget) {
 			m_originalCursor = m_pWidget->cursor();
-			m_pWidget->setCursor(Qt::WaitCursor);
+			m_pWidget->setCursor(Qt::BusyCursor);
 		} else {
-			QApplication::setOverrideCursor(Qt::WaitCursor);
+			QApplication::setOverrideCursor(Qt::BusyCursor);
 		}
 	}
 

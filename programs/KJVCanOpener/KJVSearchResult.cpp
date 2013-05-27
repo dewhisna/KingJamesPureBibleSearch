@@ -28,6 +28,7 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "Highlighter.h"
 #include "KJVCanOpener.h"
+#include "ReflowDelegate.h"
 
 #include <assert.h>
 
@@ -574,6 +575,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsTreeView->setExpandsOnDoubleClick(false);
 	m_pSearchResultsTreeView->setProperty("isWrapping", QVariant(false));
 	m_pSearchResultsTreeView->header()->setVisible(false);
+	m_pSearchResultsTreeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_pSearchResultsTreeView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 	pLayout->addWidget(m_pSearchResultsTreeView);
 
@@ -586,9 +589,11 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	if (pOldModel) delete pOldModel;
 	m_pSearchResultsTreeView->setRootIsDecorated(pModel->treeMode() != CVerseListModel::VTME_LIST);
 
+	CReflowDelegate *pReflowDelegate = new CReflowDelegate(m_pSearchResultsTreeView);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*pModel, m_pSearchResultsTreeView);
+	pReflowDelegate->setItemDelegate(pDelegate);
 	QAbstractItemDelegate *pOldDelegate = m_pSearchResultsTreeView->itemDelegate();
-	m_pSearchResultsTreeView->setItemDelegate(pDelegate);
+	m_pSearchResultsTreeView->setItemDelegate(pReflowDelegate);
 	if (pOldDelegate) delete pOldDelegate;
 
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(on_listChanged()));

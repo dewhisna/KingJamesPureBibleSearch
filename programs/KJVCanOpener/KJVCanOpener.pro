@@ -58,7 +58,9 @@ SOURCES += main.cpp \
 	KJVSearchSpec.cpp \
 	ParseSymbols.cpp \
 	VerseRichifier.cpp \
-	DelayedExecutionTimer.cpp
+	DelayedExecutionTimer.cpp \
+	ModelRowForwardIterator.cpp \
+	ReflowDelegate.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -93,7 +95,9 @@ HEADERS  += main.h \
 	ParseSymbols.h \
 	VerseRichifier.h \
 	DelayedExecutionTimer.h \
-	BusyCursor.h
+	BusyCursor.h \
+	ModelRowForwardIterator.h \
+	ReflowDelegate.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \

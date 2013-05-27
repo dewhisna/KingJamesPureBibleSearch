@@ -37,6 +37,7 @@
 #include <QVariant>
 #include <QPair>
 #include <QObject>
+#include <QSize>
 
 #include <assert.h>
 
@@ -314,6 +315,7 @@ private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CVerseList m_lstVerses;
 	QMap<uint32_t, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex->index() to index within m_lstVerses.  Set during setVerseList.
+	QMap<uint32_t, QSize> m_mapSizeHints;		// Map of CRelIndex->index() to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;

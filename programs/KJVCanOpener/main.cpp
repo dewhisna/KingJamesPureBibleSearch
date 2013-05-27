@@ -261,6 +261,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	g_bEnableNoLimits = true;
+
 	CBuildDatabase bdb(splash);
 	if (bBuildDB) {
 		if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {

@@ -231,6 +231,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return QVariant();
 
+	if (role == Qt::SizeHintRole) return m_mapSizeHints.value(ndxRel.index(), QSize());
+
 	if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 			QString strBookText = m_pBibleDatabase->bookName(ndxRel);
@@ -346,9 +348,21 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	Q_UNUSED(index);
-	Q_UNUSED(value);
-	Q_UNUSED(role);
+	if (role == Qt::SizeHintRole) {
+		if (!index.isValid()) {
+			// Special Case:  QModelIndex() is "invalidate all":
+			m_mapSizeHints.clear();
+			return false;				// But return false because we can't actually set a SizeHint for an invalid index
+		}
+
+		CRelIndex ndxRel(index.internalId());
+		assert(ndxRel.isSet());
+		if (!ndxRel.isSet()) return false;
+
+		m_mapSizeHints[ndxRel.index()] = value.toSize();
+		return true;
+	}
+
 /*
 	if (index.row() < 0 || index.row() >= m_lstVerses.size()) return false;
 
@@ -573,6 +587,7 @@ bool CVerseListModel::hasExceededDisplayLimit() const
 
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
+	m_mapSizeHints.clear();
 	if (!hasExceededDisplayLimit()) {
 		emit layoutAboutToBeChanged();
 		m_nDisplayMode = nDisplayMode;
@@ -586,6 +601,7 @@ void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 
 void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 {
+	m_mapSizeHints.clear();
 	emit beginResetModel();
 	m_nTreeMode = nTreeMode;
 	emit endResetModel();

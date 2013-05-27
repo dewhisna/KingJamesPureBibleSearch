@@ -97,7 +97,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 	initStyleOption(&optionV4, index);
 
 	QRect textRect;
-	if(parentView()) {
+	if (parentView()) {
 		textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &optionV4, parentView());
 	} else {
 		textRect = optionV4.rect;
@@ -185,14 +185,14 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
 		QTextDocument doc;
 
-		if(parentView()) {
+		QTreeView *pTree = static_cast<QTreeView *>(parentView());
+		if (pTree) {
 			CRelIndex ndxRel(index.internalId());
 			assert(ndxRel.isSet());
-			QTreeView *pTree = static_cast<QTreeView *>(parentView());
 			int nIndentation = pTree->indentation();
-			int nWidth = parentView()->width() - nIndentation;
+			int nWidth = pTree->viewport()->width();
 
-//			int nWidth = parentView()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
+//			int nWidth = pTree->viewport()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
 
 			switch (m_model.treeMode()) {
 				case CVerseListModel::VTME_LIST:
@@ -226,9 +226,15 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 	// CVerseListModel::VDME_VERYPLAIN:
 	// CVerseListModel::VDME_COMPLETE:
 	// default:
-	QVariant value = index.data(Qt::SizeHintRole);
-	if (value.isValid())
-		return qvariant_cast<QSize>(value);
+
+// Note: Do NOT call to index->data SizeHintRole here when using the CReflowDelegate or
+//	you'll end up in a circular loop with calculating/recalculating the layout over and
+//	over again:
+//
+//	QVariant value = index.data(Qt::SizeHintRole);
+//	if (value.isValid())
+//		return value.toSize();
+
 	return style->sizeFromContents(QStyle::CT_ItemViewItem, &optionV4, QSize(), optionV4.widget);
 }
 
