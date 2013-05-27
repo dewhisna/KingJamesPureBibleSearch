@@ -508,19 +508,26 @@ void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 {
 	assert(event != NULL);
 
-	// Unlike the QListView, the QTreeView doesn't have a ResizeMode for Adjust.  So
-	//		we need to handle this event to do a new layout when the
-	//		view size changes.
+// This isn't needed when using the ReflowDelegate because the delegate is handling
+//	the resizeEvent as well and will invalidate our sizeHints appropriately.  Leaving
+//	this code here for reference in case we ever remove the ReflowDelegate:
+//
+//	// Unlike the QListView, the QTreeView doesn't have a ResizeMode for Adjust.  So
+//	//		we need to handle this event to do a new layout when the
+//	//		view size changes.
+//
+//	QSize szDelta = event->size() - event->oldSize();
+//
+//	if (!szDelta.isNull()) {
+//		bool bFlowDimensionChanged = (szDelta.width() != 0);
+//
+//		if ((state() == NoState) && (bFlowDimensionChanged)) {
+//			scheduleDelayedItemsLayout();
+//		}
+//	}
 
-	QSize szDelta = event->size() - event->oldSize();
-
-	if (!szDelta.isNull()) {
-		bool bFlowDimensionChanged = (szDelta.width() != 0);
-
-		if ((state() == NoState) && (bFlowDimensionChanged)) {
-			scheduleDelayedItemsLayout();
-		}
-	}
+	// Save our scroll position when resizing the whole tree:
+	CScrollPreserver verticalOffset(this);
 
 	QTreeView::resizeEvent(event);
 }

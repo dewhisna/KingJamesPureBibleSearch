@@ -437,8 +437,21 @@ void CReflowDelegate::reflowTick()
 				int nBlockCount = 0;
 				do {
 					ndxBottomRight = *m_itrReflowIndex;
-					++m_itrReflowIndex;
-				} while((++nBlockCount < REFLOW_BATCH_SIZE) && (m_itrReflowIndex) /* && (m_itrReflowIndex.parent() == ndxParent) */);
+
+					if (pView->isExpanded(*m_itrReflowIndex)) {
+						++m_itrReflowIndex;
+
+						// Optimization for Trees, as only trees will be expanded:
+						// If we already have a size hint for it, keep going because we
+						//	have an entry that will be quick anyway:
+						if (m_itrReflowIndex->data(Qt::SizeHintRole).isValid()) continue;
+					} else {
+						// if its children aren't being shown, skip past them:
+						m_itrReflowIndex.nextSibling();
+					}
+
+					++nBlockCount;
+				} while((nBlockCount < REFLOW_BATCH_SIZE) && (m_itrReflowIndex) /* && (m_itrReflowIndex.parent() == ndxParent) */);
 				emit sizeHintChanged(ndxTopLeft, ndxBottomRight);
 
 				if (timeSlice.elapsed() > REFLOW_TIMESLICE) break;			// If it's taking too long, stop to let the UI run and do more on next tick...
