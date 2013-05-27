@@ -37,7 +37,6 @@
 #include <QAbstractTextDocumentLayout>
 #include <QToolTip>
 #include <QWhatsThis>
-#include <QTreeView>
 
 CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 	:	QStyledItemDelegate(parent),
@@ -87,6 +86,21 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		strHTML += "</body></html>";
 		doc.setHtml(strHTML);
 	}
+}
+
+int CVerseListDelegate::indentationForIndex(const QModelIndex &index) const
+{
+	QTreeView *pView = parentView();
+	assert(pView != NULL);
+
+	int nLevel = 0;
+	if (pView->rootIsDecorated()) ++nLevel;
+	for (QModelIndex ndxParent = index.parent(); ndxParent.isValid(); ndxParent = ndxParent.parent()) {
+		++nLevel;
+	}
+
+	// Return number of pixels instead of level count:
+	return (nLevel * pView->indentation());
 }
 
 void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -185,28 +199,14 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 	if (m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) {
 		QTextDocument doc;
 
-		QTreeView *pTree = static_cast<QTreeView *>(parentView());
+		QTreeView *pTree = parentView();
 		if (pTree) {
 			CRelIndex ndxRel(index.internalId());
 			assert(ndxRel.isSet());
-			int nIndentation = pTree->indentation();
-			int nWidth = pTree->viewport()->width();
+			int nWidth = pTree->viewport()->width() - indentationForIndex(index);
 
 //			int nWidth = pTree->viewport()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
 
-			switch (m_model.treeMode()) {
-				case CVerseListModel::VTME_LIST:
-					break;
-				case CVerseListModel::VTME_TREE_BOOKS:
-					if (ndxRel.verse() != 0) nWidth -= nIndentation;
-					nWidth -= nIndentation;
-					break;
-				case CVerseListModel::VTME_TREE_CHAPTERS:
-					if (ndxRel.verse() != 0) nWidth -= nIndentation;
-					if (ndxRel.chapter() != 0) nWidth -= nIndentation;
-					nWidth -= nIndentation;
-					break;
-			}
 			doc.setTextWidth(nWidth);
 			SetDocumentText(doc, index, true);
 		} else {

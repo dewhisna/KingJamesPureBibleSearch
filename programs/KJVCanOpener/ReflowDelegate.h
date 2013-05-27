@@ -91,9 +91,6 @@ public:
 	bool onlyLeaves() const { return m_bOnlyLeaves; }
 	void setOnlyLeaves(bool bOnlyLeaves);
 
-// TODO : CLEAN
-//	static void layoutRow(const QVector<QSize> &vecSizeHints, const QVector<int> &vecColumnWidths, QSize szViewport, int nViewIndentation, const QRect &rcOption, QSize *pSizeHint = NULL, QVector<QRect> *pChildren = NULL);
-
 public slots:
 	void startReflow();
 
@@ -120,9 +117,6 @@ private:
 
 	void layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint = NULL, QVector<QSize> *pVecSZColumns = NULL, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode = SHCME_ComputeIfNeeded) const;
 	QStyleOptionViewItemV4 viewOptions(const QModelIndex &index);
-
-// TODO : CLEAN
-//	int indentationForParent(const QModelIndex &parent) const;
 
 	QTreeView *parentView() const;
 	bool eventFilter(QObject *o, QEvent *e);

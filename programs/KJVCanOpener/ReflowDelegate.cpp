@@ -94,45 +94,6 @@ int CScrollPreserver::deltaY() const
 	return dy;
 }
 
-
-/*
-class CScrollPreserver {
-public:
-	CScrollPreserver(QAbstractItemView *pView)
-		: m_pView(pView),
-		  m_nOffset(0)
-	{
-		if (m_pView->verticalScrollMode() == QAbstractItemView::ScrollPerPixel) {
-			m_index = m_pView->indexAt(QPoint(0,0));
-			if (m_index.isValid()) {
-				QRect rcVisual = m_pView->visualRect(m_index);
-				assert(rcVisual.isValid());
-				m_nOffset = rcVisual.top();
-			} else {
-				m_nOffset = 0;
-			}
-		} else {
-			m_pView = NULL;
-		}
-	}
-	~CScrollPreserver()
-	{
-		if (m_pView && m_index.isValid()) {
-			int dy = m_pView->visualRect(m_index).top() - m_nOffset;
-			if(dy != 0) {
-				QScrollBar *pVBar = m_pView->verticalScrollBar();
-				pVBar->setValue(pVBar->value() + dy);
-			}
-		}
-	}
-private:
-	QAbstractItemView *m_pView;
-	QModelIndex m_index;
-	int m_nOffset;
-};
-*/
-
-
 // ============================================================================
 
 namespace {
@@ -226,16 +187,7 @@ void CReflowDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionVi
 
 void CReflowDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-// TODO : CLEAN
-//	QWidget *pViewport = dynamic_cast<QWidget *>(painter->device());
-//	QRect rcVisible;
-//	if (pViewport) rcVisible = pViewport->rect();
-//
-//	QVector<QSize> vecSZColumns;
-//	layoutRow(option, index, NULL, &vecSZColumns);
-
-//	layoutRow(option, index);
-
+	layoutRow(option, index);
 	itemDelegate(index)->paint(painter, option, index);
 }
 
@@ -457,15 +409,9 @@ void CReflowDelegate::reflowViewport()
 
 void CReflowDelegate::reflowTick()
 {
-	QTreeView *pView = parentView();
-	assert(pView != NULL);
-
-	// Save our view's scroll position (and restore it on exit):
-	CScrollPreserver verticalOffset(pView);
-
 	if (QApplication::mouseButtons() == 0) {		// Only do reflow if user doesn't have a mouse button pressed:
-//		QTreeView *pView = parentView();
-//		assert(pView != NULL);
+		QTreeView *pView = parentView();
+		assert(pView != NULL);
 
 		// QModelIndex() marks the *end* of iteration.  But if we'd really finished, the timer wouldn't still
 		//	be ticking so thus must be that the current position was invalidated, and we need to start over:
@@ -478,7 +424,7 @@ void CReflowDelegate::reflowTick()
 		CScopedValue<SIZE_HINT_CACHE_MODE_ENUM> sizeHintMode(m_nSizeHintCacheMode, SHCME_ComputeIfNeeded);
 
 		// Save our view's scroll position (and restore it on exit):
-//		CScrollPreserver verticalOffset(pView);
+		CScrollPreserver verticalOffset(pView);
 
 		if (m_bDoBlockingUpdate) {
 			while (m_itrReflowIndex) {
@@ -547,12 +493,6 @@ QStyleOptionViewItemV4 CReflowDelegate::viewOptions(const QModelIndex &index)
 	option.rect = pView->visualRect(index);
 	return option;
 }
-
-// TODO : CLEAN
-//int CReflowDelegate::indentationForParent(const QModelIndex &parent) const
-//{
-//
-//}
 
 QTreeView *CReflowDelegate::parentView() const
 {

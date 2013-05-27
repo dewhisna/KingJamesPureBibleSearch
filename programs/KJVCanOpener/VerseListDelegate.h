@@ -32,6 +32,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
+#include <QTreeView>
 #include <QHelpEvent>
 
 class CVerseListDelegate : public QStyledItemDelegate
@@ -50,8 +51,9 @@ public slots:
 
 protected:
 	void SetDocumentText(QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;
+	int indentationForIndex(const QModelIndex &index) const;
 
-	QAbstractItemView* parentView() const { return static_cast<QAbstractItemView*>(QObject::parent()); }
+	QTreeView* parentView() const { return static_cast<QTreeView*>(QObject::parent()); }
 
 	inline void setVerseListPalette(QPalette *palette) const {
 		// This sets a palette useful for the black text of the verses:
