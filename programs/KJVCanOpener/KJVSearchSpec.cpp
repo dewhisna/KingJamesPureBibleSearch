@@ -55,6 +55,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 		m_pLayoutPhrases(NULL),
 		m_pLastEditorActive(NULL),
 		m_bDoneActivation(false),
+		m_bCloseAllSearchPhrasesInProgress(false),
 		ui(new Ui::CKJVSearchSpec)
 {
 	ui->setupUi(this);
@@ -200,9 +201,15 @@ void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhr
 
 void CKJVSearchSpec::closeAllSearchPhrases()
 {
+	// Set flag so we don't emit extra on_phraseChanged() signals:
+	m_bCloseAllSearchPhrasesInProgress = true;
+
 	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->closeSearchPhrase();
 	}
+
+	m_bCloseAllSearchPhrasesInProgress = false;
+	on_phraseChanged(NULL);							// Still need to emit one change
 }
 
 CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
@@ -269,7 +276,8 @@ void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
 							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
-							(pSearchPhrase->parsedPhrase()->isCompleteMatch()));
+							(pSearchPhrase->parsedPhrase()->isCompleteMatch()) &&
+							(!m_bCloseAllSearchPhrasesInProgress));
 
 	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhrase);
 	assert(ndx != -1);
