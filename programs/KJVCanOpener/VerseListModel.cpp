@@ -892,18 +892,24 @@ int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 
 int CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
 {
+	// Note: This function has a special case for nChp == 0 (unlike the other index functions)
+
 	if ((nBk == 0) || (ndxVerse < 0)) return -1;
 
 	// Find the first and last entries with the correct Book/Chapter number:
 	QMap<uint32_t, int>::const_iterator itrVerseMapBookChapterFirst;
 	QMap<uint32_t, int>::const_iterator itrVerseMapBookChapterLast;
 	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0).index());			// This will be the first verse of this chapter of this book
-	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0).index());			// This will be the first verse of the next book/chapter
+	if (nChp != 0) {
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0).index());			// This will be the first verse of the next book/chapter
+	} else {
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0).index());
+	}
 
 	// If we didn't find the book and/or book/chapter, return -1 (not found):
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return -1;
 	CRelIndex relndxFirst(itrVerseMapBookChapterFirst.key());
-	if ((relndxFirst.book() != nBk) || (relndxFirst.chapter() != nChp)) return -1;
+	if ((relndxFirst.book() != nBk) || ((nChp != 0) && (relndxFirst.chapter() != nChp))) return -1;
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
