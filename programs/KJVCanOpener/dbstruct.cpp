@@ -43,12 +43,6 @@ bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
 
 // ============================================================================
 
-// User-editable options (TODO: move to options class)
-bool g_bEnableNoLimits = false;
-int g_nSearchLimit = 5000;		// This check keeps the really heavy hitters like 'and' and 'the' from making us come to a complete stand-still
-
-// ============================================================================
-
 int CPhraseList::removeDuplicates()
 {
 	int n = size();

@@ -440,12 +440,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
 	assert(pModel != NULL);
 
-	QString strStatusText;
-	if (!pModel->hasExceededDisplayLimit()) {
-		strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
-	} else {
-		strStatusText = tr("Too many search results to display in this mode!!  Try Switching to either View References Only mode or to Tree Mode.");
-	}
+	QString strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
@@ -459,9 +454,7 @@ void CSearchResultsTreeView::on_listChanged()
 	int nResultsCount = pModel->GetResultsCount();
 
 	m_pActionSelectAll->setEnabled(nResultsCount != 0);
-	emit canExpandAll((pModel->treeMode() != CVerseListModel::VTME_LIST) &&
-						(pModel->hasChildren()) &&
-						(!((nResultsCount > g_nSearchLimit) && (!g_bEnableNoLimits))));
+	emit canExpandAll((pModel->treeMode() != CVerseListModel::VTME_LIST) && (pModel->hasChildren()));
 	emit canCollapseAll((pModel->treeMode() != CVerseListModel::VTME_LIST) && (pModel->hasChildren()));
 
 	handle_selectionChanged();

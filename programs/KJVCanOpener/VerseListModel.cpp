@@ -77,7 +77,7 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 		case VTME_LIST:
 		{
 			if (parent.isValid()) return 0;
-			return (hasExceededDisplayLimit() ? 0 : m_lstVerses.count());
+			return m_lstVerses.count();
 		}
 		case VTME_TREE_BOOKS:
 		{
@@ -578,25 +578,12 @@ TPhraseTagList CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchC
 	return buildVerseListFromParsedPhrases();
 }
 
-bool CVerseListModel::hasExceededDisplayLimit() const
-{
-	if (m_nTreeMode != VTME_LIST) return false;
-	if (g_bEnableNoLimits) return false;
-	return ((m_lstVerses.size() > g_nSearchLimit) && (m_nDisplayMode != VDME_HEADING));
-}
-
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
 	m_mapSizeHints.clear();
-	if (!hasExceededDisplayLimit()) {
-		emit layoutAboutToBeChanged();
-		m_nDisplayMode = nDisplayMode;
-		emit layoutChanged();
-	} else {
-		emit beginResetModel();
-		m_nDisplayMode = nDisplayMode;
-		emit endResetModel();
-	}
+	emit layoutAboutToBeChanged();
+	m_nDisplayMode = nDisplayMode;
+	emit layoutChanged();
 }
 
 void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)

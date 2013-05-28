@@ -252,16 +252,12 @@ int main(int argc, char *argv[])
 		QString strArg(argv[ndx]);
 		if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 			bBuildDB = true;
-		} else if (strArg.compare("-nolimits", Qt::CaseInsensitive) == 0) {
-			g_bEnableNoLimits = true;
 		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
 			strKJSFile = strArg;
 		} else {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
 		}
 	}
-
-	g_bEnableNoLimits = true;
 
 	CBuildDatabase bdb(splash);
 	if (bBuildDB) {

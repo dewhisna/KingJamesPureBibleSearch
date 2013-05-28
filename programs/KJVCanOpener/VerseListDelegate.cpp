@@ -250,20 +250,15 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
-			if (!m_model.hasExceededDisplayLimit()) {
-				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails()) {
-//					QVariant tooltip = index.data(Qt::ToolTipRole);
-//					if (tooltip.canConvert<QString>()) {
-////						QToolTip::showText(event->globalPos(), tooltip.toString(), view);
-//						CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view, view->rect());
-//						return true;
-//					}
+			if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails()) {
+//				QVariant tooltip = index.data(Qt::ToolTipRole);
+//				if (tooltip.canConvert<QString>()) {
+//	//					QToolTip::showText(event->globalPos(), tooltip.toString(), view);
+//					CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view, view->rect());
+//					return true;
+//				}
 
-					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
-					return true;
-				}
-			} else {
-				QToolTip::showText(event->globalPos(), tr("Too many search results to display in this mode!!\nTry Switching to either View References Only mode or to Tree Mode."), view);
+				QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
 				return true;
 			}
 			break;
