@@ -103,6 +103,7 @@ private slots:
 
 	void reflowViewport();
 	void reflowTick();
+	void reflowHalt();
 
 protected:
 	void sizeHintChanged(const QModelIndex &index) const { emit sizeHintChanged(index,index); }

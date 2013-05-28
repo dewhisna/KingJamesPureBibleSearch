@@ -31,6 +31,7 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <QTime>
+#include <QAbstractItemModel>
 
 #include <algorithm>
 #include <assert.h>
@@ -136,6 +137,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate)
 	parent->viewport()->installEventFilter(this);
 
 	connect(this, SIGNAL(sizeHintChanged(QModelIndex,QModelIndex)), parent, SLOT(dataChanged(QModelIndex,QModelIndex)));
+	connect(parent->model(), SIGNAL(modelAboutToBeReset()), this, SLOT(reflowHalt()));
 
 	m_timerReflow.setInterval(0);
 	connect(&m_timerReflow, SIGNAL(timeout()), SLOT(reflowTick()));
@@ -468,6 +470,14 @@ void CReflowDelegate::reflowTick()
 			m_timerReflow.stop();
 			QApplication::restoreOverrideCursor();
 		}
+	}
+}
+
+void CReflowDelegate::reflowHalt()
+{
+	if (m_timerReflow.isActive()) {
+		m_timerReflow.stop();
+		QApplication::restoreOverrideCursor();
 	}
 }
 
