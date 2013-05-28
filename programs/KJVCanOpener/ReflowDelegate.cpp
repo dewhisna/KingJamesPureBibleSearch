@@ -451,7 +451,7 @@ void CReflowDelegate::reflowTick()
 					}
 
 					++nBlockCount;
-				} while((nBlockCount < REFLOW_BATCH_SIZE) && (m_itrReflowIndex) /* && (m_itrReflowIndex.parent() == ndxParent) */);
+				} while((nBlockCount < REFLOW_BATCH_SIZE) && (m_itrReflowIndex) && (m_itrReflowIndex.parent() == ndxParent));		// Note: parents should be the same because dataChanged is defined only when the parents are the same
 				emit sizeHintChanged(ndxTopLeft, ndxBottomRight);
 
 				if (timeSlice.elapsed() > REFLOW_TIMESLICE) break;			// If it's taking too long, stop to let the UI run and do more on next tick...
