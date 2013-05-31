@@ -55,11 +55,7 @@ CScrollPreserver::CScrollPreserver(QTreeView *pView)
 			m_nMode = SPME_CurrentIndex;
 		} else {
 			m_nMode = SPME_TopOfView;
-			if (pView->header()->isVisible()) {
-				m_index = pView->indexAt(QPoint(-pView->header()->offset(), 0));
-			} else {
-				m_index = pView->indexAt(QPoint(0, 0));
-			}
+			m_index = pView->indexAt(QPoint(-pView->header()->offset(), 0));
 			rcVisual = pView->visualRect(index());
 		}
 		m_nOffset = rcVisual.bottom();
