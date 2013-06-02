@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include <QtCore>
-#include <QApplication>
 #include <QPixmap>
 #include <QSplashScreen>
 #include <QWidget>
@@ -38,6 +37,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QObject>
+#include <QProxyStyle>
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -170,6 +170,20 @@ namespace {
 
 // ============================================================================
 
+class MyProxyStyle : public QProxyStyle
+{
+public:
+	int styleHint(StyleHint hint, const QStyleOption *option = 0,
+				const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const
+	{
+		if (hint == QStyle:: SH_ItemView_ActivateItemOnSingleClick) return 0;
+
+		return QProxyStyle::styleHint(hint, option, widget, returnData);
+	}
+};
+
+// ============================================================================
+
 bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 {
 	try {
@@ -203,6 +217,8 @@ int main(int argc, char *argv[])
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);
 	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
+
+	app.setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
 
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 	QString strKJSFile;

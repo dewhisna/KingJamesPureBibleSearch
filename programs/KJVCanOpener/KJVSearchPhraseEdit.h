@@ -49,6 +49,8 @@
 
 // ============================================================================
 
+#if QT_VERSION < 0x050000
+
 // CComposingCompleter -- Needed to fix a bug in Qt 4.8.x QCompleter whereby
 //		inputMethod events get redirected to the popup, but don't come back
 //		to the editor because inputContext()->setFocusWidget() never gets
@@ -83,6 +85,8 @@ public:
 
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 };
+
+#endif
 
 // ============================================================================
 
@@ -140,7 +144,11 @@ protected:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+#if QT_VERSION < 0x050000
 	CComposingCompleter *m_pCompleter;			// Word completer
+#else
+	QCompleter *m_pCompleter;					// Word completer
+#endif
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
 	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)

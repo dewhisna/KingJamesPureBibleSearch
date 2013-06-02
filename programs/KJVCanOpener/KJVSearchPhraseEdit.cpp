@@ -31,7 +31,9 @@
 #include <QTextCharFormat>
 #include <QFontMetrics>
 
+#if QT_VERSION < 0x050000
 #include <QInputContext>
+#endif
 
 #include <QTextDocumentFragment>
 
@@ -46,6 +48,8 @@
 #define PHRASE_COMPLETER_BUTTON_SIZE_Y 24
 
 // ============================================================================
+
+#if QT_VERSION < 0x050000
 
 bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
 {
@@ -63,6 +67,8 @@ bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
 
 	return QCompleter::eventFilter(obj, ev);
 }
+
+#endif
 
 // ============================================================================
 
@@ -158,7 +164,11 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
 
 	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->decomposedConcordanceWordList(), this);
+#if QT_VERSION < 0x050000
 	m_pCompleter = new CComposingCompleter(pModel, this);
+#else
+	m_pCompleter = new QCompleter(pModel, this);
+#endif
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
@@ -424,11 +434,14 @@ void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 	emit activatedPhraseEditor(this);
 	QTextEdit::focusInEvent(event);
 
+#if QT_VERSION < 0x050000
 	// The following is needed to fix the QCompleter bug
 	//	where the inputContext doesn't shift correctly
 	//	from the QCompleter->popup back to the editor:
+	//	(Only applies to Qt 4.8.x and seems to be fixed in Qt5)
 	QInputContext *pInputContext = inputContext();
 	if (pInputContext) pInputContext->setFocusWidget(this);
+#endif
 }
 
 void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
