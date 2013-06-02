@@ -969,9 +969,9 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 				bDone = true;
 				break;
 			}
-			lstScopedRefs[ndx] = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]).first, m_SearchCriteria.searchScopeMode());
+			lstScopedRefs[ndx] = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxStart[ndx]).relIndex(), m_SearchCriteria.searchScopeMode());
 			for (lstNdxEnd[ndx] = lstNdxStart[ndx]+1; lstNdxEnd[ndx] < phrase->GetPhraseTagSearchResults().size(); ++lstNdxEnd[ndx]) {
-				CRelIndex ndxScopedTemp = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxEnd[ndx]).first, m_SearchCriteria.searchScopeMode());
+				CRelIndex ndxScopedTemp = ScopeIndex(phrase->GetPhraseTagSearchResults().at(lstNdxEnd[ndx]).relIndex(), m_SearchCriteria.searchScopeMode());
 				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 			}
 			// Here lstNdxEnd will be one more than the number of matching, either the next index
@@ -1023,7 +1023,7 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-		if (!lstResults.at(ndxResults).first.isSet()) {
+		if (!lstResults.at(ndxResults).relIndex().isSet()) {
 			assert(false);
 			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
 			continue;
@@ -1034,9 +1034,9 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 
 		if (ndxResults<(lstResults.size()-1)) {
 			bool bNextIsSameReference=false;
-			CRelIndex ndxRelative = lstResults.at(ndxResults).first;
+			CRelIndex ndxRelative = lstResults.at(ndxResults).relIndex();
 			do {
-				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).first;
+				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).relIndex();
 
 				if ((ndxRelative.book() == ndxNextRelative.book()) &&
 					(ndxRelative.chapter() == ndxNextRelative.chapter()) &&

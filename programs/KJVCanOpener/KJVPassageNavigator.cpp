@@ -130,9 +130,9 @@ void CKJVPassageNavigator::reset()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	if (isAbsolute()) {
-		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.second));		// Default to Genesis 1:1 [1]
+		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.count()));		// Default to Genesis 1:1 [1]
 	} else {
-		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.second));
+		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.count()));
 	}
 }
 
@@ -196,14 +196,14 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 	ui->comboTestament->setCurrentIndex(ui->comboTestament->findData(0));
 	m_nTestament = 0;
-	ui->spinBook->setValue(tag.first.book());
-	m_nBook = tag.first.book();
-	ui->spinChapter->setValue(tag.first.chapter());
-	m_nChapter = tag.first.chapter();
-	ui->spinVerse->setValue(tag.first.verse());
-	m_nVerse = tag.first.verse();
-	ui->spinWord->setValue(tag.first.word());
-	m_nWord = tag.first.word();
+	ui->spinBook->setValue(tag.relIndex().book());
+	m_nBook = tag.relIndex().book();
+	ui->spinChapter->setValue(tag.relIndex().chapter());
+	m_nChapter = tag.relIndex().chapter();
+	ui->spinVerse->setValue(tag.relIndex().verse());
+	m_nVerse = tag.relIndex().verse();
+	ui->spinWord->setValue(tag.relIndex().word());
+	m_nWord = tag.relIndex().word();
 	CalcPassage();
 
 	end_update();
@@ -213,10 +213,10 @@ void CKJVPassageNavigator::CalcPassage()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	m_tagPassage.first = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.first.isSet() ? m_nTestament : 0), m_tagStartRef.first, (!m_tagStartRef.first.isSet() ? false : ui->chkboxReverse->isChecked()));
-	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.first));
+	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui->chkboxReverse->isChecked()));
+	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.relIndex()));
 	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
-	navigator.setDocumentToVerse(m_tagPassage.first);
+	navigator.setDocumentToVerse(m_tagPassage.relIndex());
 	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 }
 
@@ -231,7 +231,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 
 	begin_update();
 
-	if (tagStart.first.isSet()) {
+	if (tagStart.relIndex().isSet()) {
 		m_tagStartRef = tagStart;
 	} else {
 		m_tagStartRef = TPhraseTag(CRelIndex(1,1,1,1), 1);
@@ -244,7 +244,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->editStartRef->show();
 	ui->chkboxReverse->show();
 
-	ui->editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.first));
+	ui->editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.relIndex()));
 	ui->chkboxReverse->setChecked(bReverse);
 
 	ui->lblBook->setText(tr("&Books:"));
@@ -252,10 +252,10 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui->lblVerse->setText(tr("&Verses:"));
 	ui->lblWord->setText(tr("&Words:"));
 
-	if (!tagPassage.first.isSet()) {
+	if (!tagPassage.relIndex().isSet()) {
 		// If we don't have an absolute starting passage, set the passage size (that we'll calculate from
 		//		our zero-relative) to be the size of the starting reference passage:
-		tagPassage.second = tagStart.second;
+		tagPassage.count() = tagStart.count();
 	}
 	setPassage(tagPassage);			// Note: setPassage will already call CalcPassage
 
@@ -290,7 +290,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui->spinVerse->setPrefix("");
 	ui->spinWord->setPrefix("");
 
-	if (tagPassage.first.isSet()) {
+	if (tagPassage.relIndex().isSet()) {
 		setPassage(tagPassage);
 		// setPassage will already call CalcPassage
 	} else {
@@ -301,7 +301,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	//		so above on the setPassage painting, but we'll set it to one word
 	//		here so that as the user starts selecting things, his word will
 	//		highlighted appear:
-	if (m_tagPassage.second == 0) m_tagPassage.second = 1;
+	if (m_tagPassage.count() == 0) m_tagPassage.count() = 1;
 
 	emit modeChanged(false);
 

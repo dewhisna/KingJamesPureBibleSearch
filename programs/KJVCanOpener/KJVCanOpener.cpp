@@ -433,9 +433,9 @@ void CKJVCanOpener::initialize()
 	TPhraseTag tag;
 	settings.beginGroup(constrBrowserViewGroup);
 	// Read last location : Default initial location is Genesis 1
-	tag.first = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
-	if (!tag.first.isSet()) tag.first = CRelIndex(1,1,0,0);		// Default for zero key
-	tag.second = settings.value(constrLastSelectionSizeKey, 0).toUInt();
+	tag.relIndex() = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
+	if (!tag.relIndex().isSet()) tag.relIndex() = CRelIndex(1,1,0,0);		// Default for zero key
+	tag.count() = settings.value(constrLastSelectionSizeKey, 0).toUInt();
 	settings.endGroup();
 
 	m_pBrowserWidget->gotoIndex(tag);
@@ -472,8 +472,8 @@ void CKJVCanOpener::savePersistentSettings()
 	// Current Browser Reference:
 	settings.beginGroup(constrBrowserViewGroup);
 	TPhraseTag tag = m_pBrowserWidget->selection();
-	settings.setValue(constrLastReferenceKey, tag.first.asAnchor());
-	settings.setValue(constrLastSelectionSizeKey, tag.second);
+	settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
+	settings.setValue(constrLastSelectionSizeKey, tag.count());
 	settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
 	settings.endGroup();
@@ -992,13 +992,13 @@ void CKJVCanOpener::on_gotoIndex(const TPhraseTag &tag)
 		(m_pActionChapterBackward == NULL) ||
 		(m_pActionChapterForward == NULL)) return;
 
-	m_pActionBookBackward->setEnabled(tag.first.book() >= 2);
-	m_pActionBookForward->setEnabled(tag.first.book() < m_pBibleDatabase->bibleEntry().m_nNumBk);
-	m_pActionChapterBackward->setEnabled((tag.first.book() >= 2) ||
-										((tag.first.book() == 1) && (tag.first.chapter() >= 2)));
-	const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(tag.first.book());
-	m_pActionChapterForward->setEnabled((tag.first.book() < m_pBibleDatabase->bibleEntry().m_nNumBk) ||
-										((tag.first.book() == m_pBibleDatabase->bibleEntry().m_nNumBk) && (tag.first.chapter() < (pBookEntry ? pBookEntry->m_nNumChp : 0))));
+	m_pActionBookBackward->setEnabled(tag.relIndex().book() >= 2);
+	m_pActionBookForward->setEnabled(tag.relIndex().book() < m_pBibleDatabase->bibleEntry().m_nNumBk);
+	m_pActionChapterBackward->setEnabled((tag.relIndex().book() >= 2) ||
+										((tag.relIndex().book() == 1) && (tag.relIndex().chapter() >= 2)));
+	const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(tag.relIndex().book());
+	m_pActionChapterForward->setEnabled((tag.relIndex().book() < m_pBibleDatabase->bibleEntry().m_nNumBk) ||
+										((tag.relIndex().book() == m_pBibleDatabase->bibleEntry().m_nNumBk) && (tag.relIndex().chapter() < (pBookEntry ? pBookEntry->m_nNumChp : 0))));
 }
 
 void CKJVCanOpener::on_browserHistoryChanged()

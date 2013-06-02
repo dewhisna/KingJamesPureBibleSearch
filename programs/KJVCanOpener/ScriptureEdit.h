@@ -76,11 +76,11 @@ public:
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
 	bool haveSelection() const {
-		return (m_selectedPhrase.second.haveSelection());
+		return (m_selectedPhrase.tag().haveSelection());
 	}
 	TPhraseTag selection() const {
-		if (!m_selectedPhrase.second.haveSelection()) return TPhraseTag(m_tagLast.first, 0);
-		return (m_selectedPhrase.second);
+		if (!m_selectedPhrase.tag().haveSelection()) return TPhraseTag(m_tagLast.relIndex(), 0);
+		return (m_selectedPhrase.tag());
 	}
 
 	bool haveDetails() const;
@@ -134,7 +134,7 @@ private:
 	CCursorFollowHighlighter m_Highlighter;
 	QTimer m_HighlightTimer;
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
-	QPair<CParsedPhrase, TPhraseTag> m_selectedPhrase;		// Selected phrase and cursor selection reference
+	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference
 	bool m_bDoPlainCopyOnly;		// Flag for the createMimeDataFromSelection function to use only plain text
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active

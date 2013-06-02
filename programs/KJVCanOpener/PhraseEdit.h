@@ -83,6 +83,7 @@ public:
 
 	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
 	virtual void ParsePhrase(const QString &strPhrase);			// Parses a fixed phrase
+	virtual void ParsePhrase(const QStringList &lstPhrase);		// Parses a fixed phrase already divided into words (like getSelectedPhrase from CPhraseNavigator)
 
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
@@ -136,6 +137,23 @@ protected:
 
 typedef QList <const CParsedPhrase *> TParsedPhrasesList;
 
+class CSelectedPhrase
+{
+public:
+	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false)
+		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive)
+	{ }
+
+	inline const CParsedPhrase &phrase() const { return m_ParsedPhrase; }
+	inline CParsedPhrase &phrase() { return m_ParsedPhrase; }
+	inline const TPhraseTag &tag() const { return m_Tag; }
+	inline TPhraseTag &tag() { return m_Tag; }
+
+private:
+	CParsedPhrase m_ParsedPhrase;
+	TPhraseTag m_Tag;
+};
+
 // ============================================================================
 
 class CPhraseCursor : public QTextCursor
@@ -148,7 +166,7 @@ public:
 
 	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
 	bool moveCursorCharRight(MoveMode mode = MoveAnchor);
-	QChar charUnderCursor();
+	inline QChar charUnderCursor();
 
 	bool moveCursorWordLeft(MoveMode mode = MoveAnchor);
 	bool moveCursorWordRight(MoveMode mode = MoveAnchor);
@@ -176,13 +194,6 @@ public:
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
 	int anchorPosition(const QString &strAnchorName) const;
 
-	// ResolveCursorReference interprets anchors at the currext textCursor and
-	//		backtracks until it finds an anchor to determine the relative index.
-	//		Used mainly with the KJVBrowser, but also useful for search results
-	//		review and navigator dialog preview:
-	CRelIndex ResolveCursorReference(CPhraseCursor cursor) const;		// Bounds limited for words
-	CRelIndex ResolveCursorReference2(CPhraseCursor cursor) const;		// This helper loop finds the reference, but will extend one word off the end of the verse when cursor is between verses
-
 	// Highlight the areas marked in the PhraseTags.  If bClear=True, removes
 	//		the highlighting, which is used to swapout the current tag list
 	//		for a new one without redrawing everything.  ndxCurrent is used
@@ -196,7 +207,8 @@ public:
 	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false, bool bNoAnchors = false);
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
-	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	virtual TPhraseTag getSelection(const CPhraseCursor &aCursor) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	virtual CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
 	void removeAnchors();
 
@@ -232,7 +244,10 @@ public:
 
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
-	QPair<CParsedPhrase, TPhraseTag> getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	virtual TPhraseTag getSelection(const CPhraseCursor &aCursor) const { return CPhraseNavigator::getSelection(aCursor); }
+	virtual CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const { return CPhraseNavigator::getSelectedPhrase(aCursor); }
+	virtual TPhraseTag getSelection() const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	virtual CSelectedPhrase getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const;
 	bool handleToolTipEvent(CBasicHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const;
 	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;

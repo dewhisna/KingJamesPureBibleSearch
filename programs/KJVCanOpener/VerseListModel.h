@@ -58,10 +58,10 @@ public:
 	}
 	CVerseListItem(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag)
 		:	m_pBibleDatabase(pBibleDatabase),
-			m_ndxRelative(tag.first)
+			m_ndxRelative(tag.relIndex())
 	{
 		m_ndxRelative.setWord(0);				// Primary index will have a zero word index
-		if (tag.second > 0)
+		if (tag.count() > 0)
 			m_lstTags.push_back(tag);			// But the corresponding tag will have non-zero word index
 	}
 	~CVerseListItem()
@@ -74,9 +74,9 @@ public:
 		if (m_lstTags.size() > 0) strHeading += QString("(%1) ").arg(m_lstTags.size());
 		for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 			if (ndx == 0) {
-				strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).first);
+				strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
 			} else {
-				strHeading += QString("[%1]").arg(m_lstTags.at(ndx).first.word());
+				strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
 			}
 		}
 		return strHeading;
@@ -88,7 +88,7 @@ public:
 		QString strToolTip;
 		strToolTip += m_pBibleDatabase->SearchResultToolTip(getIndex(), RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
-			const CRelIndex &ndxTag(phraseTags().at(ndx).first);
+			const CRelIndex &ndxTag(phraseTags().at(ndx).relIndex());
 			if (phraseTags().size() > 1) {
 				strToolTip += QString("(%1)[%2] \"%3\" %4 ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is"));
 			} else {
@@ -134,12 +134,12 @@ public:
 	inline unsigned int getPhraseSize(int nTag) const {
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return 0;
-		return m_lstTags.at(nTag).second;
+		return m_lstTags.at(nTag).count();
 	}
 	inline CRelIndex getPhraseReference(int nTag) const {
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return CRelIndex();
-		return m_lstTags.at(nTag).first;
+		return m_lstTags.at(nTag).relIndex();
 	}
 	void addPhraseTag(const CRelIndex &ndx, unsigned int nPhraseSize) { m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize)); }
 	void addPhraseTag(const TPhraseTag &tag) { m_lstTags.push_back(tag); }
@@ -152,8 +152,8 @@ public:
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((!isSet()) || (nTag < 0) || (nTag >= m_lstTags.size())) return QStringList();
 		QStringList strWords;
-		unsigned int nNumWords = m_lstTags.at(nTag).second;
-		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(m_lstTags.at(nTag).first);
+		unsigned int nNumWords = m_lstTags.at(nTag).count();
+		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(m_lstTags.at(nTag).relIndex());
 		while (nNumWords) {
 			strWords.push_back(m_pBibleDatabase->wordAtIndex(ndxNormal));
 			ndxNormal++;

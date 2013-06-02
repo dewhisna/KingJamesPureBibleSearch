@@ -568,39 +568,57 @@ extern TBibleDatabaseList g_lstBibleDatabases;
 // ============================================================================
 
 // Relative Index and Word Count pair used for highlight phrases found:
-class TPhraseTag : public QPair<CRelIndex, unsigned int>
+class TPhraseTag
 {
 public:
 	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
-		:	QPair<CRelIndex, unsigned int>(ndx, nCount)
+		:	m_RelIndex(ndx),
+			m_nCount(nCount)
 	{ }
+
+	inline const CRelIndex &relIndex() const { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }
+	inline const unsigned int &count() const { return m_nCount; }
+	inline unsigned int &count() { return m_nCount; }
 
 	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
 		assert(pBibleDatabase.data() != NULL);
 
 		if (pBibleDatabase.data() == NULL) return QString();
-		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(first);
-		if (second > 1) {
-			uint32_t nNormal = pBibleDatabase->NormalizeIndex(first);
-			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + second - 1)));
+		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
+		if (m_nCount > 1) {
+			uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
+			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1)));
 		}
 		return strReferenceRangeText;
 	}
 
 	bool haveSelection() const {
-		return ((first.isSet()) && (second != 0));
+		return ((m_RelIndex.isSet()) && (m_nCount != 0));
 	}
 
 	bool operator==(const TPhraseTag &otherTag) {
-		return ((first.index() == otherTag.first.index()) &&
-				(second == otherTag.second));
+		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
+				(m_nCount == otherTag.count()));
 	}
 
 	bool operator!=(const TPhraseTag &otherTag) {
-		return ((first.index() != otherTag.first.index()) ||
-				(second != otherTag.second));
+		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
+				(m_nCount != otherTag.count()));
 	}
+
+private:
+	CRelIndex m_RelIndex;
+	unsigned int m_nCount;
 };
+inline QDataStream& operator<<(QDataStream &out, const TPhraseTag &ndx) {
+	out << ndx.relIndex() << ndx.count();
+	return out;
+}
+inline QDataStream& operator>>(QDataStream &in, TPhraseTag &ndx) {
+	in >> ndx.relIndex() >> ndx.count();
+	return in;
+}
 Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
@@ -611,7 +629,7 @@ typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to 
 struct TPhraseTagListSortPredicate {
 	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)
 	{
-		return (s1.first.index() < s2.first.index());
+		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
 

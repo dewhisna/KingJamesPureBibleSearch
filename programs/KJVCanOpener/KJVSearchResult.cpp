@@ -219,12 +219,12 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 
 		QTextCursor cursorDocVerse(&docVerse);
 		cursorDocVerse.select(QTextCursor::Document);
-		QPair<CParsedPhrase, TPhraseTag> phrase = navigator.getSelectedPhrase(cursorDocVerse);
+		CSelectedPhrase phrase = navigator.getSelectedPhrase(cursorDocVerse);
 
 		if (!bVeryRaw) {
-			strText += phrase.first.phrase() + "\n";
+			strText += phrase.phrase().phrase() + "\n";
 		} else {
-			strText += phrase.first.phraseRaw() + "\n";
+			strText += phrase.phrase().phraseRaw() + "\n";
 		}
 	}
 

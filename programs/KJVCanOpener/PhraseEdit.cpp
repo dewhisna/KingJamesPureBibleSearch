@@ -270,16 +270,22 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 {
 	clearCache();
 
-	m_lstLeftWords.clear();
-	m_lstRightWords.clear();
+	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_lstLeftWords = m_lstWords;
 	m_strCursorWord.clear();
-	m_lstWords.clear();
-
-	m_lstLeftWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
-	m_lstWords.append(m_lstLeftWords);
+	m_lstRightWords.clear();
 	m_nCursorWord = m_lstWords.size();
-	m_lstWords.append(m_strCursorWord);
-	m_lstWords.append(m_lstRightWords);
+}
+
+void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
+{
+	clearCache();
+
+	m_lstWords = lstPhrase;
+	m_lstLeftWords = m_lstWords;
+	m_strCursorWord.clear();
+	m_lstRightWords.clear();
+	m_nCursorWord = m_lstWords.size();
 }
 
 static bool ascendingLessThan(const QString &s1, const QString &s2)
@@ -459,16 +465,9 @@ bool CPhraseCursor::moveCursorCharRight(MoveMode mode)
 	return movePosition(NextCharacter, mode);
 }
 
-QChar CPhraseCursor::charUnderCursor()
+inline QChar CPhraseCursor::charUnderCursor()
 {
-	int nSelStart = anchor();
-	int nSelEnd = position();
-	clearSelection();
-	movePosition(NextCharacter, KeepAnchor);
-	QString strTemp = selectedText();
-	setPosition(nSelStart, MoveAnchor);
-	setPosition(nSelEnd, KeepAnchor);
-	return ((strTemp.size()>0) ? strTemp[0] : QChar());
+	return document()->characterAt(position());
 }
 
 bool CPhraseCursor::moveCursorWordLeft(MoveMode mode)
@@ -629,99 +628,17 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 	return -1;
 }
 
-CRelIndex CPhraseNavigator::ResolveCursorReference(CPhraseCursor cursor) const
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	CRelIndex ndxReference = ResolveCursorReference2(cursor);
-
-	if (ndxReference.book() != 0) {
-		assert(ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk);
-		if (ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
-			if (ndxReference.chapter() != 0) {
-				assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
-				if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
-					if (ndxReference.verse() != 0) {
-						assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
-						if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
-							if (ndxReference.word() > m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) {
-								// Clip word index at max since it's possible to be on the space
-								//		between words and have an index that is one larger than
-								//		our largest word:
-								ndxReference.setWord(m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return ndxReference;
-}
-
-CRelIndex CPhraseNavigator::ResolveCursorReference2(CPhraseCursor cursor) const
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-#define CheckForAnchor() {											\
-	if (cursor.charFormat().anchorName().startsWith('B')) {			\
-		++nWord;													\
-		bInABanchor = true;											\
-		bBanchorFound = true;										\
-	} else if (cursor.charFormat().anchorName().startsWith('A')) {	\
-		if (!bBanchorFound) nWord = 0;								\
-		bInABanchor = false;										\
-		bBanchorFound = false;										\
-	} else {														\
-		ndxReference = CRelIndex(cursor.charFormat().anchorName());	\
-		if (ndxReference.isSet()) {									\
-			if ((ndxReference.verse() != 0) &&						\
-				(ndxReference.word() == 0)) {						\
-				ndxReference.setWord(nWord);						\
-			}														\
-			return ndxReference;									\
-		}															\
-	}																\
-}
-
-	CRelIndex ndxReference;
-	unsigned int nWord = 0;
-	bool bInABanchor = false;		// Set to true if we are inside an A-B anchor set where we should ignore word counts
-	bool bBanchorFound = false;		// Set to true if we encounter a B anchor, used when we get to A anchor to know if we should clear nWord
-
-	CheckForAnchor();
-	while (!cursor.charUnderCursor().isSpace()) {
-		if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-		CheckForAnchor();
-	}
-
-	do {
-		if ((!bInABanchor) && (!CParsedPhrase::makeRawPhrase(cursor.wordUnderCursor()).isEmpty())) {
-			nWord++;
-		}
-
-		while (cursor.charUnderCursor().isSpace()) {
-			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-			CheckForAnchor();
-		}
-
-		while (!cursor.charUnderCursor().isSpace()) {
-			if (!cursor.moveCursorCharLeft(QTextCursor::MoveAnchor)) return ndxReference;
-			CheckForAnchor();
-		}
-	} while (1);
-
-	return ndxReference;
-}
-
 void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const CRelIndex &ndxCurrent) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	QTextCharFormat fmt;
+	CPhraseCursor myCursor(&m_TextDocument);
+
 	const TPhraseTagList &lstPhraseTags(aHighlighter.getHighlightTags());
 	for (int ndx=0; ndx<lstPhraseTags.size(); ++ndx) {
-		CRelIndex ndxRel = lstPhraseTags.at(ndx).first;
+		TPhraseTag tag = lstPhraseTags.at(ndx);
+		CRelIndex ndxRel = tag.relIndex();
 		if (!ndxRel.isSet()) continue;
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		We'll use one before/one after since we might be displaying part of
@@ -731,87 +648,31 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				 (ndxRel.book() > (ndxCurrent.book()+1)) ||
 				 (ndxRel.chapter() < (ndxCurrent.chapter()-1)) ||
 				 (ndxRel.chapter() > (ndxCurrent.chapter()+1)))) continue;
-		uint32_t ndxWord = ndxRel.word();
-		ndxRel.setWord(0);
-		int nPos = anchorPosition(ndxRel.asAnchor());
-		if (nPos == -1) continue;
-		CPhraseCursor myCursor(&m_TextDocument);
-		myCursor.beginEditBlock();
-		myCursor.setPosition(nPos);
-		int nSelEnd = nPos;
-		while (ndxWord) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
-					ndxWord--;
-				nSelEnd = myCursor.position();
-				if (!myCursor.moveCursorWordRight()) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-					assert(nEndAnchorPos >= 0);
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-				} else {
-					if (!strAnchorName.isEmpty()) {
-						CRelIndex ndxAnchor(strAnchorName);
-						assert(ndxAnchor.isSet());
-						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-							assert(nEndAnchorPos >= 0);
-							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-						}
-					}
-					nSelEnd = myCursor.position();
-					if (!myCursor.moveCursorWordRight()) break;
-				}
+
+		int nStartPos = anchorPosition(ndxRel.asAnchor());
+		if (nStartPos == -1) continue;				// Note: Some highlight lists have tags not in this browser document
+		uint32_t ndxNormalStart = m_pBibleDatabase->NormalizeIndex(ndxRel);
+		uint32_t ndxNormalEnd = ndxNormalStart;
+		if (tag.count()) ndxNormalEnd = ndxNormalStart + tag.count() - 1;
+
+		while ((nStartPos != -1) && (ndxNormalStart <= ndxNormalEnd)) {
+			myCursor.beginEditBlock();
+			myCursor.setPosition(nStartPos);
+			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart).size();
+
+			while (nStartPos < nWordEndPos) {
+				myCursor.moveCursorCharRight(QTextCursor::KeepAnchor);
+				fmt = myCursor.charFormat();
+				aHighlighter.doHighlighting(fmt, bClear);
+				myCursor.setCharFormat(fmt);
+				myCursor.clearSelection();
+				++nStartPos;
 			}
+			myCursor.endEditBlock();
+
+			++ndxNormalStart;
+			nStartPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart)).asAnchor());
 		}
-		myCursor.setPosition(nSelEnd);
-		unsigned int nCount = lstPhraseTags.at(ndx).second;
-		while (nCount) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				myCursor.moveCursorWordStart();
-				do {
-					if (!myCursor.moveCursorCharRight(QTextCursor::KeepAnchor)) break;
-					fmt = myCursor.charFormat();
-					aHighlighter.doHighlighting(fmt, bClear);
-					myCursor.setCharFormat(fmt);
-					myCursor.clearSelection();
-				} while (!myCursor.charUnderCursor().isSpace());
-				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
-					nCount--;
-				if (!myCursor.moveCursorWordRight()) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-					assert(nEndAnchorPos >= 0);
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-				} else {
-					if (!strAnchorName.isEmpty()) {
-						CRelIndex ndxAnchor(strAnchorName);
-						assert(ndxAnchor.isSet());
-						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-							assert(nEndAnchorPos >= 0);
-							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-						}
-					}
-					if (!myCursor.moveCursorWordRight()) break;
-				}
-			}
-		}
-		myCursor.endEditBlock();
 	}
 }
 
@@ -1187,13 +1048,13 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 
 	m_TextDocument.clear();
 
-	if ((!tag.first.isSet()) || (tag.second == 0)) {
+	if ((!tag.relIndex().isSet()) || (tag.count() == 0)) {
 		emit changedDocumentText();
 		return;
 	}
 
-	CRelIndex ndxFirst = CRelIndex(tag.first.book(), tag.first.chapter(), tag.first.verse(), 1);		// Start on first word of verse
-	CRelIndex ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.first) + tag.second - 1);		// Add number of words to arrive at last word, wherever that is
+	CRelIndex ndxFirst = CRelIndex(tag.relIndex().book(), tag.relIndex().chapter(), tag.relIndex().verse(), 1);		// Start on first word of verse
+	CRelIndex ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex()) + tag.count() - 1);		// Add number of words to arrive at last word, wherever that is
 	ndxLast.setWord(1);			// Shift back to the first word of this verse
 	CRelIndex ndxNext = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxLast);	// Add a verse, so we ndxNext is on first word of next verse.
 	ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxNext) - 1);		// Move to next word so ndxLast is the last word of the last verse
@@ -1276,95 +1137,117 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 	emit changedDocumentText();
 }
 
-QPair<CParsedPhrase, TPhraseTag> CPhraseNavigator::getSelectedPhrase(const CPhraseCursor &aCursor) const
+TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	QPair<CParsedPhrase, TPhraseTag> retVal;
+	TPhraseTag tag;
 
 	CPhraseCursor myCursor(aCursor);
 	myCursor.beginEditBlock();
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
-	QString strPhrase;
-	unsigned int nWords = 0;
-	CRelIndex nIndex;
-	bool bFoundAnchorA = false;			// Set to true once we've found the first A anchor so if we start in the middle of an A-B pair and hit a B, we know if we've seen the A or not.
+	int nPosFirstWordStart = nPosFirst;
+	CRelIndex nIndexFirst;				// First Word anchor tag
+	CRelIndex nIndexLast;				// Last Word anchor tag
+	QString strAnchorName;
 
-	if (nPosFirst < nPosLast) {
+	// Find first word anchor:
+	myCursor.setPosition(nPosFirst);
+	// See if our first character is a space.  If so, don't include it because it's
+	//		most likely the single space between words.  If so, we would end up
+	//		starting the selection at the preceding word and while that's technically
+	//		correct, it's confusing to the user who probably didn't mean for that
+	//		to happen:
+	myCursor.moveCursorWordStart();
+	nPosFirstWordStart = myCursor.position();
+	while ((myCursor.position() <= (nPosLast+1)) && (!nIndexFirst.isSet())) {
+		strAnchorName = myCursor.charFormat().anchorName();
+
+		nIndexFirst = CRelIndex(strAnchorName);
+		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
+		//		text from a verse.  We must be in a special tag section of heading:
+		if ((nIndexFirst.verse() == 0) || (nIndexFirst.word() == 0)) {
+			nIndexFirst = CRelIndex();
+		}
+		if (!myCursor.moveCursorCharRight()) break;
+	}
+
+	// Find last word anchor:
+	myCursor.setPosition(nPosLast);
+	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace()));	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
+	myCursor.moveCursorWordEnd();
+	while ((myCursor.position() >= nPosFirstWordStart) && (!nIndexLast.isSet())) {
+		strAnchorName = myCursor.charFormat().anchorName();
+
+		nIndexLast = CRelIndex(strAnchorName);
+		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
+		//		text from a verse.  We must be in a special tag section of heading:
+		if ((nIndexLast.verse() == 0) || (nIndexLast.word() == 0)) {
+			nIndexLast = CRelIndex();
+		}
+		if (!myCursor.moveCursorCharLeft()) break;
+	}
+
+	// Handle single-word selection:
+	if (!nIndexLast.isSet()) nIndexLast = nIndexFirst;
+
+	// If the cursor is floating in "no man's land" in a special tag area or footnote text or
+	//		something, then find the closest matching tag to the left.  This is the same as
+	//		the current position tracking:
+	if (!nIndexFirst.isSet()) {
 		myCursor.setPosition(nPosFirst);
-		// See if our first character is a space.  If so, don't include it because it's
-		//		most likely the single space between words.  If so, we would end up
-		//		starting the selection at the preceding word and while that's technically
-		//		correct, it's confusing to the user who probably didn't mean for that
-		//		to happen:
-		if (myCursor.charUnderCursor().isSpace()) myCursor.moveCursorCharRight();
-		myCursor.moveCursorWordStart();
-		while (myCursor.position() < nPosLast) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				if ((fmt.isAnchor()) && (!bFoundAnchorA)) {
-					// If we hit a B anchor and haven't found our first A anchor yet,
-					//		it means the user started the selection in the middle
-					//		of the A-B pair and we want to clear everything we've
-					//		found so far, because it belongs to the void between
-					//		the two and not real text.  However, we want to continue
-					//		and set our location info and the word we are on top of
-					//		is actually the first word we want to keep.
-					nIndex = CRelIndex();
-					nWords = 0;
-					strPhrase.clear();
-				}
-				if (!nIndex.isSet()) {
-					CPhraseCursor tempCursor(myCursor);		// Need temp cursor as the following call destroys it:
-					nIndex = ResolveCursorReference(tempCursor);
-				}
-				// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
-				//		text from a verse.  We must be in a special tag section of heading:
-				if ((nIndex.verse() == 0) || (nIndex.word() == 0)) {
-					nIndex = CRelIndex();
-					nWords = 0;
-					strPhrase.clear();
-				} else {
-					if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()) {
-						nWords++;
-						if (!strPhrase.isEmpty()) strPhrase += " ";
-						strPhrase += myCursor.wordUnderCursor();
-					}
-				}
-				if (!myCursor.moveCursorWordRight()) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					bFoundAnchorA = true;
-					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-					assert(nEndAnchorPos >= 0);
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-				} else {
-					if ((!strAnchorName.isEmpty()) && (!strAnchorName.startsWith('X'))) {
-						CRelIndex ndxAnchor(strAnchorName);
-						assert(ndxAnchor.isSet());
-						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-							assert(nEndAnchorPos >= 0);
-							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-						}
-					}
-					if (!myCursor.moveCursorWordRight()) break;
-				}
-			}
+		while (!nIndexFirst.isSet()) {
+			nIndexFirst = CRelIndex(myCursor.charFormat().anchorName());
+			if (!myCursor.moveCursorCharLeft()) break;
 		}
 	}
+
 	myCursor.endEditBlock();
 
-	retVal.first.ParsePhrase(strPhrase);
-	retVal.second.first = nIndex;
-	retVal.second.second = retVal.first.phraseRawSize();
-	assert(nWords == retVal.second.second);
+	uint32_t ndxNormFirst = m_pBibleDatabase->NormalizeIndex(nIndexFirst);
+	uint32_t ndxNormLast = m_pBibleDatabase->NormalizeIndex(nIndexLast);
+	unsigned int nWordCount = 0;
+
+	if ((ndxNormFirst != 0) && (ndxNormLast != 0)) {
+		nWordCount = (ndxNormLast - ndxNormFirst + 1);
+	}
+
+	tag.relIndex() = nIndexFirst;
+	tag.count() = ((nPosFirst != nPosLast) ? nWordCount : 0);
+
+	return tag;
+}
+
+CSelectedPhrase CPhraseNavigator::getSelectedPhrase(const CPhraseCursor &aCursor) const
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	CSelectedPhrase retVal(m_pBibleDatabase);
+
+	retVal.tag() = getSelection(aCursor);
+
+	uint32_t ndxNormFirst = m_pBibleDatabase->NormalizeIndex(retVal.tag().relIndex());
+	uint32_t ndxNormLast = ndxNormFirst;
+	if (retVal.tag().count()) {
+		ndxNormLast = m_pBibleDatabase->NormalizeIndex(ndxNormFirst + retVal.tag().count() - 1);
+	}
+
+	QString strPhrase;
+	QStringList lstPhrase;
+	if ((ndxNormFirst != 0) && (ndxNormLast != 0)) {
+		lstPhrase.reserve(ndxNormLast - ndxNormFirst + 1);
+		do {
+			lstPhrase.append(m_pBibleDatabase->wordAtIndex(ndxNormFirst));
+			ndxNormFirst++;
+		} while (ndxNormFirst <= ndxNormLast);
+		strPhrase = lstPhrase.join(" ");
+	}
+
+	retVal.phrase().ParsePhrase(lstPhrase);
+
+//	qDebug("%s", strPhrase.toUtf8().data());
+//	qDebug("%s %d", m_pBibleDatabase->PassageReferenceText(nIndexFirst).toUtf8().data(), retVal.tag().count());
 
 	return retVal;
 }
@@ -1421,101 +1304,39 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	CRelIndex ndxScroll = tag.first;
+	CRelIndex ndxScroll = tag.relIndex();
 	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
 	ndxScroll.setWord(0);
 
 	m_TextEditor.scrollToAnchor(ndxScroll.asAnchor());
 
-	CRelIndex ndxRel = tag.first;
-	uint32_t ndxWord = ndxRel.word();
-	ndxRel.setWord(0);
-	int nPos = anchorPosition(ndxRel.asAnchor());
-	if (nPos != -1) {
-		CPhraseCursor myCursor(m_TextEditor.textCursor());
-		myCursor.beginEditBlock();
-		myCursor.setPosition(nPos);
-		int nSelEnd = nPos;
-		while (ndxWord) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				if (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty())
-					ndxWord--;
-				nSelEnd = myCursor.position();
-				if (!myCursor.moveCursorWordRight()) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-					assert(nEndAnchorPos >= 0);
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-				} else {
-					if (!strAnchorName.isEmpty()) {
-						CRelIndex ndxAnchor(strAnchorName);
-						assert(ndxAnchor.isSet());
-						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-							assert(nEndAnchorPos >= 0);
-							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos);
-						}
-					}
-					nSelEnd = myCursor.position();
-					if (!myCursor.moveCursorWordRight()) break;
-				}
-			}
-		}
-		myCursor.setPosition(nSelEnd);
-		unsigned int nCount = tag.second;
-		while (nCount) {
-			QTextCharFormat fmt = myCursor.charFormat();
-			QString strAnchorName = fmt.anchorName();
-			if ((!fmt.isAnchor()) || (strAnchorName.startsWith('B'))) {		// Either we shouldn't be in an anchor or the end of an A-B special section marker
-				myCursor.moveCursorWordStart(QTextCursor::KeepAnchor);
+	CRelIndex ndxRel = tag.relIndex();
+	if (ndxRel.isSet()) {
+		int nStartPos = anchorPosition(ndxRel.asAnchor());
+		int nEndPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxRel) + tag.count() - 1)).asAnchor());
+
+		if (nStartPos != -1) {
+			CPhraseCursor myCursor(m_TextEditor.textCursor());
+			myCursor.beginEditBlock();
+			myCursor.setPosition(nStartPos);
+			if ((nEndPos != -1) && (tag.count() > 0)) {
+				myCursor.setPosition(nEndPos, QTextCursor::KeepAnchor);
 				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
-				fmt = myCursor.charFormat();
-				if ((!fmt.isAnchor()) && (!CParsedPhrase::makeRawPhrase(myCursor.wordUnderCursor()).isEmpty()))
-					nCount--;
-				nSelEnd = myCursor.position();
-				if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
-			} else {
-				// If we hit an anchor, see if it's either a special section A-B marker or if
-				//		it's a chapter start anchor.  If it's an A-anchor, find the B-anchor.
-				//		If it is a chapter start anchor, search for our special X-anchor so
-				//		we'll be at the correct start of the next verse:
-				if (strAnchorName.startsWith('A')) {
-					int nEndAnchorPos = anchorPosition("B" + strAnchorName.mid(1));
-					assert(nEndAnchorPos >= 0);
-					if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
-				} else {
-					if (!strAnchorName.isEmpty()) {
-						CRelIndex ndxAnchor(strAnchorName);
-						assert(ndxAnchor.isSet());
-						if ((ndxAnchor.isSet()) && (ndxAnchor.verse() == 0) && (ndxAnchor.word() == 0)) {
-							int nEndAnchorPos = anchorPosition("X" + strAnchorName);
-							assert(nEndAnchorPos >= 0);
-							if (nEndAnchorPos >= 0) myCursor.setPosition(nEndAnchorPos, QTextCursor::KeepAnchor);
-						}
-					}
-					nSelEnd = myCursor.position();
-					if (!myCursor.moveCursorWordRight(QTextCursor::KeepAnchor)) break;
-				}
 			}
+			myCursor.endEditBlock();
+			m_TextEditor.setTextCursor(myCursor);
 		}
-		myCursor.setPosition(nSelEnd, QTextCursor::KeepAnchor);
-		myCursor.endEditBlock();
-		m_TextEditor.setTextCursor(myCursor);
 		m_TextEditor.ensureCursorVisible();				// Hmmm, for some strange reason, this doen't always work when user has used mousewheel to scroll off.  Qt bug?
 	}
 }
 
-QPair<CParsedPhrase, TPhraseTag> CPhraseEditNavigator::getSelectedPhrase() const
+TPhraseTag CPhraseEditNavigator::getSelection() const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	return CPhraseNavigator::getSelection(m_TextEditor.textCursor());
+}
 
+CSelectedPhrase CPhraseEditNavigator::getSelectedPhrase() const
+{
 	return CPhraseNavigator::getSelectedPhrase(m_TextEditor.textCursor());
 }
 
@@ -1524,7 +1345,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	assert(m_pBibleDatabase.data() != NULL);
 
 	assert(pHelpEvent != NULL);
-	CRelIndex ndxReference = ResolveCursorReference(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
+	CRelIndex ndxReference = CPhraseNavigator::getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos())).relIndex();
 	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
@@ -1556,7 +1377,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, c
 	QString strToolTip = getToolTip(tag, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.first, 1)));
+		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.relIndex(), 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
@@ -1584,11 +1405,11 @@ void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const T
 	doHighlighting(aHighlighter, true);
 	TPhraseTagList tags;
 	// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
-	if ((tag.first.book() != 0) &&
-		(tag.first.chapter() != 0) &&
-		(tag.first.verse() != 0) &&
-		(tag.first.word() != 0) &&
-		(tag.second != 0)) {
+	if ((tag.relIndex().book() != 0) &&
+		(tag.relIndex().chapter() != 0) &&
+		(tag.relIndex().verse() != 0) &&
+		(tag.relIndex().word() != 0) &&
+		(tag.count() != 0)) {
 		tags.append(tag);
 		aHighlighter.setHighlightTags(tags);
 		doHighlighting(aHighlighter);
@@ -1602,7 +1423,7 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 	assert(m_pBibleDatabase.data() != NULL);
 
 	bool bHaveSelection = selection.haveSelection();
-	const CRelIndex &ndxReference(bHaveSelection ? selection.first : tag.first);
+	const CRelIndex &ndxReference(bHaveSelection ? selection.relIndex() : tag.relIndex());
 
 	QString strToolTip;
 
@@ -1623,17 +1444,17 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 				uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
 				if (ndxNormal != 0) {
 					unsigned int ndx;
-					for (ndx = 0; ((ndx < qMin(7u, selection.second)) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
+					for (ndx = 0; ((ndx < qMin(7u, selection.count())) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 						if (ndx) strToolTip += " ";
 						strToolTip += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
 					}
-					if ((ndx == 7u) && (selection.second > 7u)) strToolTip += " ...";
+					if ((ndx == 7u) && (selection.count() > 7u)) strToolTip += " ...";
 				} else {
 					assert(false);
 					strToolTip += "???";
 				}
 				strToolTip += "\"\n";
-				strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, selection.second);
+				strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, selection.count());
 			}
 		}
 		if ((nToolTipType == TTE_COMPLETE) ||
@@ -1670,7 +1491,7 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const TPhraseTag
 				}
 			}
 			if (bHaveSelection) {
-				strToolTip += "\n" + tr("%n Word(s) Selected", NULL, selection.second) + "\n";
+				strToolTip += "\n" + tr("%n Word(s) Selected", NULL, selection.count()) + "\n";
 			}
 		}
 		if (!bPlainText) strToolTip += "</pre></body></html>";

@@ -386,9 +386,9 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 	if (source->hasFormat(g_constrPhraseTagMimeType)) {
 		QString strPhrase;
 		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(source);
-		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(tag.first);
-		if ((ndxNormal != 0) && (tag.second > 0)) {
-			for (unsigned int ndx = 0; ((ndx < tag.second) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
+		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(tag.relIndex());
+		if ((ndxNormal != 0) && (tag.count() > 0)) {
+			for (unsigned int ndx = 0; ((ndx < tag.count()) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 				if (ndx) strPhrase += " ";
 				strPhrase += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
 			}

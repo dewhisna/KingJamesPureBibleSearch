@@ -46,8 +46,8 @@ public:
 	TPhraseTag startRef() const { return m_tagStartRef; }
 
 	bool isReversed() const;
-	bool isRelative() const { return m_tagStartRef.first.isSet(); }
-	bool isAbsolute() const { return (!m_tagStartRef.first.isSet()); }
+	bool isRelative() const { return m_tagStartRef.relIndex().isSet(); }
+	bool isAbsolute() const { return (!m_tagStartRef.relIndex().isSet()); }
 
 public slots:
 	void startRelativeMode(TPhraseTag tagStart = TPhraseTag(CRelIndex(), 1), TPhraseTag tagPassage = TPhraseTag(CRelIndex(), 1));

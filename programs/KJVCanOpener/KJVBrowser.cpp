@@ -149,10 +149,10 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 	begin_update();
 
 	// If branching to a "book only", goto chapter 1 of that book:
-	if ((tagActual.first.book() != 0) &&
-		(tagActual.first.chapter() == 0)) tagActual.first.setChapter(1);
+	if ((tagActual.relIndex().book() != 0) &&
+		(tagActual.relIndex().chapter() == 0)) tagActual.relIndex().setChapter(1);
 
-	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.first.asAnchor()));
+	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.relIndex().asAnchor()));
 
 	end_update();
 
@@ -161,9 +161,9 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 
 void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 {
-	setBook(tag.first);
-	setChapter(tag.first);
-	setVerse(tag.first);
+	setBook(tag.relIndex());
+	setChapter(tag.relIndex());
+	setVerse(tag.relIndex());
 	setWord(tag);
 
 	doHighlighting();
@@ -375,7 +375,7 @@ void CKJVBrowser::setVerse(const CRelIndex &ndx)
 
 void CKJVBrowser::setWord(const TPhraseTag &tag)
 {
-	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.first.word());
+	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.relIndex().word());
 	m_pScriptureBrowser->navigator().selectWords(tag);
 }
 

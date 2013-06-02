@@ -64,6 +64,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
+		m_selectedPhrase(pBibleDatabase),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
@@ -194,7 +195,7 @@ template<class T, class U>
 void CScriptureText<T,U>::on_findDialog()
 {
 	if (haveSelection()) {
-		m_pFindDialog->setTextToFind(m_selectedPhrase.first.phraseRaw());
+		m_pFindDialog->setTextToFind(m_selectedPhrase.phrase().phraseRaw());
 	}
 	if (m_pFindDialog->isVisible()) {
 		m_pFindDialog->activateWindow();
@@ -309,7 +310,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 template<class T, class U>
 bool CScriptureText<T,U>::haveDetails() const
 {
-	QString strToolTip = m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second);
+	QString strToolTip = m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag());
 	return (!strToolTip.isEmpty());
 }
 
@@ -317,7 +318,7 @@ template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(m_Highlighter, m_tagLast, m_selectedPhrase.second))
+	if (m_navigator.handleToolTipEvent(m_Highlighter, m_tagLast, m_selectedPhrase.tag()))
 		m_HighlightTimer.stop();
 }
 
@@ -328,8 +329,8 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.ResolveCursorReference(cursorForPosition(ev->pos()));
-	m_tagLast = TPhraseTag( ndxLast, (ndxLast.isSet() ? 1 : 0));
+	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).relIndex();
+	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
@@ -354,15 +355,15 @@ void CScriptureText<T,U>::showPassageNavigator()
 	//		Ctrl-G shortcut to activate this will make sense and be consistent across
 	//		the entire app.
 
-	TPhraseTag tagSel = m_selectedPhrase.second;
-	if (!tagSel.first.isSet()) tagSel.first = m_tagLast.first;
-	if (tagSel.second == 0) tagSel.second = ((tagSel.first.word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
+	TPhraseTag tagSel = m_selectedPhrase.tag();
+	if (!tagSel.relIndex().isSet()) tagSel.relIndex() = m_tagLast.relIndex();
+	if (tagSel.count() == 0) tagSel.count() = ((tagSel.relIndex().word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
 
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
 	TPhraseTag tagHighlight = tagSel;
-	CRefCountCalc Wrd(m_pBibleDatabase.data(), CRefCountCalc::RTE_WORD, tagHighlight.first);
-	tagHighlight.second = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.second);
+	CRefCountCalc Wrd(m_pBibleDatabase.data(), CRefCountCalc::RTE_WORD, tagHighlight.relIndex());
+	tagHighlight.count() = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.count());
 
 	m_Highlighter.setEnabled(true);
 	m_navigator.highlightTag(m_Highlighter, tagHighlight);
@@ -383,7 +384,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.ResolveCursorReference(T::cursorForPosition(ev->pos()));
+	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	m_navigator.highlightTag(m_Highlighter, m_tagLast);
 	QMenu menu;
@@ -441,7 +442,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 			mime->setHtml(docCopy.toHtml());
 		}
 	}
-	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
 	return mime;
 }
 
@@ -449,8 +450,8 @@ template<class T, class U>
 void CScriptureText<T,U>::on_cursorPositionChanged()
 {
 	CPhraseCursor cursor(T::textCursor());
-	m_tagLast.first = m_navigator.ResolveCursorReference(cursor);
-	if (!m_tagLast.first.isSet()) m_tagLast.second = 0;
+	m_tagLast.relIndex() = m_navigator.getSelection(cursor).relIndex();
+	if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
 
 	// Move start of selection tag so we can later simulate pseudo-selection of
 	//		single word when nothing is really selected:
@@ -474,17 +475,17 @@ void CScriptureText<T,U>::updateSelection()
 	bool bOldSel = haveSelection();
 	m_selectedPhrase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
-	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0));
+	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0));
 	QString strStatusText;
 	if (haveSelection()) {
-		strStatusText = m_selectedPhrase.second.PassageReferenceRangeText(m_pBibleDatabase);
-	} else if (m_tagLast.first.isSet()) {
-		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.first);
+		strStatusText = m_selectedPhrase.tag().PassageReferenceRangeText(m_pBibleDatabase);
+	} else if (m_tagLast.relIndex().isSet()) {
+		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.relIndex());
 	}
 
-	if (m_selectedPhrase.second.second > 0) {
+	if (m_selectedPhrase.tag().count() > 0) {
 		if (!strStatusText.isEmpty()) strStatusText += " : ";
-		strStatusText += T::tr("%n Word(s) Selected", NULL, m_selectedPhrase.second.second);
+		strStatusText += T::tr("%n Word(s) Selected", NULL, m_selectedPhrase.tag().count());
 	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
@@ -492,7 +493,7 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (!haveSelection()) {
 		TPhraseTagList lstTags(m_Highlighter.getHighlightTags());
-		TPhraseTag nNewSel = TPhraseTag(m_tagLast.first, 1);
+		TPhraseTag nNewSel = TPhraseTag(m_tagLast.relIndex(), 1);
 		if  ((lstTags.size() == 0) || (lstTags[0] != nNewSel))
 			m_navigator.highlightTag(m_Highlighter, nNewSel);
 	}
@@ -528,8 +529,8 @@ void CScriptureText<T,U>::on_copyRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_selectedPhrase.first.phrase());
-	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	mime->setText(m_selectedPhrase.phrase().phrase());
+	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
 	QApplication::clipboard()->setMimeData(mime);
 }
 
@@ -538,29 +539,29 @@ void CScriptureText<T,U>::on_copyVeryRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_selectedPhrase.first.phraseRaw());
-	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.second);
+	mime->setText(m_selectedPhrase.phrase().phraseRaw());
+	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
 	QApplication::clipboard()->setMimeData(mime);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyVerses()
 {
-	if (haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0)) copyVersesCommon(false);
+	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(false);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyVersesPlain()
 {
-	if (haveSelection() || (m_tagLast.first.isSet() && m_tagLast.first.verse() != 0)) copyVersesCommon(true);
+	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(true);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::on_copyReferenceDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
@@ -569,8 +570,8 @@ template<class T, class U>
 void CScriptureText<T,U>::on_copyPassageStatistics()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
@@ -579,8 +580,8 @@ template<class T, class U>
 void CScriptureText<T,U>::on_copyEntirePassageDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.second, CPhraseEditNavigator::TTE_COMPLETE, false));
+	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
 }
@@ -593,10 +594,10 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	QTextDocument docFormattedVerses;
 	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
 	if (haveSelection()) {
-		navigator.setDocumentToFormattedVerses(m_selectedPhrase.second);
+		navigator.setDocumentToFormattedVerses(m_selectedPhrase.tag());
 	} else {
 		TPhraseTag tagVerse = m_tagLast;
-		if (tagVerse.first.word() == 0) tagVerse.first.setWord(1);
+		if (tagVerse.relIndex().word() == 0) tagVerse.relIndex().setWord(1);
 		navigator.setDocumentToFormattedVerses(tagVerse);
 	}
 
