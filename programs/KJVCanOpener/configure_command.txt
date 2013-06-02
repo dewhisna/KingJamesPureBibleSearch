@@ -155,6 +155,24 @@ Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
 Cocoa x86/x64 Dynamic:   <<<< This was the development build for Mac
 ../5.0.2-src/configure -platform macx-g++-32 -opensource -debug-and-release -developer-build -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.2-cocoa-run -confirm-license 
 
+===============================================================================
+===============================================================================
+
+Qt 5.1.0 Beta 1 - (Desktop)
+===========================
+
+Linux
+-----
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.1.0 (note: doesn't build docs)
+(Note: would NOT build with the "-no-opengl" option!)
+../5.1.0-beta1-src/configure -platform linux-g++-64 -developer-build -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-5.1.0-beta1-64-local -confirm-license 
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
+
 
 ===============================================================================
 ===============================================================================
