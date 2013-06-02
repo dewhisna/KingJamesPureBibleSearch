@@ -50,6 +50,7 @@
 #include "PersistentSettings.h"
 
 #include <assert.h>
+#include <iostream>
 
 #ifdef Q_OS_WIN
 // Needed to call CreateMutex to lockout installer running while we are:
@@ -168,6 +169,21 @@ namespace {
 }	// namespace
 
 // ============================================================================
+
+bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
+{
+	try {
+		return QApplication::notify(pReceiver, pEvent);
+	} catch (const std::exception &ex) {
+		std::cerr << "std::exception was caught: " << ex.what() << std::endl;
+	} catch (...) {
+		std::cerr << "Unknown exception was caught" << std::endl;
+		assert(false);
+	}
+
+	return false;
+}
+
 
 bool CMyApplication::event(QEvent *event) {
 	if (event->type() == QEvent::FileOpen) {

@@ -43,6 +43,8 @@ public:
 
 	}
 
+	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
+
 	const QString &fileToLoad() const { return m_strFileToLoad; }
 
 signals:
