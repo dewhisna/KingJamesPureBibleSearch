@@ -110,22 +110,24 @@ public:
 class CVerseTextRichifier
 {
 private:
-	CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
-	CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false);
+	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false);
 
 	~CVerseTextRichifier();
 
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase)
-			:	m_pBibleDatabase(pBibleDatabase)
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative)
+			:	m_pBibleDatabase(pBibleDatabase),
+				m_ndxCurrent(ndxRelative)
 		{
-
+			assert(pBibleDatabase != NULL);
 		}
 
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		const CBibleDatabase *m_pBibleDatabase;
+		CRelIndex m_ndxCurrent;
 	};
 
 	QString parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
@@ -139,7 +141,6 @@ private:
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
 	bool m_bAddAnchors;
-	CRelIndex m_ndxCurrent;
 };
 
 // ============================================================================

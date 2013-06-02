@@ -212,23 +212,21 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 // ============================================================================
 // ============================================================================
 
-CVerseTextRichifier::CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext)
+CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext)
 	:	m_pRichNext(pRichNext),
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(NULL),
 		m_strXlateText(strXlateText),
-		m_bAddAnchors(false),
-		m_ndxCurrent(ndxRelative)
+		m_bAddAnchors(false)
 {
 
 }
 
-CVerseTextRichifier::CVerseTextRichifier(const CRelIndex &ndxRelative, const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bAddAnchors)
+CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bAddAnchors)
 	:	m_pRichNext(pRichNext),
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(pVerse),
-		m_bAddAnchors(bAddAnchors),
-		m_ndxCurrent(ndxRelative)
+		m_bAddAnchors(bAddAnchors)
 {
 	assert(pVerse != NULL);
 }
@@ -262,7 +260,8 @@ QString CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &s
 #else
 				QString strWord = parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
 #endif
-				if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(CRelIndex(m_ndxCurrent.index() + i).asAnchor());
+				parseBaton.m_ndxCurrent.setWord(i);
+				if (m_bAddAnchors) strTemp += QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor());
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 					strTemp += strWord.left(1)
 							+ parseBaton.m_strDivineNameFirstLetterParseText
@@ -295,21 +294,23 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	assert(pBibleDatabase != NULL);
 	assert(pVerse != NULL);
 
+	CRelIndex ndxRelVerse(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);	// Relative as verse only
+
 	// Note: While it would be most optimum to reverse this and
 	//		do the verse last so we don't have to call the entire
 	//		tree for every word, we can't reverse it because doing
 	//		so then creates sub-lists of 'w' tags and then we
 	//		no longer know where we are in the list:
-	CVerseTextRichifier rich_d(ndxRelative, 'd', tags.divineNameEnd());
-	CVerseTextRichifier rich_D(ndxRelative, 'D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
-	CVerseTextRichifier rich_t(ndxRelative, 't', tags.transChangeAddedEnd(), &rich_D);
-	CVerseTextRichifier rich_T(ndxRelative, 'T', tags.transChangeAddedBegin(), &rich_t);
-	CVerseTextRichifier rich_j(ndxRelative, 'j', tags.wordsOfJesusEnd(), &rich_T);
-	CVerseTextRichifier rich_J(ndxRelative, 'J', tags.wordsOfJesusBegin(), &rich_j);
-	CVerseTextRichifier rich_M(ndxRelative, 'M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelative, bAddAnchors) : ""), &rich_J);
-	CVerseTextRichifier richVerseText(ndxRelative, 'w', pVerse, &rich_M, bAddAnchors);
+	CVerseTextRichifier rich_d('d', tags.divineNameEnd());
+	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
+	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
+	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
+	CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
+	CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
+	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors) : ""), &rich_J);
+	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors);
 
-	CRichifierBaton baton(pBibleDatabase);
+	CRichifierBaton baton(pBibleDatabase, ndxRelVerse);
 	QString strTemp = richVerseText.parse(baton);
 	if ((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) ||
 		(pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED))
