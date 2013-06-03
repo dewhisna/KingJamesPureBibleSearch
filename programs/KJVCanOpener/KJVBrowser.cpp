@@ -207,6 +207,12 @@ void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)
 void CKJVBrowser::doHighlighting(bool bClear)
 {
 	m_pScriptureBrowser->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
+
+	// Work around Qt5 bug.  Without this, rendering goes Minnie Mouse and
+	//		the scroll jumps back a half-line on some lines after doing the
+	//		highlighting -- usually noticeable just after a gotoIndex call:
+	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection();
+	m_pScriptureBrowser->navigator().selectWords(tagSelection);
 }
 
 // ----------------------------------------------------------------------------
@@ -370,7 +376,6 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 void CKJVBrowser::setVerse(const CRelIndex &ndx)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndx.verse(), 0);
-
 }
 
 void CKJVBrowser::setWord(const TPhraseTag &tag)
