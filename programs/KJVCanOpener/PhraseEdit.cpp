@@ -635,6 +635,8 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	QTextCharFormat fmt;
 	CPhraseCursor myCursor(&m_TextDocument);
 
+	myCursor.beginEditBlock();
+
 	const TPhraseTagList &lstPhraseTags(aHighlighter.getHighlightTags());
 	for (int ndx=0; ndx<lstPhraseTags.size(); ++ndx) {
 		TPhraseTag tag = lstPhraseTags.at(ndx);
@@ -656,7 +658,6 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 		if (tag.count()) ndxNormalEnd = ndxNormalStart + tag.count() - 1;
 
 		while ((nStartPos != -1) && (ndxNormalStart <= ndxNormalEnd)) {
-			myCursor.beginEditBlock();
 			myCursor.setPosition(nStartPos);
 			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart).size();
 
@@ -668,12 +669,13 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				myCursor.clearSelection();
 				++nStartPos;
 			}
-			myCursor.endEditBlock();
 
 			++ndxNormalStart;
 			nStartPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart)).asAnchor());
 		}
 	}
+
+	myCursor.endEditBlock();
 }
 
 void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors)
