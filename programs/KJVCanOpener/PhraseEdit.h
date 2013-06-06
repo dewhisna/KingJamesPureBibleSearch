@@ -207,8 +207,8 @@ public:
 	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false, bool bNoAnchors = false);
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
-	virtual TPhraseTag getSelection(const CPhraseCursor &aCursor) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
-	virtual CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	TPhraseTag getSelection(const CPhraseCursor &aCursor) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
 	void removeAnchors();
 
@@ -244,10 +244,10 @@ public:
 
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
-	virtual TPhraseTag getSelection(const CPhraseCursor &aCursor) const { return CPhraseNavigator::getSelection(aCursor); }
-	virtual CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const { return CPhraseNavigator::getSelectedPhrase(aCursor); }
-	virtual TPhraseTag getSelection() const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
-	virtual CSelectedPhrase getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	using CPhraseNavigator::getSelection;
+	using CPhraseNavigator::getSelectedPhrase;
+	TPhraseTag getSelection() const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	CSelectedPhrase getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 	bool handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const;
 	bool handleToolTipEvent(CBasicHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const;
 	void highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;

@@ -1334,12 +1334,12 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 
 TPhraseTag CPhraseEditNavigator::getSelection() const
 {
-	return CPhraseNavigator::getSelection(m_TextEditor.textCursor());
+	return getSelection(m_TextEditor.textCursor());
 }
 
 CSelectedPhrase CPhraseEditNavigator::getSelectedPhrase() const
 {
-	return CPhraseNavigator::getSelectedPhrase(m_TextEditor.textCursor());
+	return getSelectedPhrase(m_TextEditor.textCursor());
 }
 
 bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const
@@ -1347,7 +1347,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	assert(m_pBibleDatabase.data() != NULL);
 
 	assert(pHelpEvent != NULL);
-	CRelIndex ndxReference = CPhraseNavigator::getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos())).relIndex();
+	CRelIndex ndxReference = getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos())).relIndex();
 	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
