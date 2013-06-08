@@ -352,6 +352,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 		if (!index.isValid()) {
 			// Special Case:  QModelIndex() is "invalidate all":
 			m_mapSizeHints.clear();
+			emit cachedSizeHintsInvalidated();
 			return false;				// But return false because we can't actually set a SizeHint for an invalid index
 		}
 
@@ -360,6 +361,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 		if (!ndxRel.isSet()) return false;
 
 		m_mapSizeHints[ndxRel.index()] = value.toSize();
+		// Note: Do not fire dataChanged() here, as this is just a cache used by ReflowDelegate
 		return true;
 	}
 
@@ -1105,6 +1107,7 @@ void CVerseListModel::setFont(const QFont& aFont)
 {
 	Q_UNUSED(aFont);
 	emit layoutAboutToBeChanged();
+	setData(QModelIndex(), QSize(), Qt::SizeHintRole);			// Invalidate all sizeHints on fontChange
 	emit layoutChanged();
 }
 

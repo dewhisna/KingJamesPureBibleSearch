@@ -284,6 +284,7 @@ public:
 	QPair<int, int> GetVerseIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Verse and total number of verses with results (for completeness only)
 
 signals:
+	void cachedSizeHintsInvalidated();
 
 public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);

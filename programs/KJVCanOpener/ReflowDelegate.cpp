@@ -134,6 +134,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate)
 
 	connect(this, SIGNAL(sizeHintChanged(QModelIndex,QModelIndex)), parent, SLOT(dataChanged(QModelIndex,QModelIndex)));
 	connect(parent->model(), SIGNAL(modelAboutToBeReset()), this, SLOT(reflowHalt()));
+	connect(parent->model(), SIGNAL(layoutChanged()), this, SLOT(startReflow()));
 
 	m_timerReflow.setInterval(0);
 	connect(&m_timerReflow, SIGNAL(timeout()), SLOT(reflowTick()));
