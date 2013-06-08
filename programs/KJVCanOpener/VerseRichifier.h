@@ -123,14 +123,16 @@ private:
 				m_ndxCurrent(ndxRelative)
 		{
 			assert(pBibleDatabase != NULL);
+			m_strVerseText.reserve(1024);					// Avoid reallocations
 		}
 
+		QString m_strVerseText;								// Verse Text being built
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
 	};
 
-	QString parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
+	void parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false);
