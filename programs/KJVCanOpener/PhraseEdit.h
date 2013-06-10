@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
+#include "VerseRichifier.h"
 
 #include <QTextDocument>
 #include <QTextEdit>
@@ -217,6 +218,7 @@ signals:
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
+	CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the text in this browser document
 
 private:
 	QTextDocument &m_TextDocument;

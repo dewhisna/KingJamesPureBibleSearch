@@ -729,7 +729,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
-		strHTML += m_pBibleDatabase->richVerseText(relPrev, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors) + "\n";
 		strHTML += "</p>";
 
 		// If we have a footnote for this book and this is the end of the last chapter,
@@ -830,7 +830,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			strHTML += QString("<b> %1 </b>")
 						.arg(ndxVrs+1);
 		}
-		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors) + "\n";
 		ndxVerse.setWord(pVerse->m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
 	}
 	if (bParagraph) {
@@ -945,7 +945,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
-		strHTML += m_pBibleDatabase->richVerseText(relNext, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors) + "\n";
 		strHTML += "</p>";
 	}
 
@@ -1037,7 +1037,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 					.arg(ndx.chapter())
 					.arg(ndx.verse());
 	}
-	strHTML += m_pBibleDatabase->richVerseText(ndx, CVerseTextRichifierTags(), !bNoAnchors) + "\n";
+	strHTML += m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !bNoAnchors) + "\n";
 
 	strHTML += "</p></body></html>";
 	m_TextDocument.setHtml(strHTML);
@@ -1129,7 +1129,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 			return;
 		}
 
-		strHTML += m_pBibleDatabase->richVerseText(ndx, CVerseTextRichifierTags(), false);
+		strHTML += m_pBibleDatabase->richVerseText(ndx, m_richifierTags, false);
 
 		ndxPrev = ndx;
 	}

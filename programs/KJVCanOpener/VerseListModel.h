@@ -188,14 +188,20 @@ public:
 		m_strVeryPlainTextCache = getVerseAsWordList().join(" ");
 		return m_strVeryPlainTextCache;
 	}
-	QString getVerseRichText() const
+	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
 	{
-		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
+		// Do caching here if we are at least at search results level, but no need to if
+		//		the database is doing complete full caching, or else we are wasting memory:
+		if ((g_nRichTextCachingMode >= RTCME_SEARCH_RESULTS) && (g_nRichTextCachingMode < RTCME_FULL) &&
+			(!m_strRichTextCache.isEmpty())) return m_strRichTextCache;
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
-		m_strRichTextCache = m_pBibleDatabase->richVerseText(CRelIndex(getBook(), getChapter(), getVerse(), 0), CVerseTextRichifierTags(), false);
-		return m_strRichTextCache;
+		if ((g_nRichTextCachingMode >= RTCME_SEARCH_RESULTS) && (g_nRichTextCachingMode < RTCME_FULL)) {
+			m_strRichTextCache = m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
+			return m_strRichTextCache;
+		}
+		return m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
 	}
 
 private:
@@ -320,6 +326,7 @@ private:
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 	VERSE_TREE_MODE_ENUM m_nTreeMode;
 	bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
+	CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the search results in this list
 };
 
 // ============================================================================

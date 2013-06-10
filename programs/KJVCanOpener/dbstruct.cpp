@@ -43,6 +43,12 @@ bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
 
 // ============================================================================
 
+// Global Settings:
+
+RICH_TEXT_CACHE_MODE_ENUM g_nRichTextCachingMode = RTCME_FULL;		// Rich Text Caching Mode Level
+
+// ============================================================================
+
 int CPhraseList::removeDuplicates()
 {
 	int n = size();
@@ -791,12 +797,41 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	return &(footnote->second);
 }
 
-QString CBibleDatabase::richVerseText(const CRelIndex &ndx, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
+QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
 {
+	CRelIndex ndx = ndxRel;
+	ndx.setWord(0);							// We always return the whole verse, not specific words
 	const CVerseEntry *pVerse = verseEntry(ndx);
 	assert(pVerse != NULL);
 
+	if (g_nRichTextCachingMode == RTCME_FULL) {
+		TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
+		TVerseCacheMap::iterator itr = cache.find(ndx);
+		if (itr != cache.end()) return (itr->second);
+		cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+		return cache[ndx];
+	}
+
 	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+}
+
+void CBibleDatabase::dumpRichVerseTextCache(uint nTextRichifierTagHash)
+{
+	if (nTextRichifierTagHash == 0) {
+		m_mapVerseCacheWithAnchors.clear();
+		m_mapVerseCacheNoAnchors.clear();
+		return;
+	}
+
+	TSpecVerseCacheMap::iterator itr;
+
+	itr = m_mapVerseCacheWithAnchors.find(nTextRichifierTagHash);
+	if (itr != m_mapVerseCacheWithAnchors.end())
+		(itr->second).clear();
+
+	itr = m_mapVerseCacheNoAnchors.find(nTextRichifierTagHash);
+	if (itr != m_mapVerseCacheNoAnchors.end())
+		(itr->second).clear();
 }
 
 // ============================================================================

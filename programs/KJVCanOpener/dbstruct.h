@@ -322,6 +322,9 @@ typedef std::map<CRelIndex, CVerseEntry, IndexSortPredicate> TVerseEntryMap;		//
 
 typedef std::vector<TVerseEntryMap> TBookVerseList;		// Index by nBk-1
 
+typedef std::map<CRelIndex, QString, IndexSortPredicate> TVerseCacheMap;			// Index by [nBk|nChp|nVrs|0]
+typedef std::map<uint, TVerseCacheMap> TSpecVerseCacheMap;							// Specific TVerseCacheMap -- Index by CVerseTextRichifierTags hash
+
 // ============================================================================
 
 // Words -- Word List and Mapping
@@ -530,7 +533,8 @@ public:
 		return m_lstCommonPhrases;
 	}
 
-	QString richVerseText(const CRelIndex &ndx, const CVerseTextRichifierTags &tags, bool bAddAnchors = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+	QString richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 
 private:
 	// CReadDatabase needed to load the database.  After that everything
@@ -555,6 +559,10 @@ private:
 // Local Data:
 	QString m_strName;						// Name for this database
 	QString m_strDescription;				// Database description
+
+// Cache:
+	mutable TSpecVerseCacheMap m_mapVerseCacheWithAnchors;		// Map of Verse Cache Maps to store rendered rich text if g_nRichTextCachingMode is as RTCME_FULL
+	mutable TSpecVerseCacheMap m_mapVerseCacheNoAnchors;		//  "(ditto)" (but without anchors)
 };
 
 
@@ -632,6 +640,25 @@ struct TPhraseTagListSortPredicate {
 		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
+
+// ============================================================================
+
+// Global Settings:
+
+enum RICH_TEXT_CACHE_MODE_ENUM {
+	RTCME_NONE = 0,				// No caching done (used to conserve memory usage)
+	// RTCME_  = 1,				// Undefined
+	// RTCME_  = 2,				// Undefined
+	// RTCME_  = 3,				// Undefined
+	RTCME_SEARCH_RESULTS = 4,	// Search Results Rendering is cached (Moderate memory usage)
+	// RTCME_  = 5,				// Undefined
+	// RTCME_  = 6,				// Undefined
+	// RTCME_  = 7,				// Undefined
+	// RTCME_  = 8,				// Undefined
+	RTCME_FULL = 9				// Full-On Caching (Heavy memory usage) -- Enables CBibleDatabase to parse all rendered rich text on a per-CVerseTextRichifierTags basis
+};
+
+extern RICH_TEXT_CACHE_MODE_ENUM g_nRichTextCachingMode;	// Rich Text Caching Mode Level
 
 // ============================================================================
 

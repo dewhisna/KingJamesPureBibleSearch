@@ -296,9 +296,9 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 			case VDME_VERYPLAIN:
 				return aVerse.getVerseVeryPlainText();
 			case VDME_RICHTEXT:
-				return aVerse.getVerseRichText();
+				return aVerse.getVerseRichText(m_richifierTags);
 			case VDME_COMPLETE:
-				return aVerse.getVerseRichText();		// TODO : FINISH THIS ONE!!!
+				return aVerse.getVerseRichText(m_richifierTags);		// TODO : FINISH THIS ONE!!!
 			default:
 				return QString();
 		}

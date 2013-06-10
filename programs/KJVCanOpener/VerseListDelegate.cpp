@@ -60,10 +60,12 @@ void CVerseListDelegate::SetDocumentText(QTextDocument &doc, const QModelIndex &
 		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
 		CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
-		navigator.setDocumentToVerse(item.getIndex());
 		if (!bDoingSizeHint) {
+			navigator.setDocumentToVerse(item.getIndex());
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
+		} else {
+			navigator.setDocumentToVerse(item.getIndex(), false, true);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 		}
 	} else if (ndxRel.chapter() != 0) {
 		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());

@@ -25,6 +25,7 @@
 #define VERSE_RICHIFIER_H
 
 #include <QString>
+#include <QHash>
 
 #include "dbstruct.h"
 
@@ -34,7 +35,8 @@ class CVerseTextRichifierTags
 {
 public:
 	CVerseTextRichifierTags()
-		:	m_bAddRichPs119HebrewPrefix(true),
+		:	m_nHash(0),
+			m_bAddRichPs119HebrewPrefix(true),
 			m_strTransChangeAddedBegin("<i>"),
 			m_strTransChangeAddedEnd("</i>"),
 			m_strWordsOfJesusBegin("<font color=\"red\"> "),
@@ -44,7 +46,7 @@ public:
 			m_strDivideNameBegin("<font size=\"-1\">"),
 			m_strDivideNameEnd("</font>")
 	{
-
+		calcHash();
 	}
 
 	~CVerseTextRichifierTags()
@@ -52,37 +54,56 @@ public:
 
 	}
 
-	bool addRichPs119HebrewPrefix() const { return m_bAddRichPs119HebrewPrefix; }
+	inline bool addRichPs119HebrewPrefix() const { return m_bAddRichPs119HebrewPrefix; }
 	void setAddRichPs119HebrewPrefix(bool bAddRichPs119HebrewPrefix)
 	{
 		m_bAddRichPs119HebrewPrefix = bAddRichPs119HebrewPrefix;
+		calcHash();
 	}
 
-	QString transChangeAddedBegin() const { return m_strTransChangeAddedBegin; }
-	QString transChangeAddedEnd() const { return m_strTransChangeAddedEnd; }
+	inline QString transChangeAddedBegin() const { return m_strTransChangeAddedBegin; }
+	inline QString transChangeAddedEnd() const { return m_strTransChangeAddedEnd; }
 	void setTransChangeAddedTags(const QString &strTagBegin, const QString &strTagEnd)
 	{
 		m_strTransChangeAddedBegin = strTagBegin;
 		m_strTransChangeAddedEnd = strTagEnd;
+		calcHash();
 	}
 
-	QString wordsOfJesusBegin() const { return m_strWordsOfJesusBegin; }
-	QString wordsOfJesusEnd() const { return m_strWordsOfJesusEnd; }
+	inline QString wordsOfJesusBegin() const { return m_strWordsOfJesusBegin; }
+	inline QString wordsOfJesusEnd() const { return m_strWordsOfJesusEnd; }
 	void setWordsOfJesusTags(const QString &strTagBegin, const QString &strTagEnd)
 	{
 		m_strWordsOfJesusBegin = strTagBegin;
 		m_strWordsOfJesusEnd = strTagEnd;
+		calcHash();
 	}
 
-	QString divineNameBegin() const { return m_strDivideNameBegin; }
-	QString divineNameEnd() const { return m_strDivideNameEnd; }
+	inline QString divineNameBegin() const { return m_strDivideNameBegin; }
+	inline QString divineNameEnd() const { return m_strDivideNameEnd; }
 	void setDivineNameTags(const QString &strTagBegin, const QString &strTagEnd)
 	{
 		m_strDivideNameBegin = strTagBegin;
 		m_strDivideNameEnd = strTagEnd;
+		calcHash();
 	}
 
+	inline uint hash() const { return m_nHash; }
+
 protected:
+	void calcHash()
+	{
+		m_nHash = qHash((m_bAddRichPs119HebrewPrefix ? 'M' : 'm') +
+						'T' + m_strTransChangeAddedBegin +
+						't' + m_strTransChangeAddedEnd +
+						'J' + m_strWordsOfJesusBegin +
+						'j' + m_strWordsOfJesusEnd +
+						'D' + m_strDivideNameBegin +
+						'd' + m_strDivideNameEnd);
+	}
+
+private:
+	uint m_nHash;
 	bool m_bAddRichPs119HebrewPrefix;
 	QString m_strTransChangeAddedBegin;
 	QString m_strTransChangeAddedEnd;
