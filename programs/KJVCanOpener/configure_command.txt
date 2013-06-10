@@ -65,6 +65,23 @@ Carbon x86/PPC (universal):
 ===============================================================================
 ===============================================================================
 
+
+Qt 4.8.4 -- Win32 Cross-Compile
+===============================
+
+Built with:  sezero_4.5_20111101 build w/rev.5747 update from here:
+http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/
+
+configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32-
+Needs -no-ssse3 to fix issue in src/gui/image/qjpeghandler.cpp:813: undefined reference to `__imp___Z32qt_convert_rgb888_to_rgb32_ssse3PjPKhi'
+
+../4.8.4-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -no-ssse3 -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.4-win32 -confirm-license 
+
+
+===============================================================================
+===============================================================================
+
+
 Experimenting with Qt 5:
 ========================
 
