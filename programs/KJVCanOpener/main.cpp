@@ -291,59 +291,61 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	CBuildDatabase bdb(splash);
-	if (bBuildDB) {
-		if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
-			return -1;
-		}
-	}
-
-	// Read Main Database
-	CReadDatabase rdb(splash);
-	if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), true)) {
-		QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
-		return -2;
-	}
-
 	// Read User Database if it exists:
 	QString strUserDatabaseFilename;
 
-	if (!fiUserDatabase.exists()) {
-		// If the user's database doesn't exist, see if the template one
-		//		does.  And if so, see if we can copy from it to the user's:
-		if (fiUserDatabaseTemplate.exists()) {
-			if (rdb.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true)) {
-				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-					// Use the copy if that was successful.  Strings will have already
-					//	been set, so no need to read again:
-					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
-				}
-				// If we were successful with reading the template database, we'll
-				//	already have the strings loaded, so the user can use them.  But,
-				//	we'll leave the pathname empty to disable user changes since
-				//	the template will be a read-only copy
-			} else {
-				// Otherwise, if reading the template failed and there was no user
-				//	database, see if we can just create a user database:
-				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
-				}
-			}
-		} else {
-			// If there was no template and no user database, see if we can just create
-			//	the user database.  If so, use it (this is like the failure case above,
-			//	but where the template doesn't exist at all):
-			if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+	{
+		CBuildDatabase bdb(splash);
+		if (bBuildDB) {
+			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
+				return -1;
 			}
 		}
-	} else {
-		if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
-			return -3;
+
+		// Read Main Database
+		CReadDatabase rdb(splash);
+		if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), true)) {
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
+			return -2;
+		}
+
+		if (!fiUserDatabase.exists()) {
+			// If the user's database doesn't exist, see if the template one
+			//		does.  And if so, see if we can copy from it to the user's:
+			if (fiUserDatabaseTemplate.exists()) {
+				if (rdb.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true)) {
+					if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+						// Use the copy if that was successful.  Strings will have already
+						//	been set, so no need to read again:
+						strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+					}
+					// If we were successful with reading the template database, we'll
+					//	already have the strings loaded, so the user can use them.  But,
+					//	we'll leave the pathname empty to disable user changes since
+					//	the template will be a read-only copy
+				} else {
+					// Otherwise, if reading the template failed and there was no user
+					//	database, see if we can just create a user database:
+					if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+						strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+					}
+				}
+			} else {
+				// If there was no template and no user database, see if we can just create
+				//	the user database.  If so, use it (this is like the failure case above,
+				//	but where the template doesn't exist at all):
+				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
+					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+				}
+			}
 		} else {
-			strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+			if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
+				return -3;
+			} else {
+				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+			}
 		}
 	}
 

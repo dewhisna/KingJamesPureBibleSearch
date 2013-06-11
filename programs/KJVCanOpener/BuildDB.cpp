@@ -49,6 +49,10 @@ namespace {
 //:BuildDB
 	const QString g_constrBuildDatabase = QObject::tr("Building Database");
 
+	const QString g_constrDatabaseType = "QSQLITE";
+	const QString g_constrMainBuildConnection = "MainBuildConnection";
+	const QString g_constrUserBuildConnection = "UserBuildConnection";
+
 	// Book counts are here only on the building process as
 	//  the reading side gets this data entirely from the
 	//  database
@@ -132,12 +136,25 @@ namespace {
 CBuildDatabase::CBuildDatabase(QWidget *pParent)
 	:	m_pParent(pParent)
 {
-	if (!g_sqldbBuildMain.contains("MainBuildConnection")) {
-		g_sqldbBuildMain = QSqlDatabase::addDatabase("QSQLITE", "MainBuildConnection");
+	if (!g_sqldbBuildMain.contains(g_constrMainBuildConnection)) {
+		g_sqldbBuildMain = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainBuildConnection);
 	}
 
-	if (!g_sqldbBuildUser.contains("UserBuildConnection")) {
-		g_sqldbBuildUser = QSqlDatabase::addDatabase("QSQLITE", "UserBuildConnection");
+	if (!g_sqldbBuildUser.contains(g_constrUserBuildConnection)) {
+		g_sqldbBuildUser = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserBuildConnection);
+	}
+}
+
+CBuildDatabase::~CBuildDatabase()
+{
+	if (g_sqldbBuildMain.contains(g_constrMainBuildConnection)) {
+		g_sqldbBuildMain = QSqlDatabase();
+		QSqlDatabase::removeDatabase(g_constrMainBuildConnection);
+	}
+
+	if (g_sqldbBuildUser.contains(g_constrUserBuildConnection)) {
+		g_sqldbBuildUser = QSqlDatabase();
+		QSqlDatabase::removeDatabase(g_constrUserBuildConnection);
 	}
 }
 
@@ -872,6 +889,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 		(!BuildPhrasesTable(false))) bSuccess = false;
 
 	m_myDatabase.close();
+	m_myDatabase = QSqlDatabase();
 
 	if (bSuccess) QMessageBox::information(m_pParent, g_constrBuildDatabase, QObject::tr("Build Complete!"));
 	return bSuccess;
@@ -897,6 +915,7 @@ bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename, bool 
 	}
 
 	m_myDatabase.close();
+	m_myDatabase = QSqlDatabase();
 
 	return bSuccess;
 }

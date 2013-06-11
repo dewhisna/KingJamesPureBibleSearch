@@ -53,6 +53,10 @@ QSqlDatabase g_sqldbReadUser;
 
 namespace {
 	const QString g_constrReadDatabase = QObject::tr("Reading Database");
+
+	const QString g_constrDatabaseType = "QSQLITE";
+	const QString g_constrMainReadConnection = "MainReadConnection";
+	const QString g_constrUserReadConnection = "UserReadConnection";
 }		// Namespace
 
 // ============================================================================
@@ -60,14 +64,28 @@ namespace {
 CReadDatabase::CReadDatabase(QWidget *pParent)
 	:	m_pParent(pParent)
 {
-	if (!g_sqldbReadMain.contains("MainReadConnection")) {
-		g_sqldbReadMain = QSqlDatabase::addDatabase("QSQLITE", "MainReadConnection");
+	if (!g_sqldbReadMain.contains(g_constrMainReadConnection)) {
+		g_sqldbReadMain = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
 	}
 
-	if (!g_sqldbReadUser.contains("UserReadConnection")) {
-		g_sqldbReadUser = QSqlDatabase::addDatabase("QSQLITE", "UserReadConnection");
+	if (!g_sqldbReadUser.contains(g_constrUserReadConnection)) {
+		g_sqldbReadUser = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserReadConnection);
 	}
 }
+
+CReadDatabase::~CReadDatabase()
+{
+	if (g_sqldbReadMain.contains(g_constrMainReadConnection)) {
+		g_sqldbReadMain = QSqlDatabase();
+		QSqlDatabase::removeDatabase(g_constrMainReadConnection);
+	}
+
+	if (g_sqldbReadUser.contains(g_constrUserReadConnection)) {
+		g_sqldbReadUser = QSqlDatabase();
+		QSqlDatabase::removeDatabase(g_constrUserReadConnection);
+	}
+}
+
 
 // ============================================================================
 
@@ -770,7 +788,6 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bH
 	}
 
 	m_myDatabase.close();
-
 	m_myDatabase = QSqlDatabase();
 
 	return bSuccess;
