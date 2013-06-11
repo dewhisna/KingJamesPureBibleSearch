@@ -233,6 +233,7 @@ int main(int argc, char *argv[])
 							QObject::tr("Please Wait...") +
 							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 	qApp->processEvents();
+	splash->repaint();
 
 #ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
@@ -258,6 +259,7 @@ int main(int argc, char *argv[])
 	// Sometimes the splash screen fails to paint, so we'll pump events again
 	//	between the fonts and database:
 	qApp->processEvents();
+	splash->repaint();
 
 	// Setup our SQL Plugin paths:
 	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
