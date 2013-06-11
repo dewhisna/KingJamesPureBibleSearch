@@ -154,7 +154,7 @@ public:
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
 	inline bool haveResults() const { return (model()->GetResultsCount() > 0); }
-	inline const TPhraseTagList &searchResultsTags() const { return m_lstSearchResultsTags; }
+	inline const TPhraseTagList &searchResultsTags() const { return m_tagsSearchResults.phraseTags(); }
 
 	QString searchResultsSummaryText() const;
 
@@ -193,7 +193,16 @@ protected:
 // Private Data:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	TPhraseTagList m_lstSearchResultsTags;				// Highlight tags from search results
+	// Guard class to keep me from accidentally accessing non-const functions and
+	//		causing unintentional copying, as that can be expensive in large searches:
+	class CMyPhraseTags {
+	public:
+		const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
+
+	private:
+		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	} m_tagsSearchResults;				// Highlight tags from search results
 	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
 	int m_nLastSearchVerses;
 	int m_nLastSearchChapters;

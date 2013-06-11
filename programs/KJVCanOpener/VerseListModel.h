@@ -50,7 +50,7 @@ public:
 							const CRelIndex &ndx = CRelIndex(),
 							const unsigned int nPhraseSize = 1)
 		:	m_pBibleDatabase(pBibleDatabase),
-		  m_ndxRelative(ndx)
+			m_ndxRelative(ndx)
 	{
 		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
 		if (nPhraseSize > 0)
@@ -63,6 +63,15 @@ public:
 		m_ndxRelative.setWord(0);				// Primary index will have a zero word index
 		if (tag.count() > 0)
 			m_lstTags.push_back(tag);			// But the corresponding tag will have non-zero word index
+	}
+	CVerseListItem(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &lstTags)
+		:	m_pBibleDatabase(pBibleDatabase),
+			m_lstTags(lstTags)
+	{
+		if (lstTags.size() > 0) {
+			m_ndxRelative = lstTags.at(0).relIndex();
+			m_ndxRelative.setWord(0);				// Primary index will have a zero word index
+		}
 	}
 	~CVerseListItem()
 	{ }

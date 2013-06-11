@@ -131,7 +131,7 @@ private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
 	CPhraseEditNavigator m_navigator;
-	CCursorFollowHighlighter m_Highlighter;
+	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
 	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference

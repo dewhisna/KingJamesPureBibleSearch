@@ -61,9 +61,13 @@ public:
 	bool IsDuplicate() const { return m_bIsDuplicate; }
 	void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
 	uint32_t GetContributingNumberOfMatches() const { return m_nContributingMatchCount; }
-	void SetContributingNumberOfMatches(uint32_t nMatches) const { m_nContributingMatchCount = nMatches; }
+	void SetContributingNumberOfMatches(uint32_t nMatches) const
+	{
+		m_nContributingMatchCount = nMatches;
+		m_lstScopedPhraseTagResults.reserve(nMatches);			// Preallocate storage to avoid repeated mallocs
+	}
 	const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
-	void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults.clear(); }
+	void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults = TPhraseTagList(); }
 	void AddScopedPhraseTagSearchResult(const TPhraseTag &tag) const { m_lstScopedPhraseTagResults.append(tag); }
 	// -------
 	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
@@ -117,8 +121,7 @@ protected:
 	// -------
 	mutable uint32_t m_nContributingMatchCount;		// Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
-	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// Lost of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel
-
+	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel
 	// -------
 	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())

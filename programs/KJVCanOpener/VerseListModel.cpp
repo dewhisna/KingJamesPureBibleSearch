@@ -1016,6 +1016,14 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 	CVerseList lstReferences;
 	TPhraseTagList lstResults;
 
+	int nAllocSize = 0;
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
+		assert(phrase != NULL);
+		nAllocSize += phrase->GetContributingNumberOfMatches();
+	}
+	lstResults.reserve(nAllocSize);
+
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
 		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
 		assert(phrase != NULL);
@@ -1024,33 +1032,31 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 
 	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
-	for (int ndxResults=0; ndxResults<lstResults.size(); ++ndxResults) {
-		if (!lstResults.at(ndxResults).relIndex().isSet()) {
+	for (TPhraseTagList::const_iterator itrResults = lstResults.constBegin(); itrResults != lstResults.constEnd(); ++itrResults) {
+		TPhraseTagList::const_iterator itrFirst(itrResults);
+		TPhraseTagList::const_iterator itrLast(itrResults+1);
+
+		bool bNextIsSameReference = true;
+		CRelIndex ndxRelative = itrFirst->relIndex();
+		if (!ndxRelative.isSet()) {
 			assert(false);
 			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
 			continue;
 		}
-		lstReferences.push_back(CVerseListItem(m_pBibleDatabase, lstResults.at(ndxResults)));
+		while ((bNextIsSameReference) && (itrLast != lstResults.constEnd())) {
+			CRelIndex ndxNextRelative = itrLast->relIndex();
 
-		CVerseListItem &verseItem(lstReferences.last());
-
-		if (ndxResults<(lstResults.size()-1)) {
-			bool bNextIsSameReference=false;
-			CRelIndex ndxRelative = lstResults.at(ndxResults).relIndex();
-			do {
-				CRelIndex ndxNextRelative = lstResults.at(ndxResults+1).relIndex();
-
-				if ((ndxRelative.book() == ndxNextRelative.book()) &&
-					(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
-					(ndxRelative.verse() == ndxNextRelative.verse())) {
-					verseItem.addPhraseTag(lstResults.at(ndxResults+1));
-					bNextIsSameReference=true;
-					ndxResults++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndxResults<(lstResults.size()-1)));
+			if ((ndxRelative.book() == ndxNextRelative.book()) &&
+				(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
+				(ndxRelative.verse() == ndxNextRelative.verse())) {
+				++itrResults;						// Bump the iterator if we are going to consume it
+				++itrLast;
+			} else {
+				bNextIsSameReference=false;
+			}
 		}
+		std::list<TPhraseTag> lstVerseTags(itrFirst, itrLast);
+		lstReferences.push_back(CVerseListItem(m_pBibleDatabase, TPhraseTagList::fromStdList(lstVerseTags)));
 	}
 
 	setVerseList(lstReferences);

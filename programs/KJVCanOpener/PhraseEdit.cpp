@@ -71,9 +71,10 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
 
-	m_cache_lstPhraseTagResults.clear();		// This call really shouldn't be needed since we already know the size is zero (above), but it just feels better with it. :-)
 	const TIndexList &lstPhraseResults(GetNormalizedSearchResults());
-	for (unsigned int ndxResults=0; ndxResults<lstPhraseResults.size(); ++ndxResults) {
+	unsigned int nNumResults = lstPhraseResults.size();
+	m_cache_lstPhraseTagResults.reserve(nNumResults);
+	for (unsigned int ndxResults=0; ndxResults<nNumResults; ++ndxResults) {
 		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
 	}
 
@@ -208,10 +209,10 @@ QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
 
 void CParsedPhrase::clearCache() const
 {
-	m_cache_lstPhraseWords.clear();
-	m_cache_lstPhraseWordsRaw.clear();
-	m_cache_lstNormalizedSearchResults.clear();
-	m_cache_lstPhraseTagResults.clear();
+	m_cache_lstPhraseWords = QStringList();
+	m_cache_lstPhraseWordsRaw = QStringList();
+	m_cache_lstNormalizedSearchResults = TIndexList();
+	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
@@ -638,7 +639,8 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	myCursor.beginEditBlock();
 
 	const TPhraseTagList &lstPhraseTags(aHighlighter.getHighlightTags());
-	for (int ndx=0; ndx<lstPhraseTags.size(); ++ndx) {
+	int nNumTags = lstPhraseTags.size();
+	for (int ndx=0; ndx<nNumTags; ++ndx) {
 		TPhraseTag tag = lstPhraseTags.at(ndx);
 		CRelIndex ndxRel = tag.relIndex();
 		if (!ndxRel.isSet()) continue;

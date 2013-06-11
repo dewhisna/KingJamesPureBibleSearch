@@ -671,7 +671,7 @@ void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 const TPhraseTagList &CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	m_LastSearchCriteria = aSearchCriteria;
-	m_lstSearchResultsTags = model()->setParsedPhrases(aSearchCriteria, phrases);
+	m_tagsSearchResults.setPhraseTags(model()->setParsedPhrases(aSearchCriteria, phrases));
 	m_nLastSearchNumPhrases = phrases.size();
 
 	int nVerses = 0;		// Results counts in Verses
@@ -705,7 +705,7 @@ const TPhraseTagList &CKJVSearchResult::setParsedPhrases(const CSearchCriteria &
 	m_nLastSearchChapters = nChapters;
 	m_nLastSearchBooks = nBooks;
 
-	return m_lstSearchResultsTags;
+	return m_tagsSearchResults.phraseTags();
 }
 
 QString CKJVSearchResult::searchResultsSummaryText() const

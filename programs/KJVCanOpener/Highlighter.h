@@ -36,22 +36,23 @@ class CBasicHighlighter : public QObject {
 public:
 	explicit CBasicHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
 		:	QObject(parent),
-			m_lstPhraseTags(lstPhraseTags),
 			m_bEnabled(true)
 	{
+		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
 	CBasicHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
 		:	QObject(parent),
 			m_bEnabled(true)
 	{
-		m_lstPhraseTags.append(aTag);
+		TPhraseTagList lstTags;
+		lstTags.append(aTag);
+		m_myPhraseTags.setPhraseTags(lstTags);
 	}
 	CBasicHighlighter(const CBasicHighlighter &aHighlighter)
 		:	QObject(aHighlighter.parent()),
-			m_lstPhraseTags(aHighlighter.m_lstPhraseTags),
 			m_bEnabled(aHighlighter.m_bEnabled)
 	{
-
+		m_myPhraseTags.setPhraseTags(aHighlighter.getHighlightTags());
 	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const = 0;
@@ -65,8 +66,19 @@ public slots:
 	void clearPhraseTags();
 
 protected:
-	TPhraseTagList m_lstPhraseTags;				// Tags to highlight
 	bool m_bEnabled;
+
+private:
+	// Guard class to keep me from accidentally accessing non-const functions and
+	//		causing unintentional copying, as that can be expensive in large searches:
+	class CMyPhraseTags {
+	public:
+		const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
+
+	private:
+		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	} m_myPhraseTags;
 };
 
 // ============================================================================

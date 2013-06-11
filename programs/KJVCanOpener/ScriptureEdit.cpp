@@ -210,8 +210,8 @@ template<class T, class U>
 void CScriptureText<T,U>::clearHighlighting()
 {
 	if (!m_bDoingPopup) {
-		m_navigator.doHighlighting(m_Highlighter, true);
-		m_Highlighter.clearPhraseTags();
+		m_navigator.doHighlighting(m_CursorFollowHighlighter, true);
+		m_CursorFollowHighlighter.clearPhraseTags();
 		m_HighlightTimer.stop();
 	}
 }
@@ -254,7 +254,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				}
 
 //				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-//				if (m_navigator.handleToolTipEvent(pHelpEvent, m_Highlighter, m_selectedPhrase.second)) {
+//				if (m_navigator.handleToolTipEvent(pHelpEvent, m_CursorFollowHighlighter, m_selectedPhrase.second)) {
 //					m_HighlightTimer.stop();
 //				} else {
 //					pHelpEvent->ignore();
@@ -292,11 +292,11 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			// Unfortunately, there doesn't seem to be any event we can hook to to determine
 			//		when the ToolTip disappears.  Looking at the Qt code, it looks to be on
 			//		a 2 second timeout.  So, we'll do a similar timeout here for the highlight:
-			if ((!m_bDoingPopup) && (!m_Highlighter.getHighlightTags().isEmpty()) && (!m_HighlightTimer.isActive()))
+			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.getHighlightTags().isEmpty()) && (!m_HighlightTimer.isActive()))
 				m_HighlightTimer.start(2000);
 			break;
 		case QEvent::Leave:
-			if ((!m_bDoingPopup) && (!m_Highlighter.getHighlightTags().isEmpty())) {
+			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.getHighlightTags().isEmpty())) {
 				m_HighlightTimer.start(20);
 			}
 			break;
@@ -318,7 +318,7 @@ template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(m_Highlighter, m_tagLast, m_selectedPhrase.tag()))
+	if (m_navigator.handleToolTipEvent(m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag()))
 		m_HighlightTimer.stop();
 }
 
@@ -331,7 +331,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	m_navigator.highlightTag(m_Highlighter, m_tagLast);
+	m_navigator.highlightTag(m_CursorFollowHighlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
 	end_popup();
@@ -365,8 +365,8 @@ void CScriptureText<T,U>::showPassageNavigator()
 	CRefCountCalc Wrd(m_pBibleDatabase.data(), CRefCountCalc::RTE_WORD, tagHighlight.relIndex());
 	tagHighlight.count() = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.count());
 
-	m_Highlighter.setEnabled(true);
-	m_navigator.highlightTag(m_Highlighter, tagHighlight);
+	m_CursorFollowHighlighter.setEnabled(true);
+	m_navigator.highlightTag(m_CursorFollowHighlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, T::parentWidget());
 //	dlg.navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	dlg.navigator().startAbsoluteMode(tagSel);
@@ -386,7 +386,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	m_navigator.highlightTag(m_Highlighter, m_tagLast);
+	m_navigator.highlightTag(m_CursorFollowHighlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
 	menu.addAction(m_pActionCopyPlain);
@@ -492,12 +492,12 @@ void CScriptureText<T,U>::updateSelection()
 	m_pStatusAction->showStatusText();
 
 	if (!haveSelection()) {
-		TPhraseTagList lstTags(m_Highlighter.getHighlightTags());
+		const TPhraseTagList &lstTags(m_CursorFollowHighlighter.getHighlightTags());
 		TPhraseTag nNewSel = TPhraseTag(m_tagLast.relIndex(), 1);
-		if  ((lstTags.size() == 0) || (lstTags[0] != nNewSel))
-			m_navigator.highlightTag(m_Highlighter, nNewSel);
+		if  ((lstTags.size() == 0) || (lstTags.value(0) != nNewSel))
+			m_navigator.highlightTag(m_CursorFollowHighlighter, nNewSel);
 	}
-	m_Highlighter.setEnabled(!haveSelection());
+	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
 	m_bDoingSelectionChange = false;
 }

@@ -39,17 +39,17 @@
 
 const TPhraseTagList &CBasicHighlighter::getHighlightTags() const
 {
-	return m_lstPhraseTags;
+	return m_myPhraseTags.phraseTags();
 }
 
 void CBasicHighlighter::setHighlightTags(const TPhraseTagList &lstPhraseTags)
 {
-	m_lstPhraseTags = lstPhraseTags;
+	m_myPhraseTags.setPhraseTags(lstPhraseTags);
 }
 
 void CBasicHighlighter::clearPhraseTags()
 {
-	m_lstPhraseTags.clear();
+	m_myPhraseTags.setPhraseTags(TPhraseTagList());
 }
 
 // ============================================================================
