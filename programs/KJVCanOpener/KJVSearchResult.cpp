@@ -671,7 +671,7 @@ void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 const TPhraseTagList &CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	m_LastSearchCriteria = aSearchCriteria;
-	m_tagsSearchResults.setPhraseTags(model()->setParsedPhrases(aSearchCriteria, phrases));
+	model()->setParsedPhrases(m_tagsSearchResults.phraseTagsNonConst(), aSearchCriteria, phrases);
 	m_nLastSearchNumPhrases = phrases.size();
 
 	int nVerses = 0;		// Results counts in Verses

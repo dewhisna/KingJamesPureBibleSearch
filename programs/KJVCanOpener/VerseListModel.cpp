@@ -565,7 +565,7 @@ TParsedPhrasesList CVerseListModel::parsedPhrases() const
 	return m_lstParsedPhrases;
 }
 
-TPhraseTagList CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CVerseListModel::setParsedPhrases(TPhraseTagList &lstPhraseTagsOut, const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	// Note: Basic setting of this list doesn't change the model, as the phrases
 	//		themselves are used primarily for building of tooltips that are
@@ -577,7 +577,7 @@ TPhraseTagList CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchC
 	m_lstParsedPhrases = phrases;
 	m_SearchCriteria = aSearchCriteria;
 	buildScopedResultsInParsedPhrases();
-	return buildVerseListFromParsedPhrases();
+	buildVerseListFromParsedPhrases(lstPhraseTagsOut);
 }
 
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
@@ -1009,12 +1009,11 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 	}
 }
 
-TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
+void CVerseListModel::buildVerseListFromParsedPhrases(TPhraseTagList &lstPhraseTagsOut)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CVerseList lstReferences;
-	TPhraseTagList lstResults;
 
 	int nAllocSize = 0;
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
@@ -1022,17 +1021,18 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 		assert(phrase != NULL);
 		nAllocSize += phrase->GetContributingNumberOfMatches();
 	}
-	lstResults.reserve(nAllocSize);
+	lstPhraseTagsOut.clear();
+	lstPhraseTagsOut.reserve(nAllocSize);
 
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
 		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
 		assert(phrase != NULL);
-		lstResults.append(phrase->GetScopedPhraseTagSearchResults());
+		lstPhraseTagsOut.append(phrase->GetScopedPhraseTagSearchResults());
 	}
 
-	qSort(lstResults.begin(), lstResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	qSort(lstPhraseTagsOut.begin(), lstPhraseTagsOut.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
-	for (TPhraseTagList::const_iterator itrResults = lstResults.constBegin(); itrResults != lstResults.constEnd(); ++itrResults) {
+	for (TPhraseTagList::const_iterator itrResults = lstPhraseTagsOut.constBegin(); itrResults != lstPhraseTagsOut.constEnd(); ++itrResults) {
 		TPhraseTagList::const_iterator itrFirst(itrResults);
 		TPhraseTagList::const_iterator itrLast(itrResults+1);
 
@@ -1043,7 +1043,7 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
 			continue;
 		}
-		while ((bNextIsSameReference) && (itrLast != lstResults.constEnd())) {
+		while ((bNextIsSameReference) && (itrLast != lstPhraseTagsOut.constEnd())) {
 			CRelIndex ndxNextRelative = itrLast->relIndex();
 
 			if ((ndxRelative.book() == ndxNextRelative.book()) &&
@@ -1060,8 +1060,6 @@ TPhraseTagList CVerseListModel::buildVerseListFromParsedPhrases()
 	}
 
 	setVerseList(lstReferences);
-
-	return lstResults;
 }
 
 CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)

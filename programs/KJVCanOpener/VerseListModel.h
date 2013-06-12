@@ -285,7 +285,7 @@ public:
 	void setVerseList(const CVerseList &verses);
 
 	TParsedPhrasesList parsedPhrases() const;
-	TPhraseTagList setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void setParsedPhrases(TPhraseTagList &lstPhraseTagsOut, const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
@@ -321,7 +321,7 @@ public:
 
 private:
 	void buildScopedResultsInParsedPhrases();
-	TPhraseTagList buildVerseListFromParsedPhrases();
+	void buildVerseListFromParsedPhrases(TPhraseTagList &lstPhraseTagsOut);
 	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 private:

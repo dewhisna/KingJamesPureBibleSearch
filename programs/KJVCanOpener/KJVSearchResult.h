@@ -198,6 +198,7 @@ private:
 	class CMyPhraseTags {
 	public:
 		const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		TPhraseTagList &phraseTagsNonConst() { return m_lstPhraseTags; }
 		void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
 
 	private:
