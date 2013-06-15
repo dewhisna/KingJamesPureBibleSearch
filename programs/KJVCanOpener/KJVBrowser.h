@@ -39,6 +39,10 @@
 
 // ============================================================================
 
+class CVerseListModel;			// Forward declaration
+
+// ============================================================================
+
 namespace Ui {
 class CKJVBrowser;
 }
@@ -48,7 +52,7 @@ class CKJVBrowser : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVBrowser();
 
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
@@ -79,7 +83,8 @@ public slots:
 
 	void gotoIndex(const TPhraseTag &tag);
 	void setFocusBrowser();
-	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
+	void on_SearchResultsVerseListAboutToChange();
+	void on_SearchResultsVerseListChanged();
 
 	// Navigation Shortcut Processing:
 	void on_Bible_Beginning();

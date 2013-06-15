@@ -268,7 +268,6 @@ public:
 	};
 
 	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = 0);
-	CVerseListModel(CBibleDatabasePtr pBibleDatabase, const CVerseList &verses, QObject *parent = 0);
 
 	inline CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
@@ -293,11 +292,10 @@ public:
 
 	QModelIndex locateIndex(const CRelIndex &ndxRel) const;
 
-	CVerseList verseList() const;
-	void setVerseList(const CVerseList &verses);
+	const CVerseList &verseList() const { return m_lstVerses; }
 
 	TParsedPhrasesList parsedPhrases() const;
-	void setParsedPhrases(TPhraseTagList &lstPhraseTagsOut, const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
@@ -312,6 +310,8 @@ public:
 
 signals:
 	void cachedSizeHintsInvalidated();
+	void verseListAboutToChange();					// Emitted just before our verse phrase tags change so that users (KJVBrowser, etc) can clear highlighting with the old tags
+	void verseListChanged();						// Emitted just after our verse phrase tags change so that users (KJVBrowser, etc) can set highlighting with the new tags
 
 public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
@@ -332,8 +332,7 @@ public:
 	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter
 
 private:
-	void buildScopedResultsInParsedPhrases();
-	void buildVerseListFromParsedPhrases(TPhraseTagList &lstPhraseTagsOut);
+	void buildScopedResultsFromParsedPhrases();
 	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
 private:

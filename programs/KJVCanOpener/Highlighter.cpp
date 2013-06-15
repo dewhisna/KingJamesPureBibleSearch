@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "Highlighter.h"
+#include "VerseListModel.h"
 
 #include <QVariant>
 #include <QBrush>
@@ -37,22 +38,92 @@
 
 // ============================================================================
 
-const TPhraseTagList &CBasicHighlighter::getHighlightTags() const
+CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const CVerseListModel *pVerseListModel)
+	:	m_pVerseListModel(pVerseListModel),
+		m_lstPhraseTags(m_lstDummyPhraseTags)
 {
-	return m_myPhraseTags.phraseTags();
+	assert(m_pVerseListModel != NULL);
+	m_itrVerses = m_pVerseListModel->verseList().constBegin();
+	while (m_itrVerses != m_pVerseListModel->verseList().constEnd()) {
+		m_itrTags = m_itrVerses->phraseTags().constBegin();
+		if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
+		++m_itrVerses;
+	}
 }
 
-void CBasicHighlighter::setHighlightTags(const TPhraseTagList &lstPhraseTags)
+CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const TPhraseTagList &lstTags)
+	:	m_pVerseListModel(NULL),
+		m_lstPhraseTags(lstTags)
+{
+	m_itrTags = m_lstPhraseTags.constBegin();
+}
+
+TPhraseTag CHighlighterPhraseTagFwdItr::nextTag()
+{
+	TPhraseTag nRetVal = (!isEnd() ? *m_itrTags : TPhraseTag());
+
+	if (m_pVerseListModel) {
+		if (m_itrVerses != m_pVerseListModel->verseList().constEnd()) {
+			++m_itrTags;
+			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) return nRetVal;
+		}
+		++m_itrVerses;
+		while (m_itrVerses != m_pVerseListModel->verseList().constEnd()) {
+			m_itrTags = m_itrVerses->phraseTags().constBegin();
+			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
+			++m_itrVerses;
+		}
+	} else {
+		if (m_itrTags != m_lstPhraseTags.constEnd()) ++m_itrTags;
+	}
+
+	return nRetVal;
+}
+
+bool CHighlighterPhraseTagFwdItr::isEnd() const
+{
+	if (m_pVerseListModel) {
+		return (m_itrVerses == m_pVerseListModel->verseList().constEnd());
+	} else {
+		return (m_itrTags == m_lstPhraseTags.constEnd());
+	}
+}
+
+// ============================================================================
+
+CSearchResultHighlighter::CSearchResultHighlighter(CVerseListModel *pVerseListModel, QObject *parent)
+	:	CBasicHighlighter(parent),
+		m_pVerseListModel(pVerseListModel)
+{
+	assert(pVerseListModel);
+
+	connect(pVerseListModel, SIGNAL(destroyed()), this, SLOT(verseListModelDestroyed()));
+	connect(pVerseListModel, SIGNAL(verseListChanged()), this, SLOT(verseListChanged()));
+}
+
+CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, QObject *parent)
+	:	CBasicHighlighter(parent),
+		  m_pVerseListModel(NULL)
 {
 	m_myPhraseTags.setPhraseTags(lstPhraseTags);
 }
 
-void CBasicHighlighter::clearPhraseTags()
+CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent)
+	:	CBasicHighlighter(parent),
+		m_pVerseListModel(NULL)
 {
-	m_myPhraseTags.setPhraseTags(TPhraseTagList());
+	TPhraseTagList lstTags;
+	lstTags.append(aTag);
+	m_myPhraseTags.setPhraseTags(lstTags);
 }
 
-// ============================================================================
+CSearchResultHighlighter::~CSearchResultHighlighter()
+{
+	if (m_pVerseListModel) {
+		m_pVerseListModel->disconnect(this);
+		m_pVerseListModel = NULL;
+	}
+}
 
 void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
@@ -62,6 +133,47 @@ void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bCl
 	} else {
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH))
 			aFormat.setForeground(aFormat.property(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH).value<QBrush>());
+	}
+}
+
+void CSearchResultHighlighter::verseListChanged()
+{
+	assert(m_pVerseListModel != NULL);
+	if (m_pVerseListModel == NULL) return;
+
+	emit phraseTagsChanged();
+}
+
+void CSearchResultHighlighter::verseListModelDestroyed()
+{
+	if (m_pVerseListModel) {
+		m_pVerseListModel->disconnect(this);
+		m_pVerseListModel = NULL;
+	}
+
+	// Note: This switches us back to the internal PhraseTags list, which should
+	//			be empty.  We could assert that it is, but we may decide later on
+	//			to make use of this feature and allow connecting/disconnecting
+	//			with arbitrary verse lists.
+
+	emit phraseTagsChanged();
+}
+
+CHighlighterPhraseTagFwdItr CSearchResultHighlighter::getForwardIterator() const
+{
+	if (m_pVerseListModel) {
+		return CHighlighterPhraseTagFwdItr(m_pVerseListModel);
+	} else {
+		return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
+	}
+}
+
+bool CSearchResultHighlighter::isEmpty() const
+{
+	if (m_pVerseListModel) {
+		return (m_pVerseListModel->verseList().isEmpty());		// Our highlighter PhraseTags could technically be empty and not trigger this, but for the purposes of this function this highlighter "isn't empty" if we have verses
+	} else {
+		return m_myPhraseTags.phraseTags().isEmpty();
 	}
 }
 
@@ -82,6 +194,33 @@ void CCursorFollowHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bCl
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE))
 			aFormat.setUnderlineStyle(aFormat.property(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE).value<QTextCharFormat::UnderlineStyle>());
 	}
+}
+
+CHighlighterPhraseTagFwdItr CCursorFollowHighlighter::getForwardIterator() const
+{
+	return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
+}
+
+bool CCursorFollowHighlighter::isEmpty() const
+{
+	return m_myPhraseTags.phraseTags().isEmpty();
+}
+
+const TPhraseTagList &CCursorFollowHighlighter::phraseTags() const
+{
+	return m_myPhraseTags.phraseTags();
+}
+
+void CCursorFollowHighlighter::setPhraseTags(const TPhraseTagList &lstPhraseTags)
+{
+	m_myPhraseTags.setPhraseTags(lstPhraseTags);
+	emit phraseTagsChanged();
+}
+
+void CCursorFollowHighlighter::clearPhraseTags()
+{
+	m_myPhraseTags.setPhraseTags(TPhraseTagList());
+	emit phraseTagsChanged();
 }
 
 // ============================================================================

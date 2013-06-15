@@ -31,54 +31,62 @@
 
 // ============================================================================
 
+// Forward Declarations:
+class CVerseListModel;
+class CVerseListItem;
+typedef QList<CVerseListItem> CVerseList;			// Redundant with definition in VerseListModel.h, but avoids very nasty header interdependency
+
+// ============================================================================
+
+class CHighlighterPhraseTagFwdItr
+{
+protected:
+	CHighlighterPhraseTagFwdItr(const CVerseListModel *pVerseListModel);
+	CHighlighterPhraseTagFwdItr(const TPhraseTagList &lstTags);
+
+public:
+	TPhraseTag nextTag();
+	bool isEnd() const;
+
+private:
+	const CVerseListModel *m_pVerseListModel;
+	const TPhraseTagList &m_lstPhraseTags;
+	TPhraseTagList m_lstDummyPhraseTags;				// Dummy list used for m_lstPhraseTags when iterating verses
+
+	CVerseList::const_iterator m_itrVerses;
+	TPhraseTagList::const_iterator m_itrTags;
+
+	friend class CBasicHighlighter;
+	friend class CSearchResultHighlighter;
+	friend class CCursorFollowHighlighter;
+};
+
+// ============================================================================
+
 class CBasicHighlighter : public QObject {
 	Q_OBJECT
 public:
-	explicit CBasicHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
+	explicit CBasicHighlighter(QObject *parent = NULL)
 		:	QObject(parent),
 			m_bEnabled(true)
 	{
-		m_myPhraseTags.setPhraseTags(lstPhraseTags);
-	}
-	CBasicHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
-		:	QObject(parent),
-			m_bEnabled(true)
-	{
-		TPhraseTagList lstTags;
-		lstTags.append(aTag);
-		m_myPhraseTags.setPhraseTags(lstTags);
-	}
-	CBasicHighlighter(const CBasicHighlighter &aHighlighter)
-		:	QObject(aHighlighter.parent()),
-			m_bEnabled(aHighlighter.m_bEnabled)
-	{
-		m_myPhraseTags.setPhraseTags(aHighlighter.getHighlightTags());
 	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const = 0;
 	virtual bool enabled() const { return m_bEnabled; }
-	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
 
-	const TPhraseTagList &getHighlightTags() const;
-	void setHighlightTags(const TPhraseTagList &lstPhraseTags);
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const = 0;
+	virtual bool isEmpty() const = 0;
 
 public slots:
-	void clearPhraseTags();
+	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
+
+signals:
+	void phraseTagsChanged();
+	void charFormatsChanged();
 
 protected:
 	bool m_bEnabled;
-
-private:
-	// Guard class to keep me from accidentally accessing non-const functions and
-	//		causing unintentional copying, as that can be expensive in large searches:
-	class CMyPhraseTags {
-	public:
-		const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
-		void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
-
-	private:
-		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
-	} m_myPhraseTags;
 };
 
 // ============================================================================
@@ -87,16 +95,33 @@ class CSearchResultHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
-		:	CBasicHighlighter(lstPhraseTags, parent)
-	{
-	}
-	CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
-		:	CBasicHighlighter(aTag, parent)
-	{
-	}
+	explicit CSearchResultHighlighter(CVerseListModel *pVerseListModel, QObject *parent = NULL);
+	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, QObject *parent = NULL);
+	CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent = NULL);
+	virtual ~CSearchResultHighlighter();
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
+	virtual bool isEmpty() const;
+
+private slots:
+	void verseListChanged();
+	void verseListModelDestroyed();
+
+private:
+	CVerseListModel *m_pVerseListModel;
+
+	// Guard class to keep me from accidentally accessing non-const functions and
+	//		causing unintentional copying, as that can be expensive in large searches:
+	class CMyPhraseTags {
+	public:
+		inline const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		inline void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
+
+	private:
+		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	} m_myPhraseTags;
 };
 
 // ============================================================================
@@ -106,15 +131,46 @@ class CCursorFollowHighlighter : public CBasicHighlighter
 	Q_OBJECT
 public:
 	explicit CCursorFollowHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
-		:	CBasicHighlighter(lstPhraseTags, parent)
+		:	CBasicHighlighter(parent)
 	{
+		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
 	CCursorFollowHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
-		:	CBasicHighlighter(aTag, parent)
+		:	CBasicHighlighter(parent)
 	{
+		TPhraseTagList lstTags;
+		lstTags.append(aTag);
+		m_myPhraseTags.setPhraseTags(lstTags);
+	}
+	CCursorFollowHighlighter(const CCursorFollowHighlighter &aCursorFollowHighlighter)
+		:	CBasicHighlighter(aCursorFollowHighlighter.parent())
+	{
+		setEnabled(aCursorFollowHighlighter.enabled());
+		m_myPhraseTags.setPhraseTags(aCursorFollowHighlighter.m_myPhraseTags.phraseTags());
 	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
+	virtual bool isEmpty() const;
+
+	const TPhraseTagList &phraseTags() const;
+	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
+
+public slots:
+	void clearPhraseTags();
+
+private:
+	// Guard class to keep me from accidentally accessing non-const functions and
+	//		causing unintentional copying, as that can be expensive in large searches:
+	class CMyPhraseTags {
+	public:
+		inline const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		inline void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
+
+	private:
+		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	} m_myPhraseTags;
 };
 
 // ============================================================================

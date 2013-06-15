@@ -154,7 +154,6 @@ public:
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
 	inline bool haveResults() const { return (model()->GetResultsCount() > 0); }
-	inline const TPhraseTagList &searchResultsTags() const { return m_tagsSearchResults.phraseTags(); }
 
 	QString searchResultsSummaryText() const;
 
@@ -164,7 +163,7 @@ public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
-	const TPhraseTagList &setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 	void showPassageNavigator();
 	void showDetails();
 
@@ -184,7 +183,7 @@ signals:			// Incoming Pass-Through:
 	void collapseAll();
 	void setFontSearchResults(const QFont &aFont);
 
-protected:
+public:
 	CVerseListModel *model() const {
 		assert(m_pSearchResultsTreeView->model() != NULL);
 		return static_cast<CVerseListModel *>(m_pSearchResultsTreeView->model());
@@ -193,17 +192,6 @@ protected:
 // Private Data:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	// Guard class to keep me from accidentally accessing non-const functions and
-	//		causing unintentional copying, as that can be expensive in large searches:
-	class CMyPhraseTags {
-	public:
-		const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
-		TPhraseTagList &phraseTagsNonConst() { return m_lstPhraseTags; }
-		void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
-
-	private:
-		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
-	} m_tagsSearchResults;				// Highlight tags from search results
 	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
 	int m_nLastSearchVerses;
 	int m_nLastSearchChapters;

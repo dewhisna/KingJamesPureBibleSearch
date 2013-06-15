@@ -23,6 +23,7 @@
 
 #include "KJVBrowser.h"
 #include "ui_KJVBrowser.h"
+#include "VerseListModel.h"
 
 #include "BusyCursor.h"
 
@@ -37,10 +38,11 @@
 
 // ============================================================================
 
-CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
+CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
+	m_Highlighter(pModel),
 	m_bDoingUpdate(false),
 	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
@@ -52,6 +54,10 @@ CKJVBrowser::CKJVBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	initialize();
 
 	assert(m_pScriptureBrowser != NULL);
+
+// Data Connections:
+	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(on_SearchResultsVerseListAboutToChange()));
+	connect(pModel, SIGNAL(verseListChanged()), this, SLOT(on_SearchResultsVerseListChanged()));
 
 // UI Connections:
 	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
@@ -197,10 +203,13 @@ bool CKJVBrowser::hasFocusBrowser() const
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::setHighlightTags(const TPhraseTagList &lstPhraseTags)
+void CKJVBrowser::on_SearchResultsVerseListAboutToChange()
 {
 	doHighlighting(true);				// Remove existing highlighting
-	m_Highlighter.setHighlightTags(lstPhraseTags);
+}
+
+void CKJVBrowser::on_SearchResultsVerseListChanged()
+{
 	doHighlighting();					// Highlight using new tags
 }
 

@@ -154,7 +154,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
 	m_pSplitter->addWidget(m_pSearchResultWidget);
 
-	m_pBrowserWidget = new CKJVBrowser(m_pBibleDatabase, m_pSplitter);
+	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->model(), m_pBibleDatabase, m_pSplitter);
 	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
 	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	aSizePolicy.setHorizontalStretch(20);
@@ -737,9 +737,8 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 
 void CKJVCanOpener::on_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
-	const TPhraseTagList &lstResults = m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
+	m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
 	m_pSearchSpecWidget->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
-	m_pBrowserWidget->setHighlightTags(lstResults);
 }
 
 // ------------------------------------------------------------------

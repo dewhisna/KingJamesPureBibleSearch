@@ -638,10 +638,9 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 	myCursor.beginEditBlock();
 
-	const TPhraseTagList &lstPhraseTags(aHighlighter.getHighlightTags());
-	int nNumTags = lstPhraseTags.size();
-	for (int ndx=0; ndx<nNumTags; ++ndx) {
-		TPhraseTag tag = lstPhraseTags.at(ndx);
+	CHighlighterPhraseTagFwdItr itrHighlighter = aHighlighter.getForwardIterator();
+	while (!itrHighlighter.isEnd()) {
+		TPhraseTag tag = itrHighlighter.nextTag();
 		CRelIndex ndxRel = tag.relIndex();
 		if (!ndxRel.isSet()) continue;
 		// Save some time if the tag isn't anything close to what we are displaying.
@@ -1344,7 +1343,7 @@ CSelectedPhrase CPhraseEditNavigator::getSelectedPhrase() const
 	return getSelectedPhrase(m_TextEditor.textCursor());
 }
 
-bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBasicHighlighter &aHighlighter, const TPhraseTag &selection) const
+bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1353,7 +1352,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(ndxReference, 1)));
+		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(ndxReference, 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
@@ -1361,7 +1360,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 		}
 	} else {
-		highlightTag(aHighlighter);
+		highlightCursorFollowTag(aHighlighter);
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::hideText();
@@ -1374,14 +1373,14 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CBas
 	return true;
 }
 
-bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const
+bool CPhraseEditNavigator::handleToolTipEvent(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	QString strToolTip = getToolTip(tag, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.relIndex(), 1)));
+		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.relIndex(), 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
@@ -1389,7 +1388,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, c
 			QToolTip::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip);
 		}
 	} else {
-		highlightTag(aHighlighter);
+		highlightCursorFollowTag(aHighlighter);
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::hideText();
@@ -1402,7 +1401,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CBasicHighlighter &aHighlighter, c
 	return true;
 }
 
-void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const TPhraseTag &tag) const
+void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1415,7 +1414,7 @@ void CPhraseEditNavigator::highlightTag(CBasicHighlighter &aHighlighter, const T
 		(tag.relIndex().word() != 0) &&
 		(tag.count() != 0)) {
 		tags.append(tag);
-		aHighlighter.setHighlightTags(tags);
+		aHighlighter.setPhraseTags(tags);
 		doHighlighting(aHighlighter);
 	} else {
 		aHighlighter.clearPhraseTags();

@@ -61,16 +61,6 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pare
 {
 }
 
-CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, const CVerseList &verses, QObject *parent)
-	:	QAbstractItemModel(parent),
-		m_pBibleDatabase(pBibleDatabase),
-		m_nDisplayMode(VDME_HEADING),
-		m_nTreeMode(VTME_LIST),
-		m_bShowMissingLeafs(false)
-{
-	setVerseList(verses);
-}
-
 int CVerseListModel::rowCount(const QModelIndex &parent) const
 {
 	switch (m_nTreeMode) {
@@ -544,28 +534,12 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 
 // ----------------------------------------------------------------------------
 
-CVerseList CVerseListModel::verseList() const
-{
-	return m_lstVerses;
-}
-
-void CVerseListModel::setVerseList(const CVerseList &verses)
-{
-	emit beginResetModel();
-	m_lstVerses = verses;
-	m_mapVerses.clear();
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
-		m_mapVerses[m_lstVerses.at(ndx).getIndex()] = ndx;
-	}
-	emit endResetModel();
-}
-
 TParsedPhrasesList CVerseListModel::parsedPhrases() const
 {
 	return m_lstParsedPhrases;
 }
 
-void CVerseListModel::setParsedPhrases(TPhraseTagList &lstPhraseTagsOut, const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	// Note: Basic setting of this list doesn't change the model, as the phrases
 	//		themselves are used primarily for building of tooltips that are
@@ -573,11 +547,10 @@ void CVerseListModel::setParsedPhrases(TPhraseTagList &lstPhraseTagsOut, const C
 	//		set, we'll call the buildVerseListFromParsedPhrases function that
 	//		will build and set the VerseList, which will change the model.
 	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
-	//		but down in setVerseList:
+	//		but down in buildScopedResultsFromParsedPhrases():
 	m_lstParsedPhrases = phrases;
 	m_SearchCriteria = aSearchCriteria;
-	buildScopedResultsInParsedPhrases();
-	buildVerseListFromParsedPhrases(lstPhraseTagsOut);
+	buildScopedResultsFromParsedPhrases();
 }
 
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
@@ -934,7 +907,7 @@ int CVerseListModel::FindVerseIndex(const CRelIndex &ndxRel) const
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::buildScopedResultsInParsedPhrases()
+void CVerseListModel::buildScopedResultsFromParsedPhrases()
 {
 	QList<TPhraseTagList::const_iterator> lstItrStart;
 	QList<TPhraseTagList::const_iterator> lstItrEnd;
@@ -1019,6 +992,7 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 		}
 	}
 
+	emit verseListAboutToChange();
 	emit beginResetModel();
 	m_lstVerses.clear();
 	m_lstVerses.reserve(mapReferences.size());
@@ -1028,67 +1002,7 @@ void CVerseListModel::buildScopedResultsInParsedPhrases()
 		m_lstVerses.append(*itr);
 	}
 	emit endResetModel();
-}
-
-void CVerseListModel::buildVerseListFromParsedPhrases(TPhraseTagList &lstPhraseTagsOut)
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-// TODO : CLEAN
-//	CVerseList lstReferences;
-
-	int nAllocSize = 0;
-	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
-		assert(phrase != NULL);
-		nAllocSize += phrase->GetContributingNumberOfMatches();
-	}
-	lstPhraseTagsOut.clear();
-	lstPhraseTagsOut.reserve(nAllocSize);
-
-	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
-		assert(phrase != NULL);
-		lstPhraseTagsOut.append(phrase->GetScopedPhraseTagSearchResults());
-	}
-
-/*
-
-  TODO : CLEAN
-
-	qSort(lstPhraseTagsOut.begin(), lstPhraseTagsOut.end(), TPhraseTagListSortPredicate::ascendingLessThan);
-
-	for (TPhraseTagList::const_iterator itrResults = lstPhraseTagsOut.constBegin(); itrResults != lstPhraseTagsOut.constEnd(); ++itrResults) {
-		TPhraseTagList::const_iterator itrFirst(itrResults);
-		TPhraseTagList::const_iterator itrLast(itrResults+1);
-
-		bool bNextIsSameReference = true;
-		CRelIndex ndxRelative = itrFirst->relIndex();
-		if (!ndxRelative.isSet()) {
-			assert(false);
-			lstReferences.push_back(CVerseListItem(m_pBibleDatabase, 0, 0));
-			continue;
-		}
-		while ((bNextIsSameReference) && (itrLast != lstPhraseTagsOut.constEnd())) {
-			CRelIndex ndxNextRelative = itrLast->relIndex();
-
-			if ((ndxRelative.book() == ndxNextRelative.book()) &&
-				(ndxRelative.chapter() == ndxNextRelative.chapter()) &&
-				(ndxRelative.verse() == ndxNextRelative.verse())) {
-				++itrResults;						// Bump the iterator if we are going to consume it
-				++itrLast;
-			} else {
-				bNextIsSameReference=false;
-			}
-		}
-		std::list<TPhraseTag> lstVerseTags(itrFirst, itrLast);
-		lstReferences.push_back(CVerseListItem(m_pBibleDatabase, TPhraseTagList::fromStdList(lstVerseTags)));
-	}
-
-	setVerseList(lstReferences);
-
-*/
-
+	emit verseListChanged();
 }
 
 CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)

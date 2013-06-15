@@ -292,11 +292,11 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			// Unfortunately, there doesn't seem to be any event we can hook to to determine
 			//		when the ToolTip disappears.  Looking at the Qt code, it looks to be on
 			//		a 2 second timeout.  So, we'll do a similar timeout here for the highlight:
-			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.getHighlightTags().isEmpty()) && (!m_HighlightTimer.isActive()))
+			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.isEmpty()) && (!m_HighlightTimer.isActive()))
 				m_HighlightTimer.start(2000);
 			break;
 		case QEvent::Leave:
-			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.getHighlightTags().isEmpty())) {
+			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.isEmpty())) {
 				m_HighlightTimer.start(20);
 			}
 			break;
@@ -331,7 +331,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	m_navigator.highlightTag(m_CursorFollowHighlighter, m_tagLast);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
 	end_popup();
@@ -366,7 +366,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 	tagHighlight.count() = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.count());
 
 	m_CursorFollowHighlighter.setEnabled(true);
-	m_navigator.highlightTag(m_CursorFollowHighlighter, tagHighlight);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
 	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, T::parentWidget());
 //	dlg.navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	dlg.navigator().startAbsoluteMode(tagSel);
@@ -386,7 +386,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
-	m_navigator.highlightTag(m_CursorFollowHighlighter, m_tagLast);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
 	menu.addAction(m_pActionCopyPlain);
@@ -492,10 +492,10 @@ void CScriptureText<T,U>::updateSelection()
 	m_pStatusAction->showStatusText();
 
 	if (!haveSelection()) {
-		const TPhraseTagList &lstTags(m_CursorFollowHighlighter.getHighlightTags());
+		const TPhraseTagList &lstTags(m_CursorFollowHighlighter.phraseTags());
 		TPhraseTag nNewSel = TPhraseTag(m_tagLast.relIndex(), 1);
 		if  ((lstTags.size() == 0) || (lstTags.value(0) != nNewSel))
-			m_navigator.highlightTag(m_CursorFollowHighlighter, nNewSel);
+			m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, nNewSel);
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
