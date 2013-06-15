@@ -193,32 +193,42 @@ public:
 	}
 	QString getVerseVeryPlainText() const		// Very Plain has no punctuation!
 	{
+#ifdef VERSE_LIST_PLAIN_TEXT_CACHE
 		if (!m_strVeryPlainTextCache.isEmpty()) return m_strVeryPlainTextCache;
 		m_strVeryPlainTextCache = getVerseAsWordList().join(" ");
 		return m_strVeryPlainTextCache;
+#else
+		return getVerseAsWordList().join(" ");
+#endif
 	}
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
 	{
-		// Do caching here if we are at least at search results level, but no need to if
-		//		the database is doing complete full caching, or else we are wasting memory:
-		if ((g_nRichTextCachingMode >= RTCME_SEARCH_RESULTS) && (g_nRichTextCachingMode < RTCME_FULL) &&
-			(!m_strRichTextCache.isEmpty())) return m_strRichTextCache;
+#ifdef VERSE_LIST_RICH_TEXT_CACHE
+		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
+#endif
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
-		if ((g_nRichTextCachingMode >= RTCME_SEARCH_RESULTS) && (g_nRichTextCachingMode < RTCME_FULL)) {
-			m_strRichTextCache = m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
-			return m_strRichTextCache;
-		}
+#ifdef VERSE_LIST_RICH_TEXT_CACHE
+		m_strRichTextCache = m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
+		return m_strRichTextCache;
+#else
 		return m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
+#endif
 	}
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CRelIndex m_ndxRelative;		// Primary Relative Index (word index == 0)
 	TPhraseTagList m_lstTags;		// Phrase Tags to highlight, includes a copy of the Primary (w/word index != 0)
-	mutable QString m_strRichTextCache;			// Caches filled in during first fetch
+
+// Caches filled in during first fetch:
+#ifdef VERSE_LIST_RICH_TEXT_CACHE
+	mutable QString m_strRichTextCache;
+#endif
+#ifdef VERSE_LIST_PLAIN_TEXT_CACHE
 	mutable QString m_strVeryPlainTextCache;
+#endif
 };
 
 Q_DECLARE_METATYPE(CVerseListItem)

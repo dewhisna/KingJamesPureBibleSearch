@@ -335,6 +335,12 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+// Note: The following works great to keep from having to reload the chapter
+//	text when navigating to the same chapter.  However, the History log doesn't
+//	work correctly if we don't actually call setHtml()...  so...  just leave
+//	it out and regenerate it:
+//	if (ndx.chapter() == m_ndxCurrent.chapter()) return;
+
 	begin_update();
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);

@@ -8,6 +8,11 @@ QT       += core gui sql
 
 CONFIG += rtti
 
+# Miscellaneous Special-Testing Cache modes that can be enabled:
+#DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
+#DEFINES += VERSE_LIST_RICH_TEXT_CACHE
+#DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
+
 unix:!macx {
 	CONFIG += static
 	QMAKE_CXXFLAGS += -static

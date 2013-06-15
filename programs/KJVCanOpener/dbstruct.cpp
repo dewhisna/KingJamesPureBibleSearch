@@ -45,7 +45,6 @@ bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
 
 // Global Settings:
 
-RICH_TEXT_CACHE_MODE_ENUM g_nRichTextCachingMode = RTCME_FULL;		// Rich Text Caching Mode Level
 
 // ============================================================================
 
@@ -804,17 +803,18 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	const CVerseEntry *pVerse = verseEntry(ndx);
 	assert(pVerse != NULL);
 
-	if (g_nRichTextCachingMode == RTCME_FULL) {
-		TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
-		TVerseCacheMap::iterator itr = cache.find(ndx);
-		if (itr != cache.end()) return (itr->second);
-		cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
-		return cache[ndx];
-	}
-
+#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
+	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
+	TVerseCacheMap::iterator itr = cache.find(ndx);
+	if (itr != cache.end()) return (itr->second);
+	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+	return cache[ndx];
+#else
 	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+#endif
 }
 
+#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 void CBibleDatabase::dumpRichVerseTextCache(uint nTextRichifierTagHash)
 {
 	if (nTextRichifierTagHash == 0) {
@@ -833,6 +833,7 @@ void CBibleDatabase::dumpRichVerseTextCache(uint nTextRichifierTagHash)
 	if (itr != m_mapVerseCacheNoAnchors.end())
 		(itr->second).clear();
 }
+#endif
 
 // ============================================================================
 
