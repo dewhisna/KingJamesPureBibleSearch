@@ -401,7 +401,6 @@ void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
 		assert(pPhrase != NULL);
-		pPhrase->SetContributingNumberOfMatches(0);
 		pPhrase->SetIsDuplicate(false);
 		pPhrase->ClearScopedPhraseTagSearchResults();
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {

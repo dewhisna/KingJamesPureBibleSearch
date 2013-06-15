@@ -236,6 +236,8 @@ Q_DECLARE_METATYPE(CVerseListItem)
 typedef QList<CVerseListItem> CVerseList;
 extern void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order);
 
+typedef QMap<CRelIndex, CVerseListItem> CVerseMap;
+
 // ============================================================================
 
 class CVerseListModel : public QAbstractItemModel
@@ -338,8 +340,8 @@ private:
 	Q_DISABLE_COPY(CVerseListModel)
 	CBibleDatabasePtr m_pBibleDatabase;
 	CVerseList m_lstVerses;
-	QMap<uint32_t, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex->index() to index within m_lstVerses.  Set during setVerseList.
-	QMap<uint32_t, QSize> m_mapSizeHints;		// Map of CRelIndex->index() to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
+	QMap<CRelIndex, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex [nBk|nChp|nVrs|0] to index within m_lstVerses.  Set during setVerseList.
+	QMap<CRelIndex, QSize> m_mapSizeHints;		// Map of CRelIndex [nBk|nChp|nVrs|0] to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;

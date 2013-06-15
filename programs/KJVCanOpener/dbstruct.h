@@ -111,6 +111,16 @@ public:
 		m_ndx = ndx;
 	}
 
+	inline bool operator<(const CRelIndex &ndx) const {
+		return (index() < ndx.index());
+	}
+	inline bool operator>(const CRelIndex &ndx) const {
+		return (index() > ndx.index());
+	}
+	inline bool operator==(const CRelIndex &ndx) const {
+		return (index() == ndx.index());
+	}
+
 private:
 	uint32_t m_ndx;
 };

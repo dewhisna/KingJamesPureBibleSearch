@@ -45,7 +45,6 @@ class CParsedPhrase
 public:
 	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false)
 		:	m_pBibleDatabase(pBibleDatabase),
-			m_nContributingMatchCount(0),
 			m_bIsDuplicate(false),
 			m_bCaseSensitive(bCaseSensitive),
 			m_nLevel(0),
@@ -57,18 +56,14 @@ public:
 	{ }
 
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
-	//			use for maintaining statistics about this phrase in context with others:
-	bool IsDuplicate() const { return m_bIsDuplicate; }
-	void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
-	uint32_t GetContributingNumberOfMatches() const { return m_nContributingMatchCount; }
-	void SetContributingNumberOfMatches(uint32_t nMatches) const
-	{
-		m_nContributingMatchCount = nMatches;
-		m_lstScopedPhraseTagResults.reserve(nMatches);			// Preallocate storage to avoid repeated mallocs
-	}
-	const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
-	void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults = TPhraseTagList(); }
-	void AddScopedPhraseTagSearchResult(const TPhraseTag &tag) const { m_lstScopedPhraseTagResults.append(tag); }
+	//			use for maintaining statistics about this phrase in context with others and
+	//			to build Search Results Verse Lists, do highlighting, etc.
+	inline bool IsDuplicate() const { return m_bIsDuplicate; }
+	inline void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
+	inline int GetContributingNumberOfMatches() const { return m_lstScopedPhraseTagResults.size(); }
+	inline const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
+	inline TPhraseTagList &GetScopedPhraseTagSearchResultsNonConst() const { return m_lstScopedPhraseTagResults; }			// Non-const version used by VerseListModel for setting
+	inline void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults.clear(); }
 	// -------
 	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
 	uint32_t GetNumberOfMatches() const;
@@ -119,9 +114,8 @@ protected:
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
 	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
 	// -------
-	mutable uint32_t m_nContributingMatchCount;		// Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
-	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel
+	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel.  The size of this list is the ContributingMatchCount
 	// -------
 	bool m_bCaseSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())

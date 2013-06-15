@@ -643,7 +643,6 @@ void CKJVSearchPhraseEdit::on_phraseChanged()
 	//		still won't be affected:
 	if (!m_bLastPhraseChangeHadResults) {
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
-			pPhrase->SetContributingNumberOfMatches(0);
 			pPhrase->SetIsDuplicate(false);
 			pPhrase->ClearScopedPhraseTagSearchResults();
 			phraseStatisticsChanged();
