@@ -34,7 +34,7 @@
 // Forward Declarations:
 class CVerseListModel;
 class CVerseListItem;
-typedef QList<CVerseListItem> CVerseList;			// Redundant with definition in VerseListModel.h, but avoids very nasty header interdependency
+typedef QMap<CRelIndex, CVerseListItem> CVerseMap;				// Redundant with definition in VerseListModel.h, but avoids very nasty header interdependency
 
 // ============================================================================
 
@@ -53,7 +53,7 @@ private:
 	const TPhraseTagList &m_lstPhraseTags;
 	TPhraseTagList m_lstDummyPhraseTags;				// Dummy list used for m_lstPhraseTags when iterating verses
 
-	CVerseList::const_iterator m_itrVerses;
+	CVerseMap::const_iterator m_itrVerses;
 	TPhraseTagList::const_iterator m_itrTags;
 
 	friend class CBasicHighlighter;

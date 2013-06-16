@@ -292,7 +292,7 @@ public:
 
 	QModelIndex locateIndex(const CRelIndex &ndxRel) const;
 
-	const CVerseList &verseList() const { return m_lstVerses; }
+	const CVerseMap &verseMap() const { return m_mapVerses; }
 
 	TParsedPhrasesList parsedPhrases() const;
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
@@ -303,10 +303,10 @@ public:
 
 	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
 
-	QPair<int, int> GetResultsIndexes(int nVerse) const;	// Calculates the starting and ending results indexes for the specified Verse List entry index
-	QPair<int, int> GetBookIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Book number and total number of books with results
-	QPair<int, int> GetChapterIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Chapter and total number of chapters with results
-	QPair<int, int> GetVerseIndexAndCount(int nVerse = -1) const;	// Returns the Search Result Verse and total number of verses with results (for completeness only)
+	QPair<int, int> GetResultsIndexes(CVerseMap::const_iterator itrVerse) const;		// Calculates the starting and ending results indexes for the specified Verse List entry index
+	QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Book number and total number of books with results
+	QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
+	QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
 
 signals:
 	void cachedSizeHintsInvalidated();
@@ -326,10 +326,10 @@ protected:
 	int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
 	int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
 	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
-	int FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in the m_lstVerses array and returns its index
+	CVerseMap::const_iterator FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in m_mapVerses and returns its index
+	CVerseMap::const_iterator GetVerse(int ndxVerse, unsigned int nBk = 0, unsigned int nChp = 0) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 public:
 	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
-	int GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp = 0) const;	// Returns index into m_lstVerses based on relative index of Verse for specified Book and/or Book/Chapter
 
 private:
 	void buildScopedResultsFromParsedPhrases();
@@ -338,8 +338,8 @@ private:
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	CBibleDatabasePtr m_pBibleDatabase;
-	CVerseList m_lstVerses;
-	QMap<CRelIndex, int> m_mapVerses;			// Reverse lookup for verses for tree.  Map of CRelIndex [nBk|nChp|nVrs|0] to index within m_lstVerses.  Set during setVerseList.
+	CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
 	QMap<CRelIndex, QSize> m_mapSizeHints;		// Map of CRelIndex [nBk|nChp|nVrs|0] to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
 	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases

@@ -25,6 +25,7 @@
 
 #include <QVector>
 #include <QModelIndexList>
+#include <iterator>
 
 // ============================================================================
 
@@ -67,7 +68,7 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 		case VTME_LIST:
 		{
 			if (parent.isValid()) return 0;
-			return m_lstVerses.count();
+			return m_mapVerses.size();
 		}
 		case VTME_TREE_BOOKS:
 		{
@@ -132,7 +133,10 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &paren
 	switch (m_nTreeMode) {
 		case VTME_LIST:
 		{
-			return createIndex(row, column, m_lstVerses.at(row).getIndex().index());
+			assert(row < m_mapVerses.size());
+			CVerseMap::const_iterator itrVerse = GetVerse(row);
+			if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
+			return createIndex(row, column, itrVerse->getIndex().index());
 		}
 		case VTME_TREE_BOOKS:
 		{
@@ -142,9 +146,9 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &paren
 			CRelIndex ndxRel(parent.internalId());
 			assert(ndxRel.isSet());
 			if (ndxRel.chapter() == 0) {
-				int nVerse = GetVerse(row, ndxRel.book());
-				if (nVerse == -1) return QModelIndex();
-				return createIndex(row, column, m_lstVerses.at(nVerse).getIndex().index());
+				CVerseMap::const_iterator itrVerse = GetVerse(row, ndxRel.book());
+				if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, itrVerse->getIndex().index());
 			}
 			return QModelIndex();
 		}
@@ -159,9 +163,9 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &paren
 				return createIndex(row, column, CRelIndex(ndxRel.book(), ChapterByIndex(parent.row(), row), 0, 0).index());
 			}
 			if (ndxRel.verse() == 0) {
-				int nVerse = GetVerse(row, ndxRel.book(), ndxRel.chapter());
-				if (nVerse == -1) return QModelIndex();
-				return createIndex(row, column, m_lstVerses.at(nVerse).getIndex().index());
+				CVerseMap::const_iterator itrVerse = GetVerse(row, ndxRel.book(), ndxRel.chapter());
+				if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, itrVerse->getIndex().index());
 			}
 			return QModelIndex();
 		}
@@ -262,22 +266,16 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	}
 
 	if (!m_mapVerses.contains(ndxRel)) return QVariant();
-	int nVerse = m_mapVerses[ndxRel];
-	assert((nVerse>=0) && (nVerse<m_lstVerses.size()));
-
-	if (nVerse < 0 || nVerse >= m_lstVerses.size())
-		return QVariant();
 
 	if (role == Qt::ToolTipRole) return QString();		// on_viewDetails replaces normal ToolTip
 
-	return dataForVerse(m_lstVerses.at(nVerse), role);
+	return dataForVerse(m_mapVerses.value(ndxRel), role);
 }
 
 QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) const
 {
-	if (!m_mapVerses.contains(aVerse.getIndex())) return QVariant();
-	int nVerse = m_mapVerses[aVerse.getIndex()];
-	assert((nVerse>=0) && (nVerse<m_lstVerses.size()));
+	CVerseMap::const_iterator itrVerse = m_mapVerses.find(aVerse.getIndex());
+	if (itrVerse == m_mapVerses.constEnd()) return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 		switch (m_nDisplayMode) {
@@ -303,7 +301,7 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
 		if (bHeading) strToolTip += aVerse.getHeading() + "\n";
-		QPair<int, int> nResultsIndexes = GetResultsIndexes(nVerse);
+		QPair<int, int> nResultsIndexes = GetResultsIndexes(itrVerse);
 		if (nResultsIndexes.first != nResultsIndexes.second) {
 			strToolTip += QString("%1").arg(bHeading ? "    " : "") +
 						tr("Search Results %1-%2 of %3 phrase occurrences")
@@ -317,11 +315,11 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 									.arg(nResultsIndexes.first)
 									.arg(GetResultsCount()) + "\n";
 		}
-		QPair<int, int> nVerseResult = GetVerseIndexAndCount(nVerse);
+		QPair<int, int> nVerseResult = GetVerseIndexAndCount(itrVerse);
 		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
-		QPair<int, int> nChapterResult = GetChapterIndexAndCount(nVerse);
+		QPair<int, int> nChapterResult = GetChapterIndexAndCount(itrVerse);
 		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
-		QPair<int, int> nBookResult = GetBookIndexAndCount(nVerse);
+		QPair<int, int> nBookResult = GetBookIndexAndCount(itrVerse);
 		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
 		strToolTip += aVerse.getToolTip(m_lstParsedPhrases);
 		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
@@ -444,6 +442,7 @@ bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
 */
 }
 
+/*
 static bool ascendingLessThan(const QPair<CVerseListItem, int> &s1, const QPair<CVerseListItem, int> &s2)
 {
 	// Both normalized and denormalized are in order, but it's more expensive
@@ -457,9 +456,15 @@ static bool decendingLessThan(const QPair<CVerseListItem, int> &s1, const QPair<
 	//	 to convert to normal when we already have relative
 	return s1.first.getIndexDenormalized() > s2.first.getIndexDenormalized();
 }
+*/
 
 void CVerseListModel::sort(int /* column */, Qt::SortOrder order)
 {
+	Q_UNUSED(order);
+	assert(false);
+
+/*
+
 	emit layoutAboutToBeChanged();
 
 	QList<QPair<CVerseListItem, int> > list;
@@ -485,6 +490,7 @@ void CVerseListModel::sort(int /* column */, Qt::SortOrder order)
 	changePersistentIndexList(oldList, newList);
 
 	emit layoutChanged();
+*/
 }
 
 Qt::DropActions CVerseListModel::supportedDropActions() const
@@ -496,20 +502,20 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 {
 	if (!ndxRel.isSet()) return QModelIndex();
 
-	int ndxTarget;
-	int ndxFirst;
-
 	// See if this is a verse (search result) reference.  If so resolve:
 	if (ndxRel.verse() != 0) {
+		CVerseMap::const_iterator itrFirst;
+		CVerseMap::const_iterator itrTarget;
+
 		// Set ndxVerse to first verse m_lstVerses array for this parent node:
 		if (m_nTreeMode == VTME_LIST) {
-			ndxFirst = 0;			// For list mode, the list includes everything, so start with the first index
+			itrFirst = m_mapVerses.constBegin();		// For list mode, the list includes everything, so start with the first index
 		} else {
-			ndxFirst = GetVerse(0, ndxRel.book(), ((m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
+			itrFirst = GetVerse(0, ndxRel.book(), ((m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
 		}
-		ndxTarget = FindVerseIndex(ndxRel);
-		if (ndxTarget == -1) return QModelIndex();
-		return createIndex(ndxTarget-ndxFirst, 0, m_lstVerses.at(ndxTarget).getIndex().index());		// Use index from actual verse instead of ndxRel since word() isn't required to match
+		itrTarget = FindVerseIndex(ndxRel);
+		if (itrTarget == m_mapVerses.constEnd()) return QModelIndex();
+		return createIndex(std::distance(itrFirst, itrTarget), 0, itrTarget->getIndex().index());		// Use index from actual verse instead of ndxRel since word() isn't required to match
 	}
 
 	// If we are in list mode and caller only gave us a book/chapter reference,
@@ -519,12 +525,12 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 
 	if ((ndxRel.chapter() != 0) && (m_nTreeMode == VTME_TREE_CHAPTERS)) {
 		// If this is a book/chapter reference, resolve it:
-		ndxTarget = IndexByChapter(ndxRel.book(), ndxRel.chapter());
+		int ndxTarget = IndexByChapter(ndxRel.book(), ndxRel.chapter());
 		if (ndxTarget == -1) return QModelIndex();
 		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0).index());		// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 	} else {
 		// If this is a book-only reference, resolve it:
-		ndxTarget = IndexByBook(ndxRel.book());
+		int ndxTarget = IndexByBook(ndxRel.book());
 		if (ndxTarget == -1) return QModelIndex();
 		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());	// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 	}
@@ -582,10 +588,10 @@ int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 {
 	int nResults = 0;
 
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
-		if ((nBk != 0) && (m_lstVerses.at(ndx).getBook() != nBk)) continue;
-		if ((nBk != 0) && (nChp != 0) && (m_lstVerses.at(ndx).getChapter() != nChp)) continue;
-		nResults += m_lstVerses.at(ndx).phraseTags().size();
+	for (CVerseMap::const_iterator itrVerse = m_mapVerses.constBegin(); itrVerse != m_mapVerses.constEnd(); ++itrVerse) {
+		if ((nBk != 0) && (itrVerse.key().book() != nBk)) continue;
+		if ((nBk != 0) && (nChp != 0) && (itrVerse.key().chapter() != nChp)) continue;
+		nResults += itrVerse->phraseTags().size();
 	}
 
 	return nResults;
@@ -593,79 +599,75 @@ int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 
 // ----------------------------------------------------------------------------
 
-QPair<int, int> CVerseListModel::GetResultsIndexes(int nVerse) const
+QPair<int, int> CVerseListModel::GetResultsIndexes(CVerseMap::const_iterator itrVerse) const
 {
 	QPair<int, int> nResultsIndexes;
 	nResultsIndexes.first = 0;
 	nResultsIndexes.second = 0;
 
-	for (int ndx = 0; ((ndx < nVerse) && (ndx < m_lstVerses.size())); ++ndx) {
-		nResultsIndexes.first += m_lstVerses.at(ndx).phraseTags().size();
+	assert(itrVerse != CVerseMap::const_iterator());
+
+	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); ((itr != itrVerse) && (itr != m_mapVerses.constEnd())); ++itr) {
+		nResultsIndexes.first += itr->phraseTags().size();
 	}
 	nResultsIndexes.second = nResultsIndexes.first;
-	if (nVerse < m_lstVerses.size()) {
+	if (itrVerse != m_mapVerses.constEnd()) {
 		nResultsIndexes.first++;
-		nResultsIndexes.second += m_lstVerses.at(nVerse).phraseTags().size();
+		nResultsIndexes.second += itrVerse->phraseTags().size();
 	}
 
 	return nResultsIndexes;		// Result first = first result index, second = last result index for specified row
 }
 
-QPair<int, int> CVerseListModel::GetBookIndexAndCount(int nVerse) const
+QPair<int, int> CVerseListModel::GetBookIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
 	int ndxBook = 0;		// Index into Books
 	int nBooks = 0;			// Results counts in Books
+	bool bFlag = false;
 
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
 		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
-		if (ndx <= nVerse) ndxBook++;
-		if (ndx < (m_lstVerses.size()-1)) {
-			bool bNextIsSameReference=false;
-			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
-			do {
-				if (nCurrentBook == m_lstVerses.at(ndx+1).getBook()) {
-					bNextIsSameReference=true;
-					ndx++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		if (!bFlag) ndxBook++;
+		uint32_t nCurrentBook = itr.key().book();
+		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
+			if (itr2.key().book() != nCurrentBook) break;			// Look ahead at next entry and see if it's the same book.  If not, move on to count it...
+			++itr;
+			if (itr == itrVerse) bFlag = true;
 		}
+
+		if (itr == itrVerse) bFlag = true;
 	}
 
 	return QPair<int, int>(ndxBook, nBooks);
 }
 
-QPair<int, int> CVerseListModel::GetChapterIndexAndCount(int nVerse) const
+QPair<int, int> CVerseListModel::GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
 	int ndxChapter = 0;		// Index into Chapters
 	int nChapters = 0;		// Results counts in Chapters
+	bool bFlag = false;
 
-	for (int ndx=0; ndx<m_lstVerses.size(); ++ndx) {
+	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
 		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
-		if (ndx <= nVerse) ndxChapter++;
-		if (ndx < (m_lstVerses.size()-1)) {
-			bool bNextIsSameReference=false;
-			uint32_t nCurrentBook = m_lstVerses.at(ndx).getBook();
-			uint32_t nCurrentChapter = m_lstVerses.at(ndx).getChapter();
-			do {
-				if ((nCurrentBook == m_lstVerses.at(ndx+1).getBook()) &&
-					(nCurrentChapter == m_lstVerses.at(ndx+1).getChapter())) {
-					bNextIsSameReference=true;
-					ndx++;
-				} else {
-					bNextIsSameReference=false;
-				}
-			} while ((bNextIsSameReference) && (ndx<(m_lstVerses.size()-1)));
+		if (!bFlag) ndxChapter++;
+		uint32_t nCurrentBook = itr.key().book();
+		uint32_t nCurrentChapter = itr.key().chapter();
+		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
+			if ((itr2.key().book() != nCurrentBook) ||
+				(itr2.key().chapter() != nCurrentChapter)) break;		// Look ahead at next entry and see if it's the same book/chapter.  If not, move on to count it...
+			++itr;
+			if (itr == itrVerse) bFlag = true;
 		}
+
+		if (itr == itrVerse) bFlag = true;
 	}
 
 	return QPair<int, int>(ndxChapter, nChapters);
 }
 
-QPair<int, int> CVerseListModel::GetVerseIndexAndCount(int nVerse) const
+QPair<int, int> CVerseListModel::GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
-	return QPair<int, int>(nVerse+1, m_lstVerses.size());
+	return QPair<int, int>(((itrVerse != CVerseMap::const_iterator()) ? (std::distance(m_mapVerses.constBegin(), itrVerse)+1) : 0), m_mapVerses.size());
 }
 
 // ----------------------------------------------------------------------------
@@ -676,14 +678,13 @@ int CVerseListModel::GetBookCount() const
 
 	if (m_bShowMissingLeafs) return m_pBibleDatabase->bibleEntry().m_nNumBk;
 
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookLast = m_mapVerses.end();
+	CVerseMap::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
+	CVerseMap::const_iterator itrVerseMapBookLast = m_mapVerses.end();
 
 	int nCount = 0;
 	while (itrVerseMapBookFirst != itrVerseMapBookLast) {
-		CRelIndex relndxCurrent(itrVerseMapBookFirst.key());
 		// Find next book (bypassing any chapters/verses in the current book):
-		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(relndxCurrent.book() + 1, 0, 0, 0));
+		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(itrVerseMapBookFirst.key().book() + 1, 0, 0, 0));
 		++nCount;
 	}
 	return nCount;
@@ -699,18 +700,17 @@ int CVerseListModel::IndexByBook(unsigned int nBk) const
 	}
 
 	// Find the first entry with the correct Book number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookLast = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));
+	CVerseMap::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
+	CVerseMap::const_iterator itrVerseMapBookLast = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));
 
 	// If we didn't find the book, return -1 (not found):
 	if (itrVerseMapBookLast == m_mapVerses.end()) return -1;
-	if (CRelIndex(itrVerseMapBookLast.key()).book() != nBk) return -1;
+	if (itrVerseMapBookLast.key().book() != nBk) return -1;
 
 	int nIndex = 0;
 	while (itrVerseMapBookFirst != itrVerseMapBookLast) {
-		CRelIndex relndxCurrent(itrVerseMapBookFirst.key());
 		// Find next book (bypassing any chapters/verses in the current book):
-		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(relndxCurrent.book() + 1, 0, 0, 0));
+		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(itrVerseMapBookFirst.key().book() + 1, 0, 0, 0));
 		assert(itrVerseMapBookFirst != m_mapVerses.end());		// Shouldn't hit the end because we already know the correct book exists
 		++nIndex;
 	}
@@ -726,15 +726,14 @@ unsigned int CVerseListModel::BookByIndex(int ndxBook) const
 		return (ndxBook+1);
 	}
 
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookLast = m_mapVerses.end();
+	CVerseMap::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
+	CVerseMap::const_iterator itrVerseMapBookLast = m_mapVerses.end();
 
 	int nIndex = 0;
 	while (itrVerseMapBookFirst != itrVerseMapBookLast) {
-		CRelIndex relndxCurrent(itrVerseMapBookFirst.key());
-		if (nIndex == ndxBook) return relndxCurrent.book();			// If we've found the right index, return the book
+		if (nIndex == ndxBook) return itrVerseMapBookFirst.key().book();			// If we've found the right index, return the book
 		// Find next book (bypassing any chapters/verses in the current book):
-		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(relndxCurrent.book() + 1, 0, 0, 0));
+		itrVerseMapBookFirst = m_mapVerses.lowerBound(CRelIndex(itrVerseMapBookFirst.key().book() + 1, 0, 0, 0));
 		++nIndex;
 	}
 	assert(false);
@@ -752,19 +751,18 @@ int CVerseListModel::GetChapterCount(unsigned int nBk) const
 	}
 
 	// Find the first and last entries with the correct Book number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterFirst;
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterLast;
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
+	CVerseMap::const_iterator itrVerseMapBookChapterLast;
 	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
-	if (CRelIndex(itrVerseMapBookChapterFirst.key()).book() != nBk) return 0;
+	if (itrVerseMapBookChapterFirst.key().book() != nBk) return 0;
 
 	int nCount = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
-		CRelIndex relndxCurrent(itrVerseMapBookChapterFirst.key());
 		// Find next chapter (bypassing any verses in the current chapter):
-		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, relndxCurrent.chapter() + 1, 0, 0));
+		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBookChapterFirst.key().chapter() + 1, 0, 0));
 		++nCount;
 	}
 	return nCount;
@@ -782,20 +780,18 @@ int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 	}
 
 	// Find the first entry with the correct Book number and with the correct Book/Chapter number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapter = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));
+	CVerseMap::const_iterator itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));
+	CVerseMap::const_iterator itrVerseMapBookChapter = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));
 
 	// If we didn't find the book and/or book/chapter, return -1 (not found):
 	if ((itrVerseMapBook == m_mapVerses.end()) || (itrVerseMapBookChapter == m_mapVerses.end())) return -1;
-	if (CRelIndex(itrVerseMapBook.key()).book() != nBk) return -1;
-	CRelIndex relndxLast(itrVerseMapBookChapter.key());
-	if ((relndxLast.book() != nBk) || (relndxLast.chapter() != nChp)) return -1;
+	if (itrVerseMapBook.key().book() != nBk) return -1;
+	if ((itrVerseMapBookChapter.key().book() != nBk) || (itrVerseMapBookChapter.key().chapter() != nChp)) return -1;
 
 	int nIndex = 0;
 	while (itrVerseMapBook != itrVerseMapBookChapter) {
-		CRelIndex relndxCurrent(itrVerseMapBook.key());
 		// Find next chapter (bypassing any verses in the current chapter):
-		itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, relndxCurrent.chapter() + 1, 0, 0));
+		itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBook.key().chapter() + 1, 0, 0));
 		assert(itrVerseMapBook != m_mapVerses.end());		// Shouldn't hit the end because we already know the correct book/chapter exists
 		++nIndex;
 	}
@@ -817,8 +813,8 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 	if (nBk == 0) return 0;
 
 	// Find the first and last entries with the correct Book number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));		// This will be the first verse of the next book/chapter
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));		// This will be the first verse of the first chapter of this book
+	CVerseMap::const_iterator itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));		// This will be the first verse of the next book/chapter
 
 	// We should have found the book, because of the above BookByIndex() call and nBk check, but safe-guard:
 	assert(itrVerseMapBookChapterFirst != m_mapVerses.end());
@@ -826,10 +822,9 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 
 	int nIndex = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
-		CRelIndex relndxCurrent(itrVerseMapBookChapterFirst.key());
-		if (nIndex == ndxChapter) return relndxCurrent.chapter();			// If we've found the right index, return the chapter
+		if (nIndex == ndxChapter) return itrVerseMapBookChapterFirst.key().chapter();			// If we've found the right index, return the chapter
 		// Find next chapter (bypassing any verses in the current chapter):
-		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, relndxCurrent.chapter() + 1, 0, 0));
+		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBookChapterFirst.key().chapter() + 1, 0, 0));
 		++nIndex;
 	}
 	assert(false);
@@ -840,11 +835,11 @@ int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 {
 	// Note: This function has special cases for nBk == 0 and nChp == 0 (unlike the other count functions)
 
-	if (nBk == 0) return m_lstVerses.size();		// Quick special-case
+	if (nBk == 0) return m_mapVerses.size();		// Quick special-case
 
 	// Find the first and last entries with the correct Book/Chapter number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterFirst;
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterLast;
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
+	CVerseMap::const_iterator itrVerseMapBookChapterLast;
 	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
 	if (nChp != 0) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
@@ -854,8 +849,7 @@ int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 
 	// If we didn't find the book and/or book/chapter, return none found:
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
-	CRelIndex relndxFirst(itrVerseMapBookChapterFirst.key());
-	if ((relndxFirst.book() != nBk) || ((nChp != 0) && (relndxFirst.chapter() != nChp))) return 0;
+	if ((itrVerseMapBookChapterFirst.key().book() != nBk) || ((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return 0;
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
@@ -865,44 +859,50 @@ int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 	return nVerses;
 }
 
-int CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
+CVerseMap::const_iterator CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
 {
-	// Note: This function has a special case for nChp == 0 (unlike the other index functions)
+	// Note: This function has a special case for nBk == 0 and nChp == 0 (unlike the other index functions)
 
-	if ((nBk == 0) || (ndxVerse < 0)) return -1;
+	if (ndxVerse < 0) return m_mapVerses.constEnd();
+
+	if ((nBk == 0) && (nChp == 0)) {
+		assert((ndxVerse >= 0) && (ndxVerse < m_lstVerseIndexes.size()));
+		if (ndxVerse >= m_lstVerseIndexes.size()) return m_mapVerses.constEnd();	// Note: (ndxVerse < 0) is handled above for both Map/List methods
+		return m_mapVerses.find(m_lstVerseIndexes.at(ndxVerse));
+	}
 
 	// Find the first and last entries with the correct Book/Chapter number:
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterFirst;
-	QMap<CRelIndex, int>::const_iterator itrVerseMapBookChapterLast;
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
+	CVerseMap::const_iterator itrVerseMapBookChapterLast;
 	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
 	if (nChp != 0) {
-		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));	// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));
 	}
 
-	// If we didn't find the book and/or book/chapter, return -1 (not found):
-	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return -1;
-	CRelIndex relndxFirst(itrVerseMapBookChapterFirst.key());
-	if ((relndxFirst.book() != nBk) || ((nChp != 0) && (relndxFirst.chapter() != nChp))) return -1;
+	// If we didn't find the book and/or book/chapter, return (not found):
+	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return m_mapVerses.constEnd();
+	if ((itrVerseMapBookChapterFirst.key().book() != nBk) ||
+		((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return m_mapVerses.constEnd();
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
-		if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst.value();
+		if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst;
 		++itrVerseMapBookChapterFirst;
 		++nVerses;
 	}
 	assert(false);
-	return -1;				// Should have already returned a verse above, but -1 if we're given an index beyond the list
+	return m_mapVerses.constEnd();			// Should have already returned a verse above, but end() if we're given an index beyond the list
 }
 
-int CVerseListModel::FindVerseIndex(const CRelIndex &ndxRel) const
+CVerseMap::const_iterator CVerseListModel::FindVerseIndex(const CRelIndex &ndxRel) const
 {
-	if (!ndxRel.isSet()) return -1;
+	if (!ndxRel.isSet()) return m_mapVerses.constEnd();
 
 	CRelIndex ndxSearch(ndxRel);
 	ndxSearch.setWord(0);			// Make sure we don't consider the word
-	return m_mapVerses.value(ndxSearch, -1);
+	return m_mapVerses.find(ndxSearch);
 }
 
 // ----------------------------------------------------------------------------
@@ -915,7 +915,11 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	QList<bool> lstNeedScope;
 	int nNumPhrases = m_lstParsedPhrases.size();
 
-	CVerseMap mapReferences;
+	emit verseListAboutToChange();
+	emit beginResetModel();
+
+	m_mapVerses.clear();
+	m_lstVerseIndexes.clear();
 
 	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 	//		setting the phrase size details:
@@ -982,25 +986,21 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
 					CRelIndex ndxNextRelative = itr->relIndex();
 					ndxNextRelative.setWord(0);
-					if (mapReferences.contains(ndxNextRelative)) {
-						mapReferences[ndxNextRelative].addPhraseTag(*itr);
+					if (m_mapVerses.contains(ndxNextRelative)) {
+						m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
 					} else {
-						mapReferences.insert(ndxNextRelative, CVerseListItem(m_pBibleDatabase, *itr));
+						m_mapVerses.insert(ndxNextRelative, CVerseListItem(m_pBibleDatabase, *itr));
 					}
 				}
 			}
 		}
 	}
 
-	emit verseListAboutToChange();
-	emit beginResetModel();
-	m_lstVerses.clear();
-	m_lstVerses.reserve(mapReferences.size());
-	m_mapVerses.clear();
-	for (CVerseMap::const_iterator itr = mapReferences.constBegin(); itr != mapReferences.constEnd(); ++itr) {
-		m_mapVerses[itr->getIndex()] = m_lstVerses.size();
-		m_lstVerses.append(*itr);
+	m_lstVerseIndexes.reserve(m_mapVerses.size());
+	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
+		m_lstVerseIndexes.append(itr.key());
 	}
+
 	emit endResetModel();
 	emit verseListChanged();
 }
