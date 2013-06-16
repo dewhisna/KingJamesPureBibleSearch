@@ -41,7 +41,7 @@ public:
 	~CKJVAboutDlg();
 
 private slots:
-	void on_licenseDisplay();
+	void en_licenseDisplay();
 
 // Data Private:
 private:

@@ -83,7 +83,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
-	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(on_changedSearchCriteria()));
+	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(en_changedSearchCriteria()));
 
 	// Connect Pass-through:
 	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SIGNAL(copySearchPhraseSummary()));
@@ -201,7 +201,7 @@ void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhr
 
 void CKJVSearchSpec::closeAllSearchPhrases()
 {
-	// Set flag so we don't emit extra on_phraseChanged() signals:
+	// Set flag so we don't emit extra en_phraseChanged() signals:
 	m_bCloseAllSearchPhrasesInProgress = true;
 
 	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
@@ -209,7 +209,7 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 	}
 
 	m_bCloseAllSearchPhrasesInProgress = false;
-	on_phraseChanged(NULL);							// Still need to emit one change
+	en_phraseChanged(NULL);							// Still need to emit one change
 }
 
 CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
@@ -217,9 +217,9 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
-	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
-	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit*)));
+	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
+	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 
 	// Set pass-throughs:
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)));
@@ -268,7 +268,7 @@ void CKJVSearchSpec::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSear
 															nHeight - (pSearchPhrase->sizeHint().height()/2));
 }
 
-void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	assert(pSearchPhrase != NULL);
 
@@ -293,14 +293,14 @@ void CKJVSearchSpec::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
 	ui->scrollAreaWidgetContents->setMinimumSize(ui->scrollAreaWidgetContents->minimumSize().width(), nHeight);
-	if (bPhraseChanged) on_phraseChanged(NULL);
+	if (bPhraseChanged) en_phraseChanged(NULL);
 
 	setFocusSearchPhrase(ndxActivate);
 }
 
-void CKJVSearchSpec::on_changedSearchCriteria()
+void CKJVSearchSpec::en_changedSearchCriteria()
 {
-	on_phraseChanged(NULL);
+	en_phraseChanged(NULL);
 }
 
 typedef struct {
@@ -391,7 +391,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	return strSummary;
 }
 
-void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
@@ -439,7 +439,7 @@ void CKJVSearchSpec::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 }
 
-void CKJVSearchSpec::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
+void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 {
 	if (pEditor) {
 		m_pLastEditorActive = pEditor;

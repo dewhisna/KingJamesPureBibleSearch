@@ -99,50 +99,50 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pFindDialog->setModal(false);
 	m_pFindDialog->setTextEdit(this);
 
-	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
-	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(on_selectionChanged()));
+	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
+	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), this, SLOT(clearHighlighting()));
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 
 	m_pEditMenu = new QMenu(T::tr("&Edit"), this);
 	m_pEditMenu->setStatusTip(T::tr("Scripture Text Edit Operations"));
-	m_pActionCopy = m_pEditMenu->addAction(T::tr("&Copy as shown"), this, SLOT(on_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy = m_pEditMenu->addAction(T::tr("&Copy as shown"), this, SLOT(en_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
 	m_pActionCopy->setStatusTip(T::tr("Copy selected passage browser text, as shown, to the clipboard"));
 	m_pActionCopy->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
-	m_pActionCopyPlain = m_pEditMenu->addAction(T::tr("Copy as shown (&plain)"), this, SLOT(on_copyPlain()));
+	m_pActionCopyPlain = m_pEditMenu->addAction(T::tr("Copy as shown (&plain)"), this, SLOT(en_copyPlain()));
 	m_pActionCopyPlain->setStatusTip(T::tr("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard"));
 	m_pActionCopyPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
-	m_pActionCopyRaw = m_pEditMenu->addAction(T::tr("Copy Raw &Text (No headings)"), this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw = m_pEditMenu->addAction(T::tr("Copy Raw &Text (No headings)"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip(T::tr("Copy selected passage browser text as raw phrase words to the clipboard"));
 	m_pActionCopyRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Text (No punctuation)"), this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Text (No punctuation)"), this, SLOT(en_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	m_pActionCopyVeryRaw->setStatusTip(T::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses"), this, SLOT(on_copyVerses()));
+	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses"), this, SLOT(en_copyVerses()));
 	m_pActionCopyVerses->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses to the clipboard"));
 	m_pActionCopyVerses->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
-	m_pActionCopyVersesPlain = m_pEditMenu->addAction(T::tr("Copy as Verses (plai&n)"), this, SLOT(on_copyVersesPlain()));
+	m_pActionCopyVersesPlain = m_pEditMenu->addAction(T::tr("Copy as Verses (plai&n)"), this, SLOT(en_copyVersesPlain()));
 	m_pActionCopyVersesPlain->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard"));
 	m_pActionCopyVersesPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(T::tr("Copy &Reference Details (Word/Phrase)"), this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(T::tr("Copy &Reference Details (Word/Phrase)"), this, SLOT(en_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyReferenceDetails->setStatusTip(T::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard"));
-	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(T::tr("Copy Passage Stat&istics (Book/Chapter/Verse)"), this, SLOT(on_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
+	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(T::tr("Copy Passage Stat&istics (Book/Chapter/Verse)"), this, SLOT(en_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
 	m_pActionCopyPassageStatistics->setStatusTip(T::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard"));
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(on_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
 	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard"));
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text"));
 	m_pEditMenu->addSeparator();
-	m_pActionFind = m_pEditMenu->addAction(T::tr("&Find..."), this, SLOT(on_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+	m_pActionFind = m_pEditMenu->addAction(T::tr("&Find..."), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
 	m_pActionFind->setStatusTip(T::tr("Find text within the passage browser"));
 	m_pActionFind->setEnabled(T::useFindDialog());
 	m_pActionFindNext = m_pEditMenu->addAction(T::tr("Find &Next"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
@@ -192,7 +192,7 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 // ----------------------------------------------------------------------------
 
 template<class T, class U>
-void CScriptureText<T,U>::on_findDialog()
+void CScriptureText<T,U>::en_findDialog()
 {
 	if (haveSelection()) {
 		m_pFindDialog->setTextToFind(m_selectedPhrase.phrase().phraseRaw());
@@ -447,7 +447,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_cursorPositionChanged()
+void CScriptureText<T,U>::en_cursorPositionChanged()
 {
 	CPhraseCursor cursor(T::textCursor());
 	m_tagLast.relIndex() = m_navigator.getSelection(cursor).relIndex();
@@ -459,7 +459,7 @@ void CScriptureText<T,U>::on_cursorPositionChanged()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_selectionChanged()
+void CScriptureText<T,U>::en_selectionChanged()
 {
 	updateSelection();
 }
@@ -503,7 +503,7 @@ void CScriptureText<T,U>::updateSelection()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copy()
+void CScriptureText<T,U>::en_copy()
 {
 	// Clear highlighting before copy so we don't have the cursor follow highlighter
 	//		copied in the middle of our copied text
@@ -513,7 +513,7 @@ void CScriptureText<T,U>::on_copy()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyPlain()
+void CScriptureText<T,U>::en_copyPlain()
 {
 	// Clear highlighting before copy so we don't have the cursor follow highlighter
 	//		copied in the middle of our copied text
@@ -525,7 +525,7 @@ void CScriptureText<T,U>::on_copyPlain()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyRaw()
+void CScriptureText<T,U>::en_copyRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
@@ -535,7 +535,7 @@ void CScriptureText<T,U>::on_copyRaw()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyVeryRaw()
+void CScriptureText<T,U>::en_copyVeryRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
@@ -545,19 +545,19 @@ void CScriptureText<T,U>::on_copyVeryRaw()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyVerses()
+void CScriptureText<T,U>::en_copyVerses()
 {
 	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(false);
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyVersesPlain()
+void CScriptureText<T,U>::en_copyVersesPlain()
 {
 	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(true);
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyReferenceDetails()
+void CScriptureText<T,U>::en_copyReferenceDetails()
 {
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
@@ -567,7 +567,7 @@ void CScriptureText<T,U>::on_copyReferenceDetails()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyPassageStatistics()
+void CScriptureText<T,U>::en_copyPassageStatistics()
 {
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
@@ -577,7 +577,7 @@ void CScriptureText<T,U>::on_copyPassageStatistics()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::on_copyEntirePassageDetails()
+void CScriptureText<T,U>::en_copyEntirePassageDetails()
 {
 	QMimeData *mime = new QMimeData();
 	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, true));

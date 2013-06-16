@@ -267,7 +267,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 	if (!m_mapVerses.contains(ndxRel)) return QVariant();
 
-	if (role == Qt::ToolTipRole) return QString();		// on_viewDetails replaces normal ToolTip
+	if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
 
 	return dataForVerse(m_mapVerses.value(ndxRel), role);
 }

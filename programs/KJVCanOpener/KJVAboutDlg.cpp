@@ -41,7 +41,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	ui->setupUi(this);
 
 	QPushButton *pLicenseButton = ui->buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
-	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(on_licenseDisplay()));
+	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(en_licenseDisplay()));
 	QPushButton *pCloseButton = ui->buttonBox->button(QDialogButtonBox::Close);
 	if (pCloseButton) pCloseButton->setDefault(true);
 
@@ -71,7 +71,7 @@ CKJVAboutDlg::~CKJVAboutDlg()
 	delete ui;
 }
 
-void CKJVAboutDlg::on_licenseDisplay()
+void CKJVAboutDlg::en_licenseDisplay()
 {
 	QMessageBox::information(this, tr("About King James Pure Bible Search License"),
 						tr("This program is free software; you can redistribute it and/or modify it under the terms "

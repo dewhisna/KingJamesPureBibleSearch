@@ -47,7 +47,7 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	// Set Initial Mode:
 	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));
 
-	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(on_changeSearchScopeMode(int)));
+	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changeSearchScopeMode(int)));
 	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 	connect(ui->buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 }
@@ -57,7 +57,7 @@ CKJVSearchCriteriaWidget::~CKJVSearchCriteriaWidget()
 	delete ui;
 }
 
-void CKJVSearchCriteriaWidget::on_changeSearchScopeMode(int ndx)
+void CKJVSearchCriteriaWidget::en_changeSearchScopeMode(int ndx)
 {
 	if (m_bDoingUpdate) return;
 

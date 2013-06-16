@@ -77,7 +77,7 @@ public slots:
 	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 
 private slots:
-	void on_changeSearchScopeMode(int ndx);
+	void en_changeSearchScopeMode(int ndx);
 
 // Data Private:
 private:

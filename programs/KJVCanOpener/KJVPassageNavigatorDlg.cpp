@@ -67,10 +67,10 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	assert(m_pNavigator != NULL);
 
 	m_pApplyButton = ui->buttonBox->addButton(tr("&Apply Resolved to From Location"), QDialogButtonBox::ApplyRole);
-	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(on_ApplyResolvedClicked()));
+	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));
 
 	m_pModeButton = ui->buttonBox->addButton(tr("&Switch Mode"), QDialogButtonBox::ActionRole);
-	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(on_ModeClicked()));
+	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(en_ModeClicked()));
 
 	m_pResetButton = ui->buttonBox->addButton(tr("&Reset"), QDialogButtonBox::ResetRole);
 	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
@@ -80,10 +80,10 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	m_pCancelButton = ui->buttonBox->addButton(tr("&Cancel"), QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
-	on_modeChanged(m_pNavigator->isRelative());
+	en_modeChanged(m_pNavigator->isRelative());
 
-	connect(m_pNavigator, SIGNAL(modeChanged(bool)), this, SLOT(on_modeChanged(bool)));
-	connect(m_pNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(on_gotoIndex(const TPhraseTag &)));
+	connect(m_pNavigator, SIGNAL(modeChanged(bool)), this, SLOT(en_modeChanged(bool)));
+	connect(m_pNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
@@ -106,7 +106,7 @@ CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
 	return *(m_pNavigator);
 }
 
-void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
+void CKJVPassageNavigatorDlg::en_modeChanged(bool bRelative)
 {
 	if (bRelative) {
 		setWindowTitle(tr("Passage Navigator - Relative Mode"));
@@ -126,16 +126,16 @@ void CKJVPassageNavigatorDlg::on_modeChanged(bool bRelative)
 	//	event loop runs, so just calling adjustSize here has
 	//	no effect.  So, we'll setup a dummy timer and
 	//	trigger it later in the event stack:
-	QTimer::singleShot(0, this, SLOT(on_resizeMe()));
+	QTimer::singleShot(0, this, SLOT(en_resizeMe()));
 }
 
-void CKJVPassageNavigatorDlg::on_ApplyResolvedClicked()
+void CKJVPassageNavigatorDlg::en_ApplyResolvedClicked()
 {
 	// Reversing and swapping passage and startRef are symmetric:
 	m_pNavigator->startRelativeMode(m_pNavigator->passage(), m_pNavigator->isReversed());
 }
 
-void CKJVPassageNavigatorDlg::on_ModeClicked()
+void CKJVPassageNavigatorDlg::en_ModeClicked()
 {
 	if (m_pNavigator->isAbsolute()) {
 		m_pNavigator->startRelativeMode(m_pNavigator->passage());
@@ -145,7 +145,7 @@ void CKJVPassageNavigatorDlg::on_ModeClicked()
 	}
 }
 
-void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)
+void CKJVPassageNavigatorDlg::en_gotoIndex(const TPhraseTag &tag)
 {
 	// Easiest way to simulate this is to apply the click-navigated passage as an
 	//		absolute reference and accept it.  Otherwise, if we just setPassage,
@@ -155,7 +155,7 @@ void CKJVPassageNavigatorDlg::on_gotoIndex(const TPhraseTag &tag)
 	accept();
 }
 
-void CKJVPassageNavigatorDlg::on_resizeMe()
+void CKJVPassageNavigatorDlg::en_resizeMe()
 {
 	adjustSize();
 }

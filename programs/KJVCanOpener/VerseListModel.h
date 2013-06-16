@@ -341,7 +341,7 @@ private:
 	CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 	QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
 	QMap<CRelIndex, QSize> m_mapSizeHints;		// Map of CRelIndex [nBk|nChp|nVrs|0] to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
-	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener on_phraseChanged
+	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged
 	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
 	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
 	VERSE_TREE_MODE_ENUM m_nTreeMode;

@@ -71,14 +71,14 @@ public:
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
 
 protected slots:
-	void on_copyVerseText();
-	void on_copyRaw();
-	void on_copyVeryRaw();
-	void on_copyVerseHeadings();
-	void on_copyReferenceDetails();
-	void on_copyComplete();
+	void en_copyVerseText();
+	void en_copyRaw();
+	void en_copyVeryRaw();
+	void en_copyVerseHeadings();
+	void en_copyReferenceDetails();
+	void en_copyComplete();
 
-	void on_listChanged();
+	void en_listChanged();
 
 public slots:
 	void showPassageNavigator();

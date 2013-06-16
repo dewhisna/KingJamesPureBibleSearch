@@ -160,8 +160,8 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
-	connect(this, SIGNAL(textChanged()), this, SLOT(on_textChanged()));
-	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(on_cursorPositionChanged()));
+	connect(this, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
+	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 
 	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->decomposedConcordanceWordList(), this);
 #if QT_VERSION < 0x050000
@@ -195,7 +195,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pCommonPhrasesCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
-	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(on_dropCommonPhrasesClicked()));
+	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 
 	m_pStatusAction = new QAction(this);
@@ -230,7 +230,7 @@ QSize CPhraseLineEdit::sizeHint()
 	return (QSize(szHint.width(), qMax(szHint.height(), PHRASE_COMPLETER_BUTTON_SIZE_Y)));
 }
 
-void CPhraseLineEdit::on_phraseListChanged()
+void CPhraseLineEdit::en_phraseListChanged()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -282,7 +282,7 @@ QString CPhraseLineEdit::textUnderCursor() const
 	return cursor.selectedText();
 }
 
-void CPhraseLineEdit::on_textChanged()
+void CPhraseLineEdit::en_textChanged()
 {
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
@@ -293,7 +293,7 @@ void CPhraseLineEdit::on_textChanged()
 	m_pActionSelectAll->setEnabled(!document()->isEmpty());
 }
 
-void CPhraseLineEdit::on_cursorPositionChanged()
+void CPhraseLineEdit::en_cursorPositionChanged()
 {
 	if (!m_bUpdateInProgress) UpdateCompleter();
 }
@@ -511,7 +511,7 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 	m_bDoingPopup = false;
 }
 
-void CPhraseLineEdit::on_dropCommonPhrasesClicked()
+void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
 	m_pCommonPhrasesCompleter->complete();
 }
@@ -571,14 +571,14 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui->buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
 
 	connect(ui->editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
-	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(on_phraseChanged()));
+	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 
-	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
-	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(on_CaseSensitiveChanged(bool)));
-	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(on_phraseAdd()));
-	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(on_phraseDel()));
-	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(on_phraseClear()));
-	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(on_phraseListChanged()));
+	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
+	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
+	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
+	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
+	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
+	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(en_phraseListChanged()));
 	connect(ui->editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 }
@@ -620,7 +620,7 @@ CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 	return ui->editPhrase;
 }
 
-void CKJVSearchPhraseEdit::on_phraseChanged()
+void CKJVSearchPhraseEdit::en_phraseChanged()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -672,7 +672,7 @@ void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 	ui->lblOccurrenceCount->setText(strTemp);
 }
 
-void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)
+void CKJVSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -681,7 +681,7 @@ void CKJVSearchPhraseEdit::on_CaseSensitiveChanged(bool bCaseSensitive)
 	m_bUpdateInProgress = false;
 }
 
-void CKJVSearchPhraseEdit::on_phraseAdd()
+void CKJVSearchPhraseEdit::en_phraseAdd()
 {
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
@@ -690,7 +690,7 @@ void CKJVSearchPhraseEdit::on_phraseAdd()
 	emit phraseListChanged();
 }
 
-void CKJVSearchPhraseEdit::on_phraseDel()
+void CKJVSearchPhraseEdit::en_phraseDel()
 {
 	int ndx = g_lstUserPhrases.indexOf(m_phraseEntry);
 	assert(ndx != -1);		// Shouldn't be in this handler if it didn't exist!!  What happened?
@@ -703,7 +703,7 @@ void CKJVSearchPhraseEdit::on_phraseDel()
 	emit phraseListChanged();
 }
 
-void CKJVSearchPhraseEdit::on_phraseClear()
+void CKJVSearchPhraseEdit::en_phraseClear()
 {
 	ui->editPhrase->clear();
 }

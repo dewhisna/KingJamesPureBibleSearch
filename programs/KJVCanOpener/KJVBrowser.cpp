@@ -56,12 +56,12 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	assert(m_pScriptureBrowser != NULL);
 
 // Data Connections:
-	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(on_SearchResultsVerseListAboutToChange()));
-	connect(pModel, SIGNAL(verseListChanged()), this, SLOT(on_SearchResultsVerseListChanged()));
+	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
+	connect(pModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
 
 // UI Connections:
 	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
-	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(on_sourceChanged(const QUrl &)));
+	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
 
 	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
 	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
@@ -174,10 +174,10 @@ void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 
 	doHighlighting();
 
-	emit on_gotoIndex(tag);
+	emit en_gotoIndex(tag);
 }
 
-void CKJVBrowser::on_sourceChanged(const QUrl &src)
+void CKJVBrowser::en_sourceChanged(const QUrl &src)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -203,12 +203,12 @@ bool CKJVBrowser::hasFocusBrowser() const
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::on_SearchResultsVerseListAboutToChange()
+void CKJVBrowser::en_SearchResultsVerseListAboutToChange()
 {
 	doHighlighting(true);				// Remove existing highlighting
 }
 
-void CKJVBrowser::on_SearchResultsVerseListChanged()
+void CKJVBrowser::en_SearchResultsVerseListChanged()
 {
 	doHighlighting();					// Highlight using new tags
 }
@@ -243,14 +243,14 @@ void CKJVBrowser::showPassageNavigator()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::on_Bible_Beginning()
+void CKJVBrowser::en_Bible_Beginning()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1)));
 }
 
-void CKJVBrowser::on_Bible_Ending()
+void CKJVBrowser::en_Bible_Ending()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -262,7 +262,7 @@ void CKJVBrowser::on_Bible_Ending()
 	gotoIndex(TPhraseTag(ndx));
 }
 
-void CKJVBrowser::on_Book_Backward()
+void CKJVBrowser::en_Book_Backward()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -271,7 +271,7 @@ void CKJVBrowser::on_Book_Backward()
 	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
 }
 
-void CKJVBrowser::on_Book_Forward()
+void CKJVBrowser::en_Book_Forward()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -280,7 +280,7 @@ void CKJVBrowser::on_Book_Forward()
 	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
 }
 
-void CKJVBrowser::on_ChapterBackward()
+void CKJVBrowser::en_ChapterBackward()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -288,7 +288,7 @@ void CKJVBrowser::on_ChapterBackward()
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
-void CKJVBrowser::on_ChapterForward()
+void CKJVBrowser::en_ChapterForward()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 

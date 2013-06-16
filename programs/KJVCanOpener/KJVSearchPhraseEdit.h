@@ -108,14 +108,14 @@ public:
 	virtual QSize sizeHint();
 
 public slots:
-	void on_phraseListChanged();
+	void en_phraseListChanged();
 
 private slots:
 	void insertCompletion(const QString &completion);
 	void insertCommonPhraseCompletion(const QString &completion);
-	void on_textChanged();
-	void on_cursorPositionChanged();
-	void on_dropCommonPhrasesClicked();
+	void en_textChanged();
+	void en_cursorPositionChanged();
+	void en_dropCommonPhrasesClicked();
 
 signals:
 	void phraseChanged();
@@ -194,18 +194,18 @@ public slots:
 	void closeSearchPhrase();
 
 protected slots:
-	void on_phraseChanged();
-	void on_CaseSensitiveChanged(bool bCaseSensitive);
-	void on_phraseAdd();
-	void on_phraseDel();
-	void on_phraseClear();
+	void en_phraseChanged();
+	void en_CaseSensitiveChanged(bool bCaseSensitive);
+	void en_phraseAdd();
+	void en_phraseDel();
+	void en_phraseClear();
 
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bHaveUserDatabase;			// True if there is a user database defined (used for enabling add/remove icons)
 	CPhraseEntry m_phraseEntry;			// Last phrase entry (updated on phrase changed signal)
-	bool m_bLastPhraseChangeHadResults;	// True if the last on_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications
+	bool m_bLastPhraseChangeHadResults;	// True if the last en_phraseChanged() notification from the phrase editor had resulting matches, used to optimize change notifications
 	bool m_bUpdateInProgress;			// case-sensitivity update in progress (to guard against re-entrance)
 
 // UI Private:

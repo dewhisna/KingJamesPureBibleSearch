@@ -77,30 +77,30 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal = new QMenu(tr("&Edit"), this);
 	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations"));
 	// ----
-	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text"), this, SLOT(on_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text"), this, SLOT(en_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
 	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard"));
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
-	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)"), this, SLOT(on_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip(tr("Copy selected Search Results as raw phrase words to the clipboard"));
 	m_pActionCopyRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(tr("Copy Very Ra&w Verse Text (No punctuation)"), this, SLOT(on_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(tr("Copy Very Ra&w Verse Text (No punctuation)"), this, SLOT(en_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	m_pActionCopyVeryRaw->setStatusTip(tr("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References"), this, SLOT(on_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References"), this, SLOT(en_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCopyVerseHeadings->setStatusTip(tr("Copy Verse References for the selected Search Results to the clipboard"));
 	m_pActionCopyVerseHeadings->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(tr("Copy Reference Detai&ls (Word/Phrase Counts)"), this, SLOT(on_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(tr("Copy Reference Detai&ls (Word/Phrase Counts)"), this, SLOT(en_copyReferenceDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
 	m_pActionCopyReferenceDetails->setStatusTip(tr("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard"));
 	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
-	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details"), this, SLOT(on_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details"), this, SLOT(en_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_C));
 	m_pActionCopyComplete->setStatusTip(tr("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard"));
 	m_pActionCopyComplete->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
@@ -130,7 +130,7 @@ CSearchResultsTreeView::~CSearchResultsTreeView()
 {
 }
 
-void CSearchResultsTreeView::on_copyVerseText()
+void CSearchResultsTreeView::en_copyVerseText()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -179,12 +179,12 @@ void CSearchResultsTreeView::on_copyVerseText()
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::on_copyRaw()
+void CSearchResultsTreeView::en_copyRaw()
 {
 	copyRawCommon(false);
 }
 
-void CSearchResultsTreeView::on_copyVeryRaw()
+void CSearchResultsTreeView::en_copyVeryRaw()
 {
 	copyRawCommon(true);
 }
@@ -232,7 +232,7 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::on_copyVerseHeadings()
+void CSearchResultsTreeView::en_copyVerseHeadings()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
@@ -261,7 +261,7 @@ void CSearchResultsTreeView::on_copyVerseHeadings()
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::on_copyReferenceDetails()
+void CSearchResultsTreeView::en_copyReferenceDetails()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
@@ -298,7 +298,7 @@ void CSearchResultsTreeView::on_copyReferenceDetails()
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::on_copyComplete()
+void CSearchResultsTreeView::en_copyComplete()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -446,7 +446,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pStatusAction->showStatusText();
 }
 
-void CSearchResultsTreeView::on_listChanged()
+void CSearchResultsTreeView::en_listChanged()
 {
 	CVerseListModel *pModel = static_cast<CVerseListModel *>(model());
 	assert(pModel != NULL);
@@ -596,9 +596,9 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsTreeView->setItemDelegate(pReflowDelegate);
 	if (pOldDelegate) delete pOldDelegate;
 
-	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
-	connect(model(), SIGNAL(modelReset()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
-	connect(model(), SIGNAL(layoutChanged()), m_pSearchResultsTreeView, SLOT(on_listChanged()));
+	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
+	connect(model(), SIGNAL(modelReset()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
+	connect(model(), SIGNAL(layoutChanged()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
 
 	// Set Outgoing Pass-Through Signals:
 	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(activated(const QModelIndex &)));

@@ -81,48 +81,48 @@ public slots:
 	void setShowMissingLeafs(bool bShowMissing);
 
 protected slots:
-	void on_NewSearch();
-	void on_OpenSearch();
-	void on_SaveSearch();
+	void en_NewSearch();
+	void en_OpenSearch();
+	void en_SaveSearch();
 
-	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
-	void on_copySearchPhraseSummary();
-	void on_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
+	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_copySearchPhraseSummary();
+	void en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
 
-	void on_addPassageBrowserEditMenu(bool bAdd);
-	void on_addSearchResultsEditMenu(bool bAdd);
-	void on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
-	void on_activatedBrowser();
-	void on_activatedSearchResults();
-	void on_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
+	void en_addPassageBrowserEditMenu(bool bAdd);
+	void en_addSearchResultsEditMenu(bool bAdd);
+	void en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
+	void en_activatedBrowser();
+	void en_activatedSearchResults();
+	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
-	void on_viewVerseHeading();
-	void on_viewVerseRichText();
+	void en_viewVerseHeading();
+	void en_viewVerseRichText();
 
-	void on_viewAsList();
-	void on_viewAsTreeBooks();
-	void on_viewAsTreeChapters();
-	void on_viewShowMissingsLeafs();
+	void en_viewAsList();
+	void en_viewAsTreeBooks();
+	void en_viewAsTreeChapters();
+	void en_viewShowMissingsLeafs();
 
-	void on_gotoIndex(const TPhraseTag &tag);
-	void on_browserHistoryChanged();
-	void on_clearBrowserHistory();
+	void en_gotoIndex(const TPhraseTag &tag);
+	void en_browserHistoryChanged();
+	void en_clearBrowserHistory();
 
-	void on_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
+	void en_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
-	void on_PassageNavigatorTriggered();
+	void en_PassageNavigatorTriggered();
 
-	void on_viewDetails();
+	void en_viewDetails();
 	void setDetailsEnable();
 
-	void on_HelpManual();
-	void on_HelpAbout();
+	void en_HelpManual();
+	void en_HelpAbout();
 
-	void on_QuickActivate();
+	void en_QuickActivate();
 
-	void on_setFontScriptureBrowser();
-	void on_setFontSearchResults();
+	void en_setFontScriptureBrowser();
+	void en_setFontSearchResults();
 
 // Data Private:
 private:

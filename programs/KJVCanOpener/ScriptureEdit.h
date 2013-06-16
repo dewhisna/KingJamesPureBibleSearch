@@ -104,10 +104,10 @@ protected:
 
 //private slots:
 protected:
-	virtual void on_findDialog();
+	virtual void en_findDialog();
 
-	virtual void on_cursorPositionChanged();
-	virtual void on_selectionChanged();
+	virtual void en_cursorPositionChanged();
+	virtual void en_selectionChanged();
 	virtual void clearHighlighting();
 
 //public slots:
@@ -115,15 +115,15 @@ public:
 	virtual void setFont(const QFont& aFont);
 	virtual void showDetails();
 	virtual void showPassageNavigator();
-	virtual void on_copy();
-	virtual void on_copyPlain();
-	virtual void on_copyRaw();
-	virtual void on_copyVeryRaw();
-	virtual void on_copyVerses();
-	virtual void on_copyVersesPlain();
-	virtual void on_copyReferenceDetails();
-	virtual void on_copyPassageStatistics();
-	virtual void on_copyEntirePassageDetails();
+	virtual void en_copy();
+	virtual void en_copyPlain();
+	virtual void en_copyRaw();
+	virtual void en_copyVeryRaw();
+	virtual void en_copyVerses();
+	virtual void en_copyVersesPlain();
+	virtual void en_copyReferenceDetails();
+	virtual void en_copyPassageStatistics();
+	virtual void en_copyEntirePassageDetails();
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -190,25 +190,25 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
-	virtual void on_findDialog() = 0;
+	virtual void en_findDialog() = 0;
 
-	virtual void on_cursorPositionChanged() = 0;
-	virtual void on_selectionChanged() = 0;
+	virtual void en_cursorPositionChanged() = 0;
+	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
 //	virtual void showPassageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
-	virtual void on_copy() = 0;
-	virtual void on_copyPlain() = 0;
-	virtual void on_copyRaw() = 0;
-	virtual void on_copyVeryRaw() = 0;
-	virtual void on_copyVerses() = 0;
-	virtual void on_copyVersesPlain() = 0;
-	virtual void on_copyReferenceDetails() = 0;
-	virtual void on_copyPassageStatistics() = 0;
-	virtual void on_copyEntirePassageDetails() = 0;
+	virtual void en_copy() = 0;
+	virtual void en_copyPlain() = 0;
+	virtual void en_copyRaw() = 0;
+	virtual void en_copyVeryRaw() = 0;
+	virtual void en_copyVerses() = 0;
+	virtual void en_copyVersesPlain() = 0;
+	virtual void en_copyReferenceDetails() = 0;
+	virtual void en_copyPassageStatistics() = 0;
+	virtual void en_copyEntirePassageDetails() = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -229,25 +229,25 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
-	virtual void on_findDialog() = 0;
+	virtual void en_findDialog() = 0;
 
-	virtual void on_cursorPositionChanged() = 0;
-	virtual void on_selectionChanged() = 0;
+	virtual void en_cursorPositionChanged() = 0;
+	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void showDetails() = 0;
 	virtual void showPassageNavigator() = 0;
-	virtual void on_copy() = 0;
-	virtual void on_copyPlain() = 0;
-	virtual void on_copyRaw() = 0;
-	virtual void on_copyVeryRaw() = 0;
-	virtual void on_copyVerses() = 0;
-	virtual void on_copyVersesPlain() = 0;
-	virtual void on_copyReferenceDetails() = 0;
-	virtual void on_copyPassageStatistics() = 0;
-	virtual void on_copyEntirePassageDetails() = 0;
+	virtual void en_copy() = 0;
+	virtual void en_copyPlain() = 0;
+	virtual void en_copyRaw() = 0;
+	virtual void en_copyVeryRaw() = 0;
+	virtual void en_copyVerses() = 0;
+	virtual void en_copyVersesPlain() = 0;
+	virtual void en_copyReferenceDetails() = 0;
+	virtual void en_copyPassageStatistics() = 0;
+	virtual void en_copyEntirePassageDetails() = 0;
 };
 
 // ============================================================================

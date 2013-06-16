@@ -184,17 +184,17 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File"));
 
-	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(on_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_N));
 	pAction->setStatusTip(tr("Clear All Search Phrases and Begin New Search"));
 	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
 	ui->mainToolBar->addAction(pAction);
 
-	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(on_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
+	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File"));
 	ui->mainToolBar->addAction(pAction);
 
-	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File..."), this, SLOT(on_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
+	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File..."), this, SLOT(en_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	pAction->setStatusTip(tr("Save current Search Phrases to a King James Search File"));
 	pAction->setToolTip(tr("Save current Search Phrases to a King James Search File"));
 	ui->mainToolBar->addAction(pAction);
@@ -209,9 +209,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->mainToolBar->addSeparator();
 
 	// --- Edit Menu
-	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(on_activatedBrowser()));
-	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(on_activatedSearchResults()));
-	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(on_activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedBrowser()));
+	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
+	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	// --- View Menu
 	m_pViewMenu = ui->menuBar->addMenu(tr("&View"));
@@ -223,19 +223,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowAsList = m_pViewMenu->addAction(tr("View as &List"), this, SLOT(on_viewAsList()));
+	m_pActionShowAsList = m_pViewMenu->addAction(tr("View as &List"), this, SLOT(en_viewAsList()));
 	m_pActionShowAsList->setStatusTip(tr("Show Search Results as a List"));
 	m_pActionShowAsList->setCheckable(true);
 	m_pActionShowAsList->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowAsList);
 
-	m_pActionShowAsTreeBooks = m_pViewMenu->addAction(tr("View as Tree by &Book"), this, SLOT(on_viewAsTreeBooks()));
+	m_pActionShowAsTreeBooks = m_pViewMenu->addAction(tr("View as Tree by &Book"), this, SLOT(en_viewAsTreeBooks()));
 	m_pActionShowAsTreeBooks->setStatusTip(tr("Show Search Results in a Tree by Book"));
 	m_pActionShowAsTreeBooks->setCheckable(true);
 	m_pActionShowAsTreeBooks->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowAsTreeBooks);
 
-	m_pActionShowAsTreeChapters = m_pViewMenu->addAction(tr("View as Tree by Book/&Chapter"), this, SLOT(on_viewAsTreeChapters()));
+	m_pActionShowAsTreeChapters = m_pViewMenu->addAction(tr("View as Tree by Book/&Chapter"), this, SLOT(en_viewAsTreeChapters()));
 	m_pActionShowAsTreeChapters->setStatusTip(tr("Show Search Results in a Tree by Book and Chapter"));
 	m_pActionShowAsTreeChapters->setCheckable(true);
 	m_pActionShowAsTreeChapters->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
@@ -244,7 +244,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowMissingLeafs = m_pViewMenu->addAction(tr("View &Missing Books/Chapters"), this, SLOT(on_viewShowMissingsLeafs()));
+	m_pActionShowMissingLeafs = m_pViewMenu->addAction(tr("View &Missing Books/Chapters"), this, SLOT(en_viewShowMissingsLeafs()));
 	m_pActionShowMissingLeafs->setStatusTip(tr("Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)"));
 	m_pActionShowMissingLeafs->setCheckable(true);
 	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
@@ -266,13 +266,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowVerseHeading = m_pViewMenu->addAction(tr("View &References Only"), this, SLOT(on_viewVerseHeading()));
+	m_pActionShowVerseHeading = m_pViewMenu->addAction(tr("View &References Only"), this, SLOT(en_viewVerseHeading()));
 	m_pActionShowVerseHeading->setStatusTip(tr("Show Search Results Verse References Only"));
 	m_pActionShowVerseHeading->setCheckable(true);
 	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
 
-	m_pActionShowVerseRichText = m_pViewMenu->addAction(tr("View Verse &Preview"), this, SLOT(on_viewVerseRichText()));
+	m_pActionShowVerseRichText = m_pViewMenu->addAction(tr("View Verse &Preview"), this, SLOT(en_viewVerseRichText()));
 	m_pActionShowVerseRichText->setStatusTip(tr("Show Search Results as Rich Text Verse Preview"));
 	m_pActionShowVerseRichText->setCheckable(true);
 	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
@@ -281,7 +281,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionViewDetails = m_pViewMenu->addAction(tr("View &Details..."), this, SLOT(on_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionViewDetails = m_pViewMenu->addAction(tr("View &Details..."), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionViewDetails->setStatusTip(tr("View Passage Details"));
 	m_pActionViewDetails->setEnabled(false);
 	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
@@ -290,25 +290,25 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui->menuBar->addMenu(tr("&Navigate"));
 
-	pAction = pNavMenu->addAction(tr("Beginning of Bible"), m_pBrowserWidget, SLOT(on_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	pAction = pNavMenu->addAction(tr("Beginning of Bible"), m_pBrowserWidget, SLOT(en_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
 	pAction->setStatusTip(tr("Goto the very Beginning of the Bible"));
 	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	pAction = pNavMenu->addAction(tr("Ending of Bible"), m_pBrowserWidget, SLOT(on_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
+	pAction = pNavMenu->addAction(tr("Ending of Bible"), m_pBrowserWidget, SLOT(en_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
 	pAction->setStatusTip(tr("Goto the very End of the Bible"));
 	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionBookBackward = pNavMenu->addAction(tr("Book Backward"), m_pBrowserWidget, SLOT(on_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
+	m_pActionBookBackward = pNavMenu->addAction(tr("Book Backward"), m_pBrowserWidget, SLOT(en_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
 	m_pActionBookBackward->setStatusTip(tr("Move Backward one Book"));
 	connect(m_pActionBookBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionBookForward = pNavMenu->addAction(tr("Book Forward"), m_pBrowserWidget, SLOT(on_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
+	m_pActionBookForward = pNavMenu->addAction(tr("Book Forward"), m_pBrowserWidget, SLOT(en_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
 	m_pActionBookForward->setStatusTip(tr("Move Forward one Book"));
 	connect(m_pActionBookForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionChapterBackward = pNavMenu->addAction(tr("Chapter Backward"), m_pBrowserWidget, SLOT(on_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
+	m_pActionChapterBackward = pNavMenu->addAction(tr("Chapter Backward"), m_pBrowserWidget, SLOT(en_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
 	m_pActionChapterBackward->setStatusTip(tr("Move Backward one Chapter"));
 	connect(m_pActionChapterBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionChapterForward = pNavMenu->addAction(tr("Chapter Forward"), m_pBrowserWidget, SLOT(on_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
+	m_pActionChapterForward = pNavMenu->addAction(tr("Chapter Forward"), m_pBrowserWidget, SLOT(en_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
 	m_pActionChapterForward->setStatusTip(tr("Move Forward one Chapter"));
 	connect(m_pActionChapterForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	connect(m_pBrowserWidget, SIGNAL(on_gotoIndex(const TPhraseTag &)), this, SLOT(on_gotoIndex(const TPhraseTag &)));
+	connect(m_pBrowserWidget, SIGNAL(en_gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
 
 	pNavMenu->addSeparator();
 
@@ -341,19 +341,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip(tr("Clear All Passage Navigation History"));
 	ui->mainToolBar->addAction(m_pActionNavClear);
-	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(on_clearBrowserHistory()));
+	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(en_clearBrowserHistory()));
 	m_pActionNavClear->setEnabled(m_pBrowserWidget->isBackwardAvailable() ||
 									m_pBrowserWidget->isForwardAvailable());
 	pNavMenu->addAction(m_pActionNavClear);
 
-	connect(m_pBrowserWidget, SIGNAL(historyChanged()), this, SLOT(on_browserHistoryChanged()));
+	connect(m_pBrowserWidget, SIGNAL(historyChanged()), this, SLOT(en_browserHistoryChanged()));
 
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), tr("Passage Navigator"), this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator"), this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	m_pActionJump->setStatusTip(tr("Display the Passage Navigator Widget"));
 	ui->mainToolBar->addAction(m_pActionJump);
-	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(on_PassageNavigatorTriggered()));
+	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
 
 	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
@@ -361,17 +361,17 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui->menuBar->addMenu(tr("Se&ttings"));
 
-	pAction = pSettingsMenu->addAction(tr("Scripture &Browser Font..."), this, SLOT(on_setFontScriptureBrowser()));
+	pAction = pSettingsMenu->addAction(tr("Scripture &Browser Font..."), this, SLOT(en_setFontScriptureBrowser()));
 	pAction->setStatusTip(tr("Adjust the Scripture Browser Font"));
 	pAction->setToolTip(tr("Adjust the Scripture Browser Font"));
 
-	pAction = pSettingsMenu->addAction(tr("Search &Results Font..."), this, SLOT(on_setFontSearchResults()));
+	pAction = pSettingsMenu->addAction(tr("Search &Results Font..."), this, SLOT(en_setFontSearchResults()));
 	pAction->setStatusTip(tr("Adjust the Search Results Font"));
 	pAction->setToolTip(tr("Adjust the Search Results Font"));
 
 	// --- Help Menu
 	QMenu *pHelpMenu = ui->menuBar->addMenu(tr("&Help"));
-	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help"), this, SLOT(on_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
+	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
 	pAction->setStatusTip(tr("Display the Users Manual"));
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), tr("About..."), this);
@@ -379,7 +379,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionAbout->setStatusTip(tr("About the King James Pure Bible Search"));
 	m_pActionAbout->setToolTip(tr("About the King James Pure Bible Search..."));
 	m_pActionAbout->setMenuRole(QAction::AboutRole);
-	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(on_HelpAbout()));
+	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(en_HelpAbout()));
 	ui->mainToolBar->addSeparator();
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
@@ -389,25 +389,25 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	for (int ndx=0; ndx<NUM_QUICK_ACTIONS; ++ndx) {
 		m_lstpQuickActivate.append(new QAction(this));
 		m_lstpQuickActivate.at(ndx)->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0 + ndx));
-		connect(m_lstpQuickActivate.at(ndx), SIGNAL(triggered()), this, SLOT(on_QuickActivate()));
+		connect(m_lstpQuickActivate.at(ndx), SIGNAL(triggered()), this, SLOT(en_QuickActivate()));
 	}
 	addActions(m_lstpQuickActivate);
 
 	// -------------------- Search Phrase Widgets:
 
-	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(on_closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(on_phraseChanged(CKJVSearchPhraseEdit *)));
-	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(on_copySearchPhraseSummary()));
+	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
+	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
+	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(en_copySearchPhraseSummary()));
 
 	// -------------------- Search Spec:
 
-	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)), this, SLOT(on_changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)));
+	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)), this, SLOT(en_changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)));
 
 	// -------------------- Search Results List View:
 
 	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), m_pSearchResultWidget, SIGNAL(setFontSearchResults(const QFont &)));
 
-	connect(m_pSearchResultWidget, SIGNAL(activated(const QModelIndex &)), this, SLOT(on_SearchResultActivated(const QModelIndex &)));
+	connect(m_pSearchResultWidget, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 
@@ -585,11 +585,11 @@ void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDis
 	switch (nDisplayMode) {
 		case CVerseListModel::VDME_HEADING:
 			m_pActionShowVerseHeading->setChecked(true);
-			on_viewVerseHeading();
+			en_viewVerseHeading();
 			break;
 		case CVerseListModel::VDME_RICHTEXT:
 			m_pActionShowVerseRichText->setChecked(true);
-			on_viewVerseRichText();
+			en_viewVerseRichText();
 			break;
 		default:
 			assert(false);		// Did you add some modes and forget to add them here?
@@ -606,15 +606,15 @@ void CKJVCanOpener::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 	switch (nTreeMode) {
 		case CVerseListModel::VTME_LIST:
 			m_pActionShowAsList->setChecked(true);
-			on_viewAsList();
+			en_viewAsList();
 			break;
 		case CVerseListModel::VTME_TREE_BOOKS:
 			m_pActionShowAsTreeBooks->setChecked(true);
-			on_viewAsTreeBooks();
+			en_viewAsTreeBooks();
 			break;
 		case CVerseListModel::VTME_TREE_CHAPTERS:
 			m_pActionShowAsTreeChapters->setChecked(true);
-			on_viewAsTreeChapters();
+			en_viewAsTreeChapters();
 			break;
 		default:
 			assert(false);		// Did you add some modes and forget to add them here?
@@ -626,17 +626,17 @@ void CKJVCanOpener::setShowMissingLeafs(bool bShowMissing)
 {
 	assert(m_pActionShowMissingLeafs != NULL);
 	m_pActionShowMissingLeafs->setChecked(bShowMissing);
-	on_viewShowMissingsLeafs();
+	en_viewShowMissingsLeafs();
 }
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_NewSearch()
+void CKJVCanOpener::en_NewSearch()
 {
 	m_pSearchSpecWidget->reset();
 }
 
-void CKJVCanOpener::on_OpenSearch()
+void CKJVCanOpener::en_OpenSearch()
 {
 	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
@@ -644,7 +644,7 @@ void CKJVCanOpener::on_OpenSearch()
 			QMessageBox::warning(this, tr("KJV Search File Open Failed"), tr("Failed to open and read the specified KJV Search File!"));
 }
 
-void CKJVCanOpener::on_SaveSearch()
+void CKJVCanOpener::en_SaveSearch()
 {
 	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
 	if (!strFilePathName.isEmpty())
@@ -702,7 +702,7 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVCanOpener::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	assert(pSearchPhrase != NULL);
 
@@ -710,18 +710,18 @@ void CKJVCanOpener::on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	//		we'll crash later accessing data for a deleted object:
 	if ((m_bPhraseEditorActive) && ((m_pActionSearchPhraseEditMenu != NULL) &&
 									(m_pActionSearchPhraseEditMenu->menu() == pSearchPhrase->phraseEditor()->getEditMenu()))) {
-		on_addSearchPhraseEditMenu(false);
+		en_addSearchPhraseEditMenu(false);
 	}
 }
 
-void CKJVCanOpener::on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVCanOpener::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
-	// The former functionality of this is now handled by on_changedSearchSpec()
+	// The former functionality of this is now handled by en_changedSearchSpec()
 }
 
-void CKJVCanOpener::on_copySearchPhraseSummary()
+void CKJVCanOpener::en_copySearchPhraseSummary()
 {
 	QString strSummary;
 
@@ -735,7 +735,7 @@ void CKJVCanOpener::on_copySearchPhraseSummary()
 	QApplication::clipboard()->setMimeData(mime);
 }
 
-void CKJVCanOpener::on_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
 	m_pSearchSpecWidget->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
@@ -743,7 +743,7 @@ void CKJVCanOpener::on_changedSearchSpec(const CSearchCriteria &aSearchCriteria,
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
+void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd)
 {
 	m_bBrowserActive = bAdd;
 
@@ -763,7 +763,7 @@ void CKJVCanOpener::on_addPassageBrowserEditMenu(bool bAdd)
 	}
 }
 
-void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
+void CKJVCanOpener::en_addSearchResultsEditMenu(bool bAdd)
 {
 	m_bSearchResultsActive = bAdd;
 
@@ -782,7 +782,7 @@ void CKJVCanOpener::on_addSearchResultsEditMenu(bool bAdd)
 	}
 }
 
-void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor)
+void CKJVCanOpener::en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor)
 {
 	m_bPhraseEditorActive = bAdd;
 
@@ -798,35 +798,35 @@ void CKJVCanOpener::on_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 	}
 }
 
-void CKJVCanOpener::on_activatedBrowser()
+void CKJVCanOpener::en_activatedBrowser()
 {
-	m_pSearchSpecWidget->on_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
-	on_addPassageBrowserEditMenu(true);
-	on_addSearchResultsEditMenu(false);
-	on_addSearchPhraseEditMenu(false);
+	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	en_addPassageBrowserEditMenu(true);
+	en_addSearchResultsEditMenu(false);
+	en_addSearchPhraseEditMenu(false);
 	setDetailsEnable();
 }
 
-void CKJVCanOpener::on_activatedSearchResults()
+void CKJVCanOpener::en_activatedSearchResults()
 {
-	m_pSearchSpecWidget->on_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
-	on_addPassageBrowserEditMenu(false);
-	on_addSearchResultsEditMenu(true);
-	on_addSearchPhraseEditMenu(false);
+	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	en_addPassageBrowserEditMenu(false);
+	en_addSearchResultsEditMenu(true);
+	en_addSearchPhraseEditMenu(false);
 	setDetailsEnable();
 }
 
-void CKJVCanOpener::on_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
+void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 {
-	on_addPassageBrowserEditMenu(false);
-	on_addSearchResultsEditMenu(false);
-	on_addSearchPhraseEditMenu(true, pEditor);
+	en_addPassageBrowserEditMenu(false);
+	en_addSearchResultsEditMenu(false);
+	en_addSearchPhraseEditMenu(true, pEditor);
 	setDetailsEnable();
 }
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_viewVerseHeading()
+void CKJVCanOpener::en_viewVerseHeading()
 {
 	assert(m_pActionShowVerseHeading != NULL);
 	assert(m_pActionShowVerseRichText != NULL);
@@ -850,7 +850,7 @@ void CKJVCanOpener::on_viewVerseHeading()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::on_viewVerseRichText()
+void CKJVCanOpener::en_viewVerseRichText()
 {
 	assert(m_pActionShowVerseHeading != NULL);
 	assert(m_pActionShowVerseRichText != NULL);
@@ -874,7 +874,7 @@ void CKJVCanOpener::on_viewVerseRichText()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::on_viewAsList()
+void CKJVCanOpener::en_viewAsList()
 {
 	assert(m_pActionShowAsList != NULL);
 	assert(m_pActionShowAsTreeBooks != NULL);
@@ -902,7 +902,7 @@ void CKJVCanOpener::on_viewAsList()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::on_viewAsTreeBooks()
+void CKJVCanOpener::en_viewAsTreeBooks()
 {
 	assert(m_pActionShowAsList != NULL);
 	assert(m_pActionShowAsTreeBooks != NULL);
@@ -930,7 +930,7 @@ void CKJVCanOpener::on_viewAsTreeBooks()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::on_viewAsTreeChapters()
+void CKJVCanOpener::en_viewAsTreeChapters()
 {
 	assert(m_pActionShowAsList != NULL);
 	assert(m_pActionShowAsTreeBooks != NULL);
@@ -958,7 +958,7 @@ void CKJVCanOpener::on_viewAsTreeChapters()
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::on_viewShowMissingsLeafs()
+void CKJVCanOpener::en_viewShowMissingsLeafs()
 {
 	assert(m_pActionShowMissingLeafs != NULL);
 
@@ -980,7 +980,7 @@ void CKJVCanOpener::on_viewShowMissingsLeafs()
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_gotoIndex(const TPhraseTag &tag)
+void CKJVCanOpener::en_gotoIndex(const TPhraseTag &tag)
 {
 	assert(m_pActionBookBackward != NULL);
 	assert(m_pActionBookForward != NULL);
@@ -1000,7 +1000,7 @@ void CKJVCanOpener::on_gotoIndex(const TPhraseTag &tag)
 										((tag.relIndex().book() == m_pBibleDatabase->bibleEntry().m_nNumBk) && (tag.relIndex().chapter() < (pBookEntry ? pBookEntry->m_nNumChp : 0))));
 }
 
-void CKJVCanOpener::on_browserHistoryChanged()
+void CKJVCanOpener::en_browserHistoryChanged()
 {
 	if (m_pActionNavBackward) {
 		m_pActionNavBackward->setToolTip(m_pBrowserWidget->historyTitle(-1));
@@ -1024,14 +1024,14 @@ void CKJVCanOpener::on_browserHistoryChanged()
 														m_pBrowserWidget->isForwardAvailable());
 }
 
-void CKJVCanOpener::on_clearBrowserHistory()
+void CKJVCanOpener::en_clearBrowserHistory()
 {
 	m_pBrowserWidget->clearHistory();
 }
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
+void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1045,7 +1045,7 @@ void CKJVCanOpener::on_SearchResultActivated(const QModelIndex &index)
 	m_pBrowserWidget->setFocusBrowser();
 }
 
-void CKJVCanOpener::on_PassageNavigatorTriggered()
+void CKJVCanOpener::en_PassageNavigatorTriggered()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1065,7 +1065,7 @@ void CKJVCanOpener::on_PassageNavigatorTriggered()
 	}
 }
 
-void CKJVCanOpener::on_viewDetails()
+void CKJVCanOpener::en_viewDetails()
 {
 	if (((m_pBrowserWidget->hasFocusBrowser()) || (m_bBrowserActive)) &&
 		 (m_pBrowserWidget->haveDetails())) {
@@ -1093,7 +1093,7 @@ void CKJVCanOpener::setDetailsEnable()
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::on_HelpManual()
+void CKJVCanOpener::en_HelpManual()
 {
 	QFileInfo fiHelpDoc(QApplication::applicationDirPath(), g_constrHelpDocFilename);
 	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
@@ -1106,13 +1106,13 @@ void CKJVCanOpener::on_HelpManual()
 //	QMessageBox::information(this, windowTitle(), tr("An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates."));
 }
 
-void CKJVCanOpener::on_HelpAbout()
+void CKJVCanOpener::en_HelpAbout()
 {
 	CKJVAboutDlg dlg(this);
 	dlg.exec();
 }
 
-void CKJVCanOpener::on_QuickActivate()
+void CKJVCanOpener::en_QuickActivate()
 {
 	bool bServiced = false;
 
@@ -1147,14 +1147,14 @@ void CKJVCanOpener::on_QuickActivate()
 	assert(bServiced);
 }
 
-void CKJVCanOpener::on_setFontScriptureBrowser()
+void CKJVCanOpener::en_setFontScriptureBrowser()
 {
 	bool bUpdate = false;
 	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontScriptureBrowser(), this, tr("Select Scripture Browser Font"));
 	if (bUpdate) CPersistentSettings::instance()->setFontScriptureBrowser(fnt);
 }
 
-void CKJVCanOpener::on_setFontSearchResults()
+void CKJVCanOpener::en_setFontSearchResults()
 {
 	bool bUpdate = false;
 	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontSearchResults(), this, tr("Select Search Results Font"));

@@ -94,11 +94,11 @@ protected slots:
 	CKJVSearchPhraseEdit *addSearchPhrase();
 	void ensureSearchPhraseVisible(int nIndex);
 	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
-	void on_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void on_changedSearchCriteria();
-	void on_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_changedSearchCriteria();
+	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 public slots:
-	void on_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
+	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
 	bool haveUserDatabase() const { return m_bHaveUserDatabase; }

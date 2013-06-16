@@ -83,19 +83,19 @@ public slots:
 
 	void gotoIndex(const TPhraseTag &tag);
 	void setFocusBrowser();
-	void on_SearchResultsVerseListAboutToChange();
-	void on_SearchResultsVerseListChanged();
+	void en_SearchResultsVerseListAboutToChange();
+	void en_SearchResultsVerseListChanged();
 
 	// Navigation Shortcut Processing:
-	void on_Bible_Beginning();
-	void on_Bible_Ending();
-	void on_Book_Backward();
-	void on_Book_Forward();
-	void on_ChapterBackward();
-	void on_ChapterForward();
+	void en_Bible_Beginning();
+	void en_Bible_Ending();
+	void en_Book_Backward();
+	void en_Book_Forward();
+	void en_ChapterBackward();
+	void en_ChapterForward();
 
 signals:
-	void on_gotoIndex(const TPhraseTag &tag);
+	void en_gotoIndex(const TPhraseTag &tag);
 
 signals:			// Outgoing Pass-Through:
 	void activatedScriptureText();
@@ -113,7 +113,7 @@ private:
 	void initialize();
 
 private slots:
-	void on_sourceChanged(const QUrl &src);
+	void en_sourceChanged(const QUrl &src);
 
 	void BkComboIndexChanged(int index);
 	void BkChpComboIndexChanged(int index);

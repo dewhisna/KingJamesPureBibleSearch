@@ -48,11 +48,11 @@ public:
 	CKJVPassageNavigator &navigator();
 
 private slots:
-	void on_modeChanged(bool bRelative);
-	void on_ApplyResolvedClicked();
-	void on_ModeClicked();
-	void on_gotoIndex(const TPhraseTag &tag);
-	void on_resizeMe();
+	void en_modeChanged(bool bRelative);
+	void en_ApplyResolvedClicked();
+	void en_ModeClicked();
+	void en_gotoIndex(const TPhraseTag &tag);
+	void en_resizeMe();
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;

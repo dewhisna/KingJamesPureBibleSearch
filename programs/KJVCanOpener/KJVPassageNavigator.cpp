@@ -64,7 +64,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(ui->spinVerse, SIGNAL(valueChanged(int)), this, SLOT(VerseChanged(int)));
 	connect(ui->spinChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterChanged(int)));
 	connect(ui->spinBook, SIGNAL(valueChanged(int)), this, SLOT(BookChanged(int)));
-	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(on_ReverseChanged(bool)));
+	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(en_ReverseChanged(bool)));
 	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
@@ -176,7 +176,7 @@ void CKJVPassageNavigator::WordChanged(int nWord)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::on_ReverseChanged(bool bReverse)
+void CKJVPassageNavigator::en_ReverseChanged(bool bReverse)
 {
 	ui->spinBook->setPrefix(bReverse ? "-" : "");
 	ui->spinChapter->setPrefix(bReverse ? "-" : "");

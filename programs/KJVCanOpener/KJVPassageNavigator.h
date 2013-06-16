@@ -69,7 +69,7 @@ private slots:
 	void ChapterChanged(int nChapter);
 	void VerseChanged(int nVerse);
 	void WordChanged(int nWord);
-	void on_ReverseChanged(bool bReverse);
+	void en_ReverseChanged(bool bReverse);
 
 // Data Private:
 private:
