@@ -226,14 +226,14 @@ int main(int argc, char *argv[])
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
-	QSplashScreen *splash = new QSplashScreen;
-	splash->setPixmap(QPixmap(":/res/KJPBS_SplashScreen800x500.png"));
+	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
+	QSplashScreen *splash = new QSplashScreen(pixSplash, Qt::WindowStaysOnTopHint);
 	splash->show();
 	splash->showMessage(QString("<html><body><table height=425 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") +
 							QObject::tr("Please Wait...") +
 							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
-	qApp->processEvents();
 	splash->repaint();
+	qApp->processEvents();
 
 #ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
@@ -258,8 +258,8 @@ int main(int argc, char *argv[])
 
 	// Sometimes the splash screen fails to paint, so we'll pump events again
 	//	between the fonts and database:
-	qApp->processEvents();
 	splash->repaint();
+	qApp->processEvents();
 
 	// Setup our SQL Plugin paths:
 	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
