@@ -52,6 +52,7 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 	return m_lstMatchMapping.size();
 }
 
+#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 const TIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 {
 	if (m_cache_lstNormalizedSearchResults.size()) return m_cache_lstNormalizedSearchResults;
@@ -64,6 +65,7 @@ const TIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 
 	return m_cache_lstNormalizedSearchResults;
 }
+#endif
 
 const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 {
@@ -71,12 +73,21 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
 
+#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	const TIndexList &lstPhraseResults(GetNormalizedSearchResults());
+
 	unsigned int nNumResults = lstPhraseResults.size();
 	m_cache_lstPhraseTagResults.reserve(nNumResults);
 	for (unsigned int ndxResults=0; ndxResults<nNumResults; ++ndxResults) {
 		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
 	}
+#else
+	m_cache_lstPhraseTagResults.reserve(m_lstMatchMapping.size());
+	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1)), phraseSize()));
+	}
+	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+#endif
 
 	return m_cache_lstPhraseTagResults;
 }
@@ -211,7 +222,9 @@ void CParsedPhrase::clearCache() const
 {
 	m_cache_lstPhraseWords = QStringList();
 	m_cache_lstPhraseWordsRaw = QStringList();
+#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	m_cache_lstNormalizedSearchResults = TIndexList();
+#endif
 	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
 

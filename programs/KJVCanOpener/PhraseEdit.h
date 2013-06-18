@@ -67,7 +67,9 @@ public:
 	// -------
 	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
 	uint32_t GetNumberOfMatches() const;
+#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	const TIndexList &GetNormalizedSearchResults() const;			// Returned as reference so we don't have to keep copying
+#endif
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
 	uint32_t GetMatchLevel() const;
 	uint32_t GetCursorMatchLevel() const;
@@ -111,7 +113,9 @@ protected:
 	CBibleDatabasePtr m_pBibleDatabase;
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
+#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
+#endif
 	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
 	// -------
 	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
