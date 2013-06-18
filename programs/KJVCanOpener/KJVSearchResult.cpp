@@ -30,6 +30,10 @@
 #include "KJVCanOpener.h"
 #include "ReflowDelegate.h"
 
+#ifdef SIGNAL_SPY_DEBUG
+#include "main.h"
+#endif
+
 #include <assert.h>
 
 #include <QVBoxLayout>
@@ -72,6 +76,12 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 	setMouseTracking(true);
 	setRootIsDecorated(false);
+
+#ifdef SIGNAL_SPY_DEBUG
+#ifdef SEARCH_RESULTS_SPY
+	CMyApplication::createSpy(this);
+#endif
+#endif
 
 	m_pEditMenu = new QMenu(tr("&Edit"), this);
 	m_pEditMenuLocal = new QMenu(tr("&Edit"), this);
@@ -580,6 +590,11 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	pLayout->addWidget(m_pSearchResultsTreeView);
 
+#ifdef SIGNAL_SPY_DEBUG
+#ifdef SEARCH_RESULTS_SPY
+	CMyApplication::createSpy(this);
+#endif
+#endif
 
 	// -------------------- Search Results List View:
 

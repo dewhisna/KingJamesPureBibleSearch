@@ -27,6 +27,10 @@
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
 
+#ifdef SIGNAL_SPY_DEBUG
+#include "main.h"
+#endif
+
 #include <QStringListModel>
 #include <QTextCharFormat>
 #include <QFontMetrics>
@@ -116,6 +120,12 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	setFixedHeight(sizeHint().height());
 	setLineWrapMode(QTextEdit::NoWrap);
+
+#ifdef SIGNAL_SPY_DEBUG
+#ifdef SEARCH_PHRASE_SPY
+	CMyApplication::createSpy(this);
+#endif
+#endif
 
 	QAction *pAction;
 	m_pEditMenu = new QMenu(tr("&Edit"), this);
@@ -529,6 +539,12 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
+
+#ifdef SIGNAL_SPY_DEBUG
+#ifdef SEARCH_PHRASE_SPY
+	CMyApplication::createSpy(this);
+#endif
+#endif
 
 	// --------------------------------------------------------------
 
