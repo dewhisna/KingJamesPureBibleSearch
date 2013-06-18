@@ -61,6 +61,7 @@
 //Q_IMPORT_PLUGIN(qsqlite)
 
 QMainWindow *g_pMainWindow = NULL;
+CMyApplication *g_pMyApplication = NULL;
 
 // ============================================================================
 
@@ -208,11 +209,41 @@ bool CMyApplication::event(QEvent *event) {
 	return QApplication::event(event);
 }
 
+#ifdef SIGNAL_SPY_DEBUG
+Q4puGenericSignalSpy *CMyApplication::createSpy(QObject *pOwner, QObject *pSpyOn)
+{
+	assert(g_pMyApplication != NULL);
+	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != NULL) ? pOwner : g_pMyApplication);
+
+	QObject::connect(pSpy, SIGNAL(caughtSignal(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSignal(const QString &)));
+	QObject::connect(pSpy, SIGNAL(caughtSlot(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSlot(const QString &)));
+
+	// If we are given an object to spy on, attach to it.  If not, but were given
+	//		an owner, attach to it.  If not, don't attach to anything...
+	if ((pSpyOn != NULL) || (pOwner != NULL)) {
+		pSpy->spyOn((pSpyOn != NULL) ? pSpyOn : pOwner);
+	}
+
+	return pSpy;
+}
+
+void CMyApplication::signalSpyCaughtSignal(const QString &strMessage) const
+{
+	std::cerr << strMessage.toUtf8().data() << std::endl;
+}
+
+void CMyApplication::signalSpyCaughtSlot(const QString &strMessage) const
+{
+	std::cerr << strMessage.toUtf8().data() << std::endl;
+}
+#endif
+
 // ============================================================================
 
 int main(int argc, char *argv[])
 {
 	CMyApplication app(argc, argv);
+	g_pMyApplication = &app;
 	app.setApplicationVersion(VER_QT);
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);

@@ -28,6 +28,10 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 
+#ifdef SIGNAL_SPY_DEBUG
+#include "signalspy/Q4puGenericSignalSpy.h"
+#endif
+
 class CMyApplication : public QApplication
 {
 	Q_OBJECT
@@ -49,6 +53,15 @@ public:
 
 signals:
 	void loadFile(const QString &strFilename);
+
+#ifdef SIGNAL_SPY_DEBUG
+public slots:
+	void signalSpyCaughtSignal(const QString &strMessage) const;
+	void signalSpyCaughtSlot(const QString &strMessage) const;
+
+public:
+	static Q4puGenericSignalSpy *createSpy(QObject *pOwner, QObject *pSpyOn = NULL);
+#endif
 
 protected:
 	bool event(QEvent *event);

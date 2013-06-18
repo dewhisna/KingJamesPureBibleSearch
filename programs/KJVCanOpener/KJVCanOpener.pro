@@ -13,6 +13,7 @@ CONFIG += rtti
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE
 #DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
 #DEFINES += NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
+declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 
 unix:!macx {
 	CONFIG += static
@@ -66,7 +67,8 @@ SOURCES += main.cpp \
 	VerseRichifier.cpp \
 	DelayedExecutionTimer.cpp \
 	ModelRowForwardIterator.cpp \
-	ReflowDelegate.cpp
+	ReflowDelegate.cpp \
+	signalspy/Q4puGenericSignalSpy.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -103,7 +105,8 @@ HEADERS  += main.h \
 	DelayedExecutionTimer.h \
 	BusyCursor.h \
 	ModelRowForwardIterator.h \
-	ReflowDelegate.h
+	ReflowDelegate.h \
+	signalspy/Q4puGenericSignalSpy.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
