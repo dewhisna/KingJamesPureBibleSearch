@@ -386,6 +386,7 @@ bool CReadDatabase::ReadWordsTable()
 	}
 
 	m_pBibleDatabase->m_mapWordList.clear();
+	m_pBibleDatabase->m_lstWordList.clear();
 	m_pBibleDatabase->m_lstConcordanceWords.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
@@ -400,6 +401,7 @@ bool CReadDatabase::ReadWordsTable()
 		QString strWord = query.value(1).toString();
 		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
 		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
+		m_pBibleDatabase->m_lstWordList.append(strKey);
 		entryWord.m_strWord = strWord;
 		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
 
@@ -451,6 +453,7 @@ bool CReadDatabase::ReadWordsTable()
 
 	// Sort all of our word forms since the alternates may sort different with
 	//		with respect to the other words:
+	qSort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
 	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanPair);
 	qSort(m_pBibleDatabase->m_lstDecomposedConcordanceWords.begin(), m_pBibleDatabase->m_lstDecomposedConcordanceWords.end(), ascendingLessThanStrings);
 

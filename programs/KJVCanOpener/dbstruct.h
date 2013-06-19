@@ -526,6 +526,10 @@ public:
 	{
 		return m_mapWordList;
 	}
+	inline const QStringList &lstWordList() const
+	{
+		return m_lstWordList;
+	}
 	inline const TConcordanceList &concordanceWordList() const			// List of all words as composed UTF8 in sorted order.  Used for index mapping, lookup and searching
 	{
 		return m_lstConcordanceWords;
@@ -564,9 +568,10 @@ private:
 	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
 	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
+	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)
 	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
-	TConcordanceList m_lstDecomposedConcordanceWords;	// List (QStringList) of all Unique Words as Decomposed UTF8 in sorted order for the auto-completer (doesn't following the mapping indexes above!!)
+	TConcordanceList m_lstDecomposedConcordanceWords;	// List (QStringList) of all Unique Words as Decomposed UTF8 in sorted order for the auto-completer (doesn't follow the mapping indexes above!!)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 

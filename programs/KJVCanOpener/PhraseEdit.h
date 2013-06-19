@@ -107,7 +107,7 @@ public:
 	void clearCache() const;
 
 private:
-	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMapping, and m_nLevel
+	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -125,7 +125,6 @@ protected:
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
-	TIndexList m_lstMapping;	// Mapping for search through current cursor (Set by FindWords())
 	QStringList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
 	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())

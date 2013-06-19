@@ -314,15 +314,11 @@ void CParsedPhrase::FindWords()
 	assert(m_nCursorWord < m_lstWords.size());
 
 	m_lstMatchMapping.clear();
-	m_lstMapping.clear();
 	bool bComputedNextWords = false;
 	m_nLevel = 0;
 	m_nCursorLevel = 0;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
-
-		TWordListMap::const_iterator itrWordMap;
-		TWordListMap::const_iterator itrWordMapEnd = m_pBibleDatabase->mapWordList().end();
 
 		QString strCurWord = m_lstWords.at(ndx);			// Note: This becomes the "Word*" value later, so can't substitute strCurWord for all m_lstWords.at(ndx)
 		int nPreRegExp = strCurWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
@@ -334,103 +330,70 @@ void CParsedPhrase::FindWords()
 				strCurWord += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
 			}
 		}
-		if (nPreRegExp == -1) {
-			itrWordMap = m_pBibleDatabase->mapWordList().find(m_lstWords.at(ndx).toLower());
-			if (itrWordMap==m_pBibleDatabase->mapWordList().end()) {
+
+		QRegExp expCurWord(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+
+		if (ndx == 0) {				// If we're matching the first word, build complete index to start off the compare:
+			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWord);
+			if (nFirstWord == -1) {
 				if (m_nCursorWord > ndx) {
-					// If we've stopped matching before the cursor, we're done:
-					m_lstMatchMapping.clear();
-					m_lstMapping.clear();
+					// If we've stopped matching before the cursor, we have no "next words":
 					m_lstNextWords.clear();
 					bComputedNextWords = true;
-					break;			// If we've stopped matching before the cursor, we're done
+				}
+				break;			// If we've stopped matching, we're done
+			}
+
+			if (strCurWord.compare("*") == 0) {
+				m_lstMatchMapping.resize(m_pBibleDatabase->bibleEntry().m_nNumWrd);
+				for (unsigned int ndxWord = 0; ndxWord<m_pBibleDatabase->bibleEntry().m_nNumWrd; ++ndxWord) {
+					m_lstMatchMapping[ndxWord] = ndxWord+1;
 				}
 			} else {
-				itrWordMapEnd = itrWordMap;
-				itrWordMapEnd++;
+				int nLastWord = m_pBibleDatabase->lstWordList().lastIndexOf(expCurWord);
+				assert(nLastWord != -1);			// Should have at least one match since forward search matched above!
+
+				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
+					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
+					assert(itrWordMap != m_pBibleDatabase->mapWordList().end());
+					if (itrWordMap == m_pBibleDatabase->mapWordList().end()) continue;
+
+					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
+
+					if (!isCaseSensitive()) {
+						m_lstMatchMapping.insert(m_lstMatchMapping.end(), wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end());
+					} else {
+						unsigned int nCount = 0;
+						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
+							if (expCurWord.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
+								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
+															&wordEntry.m_ndxNormalizedMapping[nCount],
+														 &wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
+							}
+							nCount += wordEntry.m_lstAltWordCount.at(ndxAltWord);
+						}
+					}
+				}
 			}
 		} else {
-			QString strPreRegExp;
-			strPreRegExp = strCurWord.toLower().left(nPreRegExp);
-			if (!strPreRegExp.isEmpty()) {
-				itrWordMap = m_pBibleDatabase->mapWordList().lower_bound(strPreRegExp);
-				for (itrWordMapEnd = itrWordMap; itrWordMapEnd != m_pBibleDatabase->mapWordList().end(); ++itrWordMapEnd) {
-					if (!itrWordMapEnd->first.startsWith(strPreRegExp)) break;
-				}
-			} else {
-				itrWordMap = m_pBibleDatabase->mapWordList().begin();
-				itrWordMapEnd = m_pBibleDatabase->mapWordList().end();
-			}
-		}
-		bool bMatch = false;
-		bool bFirstWordExactMatch = false;
-		for (/* itrWordMap Set Above */; itrWordMap != itrWordMapEnd; ++itrWordMap) {
-			QRegExp expNC(strCurWord, Qt::CaseInsensitive, QRegExp::Wildcard);
-			if (expNC.exactMatch(itrWordMap->first)) {
-				if (!isCaseSensitive()) {
-					bMatch = true;
-					if (ndx == 0) {
-						m_lstMatchMapping.insert(m_lstMatchMapping.end(), itrWordMap->second.m_ndxNormalizedMapping.begin(), itrWordMap->second.m_ndxNormalizedMapping.end());
-					} else {
-						break;		// If we aren't adding more indices, once we get a match, we are done...
-					}
-				} else {
-					QRegExp expCase(strCurWord, Qt::CaseSensitive, QRegExp::Wildcard);
-					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
-					unsigned int nCount = 0;
-					for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
-						if (expCase.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
-							bMatch = true;
-							if (ndx == 0) {
-								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
-												&wordEntry.m_ndxNormalizedMapping[nCount],
-												&wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
-							} else {
-								break;		// If we aren't adding more indices, once we get a match, we are done...
-							}
-						}
-						nCount += wordEntry.m_lstAltWordCount.at(ndxAltWord);
-					}
-					if (bMatch && (ndx != 0)) break;		// If we aren't adding more indices, stop once we get a match
-				}
-			}
-			if (ndx == 0) {
-				if (isCaseSensitive()) {
-					QRegExp exp(m_lstWords[ndx], Qt::CaseSensitive, QRegExp::Wildcard);
-					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
-					for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
-						if (exp.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
-							bFirstWordExactMatch = true;
-							break;
-						}
-					}
-				} else {
-					QRegExp exp(m_lstWords[ndx], Qt::CaseInsensitive, QRegExp::Wildcard);
-					if (exp.exactMatch(itrWordMap->first)) bFirstWordExactMatch = true;
-				}
-			}
-		}
-		if (!bMatch) m_lstMatchMapping.clear();
-
-		if (m_nLevel > 0) {
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
-			TIndexList lstNextMapping;
-			QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
-			for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-				if (((m_lstMatchMapping[ndxWord]+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
-					(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1)))) {
-					lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
+			if (strCurWord.compare("*") != 0) {
+				TIndexList lstNextMapping;
+				QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+					if (((m_lstMatchMapping[ndxWord]+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
+						(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1)))) {
+						lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
+					}
 				}
+				m_lstMatchMapping = lstNextMapping;
 			}
-			m_lstMatchMapping = lstNextMapping;
 		}
 
-		if (((m_lstMatchMapping.size() != 0) && (ndx > 0)) ||
-			((bFirstWordExactMatch) && (ndx == 0))) m_nLevel++;
+		if (m_lstMatchMapping.size() != 0) m_nLevel++;
 
 		if (ndx < m_nCursorWord) {
-			m_lstMapping = m_lstMatchMapping;		// Mapping for the current word possibilities is calculated at the word right before it
 			m_nCursorLevel = m_nLevel;
 
 			if ((ndx+1) == m_nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
