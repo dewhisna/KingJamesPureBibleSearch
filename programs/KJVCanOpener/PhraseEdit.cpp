@@ -315,7 +315,7 @@ void CParsedPhrase::FindWords()
 
 	m_lstMatchMapping.clear();
 	m_lstMapping.clear();
-	m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
+	bool bComputedNextWords = false;
 	m_nLevel = 0;
 	m_nCursorLevel = 0;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
@@ -342,6 +342,7 @@ void CParsedPhrase::FindWords()
 					m_lstMatchMapping.clear();
 					m_lstMapping.clear();
 					m_lstNextWords.clear();
+					bComputedNextWords = true;
 					break;			// If we've stopped matching before the cursor, we're done
 				}
 			} else {
@@ -441,11 +442,16 @@ void CParsedPhrase::FindWords()
 				}
 				m_lstNextWords.removeDuplicates();
 				qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThan);
+				bComputedNextWords = true;
 			}
 		}
 
 		if (m_lstMatchMapping.size() == 0) break;
 	}
+
+	// Copy our complete word list, but only if we didn't compute a wordList above:
+	if (!bComputedNextWords)
+		m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
 }
 
 // ============================================================================
