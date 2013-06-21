@@ -335,6 +335,7 @@ void CParsedPhrase::FindWords()
 		}
 
 		QRegExp expCurWord(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+		QRegExp expCurWordExact(m_lstWords.at(ndx), (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 
 		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
 			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWord);
@@ -355,7 +356,7 @@ void CParsedPhrase::FindWords()
 				assert(nLastWord != -1);			// Should have at least one match since forward search matched above!
 
 				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
-					if (!expCurWord.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
+					if (!expCurWordExact.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
 					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
 					assert(itrWordMap != m_pBibleDatabase->mapWordList().end());
 					if (itrWordMap == m_pBibleDatabase->mapWordList().end()) continue;
