@@ -59,7 +59,8 @@ const TIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 
 	m_cache_lstNormalizedSearchResults.resize(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		m_cache_lstNormalizedSearchResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
+		if ((m_lstMatchMapping.at(ndxWord) - m_nLevel + 1) > 0)
+			m_cache_lstNormalizedSearchResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
 	}
 	sort(m_cache_lstNormalizedSearchResults.begin(), m_cache_lstNormalizedSearchResults.end());
 
@@ -84,7 +85,8 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 #else
 	m_cache_lstPhraseTagResults.reserve(m_lstMatchMapping.size());
 	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1)), phraseSize()));
+		if ((m_lstMatchMapping.at(ndxWord) - m_nLevel + 1) > 0)
+			m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1)), phraseSize()));
 	}
 	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 #endif
@@ -302,7 +304,7 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_nCursorWord = m_lstWords.size();
 }
 
-static bool ascendingLessThan(const QString &s1, const QString &s2)
+static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 {
 	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
 }
@@ -317,6 +319,7 @@ void CParsedPhrase::FindWords()
 	bool bComputedNextWords = false;
 	m_nLevel = 0;
 	m_nCursorLevel = 0;
+	bool bInFirstWordStar = false;
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
 
@@ -333,7 +336,7 @@ void CParsedPhrase::FindWords()
 
 		QRegExp expCurWord(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 
-		if (ndx == 0) {				// If we're matching the first word, build complete index to start off the compare:
+		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
 			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWord);
 			if (nFirstWord == -1) {
 				if (m_nCursorWord > ndx) {
@@ -345,15 +348,14 @@ void CParsedPhrase::FindWords()
 			}
 
 			if (strCurWord.compare("*") == 0) {
-				m_lstMatchMapping.resize(m_pBibleDatabase->bibleEntry().m_nNumWrd);
-				for (unsigned int ndxWord = 0; ndxWord<m_pBibleDatabase->bibleEntry().m_nNumWrd; ++ndxWord) {
-					m_lstMatchMapping[ndxWord] = ndxWord+1;
-				}
+				bInFirstWordStar = true;			// Treat "*" special, as if we have a match with no results, but yet we do
 			} else {
+				bInFirstWordStar = false;
 				int nLastWord = m_pBibleDatabase->lstWordList().lastIndexOf(expCurWord);
 				assert(nLastWord != -1);			// Should have at least one match since forward search matched above!
 
 				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
+					if (!expCurWord.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
 					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
 					assert(itrWordMap != m_pBibleDatabase->mapWordList().end());
 					if (itrWordMap == m_pBibleDatabase->mapWordList().end()) continue;
@@ -382,34 +384,49 @@ void CParsedPhrase::FindWords()
 				TIndexList lstNextMapping;
 				QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-					if (((m_lstMatchMapping[ndxWord]+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
-						(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1)))) {
-						lstNextMapping.push_back(m_lstMatchMapping[ndxWord]+1);
+					if (((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
+						(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1)))) {
+						lstNextMapping.push_back(m_lstMatchMapping.at(ndxWord)+1);
 					}
 				}
 				m_lstMatchMapping = lstNextMapping;
+			} else {
+				// An "*" matches everything from the word before it, except for the "next index":
+				for (TIndexList::iterator itrWord = m_lstMatchMapping.begin(); itrWord != m_lstMatchMapping.end(); /* increment is inside loop */) {
+					if (((*itrWord) + 1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
+						++(*itrWord);
+						++itrWord;
+					} else {
+						itrWord = m_lstMatchMapping.erase(itrWord);
+					}
+				}
 			}
 		}
 
-		if (m_lstMatchMapping.size() != 0) m_nLevel++;
+		if ((m_lstMatchMapping.size() != 0) || (bInFirstWordStar)) m_nLevel++;
 
 		if (ndx < m_nCursorWord) {
 			m_nCursorLevel = m_nLevel;
 
 			if ((ndx+1) == m_nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
-				m_lstNextWords.clear();
-				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-					if ((m_lstMatchMapping[ndxWord]+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-						m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping[ndxWord]+1).normalized(QString::NormalizationForm_D));
+				if (!bInFirstWordStar) {
+					m_lstNextWords.clear();
+					for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
+						if ((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
+							m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1).normalized(QString::NormalizationForm_D));
+						}
 					}
+					m_lstNextWords.removeDuplicates();
+					qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThanStrings);
+					bComputedNextWords = true;
+				} else {
+					m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
+					bComputedNextWords = true;
 				}
-				m_lstNextWords.removeDuplicates();
-				qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThan);
-				bComputedNextWords = true;
 			}
 		}
 
-		if (m_lstMatchMapping.size() == 0) break;
+		if ((m_lstMatchMapping.size() == 0) && (!bInFirstWordStar)) break;
 	}
 
 	// Copy our complete word list, but only if we didn't compute a wordList above:
