@@ -28,6 +28,7 @@
 #include "dbstruct.h"
 #include "CSV.h"
 #include "PhraseEdit.h"
+#include "SearchCompleter.h"
 
 #include <assert.h>
 
@@ -351,14 +352,20 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 	return true;
 }
 
+typedef struct {
+	QString m_strWord;
+	QString m_strDecomposedWord;
+	int m_nIndex;
+} TWordSortStruct;
+
 static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 {
 	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
 }
 
-static bool ascendingLessThanPair(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+static bool ascendingLessThanWordSortStruct(const TWordSortStruct &s1, const TWordSortStruct &s2)
 {
-	return (s1.first.compare(s2.first, Qt::CaseSensitive) < 0);
+	return (s1.m_strDecomposedWord.compare(s2.m_strDecomposedWord, Qt::CaseInsensitive) < 0);
 }
 
 bool CReadDatabase::ReadWordsTable()
@@ -388,11 +395,12 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_mapWordList.clear();
 	m_pBibleDatabase->m_lstWordList.clear();
 	m_pBibleDatabase->m_lstConcordanceWords.clear();
+	m_pBibleDatabase->m_lstDecomposedConcordanceWords.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
 	// Sort, using an index mapping to handle locating our newly positioned word so we don't
 	//	have to hunt it the hard (slow) way with indexOf:
-	QList< QPair<QString, int> > lstSortArray;
+	QList<TWordSortStruct> lstSortArray;
 	int ndxWord = 0;
 
 	query.setForwardOnly(true);
@@ -445,8 +453,11 @@ bool CReadDatabase::ReadWordsTable()
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			lstSortArray.append(QPair<QString, int>(entryWord.m_lstAltWords.at(ndxAltWord), ndxWord));
-			m_pBibleDatabase->m_lstDecomposedConcordanceWords.append(entryWord.m_lstAltWords.at(ndxAltWord).normalized(QString::NormalizationForm_D));
+			TWordSortStruct wss;
+			wss.m_strWord = entryWord.m_lstAltWords.at(ndxAltWord);
+			wss.m_strDecomposedWord = CSearchStringListModel::decompose(wss.m_strWord);
+			wss.m_nIndex = ndxWord;
+			lstSortArray.append(wss);
 			ndxWord++;
 		}
 	}
@@ -454,14 +465,16 @@ bool CReadDatabase::ReadWordsTable()
 	// Sort all of our word forms since the alternates may sort different with
 	//		with respect to the other words:
 	qSort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
-	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanPair);
-	qSort(m_pBibleDatabase->m_lstDecomposedConcordanceWords.begin(), m_pBibleDatabase->m_lstDecomposedConcordanceWords.end(), ascendingLessThanStrings);
+	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanWordSortStruct);
 
 	// Now that we have the sorted indexes, we need to remap back to what came from what for our mapping:
 	QVector<int> lstSortIndex;
 	lstSortIndex.resize(lstSortArray.size());
 	for (int i = 0; i<lstSortArray.size(); ++i)
-		lstSortIndex[lstSortArray.at(i).second] = i;
+		lstSortIndex[lstSortArray.at(i).m_nIndex] = i;
+
+	m_pBibleDatabase->m_lstConcordanceWords.reserve(lstSortArray.size());
+	m_pBibleDatabase->m_lstDecomposedConcordanceWords.reserve(lstSortArray.size());
 
 	ndxWord = 0;
 
@@ -472,7 +485,8 @@ bool CReadDatabase::ReadWordsTable()
 		unsigned int ndxMapping = 0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			assert(ndxWord < lstSortArray.size());
-			m_pBibleDatabase->m_lstConcordanceWords.push_back(lstSortArray.at(ndxWord).first);
+			m_pBibleDatabase->m_lstConcordanceWords.append(lstSortArray.at(ndxWord).m_strWord);
+			m_pBibleDatabase->m_lstDecomposedConcordanceWords.append(lstSortArray.at(ndxWord).m_strDecomposedWord);
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
 					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));

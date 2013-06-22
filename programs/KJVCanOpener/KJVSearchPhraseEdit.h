@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "DelayedExecutionTimer.h"
+#include "SearchCompleter.h"
 
 #include <QWidget>
 #include <QIcon>
@@ -55,25 +56,13 @@
 //		inputMethod events get redirected to the popup, but don't come back
 //		to the editor because inputContext()->setFocusWidget() never gets
 //		called again for the editor:
-class CComposingCompleter : public QCompleter
+class CComposingCompleter : public CSearchCompleter
 {
 	Q_OBJECT
 
 public:
-	CComposingCompleter(QObject *parent = 0)
-		:	QCompleter(parent)
-	{
-
-	}
-
-	CComposingCompleter(QAbstractItemModel *model, QObject *parent = 0)
-		:	QCompleter(model, parent)
-	{
-
-	}
-
-	CComposingCompleter(const QStringList &list, QObject *parent = 0)
-		:	QCompleter(list, parent)
+	CComposingCompleter(CSearchStringListModel *model, QWidget *parentWidget)
+		:	CSearchCompleter(model, parentWidget)
 	{
 
 	}
@@ -147,7 +136,7 @@ private:
 #if QT_VERSION < 0x050000
 	CComposingCompleter *m_pCompleter;			// Word completer
 #else
-	QCompleter *m_pCompleter;					// Word completer
+	CSearchCompleter *m_pCompleter;				// Word completer
 #endif
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing

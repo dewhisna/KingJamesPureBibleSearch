@@ -25,6 +25,7 @@
 #include "ToolTipEdit.h"
 #include "ParseSymbols.h"
 #include "VerseRichifier.h"
+#include "SearchCompleter.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -38,6 +39,26 @@
 #include <string>
 
 #include <assert.h>
+
+// ============================================================================
+
+CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive)
+	:	m_pBibleDatabase(pBibleDatabase),
+		m_bIsDuplicate(false),
+		m_bCaseSensitive(bCaseSensitive),
+		m_nLevel(0),
+		m_nCursorLevel(0),
+		m_nCursorWord(-1),
+		m_nLastMatchWord(-1)
+{
+	if (pBibleDatabase)
+		m_lstNextWords = pBibleDatabase->concordanceWordList();
+}
+
+CParsedPhrase::~CParsedPhrase()
+{
+
+}
 
 // ============================================================================
 
@@ -134,7 +155,7 @@ unsigned int CParsedPhrase::phraseRawSize() const
 	return phraseWordsRaw().size();
 }
 
-QStringList CParsedPhrase::phraseWords() const
+const QStringList &CParsedPhrase::phraseWords() const
 {
 	if (m_cache_lstPhraseWords.size()) return m_cache_lstPhraseWords;
 
@@ -145,7 +166,7 @@ QStringList CParsedPhrase::phraseWords() const
 	return m_cache_lstPhraseWords;
 }
 
-QStringList CParsedPhrase::phraseWordsRaw() const
+const QStringList &CParsedPhrase::phraseWordsRaw() const
 {
 	if (m_cache_lstPhraseWordsRaw.size()) return m_cache_lstPhraseWordsRaw;
 
@@ -230,14 +251,14 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
 
-void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter)
+void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter)
 {
-	QStringListModel *pModel = (QStringListModel *)(aCompleter.model());
+	CSearchStringListModel *pModel = (CSearchStringListModel *)(aCompleter.model());
 
 	ParsePhrase(curInsert);
-	FindWords();
+	FindWords(m_nCursorWord);
 
-	pModel->setStringList(m_lstNextWords);
+	pModel->setWordsFromPhrase();
 }
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
@@ -304,16 +325,32 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_nCursorWord = m_lstWords.size();
 }
 
+//typedef struct {
+//	QString m_strWord;
+//	QString m_strDecomposedWord;
+//	int m_nIndex;
+//} TWordSortStruct;
+
+//static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
+//{
+//	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
+//}
+
 static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 {
-	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
+	return (CSearchStringListModel::decompose(s1).compare(CSearchStringListModel::decompose(s2), Qt::CaseInsensitive) < 0);
 }
 
-void CParsedPhrase::FindWords()
+//static bool ascendingLessThanWordSortStruct(const TWordSortStruct &s1, const TWordSortStruct &s2)
+//{
+//	return (s1.m_strDecomposedWord.compare(s2.m_strDecomposedWord, Qt::CaseInsensitive) < 0);
+//}
+
+void CParsedPhrase::FindWords(int nCursorWord)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	assert(m_nCursorWord < m_lstWords.size());
+	assert((nCursorWord >= 0) && (nCursorWord <= m_lstWords.size()));
 
 	m_lstMatchMapping.clear();
 	bool bComputedNextWords = false;
@@ -340,7 +377,7 @@ void CParsedPhrase::FindWords()
 		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
 			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWord);
 			if (nFirstWord == -1) {
-				if (m_nCursorWord > ndx) {
+				if (nCursorWord > ndx) {
 					// If we've stopped matching before the cursor, we have no "next words":
 					m_lstNextWords.clear();
 					bComputedNextWords = true;
@@ -406,22 +443,35 @@ void CParsedPhrase::FindWords()
 
 		if ((m_lstMatchMapping.size() != 0) || (bInFirstWordStar)) m_nLevel++;
 
-		if (ndx < m_nCursorWord) {
+		if (ndx < nCursorWord) {
 			m_nCursorLevel = m_nLevel;
 
-			if ((ndx+1) == m_nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
+			if ((ndx+1) == nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
 				if (!bInFirstWordStar) {
 					m_lstNextWords.clear();
 					for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 						if ((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-							m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1).normalized(QString::NormalizationForm_D));
+							m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1));
 						}
 					}
 					m_lstNextWords.removeDuplicates();
+//					QList<TWordSortStruct> lstNextWordsSort;
+//					lstNextWordsSort.reserve(m_lstNextWords.size());
+//					for (int ndxWord = 0; ndxWord < m_lstNextWords.size(); ++ndxWord) {
+//						TWordSortStruct wss;
+//						wss.m_strWord = m_lstNextWords.at(ndxWord);
+//						wss.m_strDecomposedWord = CSearchStringListModel::decompose(wss.m_strWord);
+//						wss.m_nIndex = ndxWord;
+//						lstNextWordsSort.append(wss);
+//					}
+//					qSort(lstNextWordsSort.begin(), lstNextWordsSort.end(), ascendingLessThanWordSortStruct);
+//					for (int ndxWord = 0; ndxWord < lstNextWordsSort.size(); ++ndxWord) {
+//						m_lstNextWords[ndxWord] = lstNextWordsSort.at(ndxWord).m_strWord;
+//					}
 					qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThanStrings);
 					bComputedNextWords = true;
 				} else {
-					m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
+					m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 					bComputedNextWords = true;
 				}
 			}
@@ -432,7 +482,7 @@ void CParsedPhrase::FindWords()
 
 	// Copy our complete word list, but only if we didn't compute a wordList above:
 	if (!bComputedNextWords)
-		m_lstNextWords = m_pBibleDatabase->decomposedConcordanceWordList();
+		m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 }
 
 // ============================================================================

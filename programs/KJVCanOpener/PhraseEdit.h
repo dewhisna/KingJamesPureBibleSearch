@@ -31,7 +31,6 @@
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTextCursor>
-#include <QCompleter>
 #include <QString>
 #include <QStringList>
 #include <QColor>
@@ -40,20 +39,19 @@
 
 // ============================================================================
 
+// Forward declarations:
+class CSearchCompleter;
+
+// ============================================================================
+
 class CParsedPhrase
 {
 public:
-	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false)
-		:	m_pBibleDatabase(pBibleDatabase),
-			m_bIsDuplicate(false),
-			m_bCaseSensitive(bCaseSensitive),
-			m_nLevel(0),
-			m_nCursorLevel(0),
-			m_nCursorWord(-1),
-			m_nLastMatchWord(-1)
-	{ }
-	virtual ~CParsedPhrase()
-	{ }
+	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false);
+	virtual ~CParsedPhrase();
+
+	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
+	inline const QStringList &nextWordsList() const { return m_lstNextWords; }
 
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
 	//			use for maintaining statistics about this phrase in context with others and
@@ -79,8 +77,8 @@ public:
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
 	unsigned int phraseSize() const;			// Return number of words in reconstituted phrase
 	unsigned int phraseRawSize() const;			// Return number of words in reconstituted raw phrase
-	QStringList phraseWords() const;			// Return reconstituted phrase words
-	QStringList phraseWordsRaw() const;			// Return reconstituted raw phrase words
+	const QStringList &phraseWords() const;		// Return reconstituted phrase words
+	const QStringList &phraseWordsRaw() const;	// Return reconstituted raw phrase words
 	static QString makeRawPhrase(const QString &strPhrase);
 
 	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
@@ -102,12 +100,11 @@ public:
 				(phrase().compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
 
-	void UpdateCompleter(const QTextCursor &curInsert, QCompleter &aCompleter);
+	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 
-private:
-	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
+	void FindWords(int nCursorWord);			// Uses m_lstWords and nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;

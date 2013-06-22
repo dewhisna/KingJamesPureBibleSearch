@@ -173,14 +173,14 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(this, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 
-	QStringListModel *pModel = new QStringListModel(m_pBibleDatabase->decomposedConcordanceWordList(), this);
+	CSearchStringListModel *pModel = new CSearchStringListModel(*this, this);
 #if QT_VERSION < 0x050000
 	m_pCompleter = new CComposingCompleter(pModel, this);
 #else
-	m_pCompleter = new QCompleter(pModel, this);
+	m_pCompleter = new CSearchCompleter(pModel, this);
 #endif
 	m_pCompleter->setWidget(this);
-	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion);
+	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion /* UnfilteredPopupCompletion */ );
 	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	m_pCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 

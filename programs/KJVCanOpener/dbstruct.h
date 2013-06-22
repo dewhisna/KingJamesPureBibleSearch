@@ -526,7 +526,7 @@ public:
 	{
 		return m_mapWordList;
 	}
-	inline const QStringList &lstWordList() const
+	inline const QStringList &lstWordList() const						// List version of Master word-list (used for quick matching)
 	{
 		return m_lstWordList;
 	}

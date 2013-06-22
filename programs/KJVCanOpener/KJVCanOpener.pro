@@ -69,7 +69,8 @@ SOURCES += main.cpp \
 	DelayedExecutionTimer.cpp \
 	ModelRowForwardIterator.cpp \
 	ReflowDelegate.cpp \
-	signalspy/Q4puGenericSignalSpy.cpp
+	signalspy/Q4puGenericSignalSpy.cpp \
+    SearchCompleter.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -107,7 +108,8 @@ HEADERS  += main.h \
 	BusyCursor.h \
 	ModelRowForwardIterator.h \
 	ReflowDelegate.h \
-	signalspy/Q4puGenericSignalSpy.h
+	signalspy/Q4puGenericSignalSpy.h \
+    SearchCompleter.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
