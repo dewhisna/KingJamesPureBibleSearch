@@ -493,7 +493,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	QString strPrefix = GetCursorWord();
 	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
-	strPrefix = strPrefix.normalized(QString::NormalizationForm_D);
+	strPrefix = CSearchStringListModel::decompose(strPrefix);
 
 	if (strPrefix != m_pCompleter->completionPrefix()) {
 		m_pCompleter->setCompletionPrefix(strPrefix);

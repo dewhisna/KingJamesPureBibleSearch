@@ -401,17 +401,32 @@ bool CReadDatabase::ReadWordsTable()
 	// Sort, using an index mapping to handle locating our newly positioned word so we don't
 	//	have to hunt it the hard (slow) way with indexOf:
 	QList<TWordSortStruct> lstSortArray;
-	int ndxWord = 0;
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
 	while (query.next()) {
 		QString strWord = query.value(1).toString();
-		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
+		bool bCasePreserve = ((query.value(2).toInt()) ? true : false);
+// TODO : CLEAN
+//		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
+		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
 		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
-		m_pBibleDatabase->m_lstWordList.append(strKey);
-		entryWord.m_strWord = strWord;
-		entryWord.m_bCasePreserve = ((query.value(2).toInt()) ? true : false);
+		if (!m_pBibleDatabase->m_lstWordList.contains(strKey))			// This check is needed because duplicates can happen from decomposed index keys
+			m_pBibleDatabase->m_lstWordList.append(strKey);
+
+		if (entryWord.m_strWord.isEmpty()) {
+			entryWord.m_strWord = CSearchStringListModel::decompose(strWord);
+			entryWord.m_bCasePreserve = bCasePreserve;
+		} else {
+			// If folding duplicate words into single entry from decomposed indexes,
+			//		they better be the same exact word:
+			assert(entryWord.m_strWord.compare(CSearchStringListModel::decompose(strWord)) == 0);
+			assert(entryWord.m_bCasePreserve == bCasePreserve);
+			if ((entryWord.m_strWord.compare(CSearchStringListModel::decompose(strWord)) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
+				QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
+				return false;
+			}
+		}
 
 		QString strAltWords = query.value(4).toString();
 		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
@@ -441,24 +456,36 @@ bool CReadDatabase::ReadWordsTable()
 			return false;
 		}
 
-		if (!IndexBlobToIndexList(query.value(6).toByteArray(), entryWord.m_ndxNormalizedMapping)) {
+		TIndexList lstNormalIndexes;
+		if (!IndexBlobToIndexList(query.value(6).toByteArray(), lstNormalIndexes)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}
-		if (entryWord.m_ndxNormalizedMapping.size() != query.value(3).toUInt()) {
+		if (lstNormalIndexes.size() != query.value(3).toUInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Index/Count consistency error in WORDS table!"));
 			return false;
 		}
+		entryWord.m_ndxNormalizedMapping.insert(entryWord.m_ndxNormalizedMapping.end(), lstNormalIndexes.begin(), lstNormalIndexes.end());
+	}
+
+	int ndxWord = 0;
+
+	// The following has to be done in a separate loop if we allow duplicate index
+	//		key folding caused by decomposing the indexes.  Otherwise, our word indexes
+	//		in this loop won't match the word indexes in the loop after the sort!:
+	for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
+		const CWordEntry &entryWord(itrWordEntry->second);
 		// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			TWordSortStruct wss;
-			wss.m_strWord = entryWord.m_lstAltWords.at(ndxAltWord);
-			wss.m_strDecomposedWord = CSearchStringListModel::decompose(wss.m_strWord);
-			wss.m_nIndex = ndxWord;
-			lstSortArray.append(wss);
-			ndxWord++;
+			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
+				TWordSortStruct wss;
+				wss.m_strWord = strAltWord;
+				wss.m_strDecomposedWord = CSearchStringListModel::decompose(strAltWord);
+				wss.m_nIndex = ndxWord;
+				lstSortArray.append(wss);
+				ndxWord++;
 		}
 	}
 
@@ -466,6 +493,8 @@ bool CReadDatabase::ReadWordsTable()
 	//		with respect to the other words:
 	qSort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
 	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanWordSortStruct);
+
+	assert(m_pBibleDatabase->m_lstWordList.size() == static_cast<int>(m_pBibleDatabase->m_mapWordList.size()));
 
 	// Now that we have the sorted indexes, we need to remap back to what came from what for our mapping:
 	QVector<int> lstSortIndex;
@@ -488,16 +517,20 @@ bool CReadDatabase::ReadWordsTable()
 			m_pBibleDatabase->m_lstConcordanceWords.append(lstSortArray.at(ndxWord).m_strWord);
 			m_pBibleDatabase->m_lstDecomposedConcordanceWords.append(lstSortArray.at(ndxWord).m_strDecomposedWord);
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
-				if (entryWord.m_ndxNormalizedMapping[ndxMapping] > nNumWordsInText) {
-					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping[ndxMapping]));
+				assert(ndxMapping < entryWord.m_ndxNormalizedMapping.size());
+				if (entryWord.m_ndxNormalizedMapping.at(ndxMapping) > nNumWordsInText) {
+					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping.at(ndxMapping)));
 					return false;
 				}
-				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping[ndxMapping]] = lstSortIndex.at(ndxWord);
+				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping.at(ndxMapping)] = lstSortIndex.at(ndxWord);
 				ndxMapping++;
 			}
 			ndxWord++;
 		}
 	}
+	assert(m_pBibleDatabase->concordanceWordList().size() == lstSortArray.size());
+	assert(m_pBibleDatabase->m_lstConcordanceMapping.size() == (nNumWordsInText + 1));
+	assert(ndxWord == lstSortArray.size());
 
 
 // Used for debugging:

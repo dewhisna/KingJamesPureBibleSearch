@@ -360,19 +360,21 @@ void CParsedPhrase::FindWords(int nCursorWord)
 	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
 		if (m_lstWords.at(ndx).isEmpty()) continue;
 
-		QString strCurWord = m_lstWords.at(ndx);			// Note: This becomes the "Word*" value later, so can't substitute strCurWord for all m_lstWords.at(ndx)
-		int nPreRegExp = strCurWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+		QString strCurWord = CSearchStringListModel::decompose(m_lstWords.at(ndx));
+		QString strCurWordKey = strCurWord.toLower();
+		QString strCurWordWild = strCurWord;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
+		int nPreRegExp = strCurWordWild.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 
 		if (nPreRegExp == -1) {
 			if ((ndx == (m_lstWords.size()-1)) &&
-				(m_pBibleDatabase->mapWordList().find(m_lstWords.at(ndx).toLower()) == m_pBibleDatabase->mapWordList().end())) {
-				nPreRegExp = strCurWord.size();
-				strCurWord += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
+				(m_pBibleDatabase->mapWordList().find(strCurWordKey) == m_pBibleDatabase->mapWordList().end())) {
+				nPreRegExp = strCurWordWild.size();
+				strCurWordWild += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
 			}
 		}
 
-		QRegExp expCurWord(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
-		QRegExp expCurWordExact(m_lstWords.at(ndx), (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+		QRegExp expCurWord(strCurWordWild, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+		QRegExp expCurWordExact(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 
 		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
 			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWord);
@@ -385,7 +387,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 				break;			// If we've stopped matching, we're done
 			}
 
-			if (strCurWord.compare("*") == 0) {
+			if (strCurWordWild.compare("*") == 0) {
 				bInFirstWordStar = true;			// Treat "*" special, as if we have a match with no results, but yet we do
 			} else {
 				bInFirstWordStar = false;
@@ -418,9 +420,9 @@ void CParsedPhrase::FindWords(int nCursorWord)
 		} else {
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
-			if (strCurWord.compare("*") != 0) {
+			if (strCurWordWild.compare("*") != 0) {
 				TIndexList lstNextMapping;
-				QRegExp exp(m_lstWords[ndx], (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+				QRegExp exp(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 					if (((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
 						(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1)))) {
