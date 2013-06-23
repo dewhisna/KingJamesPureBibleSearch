@@ -50,7 +50,7 @@ QVariant CPhraseListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		return (m_lstPhrases.at(index.row()).m_bCaseSensitive ? QChar(0xA7) : QString()) + m_lstPhrases.at(index.row()).m_strPhrase;
+		return m_lstPhrases.at(index.row()).textEncoded();
 	}
 
 	if (role == Qt::ToolTipRole) {
@@ -69,7 +69,7 @@ bool CPhraseListModel::setData(const QModelIndex &index, const QVariant &value, 
 	if (index.row() < 0 || index.row() >= m_lstPhrases.size()) return false;
 
 	if ((role == Qt::EditRole) || (role == Qt::DisplayRole)) {
-		m_lstPhrases[index.row()].m_strPhrase = value.toString();
+		m_lstPhrases[index.row()].setText(value.toString());
 		emit dataChanged(index, index);
 		return true;
 	}
@@ -128,12 +128,12 @@ bool CPhraseListModel::removeRows(int row, int count, const QModelIndex &parent)
 
 static bool ascendingLessThan(const QPair<CPhraseEntry, int> &s1, const QPair<CPhraseEntry, int> &s2)
 {
-	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase, Qt::CaseInsensitive) < 0);
+	return (s1.first.text().compare(s2.first.text(), Qt::CaseInsensitive) < 0);
 }
 
 static bool decendingLessThan(const QPair<CPhraseEntry, int> &s1, const QPair<CPhraseEntry, int> &s2)
 {
-	return (s1.first.m_strPhrase.compare(s2.first.m_strPhrase, Qt::CaseInsensitive) > 0);
+	return (s1.first.text().compare(s2.first.text(), Qt::CaseInsensitive) > 0);
 }
 
 void CPhraseListModel::sort(int /* column */, Qt::SortOrder order)

@@ -42,10 +42,12 @@
 
 // ============================================================================
 
-CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive)
+CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive, bool bAccentSensitive)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bIsDuplicate(false),
+		m_bIsDisabled(false),
 		m_bCaseSensitive(bCaseSensitive),
+		m_bAccentSensitive(bAccentSensitive),
 		m_nLevel(0),
 		m_nCursorLevel(0),
 		m_nCursorWord(-1),
@@ -65,6 +67,7 @@ CParsedPhrase::~CParsedPhrase()
 bool CPhraseEntry::operator==(const CParsedPhrase &src) const
 {
 	return ((m_bCaseSensitive == src.isCaseSensitive()) &&
+			(m_bAccentSensitive == src.isAccentSensitive()) &&
 			(m_strPhrase.compare(src.phrase(), Qt::CaseSensitive) == 0));
 }
 

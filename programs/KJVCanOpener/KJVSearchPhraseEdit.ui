@@ -29,7 +29,7 @@
     <x>0</x>
     <y>0</y>
     <width>380</width>
-    <height>93</height>
+    <height>95</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -309,11 +309,42 @@
         </layout>
        </item>
        <item row="1" column="0">
-        <widget class="QCheckBox" name="chkCaseSensitive">
-         <property name="text">
-          <string>Case Sensitive</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QCheckBox" name="chkCaseSensitive">
+           <property name="text">
+            <string>Case Sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkAccentSensitive">
+           <property name="text">
+            <string>Accent Sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>13</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkDisable">
+           <property name="text">
+            <string>Disable</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -331,6 +362,12 @@
  <tabstops>
   <tabstop>editPhrase</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
+  <tabstop>chkAccentSensitive</tabstop>
+  <tabstop>chkDisable</tabstop>
+  <tabstop>buttonAddPhrase</tabstop>
+  <tabstop>buttonDelPhrase</tabstop>
+  <tabstop>buttonClear</tabstop>
+  <tabstop>buttonRemove</tabstop>
  </tabstops>
  <resources>
   <include location="KJVCanOpener.qrc"/>

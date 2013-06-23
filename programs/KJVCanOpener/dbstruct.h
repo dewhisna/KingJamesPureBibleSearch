@@ -446,24 +446,53 @@ class CParsedPhrase;		// Forward declaration
 class CPhraseEntry
 {
 public:
-	CPhraseEntry()
-		:	m_bCaseSensitive(false),
-			m_nNumWrd(0)
-	{ }
-	~CPhraseEntry() { }
+	CPhraseEntry(const QString &strEncodedText = QString(), const QVariant &varExtraInfo = QVariant());
+	~CPhraseEntry();
 
-	bool m_bCaseSensitive;
-	QString m_strPhrase;
-	unsigned int m_nNumWrd;		// Number of words in phrase
-	QVariant m_varExtraInfo;	// Extra user info for specific uses of this structure
+	void clear();
+
+	void setFromPhrase(const CParsedPhrase *pPhrase);
+
+	inline const QString &text() const { return m_strPhrase; }
+	QString textEncoded() const;
+	void setText(const QString &strText);
+	void setTextEncoded(const QString &strText);
+
+	inline bool caseSensitive() const { return m_bCaseSensitive; }
+	inline void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
+
+	inline bool accentSensitive() const { return m_bAccentSensitive; }
+	inline void setAccentSensitive(bool bAccentSensitive) { m_bAccentSensitive = bAccentSensitive; }
+
+	inline bool isDisabled() const { return m_bDisabled; }
+	inline void setDisabled(bool bDisabled) { m_bDisabled = bDisabled; }
+
+	inline QVariant extraInfo() const { return m_varExtraInfo; }
+	inline void setExtraInfo(const QVariant &varExtraInfo) { m_varExtraInfo = varExtraInfo; }
+
+	inline int wordCount() const { return m_nNumWrd; }
 
 	bool operator==(const CPhraseEntry &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
+				(m_bAccentSensitive == src.m_bAccentSensitive) &&
+				// Don't compare m_bDisabled because that doesn't affect "equality"
 				(m_strPhrase.compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
 
 	bool operator==(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
+
+	static const QChar encCharCaseSensitive() { return QChar(0xA7); } 			// Section Sign = Case-Sensitive
+	static const QChar encCharAccentSensitive() { return QChar(0xA4); }			// Current Sign = Accent-Sensitive
+	static const QChar encCharDisabled() { return QChar(0xAC); }					// Not Sign = Disable flag
+
+private:
+	bool m_bCaseSensitive;
+	bool m_bAccentSensitive;
+	bool m_bDisabled;
+	QString m_strPhrase;
+	unsigned int m_nNumWrd;		// Number of words in phrase
+	QVariant m_varExtraInfo;	// Extra user info for specific uses of this structure
 };
 
 Q_DECLARE_METATYPE(CPhraseEntry)
@@ -481,8 +510,9 @@ public:
 
 inline uint qHash(const CPhraseEntry &key)
 {
-	uint nHash = qHash(key.m_strPhrase);
-	return (key.m_bCaseSensitive ? (nHash*2) : nHash);
+	// Note: Aren't hasing "disable" because it doesn't affect the main key value equality
+	uint nHash = (qHash(key.text()) << 2) + (key.caseSensitive() ? 2 : 0) + (key.accentSensitive() ? 1 : 0);
+	return nHash;
 }
 
 extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database

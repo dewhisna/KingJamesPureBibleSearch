@@ -617,12 +617,10 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 	query.exec("SELECT * FROM PHRASES");
 	while (query.next()) {
 		CPhraseEntry phrase;
-		phrase.m_strPhrase = query.value(1).toString();
-		phrase.m_bCaseSensitive = ((query.value(2).toInt() != 0) ? true : false);
-		if (!phrase.m_strPhrase.isEmpty()) {
-			CParsedPhrase parsedPhrase(m_pBibleDatabase);
-			parsedPhrase.ParsePhrase(phrase.m_strPhrase);
-			phrase.m_nNumWrd = parsedPhrase.phraseSize();
+		phrase.setText(query.value(1).toString());
+		phrase.setCaseSensitive((query.value(2).toInt() != 0) ? true : false);
+		phrase.setAccentSensitive((query.value(3).toInt() != 0) ? true : false);
+		if (!phrase.text().isEmpty()) {
 			if (bUserPhrases) {
 				g_lstUserPhrases.push_back(phrase);
 			} else {

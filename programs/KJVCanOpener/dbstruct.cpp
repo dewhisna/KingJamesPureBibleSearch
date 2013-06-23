@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
+#include "PhraseEdit.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -46,6 +47,98 @@ bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
 
 // Global Settings:
 
+
+// ============================================================================
+
+CPhraseEntry::CPhraseEntry(const QString &strEncodedText, const QVariant &varExtraInfo)
+	:	m_bCaseSensitive(false),
+		m_bAccentSensitive(false),
+		m_bDisabled(false),
+		m_nNumWrd(0),
+		m_varExtraInfo(varExtraInfo)
+{
+	setTextEncoded(strEncodedText);
+}
+
+CPhraseEntry::~CPhraseEntry()
+{
+
+}
+
+void CPhraseEntry::clear()
+{
+	m_strPhrase.clear();
+	m_nNumWrd = 0;
+	m_bCaseSensitive = false;
+	m_bAccentSensitive = false;
+	m_bDisabled = false;
+	m_varExtraInfo.clear();
+}
+
+void CPhraseEntry::setFromPhrase(const CParsedPhrase *pPhrase)
+{
+	assert(pPhrase != NULL);
+	if (pPhrase == NULL) return;
+
+	clear();
+	m_strPhrase = pPhrase->phrase();
+	m_bCaseSensitive = pPhrase->isCaseSensitive();
+	m_bAccentSensitive = pPhrase->isAccentSensitive();
+	m_bDisabled = pPhrase->isDisabled();
+}
+
+QString CPhraseEntry::textEncoded() const
+{
+	QString strText;
+
+	// The order here matters as we will always read/write the special flags in order
+	//		so we don't need a complete parser to allow any arbitrary order:
+	if (isDisabled()) strText += encCharDisabled();
+	if (accentSensitive()) strText += encCharAccentSensitive();
+	if (caseSensitive()) strText += encCharCaseSensitive();
+	strText += m_strPhrase;
+
+	return strText;
+}
+
+void CPhraseEntry::setText(const QString &strText)
+{
+	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive());			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
+	parsedPhrase.ParsePhrase(strText);
+	m_nNumWrd = parsedPhrase.phraseSize();
+	m_strPhrase = strText;
+}
+
+void CPhraseEntry::setTextEncoded(const QString &strText)
+{
+	QString strTextToSet = strText;
+
+	// The order here matters as we will always read/write the special flags in order
+	//		so we don't need a complete parser to allow any arbitrary order:
+
+	if (strTextToSet.startsWith(encCharDisabled())) {
+		strTextToSet = strTextToSet.mid(1);				// Remove the special disable flag
+		setDisabled(true);
+	} else {
+		setDisabled(false);
+	}
+
+	if (strTextToSet.startsWith(encCharAccentSensitive())) {
+		strTextToSet = strTextToSet.mid(1);
+		setAccentSensitive(true);
+	} else {
+		setAccentSensitive(false);
+	}
+
+	if (strTextToSet.startsWith(encCharCaseSensitive())) {
+		strTextToSet = strTextToSet.mid(1);				// Remove the special case-sensitive flag
+		setCaseSensitive(true);
+	} else {
+		setCaseSensitive(false);
+	}
+
+	setText(strTextToSet);
+}
 
 // ============================================================================
 

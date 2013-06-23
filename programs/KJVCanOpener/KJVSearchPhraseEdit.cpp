@@ -181,7 +181,9 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 #endif
 	m_pCompleter->setWidget(this);
 	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion /* UnfilteredPopupCompletion */ );
-	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	m_pCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+//	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+	// TODO : ??? Add AccentSensitivity to completer ???
 	m_pCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
@@ -201,7 +203,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
-	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
+	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 	m_pCommonPhrasesCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 //	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
@@ -220,12 +222,24 @@ CPhraseLineEdit::~CPhraseLineEdit()
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 {
 	CParsedPhrase::setCaseSensitive(bCaseSensitive);
-	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+//	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
 		emit phraseChanged();
 		emit changeCaseSensitive(bCaseSensitive);
+	}
+}
+
+void CPhraseLineEdit::setAccentSensitive(bool bAccentSensitive)
+{
+	CParsedPhrase::setAccentSensitive(bAccentSensitive);
+	// TODO : ??? Add AccentSensitivity to completer ???
+
+	if (!m_bUpdateInProgress) {
+		UpdateCompleter();
+		emit phraseChanged();
+		emit changeAccentSensitive(bAccentSensitive);
 	}
 }
 
@@ -278,18 +292,16 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	cursor.select(QTextCursor::LineUnderCursor);
 	bool bUpdateSave = m_bUpdateInProgress;
 	m_bUpdateInProgress = true;									// Hold-over to update everything at once
-	if (completion.startsWith(QChar(0xA7))) {
-		cursor.insertText(completion.mid(1));					// Replace with complete word minus special flag
-		setCaseSensitive(true);
-	} else {
-		cursor.insertText(completion);							// Replace with completed word
-		setCaseSensitive(false);
-	}
+	CPhraseEntry phrase(completion);
+	cursor.insertText(phrase.text());
+	setCaseSensitive(phrase.caseSensitive());
+	setAccentSensitive(phrase.accentSensitive());
 	m_bUpdateInProgress = bUpdateSave;
 	if (!m_bUpdateInProgress) {
 		UpdateCompleter();
 		emit phraseChanged();
 		emit changeCaseSensitive(isCaseSensitive());
+		emit changeAccentSensitive(isAccentSensitive());
 	}
 }
 
@@ -572,12 +584,16 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui->editPhrase = pEditPhrase;
 	ui->gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
 	setTabOrder(ui->editPhrase, ui->chkCaseSensitive);
-	setTabOrder(ui->chkCaseSensitive, ui->editPhrase->getDropListButton());
+	setTabOrder(ui->chkCaseSensitive, ui->chkAccentSensitive);
+	setTabOrder(ui->chkAccentSensitive, ui->chkDisable);
+	setTabOrder(ui->chkDisable, ui->editPhrase->getDropListButton());
 	setTabOrder(ui->editPhrase->getDropListButton(), ui->buttonRemove);
 
 	// --------------------------------------------------------------
 
 	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
+	ui->chkAccentSensitive->setChecked(ui->editPhrase->isAccentSensitive());
+	ui->chkDisable->setChecked(parsedPhrase()->isDisabled());
 	ui->buttonAddPhrase->setEnabled(false);
 	ui->buttonAddPhrase->setToolTip(tr("Add Phrase to User Database"));
 	ui->buttonAddPhrase->setStatusTip(tr("Add this Phrase to the User Database"));
@@ -599,6 +615,9 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
+	connect(ui->chkAccentSensitive, SIGNAL(clicked(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
+	connect(ui->editPhrase, SIGNAL(changeAccentSensitive(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
+	connect(ui->chkDisable, SIGNAL(clicked(bool)), this, SLOT(setDisabled(bool)));
 	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
 	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
 	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
@@ -651,13 +670,11 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
 
-	m_phraseEntry.m_strPhrase=pPhrase->phrase();		// Use reconstituted phrase for save/restore
-	m_phraseEntry.m_bCaseSensitive=pPhrase->isCaseSensitive();
-	m_phraseEntry.m_nNumWrd=pPhrase->phraseSize();
+	m_phraseEntry.setFromPhrase(pPhrase);
 
 	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
-	bool bHaveText = (!m_phraseEntry.m_strPhrase.isEmpty());
+	bool bHaveText = (!m_phraseEntry.text().isEmpty());
 	ui->buttonAddPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
 	ui->buttonDelPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && bUserFound);
 	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
@@ -666,8 +683,8 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	//		then there's no need to send a notification as the overall search results
 	//		still won't be affected:
 	if (!m_bLastPhraseChangeHadResults) {
-		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
-			pPhrase->SetIsDuplicate(false);
+		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0) || (pPhrase->isDisabled())) {
+			pPhrase->setIsDuplicate(false);
 			pPhrase->ClearScopedPhraseTagSearchResults();
 			phraseStatisticsChanged();
 		} else {
@@ -676,7 +693,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 		}
 	} else {
 		emit phraseChanged(this);
-		m_bLastPhraseChangeHadResults = ((pPhrase->isCompleteMatch()) && (pPhrase->GetNumberOfMatches() != 0));
+		m_bLastPhraseChangeHadResults = ((pPhrase->isCompleteMatch()) && (pPhrase->GetNumberOfMatches() != 0) && (!pPhrase->isDisabled()));
 	}
 
 	// Note: No need to call phraseStatisticsChanged() here as the parent
@@ -688,10 +705,10 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 {
 	QString strTemp = tr("Number of Occurrences: ");
-	if (parsedPhrase()->IsDuplicate()) {
+	if (parsedPhrase()->isDuplicate()) {
 		strTemp += tr("(Duplicate)");
 	} else {
-		strTemp += QString("%1/%2").arg(parsedPhrase()->GetContributingNumberOfMatches()).arg(parsedPhrase()->GetNumberOfMatches());
+		strTemp += QString("%1/%2").arg(!parsedPhrase()->isDisabled() ? parsedPhrase()->GetContributingNumberOfMatches() : 0).arg(parsedPhrase()->GetNumberOfMatches());
 	}
 	ui->lblOccurrenceCount->setText(strTemp);
 }
@@ -705,8 +722,28 @@ void CKJVSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
 	m_bUpdateInProgress = false;
 }
 
+void CKJVSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
+{
+	if (m_bUpdateInProgress) return;
+	m_bUpdateInProgress = true;
+	ui->chkAccentSensitive->setChecked(bAccentSensitive);	// Set the checkbox in case the phrase editor is setting us
+	ui->editPhrase->setAccentSensitive(bAccentSensitive);	// Set the phrase editor in case the checkbox is setting us
+	m_bUpdateInProgress = false;
+}
+
+void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
+{
+	if (m_bUpdateInProgress) return;
+	m_bUpdateInProgress = true;
+	ui->chkDisable->setChecked(bDisabled);					// Set the checkbox in case the phrase editor is setting us
+	parsedPhrase()->setIsDisabled(bDisabled);				// Set the phrase editor in case the checkbox is setting us
+	m_bUpdateInProgress = false;
+	en_phraseChanged();										// Unlike Case-Sensitive and Accent-Sensitive, CPhraseLineEdit doesn't have a signals handler for this to trigger a phraseChaged.  So we must do it here.
+}
+
 void CKJVSearchPhraseEdit::en_phraseAdd()
 {
+	assert(!g_lstUserPhrases.contains(m_phraseEntry));
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
 	ui->buttonAddPhrase->setEnabled(false);
@@ -730,5 +767,6 @@ void CKJVSearchPhraseEdit::en_phraseDel()
 void CKJVSearchPhraseEdit::en_phraseClear()
 {
 	ui->editPhrase->clear();
+	m_phraseEntry.clear();
 }
 

@@ -48,6 +48,8 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
+#include <assert.h>
+
 // ============================================================================
 
 #if QT_VERSION < 0x050000
@@ -94,6 +96,12 @@ public:
 	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
 	virtual void setCaseSensitive(bool bCaseSensitive);
 
+	virtual bool isAccentSensitive() const { return CParsedPhrase::isAccentSensitive(); }
+	virtual void setAccentSensitive(bool bAccentSensitive);
+
+	inline bool isDisabled() const { assert(false); }												// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+
 	virtual QSize sizeHint();
 
 public slots:
@@ -110,6 +118,7 @@ private slots:
 signals:
 	void phraseChanged();
 	void changeCaseSensitive(bool bCaseSensitive);
+	void changeAccentSensitive(bool bAccentSensitive);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
@@ -182,10 +191,12 @@ public slots:
 	void focusEditor() const;
 	void phraseStatisticsChanged() const;
 	void closeSearchPhrase();
+	void setDisabled(bool bDisabled);
 
 protected slots:
 	void en_phraseChanged();
 	void en_CaseSensitiveChanged(bool bCaseSensitive);
+	void en_AccentSensitiveChanged(bool bAccentSensitive);
 	void en_phraseAdd();
 	void en_phraseDel();
 	void en_phraseClear();

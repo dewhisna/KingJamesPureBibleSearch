@@ -47,7 +47,7 @@ class CSearchCompleter;
 class CParsedPhrase
 {
 public:
-	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false);
+	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false, bool bAccentSensitive = false);
 	virtual ~CParsedPhrase();
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
@@ -56,8 +56,10 @@ public:
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
 	//			use for maintaining statistics about this phrase in context with others and
 	//			to build Search Results Verse Lists, do highlighting, etc.
-	inline bool IsDuplicate() const { return m_bIsDuplicate; }
-	inline void SetIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
+	inline bool isDuplicate() const { return m_bIsDuplicate; }
+	inline void setIsDuplicate(bool bIsDuplicate) const { m_bIsDuplicate = bIsDuplicate; }
+	inline bool isDisabled() const { return m_bIsDisabled; }
+	inline void setIsDisabled(bool bIsDisabled) const { m_bIsDisabled = bIsDisabled; }
 	inline int GetContributingNumberOfMatches() const { return m_lstScopedPhraseTagResults.size(); }
 	inline const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
 	inline TPhraseTagList &GetScopedPhraseTagSearchResultsNonConst() const { return m_lstScopedPhraseTagResults; }			// Non-const version used by VerseListModel for setting
@@ -88,16 +90,21 @@ public:
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
 
+	virtual bool isAccentSensitive() const { return m_bAccentSensitive; }
+	virtual void setAccentSensitive(bool bAccentSensitive) { m_bAccentSensitive = bAccentSensitive; }
+
 	bool operator==(const CParsedPhrase &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
+				(m_bAccentSensitive == src.m_bAccentSensitive) &&
 				(phrase().compare(src.phrase(), Qt::CaseSensitive) == 0));
 	}
 
 	bool operator==(const CPhraseEntry &src) const
 	{
-		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
-				(phrase().compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
+		return ((m_bCaseSensitive == src.caseSensitive()) &&
+				(m_bAccentSensitive == src.accentSensitive()) &&
+				(phrase().compare(src.text(), Qt::CaseSensitive) == 0));
 	}
 
 	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
@@ -115,10 +122,12 @@ protected:
 #endif
 	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
 	// -------
-	mutable bool m_bIsDuplicate;					// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
+	mutable bool m_bIsDuplicate;							// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
+	mutable bool m_bIsDisabled;								// Indicates this phrase is disabled.  Set/Cleared by parent phraseChanged logic
 	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel.  The size of this list is the ContributingMatchCount
 	// -------
 	bool m_bCaseSensitive;
+	bool m_bAccentSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
@@ -138,8 +147,8 @@ typedef QList <const CParsedPhrase *> TParsedPhrasesList;
 class CSelectedPhrase
 {
 public:
-	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false)
-		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive)
+	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false, bool bAccentSensitive = false)
+		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive)
 	{ }
 
 	inline const CParsedPhrase &phrase() const { return m_ParsedPhrase; }

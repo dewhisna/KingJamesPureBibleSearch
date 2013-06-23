@@ -147,7 +147,9 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 			if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 			kjsFile.setArrayIndex(ndx);
 			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
+			pPhraseEditor->phraseEditor()->setAccentSensitive(kjsFile.value("AccentSensitive", false).toBool());
 			pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
+			pPhraseEditor->setDisabled(kjsFile.value("Disabled", false).toBool());			// Set this one on the CKJVSearchPhraseEdit to update things (as the parsed phrase doesn't signal)
 		}
 	} else {
 		// If the search had no phrases (like default loading from registry), start
@@ -177,6 +179,8 @@ void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSu
 		kjsFile.setArrayIndex(ndxCurrent);
 		kjsFile.setValue("Phrase", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase());
 		kjsFile.setValue("CaseSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive());
+		kjsFile.setValue("AccentSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isAccentSensitive());
+		kjsFile.setValue("Disabled", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled());
 		ndxCurrent++;
 	}
 	kjsFile.endArray();
@@ -274,7 +278,8 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = NULL;
 
-	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->IsDuplicate()) &&
+	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->isDuplicate()) &&
+							(!pSearchPhrase->parsedPhrase()->isDisabled()) &&
 							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
 							(pSearchPhrase->parsedPhrase()->isCompleteMatch()) &&
 							(!m_bCloseAllSearchPhrasesInProgress));
@@ -313,24 +318,25 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 {
 	int nNumPhrases = 0;
 	bool bCaseSensitive = false;
+	bool bAccentSensitive = false;
 
 	CPhraseList phrases;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
 		assert(pPhrase != NULL);
 		if ((pPhrase->GetNumberOfMatches()) &&
-			(!pPhrase->IsDuplicate())) {
+			(!pPhrase->isDuplicate()) &&
+			(!pPhrase->isDisabled())) {
 			nNumPhrases++;
 			CPhraseEntry entry;
-			entry.m_bCaseSensitive = pPhrase->isCaseSensitive();
-			entry.m_strPhrase = pPhrase->phrase();
-			entry.m_nNumWrd = pPhrase->phraseSize();
+			entry.setFromPhrase(pPhrase);
 			TPhraseOccurrenceInfo poiUsage;
 			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
 			poiUsage.m_nNumContributingMatches = pPhrase->GetContributingNumberOfMatches();
-			entry.m_varExtraInfo = QVariant::fromValue(poiUsage);
+			entry.setExtraInfo(QVariant::fromValue(poiUsage));
 			phrases.append(entry);
-			if (entry.m_bCaseSensitive) bCaseSensitive = true;
+			if (entry.caseSensitive()) bCaseSensitive = true;
+			if (entry.accentSensitive()) bAccentSensitive = true;
 		}
 	}
 
@@ -371,20 +377,26 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 		if (nNumPhrases > 1) {
 			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Entire Bible, %1 in Scope)", NULL, aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches)
-									.arg(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
+								tr("(Found %n Time(s) in the Entire Bible, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches)
+									.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Entire Bible)", NULL, aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
-				assert(aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.m_varExtraInfo.value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+								tr("(Found %n Time(s) in the Entire Bible)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
+				assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 			}
 		} else {
 			strSummary += QString("\"%1\"\n").arg(mdlPhrases.index(ndx).data().toString());
 		}
 	}
-	if (bCaseSensitive) {
+	if (bCaseSensitive || bAccentSensitive) {
 		if (nNumPhrases > 1) strSummary += "\n";
-		strSummary += "    " + tr("(%1 = Case Sensitive)").arg(QChar(0xA7)) + "\n";
+		if (bCaseSensitive) {
+			strSummary += "    " + tr("(%1 = Case Sensitive)").arg(CPhraseEntry::encCharCaseSensitive()) + "\n";
+		}
+		if (bAccentSensitive) {
+			strSummary += "    " + tr("(%1 = Accent Sensitive)").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
+		}
+
 	}
 	if (nNumPhrases) strSummary += "\n";
 
@@ -401,7 +413,8 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
 		assert(pPhrase != NULL);
-		pPhrase->SetIsDuplicate(false);
+		if (pPhrase->isDisabled()) continue;
+		pPhrase->setIsDuplicate(false);
 		pPhrase->ClearScopedPhraseTagSearchResults();
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
 			continue;		// Don't include phrases that had no matches of themselves
@@ -415,7 +428,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 			}
 		}
 		if (bDuplicate) {
-			pPhrase->SetIsDuplicate(true);
+			pPhrase->setIsDuplicate(true);
 			continue;
 		}
 
