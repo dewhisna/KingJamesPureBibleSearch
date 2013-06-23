@@ -101,6 +101,7 @@ public slots:
 
 private slots:
 	void insertCompletion(const QString &completion);
+	void insertCompletion(const QModelIndex &index);
 	void insertCommonPhraseCompletion(const QString &completion);
 	void en_textChanged();
 	void en_cursorPositionChanged();

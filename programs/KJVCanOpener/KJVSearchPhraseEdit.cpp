@@ -204,7 +204,8 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseSensitive);
 	m_pCommonPhrasesCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
-	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString&)));
+//	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
+	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 
@@ -261,6 +262,13 @@ void CPhraseLineEdit::en_phraseListChanged()
 void CPhraseLineEdit::insertCompletion(const QString& completion)
 {
 	CParsedPhrase::insertCompletion(textCursor(), completion);
+}
+
+void CPhraseLineEdit::insertCompletion(const QModelIndex &index)
+{
+//	CSearchStringListModel *pModel = (CSearchStringListModel *)(aCompleter.model());
+
+	CParsedPhrase::insertCompletion(textCursor(), index.data(Qt::DisplayRole).toString());
 }
 
 void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)

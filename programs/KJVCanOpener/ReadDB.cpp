@@ -401,14 +401,14 @@ bool CReadDatabase::ReadWordsTable()
 			m_pBibleDatabase->m_lstWordList.append(strKey);
 
 		if (entryWord.m_strWord.isEmpty()) {
-			entryWord.m_strWord = CSearchStringListModel::decompose(strWord);
+			entryWord.m_strWord = strKey;
 			entryWord.m_bCasePreserve = bCasePreserve;
 		} else {
 			// If folding duplicate words into single entry from decomposed indexes,
 			//		they better be the same exact word:
-			assert(entryWord.m_strWord.compare(CSearchStringListModel::decompose(strWord)) == 0);
+			assert(entryWord.m_strWord.compare(strKey) == 0);
 			assert(entryWord.m_bCasePreserve == bCasePreserve);
-			if ((entryWord.m_strWord.compare(CSearchStringListModel::decompose(strWord)) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
+			if ((entryWord.m_strWord.compare(strKey) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
 				QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
 				return false;
 			}

@@ -800,6 +800,15 @@ QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
 	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
 }
 
+QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const
+{
+	assert((ndxNormal >= 1) && (ndxNormal <= m_lstConcordanceMapping.size()));
+	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+		return QString();
+
+	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).decomposedWord();
+}
+
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 {
 	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(ndx);

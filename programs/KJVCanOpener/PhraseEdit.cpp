@@ -386,7 +386,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 					} else {
 						unsigned int nCount = 0;
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
-							if (expCurWord.exactMatch(wordEntry.m_lstAltWords.at(ndxAltWord))) {
+							if (expCurWord.exactMatch(CSearchStringListModel::decompose(wordEntry.m_lstAltWords.at(ndxAltWord)))) {
 								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
 															&wordEntry.m_ndxNormalizedMapping[nCount],
 														 &wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
@@ -404,7 +404,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 				QRegExp exp(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 					if (((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) &&
-						(exp.exactMatch(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1)))) {
+						(exp.exactMatch(m_pBibleDatabase->decomposedWordAtIndex(m_lstMatchMapping.at(ndxWord)+1)))) {
 						lstNextMapping.push_back(m_lstMatchMapping.at(ndxWord)+1);
 					}
 				}
