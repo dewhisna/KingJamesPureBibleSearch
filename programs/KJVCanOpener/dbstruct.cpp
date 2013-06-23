@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 #include "VerseRichifier.h"
+#include "SearchCompleter.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -206,6 +207,16 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 	}
 
 	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
+}
+
+// ============================================================================
+
+CConcordanceEntry::CConcordanceEntry(const QString &strWord, int nIndex)
+	:	m_strWord(strWord),
+		m_strDecomposedWord(CSearchStringListModel::decompose(strWord)),
+		m_nIndex(nIndex)
+{
+
 }
 
 // ============================================================================
@@ -786,7 +797,7 @@ QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
 		return QString();
 
-	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal));
+	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
 }
 
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const

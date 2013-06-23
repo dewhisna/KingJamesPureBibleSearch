@@ -54,7 +54,7 @@ QVariant CSearchStringListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	if (role == Qt::DisplayRole || role == Qt::EditRole)
-		return m_parsedPhrase.nextWordsList().at(index.row());
+		return m_parsedPhrase.nextWordsList().at(index.row()).word();
 
 	return QVariant();
 }

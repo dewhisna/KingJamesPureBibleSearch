@@ -352,20 +352,9 @@ bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &a
 	return true;
 }
 
-typedef struct {
-	QString m_strWord;
-	QString m_strDecomposedWord;
-	int m_nIndex;
-} TWordSortStruct;
-
 static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 {
 	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
-}
-
-static bool ascendingLessThanWordSortStruct(const TWordSortStruct &s1, const TWordSortStruct &s2)
-{
-	return (s1.m_strDecomposedWord.compare(s2.m_strDecomposedWord, Qt::CaseInsensitive) < 0);
 }
 
 bool CReadDatabase::ReadWordsTable()
@@ -395,12 +384,9 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_mapWordList.clear();
 	m_pBibleDatabase->m_lstWordList.clear();
 	m_pBibleDatabase->m_lstConcordanceWords.clear();
-	m_pBibleDatabase->m_lstDecomposedConcordanceWords.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.clear();
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
-	// Sort, using an index mapping to handle locating our newly positioned word so we don't
-	//	have to hunt it the hard (slow) way with indexOf:
-	QList<TWordSortStruct> lstSortArray;
+	int nConcordanceCount = 0;			// Count of words so we can preallocate our buffers
 
 	query.setForwardOnly(true);
 	query.exec("SELECT * FROM WORDS");
@@ -455,6 +441,7 @@ bool CReadDatabase::ReadWordsTable()
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad AltWordCounts for \"%1\"").arg(strWord));
 			return false;
 		}
+		nConcordanceCount += entryWord.m_lstAltWords.size();		// Note: nConcordanceCount will be slightly too large due to folding of duplicate decomposed indexes, but is sufficient for a reserve()
 
 		TIndexList lstNormalIndexes;
 		if (!IndexBlobToIndexList(query.value(6).toByteArray(), lstNormalIndexes)) {
@@ -468,6 +455,7 @@ bool CReadDatabase::ReadWordsTable()
 		entryWord.m_ndxNormalizedMapping.insert(entryWord.m_ndxNormalizedMapping.end(), lstNormalIndexes.begin(), lstNormalIndexes.end());
 	}
 
+	m_pBibleDatabase->m_lstConcordanceWords.reserve(nConcordanceCount);
 	int ndxWord = 0;
 
 	// The following has to be done in a separate loop if we allow duplicate index
@@ -480,30 +468,24 @@ bool CReadDatabase::ReadWordsTable()
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
-				TWordSortStruct wss;
-				wss.m_strWord = strAltWord;
-				wss.m_strDecomposedWord = CSearchStringListModel::decompose(strAltWord);
-				wss.m_nIndex = ndxWord;
-				lstSortArray.append(wss);
-				ndxWord++;
+			CConcordanceEntry entryConcordance(strAltWord, ndxWord);
+			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
+			ndxWord++;
 		}
 	}
 
 	// Sort all of our word forms since the alternates may sort different with
 	//		with respect to the other words:
 	qSort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
-	qSort(lstSortArray.begin(), lstSortArray.end(), ascendingLessThanWordSortStruct);
+	qSort(m_pBibleDatabase->m_lstConcordanceWords.begin(), m_pBibleDatabase->m_lstConcordanceWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 
 	assert(m_pBibleDatabase->m_lstWordList.size() == static_cast<int>(m_pBibleDatabase->m_mapWordList.size()));
 
 	// Now that we have the sorted indexes, we need to remap back to what came from what for our mapping:
 	QVector<int> lstSortIndex;
-	lstSortIndex.resize(lstSortArray.size());
-	for (int i = 0; i<lstSortArray.size(); ++i)
-		lstSortIndex[lstSortArray.at(i).m_nIndex] = i;
-
-	m_pBibleDatabase->m_lstConcordanceWords.reserve(lstSortArray.size());
-	m_pBibleDatabase->m_lstDecomposedConcordanceWords.reserve(lstSortArray.size());
+	lstSortIndex.resize(m_pBibleDatabase->m_lstConcordanceWords.size());
+	for (int i = 0; i<m_pBibleDatabase->m_lstConcordanceWords.size(); ++i)
+		lstSortIndex[m_pBibleDatabase->m_lstConcordanceWords.at(i).index()] = i;
 
 	ndxWord = 0;
 
@@ -513,9 +495,7 @@ bool CReadDatabase::ReadWordsTable()
 		// Now that we've built the concordance list and have sorted it, we'll set our normalized indices:
 		unsigned int ndxMapping = 0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			assert(ndxWord < lstSortArray.size());
-			m_pBibleDatabase->m_lstConcordanceWords.append(lstSortArray.at(ndxWord).m_strWord);
-			m_pBibleDatabase->m_lstDecomposedConcordanceWords.append(lstSortArray.at(ndxWord).m_strDecomposedWord);
+			assert(ndxWord < m_pBibleDatabase->m_lstConcordanceWords.size());
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				assert(ndxMapping < entryWord.m_ndxNormalizedMapping.size());
 				if (entryWord.m_ndxNormalizedMapping.at(ndxMapping) > nNumWordsInText) {
@@ -528,9 +508,8 @@ bool CReadDatabase::ReadWordsTable()
 			ndxWord++;
 		}
 	}
-	assert(m_pBibleDatabase->concordanceWordList().size() == lstSortArray.size());
 	assert(m_pBibleDatabase->m_lstConcordanceMapping.size() == (nNumWordsInText + 1));
-	assert(ndxWord == lstSortArray.size());
+	assert(ndxWord == m_pBibleDatabase->m_lstConcordanceWords.size());
 
 
 // Used for debugging:

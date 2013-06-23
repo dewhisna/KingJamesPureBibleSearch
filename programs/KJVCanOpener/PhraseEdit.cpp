@@ -325,27 +325,6 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_nCursorWord = m_lstWords.size();
 }
 
-//typedef struct {
-//	QString m_strWord;
-//	QString m_strDecomposedWord;
-//	int m_nIndex;
-//} TWordSortStruct;
-
-//static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
-//{
-//	return (s1.compare(s2, Qt::CaseInsensitive) < 0);
-//}
-
-static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
-{
-	return (CSearchStringListModel::decompose(s1).compare(CSearchStringListModel::decompose(s2), Qt::CaseInsensitive) < 0);
-}
-
-//static bool ascendingLessThanWordSortStruct(const TWordSortStruct &s1, const TWordSortStruct &s2)
-//{
-//	return (s1.m_strDecomposedWord.compare(s2.m_strDecomposedWord, Qt::CaseInsensitive) < 0);
-//}
-
 void CParsedPhrase::FindWords(int nCursorWord)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -450,27 +429,26 @@ void CParsedPhrase::FindWords(int nCursorWord)
 
 			if ((ndx+1) == nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
 				if (!bInFirstWordStar) {
+					// Note: For some reason, adding to a QStringList and removing duplicates is
+					//		faster than using !TConcordanceList.contains() to just not add them
+					//		with initially and directly into m_lstNextWords.  Strange...
+					//		This will use a little more memory, but...
 					m_lstNextWords.clear();
+					QStringList lstNextWords;
 					for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 						if ((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-							m_lstNextWords.push_back(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1));
+							lstNextWords.append(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1));
 						}
 					}
-					m_lstNextWords.removeDuplicates();
-//					QList<TWordSortStruct> lstNextWordsSort;
-//					lstNextWordsSort.reserve(m_lstNextWords.size());
-//					for (int ndxWord = 0; ndxWord < m_lstNextWords.size(); ++ndxWord) {
-//						TWordSortStruct wss;
-//						wss.m_strWord = m_lstNextWords.at(ndxWord);
-//						wss.m_strDecomposedWord = CSearchStringListModel::decompose(wss.m_strWord);
-//						wss.m_nIndex = ndxWord;
-//						lstNextWordsSort.append(wss);
-//					}
-//					qSort(lstNextWordsSort.begin(), lstNextWordsSort.end(), ascendingLessThanWordSortStruct);
-//					for (int ndxWord = 0; ndxWord < lstNextWordsSort.size(); ++ndxWord) {
-//						m_lstNextWords[ndxWord] = lstNextWordsSort.at(ndxWord).m_strWord;
-//					}
-					qSort(m_lstNextWords.begin(), m_lstNextWords.end(), ascendingLessThanStrings);
+					lstNextWords.removeDuplicates();
+
+					m_lstNextWords.reserve(lstNextWords.size());
+					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
+						CConcordanceEntry nextWordEntry(lstNextWords.at(ndxWord));
+						m_lstNextWords.append(nextWordEntry);
+					}
+
+					qSort(m_lstNextWords.begin(), m_lstNextWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 					bComputedNextWords = true;
 				} else {
 					m_lstNextWords = m_pBibleDatabase->concordanceWordList();

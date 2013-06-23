@@ -51,7 +51,7 @@ public:
 	virtual ~CParsedPhrase();
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
-	inline const QStringList &nextWordsList() const { return m_lstNextWords; }
+	inline const TConcordanceList &nextWordsList() const { return m_lstNextWords; }
 
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
 	//			use for maintaining statistics about this phrase in context with others and
@@ -122,7 +122,7 @@ protected:
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
-	QStringList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
+	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
 	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
 	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())

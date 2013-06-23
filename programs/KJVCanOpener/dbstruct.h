@@ -370,8 +370,39 @@ typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		
 // Concordance -- Mapping of words and their Normalized positions:
 //
 
-typedef QStringList TConcordanceList;
+class CConcordanceEntry
+{
+public:
+	CConcordanceEntry(const QString &strWord, int nIndex = 0);
 
+	inline const QString &word() const { return m_strWord; }
+	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
+	inline int index() const { return m_nIndex; }
+
+	bool operator==(const CConcordanceEntry &src) const
+	{
+		return (m_strWord.compare(src.m_strWord) == 0);
+	}
+
+private:
+	QString m_strWord;						// Composed Word (as in the actual text)
+	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
+	int m_nIndex;							// Index used when sorting and keeping external reference intact
+};
+
+typedef QList<CConcordanceEntry> TConcordanceList;
+
+struct TConcordanceListSortPredicate {
+	static bool ascendingLessThanWordCaseInsensitive(const CConcordanceEntry &s1, const CConcordanceEntry &s2)
+	{
+		return (s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseInsensitive) < 0);
+	}
+
+	static bool ascendingLessThanWordCaseSensitive(const CConcordanceEntry &s1, const CConcordanceEntry &s2)
+	{
+		return (s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseSensitive) < 0);
+	}
+};
 
 // ============================================================================
 
@@ -534,10 +565,6 @@ public:
 	{
 		return m_lstConcordanceWords;
 	}
-	inline const TConcordanceList &decomposedConcordanceWordList() const	// List of all words as decomposed UTF8 in sorted order.  Used for initial list for FindWords() and auto-completer
-	{
-		return m_lstDecomposedConcordanceWords;
-	}
 	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
 	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
@@ -571,7 +598,6 @@ private:
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)
 	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
-	TConcordanceList m_lstDecomposedConcordanceWords;	// List (QStringList) of all Unique Words as Decomposed UTF8 in sorted order for the auto-completer (doesn't follow the mapping indexes above!!)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 
