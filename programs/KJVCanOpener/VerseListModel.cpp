@@ -26,6 +26,7 @@
 #include <QVector>
 #include <QModelIndexList>
 #include <iterator>
+#include <list>
 
 // ============================================================================
 
@@ -980,8 +981,13 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 			// We got a match, so push results to output and flag for new scopes:
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 				TPhraseTagList &lstScopedPhraseTags = m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
+#ifndef Q_OS_WIN32
 				const std::list<TPhraseTag> lstTagsToInsert(lstItrStart[ndx], lstItrEnd[ndx]);
 				lstScopedPhraseTags.append(TPhraseTagList::fromStdList(lstTagsToInsert));
+#else
+				for (TPhraseTagList::const_iterator itrStart = lstItrStart[ndx]; itrStart != lstItrEnd[ndx]; ++itrStart)
+					lstScopedPhraseTags.append(*itrStart);
+#endif
 				lstNeedScope[ndx] = true;
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
 					CRelIndex ndxNextRelative = itr->relIndex();

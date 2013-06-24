@@ -99,7 +99,7 @@ public:
 	virtual bool isAccentSensitive() const { return CParsedPhrase::isAccentSensitive(); }
 	virtual void setAccentSensitive(bool bAccentSensitive);
 
-	inline bool isDisabled() const { assert(false); }												// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
 	virtual QSize sizeHint();
