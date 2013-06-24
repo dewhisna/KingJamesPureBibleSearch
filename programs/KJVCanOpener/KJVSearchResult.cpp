@@ -604,7 +604,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	if (pOldModel) delete pOldModel;
 	m_pSearchResultsTreeView->setRootIsDecorated(pModel->treeMode() != CVerseListModel::VTME_LIST);
 
-	CReflowDelegate *pReflowDelegate = new CReflowDelegate(m_pSearchResultsTreeView);
+	CReflowDelegate *pReflowDelegate = new CReflowDelegate(m_pSearchResultsTreeView, true, true);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*pModel, m_pSearchResultsTreeView);
 	pReflowDelegate->setItemDelegate(pDelegate);
 	QAbstractItemDelegate *pOldDelegate = m_pSearchResultsTreeView->itemDelegate();

@@ -117,11 +117,12 @@ namespace {
 
 // ============================================================================
 
-CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate)
+CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate, bool bReflowDisabled)
 	:	QAbstractItemDelegate(parent),
 		m_bOnlyLeaves(false),
 		m_bDoBlockingUpdate(bDoBlockingUpdate),
-		m_nSizeHintCacheMode(SHCME_CachedOnly)
+		m_nSizeHintCacheMode(SHCME_CachedOnly),
+		m_bReflowDisabled(bReflowDisabled)
 {
 	assert(parent != NULL);
 
@@ -143,9 +144,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate)
 CReflowDelegate::~CReflowDelegate()
 {
 	// Closing the widget interrupts reflow:
-	if (m_timerReflow.isActive()) {
-		QApplication::restoreOverrideCursor();
-	}
+	reflowHalt();
 }
 
 QWidget *CReflowDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex & index) const
@@ -260,7 +259,7 @@ void CReflowDelegate::setOnlyLeaves(bool bOnlyLeaves)
 
 void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint, QVector<QSize> *pVecSZColumns, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode) const
 {
-	// If this one that isn't considered for reflowing, bailout:
+	// If this one isn't on that's considered for reflowing, bailout:
 	if (!index.isValid() || (m_bOnlyLeaves && index.model()->hasChildren(index))) return;
 
 	QTreeView *pView = parentView();
@@ -281,13 +280,18 @@ void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModel
 
 				// Instead, just use a bogus placeholder for the row with enough height to make scrolling behave reasonably:
 				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height());
+// This next line was an attempt to make a more realistic size based on the average number of letters per
+//		verse, but for whatever reason, it doesn't work -- I'm thinking it should be qMax instead of qMin,
+//		but also could be that option.rect just isn't set.  I didn't bother chasing it down since the
+//		original "1 line" calculation wasn't too bad.  The non-linear scroll almost isn't noticeable...
+//				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height() * qMin(1, ((option.fontMetrics.width('X')*190)/option.rect.width())));
 
 				// We're giving bogus answers, so start a background reflow to compute an accurate answer later (reflowTick will use ComputeIfNeeded)
 				const_cast<CReflowDelegate *>(this)->startReflow();
 				return;
 			}
 
-			// If requested, or if we cannot cache cannot cache it (in which case there's nowhere
+			// If requested, or if we cannot cache it (in which case there's nowhere
 			//	to keep a value computed in the background) we have to compute it right now.  Then
 			//	compute and cache the sizeHint:
 			sizeHint = itemDelegate(ndxColumn)->sizeHint(option, ndxColumn);
@@ -341,15 +345,27 @@ void CReflowDelegate::layoutViewport(QSize size)
 	startReflow();
 }
 
+void CReflowDelegate::setReflowDisabled(bool bDisable)
+{
+	m_bReflowDisabled = bDisable;
+	if (bDisable) {
+		reflowHalt();
+	} else {
+		startReflow();
+	}
+}
+
 void CReflowDelegate::startReflow()
 {
-	if (m_timerReflow.isActive()) {
-		// If we are already running reflow, restart back tot he beginning of the model:
-		m_itrReflowIndex = QModelIndex();
-	} else {
-		// If we aren't current running reflow, start it:
-		QApplication::setOverrideCursor(Qt::BusyCursor);
-		m_timerReflow.start();
+	if (!m_bReflowDisabled) {
+		if (m_timerReflow.isActive()) {
+			// If we are already running reflow, restart back tot he beginning of the model:
+			m_itrReflowIndex = QModelIndex();
+		} else {
+			// If we aren't current running reflow, start it:
+			QApplication::setOverrideCursor(Qt::BusyCursor);
+			m_timerReflow.start();
+		}
 	}
 }
 
@@ -463,10 +479,7 @@ void CReflowDelegate::reflowTick()
 		}
 
 		// If reflow is complete, so ticking:
-		if (!m_itrReflowIndex) {
-			m_timerReflow.stop();
-			QApplication::restoreOverrideCursor();
-		}
+		if (!m_itrReflowIndex) reflowHalt();
 	}
 }
 

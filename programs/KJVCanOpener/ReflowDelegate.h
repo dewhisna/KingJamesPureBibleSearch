@@ -65,7 +65,7 @@ private:
 class CReflowDelegate : public QAbstractItemDelegate {
 	Q_OBJECT
 public:
-	CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate = true);
+	CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate = true, bool bReflowDisabled = false);
 	~CReflowDelegate();
 
 	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex & index) const;
@@ -91,7 +91,10 @@ public:
 	bool onlyLeaves() const { return m_bOnlyLeaves; }
 	void setOnlyLeaves(bool bOnlyLeaves);
 
+	inline bool isReflowDisabled() const { return m_bReflowDisabled; }
+
 public slots:
+	void setReflowDisabled(bool bDisable);
 	void startReflow();
 
 	bool helpEvent(QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index);
@@ -139,6 +142,7 @@ private:
 
 	QTimer m_timerReflow;
 	CModelRowForwardIterator m_itrReflowIndex;
+	bool m_bReflowDisabled;
 };
 
 #endif		// REFLOW_DELEGATE_H
