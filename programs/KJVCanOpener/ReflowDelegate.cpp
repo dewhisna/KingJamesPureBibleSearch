@@ -279,7 +279,7 @@ void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModel
 				// so that revealing large numbers of rows does not make the app seem to hang.
 
 				// Instead, just use a bogus placeholder for the row with enough height to make scrolling behave reasonably:
-				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height());
+				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height() * 4);
 // This next line was an attempt to make a more realistic size based on the average number of letters per
 //		verse, but for whatever reason, it doesn't work -- I'm thinking it should be qMax instead of qMin,
 //		but also could be that option.rect just isn't set.  I didn't bother chasing it down since the
