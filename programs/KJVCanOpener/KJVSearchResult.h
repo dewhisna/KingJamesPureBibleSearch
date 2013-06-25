@@ -43,10 +43,11 @@
 
 // ============================================================================
 
+// Forward declarations:
+class CKJVCanOpener;
+class CReflowDelegate;
 
 // ============================================================================
-
-class CKJVCanOpener;		// Forward declaration
 
 class CSearchResultsTreeView : public QTreeView
 {
@@ -203,6 +204,7 @@ private:
 // UI Private:
 private:
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
+	CReflowDelegate *m_pReflowDelegate;
 	QLabel *m_pSearchResultsCount;
 };
 

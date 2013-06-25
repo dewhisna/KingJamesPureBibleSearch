@@ -553,7 +553,9 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_nLastSearchChapters(0),
 	m_nLastSearchBooks(0),
 	m_bLastCalcSuccess(true),
-	m_nLastSearchNumPhrases(0)
+	m_nLastSearchNumPhrases(0),
+	m_pSearchResultsTreeView(NULL),
+	m_pReflowDelegate(NULL)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -604,12 +606,13 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	if (pOldModel) delete pOldModel;
 	m_pSearchResultsTreeView->setRootIsDecorated(pModel->treeMode() != CVerseListModel::VTME_LIST);
 
-	CReflowDelegate *pReflowDelegate = new CReflowDelegate(m_pSearchResultsTreeView, true, true);
+	m_pReflowDelegate = new CReflowDelegate(m_pSearchResultsTreeView, true, true);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*pModel, m_pSearchResultsTreeView);
-	pReflowDelegate->setItemDelegate(pDelegate);
+	m_pReflowDelegate->setItemDelegate(pDelegate);
 	QAbstractItemDelegate *pOldDelegate = m_pSearchResultsTreeView->itemDelegate();
-	m_pSearchResultsTreeView->setItemDelegate(pReflowDelegate);
+	m_pSearchResultsTreeView->setItemDelegate(m_pReflowDelegate);
 	if (pOldDelegate) delete pOldDelegate;
+	m_pReflowDelegate->setFakeSizeHintRowCount((pModel->displayMode() != CVerseListModel::VDME_HEADING) ? 4 : 1);
 
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
 	connect(model(), SIGNAL(modelReset()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
@@ -670,6 +673,7 @@ bool CKJVSearchResult::canShowPassageNavigator() const
 void CKJVSearchResult::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
 	model()->setDisplayMode(nDisplayMode);
+	m_pReflowDelegate->setFakeSizeHintRowCount((model()->displayMode() != CVerseListModel::VDME_HEADING) ? 4 : 1);
 }
 
 void CKJVSearchResult::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)

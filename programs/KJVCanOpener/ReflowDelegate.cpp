@@ -121,6 +121,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate, bool
 	:	QAbstractItemDelegate(parent),
 		m_bOnlyLeaves(false),
 		m_bDoBlockingUpdate(bDoBlockingUpdate),
+		m_nFakeSizeHintRowCount(1),
 		m_nSizeHintCacheMode(SHCME_CachedOnly),
 		m_bReflowDisabled(bReflowDisabled)
 {
@@ -279,12 +280,7 @@ void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModel
 				// so that revealing large numbers of rows does not make the app seem to hang.
 
 				// Instead, just use a bogus placeholder for the row with enough height to make scrolling behave reasonably:
-				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height() * 4);
-// This next line was an attempt to make a more realistic size based on the average number of letters per
-//		verse, but for whatever reason, it doesn't work -- I'm thinking it should be qMax instead of qMin,
-//		but also could be that option.rect just isn't set.  I didn't bother chasing it down since the
-//		original "1 line" calculation wasn't too bad.  The non-linear scroll almost isn't noticeable...
-//				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height() * qMin(1, ((option.fontMetrics.width('X')*190)/option.rect.width())));
+				if (pSizeHint) *pSizeHint = QSize(0, option.fontMetrics.height() * m_nFakeSizeHintRowCount);
 
 				// We're giving bogus answers, so start a background reflow to compute an accurate answer later (reflowTick will use ComputeIfNeeded)
 				const_cast<CReflowDelegate *>(this)->startReflow();

@@ -32,6 +32,8 @@
 
 #include "ModelRowForwardIterator.h"
 
+#include <assert.h>
+
 // Forward Declarations:
 class QTreeView;
 
@@ -93,6 +95,9 @@ public:
 
 	inline bool isReflowDisabled() const { return m_bReflowDisabled; }
 
+	void setFakeSizeHintRowCount(int nRowCount = 1) { assert(nRowCount >= 1); m_nFakeSizeHintRowCount = nRowCount; }
+	inline int fakeSizeHintRowCount() const { return m_nFakeSizeHintRowCount; }
+
 public slots:
 	void setReflowDisabled(bool bDisable);
 	void startReflow();
@@ -137,6 +142,7 @@ private:
 
 	bool m_bOnlyLeaves;
 	bool m_bDoBlockingUpdate;
+	int m_nFakeSizeHintRowCount;
 
 	SIZE_HINT_CACHE_MODE_ENUM m_nSizeHintCacheMode;
 
