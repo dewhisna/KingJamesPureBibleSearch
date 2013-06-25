@@ -671,13 +671,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	assert(pPhrase != NULL);
 
 	m_phraseEntry.setFromPhrase(pPhrase);
-
-	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
-	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
-	bool bHaveText = (!m_phraseEntry.text().isEmpty());
-	ui->buttonAddPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
-	ui->buttonDelPhrase->setEnabled(m_bHaveUserDatabase && bHaveText && bUserFound);
-	ui->buttonClear->setEnabled(!ui->editPhrase->toPlainText().isEmpty());
+	setPhraseButtonEnables();
 
 	// If last time, this phrase didn't have anything meaningful, if it still doesn't
 	//		then there's no need to send a notification as the overall search results
@@ -737,6 +731,11 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 	m_bUpdateInProgress = true;
 	ui->chkDisable->setChecked(bDisabled);					// Set the checkbox in case the phrase editor is setting us
 	parsedPhrase()->setIsDisabled(bDisabled);				// Set the phrase editor in case the checkbox is setting us
+	ui->editPhrase->setEnabled(!bDisabled);					// Disable the editor things so user realized this phrase is disabled
+	ui->chkCaseSensitive->setEnabled(!bDisabled);
+	ui->chkAccentSensitive->setEnabled(!bDisabled);
+	ui->editPhrase->getDropListButton()->setEnabled(!bDisabled);
+	setPhraseButtonEnables();
 	m_bUpdateInProgress = false;
 	en_phraseChanged();										// Unlike Case-Sensitive and Accent-Sensitive, CPhraseLineEdit doesn't have a signals handler for this to trigger a phraseChaged.  So we must do it here.
 }
@@ -746,8 +745,7 @@ void CKJVSearchPhraseEdit::en_phraseAdd()
 	assert(!g_lstUserPhrases.contains(m_phraseEntry));
 	g_lstUserPhrases.push_back(m_phraseEntry);
 	g_bUserPhrasesDirty = true;
-	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setEnabled(m_bHaveUserDatabase && !parsedPhrase()->phrase().isEmpty());
+	setPhraseButtonEnables();
 	emit phraseListChanged();
 }
 
@@ -759,8 +757,7 @@ void CKJVSearchPhraseEdit::en_phraseDel()
 		g_lstUserPhrases.removeAt(ndx);
 		g_bUserPhrasesDirty = true;
 	}
-	ui->buttonAddPhrase->setEnabled(m_bHaveUserDatabase && !parsedPhrase()->phrase().isEmpty());
-	ui->buttonDelPhrase->setEnabled(false);
+	setPhraseButtonEnables();
 	emit phraseListChanged();
 }
 
@@ -768,5 +765,15 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 {
 	ui->editPhrase->clear();
 	m_phraseEntry.clear();
+	// No need to call setPhraseButtonEnables because the textChanged event caused by the call above will do it for us
 }
 
+void CKJVSearchPhraseEdit::setPhraseButtonEnables()
+{
+	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
+	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
+	bool bHaveText = (!m_phraseEntry.text().isEmpty());
+	ui->buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
+	ui->buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
+	ui->buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui->editPhrase->toPlainText().isEmpty());
+}

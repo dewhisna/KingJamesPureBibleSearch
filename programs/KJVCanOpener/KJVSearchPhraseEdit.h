@@ -201,6 +201,9 @@ protected slots:
 	void en_phraseDel();
 	void en_phraseClear();
 
+private:
+	void setPhraseButtonEnables();
+
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
