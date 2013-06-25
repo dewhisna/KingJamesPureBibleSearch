@@ -981,15 +981,9 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 			// We got a match, so push results to output and flag for new scopes:
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 				TPhraseTagList &lstScopedPhraseTags = m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
-#ifndef Q_OS_WIN32
-				const std::list<TPhraseTag> lstTagsToInsert(lstItrStart[ndx], lstItrEnd[ndx]);
-				lstScopedPhraseTags.append(TPhraseTagList::fromStdList(lstTagsToInsert));
-#else
-				for (TPhraseTagList::const_iterator itrStart = lstItrStart[ndx]; itrStart != lstItrEnd[ndx]; ++itrStart)
-					lstScopedPhraseTags.append(*itrStart);
-#endif
-				lstNeedScope[ndx] = true;
+				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
+					lstScopedPhraseTags.append(*itr);
 					CRelIndex ndxNextRelative = itr->relIndex();
 					ndxNextRelative.setWord(0);
 					if (m_mapVerses.contains(ndxNextRelative)) {
@@ -998,6 +992,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 						m_mapVerses.insert(ndxNextRelative, CVerseListItem(m_pBibleDatabase, *itr));
 					}
 				}
+				lstNeedScope[ndx] = true;
 			}
 		}
 	}
