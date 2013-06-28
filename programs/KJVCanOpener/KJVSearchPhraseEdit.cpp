@@ -173,18 +173,13 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(this, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 
-	CSearchStringListModel *pModel = new CSearchStringListModel(*this, this);
 #if QT_VERSION < 0x050000
-	m_pCompleter = new CComposingCompleter(pModel, this);
+	m_pCompleter = new CComposingCompleter(*this, this);
 #else
-	m_pCompleter = new CSearchCompleter(pModel, this);
+	m_pCompleter = new CSearchCompleter(*this, this);
 #endif
-	m_pCompleter->setWidget(this);
-	m_pCompleter->setCompletionMode(QCompleter::PopupCompletion /* UnfilteredPopupCompletion */ );
-	m_pCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
-	m_pCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
@@ -280,8 +275,6 @@ void CPhraseLineEdit::insertCompletion(const QString& completion)
 
 void CPhraseLineEdit::insertCompletion(const QModelIndex &index)
 {
-//	CSearchStringListModel *pModel = (CSearchStringListModel *)(aCompleter.model());
-
 	CParsedPhrase::insertCompletion(textCursor(), index.data(Qt::DisplayRole).toString());
 }
 
@@ -516,7 +509,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	strPrefix = CSearchStringListModel::decompose(strPrefix);
 
 	if (strPrefix != m_pCompleter->completionPrefix()) {
-		m_pCompleter->setCompletionPrefix(strPrefix);
+		m_pCompleter->CSearchCompleter::setCompletionPrefix(strPrefix);
 		UpdateCompleter();
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();

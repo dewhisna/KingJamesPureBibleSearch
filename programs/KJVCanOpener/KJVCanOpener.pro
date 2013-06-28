@@ -8,6 +8,9 @@ QT       += core gui sql
 
 CONFIG += rtti
 
+#QRegularExpression Qt5->Qt4 experimentation:
+#CONFIG += pcre
+
 # Miscellaneous Special-Testing Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE
@@ -33,6 +36,16 @@ macx:release:QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 
 TARGET = KingJamesPureBibleSearch
 TEMPLATE = app
+
+#QRegularExpression Qt5->Qt4 experimentation:
+#pcre {
+#	include($$PWD/Qt5/3rdparty/pcre.pri)
+#	SOURCES += $$PWD/Qt5/QRegularExpression/qregularexpression.cpp
+#	HEADERS += $$PWD/Qt5/QRegularExpression/qregularexpression.h
+#	INCLUDEPATH += $$PWD/Qt5/QRegularExpression
+#} else {
+#	LIBS_PRIVATE += -lpcre16
+#}
 
 RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 

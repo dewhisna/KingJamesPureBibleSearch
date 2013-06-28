@@ -451,7 +451,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 
 					m_lstNextWords.reserve(lstNextWords.size());
 					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
-						CConcordanceEntry nextWordEntry(lstNextWords.at(ndxWord));
+						const CConcordanceEntry &nextWordEntry(lstNextWords.at(ndxWord));
 						m_lstNextWords.append(nextWordEntry);
 					}
 

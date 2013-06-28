@@ -63,8 +63,8 @@ class CComposingCompleter : public CSearchCompleter
 	Q_OBJECT
 
 public:
-	CComposingCompleter(CSearchStringListModel *model, QWidget *parentWidget)
-		:	CSearchCompleter(model, parentWidget)
+	CComposingCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
+		:	CSearchCompleter(parsedPhrase, parentWidget)
 	{
 
 	}
