@@ -534,67 +534,17 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 	if (strSoundEx.isEmpty()) return QString();
 
 	// Enhanced Non-Census Mode:
-	//		Underscore placeholders(_) will be removed below...
 	if (nOption == SEOME_ENHANCED) {
-		if (strSoundEx.startsWith("PS") ||						// Replace PS with S at start of word
-			strSoundEx.startsWith("PF"))						// Replace PF with F at start of word
-			strSoundEx[0] = QChar('_');
+		strSoundEx.remove(QRegExp("^P(?=[SF])"));				// Replace PS at start of word with S and PF at start of word with F
+		strSoundEx.replace(QRegExp("^[AI](?=[AEIO])"), "E");	// Replace A or I with E at start of word when followed by [AEIO]
 
-		if (strSoundEx.startsWith("AA") ||						// Replace A or I with E at start of word when followed by [AEIO]
-			strSoundEx.startsWith("AE") ||
-			strSoundEx.startsWith("AI") ||
-			strSoundEx.startsWith("AO") ||
-			strSoundEx.startsWith("IA") ||
-			strSoundEx.startsWith("IE") ||
-			strSoundEx.startsWith("II") ||
-			strSoundEx.startsWith("IO"))
-			strSoundEx[0] = QChar('E');
-
-		for (int i = 0; i < strSoundEx.size(); ++i) {
-			if (i > (strSoundEx.size() - 2)) continue;			// Need at least 2 characters for the following compares
-			QStringRef strNextTwo(&strSoundEx, i, 2);
-
-			if ((strNextTwo.compare("DG") == 0) ||				// Replace DG with G
-				(strNextTwo.compare("GH") == 0) ||				// Replace GH with H
-				(strNextTwo.compare("KN") == 0) ||				// Replace KN with N
-				(strNextTwo.compare("GN") == 0)) {				// Replace GN with N (not "ng")
-				strSoundEx[i] = QChar('_');
-				++i;
-				continue;
-			}
-
-			if (strNextTwo.compare("MB") == 0) {				// Replace MB with M
-				strSoundEx[i+1] = QChar('_');
-				++i;
-				continue;
-			}
-
-			if (strNextTwo.compare("PH") == 0) {				// Replace PH wtih F
-				strSoundEx[i] = QChar('F');
-				strSoundEx[i+1] = QChar('_');
-				++i;
-				continue;
-			}
-
-			if (i > (strSoundEx.size() - 3)) continue;			// Need at least 3 characters for the following compares
-			QStringRef strNextThree(&strSoundEx, i, 3);
-
-			if (strNextThree.compare("TCH") == 0) {				// Replace TCH with CH
-				strSoundEx[i] = QChar('_');
-				i+=2;
-				continue;
-			}
-
-			if ((strNextThree.compare("MPS") == 0) ||
-				(strNextThree.compare("MPT") == 0) ||
-				(strNextThree.compare("MPZ") == 0)) {			// Replace MP with M when followed by S, Z, or T
-				strSoundEx[i+1] = QChar('_');
-				++i;
-				continue;
-			}
-		}
-
-		strSoundEx.remove(QChar('_'));							// Remove our temporary "_" characters
+		strSoundEx.replace(QRegExp("DG"), "G");					// Replace DG with G
+		strSoundEx.replace(QRegExp("GH"), "H");					// Replace GH with H
+		strSoundEx.replace(QRegExp("[KG]N"), "N");				// Replace KN and GN (not "ng") with N
+		strSoundEx.replace(QRegExp("MB"), "M");					// Replace MB with M
+		strSoundEx.replace(QRegExp("PH"), "F");					// Replace PH wtih F
+		strSoundEx.replace(QRegExp("TCH"), "CH");				// Replace TCH with CH
+		strSoundEx.replace(QRegExp("MP(?=[STZ])"), "M");		// Replace MP with M when followed by S, Z, or T
 	}
 
 	assert(strSoundEx.size());

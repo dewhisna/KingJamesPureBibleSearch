@@ -512,6 +512,24 @@ bool CReadDatabase::ReadWordsTable()
 	assert(ndxWord == m_pBibleDatabase->m_lstConcordanceWords.size());
 
 
+// Code to dump all of the SoundEx values for the words in this database, used
+//	to verify SoundEx equations:
+#ifdef DUMP_SOUNDEX_LIST
+	QFile fileSoundEx("soundex.txt");
+	fileSoundEx.open(QIODevice::WriteOnly);
+	fileSoundEx.write(QString(QChar(0xFEFF)).toUtf8());
+	QTextStream ts(&fileSoundEx);
+
+	for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
+		const CWordEntry &entryWord(itrWordEntry->second);
+
+		ts << entryWord.m_strWord << "," << CSoundExSearchCompleterFilter::soundEx(entryWord.m_strWord) << "\n";
+	}
+
+	fileSoundEx.close();
+#endif
+
+
 // Used for debugging:
 #ifdef NEVER
 	QFile fileTest("testit.txt");
