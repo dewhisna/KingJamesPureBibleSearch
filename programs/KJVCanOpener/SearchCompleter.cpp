@@ -138,12 +138,12 @@ CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *p
 {
 	m_pSearchStringListModel = new CSearchStringListModel(parsedPhrase, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
-	setCompletionFilterMode(m_nCompletionFilterMode);
-	setModel(m_pSoundExFilterModel);
 
 	setWidget(parentWidget);
 	setCaseSensitivity(Qt::CaseInsensitive);
-	setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+	// Note: CompletionMode, CompletionRole, and ModelSorting properties are set in setCompletionFilterMode(), as they depend on the mode:
+	setCompletionFilterMode(m_nCompletionFilterMode);
+	setModel(m_pSoundExFilterModel);
 }
 
 CSearchCompleter::~CSearchCompleter()
@@ -165,8 +165,8 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 		case SCFME_UNFILTERED:
 			setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 			m_pSoundExFilterModel->setSoundExEnabled(false);
-			setCompletionRole(Qt::EditRole);
-			setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+			setCompletionRole(Qt::DisplayRole);
+			setModelSorting(QCompleter::UnsortedModel);				// We're sorted by the editRole, not the displayRole
 			break;
 		case SCFME_SOUNDEX:
 			setCompletionMode(QCompleter::UnfilteredPopupCompletion);
@@ -191,7 +191,7 @@ void CSearchCompleter::setFilterMatchString()
 #endif
 
 	m_strFilterMatchString = strPrefix;
-	setCompletionPrefix((completionFilterMode() != SCFME_SOUNDEX) ? strPrefixDecomposed : strPrefix);
+	setCompletionPrefix((completionFilterMode() == SCFME_NORMAL) ? strPrefixDecomposed : strPrefix);
 	m_pSoundExFilterModel->setFilterFixedString(strPrefix);
 }
 
