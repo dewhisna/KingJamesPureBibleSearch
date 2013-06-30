@@ -132,7 +132,7 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_parsedPhrase(parsedPhrase),
-		m_nCompletionFilterMode(SCFME_UNFILTERED),
+		m_nCompletionFilterMode(SCFME_SOUNDEX),
 		m_pSearchStringListModel(NULL),
 		m_pSoundExFilterModel(NULL)
 {
@@ -167,8 +167,6 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 			m_pSoundExFilterModel->setSoundExEnabled(false);
 			setCompletionRole(Qt::EditRole);
 			setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-//			setCompletionRole(Qt::DisplayRole);
-//			setModelSorting(QCompleter::UnsortedModel);				// We're sorted by the editRole, not the displayRole
 			break;
 		case SCFME_SOUNDEX:
 			setCompletionMode(QCompleter::UnfilteredPopupCompletion);
@@ -193,18 +191,16 @@ void CSearchCompleter::setFilterMatchString()
 #endif
 
 	m_strFilterMatchString = strPrefix;
-//	setCompletionPrefix((completionFilterMode() == SCFME_NORMAL) ? strPrefixDecomposed : strPrefix);
 	setCompletionPrefix((completionFilterMode() != SCFME_SOUNDEX) ? strPrefixDecomposed : strPrefix);
 	m_pSoundExFilterModel->setFilterFixedString(strPrefix);
 }
 
 void CSearchCompleter::selectFirstMatchString()
 {
-//#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SelectFirstMatch: CursorWord: \"%s\"  CurrentCompletion: \"%s\"", m_parsedPhrase.GetCursorWord().toUtf8().data(), currentCompletion().toUtf8().data());
-//#endif
-
 	qDebug("Completion Model Size: %d", completionModel()->rowCount());
+#endif
 
 	popup()->clearSelection();
 
@@ -223,46 +219,13 @@ void CSearchCompleter::selectFirstMatchString()
 					}
 				}
 			}
-//			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0)
-//				popup()->setCurrentIndex(completionModel()->index(0, 0));
 			break;
 		case CSearchCompleter::SCFME_UNFILTERED:
 			if (indexFirstComposedWord.isValid()) {
 				popup()->setCurrentIndex(indexFirstComposedWord);
 			}
 			break;
-//		case CSearchCompleter::SCFME_SOUNDEX:
-//			if (indexFirstComposedWord.isValid()) {
-//				popup()->setCurrentIndex(indexFirstComposedWord);
-//			}
-//			break;
 	}
-
-
-
-/*
-	switch (completionFilterMode()) {
-		case CSearchCompleter::SCFME_NORMAL:
-			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0)
-				popup()->setCurrentIndex(completionModel()->index(0, 0));
-			break;
-		case CSearchCompleter::SCFME_UNFILTERED:
-			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0) {
-				popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
-				popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
-			}
-			break;
-		case CSearchCompleter::SCFME_SOUNDEX:
-			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0) {
-				popup()->setCurrentIndex(completionModel()->index(0, 0));
-//				popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
-//				popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
-			}
-			break;
-	}
-
-*/
-
 }
 
 void CSearchCompleter::setWordsFromPhrase()
@@ -368,9 +331,9 @@ bool CSoundExSearchCompleterFilter::setData(const QModelIndex &index, const QVar
 
 void CSoundExSearchCompleterFilter::setFilterFixedString(const QString &strPattern)
 {
-//#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SoundExSearchCompleter::setFilterFixedString : \"%s\" => \"%s\"", m_strFilterFixedString.toUtf8().data(), strPattern.toUtf8().data());
-//#endif
+#endif
 
 	bool bNeedUpdate = (m_strFilterFixedString.compare(strPattern) != 0);
 	m_strFilterFixedString = strPattern;
@@ -490,7 +453,9 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 			m_nFirstDecomposedMatchStringIndex = m_lstDecomposedWords.indexOf(expPrefix);
 			m_nFirstComposedMatchStringIndex = m_lstComposedWords.indexOf(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
 
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("Prefix: \"%s\"  expPrefix: \"%s\"  nFirstMatch: %d", strDecomposedFilterString.toUtf8().data(), expPrefix.pattern().toUtf8().data(), m_nFirstDecomposedMatchStringIndex);
+#endif
 		}
 	}
 
