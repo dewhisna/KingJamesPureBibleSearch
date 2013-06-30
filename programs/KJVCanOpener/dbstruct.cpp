@@ -317,13 +317,6 @@ inline QString CConcordanceEntry::soundEx() const
 	return CSoundExSearchCompleterFilter::soundEx(decomposedWord());
 }
 
-//inline const QString &CConcordanceEntry::soundEx() const
-//{
-//	if (m_strSoundEx.isEmpty()) m_strSoundEx = CSoundExSearchCompleterFilter::soundEx(decomposedWord());
-//	return m_strSoundEx;
-//}
-
-
 // ============================================================================
 
 QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
