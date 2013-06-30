@@ -96,28 +96,32 @@ bool CReadDatabase::ReadTestamentTable()
 
 	// Read the Testament Table
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TESTAMENT\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	m_pBibleDatabase->m_lstTestaments.clear();
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM TESTAMENT");
-	while (query.next()) {
-		unsigned int nTstNdx = query.value(0).toUInt();
+
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM TESTAMENT");
+	while (queryData.next()) {
+		unsigned int nTstNdx = queryData.value(0).toUInt();
 		if (nTstNdx > m_pBibleDatabase->m_lstTestaments.size()) m_pBibleDatabase->m_lstTestaments.resize(nTstNdx);
 		CTestamentEntry &entryTestament = m_pBibleDatabase->m_lstTestaments[nTstNdx-1];
-		entryTestament.m_strTstName = query.value(1).toString();
+		entryTestament.m_strTstName = queryData.value(1).toString();
 	}
+	queryData.finish();
 
 	return true;
 }
@@ -128,39 +132,42 @@ bool CReadDatabase::ReadBooksTable()
 
 	// Read the Books Table
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TOC'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TOC\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TOC'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TOC\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TOC\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	m_pBibleDatabase->m_EntireBible = CBibleEntry();		// Clear out the main Bible entry, just in case we're being called a second time
 	m_pBibleDatabase->m_EntireBible.m_nNumTst = m_pBibleDatabase->m_lstTestaments.size();
 
 	m_pBibleDatabase->m_lstBooks.clear();
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM TOC");
-	while (query.next()) {
-		unsigned int nBkNdx = query.value(0).toUInt();
+
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM TOC");
+	while (queryData.next()) {
+		unsigned int nBkNdx = queryData.value(0).toUInt();
 		if (nBkNdx > m_pBibleDatabase->m_lstBooks.size()) m_pBibleDatabase->m_lstBooks.resize(nBkNdx);
 		CBookEntry &entryBook = m_pBibleDatabase->m_lstBooks[nBkNdx-1];
-		entryBook.m_nTstBkNdx = query.value(1).toUInt();
-		entryBook.m_nTstNdx = query.value(2).toUInt();
-		entryBook.m_strBkName = query.value(3).toString();
-		entryBook.m_strBkAbbr = query.value(4).toString();
-		entryBook.m_strTblName = query.value(5).toString();
-		entryBook.m_nNumChp = query.value(6).toUInt();
-		entryBook.m_nNumVrs = query.value(7).toUInt();
-		entryBook.m_nNumWrd = query.value(8).toUInt();
-		entryBook.m_strCat = query.value(9).toString();
-		entryBook.m_strDesc = query.value(10).toString();
+		entryBook.m_nTstBkNdx = queryData.value(1).toUInt();
+		entryBook.m_nTstNdx = queryData.value(2).toUInt();
+		entryBook.m_strBkName = queryData.value(3).toString();
+		entryBook.m_strBkAbbr = queryData.value(4).toString();
+		entryBook.m_strTblName = queryData.value(5).toString();
+		entryBook.m_nNumChp = queryData.value(6).toUInt();
+		entryBook.m_nNumVrs = queryData.value(7).toUInt();
+		entryBook.m_nNumWrd = queryData.value(8).toUInt();
+		entryBook.m_strCat = queryData.value(9).toString();
+		entryBook.m_strDesc = queryData.value(10).toString();
 
 		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumBk++;
 		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumChp += entryBook.m_nNumChp;
@@ -172,6 +179,7 @@ bool CReadDatabase::ReadBooksTable()
 		m_pBibleDatabase->m_EntireBible.m_nNumVrs += entryBook.m_nNumVrs;
 		m_pBibleDatabase->m_EntireBible.m_nNumWrd += entryBook.m_nNumWrd;
 	}
+	queryData.finish();
 
 	// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
 	//		came to us out of order:
@@ -206,29 +214,32 @@ bool CReadDatabase::ReadChaptersTable()
 
 	// Read the Chapters (LAYOUT) table:
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LAYOUT'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LAYOUT'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"LAYOUT\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	m_pBibleDatabase->m_mapChapters.clear();
 
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM LAYOUT");
-	while (query.next()) {
-		uint32_t nBkChpNdx = query.value(0).toUInt();
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM LAYOUT");
+	while (queryData.next()) {
+		uint32_t nBkChpNdx = queryData.value(0).toUInt();
 		CChapterEntry &entryChapter = m_pBibleDatabase->m_mapChapters[CRelIndex(nBkChpNdx << 16)];
-		entryChapter.m_nNumVrs = query.value(1).toUInt();
-		entryChapter.m_nNumWrd = query.value(2).toUInt();
+		entryChapter.m_nNumVrs = queryData.value(1).toUInt();
+		entryChapter.m_nNumWrd = queryData.value(2).toUInt();
 	}
+	queryData.finish();
 
 	// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
 	//		came to us out of order:
@@ -271,35 +282,37 @@ bool CReadDatabase::ReadVerseTables()
 	m_pBibleDatabase->m_lstBookVerses.clear();
 	m_pBibleDatabase->m_lstBookVerses.resize(m_pBibleDatabase->m_lstBooks.size());
 	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		QSqlQuery query(m_myDatabase);
+		QSqlQuery queryTable(m_myDatabase);
 
 		// Check to see if the table exists:
-		if (!query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName))) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName).arg(query.lastError().text()));
+		if (!queryTable.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName))) {
+			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName).arg(queryTable.lastError().text()));
 			return false;
 		}
-		query.next();
-		if (!query.value(0).toInt()) {
+		queryTable.next();
+		if (!queryTable.value(0).toInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName));
 			return false;
 		}
+		queryTable.finish();
 
 		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
-
 		mapVerses.clear();
 
-		query.setForwardOnly(true);
-		query.exec(QString("SELECT * FROM %1").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName));
-		while (query.next()) {
+		QSqlQuery queryData(m_myDatabase);
+		queryData.setForwardOnly(true);
+		queryData.exec(QString("SELECT * FROM %1").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName));
+		while (queryData.next()) {
 			QString strVerseText;
-			uint32_t nChpVrsNdx = query.value(0).toUInt();
+			uint32_t nChpVrsNdx = queryData.value(0).toUInt();
 			CVerseEntry &entryVerse = mapVerses[CRelIndex(nChpVrsNdx << 8)];
-			entryVerse.m_nNumWrd = query.value(1).toUInt();
-			entryVerse.m_nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(query.value(2).toInt());
-			strVerseText = query.value(4).toString();
-			if (strVerseText.isEmpty()) strVerseText = query.value(3).toString();
-			entryVerse.m_strTemplate = query.value(5).toString();
+			entryVerse.m_nNumWrd = queryData.value(1).toUInt();
+			entryVerse.m_nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(queryData.value(2).toInt());
+			strVerseText = queryData.value(4).toString();
+			if (strVerseText.isEmpty()) strVerseText = queryData.value(3).toString();
+			entryVerse.m_strTemplate = queryData.value(5).toString();
 		}
+		queryData.finish();
 
 		// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
 		//		came to us out of order:
@@ -363,18 +376,19 @@ bool CReadDatabase::ReadWordsTable()
 
 	// Read the Words table:
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='WORDS'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"WORDS\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='WORDS'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"WORDS\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"WORDS\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	unsigned int nNumWordsInText = 0;
 	for (unsigned int ndxBook=0; ndxBook<m_pBibleDatabase->m_lstBooks.size(); ++ndxBook) {
@@ -388,11 +402,12 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
 	int nConcordanceCount = 0;			// Count of words so we can preallocate our buffers
 
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM WORDS");
-	while (query.next()) {
-		QString strWord = query.value(1).toString();
-		bool bCasePreserve = ((query.value(2).toInt()) ? true : false);
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM WORDS");
+	while (queryData.next()) {
+		QString strWord = queryData.value(1).toString();
+		bool bCasePreserve = ((queryData.value(2).toInt()) ? true : false);
 // TODO : CLEAN
 //		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
 		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
@@ -414,14 +429,14 @@ bool CReadDatabase::ReadWordsTable()
 			}
 		}
 
-		QString strAltWords = query.value(4).toString();
+		QString strAltWords = queryData.value(4).toString();
 		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
 		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.normalized(QString::NormalizationForm_C));
 		}
-		QString strAltWordCounts = query.value(5).toString();
+		QString strAltWordCounts = queryData.value(5).toString();
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
 		unsigned int nAltCount = 0;
 		while (!csvWordCount.atEndOfStream()) {
@@ -437,23 +452,24 @@ bool CReadDatabase::ReadWordsTable()
 							.arg(strWord).arg(entryWord.m_lstAltWords.size()).arg(entryWord.m_lstAltWordCount.size()));
 			return false;
 		}
-		if (nAltCount != query.value(3).toUInt()) {
+		if (nAltCount != queryData.value(3).toUInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad AltWordCounts for \"%1\"").arg(strWord));
 			return false;
 		}
 		nConcordanceCount += entryWord.m_lstAltWords.size();		// Note: nConcordanceCount will be slightly too large due to folding of duplicate decomposed indexes, but is sufficient for a reserve()
 
 		TIndexList lstNormalIndexes;
-		if (!IndexBlobToIndexList(query.value(6).toByteArray(), lstNormalIndexes)) {
+		if (!IndexBlobToIndexList(queryData.value(6).toByteArray(), lstNormalIndexes)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}
-		if (lstNormalIndexes.size() != query.value(3).toUInt()) {
+		if (lstNormalIndexes.size() != queryData.value(3).toUInt()) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Index/Count consistency error in WORDS table!"));
 			return false;
 		}
 		entryWord.m_ndxNormalizedMapping.insert(entryWord.m_ndxNormalizedMapping.end(), lstNormalIndexes.begin(), lstNormalIndexes.end());
 	}
+	queryData.finish();
 
 	m_pBibleDatabase->m_lstConcordanceWords.reserve(nConcordanceCount);
 	int ndxWord = 0;
@@ -572,36 +588,39 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 	// Read the Footnotes table:
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='FOOTNOTES'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='FOOTNOTES'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"FOOTNOTES\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	m_pBibleDatabase->m_mapFootnotes.clear();
 
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM FOOTNOTES");
-	while (query.next()) {
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM FOOTNOTES");
+	while (queryData.next()) {
 		QString strFootnoteText;
 		CFootnoteEntry footnote;
-		CRelIndex ndxRel(query.value(0).toUInt());
+		CRelIndex ndxRel(queryData.value(0).toUInt());
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) continue;
-		strFootnoteText = query.value(2).toString();
-		if (strFootnoteText.isEmpty()) strFootnoteText = query.value(1).toString();
+		strFootnoteText = queryData.value(2).toString();
+		if (strFootnoteText.isEmpty()) strFootnoteText = queryData.value(1).toString();
 		if (!strFootnoteText.isEmpty()) {
 			footnote.setText(strFootnoteText);
 			m_pBibleDatabase->m_mapFootnotes[ndxRel] = footnote;
 		}
 	}
+	queryData.finish();
 
 	return true;
 }
@@ -612,18 +631,19 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 	// Read the Phrases table:
 
-	QSqlQuery query(m_myDatabase);
+	QSqlQuery queryTable(m_myDatabase);
 
 	// Check to see if the table exists:
-	if (!query.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PHRASES'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"PHRASES\" Failed!\n%1").arg(query.lastError().text()));
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PHRASES'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"PHRASES\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
-	query.next();
-	if (!query.value(0).toInt()) {
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"PHRASES\" Table in database!"));
 		return false;
 	}
+	queryTable.finish();
 
 	if (bUserPhrases) {
 		g_lstUserPhrases.clear();
@@ -631,13 +651,14 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		m_pBibleDatabase->m_lstCommonPhrases.clear();
 	}
 
-	query.setForwardOnly(true);
-	query.exec("SELECT * FROM PHRASES");
-	while (query.next()) {
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT * FROM PHRASES");
+	while (queryData.next()) {
 		CPhraseEntry phrase;
-		phrase.setText(query.value(1).toString());
-		phrase.setCaseSensitive((query.value(2).toInt() != 0) ? true : false);
-		phrase.setAccentSensitive((query.value(3).toInt() != 0) ? true : false);
+		phrase.setText(queryData.value(1).toString());
+		phrase.setCaseSensitive((queryData.value(2).toInt() != 0) ? true : false);
+		phrase.setAccentSensitive((queryData.value(3).toInt() != 0) ? true : false);
 		if (!phrase.text().isEmpty()) {
 			if (bUserPhrases) {
 				g_lstUserPhrases.push_back(phrase);
@@ -646,6 +667,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 			}
 		}
 	}
+	queryData.finish();
 
 	return true;
 }
