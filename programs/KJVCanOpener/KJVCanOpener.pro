@@ -11,12 +11,13 @@ CONFIG += rtti
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
-# Miscellaneous Special-Testing Cache modes that can be enabled:
+# Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE
 #DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
 #DEFINES += NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 #DEFINES += SEARCH_PHRASE_SPY SEARCH_RESULTS_SPY
+#DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
 declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 
 unix:!macx {

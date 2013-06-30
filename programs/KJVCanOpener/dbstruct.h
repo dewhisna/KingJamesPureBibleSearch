@@ -377,7 +377,8 @@ public:
 
 	inline const QString &word() const { return m_strWord; }
 	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
-	inline const QString &soundEx() const;
+	inline QString soundEx() const;
+//	inline const QString &soundEx() const;
 	inline int index() const { return m_nIndex; }
 
 	bool operator==(const CConcordanceEntry &src) const
@@ -388,7 +389,7 @@ public:
 private:
 	QString m_strWord;						// Composed Word (as in the actual text)
 	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
-	mutable QString m_strSoundEx;			// SoundEx for Decomposed Word (for matching)
+//	mutable QString m_strSoundEx;			// SoundEx for Decomposed Word (for matching)
 	int m_nIndex;							// Index used when sorting and keeping external reference intact
 };
 

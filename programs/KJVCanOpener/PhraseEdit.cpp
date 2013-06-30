@@ -50,8 +50,7 @@ CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensiti
 		m_bAccentSensitive(bAccentSensitive),
 		m_nLevel(0),
 		m_nCursorLevel(0),
-		m_nCursorWord(-1),
-		m_nLastMatchWord(-1)
+		m_nCursorWord(-1)
 {
 	if (pBibleDatabase)
 		m_lstNextWords = pBibleDatabase->concordanceWordList();
@@ -256,12 +255,9 @@ void CParsedPhrase::clearCache() const
 
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter)
 {
-	CSearchStringListModel *pModel = (CSearchStringListModel *)(aCompleter.model());
-
 	ParsePhrase(curInsert);
 	FindWords(m_nCursorWord);
-
-	pModel->setWordsFromPhrase();
+	aCompleter.setWordsFromPhrase();
 }
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)

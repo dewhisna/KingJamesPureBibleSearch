@@ -309,14 +309,19 @@ CConcordanceEntry::CConcordanceEntry(const QString &strWord, int nIndex)
 		m_strDecomposedWord(CSearchStringListModel::decompose(strWord)),
 		m_nIndex(nIndex)
 {
-	m_strSoundEx = CSoundExSearchCompleterFilter::soundEx(decomposedWord());
+
 }
 
-inline const QString &CConcordanceEntry::soundEx() const
+inline QString CConcordanceEntry::soundEx() const
 {
-	if (m_strSoundEx.isEmpty()) m_strSoundEx = CSoundExSearchCompleterFilter::soundEx(decomposedWord());
-	return m_strSoundEx;
+	return CSoundExSearchCompleterFilter::soundEx(decomposedWord());
 }
+
+//inline const QString &CConcordanceEntry::soundEx() const
+//{
+//	if (m_strSoundEx.isEmpty()) m_strSoundEx = CSoundExSearchCompleterFilter::soundEx(decomposedWord());
+//	return m_strSoundEx;
+//}
 
 
 // ============================================================================

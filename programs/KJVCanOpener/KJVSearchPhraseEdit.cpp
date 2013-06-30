@@ -508,16 +508,21 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
 	strPrefix = CSearchStringListModel::decompose(strPrefix);
 
-	if (strPrefix != m_pCompleter->completionPrefix()) {
-		m_pCompleter->CSearchCompleter::setCompletionPrefix(strPrefix);
+	if (strPrefix.compare(m_pCompleter->filterMatchString(), Qt::CaseSensitive) != 0) {
+		m_pCompleter->setFilterMatchString(strPrefix);
 		UpdateCompleter();
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
 			m_nLastCursorWord = GetCursorWordPos();
 		}
-		m_pCompleter->popup()->setCurrentIndex(m_pCompleter->completionModel()->index(0, 0));
+		m_pCompleter->selectFirstMatchString();
+	} else {
+		if (!strText.isEmpty()) m_pCompleter->selectFirstMatchString();
 	}
 
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("CursorWord: \"%s\",  AtEnd: %s", GetCursorWord().toUtf8().data(), textCursor().atEnd() ? "yes" : "no");
+#endif
 	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (textCursor().atEnd()))))
 		m_pCompleter->complete();
 }

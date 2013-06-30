@@ -27,6 +27,7 @@
 #include <QString>
 #include <QStringRef>
 #include <QRegExp>
+#include <QAbstractItemView>
 
 #include <assert.h>
 
@@ -35,7 +36,8 @@
 
 CSearchStringListModel::CSearchStringListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
 	:	QAbstractListModel(parent),
-		m_parsedPhrase(parsedPhrase)
+		m_parsedPhrase(parsedPhrase),
+		m_nCursorWord(-1)			// Force initial update
 {
 
 }
@@ -79,20 +81,23 @@ bool CSearchStringListModel::setData(const QModelIndex &index, const QVariant &v
 	return false;
 }
 
-void CSearchStringListModel::sort(int column, Qt::SortOrder order)
-{
-	Q_UNUSED(column);
-	Q_UNUSED(order);
-	assert(false);
-}
-
 void CSearchStringListModel::setWordsFromPhrase()
 {
-	emit beginResetModel();
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SearchStringListModel::setWordsFromPhrase : %d", m_parsedPhrase.GetCursorWordPos());
+#endif
 
-//	m_ParsedPhrase.nextWordsList();
+	if (m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) {
+		m_nCursorWord = m_parsedPhrase.GetCursorWordPos();
 
-	emit endResetModel();
+		emit beginResetModel();
+
+//		m_ParsedPhrase.nextWordsList();
+
+		emit endResetModel();
+
+		emit modelChanged();
+	}
 }
 
 QString CSearchStringListModel::decompose(const QString &strWord)
@@ -126,18 +131,17 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
+		m_parsedPhrase(parsedPhrase),
 		m_nCompletionFilterMode(SCFME_SOUNDEX),
 		m_pSearchStringListModel(NULL),
 		m_pSoundExFilterModel(NULL)
 {
 	m_pSearchStringListModel = new CSearchStringListModel(parsedPhrase, this);
-	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(this);
+	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
 	setCompletionFilterMode(m_nCompletionFilterMode);
-	m_pSoundExFilterModel->setSourceModel(m_pSearchStringListModel);
 	setModel(m_pSoundExFilterModel);
 
 	setWidget(parentWidget);
-//	setCompletionMode(QCompleter::PopupCompletion /* UnfilteredPopupCompletion */ );
 	setCaseSensitivity(Qt::CaseInsensitive);
 	setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 }
@@ -149,32 +153,60 @@ CSearchCompleter::~CSearchCompleter()
 
 void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nCompletionFilterMode)
 {
+	assert(m_pSoundExFilterModel != NULL);
+
 	switch (nCompletionFilterMode) {
 		case SCFME_NORMAL:
 			setCompletionMode(QCompleter::PopupCompletion);
+			m_pSoundExFilterModel->setSoundExEnabled(false);
 			break;
 		case SCFME_UNFILTERED:
 			setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+			m_pSoundExFilterModel->setSoundExEnabled(false);
 			break;
 		case SCFME_SOUNDEX:
 			setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+			m_pSoundExFilterModel->setSoundExEnabled(true);
 			break;
 	}
 
 	m_nCompletionFilterMode = nCompletionFilterMode;
 }
 
-void CSearchCompleter::setCompletionPrefix(const QString &prefix)			// Note: Caller should be passing a decomposed prefix
+void CSearchCompleter::setFilterMatchString(const QString &prefix)			// Note: Caller should be passing a decomposed prefix
 {
-	if (m_nCompletionFilterMode != SCFME_SOUNDEX) {
-		QCompleter::setCompletionPrefix(prefix);
-//		m_pSoundExFilterModel->setFilterRegExp(QString());
-		m_pSoundExFilterModel->setFilterFixedString(QString());
-	} else {
-		QCompleter::setCompletionPrefix(QString());
-//		m_pSoundExFilterModel->setFilterRegExp(CSoundExSearchCompleterFilter::soundEx(prefix));
-		m_pSoundExFilterModel->setFilterFixedString(CSoundExSearchCompleterFilter::soundEx(prefix));
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SearchCompleter::setFilterMatchString : %s", prefix.toUtf8().data());
+#endif
+
+	m_strFilterMatchString = prefix;
+	setCompletionPrefix(prefix);
+	m_pSoundExFilterModel->setFilterFixedString(prefix);
+}
+
+void CSearchCompleter::selectFirstMatchString()
+{
+	popup()->clearSelection();
+	switch (completionFilterMode()) {
+		case CSearchCompleter::SCFME_NORMAL:
+			if (m_parsedPhrase.GetCursorWord().compare(currentCompletion()) == 0)
+				popup()->setCurrentIndex(completionModel()->index(0, 0));
+			break;
+		case CSearchCompleter::SCFME_UNFILTERED:
+			popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
+			popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			break;
+		case CSearchCompleter::SCFME_SOUNDEX:
+			popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
+			popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			break;
 	}
+}
+
+void CSearchCompleter::setWordsFromPhrase()
+{
+	assert(m_pSearchStringListModel);
+	m_pSearchStringListModel->setWordsFromPhrase();
 }
 
 // ============================================================================
@@ -182,20 +214,207 @@ void CSearchCompleter::setCompletionPrefix(const QString &prefix)			// Note: Cal
 
 // ============================================================================
 
-CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(QObject *parent)
-	:	QSortFilterProxyModel(parent)
+CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListModel *pSearchStringListModel, QObject *parent)
+	:	QAbstractItemModel(parent),
+		m_bSoundExEnabled(true),
+		m_nFirstMatchStringIndex(-1),
+		m_pSearchStringListModel(pSearchStringListModel)
 {
-	setFilterRole(CSearchStringListModel::SOUNDEX_ENTRY_ROLE);
-	setFilterCaseSensitivity(Qt::CaseSensitive);
-	setSortRole(Qt::EditRole);
-	setSortCaseSensitivity(Qt::CaseInsensitive);
-//	setDynamicSortFilter(true);
+	assert(m_pSearchStringListModel != NULL);
+	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()));
+
+	connect(m_pSearchStringListModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
+	connect(m_pSearchStringListModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
+	connect(m_pSearchStringListModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
 }
 
 CSoundExSearchCompleterFilter::~CSoundExSearchCompleterFilter()
 {
 
 }
+
+int CSoundExSearchCompleterFilter::rowCount(const QModelIndex &parent) const
+{
+	if (parent.isValid())
+		return 0;
+
+	return ((m_bSoundExEnabled && !m_strFilterFixedString.isEmpty()) ? m_lstMatchedIndexes.size() : m_pSearchStringListModel->rowCount()) ;
+}
+
+int CSoundExSearchCompleterFilter::columnCount(const QModelIndex &parent) const
+{
+	return parent.isValid() ? 0 : 1;
+}
+
+bool CSoundExSearchCompleterFilter::hasChildren(const QModelIndex & parent) const
+{
+	return parent.isValid() ? false : (rowCount() > 0);
+}
+
+QModelIndex CSoundExSearchCompleterFilter::parent(const QModelIndex & index) const
+{
+	Q_UNUSED(index);
+	return QModelIndex();
+}
+
+QModelIndex	CSoundExSearchCompleterFilter::index(int row, int column, const QModelIndex & parent) const
+{
+	return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+}
+
+QModelIndex CSoundExSearchCompleterFilter::mapFromSource(const QModelIndex &sourceIndex) const
+{
+	if (!sourceIndex.isValid()) return sourceIndex;
+
+	if (sourceIndex.column() == 0) {
+		for (int nRow = 0; nRow < m_lstMatchedIndexes.size(); ++nRow) {
+			if (m_lstMatchedIndexes.at(nRow) == sourceIndex.row()) return createIndex(nRow, 0);
+		}
+	}
+	return QModelIndex();
+}
+
+QModelIndex CSoundExSearchCompleterFilter::mapToSource(const QModelIndex &proxyIndex) const
+{
+	if (!proxyIndex.isValid()) return proxyIndex;
+
+	if ((proxyIndex.column() == 0) && (proxyIndex.row() >= 0) && (proxyIndex.row() < m_lstMatchedIndexes.size())) {
+		return createIndex(m_lstMatchedIndexes.at(proxyIndex.row()), 0);
+	}
+	return QModelIndex();
+}
+
+QVariant CSoundExSearchCompleterFilter::data(const QModelIndex &index, int role) const
+{
+	if (!index.isValid()) return QVariant();
+	if (m_strFilterFixedString.isEmpty() || !m_bSoundExEnabled) {
+		return m_pSearchStringListModel->data(m_pSearchStringListModel->index(index.row()), role);
+	}
+	return m_pSearchStringListModel->data(m_pSearchStringListModel->index(m_lstMatchedIndexes.at(index.row())), role);
+}
+
+bool CSoundExSearchCompleterFilter::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+	if (!index.isValid()) return false;
+	if (m_strFilterFixedString.isEmpty() || !m_bSoundExEnabled) {
+		return m_pSearchStringListModel->setData(m_pSearchStringListModel->index(index.row()), value, role);
+	}
+	return m_pSearchStringListModel->setData(m_pSearchStringListModel->index(m_lstMatchedIndexes.at(index.row())), value, role);
+}
+
+void CSoundExSearchCompleterFilter::setFilterFixedString(const QString &strPattern)
+{
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SoundExSearchCompleter::setFilterFixedString : \"%s\" => \"%s\"", m_strFilterFixedString.toUtf8().data(), strPattern.toUtf8().data());
+#endif
+
+	bool bNeedUpdate = (m_strFilterFixedString.compare(strPattern) != 0);
+	m_strFilterFixedString = strPattern;
+	if (bNeedUpdate) updateModel(m_bSoundExEnabled);		// No need to update our model if SoundEx isn't enabled -- the SearchListModel's reset will cause a modelChange that will update it
+}
+
+QModelIndex CSoundExSearchCompleterFilter::firstMatchStringIndex() const
+{
+	if (m_nFirstMatchStringIndex != -1) {
+		if (m_strFilterFixedString.isEmpty() || !m_bSoundExEnabled) {
+			return m_pSearchStringListModel->index(m_nFirstMatchStringIndex, 0);
+		} else {
+			return index(m_nFirstMatchStringIndex, 0);
+		}
+	}
+	return m_pSearchStringListModel->index(0, 0);
+}
+
+void CSoundExSearchCompleterFilter::en_modelChanged()
+{
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SoundExSearchCompleter::modelChanged");
+#endif
+
+	updateModel(true);					// Always reset our model when base model resets
+}
+
+void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
+{
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SoundExSearchCompleter::updateModel");
+#endif
+
+	if (bResetModel) beginResetModel();
+
+	m_lstMatchedIndexes.clear();
+	m_nFirstMatchStringIndex = -1;
+	int nCount = m_pSearchStringListModel->rowCount();
+	if (!m_strFilterFixedString.isEmpty()) {
+		if (m_bSoundExEnabled) {
+			m_lstMatchedIndexes.reserve(nCount);
+//			QRegExp expPrefix(m_strFilterFixedString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
+			QString strSoundEx = CSoundExSearchCompleterFilter::soundEx(m_strFilterFixedString);
+
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+			qDebug("SoundEx: \"%s\" => %s", m_strFilterFixedString.toUtf8().data(), strSoundEx.toUtf8().data());
+#endif
+
+			for (int nRow = 0; nRow < nCount; ++nRow) {
+				QModelIndex ndx = m_pSearchStringListModel->index(nRow);
+//				if (expPrefix.exactMatch(ndx.data(Qt::EditRole).toString())) {
+				if (ndx.data(Qt::EditRole).toString().startsWith(m_strFilterFixedString, Qt::CaseInsensitive)) {
+					if (m_nFirstMatchStringIndex == -1) m_nFirstMatchStringIndex = m_lstMatchedIndexes.size();
+					m_lstMatchedIndexes.append(nRow);
+				} else if (ndx.data(CSearchStringListModel::SOUNDEX_ENTRY_ROLE).toString().compare(strSoundEx) == 0) {
+					m_lstMatchedIndexes.append(nRow);
+				}
+			}
+		} else {
+			for (int nRow = 0; nRow < nCount; ++nRow) {
+				QModelIndex ndx = m_pSearchStringListModel->index(nRow);
+				if (ndx.data(Qt::EditRole).toString().startsWith(m_strFilterFixedString, Qt::CaseInsensitive)) {
+					m_nFirstMatchStringIndex = nRow;
+					break;
+				}
+			}
+		}
+	}
+
+	if (bResetModel) endResetModel();
+
+	// For some reason, QCompleter doesn't respond to begin/end ModelReset, but does for dataChanged.
+	//		Without the following, the model data gets completely out of sync in the QCompleter... Go figure...
+	if (bResetModel) emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+void CSoundExSearchCompleterFilter::en_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SoundExSearchCompleter::en_dataChanged");
+#endif
+
+	if ((!topLeft.isValid()) || (!bottomRight.isValid())) {
+		emit dataChanged(topLeft, bottomRight);			// If either node is invalid, assume it's some special reset all case, pass-on as-is
+		return;
+	}
+	if (m_lstMatchedIndexes.size() == 0) {				// If our filter is empty, pass on unchanged
+		emit dataChanged(topLeft, bottomRight);
+		return;
+	}
+
+	int nRowFirst = 0;
+	int nRowLast = 0;
+	for (int nRow = 0; nRow < m_lstMatchedIndexes.size(); ++ nRow) {
+		if (m_lstMatchedIndexes.at(nRow) < topLeft.row()) {
+			nRowFirst = nRow;
+			nRowLast = nRow;
+		} else {
+			if (m_lstMatchedIndexes.at(nRow) < bottomRight.row()) {
+				nRowLast = nRow;
+			}
+		}
+	}
+	emit dataChanged(createIndex(nRowFirst, 0), createIndex(nRowLast, 0));
+}
+
+
+// ============================================================================
 
 CSoundExSearchCompleterFilter::SOUNDEX_LANGUAGES_ENUM CSoundExSearchCompleterFilter::languageValue(const QString &strLanguage)
 {
@@ -415,11 +634,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 			strSoundEx.replace("LL", "7");
 			strSoundEx.replace(QRegExp("Y$"), "7");						// Y al final de la palabra.
 			strSoundEx.replace(QRegExp("Y(?=[bcdfghjklmnpqrstvwxz])"), "7");	// Y antes de una consonante.
-			strSoundEx.replace(QRegExp("AY"), "A7");					// Y después de una vocal
-			strSoundEx.replace(QRegExp("EY"), "E7");					//		Note: QRegExp doesn't support look-behind, splitting into individual AEIOU expressions
-			strSoundEx.replace(QRegExp("IY"), "I7");
-			strSoundEx.replace(QRegExp("OY"), "O7");
-			strSoundEx.replace(QRegExp("UY"), "U7");
+			strSoundEx.replace(QRegExp("[AEIOU]Y"), "07");				// Y después de una vocal : Note: QRegExp doesn't support look-behind, so combining this with "0" substitution for vowels that follows
 
 			strSoundEx.replace(QRegExp("[AEIOUYHW]"), "0");				// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
 			strSoundEx.replace(QRegExp("[BPFV]"), "1");					// [BPFV] => 1
@@ -517,4 +732,6 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 
 	return strSoundEx;
 }
+
+// ============================================================================
 
