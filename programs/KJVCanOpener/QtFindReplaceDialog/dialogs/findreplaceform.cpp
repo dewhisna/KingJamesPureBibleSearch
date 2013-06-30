@@ -157,13 +157,13 @@ void FindReplaceForm::find(bool next) {
 		QRegExp reg(toSearch,
 					(ui->caseCheckBox->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
 
-		qDebug() << "searching for regexp: " << reg.pattern();
+//		qDebug() << "searching for regexp: " << reg.pattern();
 
 		textCursor = textEdit->document()->find(reg, textCursor, flags);
 		if (!textCursor.isNull()) textEdit->setTextCursor(textCursor);
 		result = (!textCursor.isNull());
 	} else {
-		qDebug() << "searching for: " << toSearch;
+//		qDebug() << "searching for: " << toSearch;
 
 		result = textEdit->find(toSearch, flags);
 	}
