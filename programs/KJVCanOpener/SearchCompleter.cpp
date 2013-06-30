@@ -205,6 +205,7 @@ void CSearchCompleter::selectFirstMatchString()
 	popup()->clearSelection();
 
 	QModelIndex indexFirstComposedWord = soundExFilterModel()->firstMatchStringIndex(true);
+	QModelIndex indexFirstDecomposedWord = soundExFilterModel()->firstMatchStringIndex(false);
 
 	switch (completionFilterMode()) {
 		case CSearchCompleter::SCFME_NORMAL:
@@ -216,6 +217,20 @@ void CSearchCompleter::selectFirstMatchString()
 					if (ndxComp.data(Qt::DisplayRole).toString().compare(indexFirstComposedWord.data(Qt::DisplayRole).toString()) == 0) {
 						popup()->setCurrentIndex(ndxComp);
 						popup()->selectionModel()->select(ndxComp, QItemSelectionModel::Select);
+						break;
+					}
+				}
+			} else if (indexFirstDecomposedWord.isValid()) {
+				int nCompCount = completionModel()->rowCount();
+				for (int nComp = 0; nComp < nCompCount; ++nComp) {
+					QModelIndex ndxComp = completionModel()->index(nComp, 0);
+					if (ndxComp.data(Qt::EditRole).toString().compare(indexFirstDecomposedWord.data(Qt::EditRole).toString()) == 0) {
+						if (completionFilterMode() == CSearchCompleter::SCFME_SOUNDEX) {
+							setCompletionPrefix(indexFirstDecomposedWord.data(Qt::DisplayRole).toString());		// Force assert a selection prefix or else it won't select it in this mode
+						}
+						popup()->setCurrentIndex(ndxComp);
+						popup()->selectionModel()->select(ndxComp, QItemSelectionModel::Select);
+						break;
 					}
 				}
 			}
@@ -223,6 +238,17 @@ void CSearchCompleter::selectFirstMatchString()
 		case CSearchCompleter::SCFME_UNFILTERED:
 			if (indexFirstComposedWord.isValid()) {
 				popup()->setCurrentIndex(indexFirstComposedWord);
+			} else if (indexFirstDecomposedWord.isValid()) {
+				int nCompCount = completionModel()->rowCount();
+				for (int nComp = 0; nComp < nCompCount; ++nComp) {
+					QModelIndex ndxComp = completionModel()->index(nComp, 0);
+					if (ndxComp.data(Qt::EditRole).toString().compare(indexFirstDecomposedWord.data(Qt::EditRole).toString()) == 0) {
+						setCompletionPrefix(indexFirstDecomposedWord.data(Qt::DisplayRole).toString());		// Force assert a selection prefix or else it won't select it in this mode
+						popup()->setCurrentIndex(ndxComp);
+						popup()->selectionModel()->select(ndxComp, QItemSelectionModel::Select);
+						break;
+					}
+				}
 			}
 			break;
 	}
