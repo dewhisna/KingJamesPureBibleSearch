@@ -33,6 +33,8 @@
 #include <QCompleter>
 #include <QAbstractListModel>
 #include <QList>
+#include <QMap>
+#include <QStringList>
 
 // ============================================================================
 
@@ -115,6 +117,7 @@ public:
 	QVariant data(const QModelIndex &index, int role) const;
 	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
+	// NOTE: Set FilterFixedString with Decomposed Words!
 	void setFilterFixedString(const QString &strPattern);
 	inline const QString &filterFixedString() const { return m_strFilterFixedString; }
 
@@ -141,6 +144,8 @@ protected:
 	void updateModel(bool bResetModel = true);			// bResetModel flag is used to disable reset when setting filter text when SoundEx is disabled, in which case the SoundEx doesn't need to drive a model reset
 
 private:
+	QStringList m_lstDecomposedWords;					// Decomposed word list, used for quick IndexOf(), LastIndexOf() with RegExp of search expression to fill-in exact matches
+	QMap<QString, QList<int> > m_mapSoundEx;			// SoundEx lookup of SoundEx words to indexes of source words, set in en_modelChanged() when our base SearchStringListModel changes
 	bool m_bSoundExEnabled;								// True when we are resolving SoundEx expressions, False for pass-through
 	QString m_strFilterFixedString;
 	int m_nFirstMatchStringIndex;
@@ -175,6 +180,7 @@ public:
 	virtual void selectFirstMatchString();
 
 public slots:
+	// NOTE: Set FilterMatchString with Decomposed Words!
 	virtual void setFilterMatchString(const QString &prefix);
 	virtual void setWordsFromPhrase();
 

@@ -322,7 +322,7 @@ QModelIndex CSoundExSearchCompleterFilter::firstMatchStringIndex() const
 			return index(m_nFirstMatchStringIndex, 0);
 		}
 	}
-	return m_pSearchStringListModel->index(0, 0);
+	return QModelIndex();
 }
 
 void CSoundExSearchCompleterFilter::en_modelChanged()
@@ -330,6 +330,16 @@ void CSoundExSearchCompleterFilter::en_modelChanged()
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SoundExSearchCompleter::modelChanged");
 #endif
+
+	int nCount = m_pSearchStringListModel->rowCount();
+	m_lstDecomposedWords.clear();
+	m_lstDecomposedWords.reserve(nCount);
+	m_mapSoundEx.clear();
+	for (int nRow = 0; nRow < nCount; ++nRow) {
+		QModelIndex ndx = m_pSearchStringListModel->index(nRow);
+		if (m_bSoundExEnabled) m_mapSoundEx[ndx.data(CSearchStringListModel::SOUNDEX_ENTRY_ROLE).toString()].append(nRow);
+		m_lstDecomposedWords.append(ndx.data(Qt::EditRole).toString());
+	}
 
 	updateModel(true);					// Always reset our model when base model resets
 }
@@ -344,35 +354,53 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 
 	m_lstMatchedIndexes.clear();
 	m_nFirstMatchStringIndex = -1;
-	int nCount = m_pSearchStringListModel->rowCount();
 	if (!m_strFilterFixedString.isEmpty()) {
+		QRegExp expPrefix(m_strFilterFixedString.toLower() + "*", Qt::CaseInsensitive, QRegExp::Wildcard);		// NOTE: m_strFilterFixedString is already decomposed!!
+
 		if (m_bSoundExEnabled) {
-			m_lstMatchedIndexes.reserve(nCount);
-//			QRegExp expPrefix(m_strFilterFixedString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
 			QString strSoundEx = CSoundExSearchCompleterFilter::soundEx(m_strFilterFixedString);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("SoundEx: \"%s\" => %s", m_strFilterFixedString.toUtf8().data(), strSoundEx.toUtf8().data());
 #endif
 
-			for (int nRow = 0; nRow < nCount; ++nRow) {
-				QModelIndex ndx = m_pSearchStringListModel->index(nRow);
-//				if (expPrefix.exactMatch(ndx.data(Qt::EditRole).toString())) {
-				if (ndx.data(Qt::EditRole).toString().startsWith(m_strFilterFixedString, Qt::CaseInsensitive)) {
-					if (m_nFirstMatchStringIndex == -1) m_nFirstMatchStringIndex = m_lstMatchedIndexes.size();
-					m_lstMatchedIndexes.append(nRow);
-				} else if (ndx.data(CSearchStringListModel::SOUNDEX_ENTRY_ROLE).toString().compare(strSoundEx) == 0) {
-					m_lstMatchedIndexes.append(nRow);
+			int nFirstWord = m_lstDecomposedWords.indexOf(expPrefix);
+			int nLastWord = ((nFirstWord != -1) ? m_lstDecomposedWords.lastIndexOf(expPrefix) : -1);
+			int nNumWords = ((nFirstWord != -1) ? (nLastWord - nFirstWord + 1) : 0);
+
+			const QList<int> &mapSoundEx = m_mapSoundEx[strSoundEx];
+
+			m_nFirstMatchStringIndex = nFirstWord;			// Temporarily set first word index to our decomposed list index.  After sorting, we'll find it's new location and change it
+
+			QList<int> lstMatches;
+			lstMatches.reserve(mapSoundEx.size() + nNumWords);
+			lstMatches.append(m_mapSoundEx[strSoundEx]);
+			while (nFirstWord <= nLastWord) {
+				lstMatches.append(nFirstWord);
+				++nFirstWord;
+			}
+
+			qSort(lstMatches.begin(), lstMatches.end());
+
+			// Remove Duplicates:
+			m_lstMatchedIndexes.reserve(lstMatches.size());
+			int nLastValue = -1;
+			for (int nRow = 0; nRow < lstMatches.size(); ++nRow) {
+				if (lstMatches.at(nRow) != nLastValue) m_lstMatchedIndexes.append(lstMatches.at(nRow));
+				nLastValue = lstMatches.at(nRow);
+			}
+
+			// Find our translated first word RegExp match:
+			if (m_nFirstMatchStringIndex != -1) {
+				for (int nRow = 0; nRow < m_lstMatchedIndexes.size(); ++nRow) {
+					if (m_lstMatchedIndexes.at(nRow) == m_nFirstMatchStringIndex) {
+						m_nFirstMatchStringIndex = nRow;
+						break;
+					}
 				}
 			}
 		} else {
-			for (int nRow = 0; nRow < nCount; ++nRow) {
-				QModelIndex ndx = m_pSearchStringListModel->index(nRow);
-				if (ndx.data(Qt::EditRole).toString().startsWith(m_strFilterFixedString, Qt::CaseInsensitive)) {
-					m_nFirstMatchStringIndex = nRow;
-					break;
-				}
-			}
+			m_nFirstMatchStringIndex = m_lstDecomposedWords.indexOf(expPrefix);
 		}
 	}
 
