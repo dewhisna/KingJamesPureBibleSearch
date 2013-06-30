@@ -132,7 +132,7 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_parsedPhrase(parsedPhrase),
-		m_nCompletionFilterMode(SCFME_SOUNDEX),
+		m_nCompletionFilterMode(SCFME_UNFILTERED),
 		m_pSearchStringListModel(NULL),
 		m_pSoundExFilterModel(NULL)
 {
@@ -186,19 +186,28 @@ void CSearchCompleter::setFilterMatchString(const QString &prefix)			// Note: Ca
 
 void CSearchCompleter::selectFirstMatchString()
 {
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SelectFirstMatch: CursorWord: \"%s\"  CurrentCompletion: \"%s\"", m_parsedPhrase.GetCursorWord().toUtf8().data(), currentCompletion().toUtf8().data());
+#endif
+
 	popup()->clearSelection();
 	switch (completionFilterMode()) {
 		case CSearchCompleter::SCFME_NORMAL:
-			if (m_parsedPhrase.GetCursorWord().compare(currentCompletion()) == 0)
+			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0)
 				popup()->setCurrentIndex(completionModel()->index(0, 0));
 			break;
 		case CSearchCompleter::SCFME_UNFILTERED:
-			popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
-			popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0) {
+				popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
+				popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			}
 			break;
 		case CSearchCompleter::SCFME_SOUNDEX:
-			popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
-			popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			if (CSearchStringListModel::decompose(m_parsedPhrase.GetCursorWord()).compare(currentCompletion()) == 0) {
+				popup()->setCurrentIndex(completionModel()->index(0, 0));
+//				popup()->setCurrentIndex(soundExFilterModel()->firstMatchStringIndex());
+//				popup()->selectionModel()->select(popup()->currentIndex(), QItemSelectionModel::Select);
+			}
 			break;
 	}
 }
@@ -355,7 +364,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 	m_lstMatchedIndexes.clear();
 	m_nFirstMatchStringIndex = -1;
 	if (!m_strFilterFixedString.isEmpty()) {
-		QRegExp expPrefix(m_strFilterFixedString.toLower() + "*", Qt::CaseInsensitive, QRegExp::Wildcard);		// NOTE: m_strFilterFixedString is already decomposed!!
+		QRegExp expPrefix(m_strFilterFixedString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);		// NOTE: m_strFilterFixedString is already decomposed!!
 
 		if (m_bSoundExEnabled) {
 			QString strSoundEx = CSoundExSearchCompleterFilter::soundEx(m_strFilterFixedString);
