@@ -67,7 +67,7 @@ QVariant CSearchStringListModel::data(const QModelIndex &index, int role) const
 		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();
 
 	if (role == SOUNDEX_ENTRY_ROLE)
-		return CSoundExSearchCompleterFilter::soundEx(m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord());
+		return m_parsedPhrase.bibleDatabase()->soundEx(m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord());
 
 	return QVariant();
 }
@@ -79,6 +79,11 @@ bool CSearchStringListModel::setData(const QModelIndex &index, const QVariant &v
 	Q_UNUSED(role);
 
 	return false;
+}
+
+inline const CBibleDatabase *CSearchStringListModel::bibleDatabase() const
+{
+	return m_parsedPhrase.bibleDatabase();
 }
 
 void CSearchStringListModel::setWordsFromPhrase()
@@ -418,7 +423,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 		QRegExp expPrefix(strDecomposedFilterString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
 
 		if (m_bSoundExEnabled) {
-			QString strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedFilterString);
+			QString strSoundEx = m_pSearchStringListModel->bibleDatabase()->soundEx(strDecomposedFilterString, false);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("SoundEx: \"%s\" => %s", m_strFilterFixedString.toUtf8().data(), strSoundEx.toUtf8().data());

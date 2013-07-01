@@ -411,9 +411,14 @@ bool CReadDatabase::ReadWordsTable()
 // TODO : CLEAN
 //		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
 		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
+		// This check is needed because duplicates can happen from decomposed index keys.
+		//		Note: It's less computationally expensive to search the map for it than
+		//				to do a .contains() call on the m_lstWordList below, even though
+		//				it's the list we want to keep it out of.  Searching the list used
+		//				over 50% of the database load time!:
+		bool bIsNewWord = (m_pBibleDatabase->m_mapWordList.find(strKey) == m_pBibleDatabase->m_mapWordList.end());
 		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
-		if (!m_pBibleDatabase->m_lstWordList.contains(strKey))			// This check is needed because duplicates can happen from decomposed index keys
-			m_pBibleDatabase->m_lstWordList.append(strKey);
+		if (bIsNewWord) m_pBibleDatabase->m_lstWordList.append(strKey);
 
 		if (entryWord.m_strWord.isEmpty()) {
 			entryWord.m_strWord = strKey;
@@ -485,6 +490,7 @@ bool CReadDatabase::ReadWordsTable()
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
 			CConcordanceEntry entryConcordance(strAltWord, ndxWord);
+			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later (TODO : This must be done AFTER setting database language -- VERIFY)
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
 			ndxWord++;
 		}

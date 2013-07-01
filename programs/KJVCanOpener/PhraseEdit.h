@@ -113,6 +113,8 @@ public:
 
 	void FindWords(int nCursorWord);			// Uses m_lstWords and nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
 
+	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
+
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)

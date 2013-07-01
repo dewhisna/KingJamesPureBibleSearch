@@ -375,9 +375,16 @@ class CConcordanceEntry
 public:
 	CConcordanceEntry(const QString &strWord, int nIndex = 0);
 
+	CConcordanceEntry & operator=(const CConcordanceEntry &src)
+	{
+		m_strWord = src.m_strWord;
+		m_strDecomposedWord = src.m_strDecomposedWord;
+		m_nIndex = src.m_nIndex;
+		return *this;
+	}
+
 	inline const QString &word() const { return m_strWord; }
 	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
-	inline QString soundEx() const;
 	inline int index() const { return m_nIndex; }
 
 	bool operator==(const CConcordanceEntry &src) const
@@ -392,6 +399,7 @@ private:
 };
 
 typedef QList<CConcordanceEntry> TConcordanceList;
+typedef std::map<QString, QString> TSoundExMap;			// Mapping of Composed Word to SoundEx equivalent, used to minimize calculations
 
 struct TConcordanceListSortPredicate {
 	static bool ascendingLessThanWordCaseInsensitive(const CConcordanceEntry &s1, const CConcordanceEntry &s2)
@@ -607,6 +615,7 @@ public:
 	{
 		return m_lstCommonPhrases;
 	}
+	QString soundEx(const QString &strDecomposedConcordanceWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Concordance Word (calculations done based on this Bible Database language)
 
 	QString richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
@@ -632,6 +641,7 @@ private:
 	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
+	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:
 	QString m_strName;						// Name for this database

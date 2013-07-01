@@ -312,11 +312,6 @@ CConcordanceEntry::CConcordanceEntry(const QString &strWord, int nIndex)
 
 }
 
-inline QString CConcordanceEntry::soundEx() const
-{
-	return CSoundExSearchCompleterFilter::soundEx(decomposedWord());
-}
-
 // ============================================================================
 
 QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
@@ -952,6 +947,20 @@ void CBibleDatabase::dumpRichVerseTextCache(uint nTextRichifierTagHash)
 		(itr->second).clear();
 }
 #endif
+
+QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, bool bCache) const
+{
+	if (bCache) {
+		QString &strSoundEx = m_mapSoundEx[strDecomposedConcordanceWord];
+		// TODO : Assert if language not set
+		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord);			// TODO : Pass Language ID to soundEx
+		return strSoundEx;
+	}
+
+	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
+	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
+	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord);			// TODO : Pass Language ID to soundEx
+}
 
 // ============================================================================
 

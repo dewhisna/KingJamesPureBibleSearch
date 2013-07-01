@@ -62,6 +62,8 @@ public:
 
 	static QString decompose(const QString &strWord);			// Word decompose() function to breakdown and remove accents from words for searching purposes
 
+	inline const CBibleDatabase *bibleDatabase() const;
+
 signals:
 	void modelChanged();
 
