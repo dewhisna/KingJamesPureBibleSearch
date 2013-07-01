@@ -478,6 +478,7 @@ void CPhraseLineEdit::keyPressEvent(QKeyEvent* event)
 			case Qt::Key_Return:
 			case Qt::Key_Escape:
 			case Qt::Key_Tab:
+			case Qt::Key_Control:			// Control is needed here to keep Ctrl-Home/Ctrl-End used in the QCompleter from trigger redoing the QCompleter in setupCompleter()
 				event->ignore();
 				return;
 
@@ -503,12 +504,14 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 {
 	ParsePhrase(textCursor());
 
-	if ((bForce) || (!strText.isEmpty())) {
+	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
+	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen)) {
 		m_pCompleter->setFilterMatchString();
 		UpdateCompleter();
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
 			m_nLastCursorWord = GetCursorWordPos();
+			if (bCompleterOpen) bForce = true;				// Reshow completer if it was open already and we're changing words
 		}
 		m_pCompleter->selectFirstMatchString();
 	}
