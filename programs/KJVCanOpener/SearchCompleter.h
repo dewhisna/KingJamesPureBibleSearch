@@ -63,9 +63,6 @@ public:
 	static QString decompose(const QString &strWord);			// Word decompose() function to breakdown and remove accents from words for searching purposes
 
 signals:
-	void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-	void layoutChanged();
-	void layoutAboutToBeChanged();
 	void modelChanged();
 
 public slots:
@@ -127,13 +124,6 @@ public:
 
 	static SOUNDEX_LANGUAGES_ENUM languageValue(const QString &strLanguage);
 	static QString soundEx(const QString &strWordIn, SOUNDEX_LANGUAGES_ENUM nLanguage = SELE_ENGLISH, int nLength = 4, SOUNDEX_OPTION_MODE_ENUM nOption = SEOME_ENHANCED);
-
-signals:
-	void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-	void layoutChanged();
-	void layoutAboutToBeChanged();
-	void modelAboutToBeReset();
-	void modelReset();
 
 protected slots:
 	void en_modelChanged();

@@ -311,7 +311,7 @@ QModelIndex CSoundExSearchCompleterFilter::parent(const QModelIndex & index) con
 
 QModelIndex	CSoundExSearchCompleterFilter::index(int row, int column, const QModelIndex & parent) const
 {
-	return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+	return hasIndex(row, column, parent) ? createIndex(row, column) : QModelIndex();
 }
 
 QModelIndex CSoundExSearchCompleterFilter::mapFromSource(const QModelIndex &sourceIndex) const
