@@ -1053,7 +1053,7 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::S
 
 void CVerseListModel::setFont(const QFont& aFont)
 {
-	Q_UNUSED(aFont);
+	m_font = aFont;
 	emit layoutAboutToBeChanged();
 	setData(QModelIndex(), QSize(), Qt::SizeHintRole);			// Invalidate all sizeHints on fontChange
 	emit layoutChanged();

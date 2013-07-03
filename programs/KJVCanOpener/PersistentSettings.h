@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QFont>
+#include <QColor>
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -45,17 +46,36 @@ public:
 	const QFont &fontScriptureBrowser() const { return m_fntScriptureBrowser; }
 	const QFont &fontSearchResults() const { return m_fntSearchResults; }
 
+	bool invertTextBrightness() const { return m_bInvertTextBrightness; }
+	int textBrightness() const { return m_nTextBrightness; }
+
+	static QColor textForegroundColor(bool bInvert, int nBrightness);
+	static QColor textBackgroundColor(bool bInvert, int nBrightness);
+
+	QColor textForegroundColor() const;
+	QColor textBackgroundColor() const;
+
 signals:
 	void fontChangedScriptureBrowser(const QFont &aFont);
 	void fontChangedSearchResults(const QFont &aFont);
+
+	void invertTextBrightnessChanged(bool bInvert);
+	void textBrightnessChanged(int nBrightness);
+
+	void changedTextBrightness(bool bInvert, int nBrightness);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
 
+	void setInvertTextBrightness(bool bInvert);
+	void setTextBrightness(int nBrightness);
+
 private:
 	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
+	bool m_bInvertTextBrightness;
+	int m_nTextBrightness;
 	QSettings *m_pSettings;
 };
 

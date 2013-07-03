@@ -38,6 +38,8 @@
 #include <QString>
 #include <QLabel>
 #include <QTreeView>
+#include <QColor>
+#include <QStyleOptionViewItem>
 
 #include <assert.h>
 
@@ -49,7 +51,7 @@ class CReflowDelegate;
 
 // ============================================================================
 
-class CSearchResultsTreeView : public QTreeView
+ class CSearchResultsTreeView : public QTreeView
 {
 	Q_OBJECT
 public:
@@ -71,6 +73,9 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
 
+	CRelIndex currentIndex() const;
+	bool canShowPassageNavigator() const;
+
 protected slots:
 	void en_copyVerseText();
 	void en_copyRaw();
@@ -82,9 +87,16 @@ protected slots:
 	void en_listChanged();
 
 public slots:
-	void showPassageNavigator();
-	void showDetails();
-	void setFontSearchResults(const QFont& aFont);
+	virtual bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
+	virtual void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
+	virtual void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
+	virtual void setShowMissingLeafs(bool bShowMissing);
+	virtual void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+
+	virtual void showPassageNavigator();
+	virtual void showDetails();
+	virtual void setFontSearchResults(const QFont& aFont);
+	virtual void setTextBrightness(bool bInvert, int nBrightness);
 
 signals:
 	void activatedSearchResults();
@@ -104,12 +116,16 @@ protected:
 
 	virtual void resizeEvent(QResizeEvent *event);
 
+	virtual QStyleOptionViewItem viewOptions() const;
+
 // Private Data:
 private:
-	CBibleDatabasePtr m_pBibleDatabase;
 
 // Private UI:
 private:
+	bool m_bInvertTextBrightness;	// Local copies so we can have different current values than the app setting so we can preview settings
+	int m_nTextBrightness;
+	// ----
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
@@ -128,6 +144,8 @@ private:
 	QAction *m_pActionNavigator;	// Launch Passage Navigator for Search Result
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
+	// ----
+	CReflowDelegate *m_pReflowDelegate;
 };
 
 // ============================================================================
@@ -154,7 +172,7 @@ public:
 	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
-	inline bool haveResults() const { return (model()->GetResultsCount() > 0); }
+	inline bool haveResults() const { return (vlmodel()->GetResultsCount() > 0); }
 
 	QString searchResultsSummaryText() const;
 
@@ -164,9 +182,9 @@ public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
-	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 	void showPassageNavigator();
 	void showDetails();
+	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 signals:			// Outgoing Pass-Through:
 	void activated(const QModelIndex &);
@@ -183,12 +201,10 @@ signals:			// Incoming Pass-Through:
 	void expandAll();
 	void collapseAll();
 	void setFontSearchResults(const QFont &aFont);
+	void setTextBrightness(bool bInvert, int nBrightness);
 
 public:
-	CVerseListModel *model() const {
-		assert(m_pSearchResultsTreeView->model() != NULL);
-		return static_cast<CVerseListModel *>(m_pSearchResultsTreeView->model());
-	}
+	inline CVerseListModel *vlmodel() const { return m_pSearchResultsTreeView->vlmodel(); }
 
 // Private Data:
 private:
@@ -204,7 +220,6 @@ private:
 // UI Private:
 private:
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
-	CReflowDelegate *m_pReflowDelegate;
 	QLabel *m_pSearchResultsCount;
 };
 

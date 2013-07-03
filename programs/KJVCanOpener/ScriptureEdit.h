@@ -37,6 +37,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QMimeData>
+#include <QColor>
 
 // ============================================================================
 
@@ -113,6 +114,7 @@ protected:
 //public slots:
 public:
 	virtual void setFont(const QFont& aFont);
+	virtual void setTextBrightness(bool bInvert, int nBrightness);
 	virtual void showDetails();
 	virtual void showPassageNavigator();
 	virtual void en_copy();
@@ -198,6 +200,7 @@ protected slots:
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
+	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
 //	virtual void showPassageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
 	virtual void en_copy() = 0;
@@ -237,6 +240,7 @@ protected slots:
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
+	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
 	virtual void showPassageNavigator() = 0;
 	virtual void en_copy() = 0;

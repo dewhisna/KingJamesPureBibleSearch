@@ -31,6 +31,7 @@
 #include "KJVAboutDlg.h"
 #include "version.h"
 #include "PersistentSettings.h"
+#include "KJVConfiguration.h"
 
 #include <assert.h>
 
@@ -69,7 +70,12 @@ namespace {
 
 	// Key constants:
 	// --------------
-	// MainApp:
+	// MainApp General:
+	const QString constrMainAppGeneralGroup("GeneralSettings");
+	const QString constrInvertTextBrightness("InvertTextBrightness");
+	const QString constrTextBrightness("TextBrightness");
+
+	// MainApp RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
 	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
 	const QString constrGeometryKey("Geometry");
@@ -154,7 +160,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
 	m_pSplitter->addWidget(m_pSearchResultWidget);
 
-	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->model(), m_pBibleDatabase, m_pSplitter);
+	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitter);
 	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
 	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	aSizePolicy.setHorizontalStretch(20);
@@ -361,13 +367,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui->menuBar->addMenu(tr("Se&ttings"));
 
-	pAction = pSettingsMenu->addAction(tr("Scripture &Browser Font..."), this, SLOT(en_setFontScriptureBrowser()));
-	pAction->setStatusTip(tr("Adjust the Scripture Browser Font"));
-	pAction->setToolTip(tr("Adjust the Scripture Browser Font"));
-
-	pAction = pSettingsMenu->addAction(tr("Search &Results Font..."), this, SLOT(en_setFontSearchResults()));
-	pAction->setStatusTip(tr("Adjust the Search Results Font"));
-	pAction->setToolTip(tr("Adjust the Search Results Font"));
+	pAction = pSettingsMenu->addAction(QIcon(":res/Settings-icon2-128.png"), tr("Configure..."), this, SLOT(en_Configure()));
+	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
+	pAction->setToolTip(tr("Configure King James Pure Bible Search"));
 
 	// --- Help Menu
 	QMenu *pHelpMenu = ui->menuBar->addMenu(tr("&Help"));
@@ -405,15 +407,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// -------------------- Search Results List View:
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), m_pSearchResultWidget, SIGNAL(setFontSearchResults(const QFont &)));
-
 	connect(m_pSearchResultWidget, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 
 	// -------------------- Scripture Browser:
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), m_pBrowserWidget, SLOT(setFontScriptureBrowser(const QFont &)));
 
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
@@ -445,10 +444,16 @@ void CKJVCanOpener::savePersistentSettings()
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
 
-	// Main App and Toolbars:
+	// Main App and Toolbars RestoreState:
 	settings.beginGroup(constrMainAppRestoreStateGroup);
 	settings.setValue(constrGeometryKey, saveGeometry());
 	settings.setValue(constrWindowStateKey, saveState(KJVAPP_REGISTRY_VERSION));
+	settings.endGroup();
+
+	// Main App General Settings:
+	settings.beginGroup(constrMainAppGeneralGroup);
+	settings.setValue(constrInvertTextBrightness, CPersistentSettings::instance()->invertTextBrightness());
+	settings.setValue(constrTextBrightness, CPersistentSettings::instance()->textBrightness());
 	settings.endGroup();
 
 	// Splitter:
@@ -487,10 +492,16 @@ void CKJVCanOpener::restorePersistentSettings()
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	QString strFont;
 
-	// Main App and Toolbars:
+	// Main App and Toolbars RestoreState:
 	settings.beginGroup(constrMainAppRestoreStateGroup);
 	restoreGeometry(settings.value(constrGeometryKey).toByteArray());
 	restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+	settings.endGroup();
+
+	// Main App General Settings:
+	settings.beginGroup(constrMainAppGeneralGroup);
+	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightness, false).toBool());
+	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightness, 100).toInt());
 	settings.endGroup();
 
 	// Splitter:
@@ -1147,17 +1158,10 @@ void CKJVCanOpener::en_QuickActivate()
 	assert(bServiced);
 }
 
-void CKJVCanOpener::en_setFontScriptureBrowser()
+void CKJVCanOpener::en_Configure()
 {
-	bool bUpdate = false;
-	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontScriptureBrowser(), this, tr("Select Scripture Browser Font"));
-	if (bUpdate) CPersistentSettings::instance()->setFontScriptureBrowser(fnt);
-}
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, this);
 
-void CKJVCanOpener::en_setFontSearchResults()
-{
-	bool bUpdate = false;
-	QFont fnt = QFontDialog::getFont(&bUpdate, CPersistentSettings::instance()->fontSearchResults(), this, tr("Select Search Results Font"));
-	if (bUpdate) CPersistentSettings::instance()->setFontSearchResults(fnt);
+	dlgConfigure.exec();
 }
 

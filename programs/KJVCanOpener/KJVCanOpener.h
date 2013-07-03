@@ -121,8 +121,7 @@ protected slots:
 
 	void en_QuickActivate();
 
-	void en_setFontScriptureBrowser();
-	void en_setFontSearchResults();
+	void en_Configure();
 
 // Data Private:
 private:

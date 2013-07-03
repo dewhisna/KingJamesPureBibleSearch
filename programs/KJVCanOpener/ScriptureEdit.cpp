@@ -39,6 +39,7 @@
 #include <QEvent>
 #include <QHelpEvent>
 #include <QKeyEvent>
+#include <QColor>
 
 
 // ============================================================================
@@ -91,8 +92,12 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_HighlightTimer.stop();
 
-	// Setup Default Font:
+	// Setup Default Font and TextBrightness:
 	setFont(CPersistentSettings::instance()->fontScriptureBrowser());
+	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+
+	U::connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(setFont(const QFont &)));
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 	// FindDialog:
 	m_pFindDialog = new FindDialog(this);
@@ -171,6 +176,14 @@ template<class T, class U>
 void CScriptureText<T,U>::setFont(const QFont& aFont)
 {
 	U::document()->setDefaultFont(aFont);
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::setTextBrightness(bool bInvert, int nBrightness)
+{
+	U::setStyleSheet(QString("i_CScriptureBrowser, i_CScriptureEdit { background-color:%1; color:%2; }")
+								   .arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
+								   .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
 }
 
 // ----------------------------------------------------------------------------

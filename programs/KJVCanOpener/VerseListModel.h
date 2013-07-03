@@ -38,6 +38,7 @@
 #include <QPair>
 #include <QObject>
 #include <QSize>
+#include <QFont>
 
 #include <assert.h>
 
@@ -308,6 +309,8 @@ public:
 	QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
 	QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
 
+	inline const QFont &font() const { return m_font; }
+
 signals:
 	void cachedSizeHintsInvalidated();
 	void verseListAboutToChange();					// Emitted just before our verse phrase tags change so that users (KJVBrowser, etc) can clear highlighting with the old tags
@@ -347,6 +350,7 @@ private:
 	VERSE_TREE_MODE_ENUM m_nTreeMode;
 	bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
 	CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the search results in this list
+	QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
 };
 
 // ============================================================================

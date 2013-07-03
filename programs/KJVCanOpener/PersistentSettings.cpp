@@ -91,3 +91,44 @@ void CPersistentSettings::setFontSearchResults(const QFont &aFont)
 	emit fontChangedSearchResults(aFont);
 }
 
+void CPersistentSettings::setInvertTextBrightness(bool bInvert)
+{
+	m_bInvertTextBrightness = bInvert;
+	emit invertTextBrightnessChanged(m_bInvertTextBrightness);
+	emit changedTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+void CPersistentSettings::setTextBrightness(int nBrightness)
+{
+	assert((nBrightness >= 0) && (nBrightness <= 100));
+	if (nBrightness < 0) nBrightness = 0;
+	if (nBrightness > 100) nBrightness = 100;
+	m_nTextBrightness = nBrightness;
+	emit textBrightnessChanged(m_nTextBrightness);
+	emit changedTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+QColor CPersistentSettings::textForegroundColor() const
+{
+	return textForegroundColor(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+QColor CPersistentSettings::textForegroundColor(bool bInvert, int nBrightness)
+{
+	assert((nBrightness >= 0) && (nBrightness <= 100));
+	QColor clrForeground = (bInvert ? QColor(255, 255, 255) : QColor(0, 0, 0));
+	return (bInvert ? clrForeground.darker(300 - (nBrightness * 2)) : clrForeground.lighter(300 - (nBrightness * 2)));
+}
+
+QColor CPersistentSettings::textBackgroundColor() const
+{
+	return textBackgroundColor(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
+{
+	assert((nBrightness >= 0) && (nBrightness <= 100));
+	QColor clrBackground = (bInvert ? QColor(0, 0, 0) : QColor(255, 255, 255));
+	return (bInvert ? clrBackground.lighter(300 - (nBrightness * 2)) : clrBackground.darker(300 - (nBrightness * 2)));
+}
+

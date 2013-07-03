@@ -8,6 +8,8 @@ QT       += core gui sql
 
 CONFIG += rtti
 
+CONFIG += wwwidgets
+
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
@@ -84,7 +86,8 @@ SOURCES += main.cpp \
 	ModelRowForwardIterator.cpp \
 	ReflowDelegate.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp \
-    SearchCompleter.cpp
+	SearchCompleter.cpp \
+	KJVConfiguration.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -123,7 +126,8 @@ HEADERS  += main.h \
 	ModelRowForwardIterator.h \
 	ReflowDelegate.h \
 	signalspy/Q4puGenericSignalSpy.h \
-    SearchCompleter.h
+	SearchCompleter.h \
+	KJVConfiguration.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -134,7 +138,8 @@ FORMS    += KJVCanOpener.ui \
 	KJVAboutDlg.ui \
 	QtFindReplaceDialog/dialogs/findreplaceform.ui \
 	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
-	KJVSearchSpec.ui
+	KJVSearchSpec.ui \
+	KJVTextFormatConfig.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

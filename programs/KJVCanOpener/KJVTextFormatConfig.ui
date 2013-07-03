@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CKJVTextFormatConfig</class>
+ <widget class="QWidget" name="CKJVTextFormatConfig">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>512</width>
+    <height>512</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Text Format Configuration</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelScriptureBrowserFont">
+       <property name="text">
+        <string>Scripture Browser Font:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QFontComboBox" name="fontComboBoxScriptureBrowser"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QDoubleSpinBox" name="dblSpinBoxScriptureBrowserFontSize"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelSearchResultsFont">
+       <property name="text">
+        <string>Search Results Font:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QFontComboBox" name="fontComboBoxSearchResults"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QDoubleSpinBox" name="dblSpinBoxSearchResultsFontSize"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="checkBoxInvertTextBrightness">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Invert Text Brightness:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="horzSliderTextBrigtness">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayoutPreviewPane">
+     <item row="0" column="0" colspan="2">
+      <widget class="Line" name="line">
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>3</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QTreeView" name="treeViewSearchResultsPreview">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>5</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QTextBrowser" name="textScriptureBrowserPreview">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>fontComboBoxScriptureBrowser</tabstop>
+  <tabstop>dblSpinBoxScriptureBrowserFontSize</tabstop>
+  <tabstop>fontComboBoxSearchResults</tabstop>
+  <tabstop>dblSpinBoxSearchResultsFontSize</tabstop>
+  <tabstop>checkBoxInvertTextBrightness</tabstop>
+  <tabstop>horzSliderTextBrigtness</tabstop>
+  <tabstop>treeViewSearchResultsPreview</tabstop>
+  <tabstop>textScriptureBrowserPreview</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

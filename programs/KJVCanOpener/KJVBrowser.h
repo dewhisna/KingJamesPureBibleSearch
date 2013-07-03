@@ -78,6 +78,7 @@ public:
 
 public slots:
 	void setFontScriptureBrowser(const QFont& aFont);
+	void setTextBrightness(bool bInvert, int nBrightness);
 	void showDetails();
 	void showPassageNavigator();
 
