@@ -1192,6 +1192,7 @@ extern CMyApplication *g_pMyApplication;
 
 	// Note: This will automatically cause a repaint:
 	g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+											"QComboBox { background-color:%1; color:%2; }\n"
 											"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
 											"QFontComboBox { background-color:%1; color:%2; }\n"
 											"QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
