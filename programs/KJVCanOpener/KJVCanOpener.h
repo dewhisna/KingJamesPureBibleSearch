@@ -123,6 +123,8 @@ protected slots:
 
 	void en_Configure();
 
+	void setTextBrightness(bool bInvert, int nBrightness);
+
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;

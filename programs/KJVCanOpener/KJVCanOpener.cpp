@@ -24,6 +24,7 @@
 #include "KJVCanOpener.h"
 #include "ui_KJVCanOpener.h"
 
+#include "main.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
@@ -45,7 +46,6 @@
 #include <QTimer>
 #include <QFileDialog>
 #include <QSettings>
-#include <QFontDialog>
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDir>
@@ -143,6 +143,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	assert(m_pBibleDatabase.data() != NULL);
 
 	ui->setupUi(this);
+
+	// --------------------
+
+	// Setup Default Font and TextBrightness:
+	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 	// -------------------- Setup the Three Panes:
 
@@ -1165,3 +1171,22 @@ void CKJVCanOpener::en_Configure()
 	dlgConfigure.exec();
 }
 
+void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)
+{
+extern CMyApplication *g_pMyApplication;
+
+	// Note: This code needs to cooperate with the setStyleSheet in the constructor
+	//			that works around QTBUG-13768...
+
+	// Note: This will automatically cause a repaint:
+	g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+											"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
+											"QFontComboBox { background-color:%1; color:%2; }\n"
+											"QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
+											"QSpinBox { background-color:%1; color:%2; }\n"
+											"QDoubleSpinBox { background-color:%1; color:%2; }\n"
+									 ).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
+									  .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+
+	return;
+}

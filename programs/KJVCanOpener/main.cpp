@@ -199,7 +199,6 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 	return false;
 }
 
-
 bool CMyApplication::event(QEvent *event) {
 	if (event->type() == QEvent::FileOpen) {
 		m_strFileToLoad = static_cast<QFileOpenEvent *>(event)->file();
