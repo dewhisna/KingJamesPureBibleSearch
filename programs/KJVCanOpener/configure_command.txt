@@ -62,6 +62,15 @@ Cocoa x86/x64/PPC (universal):
 Carbon x86/PPC (universal):
 ../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -carbon -universal -arch x86 -arch ppc -prefix /Users/donna/Qt/4.8.4-carbon-static-univ-run
 
+
+Mac Cross-Compile on Linux Attempt:
+-----------------------------------
+
+export QMAKE_MAC_SDK=/usr/lib/apple/SDKs/MacOSX10.6.sdk/
+
+../4.8.4-src/configure -xplatform macx-g++ -device-option CROSS_COMPILE=i686-apple-darwin10- -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch ppc -arch x86_64 -prefix /home/dewhisna/Qt/4.8.4-cocoa-static-univ-run
+
+
 ===============================================================================
 ===============================================================================
 
@@ -286,5 +295,66 @@ export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 
 ===============================================================================
 ===============================================================================
+
+Building wwWidgets:
+===================
+
+Qt 4.8.4 Linux (Local):
+-----------------
+/wwWidgets/widgets/widgets.pro :
+Change:
+	linux-g++:CONFIG(release, debug|release):QMAKE_STRIP = strip
+To:
+	linux-g++|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
+
+Change:
+	linux-g++ {
+	  CONFIG += debug_and_release separate_debug_info
+	} else {
+	  CONFIG += debug_and_release
+	}
+
+To:
+	linux-g++|linux-g++-64 {
+	  CONFIG += release static
+	} else {
+	  CONFIG += debug_and_release
+	}
+
+The problem was our mkspec isn't "linux-g++", it's "linux-g++-64", which confused this thing.  And, we built originally with "release static", not "debug_and_release" in "shared" mode.  The above is needed to get a ".a" static link library instead of the dynamic ".so" libraries.
+
+Without this, our app will crash with a "QWidget: Must construct a QApplication before a QPaintDevice" error because of mixed build types.
+
+After this, do normal:  qmake, make, make install to install these in the Qt install folder from which the qmake was built.
+
+
+Qt 4.8.4 Linux (LSB, etc) and Qt 4.8.4 Mac
+------------------------------------------
+/wwWidgets/wwwidgets4.pro :
+Change:
+	SUBDIRS += widgets plugin
+To:
+	SUBDIRS += widgets
+(avoids building Qt Developer plugins when you don't have tools)
+
+
+win32 on Linux:
+---------------
+/wwWidgets/widgets/widgets.pro :
+In win32 { } section, add:
+	QMAKE_LFLAGS += -shared
+(without this, you get a WinMain not defined error on linking)
+
+/wwWidgets/wwwidgets4.pro :
+Change:
+	SUBDIRS += widgets plugin
+To:
+	SUBDIRS += widgets
+(avoids building Qt Developer plugins when you don't have tools)
+
+
+Qt 5.1.0
+--------
+
 
 
