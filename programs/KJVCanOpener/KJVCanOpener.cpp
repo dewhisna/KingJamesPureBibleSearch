@@ -526,7 +526,13 @@ void CKJVCanOpener::restorePersistentSettings()
 	if (!strFont.isEmpty()) {
 		QFont aFont;
 		aFont.fromString(strFont);
-		CPersistentSettings::instance()->setFontSearchResults(aFont);
+		// Just use face-name and point size from the stored font.  This is to work around the
+		//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+		//		or something:
+		QFont aFont2;
+		aFont2.setFamily(aFont.family());
+		aFont2.setPointSizeF(aFont.pointSizeF());
+		CPersistentSettings::instance()->setFontSearchResults(aFont2);
 	}
 	settings.endGroup();
 
@@ -551,7 +557,13 @@ void CKJVCanOpener::restorePersistentSettings()
 	if (!strFont.isEmpty()) {
 		QFont aFont;
 		aFont.fromString(strFont);
-		CPersistentSettings::instance()->setFontScriptureBrowser(aFont);
+		// Just use face-name and point size from the stored font.  This is to work around the
+		//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+		//		or something:
+		QFont aFont2;
+		aFont2.setFamily(aFont.family());
+		aFont2.setPointSizeF(aFont.pointSizeF());
+		CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
 	}
 	settings.endGroup();
 
