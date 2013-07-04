@@ -566,6 +566,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	//		can set the database on:
 
 	int ndx = ui->gridLayout->indexOf(ui->editPhrase);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;

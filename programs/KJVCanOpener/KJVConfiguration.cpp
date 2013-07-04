@@ -32,6 +32,8 @@
 
 #include <QIcon>
 #include <QVBoxLayout>
+#include <QGridLayout>
+#include <QSplitter>
 #include <QSizePolicy>
 #include <QFontDatabase>
 
@@ -54,12 +56,9 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	//	Swapout the treeViewSearchResultsPreview from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui->gridLayoutPreviewPane->indexOf(ui->treeViewSearchResultsPreview);
-	int nRow;
-	int nCol;
-	int nRowSpan;
-	int nColSpan;
-	ui->gridLayoutPreviewPane->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	int ndx = ui->splitter->indexOf(ui->treeViewSearchResultsPreview);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 
 	m_pSearchResultsTreeView = new CSearchResultsTreeView(pBibleDatabase, this);
 	m_pSearchResultsTreeView->setObjectName(QString::fromUtf8("treeViewSearchResultsPreview"));
@@ -71,15 +70,16 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	delete ui->treeViewSearchResultsPreview;
 	ui->treeViewSearchResultsPreview = NULL;
-	ui->gridLayoutPreviewPane->addWidget(m_pSearchResultsTreeView, nRow, nCol, nRowSpan, nColSpan);
+	ui->splitter->insertWidget(ndx, m_pSearchResultsTreeView);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the textScriptureBrowserPreview from the layout with
 	//		one that we can set the database on:
 
-	ndx = ui->gridLayoutPreviewPane->indexOf(ui->textScriptureBrowserPreview);
-	ui->gridLayoutPreviewPane->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ndx = ui->splitter->indexOf(ui->textScriptureBrowserPreview);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 
 	m_pScriptureBrowser = new CScriptureBrowser(pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textScriptureBrowserPreview"));
@@ -99,7 +99,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	delete ui->textScriptureBrowserPreview;
 	ui->textScriptureBrowserPreview = NULL;
-	ui->gridLayoutPreviewPane->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
+	ui->splitter->insertWidget(ndx, m_pScriptureBrowser);
 
 	// --------------------------------------------------------------
 
@@ -226,6 +226,8 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	CSearchCriteria aSearchCriteria;
 	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, lstPhrases);
 	m_pSearchResultsTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
+	m_pSearchResultsTreeView->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
+	m_pSearchResultsTreeView->expandAll();
 }
 
 void CKJVTextFormatConfig::setPreviewBrightness()

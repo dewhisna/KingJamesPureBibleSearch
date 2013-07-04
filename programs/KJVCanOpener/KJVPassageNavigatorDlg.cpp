@@ -50,6 +50,8 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	//		one that we can set the database on:
 
 	int ndx = ui->gridLayout->indexOf(ui->widgetKJVPassageNavigator);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;

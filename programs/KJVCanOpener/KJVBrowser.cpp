@@ -105,6 +105,8 @@ void CKJVBrowser::initialize()
 	//		one that we can set the database on:
 
 	int ndx = ui->gridLayout->indexOf(ui->textBrowserMainText);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;
