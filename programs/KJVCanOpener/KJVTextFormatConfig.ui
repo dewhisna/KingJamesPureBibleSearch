@@ -22,10 +22,13 @@
      <item row="0" column="0">
       <widget class="QLabel" name="labelScriptureBrowserFont">
        <property name="text">
-        <string>Scripture Browser Font:</string>
+        <string>Scripture &amp;Browser Font:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>fontComboBoxScriptureBrowser</cstring>
        </property>
       </widget>
      </item>
@@ -38,10 +41,13 @@
      <item row="1" column="0">
       <widget class="QLabel" name="labelSearchResultsFont">
        <property name="text">
-        <string>Search Results Font:</string>
+        <string>Search &amp;Results Font:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>fontComboBoxSearchResults</cstring>
        </property>
       </widget>
      </item>
@@ -64,7 +70,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Invert Text Brightness:</string>
+        <string>&amp;Invert Text Brightness:</string>
        </property>
       </widget>
      </item>
