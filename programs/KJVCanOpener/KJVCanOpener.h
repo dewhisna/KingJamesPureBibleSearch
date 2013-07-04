@@ -124,6 +124,7 @@ protected slots:
 	void en_Configure();
 
 	void setTextBrightness(bool bInvert, int nBrightness);
+	void setAdjustDialogElementBrightness(bool bAdjust);
 
 // Data Private:
 private:
@@ -162,6 +163,7 @@ private:
 	bool m_bSearchResultsActive;
 	bool m_bBrowserActive;
 
+	QString m_strAppStartupStyleSheet;			// Copy of the original StyleSheet from QApp, which will be the user's StyleSheet if they used the "-stylesheet" option
 	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
 	CKJVSearchResult *m_pSearchResultWidget;

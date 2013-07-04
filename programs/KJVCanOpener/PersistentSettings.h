@@ -48,6 +48,7 @@ public:
 
 	bool invertTextBrightness() const { return m_bInvertTextBrightness; }
 	int textBrightness() const { return m_nTextBrightness; }
+	bool adjustDialogElementBrightness() const { return m_bAdjustDialogElementBrightness; }
 
 	static QColor textForegroundColor(bool bInvert, int nBrightness);
 	static QColor textBackgroundColor(bool bInvert, int nBrightness);
@@ -61,6 +62,7 @@ signals:
 
 	void invertTextBrightnessChanged(bool bInvert);
 	void textBrightnessChanged(int nBrightness);
+	void adjustDialogElementBrightnessChanged(bool bAdjust);
 
 	void changedTextBrightness(bool bInvert, int nBrightness);
 
@@ -70,12 +72,14 @@ public slots:
 
 	void setInvertTextBrightness(bool bInvert);
 	void setTextBrightness(int nBrightness);
+	void setAdjustDialogElementBrightness(bool bAdjust);
 
 private:
 	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
 	bool m_bInvertTextBrightness;
 	int m_nTextBrightness;
+	bool m_bAdjustDialogElementBrightness;
 	QSettings *m_pSettings;
 };
 

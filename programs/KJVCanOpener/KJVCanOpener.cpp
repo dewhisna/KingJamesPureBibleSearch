@@ -70,12 +70,13 @@ namespace {
 
 	// Key constants:
 	// --------------
-	// MainApp General:
-	const QString constrMainAppGeneralGroup("GeneralSettings");
+	// MainApp Control:
+	const QString constrMainAppControlGroup("MainApp/Controls");
 	const QString constrInvertTextBrightness("InvertTextBrightness");
 	const QString constrTextBrightness("TextBrightness");
+	const QString constrAdjustDialogElementBrightness("AdjustDialogElementBrightness");
 
-	// MainApp RestoreState:
+	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
 	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
 	const QString constrGeometryKey("Geometry");
@@ -146,9 +147,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// --------------------
 
+	extern CMyApplication *g_pMyApplication;
+	m_strAppStartupStyleSheet = g_pMyApplication->styleSheet();
+
 	// Setup Default Font and TextBrightness:
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
 
 	// -------------------- Setup the Three Panes:
 
@@ -376,6 +381,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction = pSettingsMenu->addAction(QIcon(":res/Settings-icon2-128.png"), tr("Configure..."), this, SLOT(en_Configure()));
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Configure King James Pure Bible Search"));
+	pAction->setMenuRole(QAction::PreferencesRole);
 
 	// --- Help Menu
 	QMenu *pHelpMenu = ui->menuBar->addMenu(tr("&Help"));
@@ -457,9 +463,10 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	// Main App General Settings:
-	settings.beginGroup(constrMainAppGeneralGroup);
+	settings.beginGroup(constrMainAppControlGroup);
 	settings.setValue(constrInvertTextBrightness, CPersistentSettings::instance()->invertTextBrightness());
 	settings.setValue(constrTextBrightness, CPersistentSettings::instance()->textBrightness());
+	settings.setValue(constrAdjustDialogElementBrightness, CPersistentSettings::instance()->adjustDialogElementBrightness());
 	settings.endGroup();
 
 	// Splitter:
@@ -505,9 +512,10 @@ void CKJVCanOpener::restorePersistentSettings()
 	settings.endGroup();
 
 	// Main App General Settings:
-	settings.beginGroup(constrMainAppGeneralGroup);
+	settings.beginGroup(constrMainAppControlGroup);
 	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightness, false).toBool());
 	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightness, 100).toInt());
+	CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightness, false).toBool());
 	settings.endGroup();
 
 	// Splitter:
@@ -1185,21 +1193,32 @@ void CKJVCanOpener::en_Configure()
 
 void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)
 {
-extern CMyApplication *g_pMyApplication;
+	extern CMyApplication *g_pMyApplication;
 
 	// Note: This code needs to cooperate with the setStyleSheet in the constructor
 	//			that works around QTBUG-13768...
 
-	// Note: This will automatically cause a repaint:
-	g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
-											"QComboBox { background-color:%1; color:%2; }\n"
-											"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
-											"QFontComboBox { background-color:%1; color:%2; }\n"
-											"QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
-											"QSpinBox { background-color:%1; color:%2; }\n"
-											"QDoubleSpinBox { background-color:%1; color:%2; }\n"
-									 ).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
-									  .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
+		// Note: This will automatically cause a repaint:
+		g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+												"QComboBox { background-color:%1; color:%2; }\n"
+												"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
+												"QFontComboBox { background-color:%1; color:%2; }\n"
+												"QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
+												"QSpinBox { background-color:%1; color:%2; }\n"
+												"QDoubleSpinBox { background-color:%1; color:%2; }\n"
+										 ).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
+										  .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+	} else {
+		g_pMyApplication->setStyleSheet(m_strAppStartupStyleSheet);
+	}
 
 	return;
 }
+
+void CKJVCanOpener::setAdjustDialogElementBrightness(bool bAdjust)
+{
+	Q_UNUSED(bAdjust);
+	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+}
+

@@ -59,7 +59,10 @@ QString groupCombine(const QString &strSubgroup, const QString &strGroup)
 CPersistentSettings::CPersistentSettings(QObject *parent)
 	:	QObject(parent),
 		m_fntScriptureBrowser("Times New Roman", 12),					// Default fonts
-		m_fntSearchResults("Times New Roman", 12)
+		m_fntSearchResults("Times New Roman", 12),
+		m_bInvertTextBrightness(false),
+		m_nTextBrightness(100),
+		m_bAdjustDialogElementBrightness(false)
 {
 	// Must set these in main() before caling settings!:
 	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
@@ -106,6 +109,12 @@ void CPersistentSettings::setTextBrightness(int nBrightness)
 	m_nTextBrightness = nBrightness;
 	emit textBrightnessChanged(m_nTextBrightness);
 	emit changedTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+void CPersistentSettings::setAdjustDialogElementBrightness(bool bAdjust)
+{
+	m_bAdjustDialogElementBrightness = bAdjust;
+	emit adjustDialogElementBrightnessChanged(m_bAdjustDialogElementBrightness);
 }
 
 QColor CPersistentSettings::textForegroundColor() const

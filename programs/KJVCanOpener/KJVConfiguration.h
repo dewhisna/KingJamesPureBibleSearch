@@ -30,6 +30,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QwwConfigWidget>
+#include <QwwColorButton>
 #include <QFont>
 
 // ============================================================================
@@ -68,6 +69,7 @@ private slots:
 
 	void en_InvertTextBrightnessChanged(bool bInvert);
 	void en_TextBrightnessChanged(int nBrightness);
+	void en_AdjustDialogElementBrightness(bool bAdjust);
 
 	void navigateToDemoText();
 	void setPreviewBrightness();
@@ -79,6 +81,7 @@ private:
 	QFont m_fntSearchResults;
 	bool m_bInvertTextBrightness;
 	int m_nTextBrightness;
+	bool m_bAdjustDialogElementBrightness;
 
 // UI Private:
 private:

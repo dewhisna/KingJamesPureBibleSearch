@@ -136,12 +136,15 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	m_bInvertTextBrightness = CPersistentSettings::instance()->invertTextBrightness();
 	m_nTextBrightness = CPersistentSettings::instance()->textBrightness();
+	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
 
 	ui->checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
 	ui->horzSliderTextBrigtness->setValue(m_nTextBrightness);
+	ui->checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
 
 	connect(ui->checkBoxInvertTextBrightness, SIGNAL(clicked(bool)), this, SLOT(en_InvertTextBrightnessChanged(bool)));
 	connect(ui->horzSliderTextBrigtness, SIGNAL(valueChanged(int)), this, SLOT(en_TextBrightnessChanged(int)));
+	connect(ui->checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
 
 	// --------------------------------------------------------------
 
@@ -160,6 +163,7 @@ void CKJVTextFormatConfig::saveSettings()
 	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);
 	CPersistentSettings::instance()->setInvertTextBrightness(m_bInvertTextBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_nTextBrightness);
+	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
 	m_bIsDirty = false;
 }
 
@@ -206,6 +210,14 @@ void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
 void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
 {
 	m_nTextBrightness = nBrightness;
+	setPreviewBrightness();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
+{
+	m_bAdjustDialogElementBrightness = bAdjust;
 	setPreviewBrightness();
 	m_bIsDirty = true;
 	emit dataChanged();
