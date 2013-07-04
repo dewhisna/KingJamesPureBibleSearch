@@ -87,6 +87,7 @@ signals:
 
 protected:
 	bool m_bEnabled;
+	Q_DISABLE_COPY(CBasicHighlighter)
 };
 
 // ============================================================================

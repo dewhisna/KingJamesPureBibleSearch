@@ -1211,7 +1211,7 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 
 	// Find last word anchor:
 	myCursor.setPosition(nPosLast);
-	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace()));	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
+	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
 	myCursor.moveCursorWordEnd();
 	while ((myCursor.position() >= nPosFirstWordStart) && (!nIndexLast.isSet())) {
 		strAnchorName = myCursor.charFormat().anchorName();
