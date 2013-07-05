@@ -76,6 +76,12 @@ namespace {
 	const QString constrTextBrightness("TextBrightness");
 	const QString constrAdjustDialogElementBrightness("AdjustDialogElementBrightness");
 
+	// Colors:
+	const QString constrColorsGroup("Colors");
+	const QString constrWordsOfJesusColor("WordsOfJesusColor");
+	const QString constrSearchResultsColor("SearchResultsColor");
+	const QString constrCursorTrackerColor("CursorTrackerColor");
+
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
 	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
@@ -469,6 +475,13 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrAdjustDialogElementBrightness, CPersistentSettings::instance()->adjustDialogElementBrightness());
 	settings.endGroup();
 
+	// Colors:
+	settings.beginGroup(constrColorsGroup);
+	settings.setValue(constrWordsOfJesusColor, CPersistentSettings::instance()->highlightWordsOfJesusColor().name());
+	settings.setValue(constrSearchResultsColor, CPersistentSettings::instance()->highlightSearchResultsColor().name());
+	settings.setValue(constrCursorTrackerColor, CPersistentSettings::instance()->highlightCursorFollowColor().name());
+	settings.endGroup();
+
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
 	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
@@ -513,9 +526,20 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Main App General Settings:
 	settings.beginGroup(constrMainAppControlGroup);
-	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightness, false).toBool());
-	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightness, 100).toInt());
-	CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightness, false).toBool());
+	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightness, CPersistentSettings::instance()->invertTextBrightness()).toBool());
+	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightness, CPersistentSettings::instance()->textBrightness()).toInt());
+	CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightness, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
+	settings.endGroup();
+
+	// Colors:
+	settings.beginGroup(constrColorsGroup);
+	QColor clrTemp;
+	clrTemp.setNamedColor(settings.value(constrWordsOfJesusColor, CPersistentSettings::instance()->highlightWordsOfJesusColor().name()).toString());
+	CPersistentSettings::instance()->setHighlightWordsOfJesusColor(clrTemp);
+	clrTemp.setNamedColor(settings.value(constrSearchResultsColor, CPersistentSettings::instance()->highlightSearchResultsColor().name()).toString());
+	CPersistentSettings::instance()->setHighlightSearchResultsColor(clrTemp);
+	clrTemp.setNamedColor(settings.value(constrCursorTrackerColor, CPersistentSettings::instance()->highlightCursorFollowColor().name()).toString());
+	CPersistentSettings::instance()->setHighlightCursorFollowColor(clrTemp);
 	settings.endGroup();
 
 	// Splitter:

@@ -322,6 +322,9 @@ public slots:
 	void setShowMissingLeafs(bool bShowMissing);
 	virtual void setFont(const QFont& aFont);
 
+protected slots:
+	void en_WordsOfJesusColorChanged(const QColor &color);
+
 protected:
 	int GetBookCount() const;						// Returns the number of books in the model based on mode
 	int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number

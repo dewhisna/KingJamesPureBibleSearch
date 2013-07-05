@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "VerseListModel.h"
+#include "PersistentSettings.h"
 
 #include <QVector>
 #include <QModelIndexList>
@@ -61,6 +62,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pare
 		m_nTreeMode(VTME_LIST),
 		m_bShowMissingLeafs(false)
 {
+	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
+	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
 int CVerseListModel::rowCount(const QModelIndex &parent) const
@@ -1057,6 +1060,11 @@ void CVerseListModel::setFont(const QFont& aFont)
 	emit layoutAboutToBeChanged();
 	setData(QModelIndex(), QSize(), Qt::SizeHintRole);			// Invalidate all sizeHints on fontChange
 	emit layoutChanged();
+}
+
+void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
+{
+	m_richifierTags.setWordsOfJesusTagsByColor(color);
 }
 
 // ============================================================================

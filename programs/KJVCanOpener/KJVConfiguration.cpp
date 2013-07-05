@@ -36,6 +36,7 @@
 #include <QSplitter>
 #include <QSizePolicy>
 #include <QFontDatabase>
+#include <QwwColorButton>
 
 // ============================================================================
 
@@ -103,6 +104,38 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	// --------------------------------------------------------------
 
+	delete ui->buttonWordsOfJesusColor;
+	delete ui->buttonSearchResultsColor;
+	delete ui->buttonCursorFollowColor;
+
+	ui->buttonWordsOfJesusColor = new QwwColorButton(this);
+	ui->buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
+	toQwwColorButton(ui->buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
+	ui->buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
+	ui->vertLayoutColorOptions->addWidget(ui->buttonWordsOfJesusColor);
+
+	ui->buttonSearchResultsColor = new QwwColorButton(this);
+	ui->buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
+	toQwwColorButton(ui->buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
+	ui->buttonSearchResultsColor->setText(tr("Search Results"));
+	ui->vertLayoutColorOptions->addWidget(ui->buttonSearchResultsColor);
+
+	ui->buttonCursorFollowColor = new QwwColorButton(this);
+	ui->buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
+	toQwwColorButton(ui->buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
+	ui->buttonCursorFollowColor->setText(tr("Cursor Tracker"));
+	ui->vertLayoutColorOptions->addWidget(ui->buttonCursorFollowColor);
+
+	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
+	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->highlightSearchResultsColor());
+	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->highlightCursorFollowColor());
+
+	connect(toQwwColorButton(ui->buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
+
+	// --------------------------------------------------------------
+
 	// Reinsert them in the correct TabOrder:
 	QWidget::setTabOrder(ui->horzSliderTextBrigtness, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
@@ -149,7 +182,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	// --------------------------------------------------------------
 
 	navigateToDemoText();
-	setPreviewBrightness();
+	setPreview();
 }
 
 CKJVTextFormatConfig::~CKJVTextFormatConfig()
@@ -202,7 +235,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
 void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
 {
 	m_bInvertTextBrightness = bInvert;
-	setPreviewBrightness();
+	setPreview();
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -210,7 +243,7 @@ void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
 void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
 {
 	m_nTextBrightness = nBrightness;
-	setPreviewBrightness();
+	setPreview();
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -218,7 +251,31 @@ void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
 void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
 {
 	m_bAdjustDialogElementBrightness = bAdjust;
-	setPreviewBrightness();
+	setPreview();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
+{
+	CPersistentSettings::instance()->setHighlightWordsOfJesusColor(color);
+	navigateToDemoText();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
+{
+	CPersistentSettings::instance()->setHighlightSearchResultsColor(color);
+	navigateToDemoText();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
+{
+	CPersistentSettings::instance()->setHighlightCursorFollowColor(color);
+//	setPreview();
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -242,7 +299,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	m_pSearchResultsTreeView->expandAll();
 }
 
-void CKJVTextFormatConfig::setPreviewBrightness()
+void CKJVTextFormatConfig::setPreview()
 {
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 
@@ -283,6 +340,13 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 {
 	assert(pBibleDatabase != NULL);
 
+	// --------------------------------------------------------------
+
+	// Make a working copy of our settings:
+	CPersistentSettings::instance()->togglePersistentSettingData(true);
+
+	// --------------------------------------------------------------
+
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
@@ -318,16 +382,25 @@ void CKJVConfigurationDialog::accept()
 {
 	m_pConfiguration->saveSettings();
 	QDialog::accept();
+	// Note: Leave the settings permanent, by not copying
+	//		them back in the persistent settings object
 }
 
 void CKJVConfigurationDialog::reject()
 {
+	// Restore original settings by switching back to the original
+	//		settings without copying:
+	CPersistentSettings::instance()->togglePersistentSettingData(false);
 	QDialog::reject();
 }
 
 void CKJVConfigurationDialog::apply()
 {
+	// Make sure our persistent settings have been updated, and we'll
+	//		copy the settings over to the original, making them permanent
+	//		as the user is "applying" them:
 	m_pConfiguration->saveSettings();
+	CPersistentSettings::instance()->togglePersistentSettingData(true);
 	en_dataChanged();
 }
 

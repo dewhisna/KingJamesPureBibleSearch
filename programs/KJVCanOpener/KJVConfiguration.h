@@ -30,8 +30,8 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QwwConfigWidget>
-#include <QwwColorButton>
 #include <QFont>
+#include <QPushButton>
 
 // ============================================================================
 
@@ -71,8 +71,12 @@ private slots:
 	void en_TextBrightnessChanged(int nBrightness);
 	void en_AdjustDialogElementBrightness(bool bAdjust);
 
+	void en_WordsOfJesusColorPicked(const QColor &color);
+	void en_SearchResultsColorPicked(const QColor &color);
+	void en_CursorTrackerColorPicked(const QColor &color);
+
 	void navigateToDemoText();
-	void setPreviewBrightness();
+	void setPreview();
 
 // Private Data:
 private:
@@ -89,6 +93,7 @@ private:
 	CScriptureBrowser *m_pScriptureBrowser;
 	bool m_bIsDirty;
 
+	static class QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<class QwwColorButton *>(pButton); }
 	Ui::CKJVTextFormatConfig *ui;
 };
 

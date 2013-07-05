@@ -56,13 +56,32 @@ QString groupCombine(const QString &strSubgroup, const QString &strGroup)
 
 // ============================================================================
 
-CPersistentSettings::CPersistentSettings(QObject *parent)
-	:	QObject(parent),
-		m_fntScriptureBrowser("Times New Roman", 12),					// Default fonts
+CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
+	:
+		// Default Fonts:
+		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),
+		// Default Text Brightness Options:
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
-		m_bAdjustDialogElementBrightness(false)
+		m_bAdjustDialogElementBrightness(false),
+		// Default Special Text Colors:
+		m_clrWordsOfJesus(QColor("red")),
+		m_clrSearchResults(QColor("blue")),
+		m_clrCursorFollow(QColor("blue"))
+{
+	// Set Default Highlighters:
+	m_mapUserHighlighters[1] = QColor(255, 255, 170);			// "yellow" highlighter
+	m_mapUserHighlighters[2] = QColor(170, 255, 255);			// "blue" highlighter
+	m_mapUserHighlighters[3] = QColor(170, 255, 170);			// "green" highligher
+	m_mapUserHighlighters[4] = QColor(255, 170, 255);			// "pink" highlighter
+}
+
+// ============================================================================
+
+CPersistentSettings::CPersistentSettings(QObject *parent)
+	:	QObject(parent),
+		m_pPersistentSettingData(&m_PersistentSettingData1)
 {
 	// Must set these in main() before caling settings!:
 	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
@@ -82,23 +101,53 @@ CPersistentSettings *CPersistentSettings::instance()
 	return &thePersistentSettings;
 }
 
+void CPersistentSettings::togglePersistentSettingData(bool bCopy)
+{
+	TPersistentSettingData *pSource = ((m_pPersistentSettingData == &m_PersistentSettingData1) ? &m_PersistentSettingData1 : &m_PersistentSettingData2);
+	TPersistentSettingData *pTarget = ((m_pPersistentSettingData == &m_PersistentSettingData1) ? &m_PersistentSettingData2 : &m_PersistentSettingData1);
+
+	if (bCopy) *pTarget = *pSource;
+
+	m_pPersistentSettingData = pTarget;
+
+	// Signal changes if we aren't copying and something changed:
+	if (!bCopy) {
+		if (pSource->m_fntScriptureBrowser != pTarget->m_fntScriptureBrowser) emit fontChangedScriptureBrowser(pTarget->m_fntScriptureBrowser);
+		if (pSource->m_fntSearchResults != pTarget->m_fntSearchResults) emit fontChangedSearchResults(pTarget->m_fntSearchResults);
+
+		if (pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) emit invertTextBrightnessChanged(pTarget->m_bInvertTextBrightness);
+		if (pSource->m_nTextBrightness != pTarget->m_nTextBrightness) emit textBrightnessChanged(pTarget->m_nTextBrightness);
+		if ((pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) ||
+			(pSource->m_nTextBrightness != pTarget->m_nTextBrightness)) emit changedTextBrightness(pTarget->m_bInvertTextBrightness, pTarget->m_nTextBrightness);
+		if (pSource->m_bAdjustDialogElementBrightness != pTarget->m_bAdjustDialogElementBrightness) emit adjustDialogElementBrightnessChanged(pTarget->m_bAdjustDialogElementBrightness);
+
+		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedHighlightWordsOfJesusColor(pTarget->m_clrWordsOfJesus);
+		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedHighlightSearchResultsColor(pTarget->m_clrSearchResults);
+		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedHighlightCursorFollowColor(pTarget->m_clrCursorFollow);
+
+		if (pSource->m_mapUserHighlighters != pTarget->m_mapUserHighlighters) emit changedUserDefinedColors();
+	}
+}
+
+// ----------------------------------------------------------------------------
+
 void CPersistentSettings::setFontScriptureBrowser(const QFont &aFont)
 {
-	m_fntScriptureBrowser = aFont;
+	m_pPersistentSettingData->m_fntScriptureBrowser = aFont;
 	emit fontChangedScriptureBrowser(aFont);
 }
 
 void CPersistentSettings::setFontSearchResults(const QFont &aFont)
 {
-	m_fntSearchResults = aFont;
+	m_pPersistentSettingData->m_fntSearchResults = aFont;
 	emit fontChangedSearchResults(aFont);
 }
 
 void CPersistentSettings::setInvertTextBrightness(bool bInvert)
 {
-	m_bInvertTextBrightness = bInvert;
-	emit invertTextBrightnessChanged(m_bInvertTextBrightness);
-	emit changedTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	m_pPersistentSettingData->m_bInvertTextBrightness = bInvert;
+	emit invertTextBrightnessChanged(m_pPersistentSettingData->m_bInvertTextBrightness);
+	emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 }
 
 void CPersistentSettings::setTextBrightness(int nBrightness)
@@ -106,20 +155,20 @@ void CPersistentSettings::setTextBrightness(int nBrightness)
 	assert((nBrightness >= 0) && (nBrightness <= 100));
 	if (nBrightness < 0) nBrightness = 0;
 	if (nBrightness > 100) nBrightness = 100;
-	m_nTextBrightness = nBrightness;
-	emit textBrightnessChanged(m_nTextBrightness);
-	emit changedTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	m_pPersistentSettingData->m_nTextBrightness = nBrightness;
+	emit textBrightnessChanged(m_pPersistentSettingData->m_nTextBrightness);
+	emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 }
 
 void CPersistentSettings::setAdjustDialogElementBrightness(bool bAdjust)
 {
-	m_bAdjustDialogElementBrightness = bAdjust;
-	emit adjustDialogElementBrightnessChanged(m_bAdjustDialogElementBrightness);
+	m_pPersistentSettingData->m_bAdjustDialogElementBrightness = bAdjust;
+	emit adjustDialogElementBrightnessChanged(m_pPersistentSettingData->m_bAdjustDialogElementBrightness);
 }
 
 QColor CPersistentSettings::textForegroundColor() const
 {
-	return textForegroundColor(m_bInvertTextBrightness, m_nTextBrightness);
+	return textForegroundColor(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 }
 
 QColor CPersistentSettings::textForegroundColor(bool bInvert, int nBrightness)
@@ -131,7 +180,7 @@ QColor CPersistentSettings::textForegroundColor(bool bInvert, int nBrightness)
 
 QColor CPersistentSettings::textBackgroundColor() const
 {
-	return textBackgroundColor(m_bInvertTextBrightness, m_nTextBrightness);
+	return textBackgroundColor(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 }
 
 QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
@@ -139,5 +188,39 @@ QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
 	assert((nBrightness >= 0) && (nBrightness <= 100));
 	QColor clrBackground = (bInvert ? QColor(0, 0, 0) : QColor(255, 255, 255));
 	return (bInvert ? clrBackground.lighter(300 - (nBrightness * 2)) : clrBackground.darker(300 - (nBrightness * 2)));
+}
+
+void CPersistentSettings::setHighlightWordsOfJesusColor(const QColor &color)
+{
+	m_pPersistentSettingData->m_clrWordsOfJesus = color;
+	emit changedHighlightWordsOfJesusColor(m_pPersistentSettingData->m_clrWordsOfJesus);
+}
+
+void CPersistentSettings::setHighlightSearchResultsColor(const QColor &color)
+{
+	m_pPersistentSettingData->m_clrSearchResults = color;
+	emit changedHighlightSearchResultsColor(m_pPersistentSettingData->m_clrSearchResults);
+}
+
+void CPersistentSettings::setHighlightCursorFollowColor(const QColor &color)
+{
+	m_pPersistentSettingData->m_clrCursorFollow = color;
+	emit changedHighlightCursorFollowColor(m_pPersistentSettingData->m_clrCursorFollow);
+}
+
+void CPersistentSettings::setUserDefinedColor(int nIndex, const QColor &color)
+{
+	m_pPersistentSettingData->m_mapUserHighlighters[nIndex] = color;
+	emit changedUserDefinedColor(nIndex, color);
+	emit changedUserDefinedColors();
+}
+
+void CPersistentSettings::removeUserDefinedColor(int nIndex)
+{
+	if (existsUserDefinedColor(nIndex)) {
+		m_pPersistentSettingData->m_mapUserHighlighters.remove(nIndex);
+		emit removedUserDefinedColor(nIndex);
+		emit changedUserDefinedColors();
+	}
 }
 

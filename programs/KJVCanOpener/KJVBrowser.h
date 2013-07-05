@@ -130,6 +130,9 @@ private slots:
 	void delayBibleBkComboIndexChanged(int index);
 	void delayBibleChpComboIndexChanged(int index);
 
+	void en_WordsOfJesusColorChanged(const QColor &color);
+	void en_SearchResultsColorChanged(const QColor &color);
+
 private:
 	void gotoIndex2(const TPhraseTag &tag);
 	void doHighlighting(bool bClear = false);		// Highlight the areas marked in the PhraseTags.  If bClear=True, removes the highlighting, which is used to swapout the current tag list for a new one without redrawing everything

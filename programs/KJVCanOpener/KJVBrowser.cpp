@@ -24,6 +24,7 @@
 #include "KJVBrowser.h"
 #include "ui_KJVBrowser.h"
 #include "VerseListModel.h"
+#include "PersistentSettings.h"
 
 #include "BusyCursor.h"
 
@@ -88,6 +89,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(this, SIGNAL(forward()), m_pScriptureBrowser, SLOT(forward()));
 	connect(this, SIGNAL(home()), m_pScriptureBrowser, SLOT(home()));
 	connect(this, SIGNAL(reload()), m_pScriptureBrowser, SLOT(reload()));
+
+	// Highlighting colors changing:
+	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightSearchResultsColor(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -227,6 +232,22 @@ void CKJVBrowser::doHighlighting(bool bClear)
 	m_pScriptureBrowser->navigator().selectWords(tagSelection);
 }
 
+void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)
+{
+	// Only way we can change the Words of Jesus color is by forcing a chapter re-render,
+	//		after we change the richifier tags (which is done by the navigator's
+	//		signal/slot connection to the persistent settings:
+	Q_UNUSED(color);
+	if (m_ndxCurrent.isSet()) gotoIndex(TPhraseTag(m_ndxCurrent));
+}
+
+void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
+{
+	// Simply redo the highlighting again to change the highlight color:
+	Q_UNUSED(color);
+	doHighlighting();
+}
+
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::setFontScriptureBrowser(const QFont& aFont)
@@ -356,6 +377,8 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 //	text when navigating to the same chapter.  However, the History log doesn't
 //	work correctly if we don't actually call setHtml()...  so...  just leave
 //	it out and regenerate it:
+//	(Also, repainting colors won't work right if we enable this optimization,
+//	as changing things like the Words of Jesus needs to force a repaint.
 //	if (ndx.chapter() == m_ndxCurrent.chapter()) return;
 
 	begin_update();

@@ -26,8 +26,10 @@
 
 #include <QString>
 #include <QHash>
+#include <QColor>
 
 #include "dbstruct.h"
+
 
 // ============================================================================
 
@@ -77,6 +79,9 @@ public:
 		m_strWordsOfJesusBegin = strTagBegin;
 		m_strWordsOfJesusEnd = strTagEnd;
 		calcHash();
+	}
+	void setWordsOfJesusTagsByColor(const QColor &color) {
+		setWordsOfJesusTags(QString("<font color=\"%1\"> ").arg(color.name()), "</font> ");
 	}
 
 	inline QString divineNameBegin() const { return m_strDivideNameBegin; }

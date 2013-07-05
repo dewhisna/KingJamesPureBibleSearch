@@ -28,9 +28,13 @@
 #include <QSettings>
 #include <QFont>
 #include <QColor>
+#include <QList>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
+typedef QMap<int, QColor> TUserDefinedColorMap;
 
 class CPersistentSettings : public QObject
 {
@@ -43,18 +47,27 @@ public:
 	static CPersistentSettings *instance();
 	inline QSettings &settings() { return *m_pSettings; }
 
-	const QFont &fontScriptureBrowser() const { return m_fntScriptureBrowser; }
-	const QFont &fontSearchResults() const { return m_fntSearchResults; }
+	const QFont &fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
+	const QFont &fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
 
-	bool invertTextBrightness() const { return m_bInvertTextBrightness; }
-	int textBrightness() const { return m_nTextBrightness; }
-	bool adjustDialogElementBrightness() const { return m_bAdjustDialogElementBrightness; }
+	bool invertTextBrightness() const { return m_pPersistentSettingData->m_bInvertTextBrightness; }
+	int textBrightness() const { return m_pPersistentSettingData->m_nTextBrightness; }
+	bool adjustDialogElementBrightness() const { return m_pPersistentSettingData->m_bAdjustDialogElementBrightness; }
 
 	static QColor textForegroundColor(bool bInvert, int nBrightness);
 	static QColor textBackgroundColor(bool bInvert, int nBrightness);
 
 	QColor textForegroundColor() const;
 	QColor textBackgroundColor() const;
+
+	inline QColor highlightWordsOfJesusColor() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
+	inline QColor highlightSearchResultsColor() const { return m_pPersistentSettingData->m_clrSearchResults; }
+	inline QColor highlightCursorFollowColor() const { return m_pPersistentSettingData->m_clrCursorFollow; }
+	QColor userDefinedColor(int nIndex) const { return m_pPersistentSettingData->m_mapUserHighlighters.value(nIndex, QColor()); }
+	bool existsUserDefinedColor(int nIndex) const { return (m_pPersistentSettingData->m_mapUserHighlighters.find(nIndex) != m_pPersistentSettingData->m_mapUserHighlighters.constEnd()); }
+	inline const TUserDefinedColorMap &userDefinedColorMap() const { return m_pPersistentSettingData->m_mapUserHighlighters; }
+
+	void togglePersistentSettingData(bool bCopy);
 
 signals:
 	void fontChangedScriptureBrowser(const QFont &aFont);
@@ -66,6 +79,13 @@ signals:
 
 	void changedTextBrightness(bool bInvert, int nBrightness);
 
+	void changedHighlightWordsOfJesusColor(const QColor &color);
+	void changedHighlightSearchResultsColor(const QColor &color);
+	void changedHighlightCursorFollowColor(const QColor &color);
+	void changedUserDefinedColor(int nIndex, const QColor &color);		// Note: If entire map is swapped, this signal isn't fired!
+	void removedUserDefinedColor(int nIndex);							// Note: If entire map is swapped, this signal isn't fired!
+	void changedUserDefinedColors();									// Fired on both individual and entire UserDefinedColor map change
+
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
@@ -74,12 +94,38 @@ public slots:
 	void setTextBrightness(int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 
+	void setHighlightWordsOfJesusColor(const QColor &color);
+	void setHighlightSearchResultsColor(const QColor &color);
+	void setHighlightCursorFollowColor(const QColor &color);
+	void setUserDefinedColor(int nIndex, const QColor &color);
+	void removeUserDefinedColor(int nIndex);
+
 private:
-	QFont m_fntScriptureBrowser;
-	QFont m_fntSearchResults;
-	bool m_bInvertTextBrightness;
-	int m_nTextBrightness;
-	bool m_bAdjustDialogElementBrightness;
+	// m_PersistentSettingData1 and m_PersistentSettingData2 are
+	//		two complete copies of our persistent setting data.  Only
+	//		one will be active and used at any given time.  Classes
+	//		like KJVConfiguration can request that the settings be
+	//		copied to the other copy and that other copy made to be
+	//		the main copy for preview purposes so that controls will
+	//		appear with the new set of settings.  When it's done with
+	//		it, it can either revert back to the original copy without
+	//		copying it back or leave the new settings to be the new
+	//		settings.
+	class TPersistentSettingData {
+	public:
+		TPersistentSettingData();
+
+		QFont m_fntScriptureBrowser;
+		QFont m_fntSearchResults;
+		bool m_bInvertTextBrightness;
+		int m_nTextBrightness;
+		bool m_bAdjustDialogElementBrightness;
+		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
+		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
+		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
+		TUserDefinedColorMap m_mapUserHighlighters;		// Map of user defined color highlighters
+	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
+
 	QSettings *m_pSettings;
 };
 

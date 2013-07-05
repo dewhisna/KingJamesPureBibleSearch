@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 #include "VerseRichifier.h"
+#include "PersistentSettings.h"
 
 #include <QTextDocument>
 #include <QTextEdit>
@@ -197,7 +198,10 @@ public:
 		:	QObject(parent),
 			m_pBibleDatabase(pBibleDatabase),
 			m_TextDocument(textDocument)
-	{ }
+	{
+		m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
+		connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	}
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
 	int anchorPosition(const QString &strAnchorName) const;
@@ -222,6 +226,12 @@ public:
 
 signals:
 	void changedDocumentText();
+
+protected slots:
+	void en_WordsOfJesusColorChanged(const QColor &color)
+	{
+		m_richifierTags.setWordsOfJesusTagsByColor(color);
+	}
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
