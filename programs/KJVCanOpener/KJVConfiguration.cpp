@@ -47,6 +47,7 @@ CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(C
 		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 {
 	connect(this, SIGNAL(colorPicked(const QString &, const QColor &)), pConfigurator, SLOT(en_HighlighterColorPicked(const QString &, const QColor &)));
+	connect(this, SIGNAL(colorClicked(const QString &)), pConfigurator, SLOT(en_HighlighterColorClicked(const QString &)));
 }
 
 CHighlighterColorButtonSignalReflector::~CHighlighterColorButtonSignalReflector()
@@ -57,6 +58,11 @@ CHighlighterColorButtonSignalReflector::~CHighlighterColorButtonSignalReflector(
 void CHighlighterColorButtonSignalReflector::en_colorPicked(const QColor &color)
 {
 	emit colorPicked(m_strUserDefinedHighlighterName, color);
+}
+
+void CHighlighterColorButtonSignalReflector::en_clicked()
+{
+	emit colorClicked(m_strUserDefinedHighlighterName);
 }
 
 // ============================================================================
@@ -89,6 +95,7 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 	pList->setMinimumWidth(qMax(m_pColorButton->minimumWidth(), pList->minimumWidth()));
 
 	connect(m_pColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_colorPicked(const QColor &)));
+	connect(m_pColorButton, SIGNAL(clicked()), this, SLOT(en_clicked()));
 }
 
 CHighlighterColorButton::~CHighlighterColorButton()
@@ -367,24 +374,31 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
+	en_HighlighterColorClicked(strUserDefinedHighlighterName);
+}
+
+void CKJVTextFormatConfig::en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName)
+{
+	ui->comboBoxHighlighters->setEditText(strUserDefinedHighlighterName);
 }
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
-	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.isEmpty() && !CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
-	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.isEmpty() && CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
+	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName.trimmed()));
+	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName.trimmed()));
 }
 
 void CKJVTextFormatConfig::en_addHighlighterClicked()
 {
-	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText();
+	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && !CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName))) return;
 
 	CPersistentSettings::instance()->setUserDefinedColor(strUserDefinedHighlighterName, QColor());
 	new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, strUserDefinedHighlighterName);
 	ui->comboBoxHighlighters->addItem(strUserDefinedHighlighterName);
-	en_comboBoxHighlightersTextChanged(strUserDefinedHighlighterName);		// Update add/remove controls
+	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
+	en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
 
 	navigateToDemoText();
 	m_bIsDirty = true;
@@ -393,17 +407,19 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 
 void CKJVTextFormatConfig::en_removeHighlighterClicked()
 {
-	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText();
+	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName))) return;
 
 	CPersistentSettings::instance()->removeUserDefinedColor(strUserDefinedHighlighterName);
-	int nComboIndex = ui->comboBoxHighlighters->currentIndex();
+	assert(!CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
+	int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
 	assert(nComboIndex != -1);
 	if (nComboIndex != -1) {
 		ui->comboBoxHighlighters->removeItem(nComboIndex);
 	}
-	ui->comboBoxHighlighters->clearEditText();
+	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
+	en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
 
 	int nListWidgetIndex = -1;
 	for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
@@ -439,7 +455,11 @@ void CKJVTextFormatConfig::navigateToDemoText()
 		//		in the process of doHighlighting kept invalidating our iterator and causing an infinite loop.
 		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
 		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
-			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx))->highlighterName(),
+			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx));
+			assert(pColorButton != NULL);
+			if (pColorButton == NULL) continue;
+			if (!CPersistentSettings::instance()->userDefinedColor(pColorButton->highlighterName()).isValid()) continue;
+			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(pColorButton->highlighterName(),
 															TPhraseTag(CRelIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->DenormalizeIndex(nNormalizedIndex)), 5)));
 			nNormalizedIndex += 7;
 		}

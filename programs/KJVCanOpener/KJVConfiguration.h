@@ -57,10 +57,11 @@ public:
 
 signals:
 	void colorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
+	void colorClicked(const QString &strUserDefinedHighlighterName);
 
 public slots:
 	void en_colorPicked(const QColor &color);
-
+	void en_clicked();
 
 private:
 	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use from persistent settings
@@ -101,6 +102,7 @@ public slots:
 	void en_SearchResultsColorPicked(const QColor &color);
 	void en_CursorTrackerColorPicked(const QColor &color);
 	void en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
+	void en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName);
 
 	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
 	void en_addHighlighterClicked();
