@@ -69,7 +69,7 @@ public:
 	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
 	uint32_t GetNumberOfMatches() const;
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	const TIndexList &GetNormalizedSearchResults() const;			// Returned as reference so we don't have to keep copying
+	const TNormalizedIndexList &GetNormalizedSearchResults() const;		// Returned as reference so we don't have to keep copying
 #endif
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
 	uint32_t GetMatchLevel() const;
@@ -100,12 +100,20 @@ public:
 				(m_bAccentSensitive == src.m_bAccentSensitive) &&
 				(phrase().compare(src.phrase(), Qt::CaseSensitive) == 0));
 	}
+	bool operator!=(const CParsedPhrase &src) const
+	{
+		return (!(operator==(src)));
+	}
 
 	bool operator==(const CPhraseEntry &src) const
 	{
 		return ((m_bCaseSensitive == src.caseSensitive()) &&
 				(m_bAccentSensitive == src.accentSensitive()) &&
 				(phrase().compare(src.text(), Qt::CaseSensitive) == 0));
+	}
+	bool operator!=(const CPhraseEntry &src) const
+	{
+		return (!(operator==(src)));
 	}
 
 	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
@@ -121,7 +129,7 @@ protected:
 	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
 	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	mutable TIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
+	mutable TNormalizedIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
 #endif
 	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
 	// -------
@@ -132,7 +140,7 @@ protected:
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
 	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
-	TIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
+	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
 	uint32_t m_nCursorLevel;	// Matching level at cursor
 	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 

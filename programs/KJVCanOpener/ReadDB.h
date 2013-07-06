@@ -36,10 +36,10 @@ public:
 	CReadDatabase(QWidget *pParent = NULL);
 	~CReadDatabase();
 
-	bool ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, bool bSetAsMain = false);
+	bool ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain = false);
 	bool ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
 
-	static bool IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList);
+	static bool IndexBlobToIndexList(const QByteArray &baBlob, TNormalizedIndexList &anIndexList);
 
 protected:
 	bool ReadTestamentTable();

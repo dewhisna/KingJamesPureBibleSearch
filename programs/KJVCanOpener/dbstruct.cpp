@@ -815,9 +815,10 @@ CRelIndex CBibleDatabase::calcRelIndex(
 // ============================================================================
 
 
-CBibleDatabase::CBibleDatabase(const QString &strName, const QString &strDescription)
+CBibleDatabase::CBibleDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID)
 	:	m_strName(strName),
-		m_strDescription(strDescription)
+		m_strDescription(strDescription),
+		m_strCompatibilityUUID(strCompatUUID)
 {
 
 }

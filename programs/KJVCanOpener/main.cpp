@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
 
 		// Read Main Database
 		CReadDatabase rdb(splash);
-		if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), true)) {
+		if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", true)) {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
 			return -2;
 		}

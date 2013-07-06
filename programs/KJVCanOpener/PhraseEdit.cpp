@@ -69,6 +69,10 @@ bool CPhraseEntry::operator==(const CParsedPhrase &src) const
 			(m_bAccentSensitive == src.isAccentSensitive()) &&
 			(m_strPhrase.compare(src.phrase(), Qt::CaseSensitive) == 0));
 }
+bool CPhraseEntry::operator!=(const CParsedPhrase &src) const
+{
+	return (!(operator==(src)));
+}
 
 uint32_t CParsedPhrase::GetNumberOfMatches() const
 {
@@ -76,7 +80,7 @@ uint32_t CParsedPhrase::GetNumberOfMatches() const
 }
 
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-const TIndexList &CParsedPhrase::GetNormalizedSearchResults() const
+const TNormalizedIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 {
 	if (m_cache_lstNormalizedSearchResults.size()) return m_cache_lstNormalizedSearchResults;
 
@@ -98,7 +102,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
 
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	const TIndexList &lstPhraseResults(GetNormalizedSearchResults());
+	const TNormalizedIndexList &lstPhraseResults(GetNormalizedSearchResults());
 
 	unsigned int nNumResults = lstPhraseResults.size();
 	m_cache_lstPhraseTagResults.reserve(nNumResults);
@@ -248,7 +252,7 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseWords = QStringList();
 	m_cache_lstPhraseWordsRaw = QStringList();
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	m_cache_lstNormalizedSearchResults = TIndexList();
+	m_cache_lstNormalizedSearchResults = TNormalizedIndexList();
 #endif
 	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
@@ -402,7 +406,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 			// Otherwise, match this word from our list from the last mapping and populate
 			//		a list of remaining mappings:
 			if (strCurWordWildKey.compare("*") != 0) {
-				TIndexList lstNextMapping;
+				TNormalizedIndexList lstNextMapping;
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 					if ((m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
 					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(m_lstMatchMapping.at(ndxWord)+1)
@@ -414,7 +418,7 @@ void CParsedPhrase::FindWords(int nCursorWord)
 				m_lstMatchMapping = lstNextMapping;
 			} else {
 				// An "*" matches everything from the word before it, except for the "next index":
-				for (TIndexList::iterator itrWord = m_lstMatchMapping.begin(); itrWord != m_lstMatchMapping.end(); /* increment is inside loop */) {
+				for (TNormalizedIndexList::iterator itrWord = m_lstMatchMapping.begin(); itrWord != m_lstMatchMapping.end(); /* increment is inside loop */) {
 					if (((*itrWord) + 1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 						++(*itrWord);
 						++itrWord;

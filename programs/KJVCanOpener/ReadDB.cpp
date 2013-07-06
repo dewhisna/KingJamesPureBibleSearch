@@ -348,7 +348,7 @@ bool CReadDatabase::ReadVerseTables()
 	return true;
 }
 
-bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TIndexList &anIndexList)
+bool CReadDatabase::IndexBlobToIndexList(const QByteArray &baBlob, TNormalizedIndexList &anIndexList)
 {
 	if ((baBlob.size() % sizeof(uint32_t)) != 0) return false;
 
@@ -463,7 +463,7 @@ bool CReadDatabase::ReadWordsTable()
 		}
 		nConcordanceCount += entryWord.m_lstAltWords.size();		// Note: nConcordanceCount will be slightly too large due to folding of duplicate decomposed indexes, but is sufficient for a reserve()
 
-		TIndexList lstNormalIndexes;
+		TNormalizedIndexList lstNormalIndexes;
 		if (!IndexBlobToIndexList(queryData.value(6).toByteArray(), lstNormalIndexes)) {
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
@@ -802,7 +802,7 @@ bool CReadDatabase::ValidateData()
 
 // ============================================================================
 
-bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, bool bSetAsMain)
+bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain)
 {
 	m_myDatabase = g_sqldbReadMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
@@ -810,7 +810,7 @@ bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename, const QStri
 
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
-	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(strName, strDescription));
+	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(strName, strDescription, strCompatUUID));
 	assert(m_pBibleDatabase.data() != NULL);
 
 	if (!m_myDatabase.open()) {

@@ -110,7 +110,8 @@ SOURCES += main.cpp \
 	ReflowDelegate.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp \
 	SearchCompleter.cpp \
-	KJVConfiguration.cpp
+	KJVConfiguration.cpp \
+	UserNotesDatabase.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -150,7 +151,8 @@ HEADERS  += main.h \
 	ReflowDelegate.h \
 	signalspy/Q4puGenericSignalSpy.h \
 	SearchCompleter.h \
-	KJVConfiguration.h
+	KJVConfiguration.h \
+	UserNotesDatabase.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \

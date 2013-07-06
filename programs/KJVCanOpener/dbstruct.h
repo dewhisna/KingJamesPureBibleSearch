@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <stdint.h>
 #include <QString>
@@ -120,6 +121,9 @@ public:
 	inline bool operator==(const CRelIndex &ndx) const {
 		return (index() == ndx.index());
 	}
+	inline bool operator!=(const CRelIndex &ndx) const {
+		return (index() != ndx.index());
+	}
 
 private:
 	uint32_t m_ndx;
@@ -186,9 +190,7 @@ private:
 
 // ============================================================================
 
-typedef std::vector<uint32_t> TIndexList;			// Index List for words into book/chapter/verse/word
-
-struct IndexSortPredicate {
+struct RelativeIndexSortPredicate {
 	bool operator() (const CRelIndex &v1, const CRelIndex &v2) const
 	{
 		return (v1.index() < v2.index());
@@ -201,6 +203,11 @@ struct XformLower {
 		return tolower(c);
 	}
 };
+
+typedef std::vector<uint32_t> TNormalizedIndexList;			// Normalized Index List for words into book/chapter/verse/word
+typedef std::vector<CRelIndex> TRelativeIndexList;			// Relative Index List for words into book/chapter/verse/word
+typedef std::set<CRelIndex, RelativeIndexSortPredicate> TRelativeIndexSet;		// Relative Index Set for words into book/chapter/verse/word
+typedef std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate> TCrossReferenceMap;		// Map of Relative Index to Relative Index Set, used for cross-references (such as User Notes Database cross-reference, etc)
 
 // ============================================================================
 
@@ -291,7 +298,7 @@ public:
 	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this chapter
 };
 
-typedef std::map<CRelIndex, CChapterEntry, IndexSortPredicate> TChapterMap;	// Index by [nBk|nChp|0|0]
+typedef std::map<CRelIndex, CChapterEntry, RelativeIndexSortPredicate> TChapterMap;	// Index by [nBk|nChp|0|0]
 
 // ============================================================================
 
@@ -328,12 +335,12 @@ public:
 
 };
 
-typedef std::map<CRelIndex, CVerseEntry, IndexSortPredicate> TVerseEntryMap;		// Index by [0|nChp|nVrs|0]
+typedef std::map<CRelIndex, CVerseEntry, RelativeIndexSortPredicate> TVerseEntryMap;		// Index by [0|nChp|nVrs|0]
 
 typedef std::vector<TVerseEntryMap> TBookVerseList;		// Index by nBk-1
 
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-typedef std::map<CRelIndex, QString, IndexSortPredicate> TVerseCacheMap;			// Index by [nBk|nChp|nVrs|0]
+typedef std::map<CRelIndex, QString, RelativeIndexSortPredicate> TVerseCacheMap;			// Index by [nBk|nChp|nVrs|0]
 typedef std::map<uint, TVerseCacheMap> TSpecVerseCacheMap;							// Specific TVerseCacheMap -- Index by CVerseTextRichifierTags hash
 #endif
 
@@ -353,7 +360,7 @@ public:
 	bool m_bCasePreserve;		// Special Word Case Preserve
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
-	TIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
+	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
 
 	struct SortPredicate {
 		bool operator() (const QString &s1, const QString &s2) const
@@ -387,9 +394,13 @@ public:
 	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
 	inline int index() const { return m_nIndex; }
 
-	bool operator==(const CConcordanceEntry &src) const
+	inline bool operator==(const CConcordanceEntry &src) const
 	{
 		return (m_strWord.compare(src.m_strWord) == 0);
+	}
+	inline bool operator!=(const CConcordanceEntry &src) const
+	{
+		return (m_strWord.compare(src.m_strWord) != 0);
 	}
 
 private:
@@ -443,7 +454,7 @@ private:
 	QString m_strText;			// Rich text (or plain if Rich unavailable) for the footnote (Note: for mobile versions, this element can be removed and fetched from the database if needed)
 };
 
-typedef std::map<CRelIndex, CFootnoteEntry, IndexSortPredicate> TFootnoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
+typedef std::map<CRelIndex, CFootnoteEntry, RelativeIndexSortPredicate> TFootnoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
 
 // ============================================================================
 
@@ -481,15 +492,20 @@ public:
 
 	inline int wordCount() const { return m_nNumWrd; }
 
-	bool operator==(const CPhraseEntry &src) const
+	inline bool operator==(const CPhraseEntry &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
 				(m_bAccentSensitive == src.m_bAccentSensitive) &&
 				// Don't compare m_bDisabled because that doesn't affect "equality"
 				(m_strPhrase.compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
+	inline bool operator!=(const CPhraseEntry &src) const
+	{
+		return (!(operator==(src)));
+	}
 
 	bool operator==(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
+	bool operator!=(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
 
 	static const QChar encCharCaseSensitive() { return QChar(0xA7); } 			// Section Sign = Case-Sensitive
 	static const QChar encCharAccentSensitive() { return QChar(0xA4); }			// Current Sign = Accent-Sensitive
@@ -539,12 +555,13 @@ class CVerseTextRichifierTags;
 class CBibleDatabase
 {
 private:
-	CBibleDatabase(const QString &strName, const QString &strDescription);		// Creatable by CReadDatabase
+	CBibleDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID);		// Creatable by CReadDatabase
 public:
 	~CBibleDatabase();
 
 	QString name() const { return m_strName; }
 	QString description() const { return m_strDescription; }
+	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
 
 	// CRelIndex Name/Report Functions:
 	QString SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
@@ -638,7 +655,7 @@ private:
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)
-	TIndexList m_lstConcordanceMapping;		// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
+	TNormalizedIndexList m_lstConcordanceMapping;	// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
@@ -646,6 +663,7 @@ private:
 // Local Data:
 	QString m_strName;						// Name for this database
 	QString m_strDescription;				// Database description
+	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
 
 // Cache:
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
@@ -664,7 +682,7 @@ extern TBibleDatabaseList g_lstBibleDatabases;
 
 // ============================================================================
 
-// Relative Index and Word Count pair used for highlight phrases found:
+// Relative Index and Word Count pair used for highlighting phrases:
 class TPhraseTag
 {
 public:
@@ -729,6 +747,10 @@ struct TPhraseTagListSortPredicate {
 		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
+
+// PhraseTag Highlighter Mapping Types:
+typedef std::map<QString, TPhraseTagList> THighlighterTagMap;				// Map of HighlighterName to TPhraseTagList
+typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;	// Map of Bible Database UUID to THighlighterTagMap
 
 // ============================================================================
 
