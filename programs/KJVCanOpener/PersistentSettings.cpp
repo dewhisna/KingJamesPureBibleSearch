@@ -71,10 +71,10 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrCursorFollow(QColor("blue"))
 {
 	// Set Default Highlighters:
-	m_mapUserHighlighters[1] = QColor(255, 255, 170);			// "yellow" highlighter
-	m_mapUserHighlighters[2] = QColor(170, 255, 255);			// "blue" highlighter
-	m_mapUserHighlighters[3] = QColor(170, 255, 170);			// "green" highligher
-	m_mapUserHighlighters[4] = QColor(255, 170, 255);			// "pink" highlighter
+	m_mapUserHighlighters[tr("Basic Highlighter #1")] = QColor(255, 255, 170);			// "yellow" highlighter
+	m_mapUserHighlighters[tr("Basic Highlighter #2")] = QColor(170, 255, 255);			// "blue" highlighter
+	m_mapUserHighlighters[tr("Basic Highlighter #3")] = QColor(170, 255, 170);			// "green" highligher
+	m_mapUserHighlighters[tr("Basic Highlighter #4")] = QColor(255, 170, 255);			// "pink" highlighter
 }
 
 // ============================================================================
@@ -208,18 +208,18 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
 }
 
-void CPersistentSettings::setUserDefinedColor(int nIndex, const QColor &color)
+void CPersistentSettings::setUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color)
 {
-	m_pPersistentSettingData->m_mapUserHighlighters[nIndex] = color;
-	emit changedUserDefinedColor(nIndex, color);
+	m_pPersistentSettingData->m_mapUserHighlighters[strUserDefinedHighlighterName] = color;
+	emit changedUserDefinedColor(strUserDefinedHighlighterName, color);
 	emit changedUserDefinedColors();
 }
 
-void CPersistentSettings::removeUserDefinedColor(int nIndex)
+void CPersistentSettings::removeUserDefinedColor(const QString &strUserDefinedHighlighterName)
 {
-	if (existsUserDefinedColor(nIndex)) {
-		m_pPersistentSettingData->m_mapUserHighlighters.remove(nIndex);
-		emit removedUserDefinedColor(nIndex);
+	if (existsUserDefinedColor(strUserDefinedHighlighterName)) {
+		m_pPersistentSettingData->m_mapUserHighlighters.remove(strUserDefinedHighlighterName);
+		emit removedUserDefinedColor(strUserDefinedHighlighterName);
 		emit changedUserDefinedColors();
 	}
 }

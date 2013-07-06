@@ -183,15 +183,15 @@ class CUserDefinedHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CUserDefinedHighlighter(int nHighlighterIndex, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
+	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
 		:	CBasicHighlighter(parent),
-			m_nUserDefinedHighlighterIndex(nHighlighterIndex)
+			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 	{
 		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
-	CUserDefinedHighlighter(int nHighlighterIndex, const TPhraseTag &aTag, QObject *parent = NULL)
+	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = NULL)
 		:	CBasicHighlighter(parent),
-			m_nUserDefinedHighlighterIndex(nHighlighterIndex)
+			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 	{
 		TPhraseTagList lstTags;
 		lstTags.append(aTag);
@@ -202,7 +202,7 @@ public:
 	{
 		setEnabled(aUserDefinedHighlighter.enabled());
 		m_myPhraseTags.setPhraseTags(aUserDefinedHighlighter.m_myPhraseTags.phraseTags());
-		m_nUserDefinedHighlighterIndex = aUserDefinedHighlighter.m_nUserDefinedHighlighterIndex;
+		m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
 	}
 
 	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
@@ -230,7 +230,7 @@ private:
 		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
 	} m_myPhraseTags;
 
-	int m_nUserDefinedHighlighterIndex;				// Index into the persistent settings User Defined Highlighters
+	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use
 };
 
 #endif // HIGHLIGHTER_H

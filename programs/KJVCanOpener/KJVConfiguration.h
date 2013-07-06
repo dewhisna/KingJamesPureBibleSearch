@@ -50,20 +50,20 @@ class CHighlighterColorButtonSignalReflector : public QObject
 	Q_OBJECT
 
 public:
-	CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, int nHighlighterIndex);
+	CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButtonSignalReflector();
 
-	int highlighterIndex() const { return m_nUserDefinedHighlighterIndex; }
+	QString highlighterName() const { return m_strUserDefinedHighlighterName; }
 
 signals:
-	void colorPicked(int nHighlighterIndex, const QColor &color);
+	void colorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
 
 public slots:
 	void en_colorPicked(const QColor &color);
 
 
 private:
-	int m_nUserDefinedHighlighterIndex;				// Index into the persistent settings User Defined Highlighters
+	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use from persistent settings
 };
 
 // ============================================================================
@@ -100,7 +100,11 @@ public slots:
 	void en_WordsOfJesusColorPicked(const QColor &color);
 	void en_SearchResultsColorPicked(const QColor &color);
 	void en_CursorTrackerColorPicked(const QColor &color);
-	void en_HighlighterColorPicked(int nHighlighterIndex, const QColor &color);
+	void en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
+
+	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
+	void en_addHighlighterClicked();
+	void en_removeHighlighterClicked();
 
 	void navigateToDemoText();
 	void setPreview();

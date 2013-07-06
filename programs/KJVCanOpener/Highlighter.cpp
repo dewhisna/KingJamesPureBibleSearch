@@ -234,11 +234,13 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 void CUserDefinedHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
-	if ((!bClear) && (enabled()) && (CPersistentSettings::instance()->existsUserDefinedColor(m_nUserDefinedHighlighterIndex))) {
+	if ((!bClear) && (enabled()) &&
+		(CPersistentSettings::instance()->existsUserDefinedColor(m_strUserDefinedHighlighterName)) &&
+		(CPersistentSettings::instance()->userDefinedColor(m_strUserDefinedHighlighterName).isValid())) {
 		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH)) {
 			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
 		}
-		aFormat.setBackground(QBrush(CPersistentSettings::instance()->userDefinedColor(m_nUserDefinedHighlighterIndex)));
+		aFormat.setBackground(QBrush(CPersistentSettings::instance()->userDefinedColor(m_strUserDefinedHighlighterName)));
 	} else {
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH))
 			aFormat.setBackground(aFormat.property(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH).value<QBrush>());

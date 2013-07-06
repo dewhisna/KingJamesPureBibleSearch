@@ -82,7 +82,7 @@ namespace {
 	const QString constrWordsOfJesusColorKey("WordsOfJesusColor");
 	const QString constrSearchResultsColorKey("SearchResultsColor");
 	const QString constrCursorTrackerColorKey("CursorTrackerColor");
-	const QString constrHighlighterIndexKey("HighlighterIndex");
+	const QString constrHighlighterNameKey("HighlighterName");
 	const QString constrHighlighterColorKey("HighlighterColor");
 
 	// RestoreState:
@@ -491,7 +491,7 @@ void CKJVCanOpener::savePersistentSettings()
 	const TUserDefinedColorMap &userDefinedColorMap = CPersistentSettings::instance()->userDefinedColorMap();
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = userDefinedColorMap.constBegin(); itrHighlighters != userDefinedColorMap.constEnd(); ++itrHighlighters) {
 		settings.setArrayIndex(ndxColor);
-		settings.setValue(constrHighlighterIndexKey, itrHighlighters.key());
+		settings.setValue(constrHighlighterNameKey, itrHighlighters.key());
 		settings.setValue(constrHighlighterColorKey, itrHighlighters->name());
 		ndxColor++;
 	}
@@ -562,11 +562,11 @@ void CKJVCanOpener::restorePersistentSettings()
 		CPersistentSettings::instance()->removeAllUserDefinedColors();
 		for (int ndxColor = 0; ndxColor < nColors; ++ndxColor) {
 			settings.setArrayIndex(ndxColor);
-			int nHighlighterIndex = settings.value(constrHighlighterIndexKey, -1).toInt();
+			QString strHighlighterName = settings.value(constrHighlighterNameKey, -1).toString();
 			QString strColorName = settings.value(constrHighlighterColorKey, QString()).toString();
-			if ((nHighlighterIndex >= 0) && (!strColorName.isEmpty())) {
+			if ((!strHighlighterName.isEmpty()) && (!strColorName.isEmpty())) {
 				clrTemp.setNamedColor(strColorName);
-				CPersistentSettings::instance()->setUserDefinedColor(nHighlighterIndex, clrTemp);
+				CPersistentSettings::instance()->setUserDefinedColor(strHighlighterName, clrTemp);
 			}
 		}
 	}

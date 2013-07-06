@@ -55,10 +55,18 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QFontComboBox" name="fontComboBoxScriptureBrowser"/>
+      <widget class="QFontComboBox" name="fontComboBoxScriptureBrowser">
+       <property name="toolTip">
+        <string>Set to Desired Font Name for the Scripture Browser</string>
+       </property>
+      </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QDoubleSpinBox" name="dblSpinBoxScriptureBrowserFontSize"/>
+      <widget class="QDoubleSpinBox" name="dblSpinBoxScriptureBrowserFontSize">
+       <property name="toolTip">
+        <string>Set to Desire Font Point Size for the Scripture Browser</string>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="labelSearchResultsFont">
@@ -74,10 +82,18 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QFontComboBox" name="fontComboBoxSearchResults"/>
+      <widget class="QFontComboBox" name="fontComboBoxSearchResults">
+       <property name="toolTip">
+        <string>Set to Desired Font Name for the Search Results List</string>
+       </property>
+      </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="dblSpinBoxSearchResultsFontSize"/>
+      <widget class="QDoubleSpinBox" name="dblSpinBoxSearchResultsFontSize">
+       <property name="toolTip">
+        <string>Set to Desire Font Point Size for the Search Results List</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -112,6 +128,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Custom Text Highlighter Settings</string>
+         </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
@@ -129,7 +148,10 @@
        <item>
         <layout class="QHBoxLayout" name="horzLayoutColorToolButtons">
          <item>
-          <widget class="QComboBox" name="comboBoxHighlighter">
+          <widget class="QComboBox" name="comboBoxHighlighters">
+           <property name="toolTip">
+            <string>Enter Custom Text Highlighter Name</string>
+           </property>
            <property name="editable">
             <bool>true</bool>
            </property>
@@ -140,6 +162,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="toolButtonAddHighlighter">
+           <property name="toolTip">
+            <string>Add Custom Highlighter using the name specified</string>
+           </property>
            <property name="icon">
             <iconset resource="KJVCanOpener.qrc">
              <normaloff>:/res/list_add.png</normaloff>:/res/list_add.png</iconset>
@@ -154,6 +179,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="toolButtonRemoveHighlighter">
+           <property name="toolTip">
+            <string>Remove the specified Custom Highlighter</string>
+           </property>
            <property name="icon">
             <iconset resource="KJVCanOpener.qrc">
              <normaloff>:/res/list_remove.png</normaloff>:/res/list_remove.png</iconset>
@@ -180,6 +208,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="buttonWordsOfJesusColor">
+         <property name="toolTip">
+          <string>Set the Color for the Words of Jesus</string>
+         </property>
          <property name="text">
           <string>Words of Jesus</string>
          </property>
@@ -187,6 +218,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="buttonSearchResultsColor">
+         <property name="toolTip">
+          <string>Set the Color for the Search Results</string>
+         </property>
          <property name="text">
           <string>Search Results</string>
          </property>
@@ -194,6 +228,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="buttonCursorFollowColor">
+         <property name="toolTip">
+          <string>Set the Color for the Underlining Cursor Tracker in the Scripture Browser</string>
+         </property>
          <property name="text">
           <string>Cursor Tracker</string>
          </property>
@@ -281,6 +318,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Invert the color scheme brightness</string>
+       </property>
        <property name="text">
         <string>&amp;Invert Text Brightness:</string>
        </property>
@@ -293,6 +333,9 @@
          <horstretch>10</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Slide to desired control text brightness</string>
        </property>
        <property name="minimum">
         <number>0</number>
@@ -310,6 +353,9 @@
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="checkBoxAdjustDialogElementBrightness">
+       <property name="toolTip">
+        <string>Enable All Dialog Element Text Brightness vs. Search Results/Scripture Browser only</string>
+       </property>
        <property name="text">
         <string>Adjust &amp;Dialog Element Brightness</string>
        </property>
@@ -328,7 +374,7 @@
   <tabstop>horzSliderTextBrigtness</tabstop>
   <tabstop>checkBoxAdjustDialogElementBrightness</tabstop>
   <tabstop>listWidgetHighlighterColors</tabstop>
-  <tabstop>comboBoxHighlighter</tabstop>
+  <tabstop>comboBoxHighlighters</tabstop>
   <tabstop>toolButtonAddHighlighter</tabstop>
   <tabstop>toolButtonRemoveHighlighter</tabstop>
   <tabstop>buttonWordsOfJesusColor</tabstop>

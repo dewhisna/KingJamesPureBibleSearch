@@ -32,7 +32,7 @@
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
-typedef QMap<int, QColor> TUserDefinedColorMap;
+typedef QMap<QString, QColor> TUserDefinedColorMap;
 
 class CPersistentSettings : public QObject
 {
@@ -61,8 +61,8 @@ public:
 	inline QColor colorWordsOfJesus() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
 	inline QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
 	inline QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
-	QColor userDefinedColor(int nIndex) const { return m_pPersistentSettingData->m_mapUserHighlighters.value(nIndex, QColor()); }
-	bool existsUserDefinedColor(int nIndex) const { return (m_pPersistentSettingData->m_mapUserHighlighters.find(nIndex) != m_pPersistentSettingData->m_mapUserHighlighters.constEnd()); }
+	QColor userDefinedColor(const QString &strUserDefinedHighlighterName) const { return m_pPersistentSettingData->m_mapUserHighlighters.value(strUserDefinedHighlighterName, QColor()); }
+	bool existsUserDefinedColor(const QString &strUserDefinedHighlighterName) const { return (m_pPersistentSettingData->m_mapUserHighlighters.find(strUserDefinedHighlighterName) != m_pPersistentSettingData->m_mapUserHighlighters.constEnd()); }
 	inline const TUserDefinedColorMap &userDefinedColorMap() const { return m_pPersistentSettingData->m_mapUserHighlighters; }
 
 	void togglePersistentSettingData(bool bCopy);
@@ -80,9 +80,9 @@ signals:
 	void changedColorWordsOfJesus(const QColor &color);
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
-	void changedUserDefinedColor(int nIndex, const QColor &color);		// Note: If entire map is swapped or cleared, this signal isn't fired!
-	void removedUserDefinedColor(int nIndex);							// Note: If entire map is swapped or cleared, this signal isn't fired!
-	void changedUserDefinedColors();									// Fired on both individual and entire UserDefinedColor map change
+	void changedUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color);		// Note: If entire map is swapped or cleared, this signal isn't fired!
+	void removedUserDefinedColor(const QString &strUserDefinedHighlighterName);								// Note: If entire map is swapped or cleared, this signal isn't fired!
+	void changedUserDefinedColors();																		// Fired on both individual and entire UserDefinedColor map change
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -95,8 +95,8 @@ public slots:
 	void setColorWordsOfJesus(const QColor &color);
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
-	void setUserDefinedColor(int nIndex, const QColor &color);
-	void removeUserDefinedColor(int nIndex);
+	void setUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color);
+	void removeUserDefinedColor(const QString &strUserDefinedHighlighterName);
 	void removeAllUserDefinedColors();
 
 private:
