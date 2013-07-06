@@ -25,6 +25,7 @@
 #define KJVCONFIGURATION_H
 
 #include "dbstruct.h"
+#include "PhraseEdit.h"
 
 #include <QWidget>
 #include <QDialog>
@@ -38,7 +39,6 @@
 // Forward Declarations:
 class CSearchResultsTreeView;
 class CScriptureBrowser;
-class CParsedPhrase;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 
@@ -114,6 +114,7 @@ public slots:
 // Private Data:
 private:
 //	CBibleDatabasePtr m_pBibleDatabase;
+	CParsedPhrase m_previewSearchPhrase;		// Phrase for searching for preview
 	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
 	bool m_bInvertTextBrightness;

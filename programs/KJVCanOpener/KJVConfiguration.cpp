@@ -24,7 +24,6 @@
 #include "KJVConfiguration.h"
 #include "ui_KJVTextFormatConfig.h"
 
-#include "PhraseEdit.h"
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
@@ -89,10 +88,12 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 	m_pColorButton->setShowName(false);			// Must do this before setting our real text
 	m_pColorButton->setText(strUserDefinedHighlighterName);
 	m_pColorButton->setCurrentColor(CPersistentSettings::instance()->userDefinedColor(strUserDefinedHighlighterName));
+	m_pColorButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setSizeHint(m_pColorButton->sizeHint());
 
 	pList->setItemWidget(this, m_pColorButton);
-	pList->setMinimumWidth(qMax(m_pColorButton->minimumWidth(), pList->minimumWidth()));
+//	pList->setMinimumWidth(qMax(m_pColorButton->minimumWidth(), pList->minimumWidth()));
+	pList->setMinimumWidth(pList->sizeHint().width());
 
 	connect(m_pColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_colorPicked(const QColor &)));
 	connect(m_pColorButton, SIGNAL(clicked()), this, SLOT(en_clicked()));
@@ -108,6 +109,7 @@ CHighlighterColorButton::~CHighlighterColorButton()
 CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	//	m_pBibleDatabase(pBibleDatabase),
+	m_previewSearchPhrase(pBibleDatabase),
 	m_pSearchResultsTreeView(NULL),
 	m_pScriptureBrowser(NULL),
 	m_bIsDirty(false),
@@ -133,6 +135,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	sizePolicy1.setVerticalStretch(0);
 	sizePolicy1.setHeightForWidth(m_pSearchResultsTreeView->sizePolicy().hasHeightForWidth());
 	m_pSearchResultsTreeView->setSizePolicy(sizePolicy1);
+	m_pSearchResultsTreeView->setContextMenuPolicy(Qt::NoContextMenu);
 	m_pSearchResultsTreeView->setToolTip(tr("Search Results Preview"));
 
 	delete ui->treeViewSearchResultsPreview;
@@ -465,11 +468,10 @@ void CKJVTextFormatConfig::navigateToDemoText()
 		}
 	}
 
-	CParsedPhrase phrase(m_pSearchResultsTreeView->vlmodel()->bibleDatabase());
-	phrase.ParsePhrase("trumpet");
-	phrase.FindWords(phrase.GetCursorWordPos());
+	m_previewSearchPhrase.ParsePhrase("trumpet");
+	m_previewSearchPhrase.FindWords(m_previewSearchPhrase.GetCursorWordPos());
 	TParsedPhrasesList lstPhrases;
-	lstPhrases.append(&phrase);
+	lstPhrases.append(&m_previewSearchPhrase);
 	CSearchCriteria aSearchCriteria;
 	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, lstPhrases);
 	m_pSearchResultsTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
@@ -539,6 +541,9 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 	pLayout->addWidget(m_pButtonBox);
 
+	m_pConfiguration->setMinimumWidth(m_pConfiguration->sizeHint().width());
+	updateGeometry();
+
 	connect(m_pButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(m_pButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 	connect(m_pButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
@@ -553,6 +558,7 @@ CKJVConfigurationDialog::~CKJVConfigurationDialog()
 
 void CKJVConfigurationDialog::en_dataChanged()
 {
+	updateGeometry();
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty());
 }
 
