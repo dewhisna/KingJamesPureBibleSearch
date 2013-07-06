@@ -36,7 +36,65 @@
 #include <QSplitter>
 #include <QSizePolicy>
 #include <QFontDatabase>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <QwwColorButton>
+
+// ============================================================================
+
+CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, int nHighlighterIndex)
+	:	QObject(NULL),
+		m_nUserDefinedHighlighterIndex(nHighlighterIndex)
+{
+	connect(this, SIGNAL(colorPicked(int, const QColor &)), pConfigurator, SLOT(en_HighlighterColorPicked(int, const QColor &)));
+}
+
+CHighlighterColorButtonSignalReflector::~CHighlighterColorButtonSignalReflector()
+{
+
+}
+
+void CHighlighterColorButtonSignalReflector::en_colorPicked(const QColor &color)
+{
+	emit colorPicked(m_nUserDefinedHighlighterIndex, color);
+}
+
+// ============================================================================
+
+class CHighlighterColorButton : public CHighlighterColorButtonSignalReflector, public QListWidgetItem
+{
+public:
+	CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, int nHighlighterIndex);
+	~CHighlighterColorButton();
+
+private:
+	QwwColorButton *m_pColorButton;
+};
+
+CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, int nHighlighterIndex)
+	:	CHighlighterColorButtonSignalReflector(pConfigurator, nHighlighterIndex),
+		QListWidgetItem(pList, 0),
+		m_pColorButton(NULL)
+{
+	assert(pList != NULL);
+
+	m_pColorButton = new QwwColorButton(pList);
+	m_pColorButton->setObjectName(QString("buttonHighlighter%1Color").arg(nHighlighterIndex, 2, QChar('0')));
+	m_pColorButton->setShowName(false);			// Must do this before setting our real text
+	m_pColorButton->setText(QObject::tr("Highlighter #%1").arg(nHighlighterIndex));
+	m_pColorButton->setCurrentColor(CPersistentSettings::instance()->userDefinedColor(nHighlighterIndex));
+	setSizeHint(m_pColorButton->sizeHint());
+
+	pList->setItemWidget(this, m_pColorButton);
+	pList->setMinimumWidth(m_pColorButton->minimumWidth());
+
+	connect(m_pColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_colorPicked(const QColor &)));
+}
+
+CHighlighterColorButton::~CHighlighterColorButton()
+{
+
+}
 
 // ============================================================================
 
@@ -126,18 +184,27 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	ui->buttonCursorFollowColor->setText(tr("Cursor Tracker"));
 	ui->vertLayoutColorOptions->addWidget(ui->buttonCursorFollowColor);
 
-	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
-	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->highlightSearchResultsColor());
-	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->highlightCursorFollowColor());
+	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
+	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
 
 	connect(toQwwColorButton(ui->buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
+	const TUserDefinedColorMap &userDefinedColorMap = CPersistentSettings::instance()->userDefinedColorMap();
+	for (TUserDefinedColorMap::const_iterator itrHighlighters = userDefinedColorMap.constBegin(); itrHighlighters != userDefinedColorMap.constEnd(); ++itrHighlighters) {
+		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, itrHighlighters.key());
+	}
+	updateGeometry();
+
 	// --------------------------------------------------------------
 
 	// Reinsert them in the correct TabOrder:
-	QWidget::setTabOrder(ui->horzSliderTextBrigtness, m_pSearchResultsTreeView);
+	QWidget::setTabOrder(ui->toolButtonRemoveHighlighter, ui->buttonWordsOfJesusColor);
+	QWidget::setTabOrder(ui->buttonWordsOfJesusColor, ui->buttonSearchResultsColor);
+	QWidget::setTabOrder(ui->buttonSearchResultsColor, ui->buttonCursorFollowColor);
+	QWidget::setTabOrder(ui->buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
 
 	// --------------------------------------------------------------
@@ -258,7 +325,7 @@ void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
 
 void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
 {
-	CPersistentSettings::instance()->setHighlightWordsOfJesusColor(color);
+	CPersistentSettings::instance()->setColorWordsOfJesus(color);
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
@@ -266,7 +333,7 @@ void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
 
 void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
 {
-	CPersistentSettings::instance()->setHighlightSearchResultsColor(color);
+	CPersistentSettings::instance()->setColorSearchResults(color);
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
@@ -274,8 +341,16 @@ void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
 
 void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
 {
-	CPersistentSettings::instance()->setHighlightCursorFollowColor(color);
+	CPersistentSettings::instance()->setColorCursorFollow(color);
 //	setPreview();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_HighlighterColorPicked(int nHighlighterIndex, const QColor &color)
+{
+	CPersistentSettings::instance()->setUserDefinedColor(nHighlighterIndex, color);
+	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -283,9 +358,24 @@ void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
 void CKJVTextFormatConfig::navigateToDemoText()
 {
 	CRelIndex ndxPreview(41, 9, 1, 1);						// Goto Mark 9:1 for Preview (as it has some red-letter text)
+	CRelIndex ndxPreview2(41, 9, 3, 1);						// Goto Mark 9:3 for additional Search Results highlight so we can get all combinations of highlighters...
 	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview);
 	m_pScriptureBrowser->navigator().selectWords(TPhraseTag(ndxPreview));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview, 5)));
+	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview2, 32)));
+
+	uint32_t nNormalizedIndex = m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(ndxPreview) + 10;
+
+	for (int i = 0; i < 3; ++i) {
+		// Originally I had a const_iterator over the CPersistentSettings::userDefinedColorMap, but something
+		//		in the process of doHighlighting kept invalidating our iterator and causing an infinite loop.
+		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
+		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
+			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx))->highlighterIndex(),
+															TPhraseTag(CRelIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->DenormalizeIndex(nNormalizedIndex)), 5)));
+			nNormalizedIndex += 7;
+		}
+	}
 
 	CParsedPhrase phrase(m_pSearchResultsTreeView->vlmodel()->bibleDatabase());
 	phrase.ParsePhrase("trumpet");
@@ -315,7 +405,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *
 
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, this);
 
-	addGroup(m_pTextFormatConfig, QIcon(":res/Font_Icon_128.png"), "Text Format");
+	addGroup(m_pTextFormatConfig, QIcon(":res/Font_Graphics_Color_Icon_128.png"), "Text Color and Fonts");
 	setCurrentGroup(m_pTextFormatConfig);
 
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));

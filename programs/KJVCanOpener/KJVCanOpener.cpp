@@ -72,15 +72,18 @@ namespace {
 	// --------------
 	// MainApp Control:
 	const QString constrMainAppControlGroup("MainApp/Controls");
-	const QString constrInvertTextBrightness("InvertTextBrightness");
-	const QString constrTextBrightness("TextBrightness");
-	const QString constrAdjustDialogElementBrightness("AdjustDialogElementBrightness");
+	const QString constrInvertTextBrightnessKey("InvertTextBrightness");
+	const QString constrTextBrightnessKey("TextBrightness");
+	const QString constrAdjustDialogElementBrightnessKey("AdjustDialogElementBrightness");
 
 	// Colors:
 	const QString constrColorsGroup("Colors");
-	const QString constrWordsOfJesusColor("WordsOfJesusColor");
-	const QString constrSearchResultsColor("SearchResultsColor");
-	const QString constrCursorTrackerColor("CursorTrackerColor");
+	const QString constrColorsHighlightersSubgroup("Highlighters");
+	const QString constrWordsOfJesusColorKey("WordsOfJesusColor");
+	const QString constrSearchResultsColorKey("SearchResultsColor");
+	const QString constrCursorTrackerColorKey("CursorTrackerColor");
+	const QString constrHighlighterIndexKey("HighlighterIndex");
+	const QString constrHighlighterColorKey("HighlighterColor");
 
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
@@ -470,17 +473,29 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Main App General Settings:
 	settings.beginGroup(constrMainAppControlGroup);
-	settings.setValue(constrInvertTextBrightness, CPersistentSettings::instance()->invertTextBrightness());
-	settings.setValue(constrTextBrightness, CPersistentSettings::instance()->textBrightness());
-	settings.setValue(constrAdjustDialogElementBrightness, CPersistentSettings::instance()->adjustDialogElementBrightness());
+	settings.setValue(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness());
+	settings.setValue(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness());
+	settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
 	settings.endGroup();
 
 	// Colors:
 	settings.beginGroup(constrColorsGroup);
-	settings.setValue(constrWordsOfJesusColor, CPersistentSettings::instance()->highlightWordsOfJesusColor().name());
-	settings.setValue(constrSearchResultsColor, CPersistentSettings::instance()->highlightSearchResultsColor().name());
-	settings.setValue(constrCursorTrackerColor, CPersistentSettings::instance()->highlightCursorFollowColor().name());
+	settings.setValue(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name());
+	settings.setValue(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name());
+	settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
 	settings.endGroup();
+
+	int ndxColor = 0;
+	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+	settings.remove("");
+	const TUserDefinedColorMap &userDefinedColorMap = CPersistentSettings::instance()->userDefinedColorMap();
+	for (TUserDefinedColorMap::const_iterator itrHighlighters = userDefinedColorMap.constBegin(); itrHighlighters != userDefinedColorMap.constEnd(); ++itrHighlighters) {
+		settings.setArrayIndex(ndxColor);
+		settings.setValue(constrHighlighterIndexKey, itrHighlighters.key());
+		settings.setValue(constrHighlighterColorKey, itrHighlighters->name());
+		ndxColor++;
+	}
+	settings.endArray();
 
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
@@ -526,21 +541,36 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Main App General Settings:
 	settings.beginGroup(constrMainAppControlGroup);
-	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightness, CPersistentSettings::instance()->invertTextBrightness()).toBool());
-	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightness, CPersistentSettings::instance()->textBrightness()).toInt());
-	CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightness, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
+	CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool());
+	CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt());
+	CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
 	settings.endGroup();
 
 	// Colors:
 	settings.beginGroup(constrColorsGroup);
 	QColor clrTemp;
-	clrTemp.setNamedColor(settings.value(constrWordsOfJesusColor, CPersistentSettings::instance()->highlightWordsOfJesusColor().name()).toString());
-	CPersistentSettings::instance()->setHighlightWordsOfJesusColor(clrTemp);
-	clrTemp.setNamedColor(settings.value(constrSearchResultsColor, CPersistentSettings::instance()->highlightSearchResultsColor().name()).toString());
-	CPersistentSettings::instance()->setHighlightSearchResultsColor(clrTemp);
-	clrTemp.setNamedColor(settings.value(constrCursorTrackerColor, CPersistentSettings::instance()->highlightCursorFollowColor().name()).toString());
-	CPersistentSettings::instance()->setHighlightCursorFollowColor(clrTemp);
+	clrTemp.setNamedColor(settings.value(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name()).toString());
+	CPersistentSettings::instance()->setColorWordsOfJesus(clrTemp);
+	clrTemp.setNamedColor(settings.value(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name()).toString());
+	CPersistentSettings::instance()->setColorSearchResults(clrTemp);
+	clrTemp.setNamedColor(settings.value(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name()).toString());
+	CPersistentSettings::instance()->setColorCursorFollow(clrTemp);
 	settings.endGroup();
+
+	int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+	if (nColors != 0) {
+		CPersistentSettings::instance()->removeAllUserDefinedColors();
+		for (int ndxColor = 0; ndxColor < nColors; ++ndxColor) {
+			settings.setArrayIndex(ndxColor);
+			int nHighlighterIndex = settings.value(constrHighlighterIndexKey, -1).toInt();
+			QString strColorName = settings.value(constrHighlighterColorKey, QString()).toString();
+			if ((nHighlighterIndex >= 0) && (!strColorName.isEmpty())) {
+				clrTemp.setNamedColor(strColorName);
+				CPersistentSettings::instance()->setUserDefinedColor(nHighlighterIndex, clrTemp);
+			}
+		}
+	}
+	settings.endArray();
 
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);

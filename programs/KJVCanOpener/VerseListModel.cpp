@@ -62,8 +62,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pare
 		m_nTreeMode(VTME_LIST),
 		m_bShowMissingLeafs(false)
 {
-	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
-	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
 int CVerseListModel::rowCount(const QModelIndex &parent) const

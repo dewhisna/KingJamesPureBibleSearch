@@ -39,6 +39,32 @@
 class CSearchResultsTreeView;
 class CScriptureBrowser;
 class CParsedPhrase;
+class QwwColorButton;
+class CKJVTextFormatConfig;
+
+// ============================================================================
+
+
+class CHighlighterColorButtonSignalReflector : public QObject
+{
+	Q_OBJECT
+
+public:
+	CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, int nHighlighterIndex);
+	~CHighlighterColorButtonSignalReflector();
+
+	int highlighterIndex() const { return m_nUserDefinedHighlighterIndex; }
+
+signals:
+	void colorPicked(int nHighlighterIndex, const QColor &color);
+
+public slots:
+	void en_colorPicked(const QColor &color);
+
+
+private:
+	int m_nUserDefinedHighlighterIndex;				// Index into the persistent settings User Defined Highlighters
+};
 
 // ============================================================================
 
@@ -61,7 +87,7 @@ public:
 signals:
 	void dataChanged();
 
-private slots:
+public slots:
 	void en_ScriptureBrowserFontChanged(const QFont &font);
 	void en_SearchResultsFontChanged(const QFont &font);
 	void en_ScriptureBrowserFontSizeChanged(double nFontSize);
@@ -74,6 +100,7 @@ private slots:
 	void en_WordsOfJesusColorPicked(const QColor &color);
 	void en_SearchResultsColorPicked(const QColor &color);
 	void en_CursorTrackerColorPicked(const QColor &color);
+	void en_HighlighterColorPicked(int nHighlighterIndex, const QColor &color);
 
 	void navigateToDemoText();
 	void setPreview();
@@ -93,7 +120,7 @@ private:
 	CScriptureBrowser *m_pScriptureBrowser;
 	bool m_bIsDirty;
 
-	static class QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<class QwwColorButton *>(pButton); }
+	static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
 	Ui::CKJVTextFormatConfig *ui;
 };
 

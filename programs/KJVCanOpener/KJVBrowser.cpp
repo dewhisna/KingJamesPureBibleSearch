@@ -91,8 +91,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(this, SIGNAL(reload()), m_pScriptureBrowser, SLOT(reload()));
 
 	// Highlighting colors changing:
-	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightSearchResultsColor(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
 CKJVBrowser::~CKJVBrowser()

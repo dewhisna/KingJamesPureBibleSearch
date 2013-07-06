@@ -199,8 +199,8 @@ public:
 			m_pBibleDatabase(pBibleDatabase),
 			m_TextDocument(textDocument)
 	{
-		m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->highlightWordsOfJesusColor());
-		connect(CPersistentSettings::instance(), SIGNAL(changedHighlightWordsOfJesusColor(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+		m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+		connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 	}
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:

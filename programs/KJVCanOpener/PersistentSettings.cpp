@@ -121,9 +121,9 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_nTextBrightness != pTarget->m_nTextBrightness)) emit changedTextBrightness(pTarget->m_bInvertTextBrightness, pTarget->m_nTextBrightness);
 		if (pSource->m_bAdjustDialogElementBrightness != pTarget->m_bAdjustDialogElementBrightness) emit adjustDialogElementBrightnessChanged(pTarget->m_bAdjustDialogElementBrightness);
 
-		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedHighlightWordsOfJesusColor(pTarget->m_clrWordsOfJesus);
-		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedHighlightSearchResultsColor(pTarget->m_clrSearchResults);
-		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedHighlightCursorFollowColor(pTarget->m_clrCursorFollow);
+		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedColorWordsOfJesus(pTarget->m_clrWordsOfJesus);
+		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
+		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
 
 		if (pSource->m_mapUserHighlighters != pTarget->m_mapUserHighlighters) emit changedUserDefinedColors();
 	}
@@ -190,22 +190,22 @@ QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
 	return (bInvert ? clrBackground.lighter(300 - (nBrightness * 2)) : clrBackground.darker(300 - (nBrightness * 2)));
 }
 
-void CPersistentSettings::setHighlightWordsOfJesusColor(const QColor &color)
+void CPersistentSettings::setColorWordsOfJesus(const QColor &color)
 {
 	m_pPersistentSettingData->m_clrWordsOfJesus = color;
-	emit changedHighlightWordsOfJesusColor(m_pPersistentSettingData->m_clrWordsOfJesus);
+	emit changedColorWordsOfJesus(m_pPersistentSettingData->m_clrWordsOfJesus);
 }
 
-void CPersistentSettings::setHighlightSearchResultsColor(const QColor &color)
+void CPersistentSettings::setColorSearchResults(const QColor &color)
 {
 	m_pPersistentSettingData->m_clrSearchResults = color;
-	emit changedHighlightSearchResultsColor(m_pPersistentSettingData->m_clrSearchResults);
+	emit changedColorSearchResults(m_pPersistentSettingData->m_clrSearchResults);
 }
 
-void CPersistentSettings::setHighlightCursorFollowColor(const QColor &color)
+void CPersistentSettings::setColorCursorFollow(const QColor &color)
 {
 	m_pPersistentSettingData->m_clrCursorFollow = color;
-	emit changedHighlightCursorFollowColor(m_pPersistentSettingData->m_clrCursorFollow);
+	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
 }
 
 void CPersistentSettings::setUserDefinedColor(int nIndex, const QColor &color)
@@ -224,3 +224,8 @@ void CPersistentSettings::removeUserDefinedColor(int nIndex)
 	}
 }
 
+void CPersistentSettings::removeAllUserDefinedColors()
+{
+	m_pPersistentSettingData->m_mapUserHighlighters.clear();
+	emit changedUserDefinedColors();
+}

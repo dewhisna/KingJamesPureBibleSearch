@@ -29,8 +29,6 @@
 #include <QFont>
 #include <QColor>
 #include <QList>
-#include <QListWidget>
-#include <QListWidgetItem>
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -60,9 +58,9 @@ public:
 	QColor textForegroundColor() const;
 	QColor textBackgroundColor() const;
 
-	inline QColor highlightWordsOfJesusColor() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
-	inline QColor highlightSearchResultsColor() const { return m_pPersistentSettingData->m_clrSearchResults; }
-	inline QColor highlightCursorFollowColor() const { return m_pPersistentSettingData->m_clrCursorFollow; }
+	inline QColor colorWordsOfJesus() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
+	inline QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
+	inline QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
 	QColor userDefinedColor(int nIndex) const { return m_pPersistentSettingData->m_mapUserHighlighters.value(nIndex, QColor()); }
 	bool existsUserDefinedColor(int nIndex) const { return (m_pPersistentSettingData->m_mapUserHighlighters.find(nIndex) != m_pPersistentSettingData->m_mapUserHighlighters.constEnd()); }
 	inline const TUserDefinedColorMap &userDefinedColorMap() const { return m_pPersistentSettingData->m_mapUserHighlighters; }
@@ -79,11 +77,11 @@ signals:
 
 	void changedTextBrightness(bool bInvert, int nBrightness);
 
-	void changedHighlightWordsOfJesusColor(const QColor &color);
-	void changedHighlightSearchResultsColor(const QColor &color);
-	void changedHighlightCursorFollowColor(const QColor &color);
-	void changedUserDefinedColor(int nIndex, const QColor &color);		// Note: If entire map is swapped, this signal isn't fired!
-	void removedUserDefinedColor(int nIndex);							// Note: If entire map is swapped, this signal isn't fired!
+	void changedColorWordsOfJesus(const QColor &color);
+	void changedColorSearchResults(const QColor &color);
+	void changedColorCursorFollow(const QColor &color);
+	void changedUserDefinedColor(int nIndex, const QColor &color);		// Note: If entire map is swapped or cleared, this signal isn't fired!
+	void removedUserDefinedColor(int nIndex);							// Note: If entire map is swapped or cleared, this signal isn't fired!
 	void changedUserDefinedColors();									// Fired on both individual and entire UserDefinedColor map change
 
 public slots:
@@ -94,11 +92,12 @@ public slots:
 	void setTextBrightness(int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 
-	void setHighlightWordsOfJesusColor(const QColor &color);
-	void setHighlightSearchResultsColor(const QColor &color);
-	void setHighlightCursorFollowColor(const QColor &color);
+	void setColorWordsOfJesus(const QColor &color);
+	void setColorSearchResults(const QColor &color);
+	void setColorCursorFollow(const QColor &color);
 	void setUserDefinedColor(int nIndex, const QColor &color);
 	void removeUserDefinedColor(int nIndex);
+	void removeAllUserDefinedColors();
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are

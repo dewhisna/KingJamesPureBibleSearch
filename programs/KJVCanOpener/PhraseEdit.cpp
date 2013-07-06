@@ -695,6 +695,17 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			myCursor.setPosition(nStartPos);
 			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart).size();
 
+			// If this is a continuous highlighter, instead of stopping at the end of the word,
+			//		we'll find the start of the next word we'll be highlighting so that we
+			//		will highlight everything in between:
+			if ((aHighlighter.isContinuous()) && (ndxNormalStart != ndxNormalEnd)) {
+				int nNextWordPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart + 1)).asAnchor());
+				if (nNextWordPos != -1) {
+					assert(nWordEndPos <= nNextWordPos);
+					nWordEndPos = nNextWordPos;
+				}
+			}
+
 			while (nStartPos < nWordEndPos) {
 				myCursor.moveCursorCharRight(QTextCursor::KeepAnchor);
 				fmt = myCursor.charFormat();

@@ -11,6 +11,9 @@
 		<file>res/bible.icns</file>
 		<file>res/bible_48.png</file>
 		<file>res/list_add.png</file>
+		<file>res/list_minus.png</file>
+		<file>res/list_remove.png</file>
+		<file>res/clear_left.png</file>
 		<file>res/droplist.png</file>
 		<file>res/go_jump.png</file>
 		<file>res/go_jump2.png</file>
@@ -41,5 +44,9 @@
 		<file>res/Settings-icon-128.png</file>
 		<file>res/Settings-icon2-128.png</file>
 		<file>res/Settings-icon3-128.png</file>
+		<file>res/Actions-format-stroke-color-icon-128.png</file>
+		<file>res/Font_Color_Icon_128.png</file>
+		<file>res/Graphics-Painting-icon-128.png</file>
+		<file>res/Font_Graphics_Color_Icon_128.png</file>
 	</qresource>
 </RCC>

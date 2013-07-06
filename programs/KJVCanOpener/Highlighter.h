@@ -59,6 +59,7 @@ private:
 	friend class CBasicHighlighter;
 	friend class CSearchResultHighlighter;
 	friend class CCursorFollowHighlighter;
+	friend class CUserDefinedHighlighter;
 };
 
 // ============================================================================
@@ -77,6 +78,8 @@ public:
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const = 0;
 	virtual bool isEmpty() const = 0;
+
+	virtual bool isContinuous() const { return false; }			// Continuous = no word breaks in highlighting.  Default is false
 
 public slots:
 	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
@@ -175,5 +178,59 @@ private:
 };
 
 // ============================================================================
+
+class CUserDefinedHighlighter : public CBasicHighlighter
+{
+	Q_OBJECT
+public:
+	explicit CUserDefinedHighlighter(int nHighlighterIndex, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
+		:	CBasicHighlighter(parent),
+			m_nUserDefinedHighlighterIndex(nHighlighterIndex)
+	{
+		m_myPhraseTags.setPhraseTags(lstPhraseTags);
+	}
+	CUserDefinedHighlighter(int nHighlighterIndex, const TPhraseTag &aTag, QObject *parent = NULL)
+		:	CBasicHighlighter(parent),
+			m_nUserDefinedHighlighterIndex(nHighlighterIndex)
+	{
+		TPhraseTagList lstTags;
+		lstTags.append(aTag);
+		m_myPhraseTags.setPhraseTags(lstTags);
+	}
+	CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter)
+		:	CBasicHighlighter(aUserDefinedHighlighter.parent())
+	{
+		setEnabled(aUserDefinedHighlighter.enabled());
+		m_myPhraseTags.setPhraseTags(aUserDefinedHighlighter.m_myPhraseTags.phraseTags());
+		m_nUserDefinedHighlighterIndex = aUserDefinedHighlighter.m_nUserDefinedHighlighterIndex;
+	}
+
+	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
+	virtual bool isEmpty() const;
+
+	virtual bool isContinuous() const { return true; }
+
+	const TPhraseTagList &phraseTags() const;
+	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
+
+public slots:
+	void clearPhraseTags();
+
+private:
+	// Guard class to keep me from accidentally accessing non-const functions and
+	//		causing unintentional copying, as that can be expensive in large searches:
+	class CMyPhraseTags {
+	public:
+		inline const TPhraseTagList &phraseTags() const { return m_lstPhraseTags; }
+		inline void setPhraseTags(const TPhraseTagList &lstPhraseTags) { m_lstPhraseTags = lstPhraseTags; }
+
+	private:
+		TPhraseTagList m_lstPhraseTags;				// Tags to highlight
+	} m_myPhraseTags;
+
+	int m_nUserDefinedHighlighterIndex;				// Index into the persistent settings User Defined Highlighters
+};
 
 #endif // HIGHLIGHTER_H

@@ -132,7 +132,7 @@ void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bCl
 		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH)) {
 			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
 		}
-		aFormat.setForeground(QBrush(CPersistentSettings::instance()->highlightSearchResultsColor()));
+		aFormat.setForeground(QBrush(CPersistentSettings::instance()->colorSearchResults()));
 	} else {
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH))
 			aFormat.setForeground(aFormat.property(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH).value<QBrush>());
@@ -193,7 +193,7 @@ void CCursorFollowHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bCl
 		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE)) {
 			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
 		}
-		aFormat.setUnderlineColor(CPersistentSettings::instance()->highlightCursorFollowColor());
+		aFormat.setUnderlineColor(CPersistentSettings::instance()->colorCursorFollow());
 		aFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);		// TODO : Get properties from global settings! ??
 	} else {
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR))
@@ -232,4 +232,45 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 // ============================================================================
 
+void CUserDefinedHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
+{
+	if ((!bClear) && (enabled()) && (CPersistentSettings::instance()->existsUserDefinedColor(m_nUserDefinedHighlighterIndex))) {
+		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH)) {
+			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
+		}
+		aFormat.setBackground(QBrush(CPersistentSettings::instance()->userDefinedColor(m_nUserDefinedHighlighterIndex)));
+	} else {
+		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH))
+			aFormat.setBackground(aFormat.property(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH).value<QBrush>());
+	}
+}
+
+CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const
+{
+	return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
+}
+
+bool CUserDefinedHighlighter::isEmpty() const
+{
+	return m_myPhraseTags.phraseTags().isEmpty();
+}
+
+const TPhraseTagList &CUserDefinedHighlighter::phraseTags() const
+{
+	return m_myPhraseTags.phraseTags();
+}
+
+void CUserDefinedHighlighter::setPhraseTags(const TPhraseTagList &lstPhraseTags)
+{
+	m_myPhraseTags.setPhraseTags(lstPhraseTags);
+	emit phraseTagsChanged();
+}
+
+void CUserDefinedHighlighter::clearPhraseTags()
+{
+	m_myPhraseTags.setPhraseTags(TPhraseTagList());
+	emit phraseTagsChanged();
+}
+
+// ============================================================================
 
