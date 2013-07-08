@@ -25,9 +25,14 @@
 #define USER_NOTES_DATABASE_H
 
 #include "dbstruct.h"
+#include "PersistentSettings.h"
 
 #include <map>
+#include <QtXml>
 
+// ============================================================================
+
+#define KJN_FILE_VERSION 1				// Current KJN File Version (King James Notes file)
 
 // ============================================================================
 
@@ -40,7 +45,7 @@
 //		to apply it...
 //
 
-class CUserNotesDatabase : public QObject
+class CUserNotesDatabase : public QObject, protected QXmlDefaultHandler
 {
 	Q_OBJECT
 
@@ -50,6 +55,13 @@ public:
 
 	inline bool isDirty() const { return m_bIsDirty; }
 	void clear();
+	inline int version() const { return m_nVersion; }
+
+	// --------------------
+
+	bool loadFromFile(const QString &strFilePathName);
+	bool saveToFile(const QString &strFilePathName);
+	QString lastLoadSaveError() const { return m_strLastError; }
 
 	// --------------------
 
@@ -85,6 +97,7 @@ public:
 	}
 	void setHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
 	void appendHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
+	void appendHighlighterTagFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTag &lstTag);
 	void removeHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName = QString());
 	void removeAllHighlighterTags();
 
@@ -106,14 +119,66 @@ public:
 
 	// --------------------
 
+	inline const TUserDefinedColorMap &loadedHighlighterDefinitions() const { return m_mapHighlighterDefinitions; }			// Highlighter Definitions loaded from KJN File or to save in KJN
+	void setHighlighterDefinitions(const TUserDefinedColorMap &mapHighlighterColors) { m_mapHighlighterDefinitions = mapHighlighterColors; }	// See note below (No "changed" signal!)
+
+	// --------------------
+
 signals:
 	void userNotesDatabaseHasChanged();
+
+
+protected:
+	// XML Parsing overrides:
+	virtual bool characters(const QString &strChars);
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attr);
+	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
+	virtual QString errorString() const;
+	virtual bool startCDATA();
+	virtual bool endCDATA();
+
+private:
+	void clearXMLVars();
+	static int findAttribute(const QXmlAttributes &attr, const QString &strName)
+	{
+		for (int i = 0; i < attr.count(); ++i) {
+			if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
+		}
+		return -1;
+	}
 
 private:
 	TFootnoteEntryMap m_mapNotes;						// User notes, kept in the same format as our footnotes database
 	TBibleDBHighlighterTagMap m_mapHighlighterTags;		// Tags to highlight by Bible Database compatibility and Highlighter name
 	TCrossReferenceMap m_mapCrossReference;				// Cross reference of passage to other passages
-	bool m_bIsDirty;
+	//		Note: m_mapHighlighterDefinitions is not considered part of the KJN data proper, used in load/save to read/set highligher definitions from the main app settings:
+	TUserDefinedColorMap m_mapHighlighterDefinitions;	// Highlighter Definitions Read from the KJN File, used for merging with the Program Main Configuration
+	bool m_bIsDirty;									// True when the document has been modified
+	int m_nVersion;										// Version of the file read
+	QString m_strLastError;								// Last error during load/save
+
+	// ---- XML Temp Parsing varaibles:
+	bool m_bInCDATA;									// True if we're in a CDATA section
+	QString m_strXMLBuffer;								// XML CDATA Character input buffer during parsing
+	CRelIndex m_ndxRelIndex;							// RelIndex attribute when present
+	CRelIndex m_ndxRelIndexTag;							// RelIndex Tag Value when processing <CRelIndex> tag
+	unsigned int m_nCount;								// Count attribute when present
+	QString m_strDatabaseUUID;							// Bible Database UUID attribute when present
+	QString m_strHighlighterName;						// HighlighterName attribute when present
+	QString m_strColor;									// Color attribute when present
+	bool m_bInKJNDocument;								// Inside <KJNDocument> tag
+	bool m_bInKJNDocumentText;							// Inside <KJNDocumentText> tag
+	bool m_bInNotes;									// Inside <Notes> tag
+	bool m_bInNote;										// Processing <Note> tag
+	bool m_bInHighlighting;								// Inside <Highlighting> tag
+	bool m_bInHighlighterDB;							// Processing <HighlighterDB> tag
+	bool m_bInHighlighterTags;							// Processing <HighlighterTags> tag
+	bool m_bInPhraseTag;								// Processing <PhraseTag> tag
+	bool m_bInCrossReferences;							// Inside <CrossReferences> tag
+	bool m_bInCrossRef;									// Processing <CrossRef> tag
+	bool m_bInRelIndex;									// Processing <RelIndex> tag
+	bool m_bInHighlighterDefinitions;					// Inside <HighlighterDefinitions> tag
+	bool m_bInHighlighterDef;							// Processing <HighlighterDef> tag
 };
 
 // ============================================================================

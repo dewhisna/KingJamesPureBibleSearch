@@ -910,6 +910,14 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	return &(footnote->second);
 }
 
+TPhraseTag CBibleDatabase::footnotePhraseTag(const CRelIndex &ndx) const
+{
+	const CFootnoteEntry *pFootnote = footnoteEntry(ndx);
+	if (pFootnote == NULL) return TPhraseTag();
+
+	return TPhraseTag(ndx, pFootnote->count());
+}
+
 QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
 {
 	CRelIndex ndx = ndxRel;

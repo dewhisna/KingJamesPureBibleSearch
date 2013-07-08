@@ -103,6 +103,7 @@ public:
 		m_ndx = ((m_ndx & 0xFFFFFF00) | (nWrd & 0xFF));
 	}
 	inline bool isSet() const { return (m_ndx != 0); }
+	inline void clear() { m_ndx = 0; }
 
 	inline uint32_t index() const { return m_ndx; }
 	inline void setIndex(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd) {
@@ -438,7 +439,9 @@ struct TConcordanceListSortPredicate {
 class CFootnoteEntry
 {
 public:
-	CFootnoteEntry() { }
+	CFootnoteEntry()
+		: m_nCount(0)
+	{ }
 	~CFootnoteEntry() { }
 
 	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
@@ -450,8 +453,18 @@ public:
 		m_strText = strText;
 	}
 
+	unsigned int count() const
+	{
+		return m_nCount;
+	}
+	void setCount(unsigned int nCount)
+	{
+		m_nCount = nCount;
+	}
+
 private:
 	QString m_strText;			// Rich text (or plain if Rich unavailable) for the footnote (Note: for mobile versions, this element can be removed and fetched from the database if needed)
+	unsigned int m_nCount;		// Number of words at this target, used to create TPhraseTag objects.  Usually 0 for the main Database, used for User Defined Notes to create TPhraseTag's for this note's CRelIndex, allowing the user to enter specific spans of source text
 };
 
 typedef std::map<CRelIndex, CFootnoteEntry, RelativeIndexSortPredicate> TFootnoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
@@ -550,6 +563,7 @@ class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
 class CVerseTextRichifierTags;
+class TPhraseTag;
 
 // CBibleDatabase - Class to define a Bible Database file
 class CBibleDatabase
@@ -624,6 +638,7 @@ public:
 	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	QString decomposedWordAtIndex(uint32_t ndxNormal) const;			// Returns word of the Bible (decomposed) based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
+	TPhraseTag footnotePhraseTag(const CRelIndex &ndx) const;			// Generate TPhraseTag for the specified Footnote
 	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
 	{
 		return m_mapFootnotes;

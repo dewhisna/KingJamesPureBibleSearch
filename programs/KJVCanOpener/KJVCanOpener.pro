@@ -27,7 +27,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql xml
 
 CONFIG += rtti
 
@@ -35,6 +35,8 @@ CONFIG += wwwidgets
 
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
+
+include(../qtiocompressor/src/qtiocompressor.pri)
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
