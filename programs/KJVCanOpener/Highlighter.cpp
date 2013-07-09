@@ -28,6 +28,16 @@
 #include <QVariant>
 #include <QBrush>
 #include <QTextFormat>
+#include <QIcon>
+#include <QPixmap>
+#include <QBitmap>
+#include <QPainter>
+#include <QMenu>
+
+// ============================================================================
+
+#define NUM_HIGHLIGHTER_TOOLBAR_BUTTONS 4
+
 
 //
 // UserProperties:
@@ -272,6 +282,115 @@ void CUserDefinedHighlighter::clearPhraseTags()
 {
 	m_myPhraseTags.setPhraseTags(TPhraseTagList());
 	emit phraseTagsChanged();
+}
+
+// ============================================================================
+// ============================================================================
+
+CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
+{
+	assert(pParent != NULL);
+
+	m_lstButtons.clear();
+	m_lstActionGroups.clear();
+	for (int ndx = 0; ndx < NUM_HIGHLIGHTER_TOOLBAR_BUTTONS; ++ndx) {
+		QMenu *pHighlighterMenu = new QMenu(pParent);
+		QToolButton *pButtonHighlighter = new QToolButton(pParent);
+		m_lstButtons.append(pButtonHighlighter);
+		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
+		pButtonHighlighter->setMenu(pHighlighterMenu);
+		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		pButtonHighlighter->setPopupMode(QToolButton::MenuButtonPopup);
+		pButtonHighlighter->setText(tr("#%1").arg(ndx+1));
+		setHighlighterList(ndx);
+		pParent->addWidget(pButtonHighlighter);
+	}
+}
+
+CHighlighterButtons::~CHighlighterButtons()
+{
+
+}
+
+void CHighlighterButtons::en_changedUserDefinedColors()
+{
+	setHighlighterLists();
+}
+
+void CHighlighterButtons::setHighlighterLists()
+{
+	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
+		setHighlighterList(ndx);
+	}
+}
+
+void CHighlighterButtons::setHighlighterList(int ndx)
+{
+	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+	assert(m_lstButtons.size() == m_lstActionGroups.size());
+	assert(m_lstButtons.at(ndx) != NULL);
+	QString strHighlighter;
+	if (m_lstActionGroups.at(ndx) == NULL) {
+		m_lstActionGroups[ndx] = new QActionGroup(this);
+	} else {
+		QAction *pCurrentAction = m_lstActionGroups.at(ndx)->checkedAction();
+		if (pCurrentAction != NULL) {
+			strHighlighter = pCurrentAction->text();
+		}
+		delete m_lstActionGroups[ndx];
+		m_lstActionGroups[ndx] = new QActionGroup(this);
+	}
+	m_lstActionGroups[ndx]->setExclusive(true);
+
+	assert(m_lstButtons[ndx]->menu() != NULL);
+	const TUserDefinedColorMap &mapHighlighters(CPersistentSettings::instance()->userDefinedColorMap());
+	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
+		QAction *pAction = new QAction(itrHighlighters.key(), m_lstActionGroups[ndx]);
+		pAction->setData(ndx);
+		pAction->setCheckable(true);
+		if (strHighlighter.compare(itrHighlighters.key()) == 0) pAction->setChecked(true);
+		m_lstButtons[ndx]->menu()->addAction(pAction);
+	}
+	if (m_lstActionGroups[ndx]->checkedAction() == NULL) strHighlighter.clear();			// If we didn't check something, we didn't have a matching highlighter
+	setHighlighterPreview(ndx, strHighlighter);
+	connect(m_lstActionGroups[ndx], SIGNAL(selected(QAction*)), this, SLOT(en_highlighterSelectionChanged(QAction*)));
+}
+
+void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName)
+{
+	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+
+	if (strUserDefinedHighlighterName.isEmpty()) {
+		m_lstButtons[ndx]->setIcon(QIcon(":res/highlighter_translucent_01-256.png"));
+	} else {
+		QPixmap pixHighlighter(":res/highlighter_white_01-256.png");
+		QBitmap bmHighlighterMask = pixHighlighter.createMaskFromColor(QColor(255, 255, 255), Qt::MaskOutColor);		// Mask white panel
+		QPainter paintHighlighter(&pixHighlighter);
+		paintHighlighter.setPen(CPersistentSettings::instance()->userDefinedColor(strUserDefinedHighlighterName));
+		paintHighlighter.drawPixmap(pixHighlighter.rect(), bmHighlighterMask, bmHighlighterMask.rect());
+		paintHighlighter.end();
+		m_lstButtons[ndx]->setIcon(QIcon(pixHighlighter));
+	}
+}
+
+void CHighlighterButtons::en_highlighterSelectionChanged(QAction *pAction)
+{
+	assert(pAction != NULL);
+	int ndx = pAction->data().toInt();
+	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+
+	setHighlighterPreview(ndx, pAction->text());
+}
+
+QString CHighlighterButtons::highlighter(int ndx) const
+{
+	assert((ndx >= 0) && (ndx < m_lstActionGroups.size()));
+	if ((ndx < 0) || (ndx >= m_lstActionGroups.size())) return QString();
+
+	QAction *pCurrentAction = m_lstActionGroups[ndx]->checkedAction();
+	if (pCurrentAction == NULL) return QString();
+
+	return pCurrentAction->text();
 }
 
 // ============================================================================

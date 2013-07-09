@@ -29,6 +29,7 @@
 
 #include <map>
 #include <QtXml>
+#include <QSharedPointer>
 
 // ============================================================================
 
@@ -180,6 +181,18 @@ private:
 	bool m_bInHighlighterDefinitions;					// Inside <HighlighterDefinitions> tag
 	bool m_bInHighlighterDef;							// Processing <HighlighterDef> tag
 };
+
+
+typedef QSharedPointer<CUserNotesDatabase> CUserNotesDatabasePtr;
+
+typedef QList<CUserNotesDatabasePtr> TUserNotesDatabaseList;
+
+// ============================================================================
+
+// Global Variables:
+
+extern CUserNotesDatabasePtr g_pMainUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
+extern TUserNotesDatabaseList g_lstUserNotesDatabases;
 
 // ============================================================================
 

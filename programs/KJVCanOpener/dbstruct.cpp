@@ -35,6 +35,10 @@
 
 #include <assert.h>
 
+// ============================================================================
+
+// Global Variables:
+
 // Our Bible Databases:
 CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
 TBibleDatabaseList g_lstBibleDatabases;
@@ -42,11 +46,6 @@ TBibleDatabaseList g_lstBibleDatabases;
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;
 bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
-
-// ============================================================================
-
-// Global Settings:
-
 
 // ============================================================================
 

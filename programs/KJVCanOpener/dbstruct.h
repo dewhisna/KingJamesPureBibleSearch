@@ -692,9 +692,6 @@ typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 
 typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
 
-extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
-extern TBibleDatabaseList g_lstBibleDatabases;
-
 // ============================================================================
 
 // Relative Index and Word Count pair used for highlighting phrases:
@@ -769,8 +766,10 @@ typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;	// Map 
 
 // ============================================================================
 
-// Global Settings:
+// Global Variables:
 
+extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
+extern TBibleDatabaseList g_lstBibleDatabases;
 
 // ============================================================================
 

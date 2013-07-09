@@ -28,6 +28,11 @@
 
 #include <QObject>
 #include <QTextCharFormat>
+#include <QList>
+#include <QToolBar>
+#include <QToolButton>
+#include <QAction>
+#include <QActionGroup>
 
 // ============================================================================
 
@@ -232,5 +237,41 @@ private:
 
 	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use
 };
+
+// ============================================================================
+// ============================================================================
+
+class CHighlighterButtons : public QObject
+{
+	Q_OBJECT
+
+public:
+	CHighlighterButtons(QToolBar *pParent);
+	virtual ~CHighlighterButtons();
+
+	int count() const { return m_lstButtons.size(); }
+	QToolButton *button(int ndx) const
+	{
+		assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+		if ((ndx < 0) || (ndx >= m_lstButtons.size())) return NULL;
+		return m_lstButtons.at(ndx);
+	}
+
+	QString highlighter(int ndx) const;
+
+protected slots:
+	void en_changedUserDefinedColors();
+	void en_highlighterSelectionChanged(QAction *pAction);
+
+protected:
+	void setHighlighterLists();
+	void setHighlighterList(int ndx);
+	void setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName);
+
+private:
+	QList<QToolButton *> m_lstButtons;					// List of highlighter buttons
+	QList<QActionGroup *> m_lstActionGroups;			// Groups of "actions" that is the list of available highlighters in each button
+};
+
 
 #endif // HIGHLIGHTER_H

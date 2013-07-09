@@ -48,5 +48,7 @@
 		<file>res/Font_Color_Icon_128.png</file>
 		<file>res/Graphics-Painting-icon-128.png</file>
 		<file>res/Font_Graphics_Color_Icon_128.png</file>
+		<file>res/highlighter_white_01-256.png</file>
+		<file>res/highlighter_translucent_01-256.png</file>
 	</qresource>
 </RCC>

@@ -28,6 +28,13 @@
 #include <QtIOCompressor>
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
+// ============================================================================
+
+// Global Variables:
+
+// Our User Notes Databases:
+CUserNotesDatabasePtr g_pMainUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
+TUserNotesDatabaseList g_lstUserNotesDatabases;
 
 // ============================================================================
 
@@ -371,8 +378,10 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 	} else if ((m_bInHighlighting) && (localName.compare(constrHighlightingTag, Qt::CaseInsensitive) == 0)) {
 		m_bInHighlighting = false;
 	} else if ((m_bInCrossReferences) && (m_bInCrossRef) && (m_bInRelIndex) && (localName.compare(constrRelIndexTag, Qt::CaseInsensitive) == 0)) {
-		m_mapCrossReference[m_ndxRelIndex].insert(m_ndxRelIndexTag);
-		m_mapCrossReference[m_ndxRelIndexTag].insert(m_ndxRelIndex);
+		if (m_ndxRelIndex != m_ndxRelIndexTag) {				// Add it only if the cross-reference doesn't reference itself
+			m_mapCrossReference[m_ndxRelIndex].insert(m_ndxRelIndexTag);
+			m_mapCrossReference[m_ndxRelIndexTag].insert(m_ndxRelIndex);
+		}
 		m_ndxRelIndexTag.clear();
 		m_bInRelIndex = false;
 	} else if ((m_bInCrossReferences) && (m_bInCrossRef) && (localName.compare(constrCrossRefTag, Qt::CaseInsensitive) == 0)) {
@@ -661,7 +670,7 @@ void CUserNotesDatabase::removeAllHighlighterTags()
 
 void CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
-	if (ndxFirst == ndxSecond) return;							// Don't allow cross references to ourselves (that's just stupid)
+	if (ndxFirst == ndxSecond) return;							// Don't allow cross references to ourselves (that's just stupid, and can lead to weird consequences)
 	m_mapCrossReference[ndxFirst].insert(ndxSecond);
 	m_mapCrossReference[ndxSecond].insert(ndxFirst);
 	m_bIsDirty = true;
