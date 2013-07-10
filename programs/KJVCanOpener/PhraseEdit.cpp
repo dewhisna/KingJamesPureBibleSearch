@@ -703,10 +703,13 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			//		we'll find the start of the next word we'll be highlighting so that we
 			//		will highlight everything in between:
 			if ((aHighlighter.isContinuous()) && (ndxNormalStart != ndxNormalEnd)) {
-				int nNextWordPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart + 1)).asAnchor());
-				if (nNextWordPos != -1) {
-					assert(nWordEndPos <= nNextWordPos);
-					nWordEndPos = nNextWordPos;
+				CRelIndex ndxNextWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart + 1));
+				if (ndxNextWord.word() > 1) {			// If the next word is the first word of the verse and/or chapter, don't connect them as we'll have non-verse text between the words
+					int nNextWordPos = anchorPosition(ndxNextWord.asAnchor());
+					if (nNextWordPos != -1) {
+						assert(nWordEndPos <= nNextWordPos);
+						nWordEndPos = nNextWordPos;
+					}
 				}
 			}
 
