@@ -33,8 +33,9 @@
 // Global Variables:
 
 // Our User Notes Databases:
-CUserNotesDatabasePtr g_pMainUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
-TUserNotesDatabaseList g_lstUserNotesDatabases;
+CUserNotesDatabasePtr g_pUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
+// Currently we only allow a single notes database.  Uncomment this to enable multiple:
+//TUserNotesDatabaseList g_lstUserNotesDatabases;
 
 // ============================================================================
 
@@ -66,12 +67,26 @@ namespace {
 	const QString constrUUIDAttr("DatabaseUUID");
 	const QString constrHighlighterNameAttr("HighlighterName");
 	const QString constrColorAttr("Color");
+	const QString constrEnabledAttr("Enabled");
+}
+
+// ============================================================================
+
+CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
+	:	m_bIsDirty(false)
+{
+	// Set Default Highlighters:
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #1")] = TUserDefinedColor(QColor(255, 255, 170));			// "yellow" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #2")] = TUserDefinedColor(QColor(170, 255, 255));			// "blue" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #3")] = TUserDefinedColor(QColor(170, 255, 170));			// "green" highligher
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #4")] = TUserDefinedColor(QColor(255, 170, 255));			// "pink" highlighter
 }
 
 // ============================================================================
 
 CUserNotesDatabase::CUserNotesDatabase(QObject *pParent)
 	:	QObject(pParent),
+		m_pUserNotesDatabaseData(&m_UserNotesDatabaseData1),
 		m_bIsDirty(false),
 		m_nVersion(KJN_FILE_VERSION)
 {
@@ -88,8 +103,9 @@ void CUserNotesDatabase::clear()
 	removeAllNotes();
 	removeAllHighlighterTags();
 	removeAllCrossReferences();
+	removeAllHighlighters();
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();				// Note: Changed highlighters already emitted above in removeAllHighligters
 }
 
 // ============================================================================
@@ -106,6 +122,7 @@ void CUserNotesDatabase::clearXMLVars()
 	m_strDatabaseUUID.clear();
 	m_strHighlighterName.clear();
 	m_strColor.clear();
+	m_bEnabled = true;
 	m_bInKJNDocument = false;
 	m_bInKJNDocumentText = false;
 	m_bInNotes = false;
@@ -336,8 +353,18 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			return false;
 		}
 		m_strColor = attr.value(ndxColor);
+		int ndxEnabled = findAttribute(attr, constrEnabledAttr);
+		if (ndxEnabled == -1) {
+			m_bEnabled = true;
+		} else {
+			m_bEnabled = (attr.value(ndxEnabled).compare("True", Qt::CaseInsensitive) == 0);
+			if ((!m_bEnabled) && (attr.value(ndxEnabled).compare("False", Qt::CaseInsensitive) != 0)) {
+				m_strLastError = tr("Invalid Enable Attribute Value in HighlighterDef Declaration");
+				return false;
+			}
+		}
 #ifdef DEBUG_KJN_XML_READ
-		qDebug("%s : HighlighterName: \"%s\"  Color: \"%s\"", localName.toUtf8().data(), m_strHighlighterName.toUtf8().data(), m_strColor.toUtf8().data());
+		qDebug("%s : HighlighterName: \"%s\"  Color: \"%s\"  Enabled: %s", localName.toUtf8().data(), m_strHighlighterName.toUtf8().data(), m_strColor.toUtf8().data(), (m_bEnabled ? "True" : "False"));
 #endif
 		m_bInHighlighterDef = true;
 	}
@@ -390,9 +417,11 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 	} else if ((m_bInCrossReferences) && (localName.compare(constrCrossReferencesTag, Qt::CaseInsensitive) == 0)) {
 		m_bInCrossReferences = false;
 	} else if ((m_bInHighlighterDefinitions) && (m_bInHighlighterDef) && (localName.compare(constrHighlighterDefTag, Qt::CaseInsensitive) == 0)) {
-		m_mapHighlighterDefinitions[m_strHighlighterName].setNamedColor(m_strColor);
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[m_strHighlighterName].m_color.setNamedColor(m_strColor);
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[m_strHighlighterName].m_bEnabled = m_bEnabled;
 		m_strHighlighterName.clear();
 		m_strColor.clear();
+		m_bEnabled = true;
 		m_bInHighlighterDef = false;
 	} else if ((m_bInHighlighterDefinitions) && (localName.compare(constrHighlighterDefinitionsTag, Qt::CaseInsensitive) == 0)) {
 		m_bInHighlighterDefinitions = false;
@@ -420,24 +449,40 @@ QString CUserNotesDatabase::errorString() const
 
 // ============================================================================
 
-bool CUserNotesDatabase::loadFromFile(const QString &strFilePathName)
+bool CUserNotesDatabase::load()
+{
+	if (m_strFilePathName.isEmpty()) {
+		m_strLastError = tr("User Notes Database FilePathName not set");
+		return false;
+	}
+
+	QFile fileUND;
+
+	fileUND.setFileName(m_strFilePathName);
+	if (!fileUND.open(QIODevice::ReadOnly)) {
+		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for reading.").arg(m_strFilePathName);
+		return false;
+	}
+
+	if (!load(&fileUND)) {
+		m_strLastError = tr("Failed to read King James User Notes Database File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		fileUND.close();
+		return false;
+	}
+
+	fileUND.close();
+	return true;
+}
+
+bool CUserNotesDatabase::load(QIODevice *pIODevice)
 {
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
 	m_strLastError.clear();
 
-	QFile fileUND;
-
-	fileUND.setFileName(strFilePathName);
-	if (!fileUND.open(QIODevice::ReadOnly)) {
-		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for reading.").arg(strFilePathName);
-		return false;
-	}
-
-	QtIOCompressor inUND(&fileUND);
+	QtIOCompressor inUND(pIODevice);
 	inUND.setStreamFormat(QtIOCompressor::ZlibFormat);
 	if  (!inUND.open(QIODevice::ReadOnly)) {
-		m_strLastError = tr("Failed to open the I/O compressor for reading the King James User Notes Database File \"%1\".").arg(strFilePathName);
-		fileUND.close();
+		m_strLastError = tr("Failed to open the I/O compressor");
 		return false;
 	}
 
@@ -451,39 +496,55 @@ bool CUserNotesDatabase::loadFromFile(const QString &strFilePathName)
 	clearXMLVars();
 
 	if (!xmlReader.parse(xmlInput)) {
-		m_strLastError = tr("Failed to read and parse King James User Notes Database File \"%1\"\n\n%2").arg(strFilePathName).arg(errorString());
+		m_strLastError = tr("Failed to read and parse King James User Notes Database File\n\n%1").arg(errorString());
 		inUND.close();
-		fileUND.close();
 		return false;
 	}
 
 	clearXMLVars();				// Might as well clear it when we're done -- it isn't much extra memory, but...
 
 	inUND.close();
-	fileUND.close();
 	m_bIsDirty = false;
-	emit userNotesDatabaseHasChanged();
+	m_pUserNotesDatabaseData->m_bIsDirty = false;
+	emit changedUserNotesDatabase();
+	emit changedHighlighters();
 
 	return true;
 }
 
-bool CUserNotesDatabase::saveToFile(const QString &strFilePathName)
+bool CUserNotesDatabase::save()
 {
-	m_strLastError.clear();
-
-	QFile fileUND;
-
-	fileUND.setFileName(strFilePathName);
-	if (!fileUND.open(QIODevice::WriteOnly)) {
-		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for writing.").arg(strFilePathName);
+	if (m_strFilePathName.isEmpty()) {
+		m_strLastError = tr("User Notes Database FilePathName not set");
 		return false;
 	}
 
-	QtIOCompressor outUND(&fileUND);
+	QFile fileUND;
+
+	fileUND.setFileName(m_strFilePathName);
+	if (!fileUND.open(QIODevice::WriteOnly)) {
+		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for writing.").arg(m_strFilePathName);
+		return false;
+	}
+
+	if (!save(&fileUND)) {
+		m_strLastError = tr("Failed to write King James User Notes Database File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		fileUND.close();
+		return false;
+	}
+
+	fileUND.close();
+	return true;
+}
+
+bool CUserNotesDatabase::save(QIODevice *pIODevice)
+{
+	m_strLastError.clear();
+
+	QtIOCompressor outUND(pIODevice);
 	outUND.setStreamFormat(QtIOCompressor::ZlibFormat);
 	if  (!outUND.open(QIODevice::WriteOnly)) {
-		m_strLastError = tr("Failed to open the I/O compressor for writing the King James User Notes Database File \"%1\".").arg(strFilePathName);
-		fileUND.close();
+		m_strLastError = tr("Failed to open the I/O compressor.");
 		return false;
 	}
 
@@ -562,12 +623,13 @@ bool CUserNotesDatabase::saveToFile(const QString &strFilePathName)
 	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag).toUtf8());
 
 	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrHighlighterDefinitionsTag)
-							.arg(constrSizeAttr).arg(m_mapHighlighterDefinitions.size())
+							.arg(constrSizeAttr).arg(m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.size())
 							.toUtf8());
-	for (TUserDefinedColorMap::const_iterator itrHLDefs = m_mapHighlighterDefinitions.constBegin(); itrHLDefs != m_mapHighlighterDefinitions.constEnd(); ++itrHLDefs) {
-		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" />\n").arg(constrKJNPrefix).arg(constrHighlighterDefTag)
+	for (TUserDefinedColorMap::const_iterator itrHLDefs = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constBegin(); itrHLDefs != m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constEnd(); ++itrHLDefs) {
+		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" />\n").arg(constrKJNPrefix).arg(constrHighlighterDefTag)
 								.arg(constrHighlighterNameAttr).arg(Qt::escape(itrHLDefs.key()))
-								.arg(constrColorAttr).arg(Qt::escape(itrHLDefs.value().name()))
+								.arg(constrColorAttr).arg(Qt::escape(itrHLDefs.value().m_color.name()))
+								.arg(constrEnabledAttr).arg(itrHLDefs.value().m_bEnabled ? "True" : "False")
 								.toUtf8());
 	}
 	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrHighlighterDefinitionsTag).toUtf8());
@@ -577,8 +639,8 @@ bool CUserNotesDatabase::saveToFile(const QString &strFilePathName)
 	outUND.write(QString("</%1:%2>\n").arg(constrKJNPrefix).arg(constrKJNDocumentTag).toUtf8());
 
 	outUND.close();
-	fileUND.close();
 	m_bIsDirty = false;
+	m_pUserNotesDatabaseData->m_bIsDirty = false;
 
 	return true;
 }
@@ -589,21 +651,21 @@ void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const QString &strNote
 {
 	m_mapNotes[ndx].setText(strNote);
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeNoteFor(const CRelIndex &ndx)
 {
 	m_mapNotes.erase(ndx);
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeAllNotes()
 {
 	m_mapNotes.clear();
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 // ============================================================================
@@ -616,7 +678,7 @@ void CUserNotesDatabase::setHighlighterTagsFor(const QString &strUUID, const QSt
 
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName] = lstTags;
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::appendHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
@@ -627,7 +689,7 @@ void CUserNotesDatabase::appendHighlighterTagsFor(const QString &strUUID, const 
 
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTags);
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::appendHighlighterTagFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTag &lstTag)
@@ -638,7 +700,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(const QString &strUUID, const Q
 
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTag);
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName)
@@ -656,14 +718,14 @@ void CUserNotesDatabase::removeHighlighterTagsFor(const QString &strUUID, const 
 		(itr->second).erase(strUserDefinedHighlighterName);
 	}
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeAllHighlighterTags()
 {
 	m_mapHighlighterTags.clear();
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 // ============================================================================
@@ -674,7 +736,12 @@ void CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRel
 	m_mapCrossReference[ndxFirst].insert(ndxSecond);
 	m_mapCrossReference[ndxSecond].insert(ndxFirst);
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
+}
+
+void CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+{
+	// TODO : FINISH
 }
 
 void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
@@ -691,15 +758,70 @@ void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 	m_mapCrossReference.erase(ndx);		// Now, remove this index mapping to other indexes
 
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeAllCrossReferences()
 {
 	m_mapCrossReference.clear();
 	m_bIsDirty = true;
-	emit userNotesDatabaseHasChanged();
+	emit changedUserNotesDatabase();
 }
 
 // ============================================================================
 
+void CUserNotesDatabase::setHighlighterColor(const QString &strUserDefinedHighlighterName, const QColor &color)
+{
+	QColor colorOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color;
+	if (colorOriginal != color) {
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color = color;
+		emit changedHighlighter(strUserDefinedHighlighterName);
+		emit changedHighlighters();
+		m_pUserNotesDatabaseData->m_bIsDirty = true;
+	}
+}
+
+void CUserNotesDatabase::setHighlighterEnabled(const QString &strUserDefinedHighlighterName, bool bEnabled)
+{
+	bool bEnabledOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled;
+	if (bEnabledOriginal != bEnabled) {
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled = bEnabled;
+		emit changedHighlighter(strUserDefinedHighlighterName);
+		emit changedHighlighters();
+		m_pUserNotesDatabaseData->m_bIsDirty = true;
+	}
+}
+
+void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighlighterName)
+{
+	if (existsHighlighter(strUserDefinedHighlighterName)) {
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.remove(strUserDefinedHighlighterName);
+		emit removedHighlighter(strUserDefinedHighlighterName);
+		emit changedHighlighters();
+		m_pUserNotesDatabaseData->m_bIsDirty = true;
+	}
+}
+
+void CUserNotesDatabase::removeAllHighlighters()
+{
+	if (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.size()) {
+		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.clear();
+		emit changedHighlighters();
+		m_pUserNotesDatabaseData->m_bIsDirty = true;
+	}
+}
+
+void CUserNotesDatabase::toggleUserNotesDatabaseData(bool bCopy)
+{
+	TUserNotesDatabaseData *pSource = ((m_pUserNotesDatabaseData == &m_UserNotesDatabaseData1) ? &m_UserNotesDatabaseData1 : &m_UserNotesDatabaseData2);
+	TUserNotesDatabaseData *pTarget = ((m_pUserNotesDatabaseData == &m_UserNotesDatabaseData1) ? &m_UserNotesDatabaseData2 : &m_UserNotesDatabaseData1);
+
+	if (bCopy) *pTarget = *pSource;
+
+	m_pUserNotesDatabaseData = pTarget;
+
+	// Signal changes if we aren't copying and something changed:
+	if (!bCopy) {
+		if (pSource->m_mapHighlighterDefinitions != pTarget->m_mapHighlighterDefinitions) emit changedHighlighters();
+	}
+}

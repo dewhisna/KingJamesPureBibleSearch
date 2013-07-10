@@ -38,6 +38,7 @@
 #include <QDir>
 #include <QObject>
 #include <QProxyStyle>
+#include <QSharedPointer>
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -48,6 +49,7 @@
 #include "ReadDB.h"
 
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
 
 #include <assert.h>
 #include <iostream>
@@ -434,6 +436,8 @@ int main(int argc, char *argv[])
 	settings.setValue(constrFontSizeKey, app.font().pointSize());
 	settings.endGroup();
 
+	// Create default empty KJN file before we create CKJVCanOpener:
+	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:

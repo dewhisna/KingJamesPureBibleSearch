@@ -28,6 +28,7 @@
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -82,12 +83,13 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 		m_pColorButton(NULL)
 {
 	assert(pList != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	m_pColorButton = new QwwColorButton(pList);
 	m_pColorButton->setObjectName(QString("buttonHighlighterColor_%1").arg(strUserDefinedHighlighterName));
 	m_pColorButton->setShowName(false);			// Must do this before setting our real text
 	m_pColorButton->setText(strUserDefinedHighlighterName);
-	m_pColorButton->setCurrentColor(CPersistentSettings::instance()->userDefinedColor(strUserDefinedHighlighterName));
+	m_pColorButton->setCurrentColor(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
 	m_pColorButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setSizeHint(m_pColorButton->sizeHint());
 
@@ -116,6 +118,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	ui(new Ui::CKJVTextFormatConfig)
 {
 	assert(pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	ui->setupUi(this);
 
@@ -203,8 +206,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
-	const TUserDefinedColorMap &userDefinedColorMap = CPersistentSettings::instance()->userDefinedColorMap();
-	for (TUserDefinedColorMap::const_iterator itrHighlighters = userDefinedColorMap.constBegin(); itrHighlighters != userDefinedColorMap.constEnd(); ++itrHighlighters) {
+	const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, itrHighlighters.key());
 		ui->comboBoxHighlighters->addItem(itrHighlighters.key());
 	}
@@ -372,8 +375,9 @@ void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
 
 void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color)
 {
-	assert(CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
-	CPersistentSettings::instance()->setUserDefinedColor(strUserDefinedHighlighterName, color);
+	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, color);
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
@@ -387,17 +391,19 @@ void CKJVTextFormatConfig::en_HighlighterColorClicked(const QString &strUserDefi
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
-	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName.trimmed()));
-	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName.trimmed()));
+	assert(g_pUserNotesDatabase != NULL);
+	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 }
 
 void CKJVTextFormatConfig::en_addHighlighterClicked()
 {
+	assert(g_pUserNotesDatabase != NULL);
 	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
-	assert(!strUserDefinedHighlighterName.isEmpty() && !CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
-	if ((strUserDefinedHighlighterName.isEmpty()) || (CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName))) return;
+	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
-	CPersistentSettings::instance()->setUserDefinedColor(strUserDefinedHighlighterName, QColor());
+	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, QColor());
 	new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, strUserDefinedHighlighterName);
 	ui->comboBoxHighlighters->addItem(strUserDefinedHighlighterName);
 	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
@@ -410,12 +416,13 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 
 void CKJVTextFormatConfig::en_removeHighlighterClicked()
 {
+	assert(g_pUserNotesDatabase != NULL);
 	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
-	assert(!strUserDefinedHighlighterName.isEmpty() && CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
-	if ((strUserDefinedHighlighterName.isEmpty()) || (!CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName))) return;
+	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
-	CPersistentSettings::instance()->removeUserDefinedColor(strUserDefinedHighlighterName);
-	assert(!CPersistentSettings::instance()->existsUserDefinedColor(strUserDefinedHighlighterName));
+	g_pUserNotesDatabase->removeHighlighter(strUserDefinedHighlighterName);
+	assert(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
 	assert(nComboIndex != -1);
 	if (nComboIndex != -1) {
@@ -454,14 +461,15 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	uint32_t nNormalizedIndex = m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(ndxPreview) + 10;
 
 	for (int i = 0; i < 3; ++i) {
-		// Originally I had a const_iterator over the CPersistentSettings::userDefinedColorMap, but something
+		// Originally I had a const_iterator over the g_pUserNotesDatabase->highlighterDefinitionsMap, but something
 		//		in the process of doHighlighting kept invalidating our iterator and causing an infinite loop.
 		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
 		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
 			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx));
 			assert(pColorButton != NULL);
 			if (pColorButton == NULL) continue;
-			if (!CPersistentSettings::instance()->userDefinedColor(pColorButton->highlighterName()).isValid()) continue;
+			if (!g_pUserNotesDatabase->highlighterDefinition(pColorButton->highlighterName()).isValid()) continue;
+			if (!g_pUserNotesDatabase->highlighterEnabled(pColorButton->highlighterName())) continue;
 			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(pColorButton->highlighterName(),
 															TPhraseTag(CRelIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->DenormalizeIndex(nNormalizedIndex)), 5)));
 			nNormalizedIndex += 7;
@@ -519,11 +527,13 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	m_pButtonBox(NULL)
 {
 	assert(pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	// --------------------------------------------------------------
 
 	// Make a working copy of our settings:
 	CPersistentSettings::instance()->togglePersistentSettingData(true);
+	g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
 
 	// --------------------------------------------------------------
 
@@ -572,19 +582,25 @@ void CKJVConfigurationDialog::accept()
 
 void CKJVConfigurationDialog::reject()
 {
+	assert(g_pUserNotesDatabase != NULL);
+
 	// Restore original settings by switching back to the original
 	//		settings without copying:
 	CPersistentSettings::instance()->togglePersistentSettingData(false);
+	g_pUserNotesDatabase->toggleUserNotesDatabaseData(false);
 	QDialog::reject();
 }
 
 void CKJVConfigurationDialog::apply()
 {
+	assert(g_pUserNotesDatabase != NULL);
+
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent
 	//		as the user is "applying" them:
 	m_pConfiguration->saveSettings();
 	CPersistentSettings::instance()->togglePersistentSettingData(true);
+	g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
 	en_dataChanged();
 }
 

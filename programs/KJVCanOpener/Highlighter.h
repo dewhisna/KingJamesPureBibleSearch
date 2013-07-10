@@ -260,7 +260,7 @@ public:
 	QString highlighter(int ndx) const;
 
 protected slots:
-	void en_changedUserDefinedColors();
+	void en_changedHighlighters();
 	void en_highlighterSelectionChanged(QAction *pAction);
 
 protected:

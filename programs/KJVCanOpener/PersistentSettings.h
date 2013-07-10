@@ -32,8 +32,6 @@
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
-typedef QMap<QString, QColor> TUserDefinedColorMap;
-
 class CPersistentSettings : public QObject
 {
 	Q_OBJECT
@@ -61,9 +59,6 @@ public:
 	inline QColor colorWordsOfJesus() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
 	inline QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
 	inline QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
-	QColor userDefinedColor(const QString &strUserDefinedHighlighterName) const { return m_pPersistentSettingData->m_mapUserHighlighters.value(strUserDefinedHighlighterName, QColor()); }
-	bool existsUserDefinedColor(const QString &strUserDefinedHighlighterName) const { return (m_pPersistentSettingData->m_mapUserHighlighters.find(strUserDefinedHighlighterName) != m_pPersistentSettingData->m_mapUserHighlighters.constEnd()); }
-	inline const TUserDefinedColorMap &userDefinedColorMap() const { return m_pPersistentSettingData->m_mapUserHighlighters; }
 
 	void togglePersistentSettingData(bool bCopy);
 
@@ -80,9 +75,6 @@ signals:
 	void changedColorWordsOfJesus(const QColor &color);
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
-	void changedUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color);		// Note: If entire map is swapped or cleared, this signal isn't fired!
-	void removedUserDefinedColor(const QString &strUserDefinedHighlighterName);								// Note: If entire map is swapped or cleared, this signal isn't fired!
-	void changedUserDefinedColors();																		// Fired on both individual and entire UserDefinedColor map change
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -95,9 +87,6 @@ public slots:
 	void setColorWordsOfJesus(const QColor &color);
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
-	void setUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color);
-	void removeUserDefinedColor(const QString &strUserDefinedHighlighterName);
-	void removeAllUserDefinedColors();
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -122,7 +111,6 @@ private:
 		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
-		TUserDefinedColorMap m_mapUserHighlighters;		// Map of user defined color highlighters
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

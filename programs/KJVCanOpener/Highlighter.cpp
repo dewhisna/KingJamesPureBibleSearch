@@ -24,6 +24,7 @@
 #include "Highlighter.h"
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
 
 #include <QVariant>
 #include <QBrush>
@@ -244,13 +245,16 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 void CUserDefinedHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
+	assert(g_pUserNotesDatabase != NULL);
+	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+
 	if ((!bClear) && (enabled()) &&
-		(CPersistentSettings::instance()->existsUserDefinedColor(m_strUserDefinedHighlighterName)) &&
-		(CPersistentSettings::instance()->userDefinedColor(m_strUserDefinedHighlighterName).isValid())) {
+		(highlighterDefinition.isValid()) &&
+		(highlighterDefinition.m_bEnabled)) {
 		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH)) {
 			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
 		}
-		aFormat.setBackground(QBrush(CPersistentSettings::instance()->userDefinedColor(m_strUserDefinedHighlighterName)));
+		aFormat.setBackground(QBrush(highlighterDefinition.m_color));
 	} else {
 		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH))
 			aFormat.setBackground(aFormat.property(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH).value<QBrush>());
@@ -290,6 +294,7 @@ void CUserDefinedHighlighter::clearPhraseTags()
 CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 {
 	assert(pParent != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	m_lstButtons.clear();
 	m_lstActionGroups.clear();
@@ -305,6 +310,8 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 		setHighlighterList(ndx);
 		pParent->addWidget(pButtonHighlighter);
 	}
+
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 }
 
 CHighlighterButtons::~CHighlighterButtons()
@@ -312,7 +319,7 @@ CHighlighterButtons::~CHighlighterButtons()
 
 }
 
-void CHighlighterButtons::en_changedUserDefinedColors()
+void CHighlighterButtons::en_changedHighlighters()
 {
 	setHighlighterLists();
 }
@@ -326,6 +333,7 @@ void CHighlighterButtons::setHighlighterLists()
 
 void CHighlighterButtons::setHighlighterList(int ndx)
 {
+	assert(g_pUserNotesDatabase != NULL);
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 	assert(m_lstButtons.size() == m_lstActionGroups.size());
 	assert(m_lstButtons.at(ndx) != NULL);
@@ -343,8 +351,9 @@ void CHighlighterButtons::setHighlighterList(int ndx)
 	m_lstActionGroups[ndx]->setExclusive(true);
 
 	assert(m_lstButtons[ndx]->menu() != NULL);
-	const TUserDefinedColorMap &mapHighlighters(CPersistentSettings::instance()->userDefinedColorMap());
+	const TUserDefinedColorMap &mapHighlighters(g_pUserNotesDatabase->highlighterDefinitionsMap());
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
+		if ((!itrHighlighters->isValid()) || (!itrHighlighters->m_bEnabled)) continue;
 		QAction *pAction = new QAction(itrHighlighters.key(), m_lstActionGroups[ndx]);
 		pAction->setData(ndx);
 		pAction->setCheckable(true);
@@ -358,6 +367,7 @@ void CHighlighterButtons::setHighlighterList(int ndx)
 
 void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName)
 {
+	assert(g_pUserNotesDatabase != NULL);
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
@@ -366,7 +376,7 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 		QPixmap pixHighlighter(":res/highlighter_white_01-256.png");
 		QBitmap bmHighlighterMask = pixHighlighter.createMaskFromColor(QColor(255, 255, 255), Qt::MaskOutColor);		// Mask white panel
 		QPainter paintHighlighter(&pixHighlighter);
-		paintHighlighter.setPen(CPersistentSettings::instance()->userDefinedColor(strUserDefinedHighlighterName));
+		paintHighlighter.setPen(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
 		paintHighlighter.drawPixmap(pixHighlighter.rect(), bmHighlighterMask, bmHighlighterMask.rect());
 		paintHighlighter.end();
 		m_lstButtons[ndx]->setIcon(QIcon(pixHighlighter));

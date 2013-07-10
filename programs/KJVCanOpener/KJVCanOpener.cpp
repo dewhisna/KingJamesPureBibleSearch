@@ -80,18 +80,19 @@ namespace {
 
 	// Colors:
 	const QString constrColorsGroup("Colors");
-	const QString constrColorsHighlightersSubgroup("Highlighters");
 	const QString constrWordsOfJesusColorKey("WordsOfJesusColor");
 	const QString constrSearchResultsColorKey("SearchResultsColor");
 	const QString constrCursorTrackerColorKey("CursorTrackerColor");
-	const QString constrHighlighterNameKey("HighlighterName");
-	const QString constrHighlighterColorKey("HighlighterColor");
 
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
 	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
 	const QString constrGeometryKey("Geometry");
 	const QString constrWindowStateKey("WindowState");
+
+	// UserNotesDatabase:
+	const QString constrUserNotesDatabaseGroup("UserNotesDatabase");
+	const QString constrFilePathNameKey("FilePathName");
 
 	// Search Phrases:
 	const QString constrLastSearchGroup("LastSearch");
@@ -492,21 +493,15 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
 	settings.endGroup();
 
-	int ndxColor = 0;
-	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-	settings.remove("");
-	const TUserDefinedColorMap &userDefinedColorMap = CPersistentSettings::instance()->userDefinedColorMap();
-	for (TUserDefinedColorMap::const_iterator itrHighlighters = userDefinedColorMap.constBegin(); itrHighlighters != userDefinedColorMap.constEnd(); ++itrHighlighters) {
-		settings.setArrayIndex(ndxColor);
-		settings.setValue(constrHighlighterNameKey, itrHighlighters.key());
-		settings.setValue(constrHighlighterColorKey, itrHighlighters->name());
-		ndxColor++;
-	}
-	settings.endArray();
-
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
 	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
+	settings.endGroup();
+
+	// User Notes Database:
+	assert(g_pUserNotesDatabase != NULL);
+	settings.beginGroup(constrUserNotesDatabaseGroup);
+	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
 	settings.endGroup();
 
 	// Search Results mode:
@@ -564,25 +559,21 @@ void CKJVCanOpener::restorePersistentSettings()
 	CPersistentSettings::instance()->setColorCursorFollow(clrTemp);
 	settings.endGroup();
 
-	int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-	if (nColors != 0) {
-		CPersistentSettings::instance()->removeAllUserDefinedColors();
-		for (int ndxColor = 0; ndxColor < nColors; ++ndxColor) {
-			settings.setArrayIndex(ndxColor);
-			QString strHighlighterName = settings.value(constrHighlighterNameKey, -1).toString();
-			QString strColorName = settings.value(constrHighlighterColorKey, QString()).toString();
-			if ((!strHighlighterName.isEmpty()) && (!strColorName.isEmpty())) {
-				clrTemp.setNamedColor(strColorName);
-				CPersistentSettings::instance()->setUserDefinedColor(strHighlighterName, clrTemp);
-			}
-		}
-	}
-	settings.endArray();
-
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
 	m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
 	settings.endGroup();
+
+	// User Notes Database:
+	assert(g_pUserNotesDatabase != NULL);
+	settings.beginGroup(constrUserNotesDatabaseGroup);
+	g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
+	settings.endGroup();
+	if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
+		if (!g_pUserNotesDatabase->load()) {
+			QMessageBox::warning(this, tr("King James User Notes Database Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
+		}
+	}
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
@@ -739,6 +730,7 @@ void CKJVCanOpener::en_OpenSearch()
 
 // TODO : REMOVE THIS TEST CODE:
 
+/*
 	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), QString(), NULL, QFileDialog::ReadOnly);
 	if (strFilePathName.isEmpty()) return;
 	CUserNotesDatabase und;
@@ -751,7 +743,7 @@ void CKJVCanOpener::en_OpenSearch()
 
 	return;
 
-
+*/
 
 
 
@@ -773,7 +765,7 @@ void CKJVCanOpener::en_SaveSearch()
 // TODO : REMOVE THIS TEST CODE:
 
 
-
+/*
 	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
 	if (strFilePathName.isEmpty()) return;
 	CUserNotesDatabase und;
@@ -798,7 +790,7 @@ void CKJVCanOpener::en_SaveSearch()
 
 	return;
 
-
+*/
 
 
 

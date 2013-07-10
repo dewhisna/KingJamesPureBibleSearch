@@ -30,10 +30,37 @@
 #include <map>
 #include <QtXml>
 #include <QSharedPointer>
+#include <QIODevice>
 
 // ============================================================================
 
 #define KJN_FILE_VERSION 1				// Current KJN File Version (King James Notes file)
+
+// ============================================================================
+
+class TUserDefinedColor
+{
+public:
+	explicit TUserDefinedColor(const QColor &color = QColor(), bool bEnabled = true)
+		:	m_color(color),
+			m_bEnabled(bEnabled)
+	{ }
+
+	bool isValid() const { return m_color.isValid(); }
+
+	inline bool operator==(const TUserDefinedColor &other) const {
+		return ((m_color == other.m_color) && (m_bEnabled == m_bEnabled));
+	}
+	inline bool operator!=(const TUserDefinedColor &other) const {
+		return (!operator==(other));
+	}
+
+	QColor m_color;
+	bool m_bEnabled;
+};
+
+typedef QMap<QString, TUserDefinedColor> TUserDefinedColorMap;
+
 
 // ============================================================================
 
@@ -54,14 +81,19 @@ public:
 	CUserNotesDatabase(QObject *pParent = NULL);
 	virtual ~CUserNotesDatabase();
 
-	inline bool isDirty() const { return m_bIsDirty; }
+	inline bool isDirty() const { return m_bIsDirty || m_pUserNotesDatabaseData->m_bIsDirty; }
 	void clear();
 	inline int version() const { return m_nVersion; }
 
+	QString filePathName() const { return m_strFilePathName; }
+	void setFilePathName(const QString &strFilePathName) { m_strFilePathName = strFilePathName; }
+
 	// --------------------
 
-	bool loadFromFile(const QString &strFilePathName);
-	bool saveToFile(const QString &strFilePathName);
+	bool load();
+	bool load(QIODevice *pIODevice);
+	bool save();
+	bool save(QIODevice *pIODevice);
 	QString lastLoadSaveError() const { return m_strLastError; }
 
 	// --------------------
@@ -115,19 +147,34 @@ public:
 		return (itr->second);
 	}
 	void setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);
+	void removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);
 	void removeCrossReferencesFor(const CRelIndex &ndx);
 	void removeAllCrossReferences();
 
 	// --------------------
 
-	inline const TUserDefinedColorMap &loadedHighlighterDefinitions() const { return m_mapHighlighterDefinitions; }			// Highlighter Definitions loaded from KJN File or to save in KJN
-	void setHighlighterDefinitions(const TUserDefinedColorMap &mapHighlighterColors) { m_mapHighlighterDefinitions = mapHighlighterColors; }	// See note below (No "changed" signal!)
+	QColor highlighterColor(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()).m_color; }
+	bool highlighterEnabled(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()).m_bEnabled; }
+	bool existsHighlighter(const QString &strUserDefinedHighlighterName) const { return (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.find(strUserDefinedHighlighterName) != m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constEnd()); }
+	const TUserDefinedColor highlighterDefinition(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()); }
+	inline const TUserDefinedColorMap &highlighterDefinitionsMap() const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions; }
 
-	// --------------------
+	void toggleUserNotesDatabaseData(bool bCopy);
+
+public slots:
+	void setHighlighterColor(const QString &strUserDefinedHighlighterName, const QColor &color);
+	void setHighlighterEnabled(const QString &strUserDefinedHighlighterName, bool bEnabled);
+	void removeHighlighter(const QString &strUserDefinedHighlighterName);
+	void removeAllHighlighters();
 
 signals:
-	void userNotesDatabaseHasChanged();
+	void changedHighlighter(const QString &strUserDefinedHighlighterName);		// Note: If entire map is swapped or cleared, this signal isn't fired!
+	void removedHighlighter(const QString &strUserDefinedHighlighterName);		// Note: If entire map is swapped or cleared, this signal isn't fired!
+	void changedHighlighters();													// Fired on both individual and entire UserDefinedColor map change
 
+	void changedUserNotesDatabase();
+
+	// --------------------
 
 protected:
 	// XML Parsing overrides:
@@ -149,13 +196,32 @@ private:
 	}
 
 private:
+	// m_UserNotesDatabaseData1 and m_UserNotesDatabaseData2 are
+	//		two complete copies of our user notes database data.  Only
+	//		one will be active and used at any given time.  Classes
+	//		like KJVConfiguration can request that the settings be
+	//		copied to the other copy and that other copy made to be
+	//		the main copy for preview purposes so that controls will
+	//		appear with the new set of settings.  When it's done with
+	//		it, it can either revert back to the original copy without
+	//		copying it back or leave the new settings to be the new
+	//		settings.
+	class TUserNotesDatabaseData {
+	public:
+		TUserNotesDatabaseData();
+
+		TUserDefinedColorMap m_mapHighlighterDefinitions;	// Highlighter Definitions Read from the KJN File, used for merging with the Program Main Configuration
+		bool m_bIsDirty;
+	} m_UserNotesDatabaseData1, m_UserNotesDatabaseData2, *m_pUserNotesDatabaseData;
+
 	TFootnoteEntryMap m_mapNotes;						// User notes, kept in the same format as our footnotes database
 	TBibleDBHighlighterTagMap m_mapHighlighterTags;		// Tags to highlight by Bible Database compatibility and Highlighter name
 	TCrossReferenceMap m_mapCrossReference;				// Cross reference of passage to other passages
-	//		Note: m_mapHighlighterDefinitions is not considered part of the KJN data proper, used in load/save to read/set highligher definitions from the main app settings:
-	TUserDefinedColorMap m_mapHighlighterDefinitions;	// Highlighter Definitions Read from the KJN File, used for merging with the Program Main Configuration
+
+	QString m_strFilePathName;							// FilePathName of KJN used on load/save and available for saving in persistent settings for this KJN when setting as the default file
 	bool m_bIsDirty;									// True when the document has been modified
 	int m_nVersion;										// Version of the file read
+
 	QString m_strLastError;								// Last error during load/save
 
 	// ---- XML Temp Parsing varaibles:
@@ -167,6 +233,7 @@ private:
 	QString m_strDatabaseUUID;							// Bible Database UUID attribute when present
 	QString m_strHighlighterName;						// HighlighterName attribute when present
 	QString m_strColor;									// Color attribute when present
+	bool m_bEnabled;									// Enabled attribute when present
 	bool m_bInKJNDocument;								// Inside <KJNDocument> tag
 	bool m_bInKJNDocumentText;							// Inside <KJNDocumentText> tag
 	bool m_bInNotes;									// Inside <Notes> tag
@@ -182,17 +249,18 @@ private:
 	bool m_bInHighlighterDef;							// Processing <HighlighterDef> tag
 };
 
-
 typedef QSharedPointer<CUserNotesDatabase> CUserNotesDatabasePtr;
 
-typedef QList<CUserNotesDatabasePtr> TUserNotesDatabaseList;
+// Currently we only allow a single notes database.  Uncomment this to enable multiple:
+//typedef QList<CUserNotesDatabasePtr> TUserNotesDatabaseList;
 
 // ============================================================================
 
 // Global Variables:
 
-extern CUserNotesDatabasePtr g_pMainUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
-extern TUserNotesDatabaseList g_lstUserNotesDatabases;
+extern CUserNotesDatabasePtr g_pUserNotesDatabase;		// Main User Notes Database (database currently active for user use)
+// Currently we only allow a single notes database.  Uncomment this to enable multiple:
+//extern TUserNotesDatabaseList g_lstUserNotesDatabases;
 
 // ============================================================================
 

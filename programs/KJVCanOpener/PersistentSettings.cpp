@@ -70,11 +70,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue"))
 {
-	// Set Default Highlighters:
-	m_mapUserHighlighters[tr("Basic Highlighter #1")] = QColor(255, 255, 170);			// "yellow" highlighter
-	m_mapUserHighlighters[tr("Basic Highlighter #2")] = QColor(170, 255, 255);			// "blue" highlighter
-	m_mapUserHighlighters[tr("Basic Highlighter #3")] = QColor(170, 255, 170);			// "green" highligher
-	m_mapUserHighlighters[tr("Basic Highlighter #4")] = QColor(255, 170, 255);			// "pink" highlighter
+
 }
 
 // ============================================================================
@@ -124,8 +120,6 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedColorWordsOfJesus(pTarget->m_clrWordsOfJesus);
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
-
-		if (pSource->m_mapUserHighlighters != pTarget->m_mapUserHighlighters) emit changedUserDefinedColors();
 	}
 }
 
@@ -208,24 +202,3 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
 }
 
-void CPersistentSettings::setUserDefinedColor(const QString &strUserDefinedHighlighterName, const QColor &color)
-{
-	m_pPersistentSettingData->m_mapUserHighlighters[strUserDefinedHighlighterName] = color;
-	emit changedUserDefinedColor(strUserDefinedHighlighterName, color);
-	emit changedUserDefinedColors();
-}
-
-void CPersistentSettings::removeUserDefinedColor(const QString &strUserDefinedHighlighterName)
-{
-	if (existsUserDefinedColor(strUserDefinedHighlighterName)) {
-		m_pPersistentSettingData->m_mapUserHighlighters.remove(strUserDefinedHighlighterName);
-		emit removedUserDefinedColor(strUserDefinedHighlighterName);
-		emit changedUserDefinedColors();
-	}
-}
-
-void CPersistentSettings::removeAllUserDefinedColors()
-{
-	m_pPersistentSettingData->m_mapUserHighlighters.clear();
-	emit changedUserDefinedColors();
-}
