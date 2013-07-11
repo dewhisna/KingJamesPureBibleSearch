@@ -32,6 +32,8 @@
 
 #include <QIcon>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QScrollBar>
 #include <QGridLayout>
 #include <QSplitter>
 #include <QSizePolicy>
@@ -39,6 +41,7 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QwwColorButton>
+#include <QCheckBox>
 
 // ============================================================================
 
@@ -48,6 +51,7 @@ CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(C
 {
 	connect(this, SIGNAL(colorPicked(const QString &, const QColor &)), pConfigurator, SLOT(en_HighlighterColorPicked(const QString &, const QColor &)));
 	connect(this, SIGNAL(colorClicked(const QString &)), pConfigurator, SLOT(en_HighlighterColorClicked(const QString &)));
+	connect(this, SIGNAL(enableChanged(const QString &, bool)), pConfigurator, SLOT(en_HighlighterEnableChanged(const QString &, bool)));
 }
 
 CHighlighterColorButtonSignalReflector::~CHighlighterColorButtonSignalReflector()
@@ -65,6 +69,11 @@ void CHighlighterColorButtonSignalReflector::en_clicked()
 	emit colorClicked(m_strUserDefinedHighlighterName);
 }
 
+void CHighlighterColorButtonSignalReflector::en_enableClicked(bool bEnabled)
+{
+	emit enableChanged(m_strUserDefinedHighlighterName, bEnabled);
+}
+
 // ============================================================================
 
 class CHighlighterColorButton : public CHighlighterColorButtonSignalReflector, public QListWidgetItem
@@ -74,31 +83,61 @@ public:
 	~CHighlighterColorButton();
 
 private:
+	QWidget *m_pWidget;
+	QHBoxLayout *m_pHorzLayout;
 	QwwColorButton *m_pColorButton;
+	QCheckBox *m_pEnableCheckbox;
 };
 
 CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName)
 	:	CHighlighterColorButtonSignalReflector(pConfigurator, strUserDefinedHighlighterName),
 		QListWidgetItem(pList, 0),
-		m_pColorButton(NULL)
+		m_pWidget(NULL),
+		m_pHorzLayout(NULL),
+		m_pColorButton(NULL),
+		m_pEnableCheckbox(NULL)
 {
 	assert(pList != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
-	m_pColorButton = new QwwColorButton(pList);
+	m_pWidget = new QWidget(pList);
+	m_pWidget->setObjectName(QString("widget_%1").arg(strUserDefinedHighlighterName));
+
+	m_pHorzLayout = new QHBoxLayout(m_pWidget);
+	m_pHorzLayout->setObjectName(QString("hboxLayout_%1").arg(strUserDefinedHighlighterName));
+	m_pHorzLayout->setMargin(0);
+	m_pHorzLayout->setContentsMargins(0, 0, 0, 0);
+
+	m_pColorButton = new QwwColorButton(m_pWidget);
 	m_pColorButton->setObjectName(QString("buttonHighlighterColor_%1").arg(strUserDefinedHighlighterName));
 	m_pColorButton->setShowName(false);			// Must do this before setting our real text
 	m_pColorButton->setText(strUserDefinedHighlighterName);
 	m_pColorButton->setCurrentColor(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
-	m_pColorButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	setSizeHint(m_pColorButton->sizeHint());
+	m_pColorButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	m_pColorButton->updateGeometry();
+	m_pColorButton->setMinimumWidth(m_pColorButton->sizeHint().width());
+	m_pHorzLayout->addWidget(m_pColorButton);
 
-	pList->setItemWidget(this, m_pColorButton);
-//	pList->setMinimumWidth(qMax(m_pColorButton->minimumWidth(), pList->minimumWidth()));
-	pList->setMinimumWidth(pList->sizeHint().width());
+	m_pEnableCheckbox = new QCheckBox(m_pWidget);
+	m_pEnableCheckbox->setObjectName(QString("checkbox_%1").arg(strUserDefinedHighlighterName));
+	m_pEnableCheckbox->setCheckable(true);
+	m_pEnableCheckbox->setChecked(g_pUserNotesDatabase->highlighterEnabled(strUserDefinedHighlighterName));
+	m_pEnableCheckbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	m_pEnableCheckbox->setText(tr("Enabled"));
+	m_pEnableCheckbox->setToolTip(tr("Enable/Disable this highlighter"));
+	m_pEnableCheckbox->updateGeometry();
+	m_pHorzLayout->addWidget(m_pEnableCheckbox);
+
+	m_pHorzLayout->addStretch(0);
+
+	m_pWidget->setLayout(m_pHorzLayout);
+	m_pWidget->updateGeometry();
+	setSizeHint(m_pWidget->sizeHint());
+	pList->setItemWidget(this, m_pWidget);
 
 	connect(m_pColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_colorPicked(const QColor &)));
 	connect(m_pColorButton, SIGNAL(clicked()), this, SLOT(en_clicked()));
+	connect(m_pEnableCheckbox, SIGNAL(clicked(bool)), this, SLOT(en_enableClicked(bool)));
 }
 
 CHighlighterColorButton::~CHighlighterColorButton()
@@ -184,23 +223,30 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	ui->buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
 	toQwwColorButton(ui->buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
+	ui->buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonWordsOfJesusColor);
 
 	ui->buttonSearchResultsColor = new QwwColorButton(this);
 	ui->buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
 	toQwwColorButton(ui->buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonSearchResultsColor->setText(tr("Search Results"));
+	ui->buttonSearchResultsColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonSearchResultsColor);
 
 	ui->buttonCursorFollowColor = new QwwColorButton(this);
 	ui->buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
 	toQwwColorButton(ui->buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonCursorFollowColor->setText(tr("Cursor Tracker"));
+	ui->buttonCursorFollowColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonCursorFollowColor);
 
 	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
 	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
+
+	ui->buttonWordsOfJesusColor->updateGeometry();
+	ui->buttonSearchResultsColor->updateGeometry();
+	ui->buttonCursorFollowColor->updateGeometry();
 
 	connect(toQwwColorButton(ui->buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
@@ -211,6 +257,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, itrHighlighters.key());
 		ui->comboBoxHighlighters->addItem(itrHighlighters.key());
 	}
+	recalcColorListWidth();
 
 	ui->comboBoxHighlighters->clearEditText();
 	ui->toolButtonAddHighlighter->setEnabled(false);
@@ -221,8 +268,6 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	connect(ui->toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
 	connect(ui->toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
-
-	updateGeometry();
 
 	// --------------------------------------------------------------
 
@@ -378,6 +423,7 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 	assert(g_pUserNotesDatabase != NULL);
 	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, color);
+	recalcColorListWidth();			// If color was previously invalid and is now valid, we'll have a preview to paint and so the width can change
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
@@ -387,6 +433,17 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 void CKJVTextFormatConfig::en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName)
 {
 	ui->comboBoxHighlighters->setEditText(strUserDefinedHighlighterName);
+}
+
+void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled)
+{
+	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	g_pUserNotesDatabase->setHighlighterEnabled(strUserDefinedHighlighterName, bEnabled);
+	navigateToDemoText();
+	m_bIsDirty = true;
+	emit dataChanged();
+	en_HighlighterColorClicked(strUserDefinedHighlighterName);
 }
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
@@ -408,6 +465,8 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 	ui->comboBoxHighlighters->addItem(strUserDefinedHighlighterName);
 	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
 	en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
+
+	recalcColorListWidth();
 
 	navigateToDemoText();
 	m_bIsDirty = true;
@@ -444,9 +503,28 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 		delete pItem;
 	}
 
+	recalcColorListWidth();
+
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::recalcColorListWidth()
+{
+	ui->listWidgetHighlighterColors->setMinimumWidth(0);
+	ui->listWidgetHighlighterColors->updateGeometry();
+	int nWidth = 0;
+	for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
+		QWidget *pButton = ui->listWidgetHighlighterColors->itemWidget(ui->listWidgetHighlighterColors->item(ndx));
+		pButton->updateGeometry();
+		pButton->setMinimumWidth(pButton->sizeHint().width());
+		ui->listWidgetHighlighterColors->item(ndx)->setSizeHint(pButton->sizeHint());
+		nWidth = qMax(nWidth, pButton->sizeHint().width());
+	}
+	ui->listWidgetHighlighterColors->setMinimumWidth(nWidth + ui->listWidgetHighlighterColors->verticalScrollBar()->sizeHint().width() + ui->listWidgetHighlighterColors->spacing()*2 );
+	updateGeometry();
+	adjustSize();
 }
 
 void CKJVTextFormatConfig::navigateToDemoText()

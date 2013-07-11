@@ -58,10 +58,12 @@ public:
 signals:
 	void colorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
 	void colorClicked(const QString &strUserDefinedHighlighterName);
+	void enableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled);
 
 public slots:
 	void en_colorPicked(const QColor &color);
 	void en_clicked();
+	void en_enableClicked(bool bEnabled);
 
 private:
 	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use from persistent settings
@@ -103,6 +105,7 @@ public slots:
 	void en_CursorTrackerColorPicked(const QColor &color);
 	void en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);
 	void en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName);
+	void en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled);
 
 	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
 	void en_addHighlighterClicked();
@@ -110,6 +113,9 @@ public slots:
 
 	void navigateToDemoText();
 	void setPreview();
+
+private:
+	void recalcColorListWidth();
 
 // Private Data:
 private:
