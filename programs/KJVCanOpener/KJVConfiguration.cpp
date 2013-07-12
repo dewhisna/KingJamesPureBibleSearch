@@ -223,34 +223,32 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	ui->buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
 	toQwwColorButton(ui->buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
-	ui->buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	ui->buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonWordsOfJesusColor);
 
 	ui->buttonSearchResultsColor = new QwwColorButton(this);
 	ui->buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
 	toQwwColorButton(ui->buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonSearchResultsColor->setText(tr("Search Results"));
-	ui->buttonSearchResultsColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	ui->buttonSearchResultsColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonSearchResultsColor);
 
 	ui->buttonCursorFollowColor = new QwwColorButton(this);
 	ui->buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
 	toQwwColorButton(ui->buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
 	ui->buttonCursorFollowColor->setText(tr("Cursor Tracker"));
-	ui->buttonCursorFollowColor->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	ui->buttonCursorFollowColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui->vertLayoutColorOptions->addWidget(ui->buttonCursorFollowColor);
 
 	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
 	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
 
-	ui->buttonWordsOfJesusColor->updateGeometry();
-	ui->buttonSearchResultsColor->updateGeometry();
-	ui->buttonCursorFollowColor->updateGeometry();
-
 	connect(toQwwColorButton(ui->buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
+
+	ui->listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
 
 	const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
@@ -268,6 +266,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	connect(ui->toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
 	connect(ui->toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
+
+	connect(ui->listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
 
 	// --------------------------------------------------------------
 
@@ -508,6 +508,15 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious)
+{
+	Q_UNUSED(pPrevious);
+	if (pCurrent != NULL) {
+		CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(pCurrent);
+		en_HighlighterColorClicked(pButtonItem->highlighterName());
+	}
 }
 
 void CKJVTextFormatConfig::recalcColorListWidth()

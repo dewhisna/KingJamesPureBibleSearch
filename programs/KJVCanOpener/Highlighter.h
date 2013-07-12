@@ -259,6 +259,10 @@ public:
 
 	QString highlighter(int ndx) const;
 
+public slots:
+	void enterConfigurationMode();
+	void leaveConfigurationMode();
+
 protected slots:
 	void en_changedHighlighters();
 	void en_highlighterSelectionChanged(QAction *pAction);

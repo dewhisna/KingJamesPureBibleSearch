@@ -41,6 +41,7 @@ class CSearchResultsTreeView;
 class CScriptureBrowser;
 class QwwColorButton;
 class CKJVTextFormatConfig;
+class QListWidgetItem;
 
 // ============================================================================
 
@@ -110,6 +111,7 @@ public slots:
 	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
 	void en_addHighlighterClicked();
 	void en_removeHighlighterClicked();
+	void en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious);
 
 	void navigateToDemoText();
 	void setPreview();

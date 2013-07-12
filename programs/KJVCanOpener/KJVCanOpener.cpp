@@ -34,7 +34,6 @@
 #include "PersistentSettings.h"
 #include "KJVConfiguration.h"
 #include "UserNotesDatabase.h"
-#include "Highlighter.h"
 
 #include <assert.h>
 
@@ -151,6 +150,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSplitter(NULL),
 	m_pSearchResultWidget(NULL),
 	m_pBrowserWidget(NULL),
+	m_pHighlighterToolButtons(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -412,7 +412,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// -------------------- Hightlighter Toolbar:
 
-	new CHighlighterButtons(ui->highlighterToolBar);
+	m_pHighlighterToolButtons = new CHighlighterButtons(ui->highlighterToolBar);
 
 
 	// -------------------- Quick Activate:
@@ -1300,9 +1300,14 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure()
 {
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, this);
+	assert(m_pHighlighterToolButtons != NULL);
 
+	if (m_pHighlighterToolButtons != NULL) m_pHighlighterToolButtons->enterConfigurationMode();
+
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, this);
 	dlgConfigure.exec();
+
+	if (m_pHighlighterToolButtons != NULL) m_pHighlighterToolButtons->leaveConfigurationMode();
 }
 
 void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)

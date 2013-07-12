@@ -31,6 +31,7 @@
 #include "KJVSearchSpec.h"
 #include "KJVSearchResult.h"
 #include "KJVBrowser.h"
+#include "Highlighter.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -168,6 +169,7 @@ private:
 	QSplitter *m_pSplitter;
 	CKJVSearchResult *m_pSearchResultWidget;
 	CKJVBrowser *m_pBrowserWidget;
+	CHighlighterButtons *m_pHighlighterToolButtons;
 	Ui::CKJVCanOpener *ui;
 };
 

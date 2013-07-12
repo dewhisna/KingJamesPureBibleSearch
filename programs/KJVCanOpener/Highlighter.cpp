@@ -319,6 +319,17 @@ CHighlighterButtons::~CHighlighterButtons()
 
 }
 
+void CHighlighterButtons::enterConfigurationMode()
+{
+	disconnect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
+}
+
+void CHighlighterButtons::leaveConfigurationMode()
+{
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
+	setHighlighterLists();
+}
+
 void CHighlighterButtons::en_changedHighlighters()
 {
 	setHighlighterLists();
