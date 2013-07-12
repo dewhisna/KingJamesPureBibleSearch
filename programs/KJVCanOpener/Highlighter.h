@@ -258,6 +258,8 @@ public:
 	}
 
 	QString highlighter(int ndx) const;
+	void setHighlighterLists();
+	void setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName = QString());
 
 public slots:
 	void enterConfigurationMode();
@@ -268,8 +270,6 @@ protected slots:
 	void en_highlighterSelectionChanged(QAction *pAction);
 
 protected:
-	void setHighlighterLists();
-	void setHighlighterList(int ndx);
 	void setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName);
 
 private:

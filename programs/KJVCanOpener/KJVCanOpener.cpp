@@ -79,9 +79,11 @@ namespace {
 
 	// Colors:
 	const QString constrColorsGroup("Colors");
+	const QString constrColorsHighlightersSubgroup("Highlighters");
 	const QString constrWordsOfJesusColorKey("WordsOfJesusColor");
 	const QString constrSearchResultsColorKey("SearchResultsColor");
 	const QString constrCursorTrackerColorKey("CursorTrackerColor");
+	const QString constrHighlighterNameKey("HighlighterName");
 
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
@@ -504,6 +506,16 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
 	settings.endGroup();
 
+	// Highlighter Tool Bar:
+	assert(m_pHighlighterToolButtons != NULL);
+	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+	settings.remove("");
+	for (int ndxColor = 0; ndxColor < m_pHighlighterToolButtons->count(); ++ndxColor) {
+		settings.setArrayIndex(ndxColor);
+		settings.setValue(constrHighlighterNameKey, m_pHighlighterToolButtons->highlighter(ndxColor));
+	}
+	settings.endArray();
+
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
 	settings.setValue(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode());
@@ -574,6 +586,30 @@ void CKJVCanOpener::restorePersistentSettings()
 			QMessageBox::warning(this, tr("King James User Notes Database Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
 		}
 	}
+
+	// Highlighter Tool Bar (must be after loading the User Notes Database):
+	assert(m_pHighlighterToolButtons != NULL);
+	int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+	if (nColors != 0) {
+		for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterToolButtons->count())); ++ndxColor) {
+			settings.setArrayIndex(ndxColor);
+			QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
+			m_pHighlighterToolButtons->setHighlighterList(ndxColor, strHighlighterName);
+		}
+	} else {
+		// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
+		if (g_pUserNotesDatabase->filePathName().isEmpty()) {
+			const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+			int ndxColor = 0;
+			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
+							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterToolButtons->count()));
+							++itrHighlighters) {
+				m_pHighlighterToolButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+				ndxColor++;
+			}
+		}
+	}
+	settings.endArray();
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);

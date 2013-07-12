@@ -342,19 +342,21 @@ void CHighlighterButtons::setHighlighterLists()
 	}
 }
 
-void CHighlighterButtons::setHighlighterList(int ndx)
+void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName)
 {
 	assert(g_pUserNotesDatabase != NULL);
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 	assert(m_lstButtons.size() == m_lstActionGroups.size());
 	assert(m_lstButtons.at(ndx) != NULL);
-	QString strHighlighter;
+	QString strHighlighter = strUserDefinedHighlighterName;
 	if (m_lstActionGroups.at(ndx) == NULL) {
 		m_lstActionGroups[ndx] = new QActionGroup(this);
 	} else {
-		QAction *pCurrentAction = m_lstActionGroups.at(ndx)->checkedAction();
-		if (pCurrentAction != NULL) {
-			strHighlighter = pCurrentAction->text();
+		if (strHighlighter.isEmpty()) {
+			QAction *pCurrentAction = m_lstActionGroups.at(ndx)->checkedAction();
+			if (pCurrentAction != NULL) {
+				strHighlighter = pCurrentAction->text();
+			}
 		}
 		delete m_lstActionGroups[ndx];
 		m_lstActionGroups[ndx] = new QActionGroup(this);
