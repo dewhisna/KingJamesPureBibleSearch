@@ -29,6 +29,7 @@
 #include "KJVSearchCriteria.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#include "Highlighter.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -42,6 +43,7 @@
 #include <QListWidgetItem>
 #include <QwwColorButton>
 #include <QCheckBox>
+#include <QLineEdit>
 
 // ============================================================================
 
@@ -258,6 +260,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	recalcColorListWidth();
 
 	ui->comboBoxHighlighters->clearEditText();
+	ui->comboBoxHighlighters->lineEdit()->setMaxLength(MAX_HIGHLIGHTER_NAME_SIZE);
 	ui->toolButtonAddHighlighter->setEnabled(false);
 	ui->toolButtonRemoveHighlighter->setEnabled(false);
 
@@ -449,7 +452,8 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
 	assert(g_pUserNotesDatabase != NULL);
-	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
+													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 }
 
@@ -459,6 +463,7 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
+	if (strUserDefinedHighlighterName.size() > MAX_HIGHLIGHTER_NAME_SIZE) return;
 
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, QColor());
 	new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, strUserDefinedHighlighterName);

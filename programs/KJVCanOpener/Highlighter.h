@@ -241,6 +241,8 @@ private:
 // ============================================================================
 // ============================================================================
 
+#define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
+
 class CHighlighterButtons : public QObject
 {
 	Q_OBJECT
