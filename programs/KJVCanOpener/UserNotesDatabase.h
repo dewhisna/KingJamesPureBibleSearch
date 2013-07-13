@@ -90,6 +90,11 @@ public:
 	QString errorFilePathName() const { return m_strErrorFilePathName; }
 	void setErrorFilePathName(const QString &strFilePathName) { m_strErrorFilePathName = strFilePathName; }
 
+	bool keepBackup() const { return m_bKeepBackup; }
+	void setKeepBackup(bool bKeepBackup) { m_bKeepBackup = bKeepBackup; }
+	QString backupFilenamePostfix() const { return m_strBackupFilenamePostfix; }
+	void setBackupFilenamePostfix(const QString &strBackupFilenamePostfix) { m_strBackupFilenamePostfix = strBackupFilenamePostfix; }
+
 	// --------------------
 
 	bool load();
@@ -222,6 +227,8 @@ private:
 
 	QString m_strFilePathName;							// FilePathName of KJN used on load/save and available for saving in persistent settings for this KJN when setting as the default file
 	QString m_strErrorFilePathName;						// FilePathName previously used if there was an error reading an existing file.  This allows us to force a save-prompt when exiting without accidentally overwriting it, prompting them with the old filename and path. (Cleared on successful save or load on hard file)
+	bool m_bKeepBackup;									// True if we should write a backup copy on save.  Done by "copy-to" prior to writing the new file
+	QString m_strBackupFilenamePostfix;					// Filename Postfix to add to the base filename for backups
 	bool m_bIsDirty;									// True when the document has been modified
 	int m_nVersion;										// Version of the file read
 

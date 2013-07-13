@@ -24,6 +24,8 @@
 #include "UserNotesDatabase.h"
 
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include <QColor>
 #include <QtIOCompressor>
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
@@ -87,6 +89,8 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 CUserNotesDatabase::CUserNotesDatabase(QObject *pParent)
 	:	QObject(pParent),
 		m_pUserNotesDatabaseData(&m_UserNotesDatabaseData1),
+		m_bKeepBackup(true),
+		m_strBackupFilenamePostfix(QString(".bak")),
 		m_bIsDirty(false),
 		m_nVersion(KJN_FILE_VERSION)
 {
@@ -525,6 +529,19 @@ bool CUserNotesDatabase::save()
 	QFile fileUND;
 
 	fileUND.setFileName(m_strFilePathName);
+
+	QFileInfo fiKJN(fileUND);
+
+	// Make backup if it's enabled:
+	if ((m_bKeepBackup) && (fiKJN.exists())) {
+		QFileInfo fiBackup(fiKJN.dir(), fiKJN.fileName() + m_strBackupFilenamePostfix);
+		if (fiBackup.exists()) QFile::remove(fiBackup.absoluteFilePath());
+		if (!QFile::copy(fiKJN.absoluteFilePath(), fiBackup.absoluteFilePath())) {
+			m_strLastError = tr("Failed to create Backup File.");
+			return false;
+		}
+	}
+
 	if (!fileUND.open(QIODevice::WriteOnly)) {
 		m_strLastError = tr("Failed to open King James Notes File \"%1\" for writing.").arg(m_strFilePathName);
 		return false;

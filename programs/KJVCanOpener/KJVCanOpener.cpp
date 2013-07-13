@@ -94,6 +94,8 @@ namespace {
 	// UserNotesDatabase:
 	const QString constrUserNotesDatabaseGroup("UserNotesDatabase");
 	const QString constrFilePathNameKey("FilePathName");
+	const QString constrKeepBackupKey("KeepBackup");
+	const QString constrBackupFilenamePostfixKey("BackupFilenamePostfix");
 
 	// Search Phrases:
 	const QString constrLastSearchGroup("LastSearch");
@@ -512,6 +514,8 @@ void CKJVCanOpener::savePersistentSettings()
 	assert(g_pUserNotesDatabase != NULL);
 	settings.beginGroup(constrUserNotesDatabaseGroup);
 	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
+	settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
+	settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
 	settings.endGroup();
 
 	// Highlighter Tool Bar:
@@ -588,7 +592,10 @@ void CKJVCanOpener::restorePersistentSettings()
 	assert(g_pUserNotesDatabase != NULL);
 	settings.beginGroup(constrUserNotesDatabaseGroup);
 	g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
+	g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
+	g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
 	settings.endGroup();
+
 	if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 		if (!g_pUserNotesDatabase->load()) {
 			QMessageBox::warning(this, tr("King James User Notes Database Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
@@ -597,6 +604,21 @@ void CKJVCanOpener::restorePersistentSettings()
 			//		the time we exit.  But save a reference to it so we can get the user navigated back there:
 			g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
 			g_pUserNotesDatabase->setFilePathName(QString());
+		} else {
+			if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
+				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
+											"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
+											"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
+											"manually save a copy of your file now BEFORE you exit King James Pure Bible Search.\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+			} else if (g_pUserNotesDatabase->version() > KJS_FILE_VERSION) {
+				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
+											"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
+											"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
+											"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
+											"risk losing any data from it, you must manually save a copy of your file now BEFORE you exit King James "
+																					"Pure Bible Search.\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+			}
+
 		}
 	}
 
