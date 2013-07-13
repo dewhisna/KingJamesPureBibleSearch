@@ -451,8 +451,9 @@ QString CUserNotesDatabase::errorString() const
 
 bool CUserNotesDatabase::load()
 {
+	m_bIsDirty = true;				// Leave isDirty set until we've finished loading it
 	if (m_strFilePathName.isEmpty()) {
-		m_strLastError = tr("User Notes Database FilePathName not set");
+		m_strLastError = tr("King James Notes File Path Name not set");
 		return false;
 	}
 
@@ -460,15 +461,17 @@ bool CUserNotesDatabase::load()
 
 	fileUND.setFileName(m_strFilePathName);
 	if (!fileUND.open(QIODevice::ReadOnly)) {
-		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for reading.").arg(m_strFilePathName);
+		m_strLastError = tr("Failed to open King James Notes File \"%1\" for reading.").arg(m_strFilePathName);
 		return false;
 	}
 
 	if (!load(&fileUND)) {
-		m_strLastError = tr("Failed to read King James User Notes Database File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		m_strLastError = tr("Failed to read King James Notes File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
 		fileUND.close();
 		return false;
 	}
+
+	m_strErrorFilePathName.clear();
 
 	fileUND.close();
 	return true;
@@ -515,7 +518,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 bool CUserNotesDatabase::save()
 {
 	if (m_strFilePathName.isEmpty()) {
-		m_strLastError = tr("User Notes Database FilePathName not set");
+		m_strLastError = tr("User Notes File Path Name not set");
 		return false;
 	}
 
@@ -523,15 +526,17 @@ bool CUserNotesDatabase::save()
 
 	fileUND.setFileName(m_strFilePathName);
 	if (!fileUND.open(QIODevice::WriteOnly)) {
-		m_strLastError = tr("Failed to open King James User Notes Database File \"%1\" for writing.").arg(m_strFilePathName);
+		m_strLastError = tr("Failed to open King James Notes File \"%1\" for writing.").arg(m_strFilePathName);
 		return false;
 	}
 
 	if (!save(&fileUND)) {
-		m_strLastError = tr("Failed to write King James User Notes Database File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		m_strLastError = tr("Failed to write King James Notes File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
 		fileUND.close();
 		return false;
 	}
+
+	m_strErrorFilePathName.clear();
 
 	fileUND.close();
 	return true;
