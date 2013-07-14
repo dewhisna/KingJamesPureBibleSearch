@@ -260,6 +260,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu(tr("&Toolbars"));
 	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
 	ui->mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
+	pViewToolbarsMenu->addAction(ui->highlighterToolBar->toggleViewAction());
+	ui->highlighterToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();

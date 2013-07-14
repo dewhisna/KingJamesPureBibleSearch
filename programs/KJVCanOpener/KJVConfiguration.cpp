@@ -84,6 +84,13 @@ public:
 	CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButton();
 
+protected slots:
+	virtual void en_setTextBrightness(bool bInvert, int nBrightness);
+	virtual void en_adjustDialogElementBrightnessChanged(bool bAdjust);
+
+private:
+	void setBrightness(bool bAdjust, bool bInvert, int nBrightness);
+
 private:
 	QWidget *m_pWidget;
 	QHBoxLayout *m_pHorzLayout;
@@ -125,10 +132,14 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 	m_pEnableCheckbox->setCheckable(true);
 	m_pEnableCheckbox->setChecked(g_pUserNotesDatabase->highlighterEnabled(strUserDefinedHighlighterName));
 	m_pEnableCheckbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	m_pEnableCheckbox->setText(tr("Enabled"));
+	m_pEnableCheckbox->setText(tr("Enable"));
 	m_pEnableCheckbox->setToolTip(tr("Enable/Disable this highlighter"));
 	m_pEnableCheckbox->updateGeometry();
 	m_pHorzLayout->addWidget(m_pEnableCheckbox);
+
+	setBrightness(CPersistentSettings::instance()->adjustDialogElementBrightness(), CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_adjustDialogElementBrightnessChanged(bool)));
 
 	m_pHorzLayout->addStretch(0);
 
@@ -145,6 +156,49 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 CHighlighterColorButton::~CHighlighterColorButton()
 {
 
+}
+
+void CHighlighterColorButton::en_setTextBrightness(bool bInvert, int nBrightness)
+{
+	setBrightness(CPersistentSettings::instance()->adjustDialogElementBrightness(), bInvert, nBrightness);
+}
+
+void CHighlighterColorButton::en_adjustDialogElementBrightnessChanged(bool bAdjust)
+{
+	setBrightness(bAdjust, CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+}
+
+void CHighlighterColorButton::setBrightness(bool bAdjust, bool bInvert, int nBrightness)
+{
+	QColor clrBackground = CPersistentSettings::textBackgroundColor(bInvert, nBrightness);
+	QColor clrForeground = CPersistentSettings::textForegroundColor(bInvert, nBrightness);
+
+	if (bAdjust) {
+		if (!bInvert) {
+			m_pEnableCheckbox->setStyleSheet(QString("QCheckBox { background-color:%1; color:%2; }\n"
+													)
+													.arg(clrBackground.name())
+													.arg(clrForeground.name()));
+
+		} else {
+			m_pEnableCheckbox->setStyleSheet(QString("QCheckBox { background-color:%1; color:%2; }\n"
+													 "QCheckBox::indicator {\n"
+													 "    color: %2;\n"
+													 "    background-color: %1;\n"
+													 "    border: 1px solid %2;\n"
+													 "    width: 9px;\n"
+													 "    height: 9px;\n"
+													 "}\n"
+													 "QCheckBox::indicator:checked {\n"
+													 "    image:url(:/res/checkbox.png);\n"
+													 "}\n"
+													)
+													.arg(clrBackground.name())
+													.arg(clrForeground.name()));
+		}
+	} else {
+		m_pEnableCheckbox->setStyleSheet(QString());
+	}
 }
 
 // ============================================================================

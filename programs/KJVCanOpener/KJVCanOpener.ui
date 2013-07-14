@@ -62,7 +62,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="highlighterToolBar">
    <property name="windowTitle">
-    <string>&amp;Highlighter Toolbar</string>
+    <string>&amp;Highlighter/Notes/References Toolbar</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

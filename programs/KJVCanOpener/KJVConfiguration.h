@@ -66,6 +66,10 @@ public slots:
 	void en_clicked();
 	void en_enableClicked(bool bEnabled);
 
+protected slots:
+	virtual void en_setTextBrightness(bool bInvert, int nBrightness) = 0;
+	virtual void en_adjustDialogElementBrightnessChanged(bool bAdjust) = 0;
+
 private:
 	QString m_strUserDefinedHighlighterName;		// Name of User Defined Highlighter to use from persistent settings
 };
