@@ -763,7 +763,19 @@ void CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRel
 
 void CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
-	// TODO : FINISH
+	assert(ndxFirst != ndxSecond);
+	if (ndxFirst == ndxSecond) return;
+	TCrossReferenceMap::iterator itrMapFirst = m_mapCrossReference.find(ndxFirst);
+	TCrossReferenceMap::iterator itrMapSecond = m_mapCrossReference.find(ndxSecond);
+	if ((itrMapFirst == m_mapCrossReference.end()) || (itrMapSecond == m_mapCrossReference.end())) return;
+
+	// Remove the cross-reference entries from each other:
+	(itrMapFirst->second).erase(ndxSecond);
+	(itrMapSecond->second).erase(ndxFirst);
+
+	// Remove mappings that become empty:
+	if ((itrMapFirst->second).empty()) m_mapCrossReference.erase(ndxFirst);
+	if ((itrMapSecond->second).empty()) m_mapCrossReference.erase(ndxSecond);
 }
 
 void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
