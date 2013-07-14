@@ -113,7 +113,8 @@ SOURCES += main.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp \
 	SearchCompleter.cpp \
 	KJVConfiguration.cpp \
-	UserNotesDatabase.cpp
+	UserNotesDatabase.cpp \
+	SubControls.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -154,7 +155,8 @@ HEADERS  += main.h \
 	signalspy/Q4puGenericSignalSpy.h \
 	SearchCompleter.h \
 	KJVConfiguration.h \
-	UserNotesDatabase.h
+	UserNotesDatabase.h \
+	SubControls.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
