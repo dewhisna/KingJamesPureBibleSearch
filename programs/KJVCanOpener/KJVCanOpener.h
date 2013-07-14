@@ -37,6 +37,7 @@
 #include <QModelIndex>
 #include <QMenu>
 #include <QAction>
+#include <QActionGroup>
 #include <QCloseEvent>
 #include <QString>
 #include <QSplitter>
@@ -98,12 +99,8 @@ protected slots:
 	void en_activatedSearchResults();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
-	void en_viewVerseHeading();
-	void en_viewVerseRichText();
-
-	void en_viewAsList();
-	void en_viewAsTreeBooks();
-	void en_viewAsTreeChapters();
+	void en_displayModeChange(QAction *pAction);
+	void en_treeModeChange(QAction *pAction);
 	void en_viewShowMissingsLeafs();
 
 	void en_gotoIndex(const TPhraseTag &tag);
@@ -139,12 +136,9 @@ private:
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
-	QAction *m_pActionShowVerseHeading;		// Toggle action to show verse heading only
-	QAction *m_pActionShowVerseRichText;	// Toggle action to show verse richtext
-	QAction *m_pActionShowAsList;			// Toggle action to show in list mode
-	QAction *m_pActionShowAsTreeBooks;		// Toggle action to show in tree books mode
-	QAction *m_pActionShowAsTreeChapters;	// Toggle action to show in tree chapters mode
-	QAction *m_pActionShowMissingLeafs;		// Toggle action for tree modes to show missing leafs
+	QActionGroup *m_pActionGroupDisplayMode;	// Group for Verse Display Mode (heading vs. richtext)
+	QActionGroup *m_pActionGroupTreeMode;		// Group for Tree Mode (List, Tree Books, Tree Chapters)
+	QAction *m_pActionShowMissingLeafs;			// Toggle action for tree modes to show missing leafs
 	QAction *m_pActionExpandAll;	// View menu Expand All
 	QAction *m_pActionCollapseAll;	// View menu Collapse All
 	QAction *m_pActionViewDetails;	// View Details

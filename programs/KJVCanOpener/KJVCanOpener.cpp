@@ -128,11 +128,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionSearchResultsEditMenu(NULL),
 	m_pActionSearchPhraseEditMenu(NULL),
 	m_pViewMenu(NULL),
-	m_pActionShowVerseHeading(NULL),
-	m_pActionShowVerseRichText(NULL),
-	m_pActionShowAsList(NULL),
-	m_pActionShowAsTreeBooks(NULL),
-	m_pActionShowAsTreeChapters(NULL),
+	m_pActionGroupDisplayMode(NULL),
+	m_pActionGroupTreeMode(NULL),
 	m_pActionShowMissingLeafs(NULL),
 	m_pActionExpandAll(NULL),
 	m_pActionCollapseAll(NULL),
@@ -266,23 +263,34 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowAsList = m_pViewMenu->addAction(tr("View as &List"), this, SLOT(en_viewAsList()));
-	m_pActionShowAsList->setStatusTip(tr("Show Search Results as a List"));
-	m_pActionShowAsList->setCheckable(true);
-	m_pActionShowAsList->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowAsList);
+	m_pActionGroupTreeMode = new QActionGroup(this);
+	m_pActionGroupTreeMode->setExclusive(true);
 
-	m_pActionShowAsTreeBooks = m_pViewMenu->addAction(tr("View as Tree by &Book"), this, SLOT(en_viewAsTreeBooks()));
-	m_pActionShowAsTreeBooks->setStatusTip(tr("Show Search Results in a Tree by Book"));
-	m_pActionShowAsTreeBooks->setCheckable(true);
-	m_pActionShowAsTreeBooks->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowAsTreeBooks);
+	pAction = m_pActionGroupTreeMode->addAction(tr("View as &List"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VTME_LIST);
+	pAction->setStatusTip(tr("Show Search Results as a List"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
 
-	m_pActionShowAsTreeChapters = m_pViewMenu->addAction(tr("View as Tree by Book/&Chapter"), this, SLOT(en_viewAsTreeChapters()));
-	m_pActionShowAsTreeChapters->setStatusTip(tr("Show Search Results in a Tree by Book and Chapter"));
-	m_pActionShowAsTreeChapters->setCheckable(true);
-	m_pActionShowAsTreeChapters->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowAsTreeChapters);
+	pAction = m_pActionGroupTreeMode->addAction(tr("View as Tree by &Book"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VTME_TREE_BOOKS);
+	pAction->setStatusTip(tr("Show Search Results in a Tree by Book"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	pAction = m_pActionGroupTreeMode->addAction(tr("View as Tree by Book/&Chapter"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VTME_TREE_CHAPTERS);
+	pAction->setStatusTip(tr("Show Search Results in a Tree by Book and Chapter"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	connect(m_pActionGroupTreeMode, SIGNAL(triggered(QAction*)), this, SLOT(en_treeModeChange(QAction*)));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
@@ -309,17 +317,26 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
 
-	m_pActionShowVerseHeading = m_pViewMenu->addAction(tr("View &References Only"), this, SLOT(en_viewVerseHeading()));
-	m_pActionShowVerseHeading->setStatusTip(tr("Show Search Results Verse References Only"));
-	m_pActionShowVerseHeading->setCheckable(true);
-	m_pActionShowVerseHeading->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowVerseHeading);
+	m_pActionGroupDisplayMode = new QActionGroup(this);
+	m_pActionGroupDisplayMode->setExclusive(true);
 
-	m_pActionShowVerseRichText = m_pViewMenu->addAction(tr("View Verse &Preview"), this, SLOT(en_viewVerseRichText()));
-	m_pActionShowVerseRichText->setStatusTip(tr("Show Search Results as Rich Text Verse Preview"));
-	m_pActionShowVerseRichText->setCheckable(true);
-	m_pActionShowVerseRichText->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowVerseRichText);
+	pAction = m_pActionGroupDisplayMode->addAction(tr("View &References Only"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VDME_HEADING);
+	pAction->setStatusTip(tr("Show Search Results Verse References Only"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	pAction = m_pActionGroupDisplayMode->addAction(tr("View Verse &Preview"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VDME_RICHTEXT);
+	pAction->setStatusTip(tr("Show Search Results as Rich Text Verse Preview"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	connect(m_pActionGroupDisplayMode, SIGNAL(triggered(QAction*)), this, SLOT(en_displayModeChange(QAction*)));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
@@ -818,46 +835,31 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 
 void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
-	assert(m_pActionShowVerseHeading != NULL);
-	assert(m_pActionShowVerseRichText != NULL);
+	assert(m_pActionGroupDisplayMode != NULL);
 
-	switch (nDisplayMode) {
-		case CVerseListModel::VDME_HEADING:
-			m_pActionShowVerseHeading->setChecked(true);
-			en_viewVerseHeading();
+	QList<QAction *> lstActions = m_pActionGroupDisplayMode->actions();
+
+	for (int i = 0; i < lstActions.size(); ++i) {
+		if (static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(lstActions.at(i)->data().toUInt()) == nDisplayMode) {
+			lstActions.at(i)->setChecked(true);
+			en_displayModeChange(lstActions.at(i));
 			break;
-		case CVerseListModel::VDME_RICHTEXT:
-			m_pActionShowVerseRichText->setChecked(true);
-			en_viewVerseRichText();
-			break;
-		default:
-			assert(false);		// Did you add some modes and forget to add them here?
-			break;
+		}
 	}
 }
 
 void CKJVCanOpener::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
-	assert(m_pActionShowAsList != NULL);
-	assert(m_pActionShowAsTreeBooks != NULL);
-	assert(m_pActionShowAsTreeChapters != NULL);
+	assert(m_pActionGroupTreeMode != NULL);
 
-	switch (nTreeMode) {
-		case CVerseListModel::VTME_LIST:
-			m_pActionShowAsList->setChecked(true);
-			en_viewAsList();
+	QList<QAction *> lstActions = m_pActionGroupTreeMode->actions();
+
+	for (int i = 0; i < lstActions.size(); ++i) {
+		if (static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(lstActions.at(i)->data().toUInt()) == nTreeMode) {
+			lstActions.at(i)->setChecked(true);
+			en_treeModeChange(lstActions.at(i));
 			break;
-		case CVerseListModel::VTME_TREE_BOOKS:
-			m_pActionShowAsTreeBooks->setChecked(true);
-			en_viewAsTreeBooks();
-			break;
-		case CVerseListModel::VTME_TREE_CHAPTERS:
-			m_pActionShowAsTreeChapters->setChecked(true);
-			en_viewAsTreeChapters();
-			break;
-		default:
-			assert(false);		// Did you add some modes and forget to add them here?
-			break;
+		}
 	}
 }
 
@@ -1127,132 +1129,33 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::en_viewVerseHeading()
+void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 {
-	assert(m_pActionShowVerseHeading != NULL);
-	assert(m_pActionShowVerseRichText != NULL);
+	assert(m_pActionGroupDisplayMode != NULL);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
 	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
-	if (m_pActionShowVerseHeading->isChecked()) {
-		m_pActionShowVerseRichText->setChecked(false);
-		m_pSearchResultWidget->setDisplayMode(CVerseListModel::VDME_HEADING);
-	} else {
-		if (m_pSearchResultWidget->displayMode() == CVerseListModel::VDME_HEADING) {
-			m_pActionShowVerseHeading->setChecked(true);
-		}
-	}
+	m_pSearchResultWidget->setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(pAction->data().toUInt()));
 
 	m_bDoingUpdate = false;
 
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
 }
 
-void CKJVCanOpener::en_viewVerseRichText()
+void CKJVCanOpener::en_treeModeChange(QAction *pAction)
 {
-	assert(m_pActionShowVerseHeading != NULL);
-	assert(m_pActionShowVerseRichText != NULL);
+	assert(pAction != NULL);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
 	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
-	if (m_pActionShowVerseRichText->isChecked()) {
-		m_pActionShowVerseHeading->setChecked(false);
-		m_pSearchResultWidget->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
-	} else {
-		if (m_pSearchResultWidget->displayMode() == CVerseListModel::VDME_RICHTEXT) {
-			m_pActionShowVerseRichText->setChecked(true);
-		}
-	}
-
-	m_bDoingUpdate = false;
-
-	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
-}
-
-void CKJVCanOpener::en_viewAsList()
-{
-	assert(m_pActionShowAsList != NULL);
-	assert(m_pActionShowAsTreeBooks != NULL);
-	assert(m_pActionShowAsTreeChapters != NULL);
-	assert(m_pActionShowMissingLeafs != NULL);
-
-	if (m_bDoingUpdate) return;
-	m_bDoingUpdate = true;
-
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
-
-	if (m_pActionShowAsList->isChecked()) {
-		m_pActionShowAsTreeBooks->setChecked(false);
-		m_pActionShowAsTreeChapters->setChecked(false);
-		m_pSearchResultWidget->setTreeMode(CVerseListModel::VTME_LIST);
-		m_pActionShowMissingLeafs->setEnabled(false);
-	} else {
-		if (m_pSearchResultWidget->treeMode() == CVerseListModel::VTME_LIST) {
-			m_pActionShowAsList->setChecked(true);
-		}
-	}
-
-	m_bDoingUpdate = false;
-
-	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
-}
-
-void CKJVCanOpener::en_viewAsTreeBooks()
-{
-	assert(m_pActionShowAsList != NULL);
-	assert(m_pActionShowAsTreeBooks != NULL);
-	assert(m_pActionShowAsTreeChapters != NULL);
-	assert(m_pActionShowMissingLeafs != NULL);
-
-	if (m_bDoingUpdate) return;
-	m_bDoingUpdate = true;
-
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
-
-	if (m_pActionShowAsTreeBooks->isChecked()) {
-		m_pActionShowAsList->setChecked(false);
-		m_pActionShowAsTreeChapters->setChecked(false);
-		m_pSearchResultWidget->setTreeMode(CVerseListModel::VTME_TREE_BOOKS);
-		m_pActionShowMissingLeafs->setEnabled(true);
-	} else {
-		if (m_pSearchResultWidget->treeMode() == CVerseListModel::VTME_TREE_BOOKS) {
-			m_pActionShowAsTreeBooks->setChecked(true);
-		}
-	}
-
-	m_bDoingUpdate = false;
-
-	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
-}
-
-void CKJVCanOpener::en_viewAsTreeChapters()
-{
-	assert(m_pActionShowAsList != NULL);
-	assert(m_pActionShowAsTreeBooks != NULL);
-	assert(m_pActionShowAsTreeChapters != NULL);
-	assert(m_pActionShowMissingLeafs != NULL);
-
-	if (m_bDoingUpdate) return;
-	m_bDoingUpdate = true;
-
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
-
-	if (m_pActionShowAsTreeChapters->isChecked()) {
-		m_pActionShowAsList->setChecked(false);
-		m_pActionShowAsTreeBooks->setChecked(false);
-		m_pSearchResultWidget->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
-		m_pActionShowMissingLeafs->setEnabled(true);
-	} else {
-		if (m_pSearchResultWidget->treeMode() == CVerseListModel::VTME_TREE_CHAPTERS) {
-			m_pActionShowAsTreeChapters->setChecked(true);
-		}
-	}
+	m_pSearchResultWidget->setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()));
+	m_pActionShowMissingLeafs->setEnabled(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()) != CVerseListModel::VTME_LIST);
 
 	m_bDoingUpdate = false;
 
