@@ -38,6 +38,8 @@
 #include <QContextMenuEvent>
 #include <QMimeData>
 #include <QColor>
+#include <QAction>
+#include <QActionGroup>
 
 // ============================================================================
 
@@ -126,6 +128,7 @@ public:
 	virtual void en_copyReferenceDetails();
 	virtual void en_copyPassageStatistics();
 	virtual void en_copyEntirePassageDetails();
+	virtual void en_highlightPassage(QAction *pAction);
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -149,15 +152,15 @@ private:
 	QAction *m_pActionCopyVerses;	// Edit menu copy as formatted verses
 	QAction *m_pActionCopyVersesPlain;	// Edit menu copy as formatted verses, but plaintext
 	// ----
-	QAction *m_pActionCopyReferenceDetails;			// Reference ToolTip Copy
-	QAction *m_pActionCopyPassageStatistics;		// Statistics ToolTip Copy
-	QAction *m_pActionCopyEntirePassageDetails;		// Entire ToolTip Copy
+	QAction *m_pActionCopyReferenceDetails;			// Edit menu, Reference ToolTip Copy
+	QAction *m_pActionCopyPassageStatistics;		// Edit menu, Statistics ToolTip Copy
+	QAction *m_pActionCopyEntirePassageDetails;		// Edit menu, Entire ToolTip Copy
 	// ----
 	QAction *m_pActionSelectAll;	// Edit menu select all
 	// ----
-	QAction *m_pActionFind;
-	QAction *m_pActionFindNext;
-	QAction *m_pActionFindPrev;
+	QAction *m_pActionFind;			// Edit menu Find
+	QAction *m_pActionFindNext;		// Edit menu Find Next
+	QAction *m_pActionFindPrev;		// Edit menu Find Previous
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
@@ -212,6 +215,7 @@ public slots:
 	virtual void en_copyReferenceDetails() = 0;
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
+	virtual void en_highlightPassage(QAction *pAction) = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -252,6 +256,7 @@ public slots:
 	virtual void en_copyReferenceDetails() = 0;
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
+	virtual void en_highlightPassage(QAction *pAction) = 0;
 };
 
 // ============================================================================

@@ -128,7 +128,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses"), this, SLOT(en_copyVerses()));
+	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses"), this, SLOT(en_copyVerses()), QKeySequence(Qt::CTRL + Qt::Key_V));
 	m_pActionCopyVerses->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses to the clipboard"));
 	m_pActionCopyVerses->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
@@ -141,8 +141,13 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyReferenceDetails->setStatusTip(T::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard"));
 	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(T::tr("Copy Passage Stat&istics (Book/Chapter/Verse)"), this, SLOT(en_copyPassageStatistics()), QKeySequence(Qt::CTRL + Qt::Key_I));
 	m_pActionCopyPassageStatistics->setStatusTip(T::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard"));
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_L));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_B));
 	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard"));
+	m_pEditMenu->addSeparator();
+
+	m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
+	T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text"));
@@ -413,6 +418,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	menu.addAction(m_pActionCopyPassageStatistics);
 	menu.addAction(m_pActionCopyEntirePassageDetails);
 	menu.addSeparator();
+	menu.addActions(CHighlighterButtons::instance()->actions());
+	menu.addSeparator();
 	menu.addAction(m_pActionSelectAll);
 	if (T::useFindDialog()) {
 		menu.addSeparator();
@@ -433,6 +440,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	end_popup();
 }
+
+// ----------------------------------------------------------------------------
 
 template<class T, class U>
 QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
@@ -514,6 +523,8 @@ void CScriptureText<T,U>::updateSelection()
 
 	m_bDoingSelectionChange = false;
 }
+
+// ----------------------------------------------------------------------------
 
 template<class T, class U>
 void CScriptureText<T,U>::en_copy()
@@ -619,6 +630,19 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	if (!bPlainOnly) mime->setHtml(docFormattedVerses.toHtml());
 	QApplication::clipboard()->setMimeData(mime);
 }
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
+{
+	assert(pAction != NULL);
+
+	qDebug("%s", pAction->text().toUtf8().data());
+
+	// TODO : FINISH THIS
+}
+
 
 // ============================================================================
 

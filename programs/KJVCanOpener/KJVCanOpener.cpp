@@ -34,6 +34,7 @@
 #include "PersistentSettings.h"
 #include "KJVConfiguration.h"
 #include "UserNotesDatabase.h"
+#include "Highlighter.h"
 
 #include <assert.h>
 
@@ -151,7 +152,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSplitter(NULL),
 	m_pSearchResultWidget(NULL),
 	m_pBrowserWidget(NULL),
-	m_pHighlighterToolButtons(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -167,6 +167,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
+
+	// -------------------- Hightlighter Toolbar:
+
+	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
+	//			will be null when its constructor is building menus:
+	new CHighlighterButtons(ui->highlighterToolBar);
+
 
 	// -------------------- Setup the Three Panes:
 
@@ -441,11 +448,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
 
-	// -------------------- Hightlighter Toolbar:
-
-	m_pHighlighterToolButtons = new CHighlighterButtons(ui->highlighterToolBar);
-
-
 	// -------------------- Quick Activate:
 
 	for (int ndx=0; ndx<NUM_QUICK_ACTIONS; ++ndx) {
@@ -538,12 +540,11 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	// Highlighter Tool Bar:
-	assert(m_pHighlighterToolButtons != NULL);
 	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
 	settings.remove("");
-	for (int ndxColor = 0; ndxColor < m_pHighlighterToolButtons->count(); ++ndxColor) {
+	for (int ndxColor = 0; ndxColor < CHighlighterButtons::instance()->count(); ++ndxColor) {
 		settings.setArrayIndex(ndxColor);
-		settings.setValue(constrHighlighterNameKey, m_pHighlighterToolButtons->highlighter(ndxColor));
+		settings.setValue(constrHighlighterNameKey, CHighlighterButtons::instance()->highlighter(ndxColor));
 	}
 	settings.endArray();
 
@@ -642,13 +643,12 @@ void CKJVCanOpener::restorePersistentSettings()
 	}
 
 	// Highlighter Tool Bar (must be after loading the User Notes Database):
-	assert(m_pHighlighterToolButtons != NULL);
 	int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
 	if (nColors != 0) {
-		for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterToolButtons->count())); ++ndxColor) {
+		for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < CHighlighterButtons::instance()->count())); ++ndxColor) {
 			settings.setArrayIndex(ndxColor);
 			QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
-			m_pHighlighterToolButtons->setHighlighterList(ndxColor, strHighlighterName);
+			CHighlighterButtons::instance()->setHighlighterList(ndxColor, strHighlighterName);
 		}
 	} else {
 		// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
@@ -656,9 +656,9 @@ void CKJVCanOpener::restorePersistentSettings()
 			const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 			int ndxColor = 0;
 			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
-							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterToolButtons->count()));
+							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < CHighlighterButtons::instance()->count()));
 							++itrHighlighters) {
-				m_pHighlighterToolButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+				CHighlighterButtons::instance()->setHighlighterList(ndxColor, itrHighlighters.key());
 				ndxColor++;
 			}
 		}
@@ -1353,14 +1353,12 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure()
 {
-	assert(m_pHighlighterToolButtons != NULL);
-
-	if (m_pHighlighterToolButtons != NULL) m_pHighlighterToolButtons->enterConfigurationMode();
+	CHighlighterButtons::instance()->enterConfigurationMode();
 
 	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, this);
 	dlgConfigure.exec();
 
-	if (m_pHighlighterToolButtons != NULL) m_pHighlighterToolButtons->leaveConfigurationMode();
+	CHighlighterButtons::instance()->leaveConfigurationMode();
 }
 
 void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)

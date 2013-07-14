@@ -291,10 +291,19 @@ void CUserDefinedHighlighter::clearPhraseTags()
 // ============================================================================
 // ============================================================================
 
+CHighlighterButtons *CHighlighterButtons::g_pHighlighterButtons = NULL;
+
 CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
+	:	m_pActionGroupHighlighterTools(NULL)
 {
+	assert(g_pHighlighterButtons == NULL);
 	assert(pParent != NULL);
 	assert(g_pUserNotesDatabase != NULL);
+
+	g_pHighlighterButtons = this;
+
+	m_pActionGroupHighlighterTools = new QActionGroup(pParent);
+	m_pActionGroupHighlighterTools->setExclusive(false);
 
 	m_lstButtons.clear();
 	m_lstActionGroups.clear();
@@ -304,14 +313,38 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 		m_lstButtons.append(pButtonHighlighter);
 		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
 		pButtonHighlighter->setMenu(pHighlighterMenu);
-		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+//		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+//		pButtonHighlighter->setText(tr("#%1").arg(ndx+1));
+		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		pButtonHighlighter->setPopupMode(QToolButton::MenuButtonPopup);
-		pButtonHighlighter->setText(tr("#%1").arg(ndx+1));
+		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1").arg(ndx+1));
+		pActionToolButton->setToolTip(tr("Highlighter Tool #%1").arg(ndx+1));
+		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1").arg(ndx+1));
+		switch (ndx) {
+			case 0:
+				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+				break;
+			case 1:
+				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+				break;
+			case 2:
+				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_K));
+				break;
+			case 3:
+				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+				break;
+			default:
+				break;
+		}
+		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
+		pButtonHighlighter->setDefaultAction(pActionToolButton);
+
 		setHighlighterList(ndx);
 		pParent->addWidget(pButtonHighlighter);
 	}
 
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
+	connect(m_pActionGroupHighlighterTools, SIGNAL(triggered(QAction*)), this, SIGNAL(highlighterToolTriggered(QAction*)));
 }
 
 CHighlighterButtons::~CHighlighterButtons()

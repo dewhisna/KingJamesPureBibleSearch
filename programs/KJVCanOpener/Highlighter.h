@@ -247,9 +247,18 @@ class CHighlighterButtons : public QObject
 {
 	Q_OBJECT
 
-public:
+private:
 	CHighlighterButtons(QToolBar *pParent);
+	friend class CKJVCanOpener;						// Creatable only by the main app
+
+public:
 	virtual ~CHighlighterButtons();
+
+	static CHighlighterButtons *instance()
+	{
+		assert(g_pHighlighterButtons != NULL);
+		return g_pHighlighterButtons;
+	}
 
 	int count() const { return m_lstButtons.size(); }
 	QToolButton *button(int ndx) const
@@ -258,10 +267,17 @@ public:
 		if ((ndx < 0) || (ndx >= m_lstButtons.size())) return NULL;
 		return m_lstButtons.at(ndx);
 	}
+	QList<QAction *> actions() const
+	{
+		return m_pActionGroupHighlighterTools->actions();
+	}
 
 	QString highlighter(int ndx) const;
 	void setHighlighterLists();
 	void setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName = QString());
+
+signals:
+	void highlighterToolTriggered(QAction *pAction);	// Triggered whenever one of the Highlighter Tools (or menu equivalents) is clicked
 
 public slots:
 	void enterConfigurationMode();
@@ -276,7 +292,9 @@ protected:
 
 private:
 	QList<QToolButton *> m_lstButtons;					// List of highlighter buttons
+	QActionGroup *m_pActionGroupHighlighterTools;		// Group of highlighter tool actions
 	QList<QActionGroup *> m_lstActionGroups;			// Groups of "actions" that is the list of available highlighters in each button
+	static CHighlighterButtons *g_pHighlighterButtons;	// Our single global instance
 };
 
 
