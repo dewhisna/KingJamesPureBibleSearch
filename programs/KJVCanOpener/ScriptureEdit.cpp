@@ -27,6 +27,7 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
 
 #include <assert.h>
 
@@ -637,10 +638,43 @@ template<class T, class U>
 void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 {
 	assert(pAction != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
-	qDebug("%s", pAction->text().toUtf8().data());
+	TPhraseTag tagSel = selection();
+	CRelIndex relNdx = tagSel.relIndex();
+	if (!relNdx.isSet()) return;
 
-	// TODO : FINISH THIS
+	if (relNdx.chapter() == 0) {
+		return;					// Don't allow highlighting entire book
+	} else if (relNdx.verse() == 0) {
+		// Allow highlighting entire chapter:
+		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), 1, 1), m_pBibleDatabase->chapterEntry(relNdx)->m_nNumWrd);
+	} else if (relNdx.word() == 0) {
+		// Allow highlighting entire verse:
+		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
+	}
+
+	QString strHighlighterName = CHighlighterButtons::instance()->highlighter(pAction->data().toInt());
+	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
+	if (plstHighlighterTags == NULL) {
+		if (tagSel.haveSelection()) {
+			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+		} else {
+			// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
+			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
+		}
+	} else {
+		if (plstHighlighterTags->completelyContains(m_pBibleDatabase, tagSel)) {
+			g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+		} else {
+			if (tagSel.haveSelection()) {
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+			} else {
+				// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
+			}
+		}
+	}
 }
 
 

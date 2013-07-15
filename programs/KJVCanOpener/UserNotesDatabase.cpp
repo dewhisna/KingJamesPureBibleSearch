@@ -483,6 +483,7 @@ bool CUserNotesDatabase::load()
 
 bool CUserNotesDatabase::load(QIODevice *pIODevice)
 {
+	emit aboutToChangeHighlighters();
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
 	m_strLastError.clear();
 
@@ -692,61 +693,98 @@ void CUserNotesDatabase::removeAllNotes()
 
 // ============================================================================
 
-void CUserNotesDatabase::setHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
+	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName] = lstTags;
 	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::appendHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
-	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTags);
+	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
+	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTags);		// TODO : Loop this and do intersectingInsert ???
 	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::appendHighlighterTagFor(const QString &strUUID, const QString &strUserDefinedHighlighterName, const TPhraseTag &lstTag)
+void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
-	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTag);
+	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
+	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, aTag);
 	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::removeHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName)
+void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
+
+	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
+	if (itrBibleDB == m_mapHighlighterTags.end()) return;
+	THighlighterTagMap::iterator itrTags = (itrBibleDB->second).find(strUserDefinedHighlighterName);
+	if (itrTags == (itrBibleDB->second).end()) return;
+	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
+	(itrTags->second).removeIntersection(pBibleDatabase, aTag);
+	if ((itrTags->second).empty()) (itrBibleDB->second).erase(itrTags);
+	if ((itrBibleDB->second).empty()) m_mapHighlighterTags.erase(itrBibleDB);
+	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
+	emit changedUserNotesDatabase();
+}
+
+void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+{
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
 	assert(!strUUID.isEmpty());
 	if (strUUID.isEmpty()) return;
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
-		if (highlighterTagsFor(strUUID) == NULL) return;				// Return if it doesn't exist so we don't set dirty flag
+		if (highlighterTagsFor(pBibleDatabase) == NULL) return;				// Return if it doesn't exist so we don't set dirty flag
+		emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 		m_mapHighlighterTags.erase(strUUID);
 	} else {
 		TBibleDBHighlighterTagMap::iterator itr = m_mapHighlighterTags.find(strUUID);
 		if (itr == m_mapHighlighterTags.end()) return;
-		if (highlighterTagsFor(strUUID, strUserDefinedHighlighterName) == NULL) return;		// Return if it doesn't exist so we don't set dirty flag
+		if (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) == NULL) return;		// Return if it doesn't exist so we don't set dirty flag
+		emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 		(itr->second).erase(strUserDefinedHighlighterName);
 	}
 	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeAllHighlighterTags()
 {
+	emit highlighterTagsAboutToChange(CBibleDatabasePtr(), QString());
 	m_mapHighlighterTags.clear();
 	m_bIsDirty = true;
+	emit highlighterTagsChanged(CBibleDatabasePtr(), QString());
 	emit changedUserNotesDatabase();
 }
 
@@ -808,6 +846,7 @@ void CUserNotesDatabase::setHighlighterColor(const QString &strUserDefinedHighli
 {
 	QColor colorOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color;
 	if (colorOriginal != color) {
+		emit aboutToChangeHighlighters();
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color = color;
 		emit changedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -819,6 +858,7 @@ void CUserNotesDatabase::setHighlighterEnabled(const QString &strUserDefinedHigh
 {
 	bool bEnabledOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled;
 	if (bEnabledOriginal != bEnabled) {
+		emit aboutToChangeHighlighters();
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled = bEnabled;
 		emit changedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -829,6 +869,7 @@ void CUserNotesDatabase::setHighlighterEnabled(const QString &strUserDefinedHigh
 void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighlighterName)
 {
 	if (existsHighlighter(strUserDefinedHighlighterName)) {
+		emit aboutToChangeHighlighters();
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.remove(strUserDefinedHighlighterName);
 		emit removedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -839,6 +880,7 @@ void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighligh
 void CUserNotesDatabase::removeAllHighlighters()
 {
 	if (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.size()) {
+		emit aboutToChangeHighlighters();
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.clear();
 		emit changedHighlighters();
 		m_pUserNotesDatabaseData->m_bIsDirty = true;
@@ -849,6 +891,11 @@ void CUserNotesDatabase::toggleUserNotesDatabaseData(bool bCopy)
 {
 	TUserNotesDatabaseData *pSource = ((m_pUserNotesDatabaseData == &m_UserNotesDatabaseData1) ? &m_UserNotesDatabaseData1 : &m_UserNotesDatabaseData2);
 	TUserNotesDatabaseData *pTarget = ((m_pUserNotesDatabaseData == &m_UserNotesDatabaseData1) ? &m_UserNotesDatabaseData2 : &m_UserNotesDatabaseData1);
+
+	// Signal changes if we aren't copying and something changed:
+	if (!bCopy) {
+		if (pSource->m_mapHighlighterDefinitions != pTarget->m_mapHighlighterDefinitions) emit aboutToChangeHighlighters();
+	}
 
 	if (bCopy) *pTarget = *pSource;
 

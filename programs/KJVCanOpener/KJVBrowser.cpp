@@ -25,6 +25,7 @@
 #include "ui_KJVBrowser.h"
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
 
 #include "BusyCursor.h"
 
@@ -48,7 +49,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	ui->setupUi(this);
 
@@ -93,6 +95,11 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	// Highlighting colors changing:
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(aboutToChangeHighlighters()), this, SLOT(en_highlightersAboutToChange()));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_highlightersChanged()));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -221,15 +228,50 @@ void CKJVBrowser::en_SearchResultsVerseListChanged()
 	doHighlighting();					// Highlight using new tags
 }
 
+void CKJVBrowser::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+{
+	Q_UNUSED(pBibleDatabase);
+	Q_UNUSED(strUserDefinedHighlighterName);
+	doHighlighting(true);				// Remove existing highlighting
+}
+
+void CKJVBrowser::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+{
+	Q_UNUSED(pBibleDatabase);
+	Q_UNUSED(strUserDefinedHighlighterName);
+	doHighlighting();					// Highlight using new tags
+}
+
+void CKJVBrowser::en_highlightersAboutToChange()
+{
+	doHighlighting(true);				// Remove existing highlighting
+}
+
+void CKJVBrowser::en_highlightersChanged()
+{
+	doHighlighting();					// Highlight using new tags
+}
+
 void CKJVBrowser::doHighlighting(bool bClear)
 {
 	m_pScriptureBrowser->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
 
+	assert(g_pUserNotesDatabase != NULL);
+	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
+	if (pmapHighlighterTags) {
+		for (THighlighterTagMap::const_iterator itrHighlighters = pmapHighlighterTags->begin(); itrHighlighters != pmapHighlighterTags->end(); ++itrHighlighters) {
+			CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
+			m_pScriptureBrowser->navigator().doHighlighting(highlighter, bClear, m_ndxCurrent);
+		}
+	}
+
+#if QT_VERSION >= 0x050000					// I HATE this work-around when using it with the highlighters!  Annoying jumps!!
 	// Work around Qt5 bug.  Without this, rendering goes Minnie Mouse and
 	//		the scroll jumps back a half-line on some lines after doing the
 	//		highlighting -- usually noticeable just after a gotoIndex call:
 	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection();
 	m_pScriptureBrowser->navigator().selectWords(tagSelection);
+#endif
 }
 
 void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)

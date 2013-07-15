@@ -972,3 +972,183 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 
 // ============================================================================
 
+bool TPhraseTag::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+{
+	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
+
+	assert(pBibleDatabase != NULL);
+	uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(relIndex());
+	uint32_t nNormalRefHi = nNormalRefLo + count() - ((count() != 0) ? 1 : 0);
+	uint32_t nNormalSrcLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
+	uint32_t nNormalSrcHi = nNormalSrcLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);
+
+	if ((nNormalSrcLo >= nNormalRefLo) && (nNormalSrcHi <= nNormalRefHi)) return true;
+	return false;
+}
+
+bool TPhraseTag::intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+{
+	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
+
+	assert(pBibleDatabase != NULL);
+	uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(relIndex());
+	uint32_t nNormalRefHi = nNormalRefLo + count() - ((count() != 0) ? 1 : 0);
+	uint32_t nNormalSrcLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
+	uint32_t nNormalSrcHi = nNormalSrcLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);
+
+	if (((nNormalSrcLo >= nNormalRefLo) && (nNormalSrcLo <= nNormalRefHi)) ||
+		((nNormalSrcHi >= nNormalRefLo) && (nNormalSrcHi <= nNormalRefHi)) ||
+		((nNormalRefLo >= nNormalSrcLo) && (nNormalRefLo <= nNormalSrcHi)) ||
+		((nNormalRefHi >= nNormalSrcLo) && (nNormalRefHi <= nNormalSrcHi))) return true;
+	return false;
+}
+
+bool TPhraseTag::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+{
+	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
+
+	assert(pBibleDatabase != NULL);
+	uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(relIndex());
+	uint32_t nNormalRefHi = nNormalRefLo + count() - ((count() != 0) ? 1 : 0);
+	uint32_t nNormalSrcLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
+	uint32_t nNormalSrcHi = nNormalSrcLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);
+	bool bHadCount = ((count() != 0) || (aTag.count() != 0));			// If we end up with a single word, this will tell us if we have that word selected or not
+
+	if (((nNormalSrcLo >= nNormalRefLo) && (nNormalSrcLo <= nNormalRefHi)) ||
+		((nNormalSrcHi >= nNormalRefLo) && (nNormalSrcHi <= nNormalRefHi)) ||
+		((nNormalRefLo >= nNormalSrcLo) && (nNormalRefLo <= nNormalSrcHi)) ||
+		((nNormalRefHi >= nNormalSrcLo) && (nNormalRefHi <= nNormalSrcHi))) {
+		uint32_t nMinNormal = qMin(nNormalRefLo, nNormalSrcLo);
+		uint32_t nMaxNormal = qMax(nNormalRefHi, nNormalSrcHi);
+		m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(nMinNormal));
+		m_nCount = (nMaxNormal - nMinNormal + 1);
+		if ((m_nCount == 1) && (!bHadCount)) m_nCount = 0;
+		return true;
+	}
+
+	return false;
+}
+
+// ============================================================================
+
+TPhraseTagList::TPhraseTagList()
+	:	QList<TPhraseTag>()
+{
+
+}
+
+TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
+	:	QList<TPhraseTag>(src)
+{
+
+}
+
+bool TPhraseTagList::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+{
+	assert(pBibleDatabase != NULL);
+
+	if (!aTag.relIndex().isSet()) return false;
+
+	// To avoid having to flatten our entire list of tags and check for complete intersection, it
+	//	would be easier to check every word of the specified tag and see if we have an intersection.
+	//	Since we are limiting it to one-word tags, if we have an intersection for all of them, we
+	//	know it's completely contained:
+	uint32_t nNormalSrcLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
+	uint32_t nNormalSrcHi = nNormalSrcLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);
+	bool bContained = true;
+
+	while ((bContained) && (nNormalSrcLo <= nNormalSrcHi)) {
+		bool bFound = false;
+		for (const_iterator itrTags = constBegin(); ((!bFound) && (itrTags != constEnd())); ++itrTags) {
+			uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(itrTags->relIndex());
+			uint32_t nNormalRefHi = nNormalRefLo + itrTags->count() - ((itrTags->count() != 0) ? 1 : 0);
+			if ((nNormalSrcLo >= nNormalRefLo) && (nNormalSrcLo <= nNormalRefHi)) bFound = true;
+		}
+		if (!bFound) bContained = false;
+		++nNormalSrcLo;
+	}
+
+	return bContained;
+}
+
+void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+{
+	assert(pBibleDatabase != NULL);
+
+	if (!aTag.relIndex().isSet()) return;
+
+	for (iterator itrTags = begin(); itrTags != end(); ++itrTags) {
+		if (itrTags->intersectingInsert(pBibleDatabase, aTag)) return;
+	}
+	append(aTag);
+}
+
+bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+{
+	assert(pBibleDatabase != NULL);
+
+	bool bRemovedIntersection = false;
+
+	if (!aTag.relIndex().isSet()) return false;
+
+	for (iterator itrTags = begin(); itrTags != end(); /* increment in loop */) {
+		if (!aTag.haveSelection()) {
+			// If there is no selection and the tag in the list contains the specified
+			//		reference, remove it:
+			if (itrTags->completelyContains(pBibleDatabase, aTag)) {
+				itrTags = erase(itrTags);
+				bRemovedIntersection = true;
+				continue;
+			}
+		} else if (aTag.completelyContains(pBibleDatabase, *itrTags)) {
+			// If the passed tag completely contains the one in the list, remove the one in the list:
+			itrTags = erase(itrTags);
+			bRemovedIntersection = true;
+			continue;
+		} else if (itrTags->intersects(pBibleDatabase, aTag)) {
+			// This is the difficult one...  There's an intersection between the two,
+			//		but we don't know if it's the first part, last part, or some part in the middle.
+			//		If it's some part in the middle, we have to split it in half (yuck):
+
+			uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(itrTags->relIndex());
+			uint32_t nNormalRefHi = nNormalRefLo + itrTags->count() - ((itrTags->count() != 0) ? 1 : 0);
+			uint32_t nNormalSrcLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
+			uint32_t nNormalSrcHi = nNormalSrcLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);		// Note: count() shouldn't be zero due to above 'if'
+			bool bHadCount = ((itrTags->count() != 0) || (aTag.count() != 0));			// If we end up with a single word, this will tell us if we have that word selected or not
+
+			uint32_t nNormalNewLo = nNormalRefLo;
+			uint32_t nNormalNewHi = nNormalRefHi;
+			bool bSingle = false;
+
+			if ((nNormalSrcLo > nNormalRefLo) && (nNormalSrcHi >= nNormalRefHi)) {
+				// Trim on the bottom part of the range case:
+				nNormalNewHi = nNormalSrcLo - 1;
+				bSingle = true;
+			} else if ((nNormalSrcLo <= nNormalRefLo) && (nNormalSrcHi < nNormalRefHi)) {
+				// Trim on the top part of the range case:
+				nNormalNewLo = nNormalSrcHi + 1;
+				bSingle = true;
+			}
+
+			// if bSingle, trim to nNormalNew, else nNormalSrc is in the middle of nNormalRef and needs a split:
+			if (bSingle) {
+				itrTags->m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(nNormalNewLo));
+				itrTags->m_nCount = (nNormalNewHi - nNormalNewLo + 1);
+				if ((itrTags->m_nCount == 1) && (!bHadCount)) itrTags->m_nCount = 0;
+			} else {
+				// For the split, make the current be the low half:
+				itrTags->m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(nNormalRefLo));
+				itrTags->m_nCount = (nNormalSrcLo - nNormalRefLo);		// Note, don't include first of cut section
+				// And insert the upper half:
+				append(TPhraseTag(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormalSrcHi + 1)), nNormalRefHi - nNormalSrcHi));
+				// Our enumerator is bad, so just start over:
+				itrTags = begin();
+			}
+		}
+		++itrTags;
+	}
+
+	return bRemovedIntersection;
+}
+
+// ============================================================================

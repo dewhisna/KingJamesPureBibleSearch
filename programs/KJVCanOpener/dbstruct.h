@@ -734,6 +734,11 @@ public:
 				(m_nCount != otherTag.count()));
 	}
 
+	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+	friend class TPhraseTagList;
+
 private:
 	CRelIndex m_RelIndex;
 	unsigned int m_nCount;
@@ -750,7 +755,18 @@ Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
 
-typedef QList<TPhraseTag> TPhraseTagList;				// List of tags used for highlighting found phrases, etc.
+// List of tags used for highlighting found phrases, etc:
+class TPhraseTagList : public QList<TPhraseTag>
+{
+public:
+	TPhraseTagList();
+	TPhraseTagList(const TPhraseTagList &src);
+
+	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
+	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+};
+
 typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases
 
 struct TPhraseTagListSortPredicate {

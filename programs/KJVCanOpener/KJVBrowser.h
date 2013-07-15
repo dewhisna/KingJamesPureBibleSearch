@@ -86,6 +86,10 @@ public slots:
 	void setFocusBrowser();
 	void en_SearchResultsVerseListAboutToChange();
 	void en_SearchResultsVerseListChanged();
+	void en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_highlightersAboutToChange();
+	void en_highlightersChanged();
 
 	// Navigation Shortcut Processing:
 	void en_Bible_Beginning();
