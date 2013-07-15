@@ -32,6 +32,7 @@
 #include <QtAlgorithms>
 #include <QSet>
 #include <QObject>
+#include <iterator>
 
 #include <assert.h>
 
@@ -1077,10 +1078,34 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 
 	if (!aTag.relIndex().isSet()) return;
 
-	for (iterator itrTags = begin(); itrTags != end(); ++itrTags) {
-		if (itrTags->intersectingInsert(pBibleDatabase, aTag)) return;
+	iterator itrLast = end();			// Tag we are comparing once we find an intersection, just initialize it to something (I don't like uninitialized vars!)
+	bool bFoundFirst = false;			// True when we find our first intersection
+
+	//	When we find an intersection, combine them, move
+
+	for (iterator itrTags = begin(); itrTags != end(); /* iterator inside loop */) {
+		if (!bFoundFirst) {
+			if (itrTags->intersectingInsert(pBibleDatabase, aTag)) {
+				// If we find an intersection, update it and set our iterator to it.  But keep
+				//		processing in case we find others:
+				itrLast = itrTags;
+				bFoundFirst = true;
+			}
+		} else {
+			// If we've already found one, compare the next one with the previous.
+			if (itrLast->intersectingInsert(pBibleDatabase, *itrTags)) {
+				// If we were able to insert it back into the other, calc or iterator distances
+				//		so we can nuke the list with a remove, and then continue:
+				int nDistLast = std::distance(begin(), itrLast);
+				itrTags = erase(itrTags);
+				itrLast = begin() + nDistLast;		// Fix our iterator to our combining tag
+				continue;			// No need to increment our iterator, since we just did in the erase
+			}
+		}
+
+		++itrTags;
 	}
-	append(aTag);
+	if (!bFoundFirst) append(aTag);			// If we didn't find it anywhere, add the new one on the end
 }
 
 bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
@@ -1139,10 +1164,11 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 				// For the split, make the current be the low half:
 				itrTags->m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(nNormalRefLo));
 				itrTags->m_nCount = (nNormalSrcLo - nNormalRefLo);		// Note, don't include first of cut section
+				int nDistTags = std::distance(begin(), itrTags);		// Save where our iterator is at, since we're about to nuke it
 				// And insert the upper half:
 				append(TPhraseTag(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormalSrcHi + 1)), nNormalRefHi - nNormalSrcHi));
-				// Our enumerator is bad, so just start over:
-				itrTags = begin();
+				// Fix the iterator we just nuked:
+				itrTags = begin() + nDistTags;
 			}
 		}
 		++itrTags;
