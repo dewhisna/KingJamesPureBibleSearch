@@ -320,6 +320,7 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1").arg(ndx+1));
 		pActionToolButton->setToolTip(tr("Highlighter Tool #%1").arg(ndx+1));
 		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1").arg(ndx+1));
+#ifndef Q_OS_MAC
 		switch (ndx) {
 			case 0:
 				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
@@ -336,6 +337,24 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 			default:
 				break;
 		}
+#else
+		switch (ndx) {
+			case 0:
+				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_H));
+				break;
+			case 1:
+				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_J));
+				break;
+			case 2:
+				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_K));
+				break;
+			case 3:
+				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_L));
+				break;
+			default:
+				break;
+		}
+#endif
 		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
 		pButtonHighlighter->setDefaultAction(pActionToolButton);
 
