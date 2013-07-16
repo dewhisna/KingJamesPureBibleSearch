@@ -120,14 +120,22 @@ public:
 	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
 	{
 		assert(pBibleDatabase != NULL);
-		const QString strUUID = pBibleDatabase->compatibilityUUID();
+		return highlighterTagsFor(pBibleDatabase->compatibilityUUID());
+	}
+	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
+	{
 		TBibleDBHighlighterTagMap::const_iterator itr = m_mapHighlighterTags.find(strUUID);
 		if (itr == m_mapHighlighterTags.end()) return NULL;
 		return &(itr->second);
 	}
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
-		const THighlighterTagMap *pmapHighlightTags = highlighterTagsFor(pBibleDatabase);
+		assert(pBibleDatabase != NULL);
+		return highlighterTagsFor(pBibleDatabase->compatibilityUUID(), strUserDefinedHighlighterName);
+	}
+	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
+	{
+		const THighlighterTagMap *pmapHighlightTags = highlighterTagsFor(strUUID);
 		if (pmapHighlightTags == NULL) return NULL;
 		THighlighterTagMap::const_iterator itr = pmapHighlightTags->find(strUserDefinedHighlighterName);
 		if (itr == pmapHighlightTags->end()) return NULL;
@@ -136,6 +144,17 @@ public:
 	bool existsHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
 		return (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) != NULL);
+	}
+	bool existsHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
+	{
+		return (highlighterTagsFor(strUUID, strUserDefinedHighlighterName) != NULL);
+	}
+	bool existsHighlighterTagsFor(const QString &strUserDefinedHighlighterName) const
+	{
+		for (TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.begin(); itrDB != m_mapHighlighterTags.end(); ++itrDB) {
+			if (highlighterTagsFor(itrDB->first, strUserDefinedHighlighterName)) return true;
+		}
+		return false;
 	}
 	void setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
 	void appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);

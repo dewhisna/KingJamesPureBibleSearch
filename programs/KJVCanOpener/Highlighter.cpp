@@ -440,6 +440,8 @@ void CHighlighterButtons::en_highlighterSelectionChanged(QAction *pAction)
 
 QString CHighlighterButtons::highlighter(int ndx) const
 {
+	if (ndx == -1) return QString();
+
 	assert((ndx >= 0) && (ndx < m_lstActionGroups.size()));
 	if ((ndx < 0) || (ndx >= m_lstActionGroups.size())) return QString();
 

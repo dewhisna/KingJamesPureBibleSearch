@@ -776,9 +776,13 @@ struct TPhraseTagListSortPredicate {
 	}
 };
 
+struct HighlighterNameSortPredicate {
+	bool operator() (const QString &v1, const QString &v2) const;
+};
+
 // PhraseTag Highlighter Mapping Types:
-typedef std::map<QString, TPhraseTagList> THighlighterTagMap;				// Map of HighlighterName to TPhraseTagList
-typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;	// Map of Bible Database UUID to THighlighterTagMap
+typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
+typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						// Map of Bible Database UUID to THighlighterTagMap
 
 // ============================================================================
 

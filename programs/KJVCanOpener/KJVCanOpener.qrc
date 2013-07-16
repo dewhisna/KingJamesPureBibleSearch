@@ -51,5 +51,6 @@
 		<file>res/highlighter_white_01-256.png</file>
 		<file>res/highlighter_translucent_01-256.png</file>
 		<file>res/checkbox.png</file>
+		<file>res/checkbox2.png</file>
 	</qresource>
 </RCC>

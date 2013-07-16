@@ -259,6 +259,8 @@ void CKJVBrowser::doHighlighting(bool bClear)
 	assert(g_pUserNotesDatabase != NULL);
 	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
 	if (pmapHighlighterTags) {
+		// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
+		//			(the map is already sorted)
 		for (THighlighterTagMap::const_iterator itrHighlighters = pmapHighlighterTags->begin(); itrHighlighters != pmapHighlighterTags->end(); ++itrHighlighters) {
 			CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
 			m_pScriptureBrowser->navigator().doHighlighting(highlighter, bClear, m_ndxCurrent);

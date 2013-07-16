@@ -44,6 +44,7 @@
 #include <QwwColorButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QMessageBox>
 
 // ============================================================================
 
@@ -83,6 +84,21 @@ class CHighlighterColorButton : public CHighlighterColorButtonSignalReflector, p
 public:
 	CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButton();
+
+	virtual bool operator <(const QListWidgetItem & other) const
+	{
+		const CHighlighterColorButton &myOther = static_cast<const CHighlighterColorButton &>(other);
+		HighlighterNameSortPredicate sortPred;
+
+		return sortPred(highlighterName(), myOther.highlighterName());
+	}
+
+	bool enabled() const { return m_pEnableCheckbox->isChecked(); }
+	void setEnabled(bool bEnabled)
+	{
+		m_pEnableCheckbox->setChecked(bEnabled);
+		emit enableChanged(highlighterName(), bEnabled);
+	}
 
 protected slots:
 	virtual void en_setTextBrightness(bool bInvert, int nBrightness);
@@ -176,10 +192,19 @@ void CHighlighterColorButton::setBrightness(bool bAdjust, bool bInvert, int nBri
 	if (bAdjust) {
 		if (!bInvert) {
 			m_pEnableCheckbox->setStyleSheet(QString("QCheckBox { background-color:%1; color:%2; }\n"
+													 "QCheckBox::indicator {\n"
+													 "    color: %2;\n"
+													 "    background-color: %1;\n"
+													 "    border: 1px solid %2;\n"
+													 "    width: 9px;\n"
+													 "    height: 9px;\n"
+													 "}\n"
+													 "QCheckBox::indicator:checked {\n"
+													 "    image:url(:/res/checkbox2.png);\n"
+													 "}\n"
 													)
 													.arg(clrBackground.name())
 													.arg(clrForeground.name()));
-
 		} else {
 			m_pEnableCheckbox->setStyleSheet(QString("QCheckBox { background-color:%1; color:%2; }\n"
 													 "QCheckBox::indicator {\n"
@@ -197,7 +222,14 @@ void CHighlighterColorButton::setBrightness(bool bAdjust, bool bInvert, int nBri
 													.arg(clrForeground.name()));
 		}
 	} else {
-		m_pEnableCheckbox->setStyleSheet(QString());
+		m_pEnableCheckbox->setStyleSheet(QString("QCheckBox::indicator {\n"
+												 "    border: 1px solid;\n"
+												 "    width: 9px;\n"
+												 "    height: 9px;\n"
+												 "}\n"
+												 "QCheckBox::indicator:checked {\n"
+												 "    image:url(:/res/checkbox2.png);\n"
+												 "}\n"));
 	}
 }
 
@@ -305,6 +337,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
 	ui->listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
+	ui->listWidgetHighlighterColors->setSortingEnabled(true);
 
 	const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
@@ -540,15 +573,19 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
-	g_pUserNotesDatabase->removeHighlighter(strUserDefinedHighlighterName);
-	assert(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
-	int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
-	assert(nComboIndex != -1);
-	if (nComboIndex != -1) {
-		ui->comboBoxHighlighters->removeItem(nComboIndex);
+	bool bCantRemove = g_pUserNotesDatabase->existsHighlighterTagsFor(strUserDefinedHighlighterName);
+
+	if (!bCantRemove) {
+		g_pUserNotesDatabase->removeHighlighter(strUserDefinedHighlighterName);
+		assert(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+		int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
+		assert(nComboIndex != -1);
+		if (nComboIndex != -1) {
+			ui->comboBoxHighlighters->removeItem(nComboIndex);
+		}
+		// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
+		en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
 	}
-	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
-	en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
 
 	int nListWidgetIndex = -1;
 	for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
@@ -559,8 +596,26 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	}
 	assert(nListWidgetIndex != -1);
 	if (nListWidgetIndex != -1) {
-		QListWidgetItem *pItem = ui->listWidgetHighlighterColors->takeItem(nListWidgetIndex);
-		delete pItem;
+		if (!bCantRemove) {
+			QListWidgetItem *pItem = ui->listWidgetHighlighterColors->takeItem(nListWidgetIndex);
+			delete pItem;
+		} else {
+			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(nListWidgetIndex));
+			if (pButtonItem->enabled()) {
+				int nResult = QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
+																				"edit your King James Notes file and remove all text highlighted with this highlighter and then you can remove it.  "
+																				"Or, open a new King James Notes file.\n\n"
+																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??"),
+																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
+				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
+			} else {
+				QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
+																 "edit your King James Notes file and remove all text highlighted with this highlighter and then you can remove it.  "
+																 "Or, open a new King James Notes file.  The Highlighter is already disabled so no text highlighted with this "
+																 "Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
+			}
+			return;		// Note: the setEnabled() call above will take care of updating our demo text and marking us dirty, etc, and nothing should have changed size...
+		}
 	}
 
 	recalcColorListWidth();

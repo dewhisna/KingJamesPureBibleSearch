@@ -655,24 +655,17 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	}
 
 	QString strHighlighterName = CHighlighterButtons::instance()->highlighter(pAction->data().toInt());
+	if (strHighlighterName.isEmpty()) return;
+
 	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
-	if (plstHighlighterTags == NULL) {
+	if ((plstHighlighterTags != NULL) && (plstHighlighterTags->completelyContains(m_pBibleDatabase, tagSel))) {
+		g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+	} else {
 		if (tagSel.haveSelection()) {
 			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
 		} else {
 			// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
 			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
-		}
-	} else {
-		if (plstHighlighterTags->completelyContains(m_pBibleDatabase, tagSel)) {
-			g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
-		} else {
-			if (tagSel.haveSelection()) {
-				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
-			} else {
-				// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
-				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
-			}
 		}
 	}
 }

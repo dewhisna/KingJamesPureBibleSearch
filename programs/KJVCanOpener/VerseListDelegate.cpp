@@ -200,6 +200,15 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 //	QSize szHint = QStyledItemDelegate::sizeHint(optionV4, index);
 
+	// Note: Without the extra -1 on the setTextWidth calculations below, occassionally QTextDocument will
+	//			miscalculate the wrapping for our rectangle size.  For example, in Times New Roman font at
+	//			12.00 pnt, a search for "ears to hear" and looking at result Luke 14:35, then when the
+	//			TreeView width is just so, the last word will wrap to the next line, but the sizeHint won't
+	//			be correct to have that next line.  This -1 will cause it to calculate an extra line for
+	//			those.  There is an occassional "extra space case", like will be seen in Matthew 11:15 on
+	//			the same search.  But extra space is better than missing text...  It may be due to the
+	//			proportional font and the colored search results markup.  Hmmm...
+
 	if ((m_model.displayMode() == CVerseListModel::VDME_RICHTEXT) ||
 		(m_model.displayMode() == CVerseListModel::VDME_HEADING)) {
 		QTextDocument doc;
@@ -208,7 +217,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 		if (pTree) {
 			CRelIndex ndxRel(index.internalId());
 			assert(ndxRel.isSet());
-			int nWidth = pTree->viewport()->width() - indentationForIndex(index);
+			int nWidth = pTree->viewport()->width() - indentationForIndex(index) - 1;
 
 //			int nWidth = pTree->viewport()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
 
@@ -216,7 +225,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 			SetDocumentText(optionV4, doc, index, true);
 		} else {
 			if (optionV4.rect.isValid()) {
-				doc.setTextWidth(optionV4.rect.width());
+				doc.setTextWidth(optionV4.rect.width()-1);
 				SetDocumentText(optionV4, doc, index, true);
 			} else {
 				SetDocumentText(optionV4, doc, index, true);

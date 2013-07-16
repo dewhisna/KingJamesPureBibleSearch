@@ -1178,3 +1178,11 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 }
 
 // ============================================================================
+
+bool HighlighterNameSortPredicate::operator() (const QString &v1, const QString &v2) const
+{
+	return (CSearchStringListModel::decompose(v1).compare(CSearchStringListModel::decompose(v2), Qt::CaseInsensitive) < 0);
+}
+
+// ============================================================================
+
