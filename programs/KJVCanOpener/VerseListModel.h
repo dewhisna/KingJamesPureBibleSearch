@@ -39,43 +39,83 @@
 #include <QObject>
 #include <QSize>
 #include <QFont>
+#include <QSet>
+#include <QSharedPointer>
 
 #include <assert.h>
+
+// ============================================================================
+
+class TVerseIndex {
+public:
+	TVerseIndex(const CRelIndex &ndx = CRelIndex(), int nHighlighter = -1)
+		:	m_nRelIndex(ndx),
+			m_nHighlighterIndex(nHighlighter)
+	{ }
+
+	TVerseIndex(const TVerseIndex &aVerseIndex)
+		:	m_nRelIndex(aVerseIndex.m_nRelIndex),
+			m_nHighlighterIndex(aVerseIndex.m_nHighlighterIndex)
+	{
+
+	}
+
+	const CRelIndex &relIndex() const { return m_nRelIndex; }
+	const int &highlighterIndex() const { return m_nHighlighterIndex; }
+
+	bool operator <(const TVerseIndex &other) const
+	{
+		return ((m_nHighlighterIndex < other.m_nHighlighterIndex) || ((m_nHighlighterIndex == other.m_nHighlighterIndex) && (m_nRelIndex < other.m_nRelIndex)));
+	}
+
+protected:
+	friend class CVerseListModel;
+
+	CRelIndex m_nRelIndex;					// Relative Bible index
+	int m_nHighlighterIndex;				// Index into list of highlighters (0 to n) or -1 if this is a Search Result index instead of a highlighter
+};
+typedef QSharedPointer<TVerseIndex> TVerseIndexPtr;
+typedef QList<TVerseIndex> TVerseIndexList;
+typedef QMap<CRelIndex, TVerseIndexPtr> TVerseIndexPtrMap;
 
 // ============================================================================
 
 class CVerseListItem
 {
 public:
-	explicit CVerseListItem(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(),
-							const CRelIndex &ndx = CRelIndex(),
-							const unsigned int nPhraseSize = 1)
-		:	m_pBibleDatabase(pBibleDatabase),
-			m_ndxRelative(ndx)
+	explicit CVerseListItem()
 	{
-		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
-		if (nPhraseSize > 0)
-			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
+
 	}
-	CVerseListItem(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag)
-		:	m_pBibleDatabase(pBibleDatabase),
-			m_ndxRelative(tag.relIndex())
+
+//	explicit CVerseListItem(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(),
+//							const CRelIndex &ndx = CRelIndex(),
+//							const unsigned int nPhraseSize = 1)
+//		:	m_pBibleDatabase(pBibleDatabase),
+//			m_ndxRelative(ndx)
+//	{
+//		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
+//		if (nPhraseSize > 0)
+//			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
+//	}
+
+	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag)
+		:	m_pBibleDatabase(pBibleDatabase)
 	{
-		m_ndxRelative.setWord(0);				// Primary index will have a zero word index
-		if (tag.count() > 0)
-			m_lstTags.push_back(tag);			// But the corresponding tag will have non-zero word index
+		m_pVerseIndex = TVerseIndexPtr(new TVerseIndex(aVerseIndex));
+		m_lstTags.push_back(tag);
 	}
-	CVerseListItem(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &lstTags)
+
+	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &lstTags)
 		:	m_pBibleDatabase(pBibleDatabase),
 			m_lstTags(lstTags)
 	{
-		if (lstTags.size() > 0) {
-			m_ndxRelative = lstTags.at(0).relIndex();
-			m_ndxRelative.setWord(0);				// Primary index will have a zero word index
-		}
+		m_pVerseIndex = TVerseIndexPtr(new TVerseIndex(aVerseIndex));
 	}
 	~CVerseListItem()
 	{ }
+
+	TVerseIndexPtr verseIndex() const { return m_pVerseIndex; }
 
 	inline QString getHeading() const {
 		assert(m_pBibleDatabase.data() != NULL);
@@ -128,19 +168,19 @@ public:
 	}
 
 	inline bool isSet() const {
-		return (m_ndxRelative.isSet());
+		return (m_pVerseIndex->relIndex().isSet());
 	}
 
-	inline uint32_t getBook() const { return m_ndxRelative.book(); }		// Book Number (1-n)
-	inline uint32_t getChapter() const { return m_ndxRelative.chapter(); }	// Chapter Number within Book (1-n)
-	inline uint32_t getVerse() const { return m_ndxRelative.verse(); }		// Verse Number within Chapter (1-n)
+	inline uint32_t getBook() const { return m_pVerseIndex->relIndex().book(); }		// Book Number (1-n)
+	inline uint32_t getChapter() const { return m_pVerseIndex->relIndex().chapter(); }	// Chapter Number within Book (1-n)
+	inline uint32_t getVerse() const { return m_pVerseIndex->relIndex().verse(); }		// Verse Number within Chapter (1-n)
 	uint32_t getIndexNormalized() const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return 0;
-		return m_pBibleDatabase->NormalizeIndex(m_ndxRelative);
+		return m_pBibleDatabase->NormalizeIndex(m_pVerseIndex->relIndex());
 	}
-	inline uint32_t getIndexDenormalized() const { return m_ndxRelative.index(); }
-	inline CRelIndex getIndex() const { return m_ndxRelative; }
+	inline uint32_t getIndexDenormalized() const { return m_pVerseIndex->relIndex().index(); }
+	inline CRelIndex getIndex() const { return m_pVerseIndex->relIndex(); }
 	inline unsigned int getPhraseSize(int nTag) const {
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return 0;
@@ -211,17 +251,18 @@ public:
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		if (!isSet()) return QString();
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
+		m_strRichTextCache = m_pBibleDatabase->richVerseText(m_pVerseIndex->relIndex(), richifierTags, false);
 		return m_strRichTextCache;
 #else
-		return m_pBibleDatabase->richVerseText(m_ndxRelative, richifierTags, false);
+		return m_pBibleDatabase->richVerseText(m_pVerseIndex->relIndex(), richifierTags, false);
 #endif
 	}
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	CRelIndex m_ndxRelative;		// Primary Relative Index (word index == 0)
-	TPhraseTagList m_lstTags;		// Phrase Tags to highlight, includes a copy of the Primary (w/word index != 0)
+	TPhraseTagList m_lstTags;		// Phrase Tags to highlight in this object
+
+	TVerseIndexPtr m_pVerseIndex;	// Used for QModelIndex Internal object
 
 // Caches filled in during first fetch:
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
@@ -259,6 +300,11 @@ public:
 		VTME_TREE_CHAPTERS = 2			// Tree by Chapters = Branch verses under Chapters under Books
 	};
 
+	enum VERSE_VIEW_MODE_ENUM {
+		VVME_SEARCH_RESULTS = 0,		// Display Search Results in the Tree View
+		VVME_HIGHLIGHTERS = 1			// Display Tree of Highlighter Tags
+	};
+
 	enum VERSE_DATA_ROLES_ENUM {
 		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Full verse text display mode
 		VERSE_HEADING_ROLE = Qt::UserRole + 1,				// Verse heading display text
@@ -268,9 +314,101 @@ public:
 		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 5	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
 	};
 
+	// ------------------------------------------------------------------------
+
+	class TVerseListModelPrivate {
+	public:
+		TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase);
+
+		CBibleDatabasePtr m_pBibleDatabase;
+		VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;		// Headings vs RichText, etc
+		VERSE_TREE_MODE_ENUM m_nTreeMode;			// List, Tree by Books, Tree by Chapters, etc.
+		VERSE_VIEW_MODE_ENUM m_nViewMode;			// Search Results vs Highlighters, etc
+		bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
+		CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the results in this list
+		QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
+	};
+
+	// ------------------------------------------------------------------------
+
+	static TVerseIndex *toVerseIndex(const QModelIndex &ndx) {
+		static TVerseIndex nullVerseIndex;				// Empty VerseIndex to use for parent entries where QModelIndex->NULL
+		return ((ndx.internalPointer() != NULL) ? reinterpret_cast<TVerseIndex *>(ndx.internalPointer()) : &nullVerseIndex);
+	}
+	static void *fromVerseIndex(const TVerseIndex *ndx) { return reinterpret_cast<void *>(const_cast<TVerseIndex *>(ndx)); }
+
+	// Data for one parsed TPhraseTagList (Used one for Search Results and one for each Highlighter)
+	class TVerseListModelResults {
+	protected:
+		friend class CVerseListModel;
+
+		TVerseListModelResults(TVerseListModelPrivate &priv)
+			:	m_private(priv)
+		{ }
+
+		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+		QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
+		mutable TVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
+		QMap<TVerseIndex, QSize> m_mapSizeHints;	// Map of TVerseIndex (CRelIndex [nBk|nChp|nVrs|0] and Highlighter) to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
+
+		// --------------------------------------
+
+		TVerseIndexPtr extraVerseIndex(const TVerseIndex &aVerseIndex) const
+		{
+			TVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.find(aVerseIndex.relIndex());
+			if (itr != m_mapExtraVerseIndexes.constEnd()) return itr.value();
+
+			return m_mapExtraVerseIndexes.insert(aVerseIndex.relIndex(), TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
+		}
+
+		// --------------------------------------
+
+		int GetBookCount() const;						// Returns the number of books in the model based on mode
+		int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number
+		unsigned int BookByIndex(int ndxBook) const;	// Returns the Book Number for the specified index (in the number of books)
+		int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
+		int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
+		unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
+		CVerseMap::const_iterator FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in m_mapVerses and returns its index
+		CVerseMap::const_iterator GetVerse(int ndxVerse, unsigned int nBk = 0, unsigned int nChp = 0) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
+	public:
+		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+		const CVerseMap &verseMap() const { return m_mapVerses; }
+	protected:
+		TVerseListModelPrivate &m_private;
+	};
+	typedef QMap<QString, TVerseListModelResults> THighlighterVLMRMap;
+
+	class TVerseListModelSearchResults : public TVerseListModelResults {
+	protected:
+		friend class CVerseListModel;
+
+		TVerseListModelSearchResults(TVerseListModelPrivate &priv)
+			:	TVerseListModelResults(priv)
+		{ }
+
+		TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
+		CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
+
+		// --------------------------------------
+
+	public:
+		int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
+
+		QPair<int, int> GetResultsIndexes(CVerseMap::const_iterator itrVerse) const;		// Calculates the starting and ending results indexes for the specified Verse List entry index
+		QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Book number and total number of books with results
+		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
+		QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
+
+		using TVerseListModelResults::GetVerseCount;
+		using TVerseListModelResults::verseMap;
+	};
+
+	// ------------------------------------------------------------------------
+
 	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = 0);
 
-	inline CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
+	inline CBibleDatabasePtr bibleDatabase() const { return m_private.m_pBibleDatabase; }
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -293,23 +431,17 @@ public:
 
 	QModelIndex locateIndex(const CRelIndex &ndxRel) const;
 
-	const CVerseMap &verseMap() const { return m_mapVerses; }
-
 	TParsedPhrasesList parsedPhrases() const;
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
 
-	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_nDisplayMode; }
-	VERSE_TREE_MODE_ENUM treeMode() const { return m_nTreeMode; }
-	bool showMissingLeafs() const { return m_bShowMissingLeafs; }
+	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_private.m_nDisplayMode; }
+	VERSE_TREE_MODE_ENUM treeMode() const { return m_private.m_nTreeMode; }
+	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
+	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
 
-	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
+	const TVerseListModelSearchResults &searchResults() const { return m_searchResults; }
 
-	QPair<int, int> GetResultsIndexes(CVerseMap::const_iterator itrVerse) const;		// Calculates the starting and ending results indexes for the specified Verse List entry index
-	QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Book number and total number of books with results
-	QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
-	QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
-
-	inline const QFont &font() const { return m_font; }
+	inline const QFont &font() const { return m_private.m_font; }
 
 signals:
 	void cachedSizeHintsInvalidated();
@@ -319,6 +451,7 @@ signals:
 public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
+	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setShowMissingLeafs(bool bShowMissing);
 	virtual void setFont(const QFont& aFont);
 
@@ -343,17 +476,10 @@ private:
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
-	CBibleDatabasePtr m_pBibleDatabase;
-	CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
-	QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
-	QMap<CRelIndex, QSize> m_mapSizeHints;		// Map of CRelIndex [nBk|nChp|nVrs|0] to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
-	TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged
-	CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
-	VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;
-	VERSE_TREE_MODE_ENUM m_nTreeMode;
-	bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
-	CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the search results in this list
-	QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
+	TVerseListModelPrivate m_private;
+
+	THighlighterVLMRMap m_vlmrMapHighlighters;		// Per-Highlighter VerseListModelResults
+	TVerseListModelSearchResults m_searchResults;	// VerseListModelResults for Search Results
 };
 
 // ============================================================================

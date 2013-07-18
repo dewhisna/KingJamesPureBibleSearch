@@ -55,8 +55,8 @@ CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const CVerseListModel *
 		m_lstPhraseTags(m_lstDummyPhraseTags)
 {
 	assert(m_pVerseListModel != NULL);
-	m_itrVerses = m_pVerseListModel->verseMap().constBegin();
-	while (m_itrVerses != m_pVerseListModel->verseMap().constEnd()) {
+	m_itrVerses = m_pVerseListModel->searchResults().verseMap().constBegin();
+	while (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
 		m_itrTags = m_itrVerses->phraseTags().constBegin();
 		if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
 		++m_itrVerses;
@@ -75,12 +75,12 @@ TPhraseTag CHighlighterPhraseTagFwdItr::nextTag()
 	TPhraseTag nRetVal = (!isEnd() ? *m_itrTags : TPhraseTag());
 
 	if (m_pVerseListModel) {
-		if (m_itrVerses != m_pVerseListModel->verseMap().constEnd()) {
+		if (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
 			++m_itrTags;
 			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) return nRetVal;
 		}
 		++m_itrVerses;
-		while (m_itrVerses != m_pVerseListModel->verseMap().constEnd()) {
+		while (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
 			m_itrTags = m_itrVerses->phraseTags().constBegin();
 			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
 			++m_itrVerses;
@@ -95,7 +95,7 @@ TPhraseTag CHighlighterPhraseTagFwdItr::nextTag()
 bool CHighlighterPhraseTagFwdItr::isEnd() const
 {
 	if (m_pVerseListModel) {
-		return (m_itrVerses == m_pVerseListModel->verseMap().constEnd());
+		return (m_itrVerses == m_pVerseListModel->searchResults().verseMap().constEnd());
 	} else {
 		return (m_itrTags == m_lstPhraseTags.constEnd());
 	}
@@ -185,7 +185,7 @@ CHighlighterPhraseTagFwdItr CSearchResultHighlighter::getForwardIterator() const
 bool CSearchResultHighlighter::isEmpty() const
 {
 	if (m_pVerseListModel) {
-		return (m_pVerseListModel->verseMap().isEmpty());		// Our highlighter PhraseTags could technically be empty and not trigger this, but for the purposes of this function this highlighter "isn't empty" if we have verses
+		return (m_pVerseListModel->searchResults().verseMap().isEmpty());		// Our highlighter PhraseTags could technically be empty and not trigger this, but for the purposes of this function this highlighter "isn't empty" if we have verses
 	} else {
 		return m_myPhraseTags.phraseTags().isEmpty();
 	}

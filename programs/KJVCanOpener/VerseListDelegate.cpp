@@ -47,11 +47,14 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 
 void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
 {
+	const CVerseListModel::TVerseListModelSearchResults &zResults = m_model.searchResults();		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+
 	QTreeView *pView = parentView();
 	assert(pView != NULL);
 	bool bViewHasFocus = pView->hasFocus();
 
-	CRelIndex ndxRel(index.internalId());
+	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
 	assert(ndxRel.isSet());
 
 	doc.setDefaultFont(m_model.font());
@@ -88,8 +91,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 		}
 	} else if (ndxRel.chapter() != 0) {
 		// Chapters:
-		int nVerses = m_model.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-		int nResults = m_model.GetResultsCount(ndxRel.book(), ndxRel.chapter());
+		int nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+		int nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
 		if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
 			strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 		} else {
@@ -99,8 +102,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 		doc.setHtml(strHTML);
 	} else {
 		// Books:
-		int nVerses = m_model.GetVerseCount(ndxRel.book());
-		int nResults = m_model.GetResultsCount(ndxRel.book());
+		int nVerses = zResults.GetVerseCount(ndxRel.book());
+		int nResults = zResults.GetResultsCount(ndxRel.book());
 		if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
 			strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 		} else {
@@ -164,7 +167,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 					qDrawShadeRect(painter, textRect, optionV4.palette, false);
 				}
 
-				CRelIndex ndxRel(index.internalId());
+				CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
 				assert(ndxRel.isSet());
 				if ((index.row() != 0) && (ndxRel.verse() != 0)) {
 					// Ideally we would just draw the line on the top of all entries except for
@@ -215,7 +218,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 		QTreeView *pTree = parentView();
 		if (pTree) {
-			CRelIndex ndxRel(index.internalId());
+			CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
 			assert(ndxRel.isSet());
 			int nWidth = pTree->viewport()->width() - indentationForIndex(index) - 1;
 

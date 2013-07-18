@@ -193,7 +193,7 @@ void CSearchResultsTreeView::en_copyVerseText()
 	CVerseList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 				lstVerses.append(item);
@@ -251,7 +251,7 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	CVerseList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 				lstVerses.append(item);
@@ -292,7 +292,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings()
 	CVerseList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 				lstVerses.append(item);
@@ -322,7 +322,7 @@ void CSearchResultsTreeView::en_copyReferenceDetails()
 	CVerseList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 				lstVerses.append(item);
@@ -359,7 +359,7 @@ void CSearchResultsTreeView::en_copyComplete()
 	CVerseList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 				lstVerses.append(item);
@@ -397,7 +397,7 @@ void CSearchResultsTreeView::en_copyComplete()
 
 CRelIndex CSearchResultsTreeView::currentIndex() const
 {
-	return CRelIndex(QTreeView::currentIndex().internalId());
+	return CRelIndex(CVerseListModel::toVerseIndex(QTreeView::currentIndex())->relIndex());
 }
 
 bool CSearchResultsTreeView::setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView)
@@ -445,7 +445,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() == 1) {
 		if (!lstSelectedItems.at(0).isValid()) return;
-		ndxRel = lstSelectedItems.at(0).internalId();
+		ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(0))->relIndex();
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return;
 	} else {
@@ -497,7 +497,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = lstSelectedItems.at(ndx).internalId();
+			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				nNumResultsSelected++;
 			}
@@ -531,7 +531,9 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 void CSearchResultsTreeView::en_listChanged()
 {
-	int nResultsCount = vlmodel()->GetResultsCount();
+	const CVerseListModel::TVerseListModelResults &zResults = vlmodel()->searchResults();		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+	int nResultsCount = zResults.GetVerseCount();		// TODO : Verify these are equivalent:  Original:  vlmodel()->GetResultsCount();
 
 	m_pActionSelectAll->setEnabled(nResultsCount != 0);
 	emit canExpandAll((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) && (vlmodel()->hasChildren()));
@@ -777,10 +779,10 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 	int nBooks = 0;			// Results counts in Books
 	int nResults = 0;		// Total number of Results in Scope
 
-	nVerses = vlmodel()->GetVerseIndexAndCount().second;
-	nChapters = vlmodel()->GetChapterIndexAndCount().second;
-	nBooks = vlmodel()->GetBookIndexAndCount().second;
-	nResults = vlmodel()->GetResultsCount();
+	nVerses = vlmodel()->searchResults().GetVerseIndexAndCount().second;
+	nChapters = vlmodel()->searchResults().GetChapterIndexAndCount().second;
+	nBooks = vlmodel()->searchResults().GetBookIndexAndCount().second;
+	nResults = vlmodel()->searchResults().GetResultsCount();
 
 	QString strResults;
 

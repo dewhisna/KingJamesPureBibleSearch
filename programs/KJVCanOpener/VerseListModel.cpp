@@ -55,40 +55,50 @@ void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 
 // ============================================================================
 
-CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
-	:	QAbstractItemModel(parent),
-		m_pBibleDatabase(pBibleDatabase),
+CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase)
+	:	m_pBibleDatabase(pBibleDatabase),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
+		m_nViewMode(VVME_SEARCH_RESULTS),
 		m_bShowMissingLeafs(false)
 {
-	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+
+}
+
+CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
+	:	QAbstractItemModel(parent),
+		m_private(pBibleDatabase),
+		m_searchResults(m_private)
+{
+	m_private.m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
 int CVerseListModel::rowCount(const QModelIndex &parent) const
 {
-	switch (m_nTreeMode) {
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+	switch (m_private.m_nTreeMode) {
 		case VTME_LIST:
 		{
 			if (parent.isValid()) return 0;
-			return m_mapVerses.size();
+			return zResults.m_mapVerses.size();
 		}
 		case VTME_TREE_BOOKS:
 		{
-			if (!parent.isValid()) return GetBookCount();
-			CRelIndex ndxRel(parent.internalId());
+			if (!parent.isValid()) return zResults.GetBookCount();
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return GetVerseCount(ndxRel.book());
+			if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
 			return 0;
 		}
 		case VTME_TREE_CHAPTERS:
 		{
-			if (!parent.isValid()) return GetBookCount();
-			CRelIndex ndxRel(parent.internalId());
+			if (!parent.isValid()) return zResults.GetBookCount();
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return GetChapterCount(ndxRel.book());
-			if (ndxRel.verse() == 0) return GetVerseCount(ndxRel.book(), ndxRel.chapter());
+			if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
+			if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 			return 0;
 		}
 		default:
@@ -100,7 +110,9 @@ int CVerseListModel::rowCount(const QModelIndex &parent) const
 
 int CVerseListModel::columnCount(const QModelIndex &parent) const
 {
-	switch (m_nTreeMode) {
+//	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+	switch (m_private.m_nTreeMode) {
 		case VTME_LIST:
 		{
 			if (!parent.isValid()) return 1;
@@ -109,7 +121,7 @@ int CVerseListModel::columnCount(const QModelIndex &parent) const
 		case VTME_TREE_BOOKS:
 		{
 			if (!parent.isValid()) return 1;
-			CRelIndex ndxRel(parent.internalId());
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.chapter() == 0) return 1;
 			return 0;
@@ -117,7 +129,7 @@ int CVerseListModel::columnCount(const QModelIndex &parent) const
 		case VTME_TREE_CHAPTERS:
 		{
 			if (!parent.isValid()) return 1;
-			CRelIndex ndxRel(parent.internalId());
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.chapter() == 0) return 1;
 			if (ndxRel.verse() == 0) return 1;
@@ -134,42 +146,45 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &paren
 {
 	if (!hasIndex(row, column, parent)) return QModelIndex();
 
-	switch (m_nTreeMode) {
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	int nHighlighter = -1;
+
+	switch (m_private.m_nTreeMode) {
 		case VTME_LIST:
 		{
-			assert(row < m_mapVerses.size());
-			CVerseMap::const_iterator itrVerse = GetVerse(row);
-			if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
-			return createIndex(row, column, itrVerse->getIndex().index());
+			assert(row < zResults.m_mapVerses.size());
+			CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
+			if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+			return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 		}
 		case VTME_TREE_BOOKS:
 		{
 			if (!parent.isValid()) {
-				return createIndex(row, column, CRelIndex(BookByIndex(row), 0, 0, 0).index());
+				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), nHighlighter)).data()));
 			}
-			CRelIndex ndxRel(parent.internalId());
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.chapter() == 0) {
-				CVerseMap::const_iterator itrVerse = GetVerse(row, ndxRel.book());
-				if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
-				return createIndex(row, column, itrVerse->getIndex().index());
+				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
+				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 			}
 			return QModelIndex();
 		}
 		case VTME_TREE_CHAPTERS:
 		{
 			if (!parent.isValid()) {
-				return createIndex(row, column, CRelIndex(BookByIndex(row), 0, 0, 0).index());
+				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), nHighlighter)).data()));
 			}
-			CRelIndex ndxRel(parent.internalId());
+			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.chapter() == 0) {
-				return createIndex(row, column, CRelIndex(ndxRel.book(), ChapterByIndex(parent.row(), row), 0, 0).index());
+				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(parent.row(), row), 0, 0), nHighlighter)).data()));
 			}
 			if (ndxRel.verse() == 0) {
-				CVerseMap::const_iterator itrVerse = GetVerse(row, ndxRel.book(), ndxRel.chapter());
-				if (itrVerse == m_mapVerses.constEnd()) return QModelIndex();
-				return createIndex(row, column, itrVerse->getIndex().index());
+				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
+				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 			}
 			return QModelIndex();
 		}
@@ -184,31 +199,34 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 {
 	if (!index.isValid()) return QModelIndex();
 
-	switch (m_nTreeMode) {
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	int nHighlighter = -1;
+
+	switch (m_private.m_nTreeMode) {
 		case VTME_LIST:
 		{
 			return QModelIndex();
 		}
 		case VTME_TREE_BOOKS:
 		{
-			CRelIndex ndxRel(index.internalId());
+			CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.verse() != 0) {
-				if (!m_mapVerses.contains(ndxRel)) return QModelIndex();
-				return createIndex(IndexByBook(ndxRel.book()), 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());
+				if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
+				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), nHighlighter)).data()));
 			}
 			return QModelIndex();
 		}
 		case VTME_TREE_CHAPTERS:
 		{
-			CRelIndex ndxRel(index.internalId());
+			CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 			assert(ndxRel.isSet());
 			if (ndxRel.verse() != 0) {
-				if (!m_mapVerses.contains(ndxRel)) return QModelIndex();
-				return createIndex(IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0).index());
+				if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
+				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), nHighlighter)).data()));
 			}
 			if (ndxRel.chapter() != 0) {
-				return createIndex(IndexByBook(ndxRel.book()), 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());
+				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), nHighlighter)).data()));
 			}
 			return QModelIndex();
 		}
@@ -221,114 +239,124 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase);
 
 	if (!index.isValid()) return QVariant();
 
-	CRelIndex ndxRel(index.internalId());
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return QVariant();
 
-	if (role == Qt::SizeHintRole) return m_mapSizeHints.value(ndxRel, QSize());
+	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(*toVerseIndex(index), QSize());
 
-	if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
-		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-			QString strBookText = m_pBibleDatabase->bookName(ndxRel);
-			if (m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
-			int nVerses = GetVerseCount(ndxRel.book());
-			int nResults = GetResultsCount(ndxRel.book());
-			if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
-			return strBookText;
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+		if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
+			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+				QString strBookText = m_private.m_pBibleDatabase->bookName(ndxRel);
+				if (m_private.m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
+				int nVerses = m_searchResults.GetVerseCount(ndxRel.book());
+				int nResults = m_searchResults.GetResultsCount(ndxRel.book());
+				if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
+				return strBookText;
+			}
+			if ((role == Qt::ToolTipRole) ||
+				(role == TOOLTIP_ROLE) ||
+				(role == TOOLTIP_PLAINTEXT_ROLE) ||
+				(role == TOOLTIP_NOHEADING_ROLE) ||
+				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+				return QString();
+			}
+			return QVariant();
 		}
-		if ((role == Qt::ToolTipRole) ||
-			(role == TOOLTIP_ROLE) ||
-			(role == TOOLTIP_PLAINTEXT_ROLE) ||
-			(role == TOOLTIP_NOHEADING_ROLE) ||
-			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-			return QString();
+
+		if (ndxRel.verse() == 0) {
+			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+				QString strChapterText = m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
+				if (m_private.m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
+				int nVerses = m_searchResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				int nResults = m_searchResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
+				if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
+				return strChapterText;
+			}
+			if ((role == Qt::ToolTipRole) ||
+				(role == TOOLTIP_ROLE) ||
+				(role == TOOLTIP_PLAINTEXT_ROLE) ||
+				(role == TOOLTIP_NOHEADING_ROLE) ||
+				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+				return QString();
+			}
+			return QVariant();
 		}
-		return QVariant();
+	} else {
+		// TODO : Finish this for HIGHLIGHTERS!!
 	}
 
-	if (ndxRel.verse() == 0) {
-		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-			QString strChapterText = m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
-			if (m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
-			int nVerses = GetVerseCount(ndxRel.book(), ndxRel.chapter());
-			int nResults = GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
-			return strChapterText;
-		}
-		if ((role == Qt::ToolTipRole) ||
-			(role == TOOLTIP_ROLE) ||
-			(role == TOOLTIP_PLAINTEXT_ROLE) ||
-			(role == TOOLTIP_NOHEADING_ROLE) ||
-			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-			return QString();
-		}
-		return QVariant();
-	}
-
-	if (!m_mapVerses.contains(ndxRel)) return QVariant();
+	if (!zResults.m_mapVerses.contains(ndxRel)) return QVariant();
 
 	if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
 
-	return dataForVerse(m_mapVerses.value(ndxRel), role);
+	return dataForVerse(zResults.m_mapVerses.value(ndxRel), role);
 }
 
 QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) const
 {
-	CVerseMap::const_iterator itrVerse = m_mapVerses.find(aVerse.getIndex());
-	if (itrVerse == m_mapVerses.constEnd()) return QVariant();
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
+	CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(aVerse.getIndex());
+	if (itrVerse == zResults.m_mapVerses.constEnd()) return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		switch (m_nDisplayMode) {
+		switch (m_private.m_nDisplayMode) {
 			case VDME_HEADING:
 				return aVerse.getHeading();
 			case VDME_VERYPLAIN:
 				return aVerse.getVerseVeryPlainText();
 			case VDME_RICHTEXT:
-				return aVerse.getVerseRichText(m_richifierTags);
+				return aVerse.getVerseRichText(m_private.m_richifierTags);
 			case VDME_COMPLETE:
-				return aVerse.getVerseRichText(m_richifierTags);		// TODO : FINISH THIS ONE!!!
+				return aVerse.getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
 			default:
 				return QString();
 		}
 	}
 
-	if ((role == TOOLTIP_ROLE) ||
-		(role == TOOLTIP_PLAINTEXT_ROLE) ||
-		(role == TOOLTIP_NOHEADING_ROLE) ||
-		(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-		bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
-		QString strToolTip;
-		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
-			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
-		if (bHeading) strToolTip += aVerse.getHeading() + "\n";
-		QPair<int, int> nResultsIndexes = GetResultsIndexes(itrVerse);
-		if (nResultsIndexes.first != nResultsIndexes.second) {
-			strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-						tr("Search Results %1-%2 of %3 phrase occurrences")
-									.arg(nResultsIndexes.first)
-									.arg(nResultsIndexes.second)
-									.arg(GetResultsCount()) + "\n";
-		} else {
-			assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
-			strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-						tr("Search Result %1 of %2 phrase occurrences")
-									.arg(nResultsIndexes.first)
-									.arg(GetResultsCount()) + "\n";
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+		if ((role == TOOLTIP_ROLE) ||
+			(role == TOOLTIP_PLAINTEXT_ROLE) ||
+			(role == TOOLTIP_NOHEADING_ROLE) ||
+			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+			bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
+			QString strToolTip;
+			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
+			if (bHeading) strToolTip += aVerse.getHeading() + "\n";
+			QPair<int, int> nResultsIndexes = m_searchResults.GetResultsIndexes(itrVerse);
+			if (nResultsIndexes.first != nResultsIndexes.second) {
+				strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+							tr("Search Results %1-%2 of %3 phrase occurrences")
+										.arg(nResultsIndexes.first)
+										.arg(nResultsIndexes.second)
+										.arg(m_searchResults.GetResultsCount()) + "\n";
+			} else {
+				assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
+				strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+							tr("Search Result %1 of %2 phrase occurrences")
+										.arg(nResultsIndexes.first)
+										.arg(m_searchResults.GetResultsCount()) + "\n";
+			}
+			QPair<int, int> nVerseResult = m_searchResults.GetVerseIndexAndCount(itrVerse);
+			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
+			QPair<int, int> nChapterResult = m_searchResults.GetChapterIndexAndCount(itrVerse);
+			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
+			QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
+			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
+			strToolTip += aVerse.getToolTip(m_searchResults.m_lstParsedPhrases);
+			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
+			return strToolTip;
 		}
-		QPair<int, int> nVerseResult = GetVerseIndexAndCount(itrVerse);
-		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
-		QPair<int, int> nChapterResult = GetChapterIndexAndCount(itrVerse);
-		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
-		QPair<int, int> nBookResult = GetBookIndexAndCount(itrVerse);
-		strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-		strToolTip += aVerse.getToolTip(m_lstParsedPhrases);
-		if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
-			(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
-		return strToolTip;
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {
@@ -340,19 +368,21 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+	TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+
 	if (role == Qt::SizeHintRole) {
 		if (!index.isValid()) {
 			// Special Case:  QModelIndex() is "invalidate all":
-			m_mapSizeHints.clear();
+			zResults.m_mapSizeHints.clear();
 			emit cachedSizeHintsInvalidated();
 			return false;				// But return false because we can't actually set a SizeHint for an invalid index
 		}
 
-		CRelIndex ndxRel(index.internalId());
+		CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return false;
 
-		m_mapSizeHints[ndxRel] = value.toSize();
+		zResults.m_mapSizeHints[*toVerseIndex(index)] = value.toSize();
 		// Note: Do not fire dataChanged() here, as this is just a cache used by ReflowDelegate
 		return true;
 	}
@@ -361,7 +391,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 	if (index.row() < 0 || index.row() >= m_lstVerses.size()) return false;
 
 	if ((role == Qt::EditRole) || (role == Qt::DisplayRole)) {
-		switch (m_nDisplayMode) {
+		switch (m_private.m_nDisplayMode) {
 			case VDME_HEADING:
 			case VDME_VERYPLAIN:
 			case VDME_RICHTEXT:
@@ -392,7 +422,7 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	if (!index.isValid())
 		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
-	CRelIndex ndxRel(index.internalId());
+	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 	assert(ndxRel.isSet());
 	if (ndxRel.verse() == 0) return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
@@ -506,37 +536,42 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 {
 	if (!ndxRel.isSet()) return QModelIndex();
 
+	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	int nHighlighter = -1;
+
 	// See if this is a verse (search result) reference.  If so resolve:
 	if (ndxRel.verse() != 0) {
 		CVerseMap::const_iterator itrFirst;
 		CVerseMap::const_iterator itrTarget;
 
 		// Set ndxVerse to first verse m_lstVerses array for this parent node:
-		if (m_nTreeMode == VTME_LIST) {
-			itrFirst = m_mapVerses.constBegin();		// For list mode, the list includes everything, so start with the first index
+		if (m_private.m_nTreeMode == VTME_LIST) {
+			itrFirst = zResults.m_mapVerses.constBegin();		// For list mode, the list includes everything, so start with the first index
 		} else {
-			itrFirst = GetVerse(0, ndxRel.book(), ((m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
+			itrFirst = zResults.GetVerse(0, ndxRel.book(), ((m_private.m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
 		}
-		itrTarget = FindVerseIndex(ndxRel);
-		if (itrTarget == m_mapVerses.constEnd()) return QModelIndex();
-		return createIndex(std::distance(itrFirst, itrTarget), 0, itrTarget->getIndex().index());		// Use index from actual verse instead of ndxRel since word() isn't required to match
+		itrTarget = zResults.FindVerseIndex(ndxRel);
+		if (itrTarget == zResults.m_mapVerses.constEnd()) return QModelIndex();
+		return createIndex(std::distance(itrFirst, itrTarget), 0, fromVerseIndex(itrTarget->verseIndex().data()));		// Use index from actual verse instead of ndxRel since word() isn't required to match
 	}
 
 	// If we are in list mode and caller only gave us a book/chapter reference,
 	//		then we simply don't have an index to return.  That makes more
 	//		sense than possibly returning the first one that might match:
-	if (m_nTreeMode == VTME_LIST) return QModelIndex();
+	if (m_private.m_nTreeMode == VTME_LIST) return QModelIndex();
 
-	if ((ndxRel.chapter() != 0) && (m_nTreeMode == VTME_TREE_CHAPTERS)) {
+	if ((ndxRel.chapter() != 0) && (m_private.m_nTreeMode == VTME_TREE_CHAPTERS)) {
 		// If this is a book/chapter reference, resolve it:
-		int ndxTarget = IndexByChapter(ndxRel.book(), ndxRel.chapter());
+		int ndxTarget = zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter());
 		if (ndxTarget == -1) return QModelIndex();
-		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0).index());		// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+		CRelIndex ndxChapter(ndxRel.book(), ndxRel.chapter(), 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxChapter, nHighlighter)).data()));
 	} else {
 		// If this is a book-only reference, resolve it:
-		int ndxTarget = IndexByBook(ndxRel.book());
+		int ndxTarget = zResults.IndexByBook(ndxRel.book());
 		if (ndxTarget == -1) return QModelIndex();
-		return createIndex(ndxTarget, 0, CRelIndex(ndxRel.book(), 0, 0, 0).index());	// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+		CRelIndex ndxBook(ndxRel.book(), 0, 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
+		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxBook, nHighlighter)).data()));
 	}
 
 	return QModelIndex();
@@ -546,7 +581,7 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 
 TParsedPhrasesList CVerseListModel::parsedPhrases() const
 {
-	return m_lstParsedPhrases;
+	return m_searchResults.m_lstParsedPhrases;
 }
 
 void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
@@ -558,37 +593,48 @@ void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, c
 	//		will build and set the VerseList, which will change the model.
 	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
 	//		but down in buildScopedResultsFromParsedPhrases():
-	m_lstParsedPhrases = phrases;
-	m_SearchCriteria = aSearchCriteria;
+	m_searchResults.m_lstParsedPhrases = phrases;
+	m_searchResults.m_SearchCriteria = aSearchCriteria;
 	buildScopedResultsFromParsedPhrases();
 }
 
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
-	m_mapSizeHints.clear();
+	// TODO :  Clear all of the highlighter results sizeHints
+	m_searchResults.m_mapSizeHints.clear();
 	emit layoutAboutToBeChanged();
-	m_nDisplayMode = nDisplayMode;
+	m_private.m_nDisplayMode = nDisplayMode;
 	emit layoutChanged();
 }
 
 void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 {
-	m_mapSizeHints.clear();
+	// TODO :  Clear all of the highlighter results sizeHints
+	m_searchResults.m_mapSizeHints.clear();
 	emit beginResetModel();
-	m_nTreeMode = nTreeMode;
+	m_private.m_nTreeMode = nTreeMode;
+	emit endResetModel();
+}
+
+void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+{
+	// TODO :  Clear all of the highlighter results sizeHints
+	m_searchResults.m_mapSizeHints.clear();
+	emit beginResetModel();
+	m_private.m_nViewMode = nViewMode;
 	emit endResetModel();
 }
 
 void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 {
-	if (m_nTreeMode != VTME_LIST) beginResetModel();
-	m_bShowMissingLeafs = bShowMissing;
-	if (m_nTreeMode != VTME_LIST) endResetModel();
+	if (m_private.m_nTreeMode != VTME_LIST) beginResetModel();
+	m_private.m_bShowMissingLeafs = bShowMissing;
+	if (m_private.m_nTreeMode != VTME_LIST) endResetModel();
 }
 
 // ----------------------------------------------------------------------------
 
-int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::TVerseListModelSearchResults::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 {
 	int nResults = 0;
 
@@ -603,7 +649,7 @@ int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 
 // ----------------------------------------------------------------------------
 
-QPair<int, int> CVerseListModel::GetResultsIndexes(CVerseMap::const_iterator itrVerse) const
+QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetResultsIndexes(CVerseMap::const_iterator itrVerse) const
 {
 	QPair<int, int> nResultsIndexes;
 	nResultsIndexes.first = 0;
@@ -623,7 +669,7 @@ QPair<int, int> CVerseListModel::GetResultsIndexes(CVerseMap::const_iterator itr
 	return nResultsIndexes;		// Result first = first result index, second = last result index for specified row
 }
 
-QPair<int, int> CVerseListModel::GetBookIndexAndCount(CVerseMap::const_iterator itrVerse) const
+QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetBookIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
 	int ndxBook = 0;		// Index into Books
 	int nBooks = 0;			// Results counts in Books
@@ -645,7 +691,7 @@ QPair<int, int> CVerseListModel::GetBookIndexAndCount(CVerseMap::const_iterator 
 	return QPair<int, int>(ndxBook, nBooks);
 }
 
-QPair<int, int> CVerseListModel::GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse) const
+QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
 	int ndxChapter = 0;		// Index into Chapters
 	int nChapters = 0;		// Results counts in Chapters
@@ -669,18 +715,18 @@ QPair<int, int> CVerseListModel::GetChapterIndexAndCount(CVerseMap::const_iterat
 	return QPair<int, int>(ndxChapter, nChapters);
 }
 
-QPair<int, int> CVerseListModel::GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse) const
+QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
 	return QPair<int, int>(((itrVerse != CVerseMap::const_iterator()) ? (std::distance(m_mapVerses.constBegin(), itrVerse)+1) : 0), m_mapVerses.size());
 }
 
 // ----------------------------------------------------------------------------
 
-int CVerseListModel::GetBookCount() const
+int CVerseListModel::TVerseListModelResults::GetBookCount() const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase != NULL);
 
-	if (m_bShowMissingLeafs) return m_pBibleDatabase->bibleEntry().m_nNumBk;
+	if (m_private.m_bShowMissingLeafs) return m_private.m_pBibleDatabase->bibleEntry().m_nNumBk;
 
 	CVerseMap::const_iterator itrVerseMapBookFirst = m_mapVerses.begin();
 	CVerseMap::const_iterator itrVerseMapBookLast = m_mapVerses.end();
@@ -694,12 +740,12 @@ int CVerseListModel::GetBookCount() const
 	return nCount;
 }
 
-int CVerseListModel::IndexByBook(unsigned int nBk) const
+int CVerseListModel::TVerseListModelResults::IndexByBook(unsigned int nBk) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase != NULL);
 
-	if (m_bShowMissingLeafs) {
-		if ((nBk < 1) || (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk)) return -1;
+	if (m_private.m_bShowMissingLeafs) {
+		if ((nBk < 1) || (nBk > m_private.m_pBibleDatabase->bibleEntry().m_nNumBk)) return -1;
 		return (nBk-1);
 	}
 
@@ -721,12 +767,12 @@ int CVerseListModel::IndexByBook(unsigned int nBk) const
 	return nIndex;
 }
 
-unsigned int CVerseListModel::BookByIndex(int ndxBook) const
+unsigned int CVerseListModel::TVerseListModelResults::BookByIndex(int ndxBook) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase != NULL);
 
-	if (m_bShowMissingLeafs) {
-		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= m_pBibleDatabase->bibleEntry().m_nNumBk)) return 0;
+	if (m_private.m_bShowMissingLeafs) {
+		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= m_private.m_pBibleDatabase->bibleEntry().m_nNumBk)) return 0;
 		return (ndxBook+1);
 	}
 
@@ -744,14 +790,14 @@ unsigned int CVerseListModel::BookByIndex(int ndxBook) const
 	return 0;				// Should have already returned a chapter above, but 0 if we're given an index beyond the list
 }
 
-int CVerseListModel::GetChapterCount(unsigned int nBk) const
+int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase != NULL);
 
 	if (nBk == 0) return 0;
-	if (m_bShowMissingLeafs) {
-		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		return m_pBibleDatabase->bookEntry(nBk)->m_nNumChp;
+	if (m_private.m_bShowMissingLeafs) {
+		if (nBk > m_private.m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
+		return m_private.m_pBibleDatabase->bookEntry(nBk)->m_nNumChp;
 	}
 
 	// Find the first and last entries with the correct Book number:
@@ -772,14 +818,14 @@ int CVerseListModel::GetChapterCount(unsigned int nBk) const
 	return nCount;
 }
 
-int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase);
 
 	if ((nBk == 0) || (nChp == 0)) return -1;
-	if (m_bShowMissingLeafs) {
-		if (nBk > m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
-		if (nChp > m_pBibleDatabase->bookEntry(nBk)->m_nNumChp) return -1;
+	if (m_private.m_bShowMissingLeafs) {
+		if (nBk > m_private.m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
+		if (nChp > m_private.m_pBibleDatabase->bookEntry(nBk)->m_nNumChp) return -1;
 		return (nChp-1);
 	}
 
@@ -802,14 +848,14 @@ int CVerseListModel::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 	return nIndex;
 }
 
-unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
+unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook, int ndxChapter) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase);
 
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
-	if (m_bShowMissingLeafs) {
-		if (static_cast<unsigned int>(ndxBook) >= m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		if (static_cast<unsigned int>(ndxChapter) >= m_pBibleDatabase->bookEntry(ndxBook+1)->m_nNumChp) return 0;
+	if (m_private.m_bShowMissingLeafs) {
+		if (static_cast<unsigned int>(ndxBook) >= m_private.m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
+		if (static_cast<unsigned int>(ndxChapter) >= m_private.m_pBibleDatabase->bookEntry(ndxBook+1)->m_nNumChp) return 0;
 		return (ndxChapter+1);
 	}
 
@@ -835,7 +881,7 @@ unsigned int CVerseListModel::ChapterByIndex(int ndxBook, int ndxChapter) const
 	return 0;				// Should have already returned a chapter above, but 0 if we're given an index beyond the list
 }
 
-int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::TVerseListModelResults::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 {
 	// Note: This function has special cases for nBk == 0 and nChp == 0 (unlike the other count functions)
 
@@ -863,7 +909,7 @@ int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
 	return nVerses;
 }
 
-CVerseMap::const_iterator CVerseListModel::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
+CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
 {
 	// Note: This function has a special case for nBk == 0 and nChp == 0 (unlike the other index functions)
 
@@ -900,7 +946,7 @@ CVerseMap::const_iterator CVerseListModel::GetVerse(int ndxVerse, unsigned int n
 	return m_mapVerses.constEnd();			// Should have already returned a verse above, but end() if we're given an index beyond the list
 }
 
-CVerseMap::const_iterator CVerseListModel::FindVerseIndex(const CRelIndex &ndxRel) const
+CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::FindVerseIndex(const CRelIndex &ndxRel) const
 {
 	if (!ndxRel.isSet()) return m_mapVerses.constEnd();
 
@@ -913,22 +959,28 @@ CVerseMap::const_iterator CVerseListModel::FindVerseIndex(const CRelIndex &ndxRe
 
 void CVerseListModel::buildScopedResultsFromParsedPhrases()
 {
+	// TODO :  ****** Figure out what to do about this:
+	TVerseListModelSearchResults &zResults = m_searchResults;
+	int nHighlighter = -1;
+
+
 	QList<TPhraseTagList::const_iterator> lstItrStart;
 	QList<TPhraseTagList::const_iterator> lstItrEnd;
 	QList<CRelIndex> lstScopedRefs;
 	QList<bool> lstNeedScope;
-	int nNumPhrases = m_lstParsedPhrases.size();
+	int nNumPhrases = zResults.m_lstParsedPhrases.size();
 
 	emit verseListAboutToChange();
 	emit beginResetModel();
 
-	m_mapVerses.clear();
-	m_lstVerseIndexes.clear();
+	zResults.m_mapVerses.clear();
+	zResults.m_lstVerseIndexes.clear();
+	zResults.m_mapExtraVerseIndexes.clear();
 
 	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 	//		setting the phrase size details:
 	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-		const TPhraseTagList &lstSearchResultsPhraseTags = m_lstParsedPhrases.at(ndx)->GetPhraseTagSearchResults();
+		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetPhraseTagSearchResults();
 		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
 		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
 		lstScopedRefs.append(CRelIndex());
@@ -945,7 +997,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	while (!bDone) {
 		uint32_t nMaxScope = 0;
 		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			const CParsedPhrase *phrase = m_lstParsedPhrases.at(ndx);
+			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
 			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetPhraseTagSearchResults();
 			if (!lstNeedScope[ndx]) {
 				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
@@ -956,9 +1008,9 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 				bDone = true;
 				break;
 			}
-			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), m_SearchCriteria.searchScopeMode());
+			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria.searchScopeMode());
 			for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
-				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), m_SearchCriteria.searchScopeMode());
+				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria.searchScopeMode());
 				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 			}
 			// Here lstItrEnd will be one more than the number of matching, either the next index
@@ -983,16 +1035,16 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		if (bMatch) {
 			// We got a match, so push results to output and flag for new scopes:
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-				TPhraseTagList &lstScopedPhraseTags = m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
+				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
 				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
 					lstScopedPhraseTags.append(*itr);
 					CRelIndex ndxNextRelative = itr->relIndex();
 					ndxNextRelative.setWord(0);
-					if (m_mapVerses.contains(ndxNextRelative)) {
-						m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
+					if (zResults.m_mapVerses.contains(ndxNextRelative)) {
+						zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
 					} else {
-						m_mapVerses.insert(ndxNextRelative, CVerseListItem(m_pBibleDatabase, *itr));
+						zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, nHighlighter), m_private.m_pBibleDatabase, *itr));
 					}
 				}
 				lstNeedScope[ndx] = true;
@@ -1000,9 +1052,9 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		}
 	}
 
-	m_lstVerseIndexes.reserve(m_mapVerses.size());
-	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
-		m_lstVerseIndexes.append(itr.key());
+	zResults.m_lstVerseIndexes.reserve(zResults.m_mapVerses.size());
+	for (CVerseMap::const_iterator itr = zResults.m_mapVerses.constBegin(); (itr != zResults.m_mapVerses.constEnd()); ++itr) {
+		zResults.m_lstVerseIndexes.append(itr.key());
 	}
 
 	emit endResetModel();
@@ -1011,7 +1063,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 
 CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_private.m_pBibleDatabase);
 
 	CRelIndex indexScoped;
 
@@ -1023,12 +1075,12 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::S
 		case (CSearchCriteria::SSME_TESTAMENT):
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
 			if (index.book()) {
-				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
-					const CBookEntry &book = *m_pBibleDatabase->bookEntry(index.book());
+				if (index.book() <= m_private.m_pBibleDatabase->bibleEntry().m_nNumBk) {
+					const CBookEntry &book = *m_private.m_pBibleDatabase->bookEntry(index.book());
 					unsigned int nTestament = book.m_nTstNdx;
 					unsigned int nBook = 1;
 					for (unsigned int i=1; i<nTestament; ++i)
-						nBook += m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
+						nBook += m_private.m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
 					indexScoped = CRelIndex(nBook, 0, 0 ,0);
 				}
 			}
@@ -1056,7 +1108,7 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::S
 
 void CVerseListModel::setFont(const QFont& aFont)
 {
-	m_font = aFont;
+	m_private.m_font = aFont;
 	emit layoutAboutToBeChanged();
 	setData(QModelIndex(), QSize(), Qt::SizeHintRole);			// Invalidate all sizeHints on fontChange
 	emit layoutChanged();
@@ -1064,7 +1116,7 @@ void CVerseListModel::setFont(const QFont& aFont)
 
 void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
 {
-	m_richifierTags.setWordsOfJesusTagsByColor(color);
+	m_private.m_richifierTags.setWordsOfJesusTagsByColor(color);
 }
 
 // ============================================================================

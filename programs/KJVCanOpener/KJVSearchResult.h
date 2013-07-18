@@ -172,7 +172,7 @@ public:
 	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
-	inline bool haveResults() const { return (vlmodel()->GetResultsCount() > 0); }
+	inline bool haveResults() const { return (vlmodel()->searchResults().GetResultsCount() > 0); }
 
 	QString searchResultsSummaryText() const;
 

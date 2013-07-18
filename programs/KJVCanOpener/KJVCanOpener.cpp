@@ -1241,7 +1241,7 @@ void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 
 	if (!index.isValid()) return;
 
-	CRelIndex ndxRel(index.internalId());
+	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
 	assert(ndxRel.isSet());
 	if (!ndxRel.isSet()) return;
 
