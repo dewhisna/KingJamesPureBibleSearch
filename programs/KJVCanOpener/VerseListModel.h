@@ -342,8 +342,9 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelResults(TVerseListModelPrivate &priv)
-			:	m_private(priv)
+		TVerseListModelResults(TVerseListModelPrivate &priv, int nHighlighterIndex = -1)
+			:	m_private(priv),
+				m_nHighlighterIndex(nHighlighterIndex)
 		{ }
 
 		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
@@ -374,8 +375,11 @@ public:
 	public:
 		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 		const CVerseMap &verseMap() const { return m_mapVerses; }
+		inline int highlighterIndex() const { return m_nHighlighterIndex; }
 	protected:
 		TVerseListModelPrivate &m_private;
+	private:
+		int m_nHighlighterIndex;
 	};
 	typedef QMap<QString, TVerseListModelResults> THighlighterVLMRMap;
 

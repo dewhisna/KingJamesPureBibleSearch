@@ -30,6 +30,8 @@
 #include <QtIOCompressor>
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
+#include <algorithm>
+
 // ============================================================================
 
 // Global Variables:
@@ -703,6 +705,7 @@ void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase,
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName] = lstTags;
+	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
@@ -717,7 +720,10 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
-	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].append(lstTags);		// TODO : Loop this and do intersectingInsert ???
+	for (TPhraseTagList::const_iterator itrTags = lstTags.constBegin(); itrTags != lstTags.constEnd(); ++itrTags) {
+		(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, *itrTags);
+	}
+	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
@@ -733,6 +739,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, aTag);
+	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
