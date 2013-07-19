@@ -100,7 +100,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setModel(pModel);
 	assert(pModel == vlmodel());
 	if (pOldModel) delete pOldModel;
-	setRootIsDecorated(vlmodel()->treeMode() != CVerseListModel::VTME_LIST);
+	setRootIsDecorated((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
 
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
@@ -319,25 +319,24 @@ void CSearchResultsTreeView::en_copyReferenceDetails()
 
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 
-	CVerseList lstVerses;
+	TVerseIndexList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
 			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
+				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
 			}
 		}
 	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
+	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
 
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		if (ndx > 0) {
 			strPlainText += "--------------------\n";
 			strRichText += "<hr />\n";
 		}
-		strPlainText += vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
+		strPlainText += vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
 	}
 
 	mime->setText(strPlainText);
@@ -356,20 +355,19 @@ void CSearchResultsTreeView::en_copyComplete()
 
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 
-	CVerseList lstVerses;
+	TVerseIndexList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
 			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
+				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
 			}
 		}
 	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
+	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
 
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
+		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
 		CSearchResultHighlighter highlighter(item.phraseTags());
@@ -386,7 +384,7 @@ void CSearchResultsTreeView::en_copyComplete()
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
-		cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(item, CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
+		cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
 		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
 	}
 
@@ -414,6 +412,12 @@ bool CSearchResultsTreeView::canShowPassageNavigator() const
 	return ((selectionModel()->selectedRows().count() == 1) || (currentIndex().isSet()));
 }
 
+void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+{
+	vlmodel()->setViewMode(nViewMode);
+	setRootIsDecorated((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
+}
+
 void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
 	vlmodel()->setDisplayMode(nDisplayMode);
@@ -423,7 +427,7 @@ void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_
 void CSearchResultsTreeView::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
 	vlmodel()->setTreeMode(nTreeMode);
-	setRootIsDecorated(nTreeMode != CVerseListModel::VTME_LIST);
+	setRootIsDecorated((nTreeMode != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
 }
 
 void CSearchResultsTreeView::setShowMissingLeafs(bool bShowMissing)
@@ -751,6 +755,11 @@ void CKJVSearchResult::showDetails()
 bool CKJVSearchResult::canShowPassageNavigator() const
 {
 	return m_pSearchResultsTreeView->canShowPassageNavigator();
+}
+
+void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+{
+	m_pSearchResultsTreeView->setViewMode(nViewMode);
 }
 
 void CKJVSearchResult::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)

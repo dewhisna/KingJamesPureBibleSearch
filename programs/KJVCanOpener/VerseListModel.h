@@ -78,6 +78,13 @@ typedef QSharedPointer<TVerseIndex> TVerseIndexPtr;
 typedef QList<TVerseIndex> TVerseIndexList;
 typedef QMap<CRelIndex, TVerseIndexPtr> TVerseIndexPtrMap;
 
+struct TVerseIndexListSortPredicate {
+	static bool ascendingLessThan(const TVerseIndex &s1, const TVerseIndex &s2)
+	{
+		return (s1 < s2);
+	}
+};
+
 // ============================================================================
 
 class CVerseListItem
@@ -342,8 +349,9 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelResults(TVerseListModelPrivate &priv, int nHighlighterIndex = -1)
+		TVerseListModelResults(TVerseListModelPrivate &priv, const QString &strResultsName, int nHighlighterIndex = -1)
 			:	m_private(priv),
+				m_strResultsName(strResultsName),
 				m_nHighlighterIndex(nHighlighterIndex)
 		{ }
 
@@ -375,20 +383,22 @@ public:
 	public:
 		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 		const CVerseMap &verseMap() const { return m_mapVerses; }
+		inline const QString &resultsName() const { return m_strResultsName; }
 		inline int highlighterIndex() const { return m_nHighlighterIndex; }
 	protected:
 		TVerseListModelPrivate &m_private;
 	private:
+		QString m_strResultsName;
 		int m_nHighlighterIndex;
 	};
-	typedef QMap<QString, TVerseListModelResults> THighlighterVLMRMap;
+	typedef QList<TVerseListModelResults> THighlighterVLMRList;
 
 	class TVerseListModelSearchResults : public TVerseListModelResults {
 	protected:
 		friend class CVerseListModel;
 
 		TVerseListModelSearchResults(TVerseListModelPrivate &priv)
-			:	TVerseListModelResults(priv)
+			:	TVerseListModelResults(priv, tr("Search Results"))
 		{ }
 
 		TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
@@ -410,24 +420,24 @@ public:
 
 	// ------------------------------------------------------------------------
 
-	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = 0);
+	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent = 0);
 
 	inline CBibleDatabasePtr bibleDatabase() const { return m_private.m_pBibleDatabase; }
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
+	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const;
 
-	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &zParent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	QVariant dataForVerse(const CVerseListItem &aVerse, int role) const;
+	QVariant dataForVerse(const TVerseIndex *pVerseIndex, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &zParent = QModelIndex());
+	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex());
 
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
@@ -482,7 +492,7 @@ private:
 	Q_DISABLE_COPY(CVerseListModel)
 	TVerseListModelPrivate m_private;
 
-	THighlighterVLMRMap m_vlmrMapHighlighters;		// Per-Highlighter VerseListModelResults
+	THighlighterVLMRList m_vlmrListHighlighters;	// Per-Highlighter VerseListModelResults
 	TVerseListModelSearchResults m_searchResults;	// VerseListModelResults for Search Results
 };
 

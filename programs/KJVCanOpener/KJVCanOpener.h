@@ -77,6 +77,7 @@ public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
 	bool saveKJVSearchFile(const QString &strFilePathName) const;
 
+	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
@@ -98,6 +99,7 @@ protected slots:
 	void en_activatedSearchResults();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
+	void en_viewModeChange(QAction *pAction);
 	void en_displayModeChange(QAction *pAction);
 	void en_treeModeChange(QAction *pAction);
 	void en_viewShowMissingsLeafs();
@@ -135,6 +137,7 @@ private:
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
+	QActionGroup *m_pActionGroupViewMode;		// Group for View Mode (Search Results vs highlighters)
 	QActionGroup *m_pActionGroupDisplayMode;	// Group for Verse Display Mode (heading vs. richtext)
 	QActionGroup *m_pActionGroupTreeMode;		// Group for Tree Mode (List, Tree Books, Tree Chapters)
 	QAction *m_pActionShowMissingLeafs;			// Toggle action for tree modes to show missing leafs

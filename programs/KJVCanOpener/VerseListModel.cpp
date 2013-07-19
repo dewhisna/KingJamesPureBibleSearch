@@ -65,8 +65,8 @@ CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePt
 
 }
 
-CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
-	:	QAbstractItemModel(parent),
+CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent)
+	:	QAbstractItemModel(pParent),
 		m_private(pBibleDatabase),
 		m_searchResults(m_private)
 {
@@ -74,121 +74,157 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pare
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 }
 
-int CVerseListModel::rowCount(const QModelIndex &parent) const
+int CVerseListModel::rowCount(const QModelIndex &zParent) const
 {
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	assert(toVerseIndex(zParent)->highlighterIndex() < m_vlmrListHighlighters.size());
+	const TVerseListModelResults &zResults = ((toVerseIndex(zParent)->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(toVerseIndex(zParent)->highlighterIndex()));
 
-	switch (m_private.m_nTreeMode) {
-		case VTME_LIST:
-		{
-			if (parent.isValid()) return 0;
-			return zResults.m_mapVerses.size();
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? false : !zParent.isValid());
+	bool bTreeTop = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ?
+						!zParent.isValid() :			// Search Results top is the root node
+						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+
+	if (bHighlighterNode) {
+		return m_vlmrListHighlighters.size();
+	} else {
+		switch (m_private.m_nTreeMode) {
+			case VTME_LIST:
+			{
+				if (!bTreeTop) return 0;
+				return zResults.m_mapVerses.size();
+			}
+			case VTME_TREE_BOOKS:
+			{
+				if (bTreeTop) return zResults.GetBookCount();
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
+				return 0;
+			}
+			case VTME_TREE_CHAPTERS:
+			{
+				if (bTreeTop) return zResults.GetBookCount();
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
+				if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				return 0;
+			}
+			default:
+				break;
 		}
-		case VTME_TREE_BOOKS:
-		{
-			if (!parent.isValid()) return zResults.GetBookCount();
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
-			return 0;
-		}
-		case VTME_TREE_CHAPTERS:
-		{
-			if (!parent.isValid()) return zResults.GetBookCount();
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
-			if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-			return 0;
-		}
-		default:
-			break;
 	}
 
 	return 0;
 }
 
-int CVerseListModel::columnCount(const QModelIndex &parent) const
+int CVerseListModel::columnCount(const QModelIndex &zParent) const
 {
-//	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+//	assert(toVerseIndex(zParent)->highlighterIndex() < m_vlmrListHighlighters.size());
+//	const TVerseListModelResults &zResults = ((toVerseIndex(zParent)->highlighterIndex() == -1) ?
+//					  m_searchResults : m_vlmrListHighlighters.at(toVerseIndex(zParent)->highlighterIndex()));
 
-	switch (m_private.m_nTreeMode) {
-		case VTME_LIST:
-		{
-			if (!parent.isValid()) return 1;
-			return 0;
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? false : !zParent.isValid());
+	bool bTreeTop = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ?
+						!zParent.isValid() :			// Search Results top is the root node
+						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+
+	if (bHighlighterNode) {
+		return 1;
+	} else {
+		switch (m_private.m_nTreeMode) {
+			case VTME_LIST:
+			{
+				if (bTreeTop) return 1;
+				return 0;
+			}
+			case VTME_TREE_BOOKS:
+			{
+				if (bTreeTop) return 1;
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) return 1;
+				return 0;
+			}
+			case VTME_TREE_CHAPTERS:
+			{
+				if (bTreeTop) return 1;
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) return 1;
+				if (ndxRel.verse() == 0) return 1;
+				return 0;
+			}
+			default:
+				break;
 		}
-		case VTME_TREE_BOOKS:
-		{
-			if (!parent.isValid()) return 1;
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return 1;
-			return 0;
-		}
-		case VTME_TREE_CHAPTERS:
-		{
-			if (!parent.isValid()) return 1;
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) return 1;
-			if (ndxRel.verse() == 0) return 1;
-			return 0;
-		}
-		default:
-			break;
 	}
 
 	return 0;
 }
 
-QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zParent) const
 {
-	if (!hasIndex(row, column, parent)) return QModelIndex();
+	if (!hasIndex(row, column, zParent)) return QModelIndex();
 
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	assert(toVerseIndex(zParent)->highlighterIndex() < m_vlmrListHighlighters.size());
+	const TVerseListModelResults &zResults = ((toVerseIndex(zParent)->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(toVerseIndex(zParent)->highlighterIndex()));
 
-	switch (m_private.m_nTreeMode) {
-		case VTME_LIST:
-		{
-			assert(row < zResults.m_mapVerses.size());
-			CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
-			if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-			return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? false : !zParent.isValid());
+	bool bTreeTop = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ?
+						!zParent.isValid() :			// Search Results top is the root node
+						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+
+	if (bHighlighterNode) {
+		assert(row < m_vlmrListHighlighters.size());
+		if (row < m_vlmrListHighlighters.size()) {
+			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(), row)).data()));
 		}
-		case VTME_TREE_BOOKS:
-		{
-			if (!parent.isValid()) {
-				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.highlighterIndex())).data()));
-			}
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) {
-				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
+	} else {
+		switch (m_private.m_nTreeMode) {
+			case VTME_LIST:
+			{
+				assert(row < zResults.m_mapVerses.size());
+				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
 				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
 				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 			}
-			return QModelIndex();
+			case VTME_TREE_BOOKS:
+			{
+				if (bTreeTop) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.highlighterIndex())).data()));
+				}
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) {
+					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
+					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+				}
+				return QModelIndex();
+			}
+			case VTME_TREE_CHAPTERS:
+			{
+				if (bTreeTop) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.highlighterIndex())).data()));
+				}
+				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.chapter() == 0) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), zResults.highlighterIndex())).data()));
+				}
+				if (ndxRel.verse() == 0) {
+					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
+					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+				}
+				return QModelIndex();
+			}
+			default:
+				break;
 		}
-		case VTME_TREE_CHAPTERS:
-		{
-			if (!parent.isValid()) {
-				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.highlighterIndex())).data()));
-			}
-			CRelIndex ndxRel(toVerseIndex(parent)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.chapter() == 0) {
-				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(parent.row(), row), 0, 0), zResults.highlighterIndex())).data()));
-			}
-			if (ndxRel.verse() == 0) {
-				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
-				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
-			}
-			return QModelIndex();
-		}
-		default:
-			break;
 	}
 
 	return QModelIndex();
@@ -198,38 +234,49 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 {
 	if (!index.isValid()) return QModelIndex();
 
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	assert(toVerseIndex(index)->highlighterIndex() < m_vlmrListHighlighters.size());
+	const TVerseListModelResults &zResults = ((toVerseIndex(index)->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(toVerseIndex(index)->highlighterIndex()));
 
-	switch (m_private.m_nTreeMode) {
-		case VTME_LIST:
-		{
-			return QModelIndex();
-		}
-		case VTME_TREE_BOOKS:
-		{
-			CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.verse() != 0) {
-				if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
-				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.highlighterIndex())).data()));
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? false : !index.isValid());
+//	bool bTreeTop = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ?
+//						!index.isValid() :			// Search Results top is the root node
+//						 (index.isValid() && !toVerseIndex(index)->relIndex().isSet() && !parent(index).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+
+	if (bHighlighterNode) {
+		return QModelIndex();
+	} else {
+		switch (m_private.m_nTreeMode) {
+			case VTME_LIST:
+			{
+				return QModelIndex();
 			}
-			return QModelIndex();
-		}
-		case VTME_TREE_CHAPTERS:
-		{
-			CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-			assert(ndxRel.isSet());
-			if (ndxRel.verse() != 0) {
-				if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
-				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), zResults.highlighterIndex())).data()));
+			case VTME_TREE_BOOKS:
+			{
+				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.verse() != 0) {
+					if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
+					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.highlighterIndex())).data()));
+				}
+				return QModelIndex();
 			}
-			if (ndxRel.chapter() != 0) {
-				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.highlighterIndex())).data()));
+			case VTME_TREE_CHAPTERS:
+			{
+				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+				assert(ndxRel.isSet());
+				if (ndxRel.verse() != 0) {
+					if (!zResults.m_mapVerses.contains(ndxRel)) return QModelIndex();
+					return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), zResults.highlighterIndex())).data()));
+				}
+				if (ndxRel.chapter() != 0) {
+					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.highlighterIndex())).data()));
+				}
+				return QModelIndex();
 			}
-			return QModelIndex();
+			default:
+				break;
 		}
-		default:
-			break;
 	}
 
 	return QModelIndex();
@@ -241,22 +288,35 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 	if (!index.isValid()) return QVariant();
 
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
-
-	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-	assert(ndxRel.isSet());
-	if (!ndxRel.isSet()) return QVariant();
+	assert(toVerseIndex(index)->highlighterIndex() < m_vlmrListHighlighters.size());
+	const TVerseListModelResults &zResults = ((toVerseIndex(index)->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(toVerseIndex(index)->highlighterIndex()));
 
 	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(*toVerseIndex(index), QSize());
 
-	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? false : !index.isValid());
+//	bool bTreeTop = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ?
+//						!index.isValid() :			// Search Results top is the root node
+//						 (index.isValid() && !toVerseIndex(index)->relIndex().isSet() && !parent(index).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+
+	if (bHighlighterNode) {
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			return zResults.resultsName();
+		}
+	} else {
+		CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+		assert(ndxRel.isSet());
+		if (!ndxRel.isSet()) return QVariant();
+
 		if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				QString strBookText = m_private.m_pBibleDatabase->bookName(ndxRel);
 				if (m_private.m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
-				int nVerses = m_searchResults.GetVerseCount(ndxRel.book());
-				int nResults = m_searchResults.GetResultsCount(ndxRel.book());
-				if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
+				if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+					int nVerses = m_searchResults.GetVerseCount(ndxRel.book());
+					int nResults = m_searchResults.GetResultsCount(ndxRel.book());
+					if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
+				}
 				return strBookText;
 			}
 			if ((role == Qt::ToolTipRole) ||
@@ -273,9 +333,11 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				QString strChapterText = m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
 				if (m_private.m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
-				int nVerses = m_searchResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-				int nResults = m_searchResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-				if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
+				if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+					int nVerses = m_searchResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+					int nResults = m_searchResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
+					if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
+				}
 				return strChapterText;
 			}
 			if ((role == Qt::ToolTipRole) ||
@@ -287,34 +349,39 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			}
 			return QVariant();
 		}
-	} else {
-		// TODO : Finish this for HIGHLIGHTERS!!
+
+		if (!zResults.m_mapVerses.contains(ndxRel)) return QVariant();
+
+		if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
+
+		return dataForVerse(toVerseIndex(index), role);
 	}
 
-	if (!zResults.m_mapVerses.contains(ndxRel)) return QVariant();
-
-	if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
-
-	return dataForVerse(zResults.m_mapVerses.value(ndxRel), role);
+	return QVariant();
 }
 
-QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) const
+QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role) const
 {
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	assert(pVerseIndex != NULL);
 
-	CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(aVerse.getIndex());
+	const TVerseListModelResults &zResults = ((pVerseIndex->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(pVerseIndex->highlighterIndex()));
+
+	CRelIndex ndxVerse = pVerseIndex->relIndex();
+	ndxVerse.setWord(0);
+	CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(ndxVerse);
 	if (itrVerse == zResults.m_mapVerses.constEnd()) return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 		switch (m_private.m_nDisplayMode) {
 			case VDME_HEADING:
-				return aVerse.getHeading();
+				return itrVerse->getHeading();
 			case VDME_VERYPLAIN:
-				return aVerse.getVerseVeryPlainText();
+				return itrVerse->getVerseVeryPlainText();
 			case VDME_RICHTEXT:
-				return aVerse.getVerseRichText(m_private.m_richifierTags);
+				return itrVerse->getVerseRichText(m_private.m_richifierTags);
 			case VDME_COMPLETE:
-				return aVerse.getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
+				return itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
 			default:
 				return QString();
 		}
@@ -329,7 +396,7 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 			QString strToolTip;
 			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
-			if (bHeading) strToolTip += aVerse.getHeading() + "\n";
+			if (bHeading) strToolTip += itrVerse->getHeading() + "\n";
 			QPair<int, int> nResultsIndexes = m_searchResults.GetResultsIndexes(itrVerse);
 			if (nResultsIndexes.first != nResultsIndexes.second) {
 				strToolTip += QString("%1").arg(bHeading ? "    " : "") +
@@ -350,7 +417,7 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 			QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
 			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-			strToolTip += aVerse.getToolTip(m_searchResults.m_lstParsedPhrases);
+			strToolTip += itrVerse->getToolTip(m_searchResults.m_lstParsedPhrases);
 			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 			return strToolTip;
@@ -358,7 +425,7 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 	}
 
 	if (role == VERSE_ENTRY_ROLE) {
-		return QVariant::fromValue(aVerse);
+		return QVariant::fromValue(*itrVerse);
 	}
 
 	return QVariant();
@@ -366,19 +433,21 @@ QVariant CVerseListModel::dataForVerse(const CVerseListItem &aVerse, int role) c
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	if (!index.isValid()) return false;
+
+	TVerseListModelResults &zResults = ((toVerseIndex(index)->highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters[toVerseIndex(index)->highlighterIndex()]);
 
 	if (role == Qt::SizeHintRole) {
 		if (!index.isValid()) {
 			// Special Case:  QModelIndex() is "invalidate all":
-			zResults.m_mapSizeHints.clear();
+			m_searchResults.m_mapSizeHints.clear();
+			for (THighlighterVLMRList::iterator itrHighlighter = m_vlmrListHighlighters.begin(); itrHighlighter != m_vlmrListHighlighters.end(); ++itrHighlighter) {
+				itrHighlighter->m_mapSizeHints.clear();
+			}
 			emit cachedSizeHintsInvalidated();
 			return false;				// But return false because we can't actually set a SizeHint for an invalid index
 		}
-
-		CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-		assert(ndxRel.isSet());
-		if (!ndxRel.isSet()) return false;
 
 		zResults.m_mapSizeHints[*toVerseIndex(index)] = value.toSize();
 		// Note: Do not fire dataChanged() here, as this is just a cache used by ReflowDelegate
@@ -427,17 +496,17 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
+bool CVerseListModel::insertRows(int row, int count, const QModelIndex &zParent)
 {
 	Q_UNUSED(row);
 	Q_UNUSED(count);
-	Q_UNUSED(parent);
+	Q_UNUSED(zParent);
 
 	return false;
 /*
 	if (count < 1 || row < 0 || row > m_lstVerses.size())
 		return false;
-	if (parent.isValid()) return false;
+	if (zParent.isValid()) return false;
 
 	beginInsertRows(QModelIndex(), row, row + count - 1);
 
@@ -450,18 +519,18 @@ bool CVerseListModel::insertRows(int row, int count, const QModelIndex &parent)
 */
 }
 
-bool CVerseListModel::removeRows(int row, int count, const QModelIndex &parent)
+bool CVerseListModel::removeRows(int row, int count, const QModelIndex &zParent)
 {
 	Q_UNUSED(row);
 	Q_UNUSED(count);
-	Q_UNUSED(parent);
+	Q_UNUSED(zParent);
 
 	return false;
 
 /*
 	if (count <= 0 || row < 0 || (row + count) > m_lstVerses.size())
 		return false;
-	if (parent.isValid()) return false;
+	if (zParent.isValid()) return false;
 
 	beginRemoveRows(QModelIndex(), row, row + count - 1);
 

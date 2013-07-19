@@ -69,6 +69,7 @@ public:
 		return static_cast<CVerseListModel *>(model());
 	}
 
+	inline CVerseListModel::VERSE_VIEW_MODE_ENUM viewMode() const { return vlmodel()->viewMode(); }
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return vlmodel()->displayMode(); }
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
@@ -88,6 +89,7 @@ protected slots:
 
 public slots:
 	virtual bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
+	virtual void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	virtual void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	virtual void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	virtual void setShowMissingLeafs(bool bShowMissing);
@@ -158,6 +160,7 @@ public:
 	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVSearchResult();
 	
+	inline CVerseListModel::VERSE_VIEW_MODE_ENUM viewMode() const { return m_pSearchResultsTreeView->viewMode(); }
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_pSearchResultsTreeView->displayMode(); }
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
 	inline bool showMissingLeafs() const { return m_pSearchResultsTreeView->showMissingLeafs(); }
@@ -179,6 +182,7 @@ public:
 public slots:
 	bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
 	void setFocusSearchResult();
+	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);

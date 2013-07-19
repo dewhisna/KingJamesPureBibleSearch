@@ -129,6 +129,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionSearchResultsEditMenu(NULL),
 	m_pActionSearchPhraseEditMenu(NULL),
 	m_pViewMenu(NULL),
+	m_pActionGroupViewMode(NULL),
 	m_pActionGroupDisplayMode(NULL),
 	m_pActionGroupTreeMode(NULL),
 	m_pActionShowMissingLeafs(NULL),
@@ -218,6 +219,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
 
+	CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode = m_pSearchResultWidget->viewMode();
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = m_pSearchResultWidget->displayMode();
 	CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode = m_pSearchResultWidget->treeMode();
 	bool bShowMissingLeafs = m_pSearchResultWidget->showMissingLeafs();
@@ -269,6 +271,30 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+
+	m_pActionGroupViewMode = new QActionGroup(this);
+	m_pActionGroupViewMode->setExclusive(true);
+
+	pAction = m_pActionGroupViewMode->addAction(tr("View S&earch Results"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VVME_SEARCH_RESULTS);
+	pAction->setStatusTip(tr("View Search Results from Search Phrases"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VVME_HIGHLIGHTERS);
+	pAction->setStatusTip(tr("View Highlighted Passages"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nViewMode == CVerseListModel::VVME_HIGHLIGHTERS);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	m_pViewMenu->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+
+	connect(m_pActionGroupViewMode, SIGNAL(triggered(QAction*)), this, SLOT(en_viewModeChange(QAction*)));
 
 	m_pActionGroupTreeMode = new QActionGroup(this);
 	m_pActionGroupTreeMode->setExclusive(true);
@@ -833,6 +859,21 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 
 // ------------------------------------------------------------------
 
+void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+{
+	assert(m_pActionGroupViewMode != NULL);
+
+	QList<QAction *> lstActions = m_pActionGroupViewMode->actions();
+
+	for (int i = 0; i < lstActions.size(); ++i) {
+		if (static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(lstActions.at(i)->data().toUInt()) == nViewMode) {
+			lstActions.at(i)->setChecked(true);
+			en_viewModeChange(lstActions.at(i));
+			break;
+		}
+	}
+}
+
 void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
 	assert(m_pActionGroupDisplayMode != NULL);
@@ -1129,9 +1170,25 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 
 // ------------------------------------------------------------------
 
+void CKJVCanOpener::en_viewModeChange(QAction *pAction)
+{
+	assert(pAction != NULL);
+
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+
+	m_pSearchResultWidget->setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(pAction->data().toUInt()));
+
+	m_bDoingUpdate = false;
+
+	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
+}
+
 void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 {
-	assert(m_pActionGroupDisplayMode != NULL);
+	assert(pAction != NULL);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
