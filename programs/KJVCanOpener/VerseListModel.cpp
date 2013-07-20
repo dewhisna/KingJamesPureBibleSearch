@@ -599,11 +599,13 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
 
-QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
+QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 {
+	const CRelIndex &ndxRel = ndxVerse.relIndex();
 	if (!ndxRel.isSet()) return QModelIndex();
 
-	const TVerseListModelResults &zResults = m_searchResults;		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
+	const TVerseListModelResults &zResults = ((ndxVerse.highlighterIndex() == -1) ?
+					  m_searchResults : m_vlmrListHighlighters.at(ndxVerse.highlighterIndex()));
 
 	// See if this is a verse (search result) reference.  If so resolve:
 	if (ndxRel.verse() != 0) {
@@ -641,6 +643,17 @@ QModelIndex CVerseListModel::locateIndex(const CRelIndex &ndxRel) const
 	}
 
 	return QModelIndex();
+}
+
+TVerseIndex CVerseListModel::resolveVerseIndex(const CRelIndex &ndxRel, const QString &strHighlighterName) const
+{
+	if (strHighlighterName.isEmpty()) return TVerseIndex(ndxRel, -1);
+	for (int ndxHighlighter = 0; ndxHighlighter < m_vlmrListHighlighters.size(); ++ndxHighlighter) {
+		if (m_vlmrListHighlighters.at(ndxHighlighter).resultsName().compare(strHighlighterName, Qt::CaseInsensitive) == 0)
+			return TVerseIndex(ndxRel, ndxHighlighter);
+	}
+
+	return TVerseIndex();
 }
 
 // ----------------------------------------------------------------------------

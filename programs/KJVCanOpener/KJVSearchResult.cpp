@@ -393,12 +393,12 @@ void CSearchResultsTreeView::en_copyComplete()
 	clipboard->setMimeData(mime);
 }
 
-CRelIndex CSearchResultsTreeView::currentIndex() const
+TVerseIndex CSearchResultsTreeView::currentIndex() const
 {
-	return CRelIndex(CVerseListModel::toVerseIndex(QTreeView::currentIndex())->relIndex());
+	return (*CVerseListModel::toVerseIndex(QTreeView::currentIndex()));
 }
 
-bool CSearchResultsTreeView::setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView)
+bool CSearchResultsTreeView::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)
 {
 	QModelIndex ndxModel = vlmodel()->locateIndex(ndx);
 	QTreeView::setCurrentIndex(ndxModel);
@@ -409,7 +409,7 @@ bool CSearchResultsTreeView::setCurrentIndex(const CRelIndex &ndx, bool bFocusTr
 
 bool CSearchResultsTreeView::canShowPassageNavigator() const
 {
-	return ((selectionModel()->selectedRows().count() == 1) || (currentIndex().isSet()));
+	return ((selectionModel()->selectedRows().count() == 1) || (currentIndex().relIndex().isSet()));
 }
 
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
@@ -453,7 +453,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return;
 	} else {
-		ndxRel = currentIndex();
+		ndxRel = currentIndex().relIndex();
 		assert(ndxRel.isSet());			// Should have had one or the other because of canShowPassageNavigator()
 		if (!ndxRel.isSet()) return;
 	}
@@ -722,12 +722,12 @@ CKJVSearchResult::~CKJVSearchResult()
 
 }
 
-CRelIndex CKJVSearchResult::currentIndex() const
+TVerseIndex CKJVSearchResult::currentIndex() const
 {
 	return m_pSearchResultsTreeView->currentIndex();
 }
 
-bool CKJVSearchResult::setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView)
+bool CKJVSearchResult::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)
 {
 	return m_pSearchResultsTreeView->setCurrentIndex(ndx, bFocusTreeView);
 }

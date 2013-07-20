@@ -103,10 +103,12 @@ namespace {
 
 	// Search Results View:
 	const QString constrSearchResultsViewGroup("SearchResultsView");
+	const QString constrResultsViewModeKey("ResultsViewMode");
 	const QString constrVerseDisplayModeKey("VerseDisplayMode");
 	const QString constrVerseTreeModeKey("VerseTreeMode");
 	const QString constrViewMissingNodesKey("TreeShowsMissingNodes");
 	const QString constrCurrentIndexKey("CurrentIndex");
+	const QString constrCurrentHighlighterKey("CurrentHighlighter");
 	const QString constrHasFocusKey("HasFocus");
 	const QString constrFontKey("Font");
 
@@ -576,10 +578,13 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
+	settings.setValue(constrResultsViewModeKey, m_pSearchResultWidget->viewMode());
 	settings.setValue(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode());
 	settings.setValue(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode());
 	settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
-	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentIndex().asAnchor());
+	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentIndex().relIndex().asAnchor());
+	settings.setValue(constrCurrentHighlighterKey, (m_pSearchResultWidget->currentIndex().highlighterIndex() == -1) ? QString() :
+													m_pSearchResultWidget->vlmodel()->results(m_pSearchResultWidget->currentIndex().highlighterIndex()).resultsName());
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
@@ -693,10 +698,12 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
+	setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
 	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));
 	setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
 	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
 	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
+	QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
 	bool bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
 	strFont = settings.value(constrFontKey).toString();
 	if (!strFont.isEmpty()) {
@@ -722,12 +729,12 @@ void CKJVCanOpener::restorePersistentSettings()
 	//			will set the current index for the search result to that
 	//			as a fallback for when there is no Last Current Index:
 	bool bLastSet = false;
-	if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(ndxLastCurrentIndex, false);
+	if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastCurrentIndex, strHighlighterName), false);
 	settings.beginGroup(constrBrowserViewGroup);
 	bool bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
 	if (!bLastSet) {
 		CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
-		if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(ndxLastBrowsed, false);
+		if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastBrowsed, strHighlighterName), false);
 	}
 	strFont = settings.value(constrFontKey).toString();
 	if (!strFont.isEmpty()) {
@@ -1177,7 +1184,7 @@ void CKJVCanOpener::en_viewModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
 	m_pSearchResultWidget->setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(pAction->data().toUInt()));
 
@@ -1193,7 +1200,7 @@ void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
 	m_pSearchResultWidget->setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(pAction->data().toUInt()));
 
@@ -1209,7 +1216,7 @@ void CKJVCanOpener::en_treeModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
 	m_pSearchResultWidget->setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()));
 	m_pActionShowMissingLeafs->setEnabled(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()) != CVerseListModel::VTME_LIST);
@@ -1226,7 +1233,7 @@ void CKJVCanOpener::en_viewShowMissingsLeafs()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	CRelIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
 
 	if (m_pSearchResultWidget->treeMode() == CVerseListModel::VTME_LIST) {
 		if (m_pSearchResultWidget->showMissingLeafs()) m_pSearchResultWidget->setShowMissingLeafs(false);

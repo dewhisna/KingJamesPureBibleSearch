@@ -383,12 +383,12 @@ public:
 	public:
 		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 		const CVerseMap &verseMap() const { return m_mapVerses; }
-		inline const QString &resultsName() const { return m_strResultsName; }
-		inline int highlighterIndex() const { return m_nHighlighterIndex; }
+		const QString resultsName() const { return m_strResultsName; }
+		int highlighterIndex() const { return m_nHighlighterIndex; }
 	protected:
 		TVerseListModelPrivate &m_private;
 	private:
-		QString m_strResultsName;
+		QString m_strResultsName;						// Name of the Highlighter or "Search Results"
 		int m_nHighlighterIndex;
 	};
 	typedef QList<TVerseListModelResults> THighlighterVLMRList;
@@ -443,7 +443,8 @@ public:
 
 	virtual Qt::DropActions supportedDropActions() const;
 
-	QModelIndex locateIndex(const CRelIndex &ndxRel) const;
+	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
+	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strHighlighterName) const;
 
 	TParsedPhrasesList parsedPhrases() const;
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
@@ -453,6 +454,12 @@ public:
 	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
 	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
 
+	const TVerseListModelResults &results(int ndxResults) const
+	{
+		if (ndxResults == -1) return m_searchResults;
+		assert((ndxResults >= 0) && (ndxResults < m_vlmrListHighlighters.size()));
+		return m_vlmrListHighlighters.at(ndxResults);
+	}
 	const TVerseListModelSearchResults &searchResults() const { return m_searchResults; }
 
 	inline const QFont &font() const { return m_private.m_font; }

@@ -74,7 +74,7 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
 
-	CRelIndex currentIndex() const;
+	TVerseIndex currentIndex() const;
 	bool canShowPassageNavigator() const;
 
 protected slots:
@@ -88,7 +88,7 @@ protected slots:
 	void en_listChanged();
 
 public slots:
-	virtual bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
+	virtual bool setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView = true);
 	virtual void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	virtual void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	virtual void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
@@ -165,7 +165,7 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
 	inline bool showMissingLeafs() const { return m_pSearchResultsTreeView->showMissingLeafs(); }
 
-	CRelIndex currentIndex() const;
+	TVerseIndex currentIndex() const;
 	bool hasFocusSearchResult() const;
 	bool canShowPassageNavigator() const;
 
@@ -180,7 +180,7 @@ public:
 	QString searchResultsSummaryText() const;
 
 public slots:
-	bool setCurrentIndex(const CRelIndex &ndx, bool bFocusTreeView = true);
+	bool setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView = true);
 	void setFocusSearchResult();
 	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
