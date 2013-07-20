@@ -689,11 +689,22 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				 (ndxRel.chapter() < (ndxCurrent.chapter()-1)) ||
 				 (ndxRel.chapter() > (ndxCurrent.chapter()+1)))) continue;
 
-		int nStartPos = anchorPosition(ndxRel.asAnchor());
-		if (nStartPos == -1) continue;				// Note: Some highlight lists have tags not in this browser document
+		unsigned int nTagCount = tag.count();
+		if (nTagCount) --nTagCount;					// Make nTagCount the number of positions to move, not number words
+
 		uint32_t ndxNormalStart = m_pBibleDatabase->NormalizeIndex(ndxRel);
-		uint32_t ndxNormalEnd = ndxNormalStart;
-		if (tag.count()) ndxNormalEnd = ndxNormalStart + tag.count() - 1;
+		uint32_t ndxNormalEnd = ndxNormalStart + nTagCount;
+		int nStartPos = -1;
+		while ((nStartPos == -1) && (ndxNormalStart <= ndxNormalEnd)) {
+			nStartPos = anchorPosition(ndxRel.asAnchor());
+			if (nStartPos == -1) {
+				ndxNormalStart++;
+				ndxRel = CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
+				assert(ndxRel.isSet());
+				if (!ndxRel.isSet()) ndxNormalStart = ndxNormalEnd+1;			// Safeguard incase we run off the end (shouldn't ever happen)
+			}
+		}
+		if (nStartPos == -1) continue;				// Note: Some highlight lists have tags not in this browser document
 
 		while ((nStartPos != -1) && (ndxNormalStart <= ndxNormalEnd)) {
 			myCursor.setPosition(nStartPos);
@@ -714,11 +725,12 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			}
 
 			while (nStartPos < nWordEndPos) {
-				myCursor.moveCursorCharRight(QTextCursor::KeepAnchor);
-				fmt = myCursor.charFormat();
-				aHighlighter.doHighlighting(fmt, bClear);
-				myCursor.setCharFormat(fmt);
-				myCursor.clearSelection();
+				if (myCursor.moveCursorCharRight(QTextCursor::KeepAnchor)) {
+					fmt = myCursor.charFormat();
+					aHighlighter.doHighlighting(fmt, bClear);
+					myCursor.setCharFormat(fmt);
+					myCursor.clearSelection();
+				}
 				++nStartPos;
 			}
 

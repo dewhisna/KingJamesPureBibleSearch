@@ -408,8 +408,6 @@ bool CReadDatabase::ReadWordsTable()
 	while (queryData.next()) {
 		QString strWord = queryData.value(1).toString();
 		bool bCasePreserve = ((queryData.value(2).toInt()) ? true : false);
-// TODO : CLEAN
-//		QString strKey = strWord.toLower().normalized(QString::NormalizationForm_C);
 		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
 		// This check is needed because duplicates can happen from decomposed index keys.
 		//		Note: It's less computationally expensive to search the map for it than

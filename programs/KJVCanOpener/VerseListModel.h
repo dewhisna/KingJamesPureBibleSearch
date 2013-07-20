@@ -127,13 +127,18 @@ public:
 	inline QString getHeading() const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
+		bool bSearchRefs = (verseIndex()->highlighterIndex() == -1);		// For Search Results, show word positions too
 		QString strHeading;
 		if (m_lstTags.size() > 0) strHeading += QString("(%1) ").arg(m_lstTags.size());
 		for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 			if (ndx == 0) {
-				strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
+				if (bSearchRefs) {
+					strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
+				} else {
+					strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
+				}
 			} else {
-				strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
+				if (bSearchRefs) strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
 			}
 		}
 		return strHeading;
@@ -346,10 +351,23 @@ public:
 
 	// Data for one parsed TPhraseTagList (Used one for Search Results and one for each Highlighter)
 	class TVerseListModelResults {
+	public:
+		TVerseListModelResults(const TVerseListModelResults &other)
+			:	m_mapVerses(other.m_mapVerses),
+				m_lstVerseIndexes(other.m_lstVerseIndexes),
+				m_mapExtraVerseIndexes(other.m_mapExtraVerseIndexes),
+				m_mapSizeHints(other.m_mapSizeHints),
+				m_private(other.m_private),
+				m_strResultsName(other.m_strResultsName),
+				m_nHighlighterIndex(other.m_nHighlighterIndex)
+		{
+
+		}
+
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelResults(TVerseListModelPrivate &priv, const QString &strResultsName, int nHighlighterIndex = -1)
+		TVerseListModelResults(TVerseListModelPrivate *priv, const QString &strResultsName, int nHighlighterIndex = -1)
 			:	m_private(priv),
 				m_strResultsName(strResultsName),
 				m_nHighlighterIndex(nHighlighterIndex)
@@ -386,7 +404,7 @@ public:
 		const QString resultsName() const { return m_strResultsName; }
 		int highlighterIndex() const { return m_nHighlighterIndex; }
 	protected:
-		TVerseListModelPrivate &m_private;
+		TVerseListModelPrivate *m_private;
 	private:
 		QString m_strResultsName;						// Name of the Highlighter or "Search Results"
 		int m_nHighlighterIndex;
@@ -397,7 +415,7 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelSearchResults(TVerseListModelPrivate &priv)
+		TVerseListModelSearchResults(TVerseListModelPrivate *priv)
 			:	TVerseListModelResults(priv, tr("Search Results"))
 		{ }
 
@@ -460,6 +478,14 @@ public:
 		assert((ndxResults >= 0) && (ndxResults < m_vlmrListHighlighters.size()));
 		return m_vlmrListHighlighters.at(ndxResults);
 	}
+	const TVerseListModelResults &results(const TVerseIndex &ndxVerse) const
+	{
+		return results(ndxVerse.highlighterIndex());
+	}
+	const TVerseListModelResults &results(const QModelIndex &index) const
+	{
+		return results(*toVerseIndex(index));
+	}
 	const TVerseListModelSearchResults &searchResults() const { return m_searchResults; }
 
 	inline const QFont &font() const { return m_private.m_font; }
@@ -479,6 +505,9 @@ public slots:
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color);
 
+	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_changedHighlighters();
+
 protected:
 	int GetBookCount() const;						// Returns the number of books in the model based on mode
 	int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number
@@ -492,8 +521,14 @@ public:
 	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 
 private:
+	void clearAllSizeHints();
+	void clearAllExtraVerseIndexes();
+
 	void buildScopedResultsFromParsedPhrases();
 	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
+
+	void buildHighlighterResults(int ndxHighlighter = -1);		// Note: index of -1 = All Highlighters
+	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)

@@ -414,8 +414,9 @@ bool CSearchResultsTreeView::canShowPassageNavigator() const
 
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
-	vlmodel()->setViewMode(nViewMode);
+	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
 	setRootIsDecorated((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
+	vlmodel()->setViewMode(nViewMode);
 }
 
 void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
@@ -426,8 +427,9 @@ void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_
 
 void CSearchResultsTreeView::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
-	vlmodel()->setTreeMode(nTreeMode);
+	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
 	setRootIsDecorated((nTreeMode != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
+	vlmodel()->setTreeMode(nTreeMode);
 }
 
 void CSearchResultsTreeView::setShowMissingLeafs(bool bShowMissing)
@@ -540,8 +542,8 @@ void CSearchResultsTreeView::en_listChanged()
 	int nResultsCount = zResults.GetVerseCount();		// TODO : Verify these are equivalent:  Original:  vlmodel()->GetResultsCount();
 
 	m_pActionSelectAll->setEnabled(nResultsCount != 0);
-	emit canExpandAll((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) && (vlmodel()->hasChildren()));
-	emit canCollapseAll((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) && (vlmodel()->hasChildren()));
+	emit canExpandAll((rootIsDecorated()) && (vlmodel()->hasChildren()));
+	emit canCollapseAll((rootIsDecorated()) && (vlmodel()->hasChildren()));
 
 	handle_selectionChanged();
 }
@@ -759,6 +761,7 @@ bool CKJVSearchResult::canShowPassageNavigator() const
 
 void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
+	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 }
 

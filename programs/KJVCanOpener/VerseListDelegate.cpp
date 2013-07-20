@@ -27,6 +27,8 @@
 #include "ToolTipEdit.h"
 #include "KJVCanOpener.h"
 #include "PersistentSettings.h"
+#include "UserNotesDatabase.h"
+
 #include <QModelIndex>
 #include <QApplication>
 #include <QStyle>
@@ -47,15 +49,14 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 
 void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
 {
-	const CVerseListModel::TVerseListModelSearchResults &zResults = m_model.searchResults();		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
-
+	assert(index.isValid());
+	const CVerseListModel::TVerseListModelResults &zResults = m_model.results(index);
 
 	QTreeView *pView = parentView();
 	assert(pView != NULL);
 	bool bViewHasFocus = pView->hasFocus();
 
 	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
-	assert(ndxRel.isSet());
 
 	doc.setDefaultFont(m_model.font());
 	doc.setDefaultStyleSheet(QString("body, p, li, book, chapter { background-color:%1; color:%2; }")
@@ -71,41 +72,67 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 //	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n");
 	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n");
 
-	if (ndxRel.verse() != 0) {
-		// Verses:
-		const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	if (ndxRel.isSet()) {
+		if (ndxRel.verse() != 0) {
+			// Verses:
+			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
-		if (m_model.displayMode() == CVerseListModel::VDME_HEADING) {
-			strHTML += "<p>" + index.data().toString() + "</p>\n";
+			if (m_model.displayMode() == CVerseListModel::VDME_HEADING) {
+				strHTML += "<p>" + index.data().toString() + "</p>\n";
+				strHTML += "</body></html>";
+				doc.setHtml(strHTML);
+			} else {
+				CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
+				if (!bDoingSizeHint) {
+					navigator.setDocumentToVerse(item.getIndex());
+					if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+						CSearchResultHighlighter highlighter(item.phraseTags());
+						navigator.doHighlighting(highlighter);
+					} else {
+						CUserDefinedHighlighter highlighter(zResults.resultsName(), item.phraseTags());
+						navigator.doHighlighting(highlighter);
+					}
+				} else {
+					navigator.setDocumentToVerse(item.getIndex(), false, true);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+				}
+			}
+		} else if (ndxRel.chapter() != 0) {
+			// Chapters:
+			int nVerses = 0;
+			int nResults = 0;
+			if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+				nVerses = m_model.searchResults().GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				nResults = m_model.searchResults().GetResultsCount(ndxRel.book(), ndxRel.chapter());
+			}
+			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
+				strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
+			} else {
+				strHTML += QString("<p>%1</p>\n").arg(Qt::escape(index.data().toString()));
+			}
 			strHTML += "</body></html>";
 			doc.setHtml(strHTML);
 		} else {
-			CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
-			if (!bDoingSizeHint) {
-				navigator.setDocumentToVerse(item.getIndex());
-				CSearchResultHighlighter highlighter(item.phraseTags());
-				navigator.doHighlighting(highlighter);
-			} else {
-				navigator.setDocumentToVerse(item.getIndex(), false, true);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+			// Books:
+			int nVerses = 0;
+			int nResults = 0;
+			if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+				nVerses = m_model.searchResults().GetVerseCount(ndxRel.book());
+				nResults = m_model.searchResults().GetResultsCount(ndxRel.book());
 			}
+			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
+				strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
+			} else {
+				strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
+			}
+			strHTML += "</body></html>";
+			doc.setHtml(strHTML);
 		}
-	} else if (ndxRel.chapter() != 0) {
-		// Chapters:
-		int nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-		int nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-		if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
-			strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
-		} else {
-			strHTML += QString("<p>%1</p>\n").arg(Qt::escape(index.data().toString()));
-		}
-		strHTML += "</body></html>";
-		doc.setHtml(strHTML);
 	} else {
-		// Books:
-		int nVerses = zResults.GetVerseCount(ndxRel.book());
-		int nResults = zResults.GetResultsCount(ndxRel.book());
-		if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
-			strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
+		// Highlighter Name:
+		assert(g_pUserNotesDatabase != NULL);
+		const TUserDefinedColor udcHighlighter = g_pUserNotesDatabase->highlighterDefinition(zResults.resultsName());
+		if (udcHighlighter.isValid()) {
+			strHTML += QString("<p><b><span style=\"background-color:%1;\">%2</span></b></p>\n").arg(udcHighlighter.m_color.name()).arg(Qt::escape(index.data().toString()));
 		} else {
 			strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
 		}
@@ -168,8 +195,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 				}
 
 				CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
-				assert(ndxRel.isSet());
-				if ((index.row() != 0) && (ndxRel.verse() != 0)) {
+				if ((ndxRel.isSet()) && (index.row() != 0) && (ndxRel.verse() != 0)) {
 					// Ideally we would just draw the line on the top of all entries except for
 					//		when index.row() == 0. However, there seems to be a one row overlap
 					//		in the rectangles from one cell to the next (QTreeView bug?) and the
@@ -218,8 +244,6 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 		QTreeView *pTree = parentView();
 		if (pTree) {
-			CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
-			assert(ndxRel.isSet());
 			int nWidth = pTree->viewport()->width() - indentationForIndex(index) - 1;
 
 //			int nWidth = pTree->viewport()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
