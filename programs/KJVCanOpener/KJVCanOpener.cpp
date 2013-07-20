@@ -927,80 +927,18 @@ void CKJVCanOpener::en_NewSearch()
 
 void CKJVCanOpener::en_OpenSearch()
 {
-
-// TODO : REMOVE THIS TEST CODE:
-
-/*
-	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), QString(), NULL, QFileDialog::ReadOnly);
-	if (strFilePathName.isEmpty()) return;
-	CUserNotesDatabase und;
-
-	if (!und.loadFromFile(strFilePathName)) {
-		QMessageBox::warning(this, "KJN Error", und.lastLoadSaveError());
-	} else {
-		QMessageBox::information(this, "KJN Test", "Read Successful!");
-	}
-
-	return;
-
-*/
-
-
-
-
-
-/*
-
 	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Open Failed"), tr("Failed to open and read the specified KJV Search File!"));
-*/
 }
 
 void CKJVCanOpener::en_SaveSearch()
 {
-
-
-// TODO : REMOVE THIS TEST CODE:
-
-
-/*
-	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
-	if (strFilePathName.isEmpty()) return;
-	CUserNotesDatabase und;
-	und.setHighlighterDefinitions(CPersistentSettings::instance()->userDefinedColorMap());
-	und.setHighlighterTagsFor(m_pBibleDatabase->compatibilityUUID(), "Basic Highlighter #1", m_pSearchResultWidget->vlmodel()->parsedPhrases().at(0)->GetPhraseTagSearchResults());
-	und.setHighlighterTagsFor(m_pBibleDatabase->compatibilityUUID(), "Basic Highlighter \"#2\"", m_pSearchResultWidget->vlmodel()->parsedPhrases().at(1)->GetPhraseTagSearchResults());
-
-	und.setNoteFor(CRelIndex(1,1,1,0), "In the beginning, something happened -- a big bang??  I don't think so!");
-	und.setNoteFor(CRelIndex(66,1,1,0), "Behold He comes quickly!");
-	und.setNoteFor(CRelIndex(40,1,0,0), "This is the book of \"Matthew\"!");
-
-	und.setCrossReference(CRelIndex(27,1,1,0), CRelIndex(66,1,1,0));
-	und.setCrossReference(CRelIndex(27,1,1,0), CRelIndex(1,3,1,0));
-	und.setCrossReference(CRelIndex(1,1,1,0), CRelIndex(1,3,1,0));
-	und.setCrossReference(CRelIndex(7,3,0,0),CRelIndex(19,23,0,0));
-
-	if (!und.saveToFile(strFilePathName)) {
-		QMessageBox::warning(this, "KJN Error", und.lastLoadSaveError());
-	} else {
-		QMessageBox::information(this, "KJN Test", "Write Successful!");
-	}
-
-	return;
-
-*/
-
-
-
-/*
-
 	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed"), tr("Failed to save the specified KJV Search File!"));
-*/
 }
 
 bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
