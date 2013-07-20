@@ -100,10 +100,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			// Chapters:
 			int nVerses = 0;
 			int nResults = 0;
-			if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
-				nVerses = m_model.searchResults().GetVerseCount(ndxRel.book(), ndxRel.chapter());
-				nResults = m_model.searchResults().GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			}
+			nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+			nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
 			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
 				strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 			} else {
@@ -115,10 +113,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			// Books:
 			int nVerses = 0;
 			int nResults = 0;
-			if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
-				nVerses = m_model.searchResults().GetVerseCount(ndxRel.book());
-				nResults = m_model.searchResults().GetResultsCount(ndxRel.book());
-			}
+			nVerses = zResults.GetVerseCount(ndxRel.book());
+			nResults = zResults.GetResultsCount(ndxRel.book());
 			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
 				strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
 			} else {

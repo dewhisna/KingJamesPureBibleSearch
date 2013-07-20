@@ -309,11 +309,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				QString strBookText = m_private.m_pBibleDatabase->bookName(ndxRel);
 				if (m_private.m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
-				if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
-					int nVerses = m_searchResults.GetVerseCount(ndxRel.book());
-					int nResults = m_searchResults.GetResultsCount(ndxRel.book());
-					if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
-				}
+				int nVerses = zResults.GetVerseCount(ndxRel.book());
+				int nResults = zResults.GetResultsCount(ndxRel.book());
+				if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
 				return strBookText;
 			}
 			if ((role == Qt::ToolTipRole) ||
@@ -330,11 +328,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				QString strChapterText = m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
 				if (m_private.m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
-				if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
-					int nVerses = m_searchResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-					int nResults = m_searchResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-					if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
-				}
+				int nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				int nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
+				if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
 				return strChapterText;
 			}
 			if ((role == Qt::ToolTipRole) ||
@@ -809,21 +805,6 @@ void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 
 // ----------------------------------------------------------------------------
 
-int CVerseListModel::TVerseListModelSearchResults::GetResultsCount(unsigned int nBk, unsigned int nChp) const
-{
-	int nResults = 0;
-
-	for (CVerseMap::const_iterator itrVerse = m_mapVerses.constBegin(); itrVerse != m_mapVerses.constEnd(); ++itrVerse) {
-		if ((nBk != 0) && (itrVerse.key().book() != nBk)) continue;
-		if ((nBk != 0) && (nChp != 0) && (itrVerse.key().chapter() != nChp)) continue;
-		nResults += itrVerse->phraseTags().size();
-	}
-
-	return nResults;
-}
-
-// ----------------------------------------------------------------------------
-
 QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetResultsIndexes(CVerseMap::const_iterator itrVerse) const
 {
 	QPair<int, int> nResultsIndexes;
@@ -1056,32 +1037,13 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 	return 0;				// Should have already returned a chapter above, but 0 if we're given an index beyond the list
 }
 
-int CVerseListModel::TVerseListModelResults::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::FindVerseIndex(const CRelIndex &ndxRel) const
 {
-	// Note: This function has special cases for nBk == 0 and nChp == 0 (unlike the other count functions)
+	if (!ndxRel.isSet()) return m_mapVerses.constEnd();
 
-	if (nBk == 0) return m_mapVerses.size();		// Quick special-case
-
-	// Find the first and last entries with the correct Book/Chapter number:
-	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
-	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp != 0) {
-		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
-	} else {
-		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book
-	}
-
-	// If we didn't find the book and/or book/chapter, return none found:
-	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
-	if ((itrVerseMapBookChapterFirst.key().book() != nBk) || ((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return 0;
-
-	int nVerses = 0;
-	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
-		++itrVerseMapBookChapterFirst;
-		++nVerses;
-	}
-	return nVerses;
+	CRelIndex ndxSearch(ndxRel);
+	ndxSearch.setWord(0);			// Make sure we don't consider the word
+	return m_mapVerses.find(ndxSearch);
 }
 
 CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
@@ -1121,13 +1083,73 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 	return m_mapVerses.constEnd();			// Should have already returned a verse above, but end() if we're given an index beyond the list
 }
 
-CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::FindVerseIndex(const CRelIndex &ndxRel) const
-{
-	if (!ndxRel.isSet()) return m_mapVerses.constEnd();
+// ----------------------------------------------------------------------------
 
-	CRelIndex ndxSearch(ndxRel);
-	ndxSearch.setWord(0);			// Make sure we don't consider the word
-	return m_mapVerses.find(ndxSearch);
+int CVerseListModel::TVerseListModelResults::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+{
+	// Note: This function has special cases for nBk == 0 and nChp == 0 (unlike the other count functions)
+
+	if (nBk == 0) return m_mapVerses.size();		// Quick special-case
+
+	// Find the first and last entries with the correct Book/Chapter number:
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
+	CVerseMap::const_iterator itrVerseMapBookChapterLast;
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp != 0) {
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
+	} else {
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book
+	}
+
+	// If we didn't find the book and/or book/chapter, return none found:
+	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
+	if ((itrVerseMapBookChapterFirst.key().book() != nBk) || ((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return 0;
+
+	int nVerses = 0;
+	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
+		++itrVerseMapBookChapterFirst;
+		++nVerses;
+	}
+	return nVerses;
+}
+
+int CVerseListModel::TVerseListModelResults::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+{
+	int nResults = 0;
+
+	for (CVerseMap::const_iterator itrVerse = m_mapVerses.constBegin(); itrVerse != m_mapVerses.constEnd(); ++itrVerse) {
+		if ((nBk != 0) && (itrVerse.key().book() != nBk)) continue;
+		if ((nBk != 0) && (nChp != 0) && (itrVerse.key().chapter() != nChp)) continue;
+		nResults += itrVerse->phraseTags().size();
+	}
+
+	return nResults;
+}
+
+// ----------------------------------------------------------------------------
+
+int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+{
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetVerseCount(nBk, nChp);
+
+	int nCount = 0;
+	for (THighlighterVLMRList::const_iterator itrHighlighter = m_vlmrListHighlighters.constBegin(); itrHighlighter != m_vlmrListHighlighters.constEnd(); ++itrHighlighter) {
+		nCount += itrHighlighter->GetVerseCount(nBk, nChp);
+	}
+
+	return nCount;
+}
+
+int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+{
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetResultsCount(nBk, nChp);
+
+	int nCount = 0;
+	for (THighlighterVLMRList::const_iterator itrHighlighter = m_vlmrListHighlighters.constBegin(); itrHighlighter != m_vlmrListHighlighters.constEnd(); ++itrHighlighter) {
+		nCount += itrHighlighter->GetResultsCount(nBk, nChp);
+	}
+
+	return nCount;
 }
 
 // ----------------------------------------------------------------------------

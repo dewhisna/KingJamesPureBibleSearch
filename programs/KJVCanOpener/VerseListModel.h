@@ -400,6 +400,8 @@ public:
 		CVerseMap::const_iterator GetVerse(int ndxVerse, unsigned int nBk = 0, unsigned int nChp = 0) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 	public:
 		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+		int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Results Phrase Tags (can be limited to book or book/chapter)
+
 		const CVerseMap &verseMap() const { return m_mapVerses; }
 		const QString resultsName() const { return m_strResultsName; }
 		int highlighterIndex() const { return m_nHighlighterIndex; }
@@ -425,8 +427,6 @@ public:
 		// --------------------------------------
 
 	public:
-		int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Parsed Phrases (can be limited to book or book/chapter)
-
 		QPair<int, int> GetResultsIndexes(CVerseMap::const_iterator itrVerse) const;		// Calculates the starting and ending results indexes for the specified Verse List entry index
 		QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Book number and total number of books with results
 		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
@@ -508,17 +508,10 @@ protected slots:
 	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_changedHighlighters();
 
-protected:
-	int GetBookCount() const;						// Returns the number of books in the model based on mode
-	int IndexByBook(unsigned int nBk) const;		// Returns the index (in the number of books) for the specified Book number
-	unsigned int BookByIndex(int ndxBook) const;	// Returns the Book Number for the specified index (in the number of books)
-	int GetChapterCount(unsigned int nBk) const;	// Returns the number of chapters in the specified book number based on the current mode
-	int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
-	unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
-	CVerseMap::const_iterator FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in m_mapVerses and returns its index
-	CVerseMap::const_iterator GetVerse(int ndxVerse, unsigned int nBk = 0, unsigned int nChp = 0) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 public:
+	// Total Verse/Result count for the whole model for the current mode:
 	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 
 private:
 	void clearAllSizeHints();

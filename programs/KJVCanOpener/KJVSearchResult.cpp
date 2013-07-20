@@ -529,7 +529,9 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	}
 	m_pActionNavigator->setEnabled(selectionModel()->selectedRows().size() == 1);		// Only allow navigation on a node (verse or otherwise)
 
-	QString strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
+	QString strStatusText = ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ?
+									tr("%n Search Result(s) Selected", NULL, nNumResultsSelected) :
+									tr("%n Highlighted Verse(s) Selected", NULL, nNumResultsSelected));
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
@@ -537,9 +539,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 void CSearchResultsTreeView::en_listChanged()
 {
-	const CVerseListModel::TVerseListModelResults &zResults = vlmodel()->searchResults();		// ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : **** TODO SET TO HIGHLIGHTER **** )
-
-	int nResultsCount = zResults.GetVerseCount();		// TODO : Verify these are equivalent:  Original:  vlmodel()->GetResultsCount();
+	int nResultsCount = vlmodel()->GetResultsCount();
 
 	m_pActionSelectAll->setEnabled(nResultsCount != 0);
 	emit canExpandAll((rootIsDecorated()) && (vlmodel()->hasChildren()));

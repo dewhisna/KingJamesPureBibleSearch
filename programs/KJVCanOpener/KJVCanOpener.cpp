@@ -1306,8 +1306,7 @@ void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 	if (!index.isValid()) return;
 
 	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
-	assert(ndxRel.isSet());
-	if (!ndxRel.isSet()) return;
+	if (!ndxRel.isSet()) return;				// If user double-clicks on a highligher, there will be no RelIndex
 
 	m_pBrowserWidget->gotoIndex(TPhraseTag(ndxRel));
 	m_pBrowserWidget->setFocusBrowser();
