@@ -720,6 +720,10 @@ public:
 		return strReferenceRangeText;
 	}
 
+	bool isSet() const {
+		return (m_RelIndex.isSet());
+	}
+
 	bool haveSelection() const {
 		return ((m_RelIndex.isSet()) && (m_nCount != 0));
 	}

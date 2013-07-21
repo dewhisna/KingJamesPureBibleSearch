@@ -675,19 +675,42 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 	myCursor.beginEditBlock();
 
+	// Save some time if the tag isn't anything close to what we are displaying.
+	//		We'll find a verse before and a verse after the main chapter being
+	//		displayed (i.e. the actual scripture browser display window).  We
+	//		will precalculate our current index before the main loop:
+	TPhraseTag tagCurrentDisplay;
+	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
+		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1);
+		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
+		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
+		assert(pChapter != NULL);
+		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
+		CRelIndex ndxVerseBefore = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent - 1);
+		if (ndxVerseBefore.isSet()) {
+			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
+			assert(pVerseBefore != NULL);
+			nNumWordsDisplayed += pVerseBefore->m_nNumWrd;
+			ndxDisplay = CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1);
+		}
+		CRelIndex ndxVerseAfter = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent + pChapter->m_nNumWrd);
+		if (ndxVerseAfter.isSet()) {
+			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
+			assert(pVerseAfter != NULL);
+			nNumWordsDisplayed += pVerseAfter->m_nNumWrd;
+		}
+		tagCurrentDisplay = TPhraseTag(ndxDisplay, nNumWordsDisplayed);
+	}
+
 	CHighlighterPhraseTagFwdItr itrHighlighter = aHighlighter.getForwardIterator();
 	while (!itrHighlighter.isEnd()) {
 		TPhraseTag tag = itrHighlighter.nextTag();
 		CRelIndex ndxRel = tag.relIndex();
 		if (!ndxRel.isSet()) continue;
+
 		// Save some time if the tag isn't anything close to what we are displaying.
-		//		We'll use one before/one after since we might be displaying part of
-		//		the proceding passage:
-		if  ((ndxCurrent.isSet()) &&
-				((ndxRel.book() < (ndxCurrent.book()-1)) ||
-				 (ndxRel.book() > (ndxCurrent.book()+1)) ||
-				 (ndxRel.chapter() < (ndxCurrent.chapter()-1)) ||
-				 (ndxRel.chapter() > (ndxCurrent.chapter()+1)))) continue;
+		//		Check for intersection of the highlight tag with our display:
+		if ((tagCurrentDisplay.isSet()) && (!tag.intersects(m_pBibleDatabase, tagCurrentDisplay))) continue;
 
 		unsigned int nTagCount = tag.count();
 		if (nTagCount) --nTagCount;					// Make nTagCount the number of positions to move, not number words
@@ -700,8 +723,13 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			if (nStartPos == -1) {
 				ndxNormalStart++;
 				ndxRel = CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
-				assert(ndxRel.isSet());
-				if (!ndxRel.isSet()) ndxNormalStart = ndxNormalEnd+1;			// Safeguard incase we run off the end (shouldn't ever happen)
+				// Safeguard incase we run off the end.  This is needed, for example, if
+				//		on the last word of the Bible (Rev 22:21 [12]) with the cursor
+				//		tracker visible and the user hits Alt-PgUp to go to the previous
+				//		chapter.  It will run off the end looking for that word and
+				//		not finding it because it's already scrolled out of view.  And
+				//		then will run off the end of the text:
+				if (!ndxRel.isSet()) ndxNormalStart = ndxNormalEnd+1;
 			}
 		}
 		if (nStartPos == -1) continue;				// Note: Some highlight lists have tags not in this browser document
