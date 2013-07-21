@@ -179,34 +179,40 @@ CSearchResultsTreeView::~CSearchResultsTreeView()
 {
 }
 
-void CSearchResultsTreeView::en_copyVerseText()
+// ----------------------------------------------------------------------------
+
+TVerseIndexList CSearchResultsTreeView::getSelectedVerses() const
 {
-	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
-	QTextDocument docList;
-	QTextCursor cursorDocList(&docList);
-
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 
-	CVerseList lstVerses;
+	TVerseIndexList lstVerses;
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
 			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
+				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
 			}
 		}
 	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
+	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
 
+	return lstVerses;
+}
+
+// ----------------------------------------------------------------------------
+
+void CSearchResultsTreeView::en_copyVerseText() const
+{
+	assert(vlmodel()->bibleDatabase().data() != NULL);
+
+	TVerseIndexList lstVerses = getSelectedVerses();
+
+	QTextDocument docList;
+	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
+		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-		CSearchResultHighlighter highlighter(item.phraseTags());
 
 		// Note:  Qt bug with fragments causes leading <hr /> tags
 		//		to get converted to <br /> tags.  Since this may
@@ -214,7 +220,13 @@ void CSearchResultsTreeView::en_copyVerseText()
 		//		false here and set our <hr /> or <br /> below as
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex(), false);
-		navigator.doHighlighting(highlighter);
+		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+			CSearchResultHighlighter highlighter(item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		} else {
+			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		}
 		navigator.removeAnchors();
 
 		QTextDocumentFragment fragment(&docVerse);
@@ -223,17 +235,19 @@ void CSearchResultsTreeView::en_copyVerseText()
 		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<br />\n");
 	}
 
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::en_copyRaw()
+void CSearchResultsTreeView::en_copyRaw() const
 {
 	copyRawCommon(false);
 }
 
-void CSearchResultsTreeView::en_copyVeryRaw()
+void CSearchResultsTreeView::en_copyVeryRaw() const
 {
 	copyRawCommon(true);
 }
@@ -242,26 +256,11 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
 
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
+	TVerseIndexList lstVerses = getSelectedVerses();
+
 	QString strText;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
+		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
 		navigator.setDocumentToVerse(item.getIndex(), false);
@@ -277,59 +276,34 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 		}
 	}
 
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
 	mime->setText(strText);
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::en_copyVerseHeadings()
+void CSearchResultsTreeView::en_copyVerseHeadings() const
 {
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
+	TVerseIndexList lstVerses = getSelectedVerses();
+
 	QString strVerseHeadings;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	CVerseList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				const CVerseListItem &item(lstSelectedItems.at(ndx).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-				lstVerses.append(item);
-			}
-		}
-	}
-	sortVerseList(lstVerses, Qt::AscendingOrder);
-
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(lstVerses.at(ndx));
+		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		strVerseHeadings += item.getHeading() + "\n";
 	}
 
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
 	mime->setText(strVerseHeadings);
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::en_copyReferenceDetails()
+void CSearchResultsTreeView::en_copyReferenceDetails() const
 {
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
+	TVerseIndexList lstVerses = getSelectedVerses();
+
 	QString strPlainText;
 	QString strRichText;
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	TVerseIndexList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
-			}
-		}
-	}
-	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
-
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		if (ndx > 0) {
 			strPlainText += "--------------------\n";
@@ -339,38 +313,25 @@ void CSearchResultsTreeView::en_copyReferenceDetails()
 		strRichText += vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
 	}
 
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
 	mime->setText(strPlainText);
 	mime->setHtml(strRichText);
 	clipboard->setMimeData(mime);
 }
 
-void CSearchResultsTreeView::en_copyComplete()
+void CSearchResultsTreeView::en_copyComplete() const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
 
-	QClipboard *clipboard = QApplication::clipboard();
-	QMimeData *mime = new QMimeData();
+	TVerseIndexList lstVerses = getSelectedVerses();
+
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
-
-	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-	TVerseIndexList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
-			}
-		}
-	}
-	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
-
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-		CSearchResultHighlighter highlighter(item.phraseTags());
 
 		// Note:  Qt bug with fragments causes leading <hr /> tags
 		//		to get converted to <br /> tags.  Since this may
@@ -378,20 +339,34 @@ void CSearchResultsTreeView::en_copyComplete()
 		//		false here and set our <hr /> or <br /> below as
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex(), false);
-		navigator.doHighlighting(highlighter);
+		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+			CSearchResultHighlighter highlighter(item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		} else {
+			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		}
 		navigator.removeAnchors();
 
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
-		cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
-		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
+		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+			cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
+			if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
+		} else {
+			cursorDocList.insertHtml("<br />\n");
+		}
 	}
 
+	QClipboard *clipboard = QApplication::clipboard();
+	QMimeData *mime = new QMimeData();
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
 	clipboard->setMimeData(mime);
 }
+
+// ----------------------------------------------------------------------------
 
 TVerseIndex CSearchResultsTreeView::currentIndex() const
 {
@@ -406,6 +381,8 @@ bool CSearchResultsTreeView::setCurrentIndex(const TVerseIndex &ndx, bool bFocus
 	if (bFocusTreeView) setFocus();
 	return ndxModel.isValid();
 }
+
+// ----------------------------------------------------------------------------
 
 bool CSearchResultsTreeView::canShowPassageNavigator() const
 {

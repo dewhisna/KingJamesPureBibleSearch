@@ -77,13 +77,15 @@ public:
 	TVerseIndex currentIndex() const;
 	bool canShowPassageNavigator() const;
 
+	TVerseIndexList getSelectedVerses() const;
+
 protected slots:
-	void en_copyVerseText();
-	void en_copyRaw();
-	void en_copyVeryRaw();
-	void en_copyVerseHeadings();
-	void en_copyReferenceDetails();
-	void en_copyComplete();
+	void en_copyVerseText() const;
+	void en_copyRaw() const;
+	void en_copyVeryRaw() const;
+	void en_copyVerseHeadings() const;
+	void en_copyReferenceDetails() const;
+	void en_copyComplete() const;
 
 	void en_listChanged();
 

@@ -1203,7 +1203,9 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 	emit changedDocumentText();
 }
 
-TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
+//#define DEBUG_CURSOR_SELECTION
+TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
+											uint32_t *pNdxNormalFirst, uint32_t *pNdxNormalLast) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1217,6 +1219,11 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 	CRelIndex nIndexFirst;				// First Word anchor tag
 	CRelIndex nIndexLast;				// Last Word anchor tag
 	QString strAnchorName;
+
+#ifdef DEBUG_CURSOR_SELECTION
+	int nPosCursorStart = -1;
+	int nPosCursorEnd = -1;
+#endif
 
 	// Find first word anchor:
 	myCursor.setPosition(nPosFirst);
@@ -1238,6 +1245,9 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 		}
 		if (!myCursor.moveCursorCharRight()) break;
 	}
+#ifdef DEBUG_CURSOR_SELECTION
+	if (nIndexFirst.isSet()) nPosCursorStart = myCursor.position() - 2;		// -2 -> One for the extra moveCursorCharRight and one for the anchor character position
+#endif
 
 	// Find last word anchor:
 	myCursor.setPosition(nPosLast);
@@ -1254,6 +1264,13 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 		}
 		if (!myCursor.moveCursorCharLeft()) break;
 	}
+#ifdef DEBUG_CURSOR_SELECTION
+	if (nIndexLast.isSet()) {
+		myCursor.moveCursorWordRight();
+		while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
+		nPosCursorEnd = myCursor.position() + 1;			// +1 -> One for the extra moveCursorCharLeft
+	}
+#endif
 
 	// Handle single-word selection:
 	if (!nIndexLast.isSet()) nIndexLast = nIndexFirst;
@@ -1279,41 +1296,82 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
 		nWordCount = (ndxNormLast - ndxNormFirst + 1);
 	}
 
+	if (pNdxNormalFirst != NULL) *pNdxNormalFirst = ndxNormFirst;
+	if (pNdxNormalLast != NULL) *pNdxNormalLast = ndxNormLast;
+
 	tag.relIndex() = nIndexFirst;
 	tag.count() = ((nPosFirst != nPosLast) ? nWordCount : 0);
+
+#ifdef DEBUG_CURSOR_SELECTION
+	QString strPhrase;
+	if ((nPosCursorStart != -1) && (nPosCursorEnd != -1)) {
+		CPhraseCursor myCursor(aCursor);
+		myCursor.beginEditBlock();
+		myCursor.setPosition(nPosCursorStart);
+		myCursor.setPosition(nPosCursorEnd, QTextCursor::KeepAnchor);
+		strPhrase = myCursor.selectedText();
+		myCursor.endEditBlock();
+	}
+
+	qDebug("\"%s\"", strPhrase.toUtf8().data());
+	qDebug("%s %d", m_pBibleDatabase->PassageReferenceText(tag.relIndex()).toUtf8().data(), tag.count());
+#endif
 
 	return tag;
 }
 
+//#define DEBUG_SELECTED_PHRASE
 CSelectedPhrase CPhraseNavigator::getSelectedPhrase(const CPhraseCursor &aCursor) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CSelectedPhrase retVal(m_pBibleDatabase);
 
-	retVal.tag() = getSelection(aCursor);
-
-	uint32_t ndxNormFirst = m_pBibleDatabase->NormalizeIndex(retVal.tag().relIndex());
-	uint32_t ndxNormLast = ndxNormFirst;
-	if (retVal.tag().count()) {
-		ndxNormLast = m_pBibleDatabase->NormalizeIndex(ndxNormFirst + retVal.tag().count() - 1);
-	}
+	uint32_t ndxNormFirst = 0;
+	uint32_t ndxNormLast = 0;
+	retVal.tag() = getSelection(aCursor, &ndxNormFirst, &ndxNormLast);
 
 	QString strPhrase;
-	QStringList lstPhrase;
-	if ((ndxNormFirst != 0) && (ndxNormLast != 0)) {
-		lstPhrase.reserve(ndxNormLast - ndxNormFirst + 1);
-		do {
-			lstPhrase.append(m_pBibleDatabase->wordAtIndex(ndxNormFirst));
-			ndxNormFirst++;
-		} while (ndxNormFirst <= ndxNormLast);
-		strPhrase = lstPhrase.join(" ");
+
+	int nCount = retVal.tag().count();
+	CRelIndex ndxRel = retVal.tag().relIndex();
+	// If there is no selection (i.e. count is 0), and we are only in a book or chapter
+	//		marker, don't return any selected phrase text:
+	if ((nCount == 0) && ((ndxRel.chapter() == 0) || (ndxRel.verse() == 0))) ndxRel.clear();
+	if (ndxRel.isSet()) {
+		// So the we'll start at the beginning of the "next verse", if we are only
+		//		at the begging of the book or chapter, move to the start of the verse.
+		//		In theory this won't happen because of how getSelection() currently
+		//		works, but in case we ever change it for some reason:
+		if (ndxRel.chapter() == 0) ndxRel.setChapter(1);
+		if (ndxRel.verse() == 0) ndxRel.setVerse(1);
+	}
+	if (nCount == 0) nCount = 1;
+	CVerseTextPlainRichifierTags tagsRichifier;
+	while ((nCount > 0) && (ndxRel.isSet())) {
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxRel);
+		assert(pVerse != NULL);
+		strPhrase += CVerseTextRichifier::parse(ndxRel, m_pBibleDatabase.data(), pVerse, tagsRichifier, false, &nCount);
+		if (nCount) {
+			// Goto the first word of this verse and add the number of words in this verse to get to start of next verse:
+			ndxRel.setWord(1);
+			ndxRel = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxRel) + m_pBibleDatabase->verseEntry(ndxRel)->m_nNumWrd);
+			ndxRel.setWord(0);				// Process entire verse on next pass
+			strPhrase += "  ";
+		}
 	}
 
-	retVal.phrase().ParsePhrase(lstPhrase);
+	// Clean stray transChangeAddedBegin() marks:
+	strPhrase = strPhrase.trimmed();
+	if (strPhrase.endsWith(tagsRichifier.transChangeAddedBegin())) strPhrase = strPhrase.left(strPhrase.size() - tagsRichifier.transChangeAddedBegin().size());
+	strPhrase = strPhrase.trimmed();
 
-//	qDebug("%s", strPhrase.toUtf8().data());
-//	qDebug("%s %d", m_pBibleDatabase->PassageReferenceText(nIndexFirst).toUtf8().data(), retVal.tag().count());
+	retVal.phrase().ParsePhrase(strPhrase);
+
+#ifdef DEBUG_SELECTED_PHRASE
+	qDebug("\"%s\"", strPhrase.toUtf8().data());
+	qDebug("%s %d", m_pBibleDatabase->PassageReferenceText(retVal.tag().relIndex()).toUtf8().data(), retVal.tag().count());
+#endif
 
 	return retVal;
 }

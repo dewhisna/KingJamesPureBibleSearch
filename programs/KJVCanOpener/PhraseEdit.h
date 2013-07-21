@@ -227,7 +227,8 @@ public:
 	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false, bool bNoAnchors = false);
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
-	TPhraseTag getSelection(const CPhraseCursor &aCursor) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	TPhraseTag getSelection(const CPhraseCursor &aCursor,
+							uint32_t *pNdxNormalFirst = NULL, uint32_t *pNdxNormalLast = NULL) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
 	CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
 	void removeAnchors();

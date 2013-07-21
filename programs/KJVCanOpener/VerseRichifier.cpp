@@ -256,6 +256,10 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 	assert(lstSplit.size() != 0);
 
 	for (int i=0; i<lstSplit.size(); ++i) {
+		if (m_pVerse != NULL) {
+			parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= parseBaton.m_nStartWord);
+			if ((parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) == 0)) parseBaton.m_bOutput = false;
+		}
 		if (i > 0) {
 			if (m_pVerse != NULL) {
 #ifdef OSIS_PARSER_BUILD
@@ -264,33 +268,41 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				QString strWord = parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
 #endif
 				parseBaton.m_ndxCurrent.setWord(i);
-				if (m_bAddAnchors) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
+				if (parseBaton.m_bOutput) {
+					if (m_bAddAnchors) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
+				}
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
-					parseBaton.m_strVerseText.append(strWord.left(1)
-													+ parseBaton.m_strDivineNameFirstLetterParseText
-													+ strWord.mid(1));
+					if (parseBaton.m_bOutput) {
+						parseBaton.m_strVerseText.append(strWord.left(1)
+														+ parseBaton.m_strDivineNameFirstLetterParseText
+														+ strWord.mid(1));
+					}
 					parseBaton.m_strDivineNameFirstLetterParseText.clear();
 				} else {
-					parseBaton.m_strVerseText.append(strWord);
+					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(strWord);
 				}
-				if (m_bAddAnchors) parseBaton.m_strVerseText.append("</a>");
+				if (parseBaton.m_bOutput) {
+					if (m_bAddAnchors) parseBaton.m_strVerseText.append("</a>");
+				}
+				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
 			} else {
 				if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
 				} else {
-					parseBaton.m_strVerseText.append(m_strXlateText);
+					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(m_strXlateText);
 				}
 			}
 		}
 		if (m_pRichNext) {
 			m_pRichNext->parse(parseBaton, lstSplit.at(i));
 		} else {
-			parseBaton.m_strVerseText.append(lstSplit.at(i));
+			if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(lstSplit.at(i));
 		}
 	}
 }
 
-QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags, bool bAddAnchors)
+QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
+										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount)
 {
 	assert(pBibleDatabase != NULL);
 	assert(pVerse != NULL);
@@ -311,9 +323,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors) : ""), &rich_J);
 	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors);
 
-	CRichifierBaton baton(pBibleDatabase, ndxRelVerse);
-	if ((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) ||
-		(pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED))
+	CRichifierBaton baton(pBibleDatabase, ndxRelative, pWordCount);
+	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
+		(ndxRelative.word() <= 1))
 		baton.m_strVerseText.append(g_chrPilcrow);
 	richVerseText.parse(baton);
 

@@ -144,24 +144,34 @@ private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative)
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, int *pWordCount = NULL)
 			:	m_pBibleDatabase(pBibleDatabase),
-				m_ndxCurrent(ndxRelative)
+				m_ndxCurrent(ndxRelative),
+				m_nStartWord(ndxRelative.word()),
+				m_pWordCount(pWordCount),
+				m_bOutput(false)
 		{
 			assert(pBibleDatabase != NULL);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
+			m_ndxCurrent.setWord(0);						// Set ndxCurrent to be whole verse start, but nStartWord=Target First Word (set above)
+			if (m_nStartWord == 1) m_nStartWord = 0;		// Starting at first word includes pretext prior to word
+			if (m_nStartWord == 0) m_bOutput = true;
 		}
 
 		QString m_strVerseText;								// Verse Text being built
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
+		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
+		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
+		bool m_bOutput;										// True when outputting text
 	};
 
 	void parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
 
 public:
-	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false);
+	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
+							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false, int *pWordCount = NULL);
 
 private:
 	const CVerseTextRichifier *m_pRichNext;
