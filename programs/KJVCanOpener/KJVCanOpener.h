@@ -133,9 +133,11 @@ private:
 // UI Private:
 private:
 	bool m_bDoingUpdate;
+	// ----
 	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
+	// ----
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QActionGroup *m_pActionGroupViewMode;		// Group for View Mode (Search Results vs highlighters)
 	QActionGroup *m_pActionGroupDisplayMode;	// Group for Verse Display Mode (heading vs. richtext)
@@ -144,6 +146,7 @@ private:
 	QAction *m_pActionExpandAll;	// View menu Expand All
 	QAction *m_pActionCollapseAll;	// View menu Collapse All
 	QAction *m_pActionViewDetails;	// View Details
+	// ----
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
 	QAction *m_pActionBookForward;	// Navigate Book Forward
 	QAction *m_pActionChapterBackward;	// Navigate Chapter Backward
@@ -153,6 +156,7 @@ private:
 	QAction *m_pActionNavHome;		// Browser Navigate to History Home
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
+	// ----
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
 

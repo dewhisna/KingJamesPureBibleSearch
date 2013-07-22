@@ -54,6 +54,9 @@ namespace {
 	// --------------
 	// Find Dialog:
 	const QString constrFindDialogGroup("FindDialog");
+
+	// UserNoteEditor Dialog:
+	const QString constrUserNoteEditorGroup("UserNoteEditor");
 }
 
 // ============================================================================
@@ -63,6 +66,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	:	T(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
+		m_pUserNoteEditorDlg(NULL),
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
@@ -104,6 +108,10 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pFindDialog = new FindDialog(this);
 	m_pFindDialog->setModal(false);
 	m_pFindDialog->setTextEdit(this);
+
+	// UserNoteEditor Dialog:
+	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, this);
+	m_pUserNoteEditorDlg->setModal(true);
 
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
@@ -148,6 +156,11 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
 	T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+
+	m_pEditMenu->addSeparator();
+
+	m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+	T::connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
@@ -199,6 +212,7 @@ void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(strGroup, constrUserNoteEditorGroup));
 }
 
 template<class T, class U>
@@ -206,6 +220,7 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(strGroup, constrUserNoteEditorGroup));
 }
 
 // ----------------------------------------------------------------------------
@@ -420,6 +435,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	menu.addAction(m_pActionCopyEntirePassageDetails);
 	menu.addSeparator();
 	menu.addActions(CHighlighterButtons::instance()->actions());
+	menu.addSeparator();
+	menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	menu.addSeparator();
 	menu.addAction(m_pActionSelectAll);
 	if (T::useFindDialog()) {
@@ -670,6 +687,20 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	}
 }
 
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::en_userNoteEditorTriggered()
+{
+	assert(m_pUserNoteEditorDlg != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
+
+	if (!selection().isSet()) return;
+
+	m_pUserNoteEditorDlg->setLocationIndex(selection().relIndex());
+	m_pUserNoteEditorDlg->exec();
+}
 
 // ============================================================================
 

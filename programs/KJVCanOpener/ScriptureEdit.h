@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 #include "PhraseEdit.h"
+#include "KJVNoteEditDlg.h"
 
 #include "QtFindReplaceDialog/dialogs/finddialog.h"
 
@@ -129,10 +130,12 @@ public:
 	virtual void en_copyPassageStatistics();
 	virtual void en_copyEntirePassageDetails();
 	virtual void en_highlightPassage(QAction *pAction);
+	virtual void en_userNoteEditorTriggered();
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
+	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
 	CPhraseEditNavigator m_navigator;
@@ -216,6 +219,7 @@ public slots:
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
+	virtual void en_userNoteEditorTriggered() = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -257,6 +261,7 @@ public slots:
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
+	virtual void en_userNoteEditorTriggered() = 0;
 };
 
 // ============================================================================

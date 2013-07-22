@@ -28,7 +28,10 @@
 #include <QDir>
 #include <QColor>
 #include <QtIOCompressor>
-#include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+#include <QTextDocument>			// Also needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+#include <QTextCursor>
+#include <QTextCharFormat>
+#include <QTextBlockFormat>
 
 #include <algorithm>
 
@@ -84,6 +87,25 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #2")] = TUserDefinedColor(QColor(170, 255, 255));			// "blue" highlighter
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #3")] = TUserDefinedColor(QColor(170, 255, 170));			// "green" highligher
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #4")] = TUserDefinedColor(QColor(255, 170, 255));			// "pink" highlighter
+}
+
+// ============================================================================
+
+QString CUserNoteEntry::htmlText() const
+{
+	QTextDocument docUserNote;
+	docUserNote.setHtml(text());
+	QTextCursor cursorDocUserNote(&docUserNote);
+
+	cursorDocUserNote.select(QTextCursor::Document);
+	QTextCharFormat fmtCharUserNote;
+	fmtCharUserNote.setBackground(backgroundColor());
+	QTextBlockFormat fmtBlockUserNote;
+	fmtBlockUserNote.setBackground(backgroundColor());
+	cursorDocUserNote.mergeBlockFormat(fmtBlockUserNote);
+	cursorDocUserNote.mergeBlockCharFormat(fmtCharUserNote);
+
+	return docUserNote.toHtml();
 }
 
 // ============================================================================
@@ -388,7 +410,7 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 #ifdef DEBUG_KJN_XML_READ
 		qDebug("Text: \"%s\"", m_strXMLBuffer.toUtf8().data());
 #endif
-		CFootnoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
+		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
 		userNote.setCount(m_nCount);
 		m_strXMLBuffer.clear();
@@ -590,7 +612,7 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrNotesTag)
 							.arg(constrSizeAttr).arg(m_mapNotes.size())
 							.toUtf8());
-	for (TFootnoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
+	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
 		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
 								.arg(constrCountAttr).arg((itrNotes->second).count())
@@ -672,9 +694,10 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 
 // ============================================================================
 
-void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const QString &strNote)
+void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote)
 {
-	m_mapNotes[ndx].setText(strNote);
+	m_mapNotes[ndx] = strNote;
+	m_mapNotes[ndx].setPhraseTag(ndx, strNote.count());
 	m_bIsDirty = true;
 	emit changedUserNotesDatabase();
 }

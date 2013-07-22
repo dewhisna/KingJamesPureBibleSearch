@@ -61,6 +61,76 @@ public:
 
 typedef QMap<QString, TUserDefinedColor> TUserDefinedColorMap;
 
+// ============================================================================
+
+class CUserNoteEntry
+{
+protected:
+	friend class CUserNotesDatabase;
+	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nCount = 0)
+		:	m_PhraseTag(ndxRel, nCount),
+			m_clrBackground("#F0F0A0"),
+			m_bIsVisible(true)
+	{ }
+
+public:
+	CUserNoteEntry()
+		:	m_clrBackground("#F0F0A0"),
+			m_bIsVisible(true)
+	{ }
+	CUserNoteEntry(const CUserNoteEntry &other)
+		:	m_strText(other.m_strText),
+			m_PhraseTag(other.m_PhraseTag),
+			m_clrBackground(other.m_clrBackground),
+			m_bIsVisible(other.m_bIsVisible)
+	{ }
+
+	~CUserNoteEntry() { }
+
+	QString htmlText() const;		// Formatted HTML to insert into Scripture Browser (with background colored)
+
+	QString text() const
+	{
+		return m_strText;
+	}
+	void setText(const QString &strText)
+	{
+		m_strText = strText;
+	}
+
+	TPhraseTag phraseTag() const { return m_PhraseTag; }
+	CRelIndex index() const { return m_PhraseTag.relIndex(); }
+
+	unsigned int count() const
+	{
+		return m_PhraseTag.count();
+	}
+	void setCount(unsigned int nCount)
+	{
+		m_PhraseTag = TPhraseTag(m_PhraseTag.relIndex(), nCount);
+	}
+
+	QColor backgroundColor() const { return m_clrBackground; }
+	void setBackgroundColor(const QColor &color) { m_clrBackground = color; }
+
+	bool isVisible() const { return m_bIsVisible; }
+	void setIsVisible(bool bIsVisible) { m_bIsVisible = bIsVisible; }
+
+protected:
+	void setPhraseTag(const CRelIndex &ndxRel, unsigned int nCount = 0)
+	{
+		m_PhraseTag = TPhraseTag(ndxRel, nCount);
+	}
+
+private:
+	QString m_strText;			// Rich text
+	TPhraseTag m_PhraseTag;		// RelIndex of tag and count
+	QColor m_clrBackground;		// Tag Background Color
+	bool m_bIsVisible;			// Visible in Scripture Browser
+};
+
+typedef std::map<CRelIndex, CUserNoteEntry, RelativeIndexSortPredicate> CUserNoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
+
 
 // ============================================================================
 
@@ -105,13 +175,13 @@ public:
 
 	// --------------------
 
-	inline QString noteFor(const CRelIndex &ndx) const {
-		TFootnoteEntryMap::const_iterator itr = m_mapNotes.find(ndx);
-		if (itr == m_mapNotes.end()) return QString();
-		return (itr->second).text();
+	CUserNoteEntry noteFor(const CRelIndex &ndx) const {
+		CUserNoteEntryMap::const_iterator itr = m_mapNotes.find(ndx);
+		if (itr == m_mapNotes.end()) return CUserNoteEntry();
+		return (itr->second);
 	}
-	inline bool existsNoteFor(const CRelIndex &ndx) const { return (m_mapNotes.find(ndx) != m_mapNotes.end()); }
-	void setNoteFor(const CRelIndex &ndx, const QString &strNote);
+	bool existsNoteFor(const CRelIndex &ndx) const { return (m_mapNotes.find(ndx) != m_mapNotes.end()); }
+	void setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote);
 	void removeNoteFor(const CRelIndex &ndx);
 	void removeAllNotes();
 
@@ -247,7 +317,7 @@ private:
 		bool m_bIsDirty;
 	} m_UserNotesDatabaseData1, m_UserNotesDatabaseData2, *m_pUserNotesDatabaseData;
 
-	TFootnoteEntryMap m_mapNotes;						// User notes, kept in the same format as our footnotes database
+	CUserNoteEntryMap m_mapNotes;						// User notes
 	TBibleDBHighlighterTagMap m_mapHighlighterTags;		// Tags to highlight by Bible Database compatibility and Highlighter name
 	TCrossReferenceMap m_mapCrossReference;				// Cross reference of passage to other passages
 

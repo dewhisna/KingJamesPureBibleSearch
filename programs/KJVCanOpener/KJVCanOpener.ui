@@ -60,7 +60,7 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QToolBar" name="highlighterToolBar">
+  <widget class="QToolBar" name="usernotesToolBar">
    <property name="windowTitle">
     <string>&amp;Highlighter/Notes/References Toolbar</string>
    </property>

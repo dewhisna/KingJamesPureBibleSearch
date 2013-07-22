@@ -26,6 +26,7 @@
 #include "ParseSymbols.h"
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
+#include "UserNotesDatabase.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -773,6 +774,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors)
 {
 	assert(m_pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	m_TextDocument.clear();
 
@@ -814,15 +816,21 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print last verse of previous chapter if available:
 	if (nRelPrevChapter != 0) {
 		CRelIndex relPrev(nRelPrevChapter);
+		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		strHTML += "<p>";
 		if (!bNoAnchors) {
-			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relPrev.book(), relPrev.chapter(), relPrev.verse(), 0).asAnchor()).arg(relPrev.verse());
+			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
 		strHTML += m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors) + "\n";
-		strHTML += "</p>";
+		strHTML += "</p>\n";
+
+		if (g_pUserNotesDatabase->existsNoteFor(relPrev)) {
+			strHTML += QString("<hr />%1\n")
+							.arg(g_pUserNotesDatabase->noteFor(relPrev).htmlText());
+		}
 
 		// If we have a footnote for this book and this is the end of the last chapter,
 		//		print it too:
@@ -845,9 +853,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 
 	strHTML += "<hr />\n";
 
+	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
+
 	// Print Heading for this Book/Chapter:
 	if (!bNoAnchors) {
-		CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
 						.arg(ndxBookChap.asAnchor())
 						.arg(Qt::escape(book.m_strBkName));
@@ -859,7 +868,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 							.arg(Qt::escape(tr("Category:")))
 							.arg(book.m_strCat);
 		// If we have a chapter note for this chapter, print it too:
-		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
 		if (pFootnote) {
 			strHTML += QString("<div class=chapter>%1 %2</div>\n")
 						.arg(Qt::escape(tr("Chapter")))
@@ -887,11 +896,16 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(Qt::escape(tr("Chapter")))
 						.arg(ndx.chapter());
 		// If we have a chapter note for this chapter, print it too:
-		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
 		if (pFootnote) {
 			strHTML += QString("<div class=subtitle>%1</div>\n")
 						.arg(pFootnote->text());
 		}
+	}
+
+	if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
+		strHTML += QString("<hr />%1<hr />\n")
+						.arg(g_pUserNotesDatabase->noteFor(ndxBookChap).htmlText());
 	}
 
 	// Print this Chapter Text:
@@ -923,6 +937,21 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 						.arg(ndxVrs+1);
 		}
 		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors) + "\n";
+
+		if (g_pUserNotesDatabase->existsNoteFor(ndxVerse)) {
+			if (bParagraph) {
+				strHTML += "</p>";
+				bParagraph = false;
+			}
+			if (ndxVrs != (pChapter->m_nNumVrs - 1)) {
+				strHTML += QString("<hr />%1<hr />\n")
+								.arg(g_pUserNotesDatabase->noteFor(ndxVerse).htmlText());
+			} else {
+				strHTML += QString("<hr />%1\n")
+								.arg(g_pUserNotesDatabase->noteFor(ndxVerse).htmlText());
+			}
+		}
+
 		ndxVerse.setWord(pVerse->m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
 	}
 	if (bParagraph) {
@@ -953,6 +982,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print first verse of next chapter if available:
 	if (nRelNextChapter != 0) {
 		CRelIndex relNext(nRelNextChapter);
+		relNext.setWord(0);
 		CRelIndex ndxBookChap(relNext.book(), relNext.chapter(), 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 
@@ -986,7 +1016,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		if (!bNoAnchors) {
 			if (bNextChapterDifferentBook) {
 				// If we have a chapter note for this chapter, print it too:
-				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
 				if (pFootnote) {
 					strHTML += QString("<div class=chapter>%1 %2</div>\n")
 									.arg(Qt::escape(tr("Chapter")))
@@ -1002,7 +1032,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 				}
 			} else {
 				// If we have a chapter note for this chapter, print it too:
-				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
 				if (pFootnote) {
 					strHTML += QString("<div class=chapter><a id=\"%1\">%2 %3</a></div>\n")
 									.arg(ndxBookChap.asAnchor())
@@ -1024,7 +1054,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 								.arg(Qt::escape(tr("Chapter")))
 								.arg(relNext.chapter());
 			// If we have a chapter note for this chapter, print it too:
-			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relNext.book(),relNext.chapter(),0,0));
+			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
 			if (pFootnote) {
 				strHTML += QString("<div class=subtitle>%1</div>\n")
 							.arg(pFootnote->text());
@@ -1033,12 +1063,17 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 
 		strHTML += "<p>";
 		if (!bNoAnchors) {
-			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(CRelIndex(relNext.book(), relNext.chapter(), relNext.verse(), 0).asAnchor()).arg(relNext.verse());
+			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(relNext.asAnchor()).arg(relNext.verse());
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
 		strHTML += m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors) + "\n";
-		strHTML += "</p>";
+		strHTML += "</p>\n";
+
+		if (g_pUserNotesDatabase->existsNoteFor(relNext)) {
+			strHTML += QString("<hr />%1\n")
+							.arg(g_pUserNotesDatabase->noteFor(relNext).htmlText());
+		}
 	}
 
 	strHTML += "</body></html>";

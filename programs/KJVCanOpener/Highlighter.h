@@ -33,6 +33,7 @@
 #include <QToolButton>
 #include <QAction>
 #include <QActionGroup>
+#include <QIcon>
 
 // ============================================================================
 
@@ -289,6 +290,7 @@ protected slots:
 
 protected:
 	void setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName);
+	QIcon iconHighlighterPreview(const QString &strUserDefinedHighlighterName);
 
 private:
 	QList<QToolButton *> m_lstButtons;					// List of highlighter buttons

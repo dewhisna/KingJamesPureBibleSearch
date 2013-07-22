@@ -35,6 +35,7 @@
 #include "KJVConfiguration.h"
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
+#include "KJVNoteEditDlg.h"
 
 #include <assert.h>
 
@@ -127,9 +128,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pBibleDatabase(pBibleDatabase),
 	m_strUserDatabase(strUserDatabase),
 	m_bDoingUpdate(false),
+	// ----
 	m_pActionPassageBrowserEditMenu(NULL),
 	m_pActionSearchResultsEditMenu(NULL),
 	m_pActionSearchPhraseEditMenu(NULL),
+	// ----
 	m_pViewMenu(NULL),
 	m_pActionGroupViewMode(NULL),
 	m_pActionGroupDisplayMode(NULL),
@@ -138,6 +141,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionExpandAll(NULL),
 	m_pActionCollapseAll(NULL),
 	m_pActionViewDetails(NULL),
+	// ----
 	m_pActionBookBackward(NULL),
 	m_pActionBookForward(NULL),
 	m_pActionChapterBackward(NULL),
@@ -147,7 +151,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavHome(NULL),
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
+	// ----
 	m_pActionAbout(NULL),
+	// ----
 	m_bPhraseEditorActive(false),
 	m_bSearchResultsActive(false),
 	m_bBrowserActive(false),
@@ -161,6 +167,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->setupUi(this);
 
+	QAction *pAction;
+
 	// --------------------
 
 	extern CMyApplication *g_pMyApplication;
@@ -171,11 +179,26 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
 
-	// -------------------- Hightlighter Toolbar:
+	// -------------------- User Notes/Highlighter/References Toolbar:
 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
-	new CHighlighterButtons(ui->highlighterToolBar);
+	new CHighlighterButtons(ui->usernotesToolBar);
+
+	ui->usernotesToolBar->addSeparator();
+
+	pAction = ui->usernotesToolBar->addAction(QIcon(":res/sticky_notes-128.png"), tr("Add/Edit/Remove User Note"));
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+	pAction->setStatusTip(tr("Add/Edit/Remove User Note to current verse or passage"));
+	pAction->setToolTip(tr("Add/Edit/Remove User Note to current verse or passage"));
+	CKJVNoteEditDlg::setActionUserNoteEditor(pAction);
+
+	ui->usernotesToolBar->addSeparator();
+
+	pAction = ui->usernotesToolBar->addAction(QIcon(":res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference"));
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+	pAction->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+	pAction->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 
 
 	// -------------------- Setup the Three Panes:
@@ -228,8 +251,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	// --------------------
 
-	QAction *pAction;
-
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File"));
 
@@ -268,8 +289,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu(tr("&Toolbars"));
 	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
 	ui->mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
-	pViewToolbarsMenu->addAction(ui->highlighterToolBar->toggleViewAction());
-	ui->highlighterToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
+	pViewToolbarsMenu->addAction(ui->usernotesToolBar->toggleViewAction());
+	ui->usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();

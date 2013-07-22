@@ -29,7 +29,6 @@
 #include <QVariant>
 #include <QBrush>
 #include <QTextFormat>
-#include <QIcon>
 #include <QPixmap>
 #include <QBitmap>
 #include <QPainter>
@@ -422,6 +421,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 		QAction *pAction = new QAction(itrHighlighters.key(), m_lstActionGroups[ndx]);
 		pAction->setData(ndx);
 		pAction->setCheckable(true);
+		pAction->setIcon(iconHighlighterPreview(itrHighlighters.key()));
 		if (strHighlighter.compare(itrHighlighters.key()) == 0) pAction->setChecked(true);
 		m_lstButtons[ndx]->menu()->addAction(pAction);
 	}
@@ -438,14 +438,22 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 	if (strUserDefinedHighlighterName.isEmpty()) {
 		m_lstButtons[ndx]->setIcon(QIcon(":res/highlighter_translucent_01-256.png"));
 	} else {
-		QPixmap pixHighlighter(":res/highlighter_white_01-256.png");
-		QBitmap bmHighlighterMask = pixHighlighter.createMaskFromColor(QColor(255, 255, 255), Qt::MaskOutColor);		// Mask white panel
-		QPainter paintHighlighter(&pixHighlighter);
-		paintHighlighter.setPen(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
-		paintHighlighter.drawPixmap(pixHighlighter.rect(), bmHighlighterMask, bmHighlighterMask.rect());
-		paintHighlighter.end();
-		m_lstButtons[ndx]->setIcon(QIcon(pixHighlighter));
+		QIcon iconHighlighter(iconHighlighterPreview(strUserDefinedHighlighterName));
+		m_lstButtons[ndx]->setIcon(QIcon(iconHighlighter));
+		m_pActionGroupHighlighterTools->actions()[ndx]->setIcon(QIcon(iconHighlighter));
 	}
+}
+
+QIcon CHighlighterButtons::iconHighlighterPreview(const QString &strUserDefinedHighlighterName)
+{
+	QPixmap pixHighlighter(":res/highlighter_white_01-256.png");
+	QBitmap bmHighlighterMask = pixHighlighter.createMaskFromColor(QColor(255, 255, 255), Qt::MaskOutColor);		// Mask white panel
+	QPainter paintHighlighter(&pixHighlighter);
+	paintHighlighter.setPen(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
+	paintHighlighter.drawPixmap(pixHighlighter.rect(), bmHighlighterMask, bmHighlighterMask.rect());
+	paintHighlighter.end();
+
+	return QIcon(pixHighlighter);
 }
 
 void CHighlighterButtons::en_highlighterSelectionChanged(QAction *pAction)

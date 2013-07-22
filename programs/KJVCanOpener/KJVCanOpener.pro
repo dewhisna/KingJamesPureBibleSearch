@@ -114,7 +114,8 @@ SOURCES += main.cpp \
 	SearchCompleter.cpp \
 	KJVConfiguration.cpp \
 	UserNotesDatabase.cpp \
-	SubControls.cpp
+	SubControls.cpp \
+	KJVNoteEditDlg.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -156,7 +157,8 @@ HEADERS  += main.h \
 	SearchCompleter.h \
 	KJVConfiguration.h \
 	UserNotesDatabase.h \
-	SubControls.h
+	SubControls.h \
+	KJVNoteEditDlg.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -168,7 +170,8 @@ FORMS    += KJVCanOpener.ui \
 	QtFindReplaceDialog/dialogs/findreplaceform.ui \
 	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
 	KJVSearchSpec.ui \
-	KJVTextFormatConfig.ui
+	KJVTextFormatConfig.ui \
+	KJVNoteEditDlg.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

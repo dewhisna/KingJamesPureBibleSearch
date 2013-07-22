@@ -52,5 +52,8 @@
 		<file>res/highlighter_translucent_01-256.png</file>
 		<file>res/checkbox.png</file>
 		<file>res/checkbox2.png</file>
+		<file>res/sticky_notes-128.png</file>
+		<file>res/insert-cross-reference.png</file>
+		<file>res/note-128.png</file>
 	</qresource>
 </RCC>
