@@ -53,7 +53,15 @@
 		<file>res/checkbox.png</file>
 		<file>res/checkbox2.png</file>
 		<file>res/sticky_notes-128.png</file>
+		<file>res/sticky_notes-128a.png</file>
 		<file>res/insert-cross-reference.png</file>
 		<file>res/note-128.png</file>
+		<file>res/clipboard1-128.png</file>
+		<file>res/clipboard2-128.png</file>
+		<file>res/gnome_sticky_notes_applet-128.png</file>
+		<file>res/gnome_sticky_notes_applet-128a.png</file>
+		<file>res/chalkboard-note-128.png</file>
+		<file>res/deletered1-128.png</file>
+		<file>res/deletered2-128.png</file>
 	</qresource>
 </RCC>

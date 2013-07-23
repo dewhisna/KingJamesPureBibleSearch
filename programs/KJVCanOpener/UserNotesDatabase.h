@@ -69,13 +69,13 @@ protected:
 	friend class CUserNotesDatabase;
 	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nCount = 0)
 		:	m_PhraseTag(ndxRel, nCount),
-			m_clrBackground("#F0F0A0"),
+			m_clrBackground("#F0F0A0"),			// Default note background
 			m_bIsVisible(true)
 	{ }
 
 public:
 	CUserNoteEntry()
-		:	m_clrBackground("#F0F0A0"),
+		:	m_clrBackground("#F0F0A0"),			// Default note background
 			m_bIsVisible(true)
 	{ }
 	CUserNoteEntry(const CUserNoteEntry &other)
@@ -88,6 +88,7 @@ public:
 	~CUserNoteEntry() { }
 
 	QString htmlText() const;		// Formatted HTML to insert into Scripture Browser (with background colored)
+	QString htmlText(const QString &strNoteText) const;
 
 	QString text() const
 	{
@@ -339,7 +340,9 @@ private:
 	QString m_strDatabaseUUID;							// Bible Database UUID attribute when present
 	QString m_strHighlighterName;						// HighlighterName attribute when present
 	QString m_strColor;									// Color attribute when present
+	QString m_strBackgroundColor;						// BackgroundColor attribute when present
 	bool m_bEnabled;									// Enabled attribute when present
+	bool m_bVisible;									// Visible attribute when present
 	bool m_bInKJNDocument;								// Inside <KJNDocument> tag
 	bool m_bInKJNDocumentText;							// Inside <KJNDocumentText> tag
 	bool m_bInNotes;									// Inside <Notes> tag

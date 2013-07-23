@@ -131,7 +131,7 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_pScriptureBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_pScriptureBrowser->setTabChangesFocus(false);
-	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 	m_pScriptureBrowser->setOpenLinks(false);
 
 	delete ui->textBrowserMainText;

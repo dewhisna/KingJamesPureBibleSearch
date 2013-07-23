@@ -74,7 +74,9 @@ namespace {
 	const QString constrUUIDAttr("DatabaseUUID");
 	const QString constrHighlighterNameAttr("HighlighterName");
 	const QString constrColorAttr("Color");
+	const QString constrBackgroundColorAttr("BackgroundColor");
 	const QString constrEnabledAttr("Enabled");
+	const QString constrVisibleAttr("Visible");
 }
 
 // ============================================================================
@@ -91,10 +93,10 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 
 // ============================================================================
 
-QString CUserNoteEntry::htmlText() const
+QString CUserNoteEntry::htmlText(const QString &strNoteText) const
 {
 	QTextDocument docUserNote;
-	docUserNote.setHtml(text());
+	docUserNote.setHtml(strNoteText);
 	QTextCursor cursorDocUserNote(&docUserNote);
 
 	cursorDocUserNote.select(QTextCursor::Document);
@@ -106,6 +108,11 @@ QString CUserNoteEntry::htmlText() const
 	cursorDocUserNote.mergeBlockCharFormat(fmtCharUserNote);
 
 	return docUserNote.toHtml();
+}
+
+QString CUserNoteEntry::htmlText() const
+{
+	return htmlText(text());
 }
 
 // ============================================================================
@@ -150,7 +157,9 @@ void CUserNotesDatabase::clearXMLVars()
 	m_strDatabaseUUID.clear();
 	m_strHighlighterName.clear();
 	m_strColor.clear();
+	m_strBackgroundColor.clear();
 	m_bEnabled = true;
+	m_bVisible = true;
 	m_bInKJNDocument = false;
 	m_bInKJNDocumentText = false;
 	m_bInNotes = false;
@@ -238,9 +247,21 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		}
 		int ndxCountIndex = findAttribute(attr, constrCountAttr);
 		m_nCount = ((ndxCountIndex != -1) ? attr.value(ndxCountIndex).toUInt() : 0);		// Count is optional
+		int ndxBackgroundColor = findAttribute(attr, constrBackgroundColorAttr);
+		if (ndxBackgroundColor != -1) m_strBackgroundColor = attr.value(ndxBackgroundColor);
+		int ndxVisible = findAttribute(attr, constrVisibleAttr);
+		if (ndxVisible == -1) {
+			m_bVisible = true;
+		} else {
+			m_bVisible = (attr.value(ndxVisible).compare("True", Qt::CaseInsensitive) == 0);
+			if ((!m_bVisible) && (attr.value(ndxVisible).compare("False", Qt::CaseInsensitive) != 0)) {
+				m_strLastError = tr("Invalid Visible Attribute Value in Notes Declaration");
+				return false;
+			}
+		}
 		m_strXMLBuffer.clear();		// Clear buffer to get ready to capture the Note Text
 #ifdef DEBUG_KJN_XML_READ
-		qDebug("%s : RelIndex: %d  Count: %d", localName.toUtf8().data(), m_ndxRelIndex.index(), m_nCount);
+		qDebug("%s : RelIndex: %d  Count: %d  BackgroundColor: \"%s\"  Visible: %s", localName.toUtf8().data(), m_ndxRelIndex.index(), m_nCount, m_strBackgroundColor.toUtf8().data(), (m_bVisible ? "True" : "False"));
 #endif
 		m_bInNote = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInHighlighting) && (localName.compare(constrHighlightingTag, Qt::CaseInsensitive) == 0) &&
@@ -413,9 +434,13 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
 		userNote.setCount(m_nCount);
+		if (!m_strBackgroundColor.isEmpty()) userNote.setBackgroundColor(QColor(m_strBackgroundColor));
+		userNote.setIsVisible(m_bVisible);
 		m_strXMLBuffer.clear();
 		m_ndxRelIndex.clear();
 		m_nCount = 0;
+		m_strBackgroundColor.clear();
+		m_bVisible = true;
 		m_bInNote = false;
 	} else if ((m_bInNotes) && (localName.compare(constrNotesTag, Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = false;
@@ -613,9 +638,11 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 							.arg(constrSizeAttr).arg(m_mapNotes.size())
 							.toUtf8());
 	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
-		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
+		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\">\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
 								.arg(constrCountAttr).arg((itrNotes->second).count())
+								.arg(constrBackgroundColorAttr).arg(Qt::escape((itrNotes->second).backgroundColor().name()))
+								.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
 								.toUtf8());
 		QString strNote = (itrNotes->second).text();
 		strNote.replace("]]>", "]]&gt;");			// safe-guard to make sure we don't have any embedded CDATA terminators

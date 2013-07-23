@@ -41,6 +41,7 @@
 #include <QColor>
 #include <QAction>
 #include <QActionGroup>
+#include <QUrl>
 
 // ============================================================================
 
@@ -131,6 +132,7 @@ public:
 	virtual void en_copyEntirePassageDetails();
 	virtual void en_highlightPassage(QAction *pAction);
 	virtual void en_userNoteEditorTriggered();
+	virtual void en_anchorClicked(const QUrl &link);
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -220,6 +222,7 @@ public slots:
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
 	virtual void en_userNoteEditorTriggered() = 0;
+	virtual void en_anchorClicked(const QUrl &link) = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -262,6 +265,7 @@ public slots:
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
 	virtual void en_userNoteEditorTriggered() = 0;
+	virtual void en_anchorClicked(const QUrl &link) = 0;
 };
 
 // ============================================================================

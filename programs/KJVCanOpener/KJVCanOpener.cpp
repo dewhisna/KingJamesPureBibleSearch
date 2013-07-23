@@ -187,7 +187,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":res/sticky_notes-128.png"), tr("Add/Edit/Remove User Note"));
+	pAction = ui->usernotesToolBar->addAction(QIcon(":res/chalkboard-note-128.png"), tr("Add/Edit/Remove User Note"));
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
 	pAction->setStatusTip(tr("Add/Edit/Remove User Note to current verse or passage"));
 	pAction->setToolTip(tr("Add/Edit/Remove User Note to current verse or passage"));

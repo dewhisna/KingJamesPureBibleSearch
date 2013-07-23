@@ -161,6 +161,9 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	T::connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
+	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
+	}
 
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
@@ -447,7 +450,12 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	}
 	menu.addSeparator();
 	QAction *pActionNavigator = menu.addAction(T::tr("Passage &Navigator..."));
-	pActionNavigator->setEnabled(T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator())));
+	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
+		pActionNavigator->setEnabled(true);
+	} else {
+		pActionNavigator->setEnabled(false);
+	}
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.addSeparator();
 	QAction *pActionDetails = menu.addAction(T::tr("View &Details..."));
@@ -508,6 +516,7 @@ template<class T, class U>
 void CScriptureText<T,U>::updateSelection()
 {
 	assert(m_pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	if (m_bDoingSelectionChange) return;
 	m_bDoingSelectionChange = true;
@@ -654,6 +663,7 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 template<class T, class U>
 void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 {
+	if (!U::hasFocus()) return;
 	assert(pAction != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
@@ -692,6 +702,7 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 template<class T, class U>
 void CScriptureText<T,U>::en_userNoteEditorTriggered()
 {
+	if (!U::hasFocus()) return;
 	assert(m_pUserNoteEditorDlg != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
@@ -699,7 +710,30 @@ void CScriptureText<T,U>::en_userNoteEditorTriggered()
 	if (!selection().isSet()) return;
 
 	m_pUserNoteEditorDlg->setLocationIndex(selection().relIndex());
-	m_pUserNoteEditorDlg->exec();
+	if (m_pUserNoteEditorDlg->exec() == QDialog::Accepted) {
+		emit T::gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
+{
+	QString strAnchor = link.toString();
+	if (!strAnchor.startsWith(QChar('N'))) return;
+
+	CRelIndex ndxLink(strAnchor.mid(1));
+	assert(ndxLink.isSet());
+	if (!ndxLink.isSet()) return;
+
+	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
+	if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
+
+	CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
+	userNote.setIsVisible(!userNote.isVisible());
+	g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
+
+	emit T::gotoIndex(selection());			// Re-render text
 }
 
 // ============================================================================

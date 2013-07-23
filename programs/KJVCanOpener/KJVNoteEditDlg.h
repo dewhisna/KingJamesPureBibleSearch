@@ -25,11 +25,15 @@
 #define KJV_NOTE_EDIT_DLG_H
 
 #include "dbstruct.h"
+#include "UserNotesDatabase.h"
 
 #include <QString>
 #include <QAction>
 #include <QDialog>
+#include <QwwColorButton>
 #include <QwwRichTextEdit>
+#include <QPushButton>
+#include <QAbstractButton>
 #include <QSettings>
 
 // ============================================================================
@@ -64,17 +68,26 @@ public slots:
 
 private slots:
 	void en_textChanged();
+	void en_BackgroundColorPicked(const QColor &color);
+	void en_ButtonClicked(QAbstractButton *button);
+
+private:
+	void setBackgroundColorPreview();
 
 private:
 	static QAction *m_pActionUserNoteEditor;
-
+	// ----
 	Ui::CKJVNoteEditDlg *ui;
-
+	QwwColorButton *m_pBackgroundColorButton;
+	QwwRichTextEdit *m_pRichTextEdit;
+	QPushButton *m_pDeleteNoteButton;
+	// ----
 	CBibleDatabasePtr m_pBibleDatabase;
-
+	// ----
+	bool m_bDoingUpdate;
 	bool m_bIsDirty;
 	CRelIndex m_ndxLocation;
-	QwwRichTextEdit *m_pRichTextEdit;
+	CUserNoteEntry m_UserNote;
 };
 
 // ============================================================================

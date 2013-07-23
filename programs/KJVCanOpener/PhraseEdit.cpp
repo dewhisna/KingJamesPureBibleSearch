@@ -828,9 +828,16 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		strHTML += "</p>\n";
 
 		if (g_pUserNotesDatabase->existsNoteFor(relPrev)) {
-			strHTML += QString("<hr />%1\n")
-							.arg(g_pUserNotesDatabase->noteFor(relPrev).htmlText());
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relPrev);
+			if (userNote.isVisible()) {
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2\n")
+								.arg(relPrev.asAnchor())
+								.arg(userNote.htmlText());
+			} else {
+				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(relPrev.asAnchor());
+			}
 		}
+
 
 		// If we have a footnote for this book and this is the end of the last chapter,
 		//		print it too:
@@ -904,8 +911,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	}
 
 	if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
-		strHTML += QString("<hr />%1<hr />\n")
-						.arg(g_pUserNotesDatabase->noteFor(ndxBookChap).htmlText());
+		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
+		if (userNote.isVisible()) {
+			strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />\n")
+							.arg(ndxBookChap.asAnchor())
+							.arg(userNote.htmlText());
+		} else {
+			strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxBookChap.asAnchor());
+		}
 	}
 
 	// Print this Chapter Text:
@@ -939,16 +952,19 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors) + "\n";
 
 		if (g_pUserNotesDatabase->existsNoteFor(ndxVerse)) {
-			if (bParagraph) {
-				strHTML += "</p>";
-				bParagraph = false;
-			}
-			if (ndxVrs != (pChapter->m_nNumVrs - 1)) {
-				strHTML += QString("<hr />%1<hr />\n")
-								.arg(g_pUserNotesDatabase->noteFor(ndxVerse).htmlText());
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxVerse);
+			if (userNote.isVisible()) {
+				if (bParagraph) {
+					strHTML += "</p>";
+					bParagraph = false;
+				}
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
+								.arg(ndxVerse.asAnchor())
+								.arg(userNote.htmlText());
+				if (ndxVrs != (pChapter->m_nNumVrs - 1)) strHTML += QString("<hr />");
+				strHTML += "\n";
 			} else {
-				strHTML += QString("<hr />%1\n")
-								.arg(g_pUserNotesDatabase->noteFor(ndxVerse).htmlText());
+				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxVerse.asAnchor());
 			}
 		}
 
@@ -1061,6 +1077,17 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			}
 		}
 
+		if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
+			if (userNote.isVisible()) {
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />\n")
+								.arg(ndxBookChap.asAnchor())
+								.arg(userNote.htmlText());
+			} else {
+				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxBookChap.asAnchor());
+			}
+		}
+
 		strHTML += "<p>";
 		if (!bNoAnchors) {
 			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(relNext.asAnchor()).arg(relNext.verse());
@@ -1071,9 +1098,16 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		strHTML += "</p>\n";
 
 		if (g_pUserNotesDatabase->existsNoteFor(relNext)) {
-			strHTML += QString("<hr />%1\n")
-							.arg(g_pUserNotesDatabase->noteFor(relNext).htmlText());
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNext);
+			if (userNote.isVisible()) {
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2\n")
+								.arg(relNext.asAnchor())
+								.arg(userNote.htmlText());
+			} else {
+				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(relNext.asAnchor());
+			}
 		}
+
 	}
 
 	strHTML += "</body></html>";

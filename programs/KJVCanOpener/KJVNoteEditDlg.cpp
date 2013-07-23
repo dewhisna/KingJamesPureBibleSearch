@@ -25,11 +25,12 @@
 #include "ui_KJVNoteEditDlg.h"
 
 #include "PersistentSettings.h"
-#include "UserNotesDatabase.h"
 
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include <QByteArray>
 #include <QMessageBox>
+#include <QIcon>
 
 // ============================================================================
 
@@ -70,9 +71,12 @@ void CKJVNoteEditDlg::setActionUserNoteEditor(QAction *pAction)
 CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QDialog(parent),
 		ui(new Ui::CKJVNoteEditDlg),
+		m_pBackgroundColorButton(NULL),
+		m_pRichTextEdit(NULL),
+		m_pDeleteNoteButton(NULL),
 		m_pBibleDatabase(pBibleDatabase),
-		m_bIsDirty(false),
-		m_pRichTextEdit(NULL)
+		m_bDoingUpdate(false),
+		m_bIsDirty(false)
 {
 	assert(pBibleDatabase != NULL);
 
@@ -80,15 +84,19 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *pare
 
 	// --------------------------------------------------------------
 
-	//	Swapout the textEdit from the layout with a QwwRichTextEdit:
-
-	int ndx = ui->gridLayout->indexOf(ui->textEdit);
-	assert(ndx != -1);
-	if (ndx == -1) return;
+	int ndx;
 	int nRow;
 	int nCol;
 	int nRowSpan;
 	int nColSpan;
+
+	// --------------------------------------------------------------
+
+	//	Swapout the textEdit from the layout with a QwwRichTextEdit:
+
+	ndx = ui->gridLayout->indexOf(ui->textEdit);
+	assert(ndx != -1);
+	if (ndx == -1) return;
 	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pRichTextEdit = new QwwRichTextEdit(this);
@@ -103,13 +111,47 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *pare
 	ui->textEdit = NULL;
 	ui->gridLayout->addWidget(m_pRichTextEdit, nRow, nCol, nRowSpan, nColSpan);
 
+	// --------------------------------------------------------------
+
+	//	Swapout the buttonBackgroundColor from the layout with a QwwColorButton:
+
+	ndx = ui->horizontalLayout->indexOf(ui->buttonBackgroundColor);
+	assert(ndx != -1);
+	if (ndx == -1) return;
+
+	m_pBackgroundColorButton = new QwwColorButton(this);
+	m_pBackgroundColorButton->setObjectName(QString::fromUtf8("buttonBackgroundColor"));
+	m_pBackgroundColorButton->setShowName(false);			// Must do this before setting our real text
+	m_pBackgroundColorButton->setText(tr("Note Background Color"));
+	m_pBackgroundColorButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+	delete ui->buttonBackgroundColor;
+	ui->buttonBackgroundColor = NULL;
+	ui->horizontalLayout->insertWidget(ndx, m_pBackgroundColorButton);
+
+	// --------------------------------------------------------------
+
 	// Reinsert it in the correct TabOrder:
 	QWidget::setTabOrder(m_pRichTextEdit, ui->buttonBox);
 	QWidget::setTabOrder(ui->buttonBox, ui->editNoteLocation);
+	QWidget::setTabOrder(ui->editNoteLocation, m_pBackgroundColorButton);
+	QWidget::setTabOrder(m_pBackgroundColorButton, ui->lblKeywords);
+	QWidget::setTabOrder(ui->lblKeywords, ui->comboKeywords);
+
+	// --------------------------------------------------------------
+
+	// Setup Dialog buttons:
+
+	m_pDeleteNoteButton = ui->buttonBox->addButton(tr("Delete Note"), QDialogButtonBox::ActionRole);
+	m_pDeleteNoteButton->setIcon(QIcon(":res/deletered1-128.png"));
+	connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(en_ButtonClicked(QAbstractButton*)));
 
 	// --------------------------------------------------------------
 
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
+	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
+
+	m_pRichTextEdit->setFocus();
 }
 
 CKJVNoteEditDlg::~CKJVNoteEditDlg()
@@ -150,8 +192,17 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	m_ndxLocation.setWord(0);		// Work with whole verses only
 	ui->editNoteLocation->setText(m_pBibleDatabase->PassageReferenceText(m_ndxLocation));
 
-	m_pRichTextEdit->setHtml(g_pUserNotesDatabase->noteFor(m_ndxLocation).text());
+	m_UserNote = g_pUserNotesDatabase->noteFor(m_ndxLocation);
+
+	m_bDoingUpdate = true;
+
+	m_pBackgroundColorButton->setCurrentColor(m_UserNote.backgroundColor());
+	setBackgroundColorPreview();
+
+	m_pRichTextEdit->setHtml(m_UserNote.text());
 	m_bIsDirty = false;
+
+	m_bDoingUpdate = false;
 }
 
 // ============================================================================
@@ -161,9 +212,9 @@ void CKJVNoteEditDlg::accept()
 	assert(m_pRichTextEdit != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
-	CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(m_ndxLocation);
-	userNote.setText(m_pRichTextEdit->toHtml());
-	g_pUserNotesDatabase->setNoteFor(m_ndxLocation, userNote);
+	m_UserNote.setText(m_pRichTextEdit->toHtml());
+	m_UserNote.setIsVisible(true);			// Make note visible when they are explicitly setting it
+	g_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);
 	m_bIsDirty = false;
 	QDialog::accept();
 }
@@ -179,8 +230,50 @@ void CKJVNoteEditDlg::reject()
 	QDialog::reject();
 }
 
+// ============================================================================
+
 void CKJVNoteEditDlg::en_textChanged()
 {
+	if (m_bDoingUpdate) return;
+
 	m_bIsDirty = true;
 }
+
+// ============================================================================
+
+void CKJVNoteEditDlg::setBackgroundColorPreview()
+{
+	setStyleSheet(QString("QwwRichTextEdit { background-color:%1; }\n").arg(m_UserNote.backgroundColor().name()));
+}
+
+void CKJVNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	m_UserNote.setBackgroundColor(color);
+	setBackgroundColorPreview();
+	m_bIsDirty = true;
+
+	m_bDoingUpdate = false;
+}
+
+// ============================================================================
+
+void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
+{
+	assert(button != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+
+	if (button == m_pDeleteNoteButton) {
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??"),
+																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
+		if (nResult != QMessageBox::Ok) return;
+		m_bIsDirty = false;
+		g_pUserNotesDatabase->removeNoteFor(m_ndxLocation);
+		QDialog::accept();
+	}
+}
+
+// ============================================================================
 
