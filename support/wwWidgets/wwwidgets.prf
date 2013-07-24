@@ -1,0 +1,9 @@
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/wwWidgets
+
+qtAddLibrary(wwwidgets4)
+
+DEFINES += WWWIDGETS
+DEFINES -= NO_WWWIDGETS
+WW_VERSION = 1.0.0
+message( Welcome to wwWidgets ($$WW_VERSION) )
+

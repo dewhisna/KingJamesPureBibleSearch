@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ColorPickers</class>
+ <widget class="QWidget" name="ColorPickers">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>572</width>
+    <height>299</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ColorPickers</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Foreground</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QwwColorButton" name="qwwcolorbutton"/>
+      </item>
+      <item>
+       <widget class="QwwHueSatRadialPicker" name="qwwhuesatradialpicker">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Swap</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QwwTwoColorIndicator" name="qwwtwocolorindicator"/>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Background</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QwwColorComboBox" name="qwwcolorcombobox">
+        <property name="colors">
+         <stringlist>
+          <string>#f0f8ff,aliceblue</string>
+          <string>#faebd7,antiquewhite</string>
+          <string>#00ffff,aqua</string>
+          <string>#7fffd4,aquamarine</string>
+          <string>#f0ffff,azure</string>
+          <string>#f5f5dc,beige</string>
+          <string>#ffe4c4,bisque</string>
+          <string>#000000,black</string>
+          <string>#ffebcd,blanchedalmond</string>
+          <string>#0000ff,blue</string>
+          <string>#8a2be2,blueviolet</string>
+          <string>#a52a2a,brown</string>
+          <string>#deb887,burlywood</string>
+          <string>#5f9ea0,cadetblue</string>
+          <string>#7fff00,chartreuse</string>
+          <string>#d2691e,chocolate</string>
+          <string>#ff7f50,coral</string>
+          <string>#6495ed,cornflowerblue</string>
+          <string>#fff8dc,cornsilk</string>
+          <string>#dc143c,crimson</string>
+          <string>#00ffff,cyan</string>
+          <string>#00008b,darkblue</string>
+          <string>#008b8b,darkcyan</string>
+          <string>#b8860b,darkgoldenrod</string>
+          <string>#a9a9a9,darkgray</string>
+          <string>#006400,darkgreen</string>
+          <string>#a9a9a9,darkgrey</string>
+          <string>#bdb76b,darkkhaki</string>
+          <string>#8b008b,darkmagenta</string>
+          <string>#556b2f,darkolivegreen</string>
+          <string>#ff8c00,darkorange</string>
+          <string>#9932cc,darkorchid</string>
+          <string>#8b0000,darkred</string>
+          <string>#e9967a,darksalmon</string>
+          <string>#8fbc8f,darkseagreen</string>
+          <string>#483d8b,darkslateblue</string>
+          <string>#2f4f4f,darkslategray</string>
+          <string>#2f4f4f,darkslategrey</string>
+          <string>#00ced1,darkturquoise</string>
+          <string>#9400d3,darkviolet</string>
+          <string>#ff1493,deeppink</string>
+          <string>#00bfff,deepskyblue</string>
+          <string>#696969,dimgray</string>
+          <string>#696969,dimgrey</string>
+          <string>#1e90ff,dodgerblue</string>
+          <string>#b22222,firebrick</string>
+          <string>#fffaf0,floralwhite</string>
+          <string>#228b22,forestgreen</string>
+          <string>#ff00ff,fuchsia</string>
+          <string>#dcdcdc,gainsboro</string>
+          <string>#f8f8ff,ghostwhite</string>
+          <string>#ffd700,gold</string>
+          <string>#daa520,goldenrod</string>
+          <string>#808080,gray</string>
+          <string>#008000,green</string>
+          <string>#adff2f,greenyellow</string>
+          <string>#808080,grey</string>
+          <string>#f0fff0,honeydew</string>
+          <string>#ff69b4,hotpink</string>
+          <string>#cd5c5c,indianred</string>
+          <string>#4b0082,indigo</string>
+          <string>#fffff0,ivory</string>
+          <string>#f0e68c,khaki</string>
+          <string>#e6e6fa,lavender</string>
+          <string>#fff0f5,lavenderblush</string>
+          <string>#7cfc00,lawngreen</string>
+          <string>#fffacd,lemonchiffon</string>
+          <string>#add8e6,lightblue</string>
+          <string>#f08080,lightcoral</string>
+          <string>#e0ffff,lightcyan</string>
+          <string>#fafad2,lightgoldenrodyellow</string>
+          <string>#d3d3d3,lightgray</string>
+          <string>#90ee90,lightgreen</string>
+          <string>#d3d3d3,lightgrey</string>
+          <string>#ffb6c1,lightpink</string>
+          <string>#ffa07a,lightsalmon</string>
+          <string>#20b2aa,lightseagreen</string>
+          <string>#87cefa,lightskyblue</string>
+          <string>#778899,lightslategray</string>
+          <string>#778899,lightslategrey</string>
+          <string>#b0c4de,lightsteelblue</string>
+          <string>#ffffe0,lightyellow</string>
+          <string>#00ff00,lime</string>
+          <string>#32cd32,limegreen</string>
+          <string>#faf0e6,linen</string>
+          <string>#ff00ff,magenta</string>
+          <string>#800000,maroon</string>
+          <string>#66cdaa,mediumaquamarine</string>
+          <string>#0000cd,mediumblue</string>
+          <string>#ba55d3,mediumorchid</string>
+          <string>#9370db,mediumpurple</string>
+          <string>#3cb371,mediumseagreen</string>
+          <string>#7b68ee,mediumslateblue</string>
+          <string>#00fa9a,mediumspringgreen</string>
+          <string>#48d1cc,mediumturquoise</string>
+          <string>#c71585,mediumvioletred</string>
+          <string>#191970,midnightblue</string>
+          <string>#f5fffa,mintcream</string>
+          <string>#ffe4e1,mistyrose</string>
+          <string>#ffe4b5,moccasin</string>
+          <string>#ffdead,navajowhite</string>
+          <string>#000080,navy</string>
+          <string>#fdf5e6,oldlace</string>
+          <string>#808000,olive</string>
+          <string>#6b8e23,olivedrab</string>
+          <string>#ffa500,orange</string>
+          <string>#ff4500,orangered</string>
+          <string>#da70d6,orchid</string>
+          <string>#eee8aa,palegoldenrod</string>
+          <string>#98fb98,palegreen</string>
+          <string>#afeeee,paleturquoise</string>
+          <string>#db7093,palevioletred</string>
+          <string>#ffefd5,papayawhip</string>
+          <string>#ffdab9,peachpuff</string>
+          <string>#cd853f,peru</string>
+          <string>#ffc0cb,pink</string>
+          <string>#dda0dd,plum</string>
+          <string>#b0e0e6,powderblue</string>
+          <string>#800080,purple</string>
+          <string>#ff0000,red</string>
+          <string>#bc8f8f,rosybrown</string>
+          <string>#4169e1,royalblue</string>
+          <string>#8b4513,saddlebrown</string>
+          <string>#fa8072,salmon</string>
+          <string>#f4a460,sandybrown</string>
+          <string>#2e8b57,seagreen</string>
+          <string>#fff5ee,seashell</string>
+          <string>#a0522d,sienna</string>
+          <string>#c0c0c0,silver</string>
+          <string>#87ceeb,skyblue</string>
+          <string>#6a5acd,slateblue</string>
+          <string>#708090,slategray</string>
+          <string>#708090,slategrey</string>
+          <string>#fffafa,snow</string>
+          <string>#00ff7f,springgreen</string>
+          <string>#4682b4,steelblue</string>
+          <string>#d2b48c,tan</string>
+          <string>#008080,teal</string>
+          <string>#d8bfd8,thistle</string>
+          <string>#ff6347,tomato</string>
+          <string>#000000,transparent</string>
+          <string>#40e0d0,turquoise</string>
+          <string>#ee82ee,violet</string>
+          <string>#f5deb3,wheat</string>
+          <string>#ffffff,white</string>
+          <string>#f5f5f5,whitesmoke</string>
+          <string>#ffff00,yellow</string>
+          <string>#9acd32,yellowgreen</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwwHueSatPicker" name="qwwhuesatpicker"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QwwTwoColorIndicator</class>
+   <extends>QWidget</extends>
+   <header>qwwtwocolorindicator.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qwwcolorcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwColorButton</class>
+   <extends>QPushButton</extends>
+   <header>qwwcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwHueSatPicker</class>
+   <extends>QFrame</extends>
+   <header>qwwhuesatpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwHueSatRadialPicker</class>
+   <extends>QWidget</extends>
+   <header>qwwhuesatradialpicker.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>qwwcolorbutton</sender>
+   <signal>colorPicked(QColor)</signal>
+   <receiver>qwwhuesatradialpicker</receiver>
+   <slot>setColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwhuesatradialpicker</sender>
+   <signal>colorPicked(QColor)</signal>
+   <receiver>qwwcolorbutton</receiver>
+   <slot>setCurrentColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>186</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwcolorcombobox</sender>
+   <signal>activated(QColor)</signal>
+   <receiver>qwwhuesatpicker</receiver>
+   <slot>setColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>391</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwhuesatpicker</sender>
+   <signal>colorPicked(QColor)</signal>
+   <receiver>qwwcolorcombobox</receiver>
+   <slot>setCurrentColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>445</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>46</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwtwocolorindicator</sender>
+   <signal>fgChanged(QColor)</signal>
+   <receiver>qwwhuesatradialpicker</receiver>
+   <slot>setColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>266</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwhuesatradialpicker</sender>
+   <signal>colorPicked(QColor)</signal>
+   <receiver>qwwtwocolorindicator</receiver>
+   <slot>setFgColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>217</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwtwocolorindicator</sender>
+   <signal>bgChanged(QColor)</signal>
+   <receiver>qwwhuesatpicker</receiver>
+   <slot>setColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>288</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>351</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qwwhuesatpicker</sender>
+   <signal>colorPicked(QColor)</signal>
+   <receiver>qwwtwocolorindicator</receiver>
+   <slot>setBgColor(QColor)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>163</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>qwwtwocolorindicator</receiver>
+   <slot>switchColors()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>290</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

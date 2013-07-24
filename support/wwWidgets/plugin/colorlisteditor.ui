@@ -1,0 +1,215 @@
+<ui version="4.0" >
+ <class>ColorListEditor</class>
+ <widget class="QDialog" name="ColorListEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>301</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit colors</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QListView" name="list" >
+       <property name="whatsThis" >
+        <string>This list contains all colors that are to be assigned to the widget</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QToolButton" name="standardColors" >
+         <property name="toolTip" >
+          <string>Set a colormap</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Fills the list with a color map. Hold down for a list of available maps</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="popupMode" >
+          <enum>QToolButton::MenuButtonPopup</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="clear" >
+         <property name="toolTip" >
+          <string>Clear the list</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Removes all entries from the list</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="up" >
+         <property name="toolTip" >
+          <string>Move item up</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="autoRepeat" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="down" >
+         <property name="toolTip" >
+          <string>Move item down</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="autoRepeat" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <layout class="QHBoxLayout" >
+       <item>
+        <widget class="QToolButton" name="plus" >
+         <property name="toolTip" >
+          <string>Add new item</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minus" >
+         <property name="toolTip" >
+          <string>Remove current item</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>16</width>
+         <height>26</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label" >
+       <property name="text" >
+        <string>Color:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="chooseColor" >
+       <property name="toolTip" >
+        <string>Choose color</string>
+       </property>
+       <property name="text" >
+        <string>?</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2" >
+       <property name="text" >
+        <string>Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="name" >
+       <property name="toolTip" >
+        <string>Enter color label</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ColorListEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>263</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>168</x>
+     <y>287</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ColorListEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>365</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>400</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!-- qwwtipwidget.cpp -->
+<head>
+  <title>Qt 1.0: QwwTipWidget Class Reference</title>
+  <link href="classic-4.6.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" valign="top" width="32"><a href="http://www.trolltech.com/products/qt"><img src="images/qt-logo.png" align="left" border="0" /></a></td>
+<td width="1">&nbsp;&nbsp;</td><td class="postheader" valign="center"><a href="index.html"><font color="#004faf">wwWidgets Home</font></a>&nbsp;&middot; <a href="classes.html"><font color="#004faf">All&nbsp;Classes</font></a>&nbsp;&middot; <a href="mainclasses.html"><font color="#004faf">Main&nbsp;Classes</font></a>&nbsp;&middot; <a href="groups.html"><font color="#004faf">Grouped&nbsp;Classes</font></a>&nbsp;&middot; <a href="functions.html"><font color="#004faf">Functions</font></a></td>
+<td align="right" valign="top" width="230">
+<a href="http://www.wysota.eu.org/wwwidgets"><img src="images/ww-logo.png" align="right" width="137" height="41" border="0" /></a>
+</td></tr></table><h1 class="title">QwwTipWidget Class Reference<br /><span class="small-subtitle">[<a href="wwwidgets.html">wwWidgets</a> module]</span>
+</h1>
+<p>The QwwTipWidget class provides a widget that displays application tips. <a href="#details">More...</a></p>
+<pre> #include &lt;QwwTipWidget&gt;</pre><p><b>This class is not part of the Qt GUI Framework Edition.</b></p>
+<p>Inherits <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a>.</p>
+<ul>
+<li><a href="qwwtipwidget-members.html">List of all members, including inherited members</a></li>
+</ul>
+<hr />
+<a name="properties"></a>
+<h2>Properties</h2>
+<p><table class="propsummary" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr><td width="45%" valign="top"><ul>
+<li><div class="fn"><b><a href="qwwtipwidget.html#canvasFrameShape-prop">canvasFrameShape</a></b> : QFrame::Shape</div></li>
+<li><div class="fn"><b><a href="qwwtipwidget.html#checkVisible-prop">checkVisible</a></b> : bool</div></li>
+<li><div class="fn"><b><a href="qwwtipwidget.html#closeVisible-prop">closeVisible</a></b> : bool</div></li>
+</ul></td><td valign="top"><ul>
+<li><div class="fn"><b><a href="qwwtipwidget.html#currentTip-prop">currentTip</a></b> : int</div></li>
+<li><div class="fn"><b><a href="qwwtipwidget.html#tips-prop">tips</a></b> : QStringList</div></li>
+<li><div class="fn"><b><a href="qwwtipwidget.html#tipsEnabled-prop">tipsEnabled</a></b> : bool</div></li>
+</ul>
+</td></tr>
+</table></p>
+<ul>
+<li><div bar="2" class="fn"></div>58 properties inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#properties">QWidget</a></li>
+<li><div bar="2" class="fn"></div>1 property inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#properties">QObject</a></li>
+</ul>
+<hr />
+<a name="public-functions"></a>
+<h2>Public Functions</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top"></td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#QwwTipWidget">QwwTipWidget</a></b> ( const QStringList &amp; <i>list</i>, QWidget * <i>parent</i> = 0 )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">QFrame::Shape </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#canvasFrameShape-prop">canvasFrameShape</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#checkVisible-prop">checkIsVisible</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const QPushButton * </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#closeButton">closeButton</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#closeVisible-prop">closeIsVisible</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#currentTip-prop">currentTip</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">QWidget * </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#headerWidget">headerWidget</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const QPushButton * </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#nextButton">nextButton</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const QPushButton * </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#prevButton">prevButton</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#setHeaderWidget">setHeaderWidget</a></b> ( QWidget * <i>hw</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const QTextBrowser * </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tipCanvas">tipCanvas</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const QStringList </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tips-prop">tips</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tipsEnabled-prop">tipsEnabled</a></b> () const</td></tr>
+</table>
+<ul>
+<li><div bar="2" class="fn"></div>217 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#public-functions">QWidget</a></li>
+<li><div bar="2" class="fn"></div>13 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#public-functions">QPaintDevice</a></li>
+<li><div bar="2" class="fn"></div>29 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-functions">QObject</a></li>
+</ul>
+<hr />
+<a name="public-slots"></a>
+<h2>Public Slots</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#nextTip">nextTip</a></b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#prevTip">prevTip</a></b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#canvasFrameShape-prop">setCanvasFrameShape</a></b> ( QFrame::Shape <i>s</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#setCheckHidden">setCheckHidden</a></b> ( bool <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#checkVisible-prop">setCheckVisible</a></b> ( bool <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#setCloseHidden">setCloseHidden</a></b> ( bool <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#closeVisible-prop">setCloseVisible</a></b> ( bool <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#currentTip-prop">setCurrentTip</a></b> ( int <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tips-prop">setTips</a></b> ( const QStringList &amp; <i>slist</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tipsEnabled-prop">setTipsEnabled</a></b> ( bool <i>v</i> )</td></tr>
+</table>
+<ul>
+<li><div bar="2" class="fn"></div>19 public slots inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#public-slots">QWidget</a></li>
+<li><div bar="2" class="fn"></div>1 public slot inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-slots">QObject</a></li>
+</ul>
+<hr />
+<a name="signals"></a>
+<h2>Signals</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#closed">closed</a></b> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwtipwidget.html#tipChanged">tipChanged</a></b> ( int <i>index</i> )</td></tr>
+</table>
+<ul>
+<li><div bar="2" class="fn"></div>1 signal inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#signals">QWidget</a></li>
+<li><div bar="2" class="fn"></div>1 signal inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#signals">QObject</a></li>
+</ul>
+<h3>Additional Inherited Members</h3>
+<ul>
+<li><div class="fn"></div>1 public type inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-variables">QObject</a></li>
+<li><div class="fn"></div>4 static public members inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#static-public-members">QWidget</a></li>
+<li><div class="fn"></div>4 static public members inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#static-public-members">QObject</a></li>
+<li><div class="fn"></div>37 protected functions inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#protected-functions">QWidget</a></li>
+<li><div class="fn"></div>1 protected function inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#protected-functions">QPaintDevice</a></li>
+<li><div class="fn"></div>7 protected functions inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#protected-functions">QObject</a></li>
+<li><div class="fn"></div>1 protected slot inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#protected-slots">QWidget</a></li>
+<li><div class="fn"></div>1 protected type inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#protected-variables">QPaintDevice</a></li>
+<li><div class="fn"></div>2 protected variables inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#protected-variables">QObject</a></li>
+</ul>
+<a name="details"></a>
+<hr />
+<h2>Detailed Description</h2>
+<p>The QwwTipWidget class provides a widget that displays application tips.</p>
+<p>The widget can be embedded into a dialog and connected to its signals to provide a quick way to show startup tips for the user.</p>
+<p align="center"><img src="images/qwwtipwidget.png" alt="QwwTipWidget" /></p><p>Tips displayed are adjustable using the <i>tips</i> property. The widget can contain a checkbox that asks whether the user wants to see the tips again next time the application is started. This checkbox doesn't implement any logic, if you want to have that behavior in your application, you have to implement it yourself using some persistent data storage like <a href="http://qt.nokia.com/doc/4.7/qsettings.html">QSettings</a>.</p>
+<p>Tips are displayed in rich text, so they can contain formatting, images and other elements that can be rendered using Scribe.</p>
+<hr />
+<h2>Property Documentation</h2>
+<h3 class="fn"><a name="canvasFrameShape-prop"></a>canvasFrameShape : <a href="http://qt.nokia.com/doc/4.7/qframe.html#Shape-enum">QFrame::Shape</a></h3>
+<p>This property holds the frame shape of the canvas where tips are displayed.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">QFrame::Shape </td><td class="memItemRight" valign="bottom"><b>canvasFrameShape</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setCanvasFrameShape</b> ( QFrame::Shape <i>s</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="checkVisible-prop"></a>checkVisible : bool</h3>
+<p>This property holds whether the &quot;show tips on startup&quot; checkbox is visible.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b>checkIsVisible</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setCheckVisible</b> ( bool <i>v</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="closeVisible-prop"></a>closeVisible : bool</h3>
+<p>This property holds whether the close button is visible.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b>closeIsVisible</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setCloseVisible</b> ( bool <i>v</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="currentTip-prop"></a>currentTip : int</h3>
+<p>This property holds index of the currently shown tip.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b>currentTip</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setCurrentTip</b> ( int <i>v</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="tips-prop"></a>tips : <a href="http://qt.nokia.com/doc/4.7/qstringlist.html">QStringList</a></h3>
+<p>This property holds a list of tips associated with the widget.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">const QStringList </td><td class="memItemRight" valign="bottom"><b>tips</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setTips</b> ( const QStringList &amp; <i>slist</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="tipsEnabled-prop"></a>tipsEnabled : bool</h3>
+<p>This property holds this property holds whether showing tips is enabled.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b>tipsEnabled</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setTipsEnabled</b> ( bool <i>v</i> )</td></tr>
+</table>
+<hr />
+<h2>Member Function Documentation</h2>
+<h3 class="fn"><a name="QwwTipWidget"></a>QwwTipWidget::QwwTipWidget ( const <a href="http://qt.nokia.com/doc/4.7/qstringlist.html">QStringList</a> &amp; <i>list</i>, <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>parent</i> = 0 )</h3>
+<p>Constructs a tip widget with <i>list</i> of tips and a given <i>parent</i></p>
+<h3 class="fn"><a name="closeButton"></a>const <a href="http://qt.nokia.com/doc/4.7/qpushbutton.html">QPushButton</a> * QwwTipWidget::closeButton () const</h3>
+<p>returns a pointer to the &quot;close&quot; button</p>
+<h3 class="fn"><a name="closed"></a>void QwwTipWidget::closed ()&nbsp;&nbsp;<tt> [signal]</tt></h3>
+<p>This signal is emitted when the tip widget is closed.</p>
+<h3 class="fn"><a name="headerWidget"></a><a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * QwwTipWidget::headerWidget () const</h3>
+<p>returns a pointer to the header widget</p>
+<p>See also <a href="qwwtipwidget.html#setHeaderWidget">setHeaderWidget</a>().</p>
+<h3 class="fn"><a name="nextButton"></a>const <a href="http://qt.nokia.com/doc/4.7/qpushbutton.html">QPushButton</a> * QwwTipWidget::nextButton () const</h3>
+<p>returns a pointer to the &quot;next&quot; button</p>
+<h3 class="fn"><a name="nextTip"></a>void QwwTipWidget::nextTip ()&nbsp;&nbsp;<tt> [slot]</tt></h3>
+<p>This slot changes the current tip to the next one. In case the currently displayed tip is the last one, function will make the first tip current.</p>
+<h3 class="fn"><a name="prevButton"></a>const <a href="http://qt.nokia.com/doc/4.7/qpushbutton.html">QPushButton</a> * QwwTipWidget::prevButton () const</h3>
+<p>returns a pointer to the &quot;prev&quot; button</p>
+<h3 class="fn"><a name="prevTip"></a>void QwwTipWidget::prevTip ()&nbsp;&nbsp;<tt> [slot]</tt></h3>
+<p>This slot changes the current tip to the previous one. In case the currently displayed tip is the first one, function will make the last tip current.</p>
+<h3 class="fn"><a name="setCheckHidden"></a>void QwwTipWidget::setCheckHidden ( bool <i>v</i> )&nbsp;&nbsp;<tt> [slot]</tt></h3>
+<p>Convenience function. Equivalent to setCheckVisible(!<i>v</i>).</p>
+<h3 class="fn"><a name="setCloseHidden"></a>void QwwTipWidget::setCloseHidden ( bool <i>v</i> )&nbsp;&nbsp;<tt> [slot]</tt></h3>
+<p>Convenience function. Equivalent to setCloseVisible(!<i>v</i>).</p>
+<h3 class="fn"><a name="setHeaderWidget"></a>void QwwTipWidget::setHeaderWidget ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>hw</i> )</h3>
+<p>sets <i>hw</i> as a header of the widget</p>
+<p>See also <a href="qwwtipwidget.html#headerWidget">headerWidget</a>().</p>
+<h3 class="fn"><a name="tipCanvas"></a>const <a href="http://qt.nokia.com/doc/4.7/qtextbrowser.html">QTextBrowser</a> * QwwTipWidget::tipCanvas () const</h3>
+<p>returns a pointer to the tip canvas</p>
+<h3 class="fn"><a name="tipChanged"></a>void QwwTipWidget::tipChanged ( int <i>index</i> )&nbsp;&nbsp;<tt> [signal]</tt></h3>
+<p>This signal is emitted whenever the currently shown tip changes to <i>index</i></p>
+<p /><address><hr /><div align="center">
+<table width="100%" cellspacing="0" border="0"><tr class="address">
+<td width="30%" align="left">Copyright &copy; 2007-2010 Witold Wysota 
+<td width="40%" align="center"><a href="trademarks.html">Trademarks</a></td>
+<td width="30%" align="right"><div align="right">wwWidgets 1.0.0</div></td>
+</tr></table></div></address></body>
+</html>
