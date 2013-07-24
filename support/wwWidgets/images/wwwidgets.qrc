@@ -67,5 +67,45 @@
     <file>colormaps/Volcano.cmap</file>
     <file>colormaps/Warm_Colors.cmap</file>
     <file>colormaps/Web.cmap</file>
+	<file>formeditor/win/editcopy.png</file>
+	<file>formeditor/win/editcut.png</file>
+	<file>formeditor/win/editpaste.png</file>
+	<file>formeditor/win/editredo.png</file>
+	<file>formeditor/win/editundo.png</file>
+	<file>formeditor/win/exportpdf.png</file>
+	<file>formeditor/win/filenew.png</file>
+	<file>formeditor/win/fileopen.png</file>
+	<file>formeditor/win/fileprint.png</file>
+	<file>formeditor/win/filesave.png</file>
+	<file>formeditor/win/list-unordered.png</file>
+	<file>formeditor/win/textbold.png</file>
+	<file>formeditor/win/textcenter.png</file>
+	<file>formeditor/win/textitalic.png</file>
+	<file>formeditor/win/textjustify.png</file>
+	<file>formeditor/win/textleft.png</file>
+	<file>formeditor/win/textright.png</file>
+	<file>formeditor/win/textunder.png</file>
+	<file>formeditor/win/zoomin.png</file>
+	<file>formeditor/win/zoomout.png</file>
+	<file>formeditor/mac/editcopy.png</file>
+	<file>formeditor/mac/editcut.png</file>
+	<file>formeditor/mac/editpaste.png</file>
+	<file>formeditor/mac/editredo.png</file>
+	<file>formeditor/mac/editundo.png</file>
+	<file>formeditor/mac/exportpdf.png</file>
+	<file>formeditor/mac/filenew.png</file>
+	<file>formeditor/mac/fileopen.png</file>
+	<file>formeditor/mac/fileprint.png</file>
+	<file>formeditor/mac/filesave.png</file>
+	<file>formeditor/mac/list-unordered.png</file>
+	<file>formeditor/mac/textbold.png</file>
+	<file>formeditor/mac/textcenter.png</file>
+	<file>formeditor/mac/textitalic.png</file>
+	<file>formeditor/mac/textjustify.png</file>
+	<file>formeditor/mac/textleft.png</file>
+	<file>formeditor/mac/textright.png</file>
+	<file>formeditor/mac/textunder.png</file>
+	<file>formeditor/mac/zoomin.png</file>
+	<file>formeditor/mac/zoomout.png</file>
   </qresource>
 </RCC>

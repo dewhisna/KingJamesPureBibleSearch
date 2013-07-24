@@ -14,6 +14,12 @@
 #include "qwwcolorbutton.h"
 #endif
 
+#ifdef Q_WS_MAC
+const QString rsrcPath = ":formeditor/mac";
+#else
+const QString rsrcPath = ":formeditor/win";
+#endif
+
 /*!
  *  \class QwwRichTextEdit
  *  \brief The QwwRichTextEdit widget provides a drop-in replacement for QTextEdit
@@ -79,25 +85,25 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
     foreach(int s, QFontDatabase::standardSizes())
     fsp->addItem(QString::number(s));
 
-    m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(QPixmap(":/trolltech/formeditor/images/win/textbold.png"))), "Bold", this);
+	m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(rsrcPath + "/textbold.png")), "Bold", this);
     m_actions[BoldAction]->setCheckable(true);
     tb->addAction(m_actions[BoldAction]);
     connect(m_actions[BoldAction], SIGNAL(triggered(bool)), this, SLOT(setBold(bool)));
-    m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QPixmap(":/trolltech/formeditor/images/win/textitalic.png")), "Italic", this);
+	m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QIcon(rsrcPath + "/textitalic.png")), "Italic", this);
     m_actions[ItalicAction]->setCheckable(true);
     tb->addAction(m_actions[ItalicAction]);
 
     connect(m_actions[ItalicAction], SIGNAL(triggered(bool)), this, SLOT(setItalic(bool)));
-    m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QPixmap(":/trolltech/formeditor/images/win/textunder.png")), "Underline", this);
+	m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QIcon(rsrcPath + "/textunder.png")), "Underline", this);
     m_actions[UnderlineAction]->setCheckable(true);
     tb->addAction(m_actions[UnderlineAction]);
 
     cB = tb->addSeparator();
     connect(m_actions[UnderlineAction], SIGNAL(triggered(bool)), this, SLOT(setUnderline(bool)));
-    al = new QAction(wwWidgets::icon("format-justify-left", QPixmap(":/trolltech/formeditor/images/win/textleft.png")), "Align left", this);
-    ar = new QAction(wwWidgets::icon("format-justify-right", QPixmap(":/trolltech/formeditor/images/win/textright.png")), "Align right", this);
-    ac = new QAction(wwWidgets::icon("format-justify-center", QPixmap(":/trolltech/formeditor/images/win/textcenter.png")), "Center", this);
-    aj = new QAction(wwWidgets::icon("format-justify-fill", QPixmap(":/trolltech/formeditor/images/win/textjustify.png")), "Justify", this);
+	al = new QAction(wwWidgets::icon("format-justify-left", QIcon(rsrcPath + "/textleft.png")), "Align left", this);
+	ar = new QAction(wwWidgets::icon("format-justify-right", QIcon(rsrcPath + "/textright.png")), "Align right", this);
+	ac = new QAction(wwWidgets::icon("format-justify-center", QIcon(rsrcPath + "/textcenter.png")), "Center", this);
+	aj = new QAction(wwWidgets::icon("format-justify-fill", QIcon(rsrcPath + "/textjustify.png")), "Justify", this);
     QActionGroup *alignmentGroup = new QActionGroup(this);
     al->setCheckable(true);
     ar->setCheckable(true);
@@ -115,7 +121,7 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
 
     connect(alignmentGroup, SIGNAL(triggered(QAction *)), this, SLOT(changeAlignment(QAction*)));
 
-    li = new QAction(wwWidgets::icon("format-list-unordered"), "List", this);
+	li = new QAction(wwWidgets::icon("format-list-unordered", QIcon(rsrcPath + "/list-unordered.png")), "List", this);
     tb->addAction(li);
     li->setCheckable(true);
     connect(li, SIGNAL(toggled(bool)), this, SLOT(setList(bool)));
@@ -354,19 +360,19 @@ QAction * QwwRichTextEdit::toolBarAction(Action act) const
 void QwwRichTextEdit::contextMenuEvent(QContextMenuEvent * event)
 {
     QMenu *menu = createStandardContextMenu ( event->pos() );
-    QMenu *formatMenu = new QMenu(tr("Style"));
+	QMenu *formatMenu = new QMenu(tr("Style"), menu);
 
     formatMenu->addAction(m_actions[BoldAction]);
     formatMenu->addAction(m_actions[ItalicAction]);
     formatMenu->addAction(m_actions[UnderlineAction]);
     menu->insertMenu(menu->actions()[9], formatMenu);
-    QMenu *alignMenu = new QMenu(tr("Align"));
+	QMenu *alignMenu = new QMenu(tr("Align"), menu);
     alignMenu->addAction(al);
     alignMenu->addAction(ac);
     alignMenu->addAction(ar);
     alignMenu->addAction(aj);
     menu->insertMenu(menu->actions()[10], alignMenu);
-    menu->exec(event->pos());
+	menu->exec(event->globalPos());
     delete menu;
 }
 
