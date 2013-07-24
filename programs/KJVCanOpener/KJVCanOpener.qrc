@@ -63,5 +63,8 @@
 		<file>res/chalkboard-note-128.png</file>
 		<file>res/deletered1-128.png</file>
 		<file>res/deletered2-128.png</file>
+		<file>res/ok_blue-24.png</file>
+		<file>res/cancel-24.png</file>
+		<file>res/deletered1-24.png</file>
 	</qresource>
 </RCC>

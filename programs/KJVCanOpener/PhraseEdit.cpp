@@ -805,7 +805,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 //						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
 
 //	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
+	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-line; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
 						.arg(Qt::escape(m_pBibleDatabase->PassageReferenceText(ndx)));		// Document Title
 
 	uint32_t nFirstWordNormal = m_pBibleDatabase->NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
@@ -824,13 +824,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
 		}
-		strHTML += m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors);
 		strHTML += "</p>\n";
 
 		if (g_pUserNotesDatabase->existsNoteFor(relPrev)) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relPrev);
 			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2\n")
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
 								.arg(relPrev.asAnchor())
 								.arg(userNote.htmlText());
 			} else {
@@ -913,7 +913,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
 		if (userNote.isVisible()) {
-			strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />\n")
+			strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />")
 							.arg(ndxBookChap.asAnchor())
 							.arg(userNote.htmlText());
 		} else {
@@ -933,7 +933,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 		if (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) {
 			if (bParagraph) {
-				strHTML += "</p>";
+				strHTML += "</p>\n";
 				bParagraph=false;
 			}
 		}
@@ -949,13 +949,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			strHTML += QString("<b> %1 </b>")
 						.arg(ndxVrs+1);
 		}
-		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors);
 
 		if (g_pUserNotesDatabase->existsNoteFor(ndxVerse)) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxVerse);
 			if (userNote.isVisible()) {
 				if (bParagraph) {
-					strHTML += "</p>";
+					strHTML += "</p>\n";
 					bParagraph = false;
 				}
 				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
@@ -1080,7 +1080,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
 			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />\n")
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />")
 								.arg(ndxBookChap.asAnchor())
 								.arg(userNote.htmlText());
 			} else {
@@ -1094,13 +1094,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		} else {
 			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
 		}
-		strHTML += m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors) + "\n";
+		strHTML += m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors);
 		strHTML += "</p>\n";
 
 		if (g_pUserNotesDatabase->existsNoteFor(relNext)) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNext);
 			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2\n")
+				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
 								.arg(relNext.asAnchor())
 								.arg(userNote.htmlText());
 			} else {
