@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Gallery</class>
+ <widget class="QwwNavigationBar" name="Gallery">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>346</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>wwNavigationBar</string>
+  </property>
+  <widget class="QWidget" name="page1">
+   <property name="windowTitle">
+    <string>Input widgets</string>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Qww&amp;LongSpinBox:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwlongspinbox</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QwwLongSpinBox" name="qwwlongspinbox">
+      <property name="maximum">
+       <longLong>9999999999</longLong>
+      </property>
+      <property name="value">
+       <longLong>1234567890</longLong>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Qww&amp;TextSpinBox:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwtextspinbox</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QwwTextSpinBox" name="qwwtextspinbox">
+      <property name="strings">
+       <stringlist>
+        <string>First</string>
+        <string>Second</string>
+        <string>Third</string>
+       </stringlist>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>QwwColor&amp;ComboBox:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwcolorcombobox</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QwwColorComboBox" name="qwwcolorcombobox">
+      <property name="colors">
+       <stringlist>
+        <string>#f0f8ff,aliceblue</string>
+        <string>#faebd7,antiquewhite</string>
+        <string>#00ffff,aqua</string>
+        <string>#7fffd4,aquamarine</string>
+        <string>#f0ffff,azure</string>
+        <string>#f5f5dc,beige</string>
+        <string>#ffe4c4,bisque</string>
+        <string>#000000,black</string>
+        <string>#ffebcd,blanchedalmond</string>
+        <string>#0000ff,blue</string>
+        <string>#8a2be2,blueviolet</string>
+        <string>#a52a2a,brown</string>
+        <string>#deb887,burlywood</string>
+        <string>#5f9ea0,cadetblue</string>
+        <string>#7fff00,chartreuse</string>
+        <string>#d2691e,chocolate</string>
+        <string>#ff7f50,coral</string>
+        <string>#6495ed,cornflowerblue</string>
+        <string>#fff8dc,cornsilk</string>
+        <string>#dc143c,crimson</string>
+        <string>#00ffff,cyan</string>
+        <string>#00008b,darkblue</string>
+        <string>#008b8b,darkcyan</string>
+        <string>#b8860b,darkgoldenrod</string>
+        <string>#a9a9a9,darkgray</string>
+        <string>#006400,darkgreen</string>
+        <string>#a9a9a9,darkgrey</string>
+        <string>#bdb76b,darkkhaki</string>
+        <string>#8b008b,darkmagenta</string>
+        <string>#556b2f,darkolivegreen</string>
+        <string>#ff8c00,darkorange</string>
+        <string>#9932cc,darkorchid</string>
+        <string>#8b0000,darkred</string>
+        <string>#e9967a,darksalmon</string>
+        <string>#8fbc8f,darkseagreen</string>
+        <string>#483d8b,darkslateblue</string>
+        <string>#2f4f4f,darkslategray</string>
+        <string>#2f4f4f,darkslategrey</string>
+        <string>#00ced1,darkturquoise</string>
+        <string>#9400d3,darkviolet</string>
+        <string>#ff1493,deeppink</string>
+        <string>#00bfff,deepskyblue</string>
+        <string>#696969,dimgray</string>
+        <string>#696969,dimgrey</string>
+        <string>#1e90ff,dodgerblue</string>
+        <string>#b22222,firebrick</string>
+        <string>#fffaf0,floralwhite</string>
+        <string>#228b22,forestgreen</string>
+        <string>#ff00ff,fuchsia</string>
+        <string>#dcdcdc,gainsboro</string>
+        <string>#f8f8ff,ghostwhite</string>
+        <string>#ffd700,gold</string>
+        <string>#daa520,goldenrod</string>
+        <string>#808080,gray</string>
+        <string>#008000,green</string>
+        <string>#adff2f,greenyellow</string>
+        <string>#808080,grey</string>
+        <string>#f0fff0,honeydew</string>
+        <string>#ff69b4,hotpink</string>
+        <string>#cd5c5c,indianred</string>
+        <string>#4b0082,indigo</string>
+        <string>#fffff0,ivory</string>
+        <string>#f0e68c,khaki</string>
+        <string>#e6e6fa,lavender</string>
+        <string>#fff0f5,lavenderblush</string>
+        <string>#7cfc00,lawngreen</string>
+        <string>#fffacd,lemonchiffon</string>
+        <string>#add8e6,lightblue</string>
+        <string>#f08080,lightcoral</string>
+        <string>#e0ffff,lightcyan</string>
+        <string>#fafad2,lightgoldenrodyellow</string>
+        <string>#d3d3d3,lightgray</string>
+        <string>#90ee90,lightgreen</string>
+        <string>#d3d3d3,lightgrey</string>
+        <string>#ffb6c1,lightpink</string>
+        <string>#ffa07a,lightsalmon</string>
+        <string>#20b2aa,lightseagreen</string>
+        <string>#87cefa,lightskyblue</string>
+        <string>#778899,lightslategray</string>
+        <string>#778899,lightslategrey</string>
+        <string>#b0c4de,lightsteelblue</string>
+        <string>#ffffe0,lightyellow</string>
+        <string>#00ff00,lime</string>
+        <string>#32cd32,limegreen</string>
+        <string>#faf0e6,linen</string>
+        <string>#ff00ff,magenta</string>
+        <string>#800000,maroon</string>
+        <string>#66cdaa,mediumaquamarine</string>
+        <string>#0000cd,mediumblue</string>
+        <string>#ba55d3,mediumorchid</string>
+        <string>#9370db,mediumpurple</string>
+        <string>#3cb371,mediumseagreen</string>
+        <string>#7b68ee,mediumslateblue</string>
+        <string>#00fa9a,mediumspringgreen</string>
+        <string>#48d1cc,mediumturquoise</string>
+        <string>#c71585,mediumvioletred</string>
+        <string>#191970,midnightblue</string>
+        <string>#f5fffa,mintcream</string>
+        <string>#ffe4e1,mistyrose</string>
+        <string>#ffe4b5,moccasin</string>
+        <string>#ffdead,navajowhite</string>
+        <string>#000080,navy</string>
+        <string>#fdf5e6,oldlace</string>
+        <string>#808000,olive</string>
+        <string>#6b8e23,olivedrab</string>
+        <string>#ffa500,orange</string>
+        <string>#ff4500,orangered</string>
+        <string>#da70d6,orchid</string>
+        <string>#eee8aa,palegoldenrod</string>
+        <string>#98fb98,palegreen</string>
+        <string>#afeeee,paleturquoise</string>
+        <string>#db7093,palevioletred</string>
+        <string>#ffefd5,papayawhip</string>
+        <string>#ffdab9,peachpuff</string>
+        <string>#cd853f,peru</string>
+        <string>#ffc0cb,pink</string>
+        <string>#dda0dd,plum</string>
+        <string>#b0e0e6,powderblue</string>
+        <string>#800080,purple</string>
+        <string>#ff0000,red</string>
+        <string>#bc8f8f,rosybrown</string>
+        <string>#4169e1,royalblue</string>
+        <string>#8b4513,saddlebrown</string>
+        <string>#fa8072,salmon</string>
+        <string>#f4a460,sandybrown</string>
+        <string>#2e8b57,seagreen</string>
+        <string>#fff5ee,seashell</string>
+        <string>#a0522d,sienna</string>
+        <string>#c0c0c0,silver</string>
+        <string>#87ceeb,skyblue</string>
+        <string>#6a5acd,slateblue</string>
+        <string>#708090,slategray</string>
+        <string>#708090,slategrey</string>
+        <string>#fffafa,snow</string>
+        <string>#00ff7f,springgreen</string>
+        <string>#4682b4,steelblue</string>
+        <string>#d2b48c,tan</string>
+        <string>#008080,teal</string>
+        <string>#d8bfd8,thistle</string>
+        <string>#ff6347,tomato</string>
+        <string>#000000,transparent</string>
+        <string>#40e0d0,turquoise</string>
+        <string>#ee82ee,violet</string>
+        <string>#f5deb3,wheat</string>
+        <string>#ffffff,white</string>
+        <string>#f5f5f5,whitesmoke</string>
+        <string>#ffff00,yellow</string>
+        <string>#9acd32,yellowgreen</string>
+       </stringlist>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QwwFileChooser" name="qwwfilechooser"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Qww&amp;FileChooser:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwfilechooser</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QwwButtonLineEdit" name="qwwbuttonlineedit"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Qww&amp;ButtonLineEdit:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwbuttonlineedit</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>QwwC&amp;learLineEdit:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwclearlineedit</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Qww&amp;ResetLineEdit:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwresetlineedit</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QwwClearLineEdit" name="qwwclearlineedit"/>
+    </item>
+    <item row="6" column="1">
+     <widget class="QwwResetLineEdit" name="qwwresetlineedit">
+      <property name="text">
+       <string>This is a default value</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>QwwListNavigator:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="1">
+     <widget class="QwwListNavigator" name="qwwlistnavigator"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="page2">
+   <property name="windowTitle">
+    <string>Buttons</string>
+   </property>
+   <layout class="QFormLayout" name="formLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>QwwColor&amp;Button:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwcolorbutton</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QwwColorButton" name="qwwcolorbutton"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>Qww&amp;RichTextButton:</string>
+      </property>
+      <property name="buddy">
+       <cstring>qwwrichtextbutton</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QwwRichTextButton" name="qwwrichtextbutton">
+      <property name="html">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;Text button&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;with support for &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-style:italic;&quot;&gt;rich text&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>QwwNumPad:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QwwNumPad" name="qwwnumpad"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="strona">
+   <property name="windowTitle">
+    <string>Display widgets</string>
+   </property>
+   <layout class="QFormLayout" name="formLayout_3">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>QwwTwoColorIndicator:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QwwTwoColorIndicator" name="qwwtwocolorindicator"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>QwwLed:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QwwLed" name="qwwled">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="animated">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwwLed" name="qwwled_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="color">
+         <color>
+          <red>255</red>
+          <green>255</green>
+          <blue>0</blue>
+         </color>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="shape">
+         <enum>QwwLed::RectangularSunken</enum>
+        </property>
+        <property name="animated">
+         <bool>true</bool>
+        </property>
+        <property name="period">
+         <number>800</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwwLed" name="qwwled_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="color">
+         <color>
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="shape">
+         <enum>QwwLed::RectangularRaised</enum>
+        </property>
+        <property name="animated">
+         <bool>true</bool>
+        </property>
+        <property name="period">
+         <number>1400</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QwwLed" name="qwwled_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="color">
+         <color>
+          <red>0</red>
+          <green>180</green>
+          <blue>0</blue>
+         </color>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="shape">
+         <enum>QwwLed::RectangularPlain</enum>
+        </property>
+        <property name="animated">
+         <bool>true</bool>
+        </property>
+        <property name="period">
+         <number>2500</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QwwLongSpinBox</class>
+   <extends>QWidget</extends>
+   <header>qwwlongspinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwTextSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>qwwtextspinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwTwoColorIndicator</class>
+   <extends>QWidget</extends>
+   <header>qwwtwocolorindicator.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwColorComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qwwcolorcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwNavigationBar</class>
+   <extends>QWidget</extends>
+   <header>qwwnavigationbar.h</header>
+   <addpagemethod>addWidget</addpagemethod>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QwwNumPad</class>
+   <extends>QWidget</extends>
+   <header>qwwnumpad.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwColorButton</class>
+   <extends>QPushButton</extends>
+   <header>qwwcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwRichTextButton</class>
+   <extends>QWidget</extends>
+   <header>qwwrichtextbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwFileChooser</class>
+   <extends>QwwButtonLineEdit</extends>
+   <header>qwwfilechooser.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwButtonLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qwwbuttonlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwClearLineEdit</class>
+   <extends>QwwButtonLineEdit</extends>
+   <header>qwwclearlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwResetLineEdit</class>
+   <extends>QwwButtonLineEdit</extends>
+   <header>qwwresetlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwListNavigator</class>
+   <extends>QWidget</extends>
+   <header>qwwlistnavigator.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwwLed</class>
+   <extends>QWidget</extends>
+   <header>qwwled.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name=""/>
+ </buttongroups>
+</ui>

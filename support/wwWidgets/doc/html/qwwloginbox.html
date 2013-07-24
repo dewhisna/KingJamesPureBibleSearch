@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!-- qwwloginbox.cpp -->
+<head>
+  <title>Qt 1.0: QwwLoginBox Class Reference</title>
+  <link href="classic-4.6.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" valign="top" width="32"><a href="http://www.trolltech.com/products/qt"><img src="images/qt-logo.png" align="left" border="0" /></a></td>
+<td width="1">&nbsp;&nbsp;</td><td class="postheader" valign="center"><a href="index.html"><font color="#004faf">wwWidgets Home</font></a>&nbsp;&middot; <a href="classes.html"><font color="#004faf">All&nbsp;Classes</font></a>&nbsp;&middot; <a href="mainclasses.html"><font color="#004faf">Main&nbsp;Classes</font></a>&nbsp;&middot; <a href="groups.html"><font color="#004faf">Grouped&nbsp;Classes</font></a>&nbsp;&middot; <a href="functions.html"><font color="#004faf">Functions</font></a></td>
+<td align="right" valign="top" width="230">
+<a href="http://www.wysota.eu.org/wwwidgets"><img src="images/ww-logo.png" align="right" width="137" height="41" border="0" /></a>
+</td></tr></table><h1 class="title">QwwLoginBox Class Reference<br /><span class="small-subtitle">[<a href="wwwidgets.html">wwWidgets</a> module]</span>
+</h1>
+<p>The QwwLoginBox class provides a login form with configurable set of fields for logging into different types of services. <a href="#details">More...</a></p>
+<pre> #include &lt;QwwLoginBox&gt;</pre><p><b>This class is not part of the Qt GUI Framework Edition.</b></p>
+<p>Inherits <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a>.</p>
+<ul>
+<li><a href="qwwloginbox-members.html">List of all members, including inherited members</a></li>
+</ul>
+<hr />
+<a name="public-types"></a>
+<h2>Public Types</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">enum </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#Field-enum">Field</a></b> { NoFields, HostField, PortField, UserField, ..., ProxyField }</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">flags </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#Field-enum">Fields</a></b></td></tr>
+</table>
+<hr />
+<a name="properties"></a>
+<h2>Properties</h2>
+<p><table class="propsummary" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr><td width="45%" valign="top"><ul>
+<li><div class="fn"><b><a href="qwwloginbox.html#fields-prop">fields</a></b> : Fields</div></li>
+<li><div class="fn"><b><a href="qwwloginbox.html#host-prop">host</a></b> : QString</div></li>
+<li><div class="fn"><b><a href="qwwloginbox.html#port-prop">port</a></b> : int</div></li>
+</ul></td><td valign="top"><ul>
+<li><div class="fn"><b><a href="qwwloginbox.html#proxyEnabled-prop">proxyEnabled</a></b> : bool</div></li>
+<li><div class="fn"><b><a href="qwwloginbox.html#rememberPassword-prop">rememberPassword</a></b> : bool</div></li>
+<li><div class="fn"><b><a href="qwwloginbox.html#user-prop">user</a></b> : const QString</div></li>
+</ul>
+</td></tr>
+</table></p>
+<ul>
+<li><div bar="2" class="fn"></div>58 properties inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#properties">QWidget</a></li>
+<li><div bar="2" class="fn"></div>1 property inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#properties">QObject</a></li>
+</ul>
+<hr />
+<a name="public-functions"></a>
+<h2>Public Functions</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top"></td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#QwwLoginBox">QwwLoginBox</a></b> ( QWidget * <i>parent</i> = 0 )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">Fields </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#fields-prop">fields</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">QString </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#host-prop">host</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#isProxyRepeatCorrect">isProxyRepeatCorrect</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#isRepeatCorrect">isRepeatCorrect</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">QString </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#password">password</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#port-prop">port</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#proxyEnabled-prop">proxyIsEnabled</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#rememberPassword-prop">rememberPassword</a></b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#fields-prop">setFields</a></b> ( Fields <i>f</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#port-prop">setPort</a></b> ( int <i>p</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#proxyEnabled-prop">setProxyEnabled</a></b> ( bool <i>v</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#rememberPassword-prop">setRememberPassword</a></b> ( bool <i>r</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">QString </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#user-prop">user</a></b> () const</td></tr>
+</table>
+<ul>
+<li><div bar="2" class="fn"></div>217 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#public-functions">QWidget</a></li>
+<li><div bar="2" class="fn"></div>13 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#public-functions">QPaintDevice</a></li>
+<li><div bar="2" class="fn"></div>29 public functions inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-functions">QObject</a></li>
+</ul>
+<hr />
+<a name="public-slots"></a>
+<h2>Public Slots</h2>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#host-prop">setHost</a></b> ( const QString &amp; <i>t</i> )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwloginbox.html#setUser">setUser</a></b> ( const QString &amp; <i>user</i>, const QString &amp; <i>password</i> = QString::null )</td></tr>
+</table>
+<ul>
+<li><div bar="2" class="fn"></div>19 public slots inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#public-slots">QWidget</a></li>
+<li><div bar="2" class="fn"></div>1 public slot inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-slots">QObject</a></li>
+</ul>
+<h3>Additional Inherited Members</h3>
+<ul>
+<li><div class="fn"></div>1 signal inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#signals">QWidget</a></li>
+<li><div class="fn"></div>1 signal inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#signals">QObject</a></li>
+<li><div class="fn"></div>1 public type inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#public-variables">QObject</a></li>
+<li><div class="fn"></div>4 static public members inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#static-public-members">QWidget</a></li>
+<li><div class="fn"></div>4 static public members inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#static-public-members">QObject</a></li>
+<li><div class="fn"></div>37 protected functions inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#protected-functions">QWidget</a></li>
+<li><div class="fn"></div>1 protected function inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#protected-functions">QPaintDevice</a></li>
+<li><div class="fn"></div>7 protected functions inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#protected-functions">QObject</a></li>
+<li><div class="fn"></div>1 protected slot inherited from <a href="http://qt.nokia.com/doc/4.7/qwidget.html#protected-slots">QWidget</a></li>
+<li><div class="fn"></div>1 protected type inherited from <a href="http://qt.nokia.com/doc/4.7/qpaintdevice.html#protected-variables">QPaintDevice</a></li>
+<li><div class="fn"></div>2 protected variables inherited from <a href="http://qt.nokia.com/doc/4.7/qobject.html#protected-variables">QObject</a></li>
+</ul>
+<a name="details"></a>
+<hr />
+<h2>Detailed Description</h2>
+<p>The QwwLoginBox class provides a login form with configurable set of fields for logging into different types of services.</p>
+<hr />
+<h2>Member Type Documentation</h2>
+<h3 class="flags"><a name="Field-enum"></a>enum QwwLoginBox::Field<br />flags QwwLoginBox::Fields</h3>
+<p><table class="valuelist" border="1" cellpadding="2" cellspacing="1" width="100%">
+<tr><th width="25%">Constant</th><th width="15%">Value</th><th width="60%">Description</th></tr>
+<tr><td valign="top"><tt>QwwLoginBox::NoFields</tt></td><td align="center" valign="top"><tt>0x0</tt></td><td valign="top">No fields are visible</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::HostField</tt></td><td align="center" valign="top"><tt>0x1</tt></td><td valign="top">Host name</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::PortField</tt></td><td align="center" valign="top"><tt>0x2</tt></td><td valign="top">Port number</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::UserField</tt></td><td align="center" valign="top"><tt>0x4</tt></td><td valign="top">User (login)</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::PasswordField</tt></td><td align="center" valign="top"><tt>0x8</tt></td><td valign="top">Password</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::RepeatPasswordField</tt></td><td align="center" valign="top"><tt>0x10</tt></td><td valign="top">Password confirmation</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::RememberPasswordField</tt></td><td align="center" valign="top"><tt>0x20</tt></td><td valign="top">&quot;Remember password&quot; checkbox</td></tr>
+<tr><td valign="top"><tt>QwwLoginBox::ProxyField</tt></td><td align="center" valign="top"><tt>0x40</tt></td><td valign="top">Network proxy group</td></tr>
+</table></p>
+<p>The Fields type is a typedef for <a href="qflags.html">QFlags</a>&lt;Field&gt;. It stores an OR combination of Field values.</p>
+<hr />
+<h2>Property Documentation</h2>
+<h3 class="fn"><a name="fields-prop"></a>fields : <a href="qwwloginbox.html#Field-enum">Fields</a></h3>
+<p>This property holds this property holds the set of fields visible in the box.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">Fields </td><td class="memItemRight" valign="bottom"><b>fields</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setFields</b> ( Fields <i>f</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="host-prop"></a>host : <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a></h3>
+<p>This property holds this property holds the host set in the box.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">QString </td><td class="memItemRight" valign="bottom"><b>host</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setHost</b> ( const QString &amp; <i>t</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="port-prop"></a>port : int</h3>
+<p>This property holds this property holds the port set in the box.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b>port</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setPort</b> ( int <i>p</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="proxyEnabled-prop"></a>proxyEnabled : bool</h3>
+<p>This property holds the property holds whether the proxy field is enabled.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b>proxyIsEnabled</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setProxyEnabled</b> ( bool <i>v</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="rememberPassword-prop"></a>rememberPassword : bool</h3>
+<p>This property holds the property holds whether the "remember password" checkbox is visible and checked.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">bool </td><td class="memItemRight" valign="bottom"><b>rememberPassword</b> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b>setRememberPassword</b> ( bool <i>r</i> )</td></tr>
+</table>
+<h3 class="fn"><a name="user-prop"></a>user : const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a></h3>
+<p>This property holds this property holds the user set in the box.</p>
+<p><b>Access functions:</b></p>
+<table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td class="memItemLeft" align="right" valign="top">QString </td><td class="memItemRight" valign="bottom"><b>user</b> () const</td></tr>
+</table>
+<hr />
+<h2>Member Function Documentation</h2>
+<h3 class="fn"><a name="QwwLoginBox"></a>QwwLoginBox::QwwLoginBox ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>parent</i> = 0 )</h3>
+<p>Constructs a login box with a given <i>parent</i>.</p>
+<h3 class="fn"><a name="isProxyRepeatCorrect"></a>bool QwwLoginBox::isProxyRepeatCorrect () const</h3>
+<p>Returns whether both password fields in the proxy section contain the same data.</p>
+<h3 class="fn"><a name="isRepeatCorrect"></a>bool QwwLoginBox::isRepeatCorrect () const</h3>
+<p>Returns whether both password fields contain the same data.</p>
+<h3 class="fn"><a name="password"></a><a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> QwwLoginBox::password () const</h3>
+<p>Returns the password set in the box.</p>
+<h3 class="fn"><a name="setUser"></a>void QwwLoginBox::setUser ( const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>user</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>password</i> = QString::null )&nbsp;&nbsp;<tt> [slot]</tt></h3>
+<p>Sets the <i>user</i> and <i>password</i> set in the box.</p>
+<p>See also <a href="qwwloginbox.html#user-prop">user</a>().</p>
+<p /><address><hr /><div align="center">
+<table width="100%" cellspacing="0" border="0"><tr class="address">
+<td width="30%" align="left">Copyright &copy; 2007-2010 Witold Wysota 
+<td width="40%" align="center"><a href="trademarks.html">Trademarks</a></td>
+<td width="30%" align="right"><div align="right">wwWidgets 1.0.0</div></td>
+</tr></table></div></address></body>
+</html>

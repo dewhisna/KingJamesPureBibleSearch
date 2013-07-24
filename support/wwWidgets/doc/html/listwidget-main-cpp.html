@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Qt 1.0: main.cpp Example File (listwidget/main.cpp)</title>
+  <link href="classic-4.6.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<td align="left" valign="top" width="32"><a href="http://www.trolltech.com/products/qt"><img src="images/qt-logo.png" align="left" border="0" /></a></td>
+<td width="1">&nbsp;&nbsp;</td><td class="postheader" valign="center"><a href="index.html"><font color="#004faf">wwWidgets Home</font></a>&nbsp;&middot; <a href="classes.html"><font color="#004faf">All&nbsp;Classes</font></a>&nbsp;&middot; <a href="mainclasses.html"><font color="#004faf">Main&nbsp;Classes</font></a>&nbsp;&middot; <a href="groups.html"><font color="#004faf">Grouped&nbsp;Classes</font></a>&nbsp;&middot; <a href="functions.html"><font color="#004faf">Functions</font></a></td>
+<td align="right" valign="top" width="230">
+<a href="http://www.wysota.eu.org/wwwidgets"><img src="images/ww-logo.png" align="right" width="137" height="41" border="0" /></a>
+</td></tr></table><h1 class="title">main.cpp Example File<br /><span class="small-subtitle">listwidget/main.cpp</span>
+</h1>
+<pre> #include &lt;QwwListWidget&gt;
+ #include &lt;QApplication&gt;
+ #include &lt;QLayout&gt;
+ #include &lt;QToolButton&gt;
+ #include &lt;QInputDialog&gt;
+ #include &lt;QwwListNavigator&gt;
+
+ class Widget : public QWidget {
+     Q_OBJECT
+ public:
+     Widget() : QWidget() {
+         listWidget = new QwwListWidget;
+         listWidget-&gt;addItems(QStringList() &lt;&lt; &quot;A&quot; &lt;&lt; &quot;B&quot; &lt;&lt; &quot;C&quot; &lt;&lt; &quot;D&quot;);
+
+         QToolButton *add = new QToolButton;
+         add-&gt;setText(tr(&quot;Add&quot;));
+         QToolButton *rem = new QToolButton;
+         rem-&gt;setText(tr(&quot;Remove&quot;));
+         QToolButton *up = new QToolButton;
+         up-&gt;setText(tr(&quot;Up&quot;));
+         QToolButton *down = new QToolButton;
+         down-&gt;setText(tr(&quot;Down&quot;));
+
+         QHBoxLayout *hlayout = new QHBoxLayout;
+         hlayout-&gt;addWidget(add);
+         hlayout-&gt;addWidget(rem);
+         hlayout-&gt;addStretch();
+         hlayout-&gt;addWidget(up);
+         hlayout-&gt;addWidget(down);
+
+         QHBoxLayout *wl = new QHBoxLayout;
+         wl-&gt;addWidget(listWidget);
+         nav = new QwwListNavigator;
+         nav-&gt;setOrientation(Qt::Vertical);
+         wl-&gt;addWidget(nav);
+         nav-&gt;setListWidget(listWidget);
+
+         QVBoxLayout *l = new QVBoxLayout(this);
+         l-&gt;addLayout(wl);
+         l-&gt;addLayout(hlayout);
+
+         connect(add, SIGNAL(clicked()), this, SLOT(addItem()));
+         connect(rem, SIGNAL(clicked()), listWidget, SLOT(removeCurrent()));
+         connect(up, SIGNAL(clicked()), listWidget, SLOT(moveCurrentUp()));
+         connect(down, SIGNAL(clicked()), listWidget, SLOT(moveCurrentDown()));
+         connect(listWidget, SIGNAL(currentAvailable(bool)), rem, SLOT(setEnabled( bool )));
+         connect(listWidget, SIGNAL(moveUpAvailable(bool)), up, SLOT(setEnabled( bool )));
+         connect(listWidget, SIGNAL(moveDownAvailable(bool)), down, SLOT(setEnabled( bool )));
+         listWidget-&gt;setCurrentRow(0);
+     }
+ private slots:
+     void addItem() {
+         QString i = QInputDialog::getText(this, tr(&quot;Add item&quot;), tr(&quot;Enter item text&quot;));
+         if (i.isEmpty())
+             return;
+         listWidget-&gt;addItem(i);
+         listWidget-&gt;setCurrentRow(listWidget-&gt;count()-1);
+     }
+ protected:
+     QwwListWidget *listWidget;
+     QwwListNavigator *nav;
+ };
+
+ #include &quot;main.moc&quot;
+
+ int main(int argc, char **argv) {
+     QApplication app(argc, argv);
+     Widget w;
+     w.show();
+     return app.exec();
+ }</pre>
+<p /><address><hr /><div align="center">
+<table width="100%" cellspacing="0" border="0"><tr class="address">
+<td width="30%" align="left">Copyright &copy; 2007-2010 Witold Wysota 
+<td width="40%" align="center"><a href="trademarks.html">Trademarks</a></td>
+<td width="30%" align="right"><div align="right">wwWidgets 1.0.0</div></td>
+</tr></table></div></address></body>
+</html>

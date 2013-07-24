@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>org.eu.wysota.wwwidgets.100</namespace>
+    <virtualFolder>wwwidgets</virtualFolder>
+    <customFilter name="wwWidgets Manual">
+        <filterAttribute>qt</filterAttribute>
+        <filterAttribute>plugin</filterAttribute>
+        <filterAttribute>wwWidgets</filterAttribute>
+    </customFilter>
+    <filterSection>
+        <filterAttribute>qt</filterAttribute>
+        <filterAttribute>plugin</filterAttribute>
+        <filterAttribute>wwWidgets</filterAttribute>
+        <toc>
+            <section ref="index.html" title="wwWidgets Reference Manual">
+                <section ref="classes.html" title="Classes">
+                    <section ref="qwwbuttonlineedit.html" title="QwwButtonLineEdit Class Reference">
+                        <section ref="qwwbuttonlineedit-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwclearlineedit.html" title="QwwClearLineEdit Class Reference">
+                        <section ref="qwwclearlineedit-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwcolorbutton.html" title="QwwColorButton Class Reference">
+                        <section ref="qwwcolorbutton-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwcolorcombobox.html" title="QwwColorComboBox Class Reference">
+                        <section ref="qwwcolorcombobox-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwconfigwidget.html" title="QwwConfigWidget Class Reference">
+                        <section ref="qwwconfigwidget-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwfilechooser.html" title="QwwFileChooser Class Reference">
+                        <section ref="qwwfilechooser-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwhuesatpicker.html" title="QwwHueSatPicker Class Reference">
+                        <section ref="qwwhuesatpicker-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwhuesatradialpicker.html" title="QwwHueSatRadialPicker Class Reference">
+                        <section ref="qwwhuesatradialpicker-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwled.html" title="QwwLed Class Reference">
+                        <section ref="qwwled-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwlistnavigator.html" title="QwwListNavigator Class Reference">
+                        <section ref="qwwlistnavigator-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwlistwidget.html" title="QwwListWidget Class Reference">
+                        <section ref="qwwlistwidget-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwloginbox.html" title="QwwLoginBox Class Reference">
+                        <section ref="qwwloginbox-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwlongspinbox.html" title="QwwLongSpinBox Class Reference">
+                        <section ref="qwwlongspinbox-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwnavigationbar.html" title="QwwNavigationBar Class Reference">
+                        <section ref="qwwnavigationbar-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwnumpad.html" title="QwwNumPad Class Reference">
+                        <section ref="qwwnumpad-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwresetlineedit.html" title="QwwResetLineEdit Class Reference">
+                        <section ref="qwwresetlineedit-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwrichtextbutton.html" title="QwwRichTextButton Class Reference">
+                        <section ref="qwwrichtextbutton-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwrichtextedit.html" title="QwwRichTextEdit Class Reference">
+                        <section ref="qwwrichtextedit-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwtaskpanel.html" title="QwwTaskPanel Class Reference">
+                        <section ref="qwwtaskpanel-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwtextspinbox.html" title="QwwTextSpinBox Class Reference">
+                        <section ref="qwwtextspinbox-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwtipwidget.html" title="QwwTipWidget Class Reference">
+                        <section ref="qwwtipwidget-members.html" title="List of all members"/>
+                    </section>
+                    <section ref="qwwtwocolorindicator.html" title="QwwTwoColorIndicator Class Reference">
+                        <section ref="qwwtwocolorindicator-members.html" title="List of all members"/>
+                    </section>
+                </section>
+                <section ref="examples.html" title="Tutorials and Examples">
+                    <section ref="colorpickers.html" title="Color pickers example"/>
+                    <section ref="listwidget.html" title="List widget example"/>
+                    <section ref="pinpad.html" title="Pinpad example"/>
+                    <section ref="texteditor.html" title="Text editor example"/>
+                </section>
+            </section>
+        </toc>
+        <keywords>
+            <keyword name="Class lists" id="Class lists" ref="classlists.html"/>
+            <keyword name="Color pickers example" id="Color pickers example" ref="colorpickers.html"/>
+            <keyword name="Colour manipulation classes" id="Colour manipulation classes" ref="colorclasses.html"/>
+            <keyword name="Frameworks and Technologies" id="Frameworks and Technologies" ref="frameworks-technologies.html"/>
+            <keyword name="Groups" id="Groups" ref="groups.html"/>
+            <keyword name="List widget example" id="List widget example" ref="listwidget.html"/>
+            <keyword name="Member Function Index" id="Member Function Index" ref="functions.html"/>
+            <keyword name="Modules" id="Modules" ref="modules.html"/>
+            <keyword name="Pinpad example" id="Pinpad example" ref="pinpad.html"/>
+            <keyword name="QwwButtonLineEdit" id="QwwButtonLineEdit" ref="qwwbuttonlineedit.html"/>
+            <keyword name="QwwButtonLineEdit::Position" id="QwwButtonLineEdit::Position" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="QwwButtonLineEdit::None" id="QwwButtonLineEdit::None" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="QwwButtonLineEdit::RightOutside" id="QwwButtonLineEdit::RightOutside" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="QwwButtonLineEdit::RightInside" id="QwwButtonLineEdit::RightInside" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="QwwButtonLineEdit::LeftOutside" id="QwwButtonLineEdit::LeftOutside" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="QwwButtonLineEdit::LeftInside" id="QwwButtonLineEdit::LeftInside" ref="qwwbuttonlineedit.html#Position-enum"/>
+            <keyword name="autoRaise" id="QwwButtonLineEdit::autoRaise" ref="qwwbuttonlineedit.html#autoRaise-prop"/>
+            <keyword name="button" id="QwwButtonLineEdit::button" ref="qwwbuttonlineedit.html#button"/>
+            <keyword name="buttonClicked" id="QwwButtonLineEdit::buttonClicked" ref="qwwbuttonlineedit.html#buttonClicked"/>
+            <keyword name="buttonFocusPolicy" id="QwwButtonLineEdit::buttonFocusPolicy" ref="qwwbuttonlineedit.html#buttonFocusPolicy-prop"/>
+            <keyword name="buttonIsVisible" id="QwwButtonLineEdit::buttonIsVisible" ref="qwwbuttonlineedit.html#buttonVisible-prop"/>
+            <keyword name="buttonPosition" id="QwwButtonLineEdit::buttonPosition" ref="qwwbuttonlineedit.html#buttonPosition-prop"/>
+            <keyword name="buttonVisible" id="QwwButtonLineEdit::buttonVisible" ref="qwwbuttonlineedit.html#buttonVisible-prop"/>
+            <keyword name="icon" id="QwwButtonLineEdit::icon" ref="qwwbuttonlineedit.html#icon-prop"/>
+            <keyword name="paintEvent" id="QwwButtonLineEdit::paintEvent" ref="qwwbuttonlineedit.html#paintEvent"/>
+            <keyword name="placeholderText" id="QwwButtonLineEdit::placeholderText" ref="qwwbuttonlineedit.html#placeholderText-prop"/>
+            <keyword name="regExp" id="QwwButtonLineEdit::regExp" ref="qwwbuttonlineedit.html#regExp-prop"/>
+            <keyword name="setAutoRaise" id="QwwButtonLineEdit::setAutoRaise" ref="qwwbuttonlineedit.html#autoRaise-prop"/>
+            <keyword name="setButtonFocusPolicy" id="QwwButtonLineEdit::setButtonFocusPolicy" ref="qwwbuttonlineedit.html#buttonFocusPolicy-prop"/>
+            <keyword name="setButtonPosition" id="QwwButtonLineEdit::setButtonPosition" ref="qwwbuttonlineedit.html#buttonPosition-prop"/>
+            <keyword name="setButtonVisible" id="QwwButtonLineEdit::setButtonVisible" ref="qwwbuttonlineedit.html#buttonVisible-prop"/>
+            <keyword name="setIcon" id="QwwButtonLineEdit::setIcon" ref="qwwbuttonlineedit.html#icon-prop"/>
+            <keyword name="setPlaceholderText" id="QwwButtonLineEdit::setPlaceholderText" ref="qwwbuttonlineedit.html#placeholderText-prop"/>
+            <keyword name="setRegExp" id="QwwButtonLineEdit::setRegExp" ref="qwwbuttonlineedit.html#regExp-prop"/>
+            <keyword name="validatorChanged" id="QwwButtonLineEdit::validatorChanged" ref="qwwbuttonlineedit.html#validatorChanged"/>
+            <keyword name="QwwClearLineEdit" id="QwwClearLineEdit" ref="qwwclearlineedit.html"/>
+            <keyword name="QwwColorButton" id="QwwColorButton" ref="qwwcolorbutton.html"/>
+            <keyword name="addColor" id="QwwColorButton::addColor" ref="qwwcolorbutton.html#addColor"/>
+            <keyword name="clear" id="QwwColorButton::clear" ref="qwwcolorbutton.html#clear"/>
+            <keyword name="colorPicked" id="QwwColorButton::colorPicked" ref="qwwcolorbutton.html#colorPicked"/>
+            <keyword name="colors" id="QwwColorButton::colors" ref="qwwcolorbutton.html#colors-prop"/>
+            <keyword name="currentColor" id="QwwColorButton::currentColor" ref="qwwcolorbutton.html#currentColor-prop"/>
+            <keyword name="dragEnabled" id="QwwColorButton::dragEnabled" ref="qwwcolorbutton.html#dragEnabled-prop"/>
+            <keyword name="setColors" id="QwwColorButton::setColors" ref="qwwcolorbutton.html#colors-prop"/>
+            <keyword name="setCurrentColor" id="QwwColorButton::setCurrentColor" ref="qwwcolorbutton.html#currentColor-prop"/>
+            <keyword name="setDragEnabled" id="QwwColorButton::setDragEnabled" ref="qwwcolorbutton.html#dragEnabled-prop"/>
+            <keyword name="setShowName" id="QwwColorButton::setShowName" ref="qwwcolorbutton.html#showName-prop"/>
+            <keyword name="setStandardColors" id="QwwColorButton::setStandardColors" ref="qwwcolorbutton.html#setStandardColors"/>
+            <keyword name="showName" id="QwwColorButton::showName" ref="qwwcolorbutton.html#showName-prop"/>
+            <keyword name="QwwColorComboBox" id="QwwColorComboBox" ref="qwwcolorcombobox.html"/>
+            <keyword name="activated" id="QwwColorComboBox::activated" ref="qwwcolorcombobox.html#activated"/>
+            <keyword name="addColor" id="QwwColorComboBox::addColor" ref="qwwcolorcombobox.html#addColor"/>
+            <keyword name="color" id="QwwColorComboBox::color" ref="qwwcolorcombobox.html#color"/>
+            <keyword name="colorCount" id="QwwColorComboBox::colorCount" ref="qwwcolorcombobox.html#colorCount-prop"/>
+            <keyword name="colorDialogEnabled" id="QwwColorComboBox::colorDialogEnabled" ref="qwwcolorcombobox.html#colorDialogEnabled-prop"/>
+            <keyword name="colors" id="QwwColorComboBox::colors" ref="qwwcolorcombobox.html#colors-prop"/>
+            <keyword name="currentColor" id="QwwColorComboBox::currentColor" ref="qwwcolorcombobox.html#currentColor-prop"/>
+            <keyword name="insertColor" id="QwwColorComboBox::insertColor" ref="qwwcolorcombobox.html#insertColor"/>
+            <keyword name="isColorDialogEnabled" id="QwwColorComboBox::isColorDialogEnabled" ref="qwwcolorcombobox.html#colorDialogEnabled-prop"/>
+            <keyword name="setColorDialogEnabled" id="QwwColorComboBox::setColorDialogEnabled" ref="qwwcolorcombobox.html#colorDialogEnabled-prop"/>
+            <keyword name="setColors" id="QwwColorComboBox::setColors" ref="qwwcolorcombobox.html#colors-prop"/>
+            <keyword name="setCurrentColor" id="QwwColorComboBox::setCurrentColor" ref="qwwcolorcombobox.html#setCurrentColor"/>
+            <keyword name="setStandardColors" id="QwwColorComboBox::setStandardColors" ref="qwwcolorcombobox.html#setStandardColors"/>
+            <keyword name="QwwConfigWidget" id="QwwConfigWidget" ref="qwwconfigwidget.html"/>
+            <keyword name="addGroup" id="QwwConfigWidget::addGroup" ref="qwwconfigwidget.html#addGroup"/>
+            <keyword name="count" id="QwwConfigWidget::count" ref="qwwconfigwidget.html#count-prop"/>
+            <keyword name="currentGroup" id="QwwConfigWidget::currentGroup" ref="qwwconfigwidget.html#currentGroup"/>
+            <keyword name="currentIndex" id="QwwConfigWidget::currentIndex" ref="qwwconfigwidget.html#currentIndex-prop"/>
+            <keyword name="currentIndexChanged" id="QwwConfigWidget::currentIndexChanged" ref="qwwconfigwidget.html#currentIndexChanged"/>
+            <keyword name="group" id="QwwConfigWidget::group" ref="qwwconfigwidget.html#group"/>
+            <keyword name="iconSize" id="QwwConfigWidget::iconSize" ref="qwwconfigwidget.html#iconSize-prop"/>
+            <keyword name="insertGroup" id="QwwConfigWidget::insertGroup" ref="qwwconfigwidget.html#insertGroup"/>
+            <keyword name="removeGroup" id="QwwConfigWidget::removeGroup" ref="qwwconfigwidget.html#removeGroup"/>
+            <keyword name="setCurrentGroup" id="QwwConfigWidget::setCurrentGroup" ref="qwwconfigwidget.html#setCurrentGroup"/>
+            <keyword name="setCurrentIndex" id="QwwConfigWidget::setCurrentIndex" ref="qwwconfigwidget.html#currentIndex-prop"/>
+            <keyword name="setGroupIcon" id="QwwConfigWidget::setGroupIcon" ref="qwwconfigwidget.html#setGroupIcon"/>
+            <keyword name="setGroupLabel" id="QwwConfigWidget::setGroupLabel" ref="qwwconfigwidget.html#setGroupLabel"/>
+            <keyword name="setIconSize" id="QwwConfigWidget::setIconSize" ref="qwwconfigwidget.html#iconSize-prop"/>
+            <keyword name="QwwFileChooser" id="QwwFileChooser" ref="qwwfilechooser.html"/>
+            <keyword name="acceptMode" id="QwwFileChooser::acceptMode" ref="qwwfilechooser.html#acceptMode-prop"/>
+            <keyword name="chooseFile" id="QwwFileChooser::chooseFile" ref="qwwfilechooser.html#chooseFile"/>
+            <keyword name="completionMode" id="QwwFileChooser::completionMode" ref="qwwfilechooser.html#completionMode-prop"/>
+            <keyword name="fileMode" id="QwwFileChooser::fileMode" ref="qwwfilechooser.html#fileMode-prop"/>
+            <keyword name="filter" id="QwwFileChooser::filter" ref="qwwfilechooser.html#filter-prop"/>
+            <keyword name="setAcceptMode" id="QwwFileChooser::setAcceptMode" ref="qwwfilechooser.html#acceptMode-prop"/>
+            <keyword name="setCompletionMode" id="QwwFileChooser::setCompletionMode" ref="qwwfilechooser.html#completionMode-prop"/>
+            <keyword name="setFileMode" id="QwwFileChooser::setFileMode" ref="qwwfilechooser.html#fileMode-prop"/>
+            <keyword name="setFilter" id="QwwFileChooser::setFilter" ref="qwwfilechooser.html#filter-prop"/>
+            <keyword name="setModel" id="QwwFileChooser::setModel" ref="qwwfilechooser.html#setModel"/>
+            <keyword name="setUsesNativeFileDialog" id="QwwFileChooser::setUsesNativeFileDialog" ref="qwwfilechooser.html#usesNativeFileDialog-prop"/>
+            <keyword name="usesNativeFileDialog" id="QwwFileChooser::usesNativeFileDialog" ref="qwwfilechooser.html#usesNativeFileDialog-prop"/>
+            <keyword name="QwwHueSatPicker" id="QwwHueSatPicker" ref="qwwhuesatpicker.html"/>
+            <keyword name="color" id="QwwHueSatPicker::color" ref="qwwhuesatpicker.html#color-prop"/>
+            <keyword name="colorPicked" id="QwwHueSatPicker::colorPicked" ref="qwwhuesatpicker.html#colorPicked"/>
+            <keyword name="drawCrosshair" id="QwwHueSatPicker::drawCrosshair" ref="qwwhuesatpicker.html#drawCrosshair"/>
+            <keyword name="hueRangeChanged" id="QwwHueSatPicker::hueRangeChanged" ref="qwwhuesatpicker.html#hueRangeChanged"/>
+            <keyword name="maximumHue" id="QwwHueSatPicker::maximumHue" ref="qwwhuesatpicker.html#maximumHue-prop"/>
+            <keyword name="maximumHueChanged" id="QwwHueSatPicker::maximumHueChanged" ref="qwwhuesatpicker.html#maximumHueChanged"/>
+            <keyword name="maximumSat" id="QwwHueSatPicker::maximumSat" ref="qwwhuesatpicker.html#maximumSat-prop"/>
+            <keyword name="maximumSatChanged" id="QwwHueSatPicker::maximumSatChanged" ref="qwwhuesatpicker.html#maximumSatChanged"/>
+            <keyword name="minimumHue" id="QwwHueSatPicker::minimumHue" ref="qwwhuesatpicker.html#minimumHue-prop"/>
+            <keyword name="minimumHueChanged" id="QwwHueSatPicker::minimumHueChanged" ref="qwwhuesatpicker.html#minimumHueChanged"/>
+            <keyword name="minimumSat" id="QwwHueSatPicker::minimumSat" ref="qwwhuesatpicker.html#minimumSat-prop"/>
+            <keyword name="minimumSatChanged" id="QwwHueSatPicker::minimumSatChanged" ref="qwwhuesatpicker.html#minimumSatChanged"/>
+            <keyword name="satRangeChanged" id="QwwHueSatPicker::satRangeChanged" ref="qwwhuesatpicker.html#satRangeChanged"/>
+            <keyword name="setColor" id="QwwHueSatPicker::setColor" ref="qwwhuesatpicker.html#color-prop"/>
+            <keyword name="setHueRange" id="QwwHueSatPicker::setHueRange" ref="qwwhuesatpicker.html#setHueRange"/>
+            <keyword name="setMaximumHue" id="QwwHueSatPicker::setMaximumHue" ref="qwwhuesatpicker.html#maximumHue-prop"/>
+            <keyword name="setMaximumSat" id="QwwHueSatPicker::setMaximumSat" ref="qwwhuesatpicker.html#maximumSat-prop"/>
+            <keyword name="setMinimumHue" id="QwwHueSatPicker::setMinimumHue" ref="qwwhuesatpicker.html#minimumHue-prop"/>
+            <keyword name="setMinimumSat" id="QwwHueSatPicker::setMinimumSat" ref="qwwhuesatpicker.html#minimumSat-prop"/>
+            <keyword name="setSatRange" id="QwwHueSatPicker::setSatRange" ref="qwwhuesatpicker.html#setSatRange"/>
+            <keyword name="setValue" id="QwwHueSatPicker::setValue" ref="qwwhuesatpicker.html#value-prop"/>
+            <keyword name="value" id="QwwHueSatPicker::value" ref="qwwhuesatpicker.html#value-prop"/>
+            <keyword name="valueChanged" id="QwwHueSatPicker::valueChanged" ref="qwwhuesatpicker.html#valueChanged"/>
+            <keyword name="QwwHueSatRadialPicker" id="QwwHueSatRadialPicker" ref="qwwhuesatradialpicker.html"/>
+            <keyword name="color" id="QwwHueSatRadialPicker::color" ref="qwwhuesatradialpicker.html#color-prop"/>
+            <keyword name="colorPicked" id="QwwHueSatRadialPicker::colorPicked" ref="qwwhuesatradialpicker.html#colorPicked"/>
+            <keyword name="drawCrosshair" id="QwwHueSatRadialPicker::drawCrosshair" ref="qwwhuesatradialpicker.html#drawCrosshair"/>
+            <keyword name="setColor" id="QwwHueSatRadialPicker::setColor" ref="qwwhuesatradialpicker.html#color-prop"/>
+            <keyword name="setValue" id="QwwHueSatRadialPicker::setValue" ref="qwwhuesatradialpicker.html#value-prop"/>
+            <keyword name="value" id="QwwHueSatRadialPicker::value" ref="qwwhuesatradialpicker.html#value-prop"/>
+            <keyword name="valueChanged" id="QwwHueSatRadialPicker::valueChanged" ref="qwwhuesatradialpicker.html#valueChanged"/>
+            <keyword name="QwwLed" id="QwwLed" ref="qwwled.html"/>
+            <keyword name="QwwLed::Shape" id="QwwLed::Shape" ref="qwwled.html#Shape-enum"/>
+            <keyword name="QwwLed::Circular" id="QwwLed::Circular" ref="qwwled.html#Shape-enum"/>
+            <keyword name="QwwLed::RectangularSunken" id="QwwLed::RectangularSunken" ref="qwwled.html#Shape-enum"/>
+            <keyword name="QwwLed::RectangularRaised" id="QwwLed::RectangularRaised" ref="qwwled.html#Shape-enum"/>
+            <keyword name="QwwLed::RectangularPlain" id="QwwLed::RectangularPlain" ref="qwwled.html#Shape-enum"/>
+            <keyword name="animated" id="QwwLed::animated" ref="qwwled.html#animated-prop"/>
+            <keyword name="blink" id="QwwLed::blink" ref="qwwled.html#blink"/>
+            <keyword name="checked" id="QwwLed::checked" ref="qwwled.html#checked-prop"/>
+            <keyword name="clicked" id="QwwLed::clicked" ref="qwwled.html#clicked"/>
+            <keyword name="color" id="QwwLed::color" ref="qwwled.html#color-prop"/>
+            <keyword name="colorChanged" id="QwwLed::colorChanged" ref="qwwled.html#colorChanged"/>
+            <keyword name="frameWidth" id="QwwLed::frameWidth" ref="qwwled.html#frameWidth-prop"/>
+            <keyword name="isAnimated" id="QwwLed::isAnimated" ref="qwwled.html#animated-prop"/>
+            <keyword name="isChecked" id="QwwLed::isChecked" ref="qwwled.html#checked-prop"/>
+            <keyword name="period" id="QwwLed::period" ref="qwwled.html#period-prop"/>
+            <keyword name="setAnimated" id="QwwLed::setAnimated" ref="qwwled.html#animated-prop"/>
+            <keyword name="setChecked" id="QwwLed::setChecked" ref="qwwled.html#checked-prop"/>
+            <keyword name="setColor" id="QwwLed::setColor" ref="qwwled.html#color-prop"/>
+            <keyword name="setFrameWidth" id="QwwLed::setFrameWidth" ref="qwwled.html#frameWidth-prop"/>
+            <keyword name="setPeriod" id="QwwLed::setPeriod" ref="qwwled.html#period-prop"/>
+            <keyword name="setShape" id="QwwLed::setShape" ref="qwwled.html#shape-prop"/>
+            <keyword name="shape" id="QwwLed::shape" ref="qwwled.html#shape-prop"/>
+            <keyword name="toggle" id="QwwLed::toggle" ref="qwwled.html#toggle"/>
+            <keyword name="toggled" id="QwwLed::toggled" ref="qwwled.html#toggled"/>
+            <keyword name="QwwListNavigator" id="QwwListNavigator" ref="qwwlistnavigator.html"/>
+            <keyword name="QwwListNavigator::Button" id="QwwListNavigator::Button" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::NoButtons" id="QwwListNavigator::NoButtons" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::FirstButton" id="QwwListNavigator::FirstButton" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::PrevButton" id="QwwListNavigator::PrevButton" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::Slider" id="QwwListNavigator::Slider" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::NextButton" id="QwwListNavigator::NextButton" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::LastButton" id="QwwListNavigator::LastButton" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="QwwListNavigator::Buttons" id="QwwListNavigator::Buttons" ref="qwwlistnavigator.html#Button-enum"/>
+            <keyword name="autoRaise" id="QwwListNavigator::autoRaise" ref="qwwlistnavigator.html#autoRaise-prop"/>
+            <keyword name="buttons" id="QwwListNavigator::buttons" ref="qwwlistnavigator.html#buttons-prop"/>
+            <keyword name="first" id="QwwListNavigator::first" ref="qwwlistnavigator.html#first"/>
+            <keyword name="last" id="QwwListNavigator::last" ref="qwwlistnavigator.html#last"/>
+            <keyword name="next" id="QwwListNavigator::next" ref="qwwlistnavigator.html#next"/>
+            <keyword name="orientation" id="QwwListNavigator::orientation" ref="qwwlistnavigator.html#orientation-prop"/>
+            <keyword name="previous" id="QwwListNavigator::previous" ref="qwwlistnavigator.html#previous"/>
+            <keyword name="setAutoRaise" id="QwwListNavigator::setAutoRaise" ref="qwwlistnavigator.html#autoRaise-prop"/>
+            <keyword name="setButtons" id="QwwListNavigator::setButtons" ref="qwwlistnavigator.html#buttons-prop"/>
+            <keyword name="setListWidget" id="QwwListNavigator::setListWidget" ref="qwwlistnavigator.html#setListWidget"/>
+            <keyword name="setOrientation" id="QwwListNavigator::setOrientation" ref="qwwlistnavigator.html#orientation-prop"/>
+            <keyword name="setToolButtonStyle" id="QwwListNavigator::setToolButtonStyle" ref="qwwlistnavigator.html#toolButtonStyle-prop"/>
+            <keyword name="sliderChange" id="QwwListNavigator::sliderChange" ref="qwwlistnavigator.html#sliderChange"/>
+            <keyword name="toFirst" id="QwwListNavigator::toFirst" ref="qwwlistnavigator.html#toFirst"/>
+            <keyword name="toLast" id="QwwListNavigator::toLast" ref="qwwlistnavigator.html#toLast"/>
+            <keyword name="toNext" id="QwwListNavigator::toNext" ref="qwwlistnavigator.html#toNext"/>
+            <keyword name="toPrevious" id="QwwListNavigator::toPrevious" ref="qwwlistnavigator.html#toPrevious"/>
+            <keyword name="toolButtonStyle" id="QwwListNavigator::toolButtonStyle" ref="qwwlistnavigator.html#toolButtonStyle-prop"/>
+            <keyword name="QwwListWidget" id="QwwListWidget" ref="qwwlistwidget.html"/>
+            <keyword name="currentAvailable" id="QwwListWidget::currentAvailable" ref="qwwlistwidget.html#currentAvailable"/>
+            <keyword name="moveCurrentDown" id="QwwListWidget::moveCurrentDown" ref="qwwlistwidget.html#moveCurrentDown"/>
+            <keyword name="moveCurrentUp" id="QwwListWidget::moveCurrentUp" ref="qwwlistwidget.html#moveCurrentUp"/>
+            <keyword name="moveDownAvailable" id="QwwListWidget::moveDownAvailable" ref="qwwlistwidget.html#moveDownAvailable"/>
+            <keyword name="moveUpAvailable" id="QwwListWidget::moveUpAvailable" ref="qwwlistwidget.html#moveUpAvailable"/>
+            <keyword name="removeCurrent" id="QwwListWidget::removeCurrent" ref="qwwlistwidget.html#removeCurrent"/>
+            <keyword name="QwwLoginBox" id="QwwLoginBox" ref="qwwloginbox.html"/>
+            <keyword name="QwwLoginBox::Field" id="QwwLoginBox::Field" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::NoFields" id="QwwLoginBox::NoFields" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::HostField" id="QwwLoginBox::HostField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::PortField" id="QwwLoginBox::PortField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::UserField" id="QwwLoginBox::UserField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::PasswordField" id="QwwLoginBox::PasswordField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::RepeatPasswordField" id="QwwLoginBox::RepeatPasswordField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::RememberPasswordField" id="QwwLoginBox::RememberPasswordField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::ProxyField" id="QwwLoginBox::ProxyField" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="QwwLoginBox::Fields" id="QwwLoginBox::Fields" ref="qwwloginbox.html#Field-enum"/>
+            <keyword name="fields" id="QwwLoginBox::fields" ref="qwwloginbox.html#fields-prop"/>
+            <keyword name="host" id="QwwLoginBox::host" ref="qwwloginbox.html#host-prop"/>
+            <keyword name="isProxyRepeatCorrect" id="QwwLoginBox::isProxyRepeatCorrect" ref="qwwloginbox.html#isProxyRepeatCorrect"/>
+            <keyword name="isRepeatCorrect" id="QwwLoginBox::isRepeatCorrect" ref="qwwloginbox.html#isRepeatCorrect"/>
+            <keyword name="password" id="QwwLoginBox::password" ref="qwwloginbox.html#password"/>
+            <keyword name="port" id="QwwLoginBox::port" ref="qwwloginbox.html#port-prop"/>
+            <keyword name="proxyEnabled" id="QwwLoginBox::proxyEnabled" ref="qwwloginbox.html#proxyEnabled-prop"/>
+            <keyword name="proxyIsEnabled" id="QwwLoginBox::proxyIsEnabled" ref="qwwloginbox.html#proxyEnabled-prop"/>
+            <keyword name="rememberPassword" id="QwwLoginBox::rememberPassword" ref="qwwloginbox.html#rememberPassword-prop"/>
+            <keyword name="setFields" id="QwwLoginBox::setFields" ref="qwwloginbox.html#fields-prop"/>
+            <keyword name="setHost" id="QwwLoginBox::setHost" ref="qwwloginbox.html#host-prop"/>
+            <keyword name="setPort" id="QwwLoginBox::setPort" ref="qwwloginbox.html#port-prop"/>
+            <keyword name="setProxyEnabled" id="QwwLoginBox::setProxyEnabled" ref="qwwloginbox.html#proxyEnabled-prop"/>
+            <keyword name="setRememberPassword" id="QwwLoginBox::setRememberPassword" ref="qwwloginbox.html#rememberPassword-prop"/>
+            <keyword name="setUser" id="QwwLoginBox::setUser" ref="qwwloginbox.html#setUser"/>
+            <keyword name="user" id="QwwLoginBox::user" ref="qwwloginbox.html#user-prop"/>
+            <keyword name="QwwLongSpinBox" id="QwwLongSpinBox" ref="qwwlongspinbox.html"/>
+            <keyword name="fixup" id="QwwLongSpinBox::fixup" ref="qwwlongspinbox.html#fixup"/>
+            <keyword name="maximum" id="QwwLongSpinBox::maximum" ref="qwwlongspinbox.html#maximum-prop"/>
+            <keyword name="minimum" id="QwwLongSpinBox::minimum" ref="qwwlongspinbox.html#minimum-prop"/>
+            <keyword name="prefix" id="QwwLongSpinBox::prefix" ref="qwwlongspinbox.html#prefix-prop"/>
+            <keyword name="setMaximum" id="QwwLongSpinBox::setMaximum" ref="qwwlongspinbox.html#maximum-prop"/>
+            <keyword name="setMinimum" id="QwwLongSpinBox::setMinimum" ref="qwwlongspinbox.html#minimum-prop"/>
+            <keyword name="setPrefix" id="QwwLongSpinBox::setPrefix" ref="qwwlongspinbox.html#prefix-prop"/>
+            <keyword name="setRange" id="QwwLongSpinBox::setRange" ref="qwwlongspinbox.html#setRange"/>
+            <keyword name="setSingleStep" id="QwwLongSpinBox::setSingleStep" ref="qwwlongspinbox.html#singleStep-prop"/>
+            <keyword name="setSuffix" id="QwwLongSpinBox::setSuffix" ref="qwwlongspinbox.html#suffix-prop"/>
+            <keyword name="setValue" id="QwwLongSpinBox::setValue" ref="qwwlongspinbox.html#value-prop"/>
+            <keyword name="singleStep" id="QwwLongSpinBox::singleStep" ref="qwwlongspinbox.html#singleStep-prop"/>
+            <keyword name="stepBy" id="QwwLongSpinBox::stepBy" ref="qwwlongspinbox.html#stepBy"/>
+            <keyword name="stepEnabled" id="QwwLongSpinBox::stepEnabled" ref="qwwlongspinbox.html#stepEnabled"/>
+            <keyword name="suffix" id="QwwLongSpinBox::suffix" ref="qwwlongspinbox.html#suffix-prop"/>
+            <keyword name="textFromValue" id="QwwLongSpinBox::textFromValue" ref="qwwlongspinbox.html#textFromValue"/>
+            <keyword name="validate" id="QwwLongSpinBox::validate" ref="qwwlongspinbox.html#validate"/>
+            <keyword name="value" id="QwwLongSpinBox::value" ref="qwwlongspinbox.html#value-prop"/>
+            <keyword name="valueChanged" id="QwwLongSpinBox::valueChanged" ref="qwwlongspinbox.html#valueChanged"/>
+            <keyword name="valueFromText" id="QwwLongSpinBox::valueFromText" ref="qwwlongspinbox.html#valueFromText"/>
+            <keyword name="QwwNavigationBar" id="QwwNavigationBar" ref="qwwnavigationbar.html"/>
+            <keyword name="addWidget" id="QwwNavigationBar::addWidget" ref="qwwnavigationbar.html#addWidget"/>
+            <keyword name="button" id="QwwNavigationBar::button" ref="qwwnavigationbar.html#button"/>
+            <keyword name="currentIndex" id="QwwNavigationBar::currentIndex" ref="qwwnavigationbar.html#currentIndex-prop"/>
+            <keyword name="currentIndexChanged" id="QwwNavigationBar::currentIndexChanged" ref="qwwnavigationbar.html#currentIndexChanged"/>
+            <keyword name="eventFilter" id="QwwNavigationBar::eventFilter" ref="qwwnavigationbar.html#eventFilter"/>
+            <keyword name="indexOf" id="QwwNavigationBar::indexOf" ref="qwwnavigationbar.html#indexOf"/>
+            <keyword name="insertWidget" id="QwwNavigationBar::insertWidget" ref="qwwnavigationbar.html#insertWidget"/>
+            <keyword name="removeWidget" id="QwwNavigationBar::removeWidget" ref="qwwnavigationbar.html#removeWidget"/>
+            <keyword name="setCurrentIndex" id="QwwNavigationBar::setCurrentIndex" ref="qwwnavigationbar.html#currentIndex-prop"/>
+            <keyword name="setCurrentWidget" id="QwwNavigationBar::setCurrentWidget" ref="qwwnavigationbar.html#setCurrentWidget"/>
+            <keyword name="setTopWidgetVisible" id="QwwNavigationBar::setTopWidgetVisible" ref="qwwnavigationbar.html#topWidgetVisible-prop"/>
+            <keyword name="setWidgetIcon" id="QwwNavigationBar::setWidgetIcon" ref="qwwnavigationbar.html#setWidgetIcon"/>
+            <keyword name="setWidgetLabel" id="QwwNavigationBar::setWidgetLabel" ref="qwwnavigationbar.html#setWidgetLabel"/>
+            <keyword name="topWidgetIsVisible" id="QwwNavigationBar::topWidgetIsVisible" ref="qwwnavigationbar.html#topWidgetVisible-prop"/>
+            <keyword name="topWidgetVisible" id="QwwNavigationBar::topWidgetVisible" ref="qwwnavigationbar.html#topWidgetVisible-prop"/>
+            <keyword name="topWidgetVisibleChanged" id="QwwNavigationBar::topWidgetVisibleChanged" ref="qwwnavigationbar.html#topWidgetVisibleChanged"/>
+            <keyword name="widget" id="QwwNavigationBar::widget" ref="qwwnavigationbar.html#widget"/>
+            <keyword name="widgetCount" id="QwwNavigationBar::widgetCount" ref="qwwnavigationbar.html#widgetCount"/>
+            <keyword name="widgetIcon" id="QwwNavigationBar::widgetIcon" ref="qwwnavigationbar.html#widgetIcon"/>
+            <keyword name="widgetIconChanged" id="QwwNavigationBar::widgetIconChanged" ref="qwwnavigationbar.html#widgetIconChanged"/>
+            <keyword name="widgetLabel" id="QwwNavigationBar::widgetLabel" ref="qwwnavigationbar.html#widgetLabel"/>
+            <keyword name="widgetLabelChanged" id="QwwNavigationBar::widgetLabelChanged" ref="qwwnavigationbar.html#widgetLabelChanged"/>
+            <keyword name="QwwNumPad" id="QwwNumPad" ref="qwwnumpad.html"/>
+            <keyword name="animateClick" id="QwwNumPad::animateClick" ref="qwwnumpad.html#animateClick"/>
+            <keyword name="asteriskClicked" id="QwwNumPad::asteriskClicked" ref="qwwnumpad.html#asteriskClicked"/>
+            <keyword name="hashClicked" id="QwwNumPad::hashClicked" ref="qwwnumpad.html#hashClicked"/>
+            <keyword name="keyClicked" id="QwwNumPad::keyClicked" ref="qwwnumpad.html#keyClicked"/>
+            <keyword name="numberClicked" id="QwwNumPad::numberClicked" ref="qwwnumpad.html#numberClicked"/>
+            <keyword name="QwwResetLineEdit" id="QwwResetLineEdit" ref="qwwresetlineedit.html"/>
+            <keyword name="defaultText" id="QwwResetLineEdit::defaultText" ref="qwwresetlineedit.html#defaultText-prop"/>
+            <keyword name="resetText" id="QwwResetLineEdit::resetText" ref="qwwresetlineedit.html#resetText"/>
+            <keyword name="QwwRichTextButton" id="QwwRichTextButton" ref="qwwrichtextbutton.html"/>
+            <keyword name="document" id="QwwRichTextButton::document" ref="qwwrichtextbutton.html#document"/>
+            <keyword name="html" id="QwwRichTextButton::html" ref="qwwrichtextbutton.html#html-prop"/>
+            <keyword name="setDocument" id="QwwRichTextButton::setDocument" ref="qwwrichtextbutton.html#setDocument"/>
+            <keyword name="setHtml" id="QwwRichTextButton::setHtml" ref="qwwrichtextbutton.html#html-prop"/>
+            <keyword name="QwwRichTextEdit" id="QwwRichTextEdit" ref="qwwrichtextedit.html"/>
+            <keyword name="QwwRichTextEdit::Action" id="QwwRichTextEdit::Action" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::BoldAction" id="QwwRichTextEdit::BoldAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::ItalicAction" id="QwwRichTextEdit::ItalicAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::UnderlineAction" id="QwwRichTextEdit::UnderlineAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::LeftAlignAction" id="QwwRichTextEdit::LeftAlignAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::RightAlignAction" id="QwwRichTextEdit::RightAlignAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::AlignCenterAction" id="QwwRichTextEdit::AlignCenterAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::JustifyAction" id="QwwRichTextEdit::JustifyAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::ColorAction" id="QwwRichTextEdit::ColorAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::FontFamilyAction" id="QwwRichTextEdit::FontFamilyAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::FontSizeAction" id="QwwRichTextEdit::FontSizeAction" ref="qwwrichtextedit.html#Action-enum"/>
+            <keyword name="QwwRichTextEdit::Option" id="QwwRichTextEdit::Option" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::NoOptions" id="QwwRichTextEdit::NoOptions" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::Style" id="QwwRichTextEdit::Style" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::Alignment" id="QwwRichTextEdit::Alignment" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::FontFamily" id="QwwRichTextEdit::FontFamily" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::FontSize" id="QwwRichTextEdit::FontSize" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::Color" id="QwwRichTextEdit::Color" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="QwwRichTextEdit::Options" id="QwwRichTextEdit::Options" ref="qwwrichtextedit.html#Option-enum"/>
+            <keyword name="changeAlignment" id="QwwRichTextEdit::changeAlignment" ref="qwwrichtextedit.html#changeAlignment"/>
+            <keyword name="options" id="QwwRichTextEdit::options" ref="qwwrichtextedit.html#options-prop"/>
+            <keyword name="setBold" id="QwwRichTextEdit::setBold" ref="qwwrichtextedit.html#setBold"/>
+            <keyword name="setColor" id="QwwRichTextEdit::setColor" ref="qwwrichtextedit.html#setColor"/>
+            <keyword name="setFont" id="QwwRichTextEdit::setFont" ref="qwwrichtextedit.html#setFont"/>
+            <keyword name="setItalic" id="QwwRichTextEdit::setItalic" ref="qwwrichtextedit.html#setItalic"/>
+            <keyword name="setList" id="QwwRichTextEdit::setList" ref="qwwrichtextedit.html#setList"/>
+            <keyword name="setOptions" id="QwwRichTextEdit::setOptions" ref="qwwrichtextedit.html#options-prop"/>
+            <keyword name="setUnderline" id="QwwRichTextEdit::setUnderline" ref="qwwrichtextedit.html#setUnderline"/>
+            <keyword name="toolBarAction" id="QwwRichTextEdit::toolBarAction" ref="qwwrichtextedit.html#toolBarAction"/>
+            <keyword name="updateCurrentBlockFormat" id="QwwRichTextEdit::updateCurrentBlockFormat" ref="qwwrichtextedit.html#updateCurrentBlockFormat"/>
+            <keyword name="updateCurrentCharFormat" id="QwwRichTextEdit::updateCurrentCharFormat" ref="qwwrichtextedit.html#updateCurrentCharFormat"/>
+            <keyword name="QwwTaskPanel" id="QwwTaskPanel" ref="qwwtaskpanel.html"/>
+            <keyword name="addTask" id="QwwTaskPanel::addTask" ref="qwwtaskpanel.html#addTask"/>
+            <keyword name="animated" id="QwwTaskPanel::animated" ref="qwwtaskpanel.html#animated-prop"/>
+            <keyword name="currentIndex" id="QwwTaskPanel::currentIndex" ref="qwwtaskpanel.html#currentIndex-prop"/>
+            <keyword name="currentIndexChanged" id="QwwTaskPanel::currentIndexChanged" ref="qwwtaskpanel.html#currentIndexChanged"/>
+            <keyword name="currentTask" id="QwwTaskPanel::currentTask" ref="qwwtaskpanel.html#currentTask"/>
+            <keyword name="indexOf" id="QwwTaskPanel::indexOf" ref="qwwtaskpanel.html#indexOf"/>
+            <keyword name="insertTask" id="QwwTaskPanel::insertTask" ref="qwwtaskpanel.html#insertTask"/>
+            <keyword name="isAnimated" id="QwwTaskPanel::isAnimated" ref="qwwtaskpanel.html#animated-prop"/>
+            <keyword name="removeTask" id="QwwTaskPanel::removeTask" ref="qwwtaskpanel.html#removeTask"/>
+            <keyword name="setAnimated" id="QwwTaskPanel::setAnimated" ref="qwwtaskpanel.html#animated-prop"/>
+            <keyword name="setCurrentIndex" id="QwwTaskPanel::setCurrentIndex" ref="qwwtaskpanel.html#currentIndex-prop"/>
+            <keyword name="setTaskIcon" id="QwwTaskPanel::setTaskIcon" ref="qwwtaskpanel.html#setTaskIcon"/>
+            <keyword name="setTaskName" id="QwwTaskPanel::setTaskName" ref="qwwtaskpanel.html#setTaskName"/>
+            <keyword name="setTaskTitle" id="QwwTaskPanel::setTaskTitle" ref="qwwtaskpanel.html#setTaskTitle"/>
+            <keyword name="setToggleIcon" id="QwwTaskPanel::setToggleIcon" ref="qwwtaskpanel.html#toggleIcon-prop"/>
+            <keyword name="task" id="QwwTaskPanel::task" ref="qwwtaskpanel.html#task"/>
+            <keyword name="taskCount" id="QwwTaskPanel::taskCount" ref="qwwtaskpanel.html#taskCount"/>
+            <keyword name="toggleIcon" id="QwwTaskPanel::toggleIcon" ref="qwwtaskpanel.html#toggleIcon-prop"/>
+            <keyword name="~QwwTaskPanel" id="QwwTaskPanel::~QwwTaskPanel" ref="qwwtaskpanel.html#dtor.QwwTaskPanel"/>
+            <keyword name="QwwTextSpinBox" id="QwwTextSpinBox" ref="qwwtextspinbox.html"/>
+            <keyword name="setStrings" id="QwwTextSpinBox::setStrings" ref="qwwtextspinbox.html#strings-prop"/>
+            <keyword name="strings" id="QwwTextSpinBox::strings" ref="qwwtextspinbox.html#strings-prop"/>
+            <keyword name="stringsChanged" id="QwwTextSpinBox::stringsChanged" ref="qwwtextspinbox.html#stringsChanged"/>
+            <keyword name="QwwTipWidget" id="QwwTipWidget" ref="qwwtipwidget.html"/>
+            <keyword name="canvasFrameShape" id="QwwTipWidget::canvasFrameShape" ref="qwwtipwidget.html#canvasFrameShape-prop"/>
+            <keyword name="checkIsVisible" id="QwwTipWidget::checkIsVisible" ref="qwwtipwidget.html#checkVisible-prop"/>
+            <keyword name="checkVisible" id="QwwTipWidget::checkVisible" ref="qwwtipwidget.html#checkVisible-prop"/>
+            <keyword name="closeButton" id="QwwTipWidget::closeButton" ref="qwwtipwidget.html#closeButton"/>
+            <keyword name="closeIsVisible" id="QwwTipWidget::closeIsVisible" ref="qwwtipwidget.html#closeVisible-prop"/>
+            <keyword name="closeVisible" id="QwwTipWidget::closeVisible" ref="qwwtipwidget.html#closeVisible-prop"/>
+            <keyword name="closed" id="QwwTipWidget::closed" ref="qwwtipwidget.html#closed"/>
+            <keyword name="currentTip" id="QwwTipWidget::currentTip" ref="qwwtipwidget.html#currentTip-prop"/>
+            <keyword name="headerWidget" id="QwwTipWidget::headerWidget" ref="qwwtipwidget.html#headerWidget"/>
+            <keyword name="nextButton" id="QwwTipWidget::nextButton" ref="qwwtipwidget.html#nextButton"/>
+            <keyword name="nextTip" id="QwwTipWidget::nextTip" ref="qwwtipwidget.html#nextTip"/>
+            <keyword name="prevButton" id="QwwTipWidget::prevButton" ref="qwwtipwidget.html#prevButton"/>
+            <keyword name="prevTip" id="QwwTipWidget::prevTip" ref="qwwtipwidget.html#prevTip"/>
+            <keyword name="setCanvasFrameShape" id="QwwTipWidget::setCanvasFrameShape" ref="qwwtipwidget.html#canvasFrameShape-prop"/>
+            <keyword name="setCheckHidden" id="QwwTipWidget::setCheckHidden" ref="qwwtipwidget.html#setCheckHidden"/>
+            <keyword name="setCheckVisible" id="QwwTipWidget::setCheckVisible" ref="qwwtipwidget.html#checkVisible-prop"/>
+            <keyword name="setCloseHidden" id="QwwTipWidget::setCloseHidden" ref="qwwtipwidget.html#setCloseHidden"/>
+            <keyword name="setCloseVisible" id="QwwTipWidget::setCloseVisible" ref="qwwtipwidget.html#closeVisible-prop"/>
+            <keyword name="setCurrentTip" id="QwwTipWidget::setCurrentTip" ref="qwwtipwidget.html#currentTip-prop"/>
+            <keyword name="setHeaderWidget" id="QwwTipWidget::setHeaderWidget" ref="qwwtipwidget.html#setHeaderWidget"/>
+            <keyword name="setTips" id="QwwTipWidget::setTips" ref="qwwtipwidget.html#tips-prop"/>
+            <keyword name="setTipsEnabled" id="QwwTipWidget::setTipsEnabled" ref="qwwtipwidget.html#tipsEnabled-prop"/>
+            <keyword name="tipCanvas" id="QwwTipWidget::tipCanvas" ref="qwwtipwidget.html#tipCanvas"/>
+            <keyword name="tipChanged" id="QwwTipWidget::tipChanged" ref="qwwtipwidget.html#tipChanged"/>
+            <keyword name="tips" id="QwwTipWidget::tips" ref="qwwtipwidget.html#tips-prop"/>
+            <keyword name="tipsEnabled" id="QwwTipWidget::tipsEnabled" ref="qwwtipwidget.html#tipsEnabled-prop"/>
+            <keyword name="QwwTwoColorIndicator" id="QwwTwoColorIndicator" ref="qwwtwocolorindicator.html"/>
+            <keyword name="active" id="QwwTwoColorIndicator::active" ref="qwwtwocolorindicator.html#active-prop"/>
+            <keyword name="bgChanged" id="QwwTwoColorIndicator::bgChanged" ref="qwwtwocolorindicator.html#bgChanged"/>
+            <keyword name="bgClicked" id="QwwTwoColorIndicator::bgClicked" ref="qwwtwocolorindicator.html#bgClicked"/>
+            <keyword name="bgColor" id="QwwTwoColorIndicator::bgColor" ref="qwwtwocolorindicator.html#bgColor-prop"/>
+            <keyword name="bgPressed" id="QwwTwoColorIndicator::bgPressed" ref="qwwtwocolorindicator.html#bgPressed"/>
+            <keyword name="dragEnabled" id="QwwTwoColorIndicator::dragEnabled" ref="qwwtwocolorindicator.html#dragEnabled-prop"/>
+            <keyword name="fgChanged" id="QwwTwoColorIndicator::fgChanged" ref="qwwtwocolorindicator.html#fgChanged"/>
+            <keyword name="fgClicked" id="QwwTwoColorIndicator::fgClicked" ref="qwwtwocolorindicator.html#fgClicked"/>
+            <keyword name="fgColor" id="QwwTwoColorIndicator::fgColor" ref="qwwtwocolorindicator.html#fgColor-prop"/>
+            <keyword name="fgPressed" id="QwwTwoColorIndicator::fgPressed" ref="qwwtwocolorindicator.html#fgPressed"/>
+            <keyword name="isActive" id="QwwTwoColorIndicator::isActive" ref="qwwtwocolorindicator.html#active-prop"/>
+            <keyword name="paintSection" id="QwwTwoColorIndicator::paintSection" ref="qwwtwocolorindicator.html#paintSection"/>
+            <keyword name="setActive" id="QwwTwoColorIndicator::setActive" ref="qwwtwocolorindicator.html#active-prop"/>
+            <keyword name="setBgColor" id="QwwTwoColorIndicator::setBgColor" ref="qwwtwocolorindicator.html#bgColor-prop"/>
+            <keyword name="setDragEnabled" id="QwwTwoColorIndicator::setDragEnabled" ref="qwwtwocolorindicator.html#dragEnabled-prop"/>
+            <keyword name="setFgColor" id="QwwTwoColorIndicator::setFgColor" ref="qwwtwocolorindicator.html#fgColor-prop"/>
+            <keyword name="switchColors" id="QwwTwoColorIndicator::switchColors" ref="qwwtwocolorindicator.html#switchColors"/>
+            <keyword name="Text editor example" id="Text editor example" ref="texteditor.html"/>
+            <keyword name="Trademarks" id="Trademarks" ref="trademarks.html"/>
+            <keyword name="Use of icons" id="Use of icons" ref="icons.html"/>
+            <keyword name="wwWidgets Classes" id="wwWidgets Classes" ref="classes.html"/>
+            <keyword name="wwWidgets Examples" id="wwWidgets Examples" ref="examples.html"/>
+            <keyword name="wwWidgets Main Classes" id="wwWidgets Main Classes" ref="mainclasses.html"/>
+            <keyword name="wwWidgets Manual" id="wwWidgets Manual" ref="index.html"/>
+            <keyword name="wwWidgets Module" id="wwWidgets Module" ref="wwwidgets.html"/>
+        </keywords>
+        <files>
+            <file>listwidget-main-cpp.html</file>
+            <file>pinpad-pinpad-pro.html</file>
+            <file>colorclasses.html</file>
+            <file>mainclasses.html</file>
+            <file>qwwhuesatradialpicker-members.html</file>
+            <file>images/qwwbuttonlineedit1.png</file>
+            <file>qwwcolorbutton-members.html</file>
+            <file>qwwtwocolorindicator.html</file>
+            <file>qwwfilechooser-members.html</file>
+            <file>colorpickers-colorpickers-pro.html</file>
+            <file>qwwlistwidget-members.html</file>
+            <file>index.html</file>
+            <file>qwwhuesatpicker-members.html</file>
+            <file>listwidget-listwidget-pro.html</file>
+            <file>qwwcolorbutton.html</file>
+            <file>qwwtipwidget-members.html</file>
+            <file>qwwlongspinbox-members.html</file>
+            <file>qwwnavigationbar-members.html</file>
+            <file>images/qwwnavigationbar.png</file>
+            <file>qwwcolorcombobox.html</file>
+            <file>qwwclearlineedit.html</file>
+            <file>qwwnavigationbar.html</file>
+            <file>modules.html</file>
+            <file>qwwresetlineedit-members.html</file>
+            <file>images/qwwtipwidget.png</file>
+            <file>wwwidgets.html</file>
+            <file>qwwhuesatpicker.html</file>
+            <file>pinpad-main-cpp.html</file>
+            <file>classlists.html</file>
+            <file>images/qwwlistnavigator.png</file>
+            <file>images/qwwcolorbutton.png</file>
+            <file>images/qwwbuttonlineedit2.png</file>
+            <file>qwwbuttonlineedit-members.html</file>
+            <file>qwwclearlineedit-members.html</file>
+            <file>qwwconfigwidget-members.html</file>
+            <file>qwwresetlineedit.html</file>
+            <file>texteditor.html</file>
+            <file>qwwloginbox-members.html</file>
+            <file>images/qwwlongspinbox.png</file>
+            <file>texteditor-main-cpp.html</file>
+            <file>qwwconfigwidget.html</file>
+            <file>images/qwwhuesatradialpicker.png</file>
+            <file>qwwfilechooser.html</file>
+            <file>qwwcolorcombobox-members.html</file>
+            <file>qwwtextspinbox.html</file>
+            <file>listwidget.html</file>
+            <file>qwwled.html</file>
+            <file>examples.html</file>
+            <file>functions.html</file>
+            <file>qwwbuttonlineedit.html</file>
+            <file>qwwtaskpanel-members.html</file>
+            <file>pinpad.html</file>
+            <file>colorpickers-colorpickers-ui.html</file>
+            <file>qwwnumpad.html</file>
+            <file>qwwtipwidget.html</file>
+            <file>images/qwwtwocolorindicator.png</file>
+            <file>classes.html</file>
+            <file>qwwlistnavigator.html</file>
+            <file>images/qwwhuesatpicker.png</file>
+            <file>qwwtextspinbox-members.html</file>
+            <file>qwwtaskpanel.html</file>
+            <file>images/qwwled.png</file>
+            <file>images/qwwnumpad.png</file>
+            <file>qwwrichtextedit-members.html</file>
+            <file>colorpickers.html</file>
+            <file>qwwrichtextbutton-members.html</file>
+            <file>qwwrichtextbutton.html</file>
+            <file>icons.html</file>
+            <file>qwwlistnavigator-members.html</file>
+            <file>qwwnumpad-members.html</file>
+            <file>colorpickers-main-cpp.html</file>
+            <file>qwwlongspinbox.html</file>
+            <file>qwwloginbox.html</file>
+            <file>groups.html</file>
+            <file>qwwrichtextedit.html</file>
+            <file>frameworks-technologies.html</file>
+            <file>qwwled-members.html</file>
+            <file>qwwhuesatradialpicker.html</file>
+            <file>trademarks.html</file>
+            <file>qwwtwocolorindicator-members.html</file>
+            <file>qwwlistwidget.html</file>
+            <file>texteditor-texteditor-pro.html</file>
+            <file>images/qwwfilechooser.png</file>
+            <file>images/qwwtwocolorindicator.png</file>
+            <file>images/qwwnavigationbar.png</file>
+            <file>images/qwwtipwidget.png</file>
+            <file>images/qt-logo.png</file>
+            <file>images/qwwhuesatpicker.png</file>
+            <file>images/qwwbuttonlineedit1.png</file>
+            <file>images/qwwcolorbutton.png</file>
+            <file>images/qwwnumpad.png</file>
+            <file>images/qwwbuttonlineedit2.png</file>
+            <file>classic-4.6.css</file>
+            <file>images/qwwfilechooser.png</file>
+            <file>images/ww-logo.png</file>
+            <file>images/qwwhuesatradialpicker.png</file>
+            <file>images/qwwled.png</file>
+            <file>images/qwwlistnavigator.png</file>
+            <file>images/qwwlongspinbox.png</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

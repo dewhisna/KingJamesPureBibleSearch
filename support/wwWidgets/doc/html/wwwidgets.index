@@ -1,0 +1,1191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QDOCINDEX>
+<INDEX url="http://www.wysota.eu.org/wwwidgets/doc" title="wwWidgets Manual" version="1.0.0">
+    <namespace access="public" threadsafety="unspecified" status="commendable" name="" href="" location="" module="">
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwConfigWidget" href="qwwconfigwidget.html" location="qwwconfigwidget.h" bases="QWidget" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwConfigWidget::currentIndex" href="qwwconfigwidget.html#currentIndex-prop" location="qwwconfigwidget.h" type="int">
+                <getter name="currentIndex"/>
+                <setter name="setCurrentIndex"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="iconSize" fullname="QwwConfigWidget::iconSize" href="qwwconfigwidget.html#iconSize-prop" location="qwwconfigwidget.h" type="QSize">
+                <getter name="iconSize"/>
+                <setter name="setIconSize"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="count" fullname="QwwConfigWidget::count" href="qwwconfigwidget.html#count-prop" location="qwwconfigwidget.h" type="int">
+                <getter name="count"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwConfigWidget" fullname="QwwConfigWidget::QwwConfigWidget" href="qwwconfigwidget.html#QwwConfigWidget" location="qwwconfigwidget.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwConfigWidget(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addGroup" fullname="QwwConfigWidget::addGroup" href="qwwconfigwidget.html#addGroup" location="qwwconfigwidget.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addGroup(QWidget * group, const QIcon &amp; icon, const QString &amp; name)">
+                <parameter left="QWidget *" right="" name="group" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default="QIcon()"/>
+                <parameter left="const QString &amp;" right="" name="name" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertGroup" fullname="QwwConfigWidget::insertGroup" href="qwwconfigwidget.html#insertGroup" location="qwwconfigwidget.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="insertGroup(int index, QWidget * group, const QIcon &amp; icon, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="QWidget *" right="" name="group" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default="QIcon()"/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="count" fullname="QwwConfigWidget::count" href="qwwconfigwidget.html#count-prop" location="qwwconfigwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="count" type="int" signature="count() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="removeGroup" fullname="QwwConfigWidget::removeGroup" href="qwwconfigwidget.html#removeGroup" location="qwwconfigwidget.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="removeGroup(QWidget * group)">
+                <parameter left="QWidget *" right="" name="group" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="removeGroup" fullname="QwwConfigWidget::removeGroup" href="qwwconfigwidget.html#removeGroup-2" location="qwwconfigwidget.h" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="removeGroup(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="group" fullname="QwwConfigWidget::group" href="qwwconfigwidget.html#group" location="qwwconfigwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="group(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwConfigWidget::currentIndex" href="qwwconfigwidget.html#currentIndex-prop" location="qwwconfigwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentIndex" type="int" signature="currentIndex() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentGroup" fullname="QwwConfigWidget::currentGroup" href="qwwconfigwidget.html#currentGroup" location="qwwconfigwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="currentGroup() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="iconSize" fullname="QwwConfigWidget::iconSize" href="qwwconfigwidget.html#iconSize-prop" location="qwwconfigwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="iconSize" type="QSize" signature="iconSize() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentIndex" fullname="QwwConfigWidget::setCurrentIndex" href="qwwconfigwidget.html#currentIndex-prop" location="qwwconfigwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="currentIndex" type="void" signature="setCurrentIndex(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentGroup" fullname="QwwConfigWidget::setCurrentGroup" href="qwwconfigwidget.html#setCurrentGroup" location="qwwconfigwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setCurrentGroup(QWidget * widget)">
+                <parameter left="QWidget *" right="" name="widget" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setGroupIcon" fullname="QwwConfigWidget::setGroupIcon" href="qwwconfigwidget.html#setGroupIcon" location="qwwconfigwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setGroupIcon(int index, const QIcon &amp; icon)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setGroupLabel" fullname="QwwConfigWidget::setGroupLabel" href="qwwconfigwidget.html#setGroupLabel" location="qwwconfigwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setGroupLabel(int index, const QString &amp; title)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QString &amp;" right="" name="title" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setIconSize" fullname="QwwConfigWidget::setIconSize" href="qwwconfigwidget.html#iconSize-prop" location="qwwconfigwidget.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="iconSize" type="void" signature="setIconSize(const QSize &amp; )">
+                <parameter left="const QSize &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndexChanged" fullname="QwwConfigWidget::currentIndexChanged" href="qwwconfigwidget.html#currentIndexChanged" location="qwwconfigwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="currentIndexChanged(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwNumPad" href="qwwnumpad.html" location="qwwnumpad.h" bases="QWidget" module="wwWidgets">
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwNumPad" fullname="QwwNumPad::QwwNumPad" href="qwwnumpad.html#QwwNumPad" location="qwwnumpad.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwNumPad(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="animateClick" fullname="QwwNumPad::animateClick" href="qwwnumpad.html#animateClick" location="qwwnumpad.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="animateClick(const QString &amp; button, int msec)">
+                <parameter left="const QString &amp;" right="" name="button" default=""/>
+                <parameter left="int" right="" name="msec" default="100"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="numberClicked" fullname="QwwNumPad::numberClicked" href="qwwnumpad.html#numberClicked" location="qwwnumpad.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="numberClicked(int key)">
+                <parameter left="int" right="" name="key" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="keyClicked" fullname="QwwNumPad::keyClicked" href="qwwnumpad.html#keyClicked" location="qwwnumpad.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="keyClicked(QString key)">
+                <parameter left="QString" right="" name="key" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="hashClicked" fullname="QwwNumPad::hashClicked" href="qwwnumpad.html#hashClicked" location="qwwnumpad.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="hashClicked()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="asteriskClicked" fullname="QwwNumPad::asteriskClicked" href="qwwnumpad.html#asteriskClicked" location="qwwnumpad.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="asteriskClicked()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="main" name="QwwClearLineEdit" href="qwwclearlineedit.html" location="qwwclearlineedit.h" bases="QwwButtonLineEdit" module="">
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwClearLineEdit" fullname="QwwClearLineEdit::QwwClearLineEdit" href="qwwclearlineedit.html#QwwClearLineEdit" location="qwwclearlineedit.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwClearLineEdit(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwListNavigator" href="qwwlistnavigator.html" location="qwwlistnavigator.h" bases="QAbstractSlider" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="orientation" fullname="QwwListNavigator::orientation" href="qwwlistnavigator.html#orientation-prop" location="qwwlistnavigator.h" type="Qt::Orientation">
+                <setter name="setOrientation"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="buttons" fullname="QwwListNavigator::buttons" href="qwwlistnavigator.html#buttons-prop" location="qwwlistnavigator.h" type="Buttons">
+                <getter name="buttons"/>
+                <setter name="setButtons"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="autoRaise" fullname="QwwListNavigator::autoRaise" href="qwwlistnavigator.html#autoRaise-prop" location="qwwlistnavigator.h" type="bool">
+                <getter name="autoRaise"/>
+                <setter name="setAutoRaise"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="toolButtonStyle" fullname="QwwListNavigator::toolButtonStyle" href="qwwlistnavigator.html#toolButtonStyle-prop" location="qwwlistnavigator.h" type="Qt::ToolButtonStyle">
+                <getter name="toolButtonStyle"/>
+                <setter name="setToolButtonStyle"/>
+            </property>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Button" fullname="QwwListNavigator::Button" href="qwwlistnavigator.html#Button-enum" location="qwwlistnavigator.h" typedef="QwwListNavigator::Buttons">
+                <value name="NoButtons" value="0"/>
+                <value name="FirstButton" value="1"/>
+                <value name="PrevButton" value="2"/>
+                <value name="Slider" value="4"/>
+                <value name="NextButton" value="8"/>
+                <value name="LastButton" value="16"/>
+            </enum>
+            <typedef access="public" threadsafety="unspecified" status="commendable" name="Buttons" fullname="QwwListNavigator::Buttons" href="qwwlistnavigator.html#Buttons-typedef" location="qwwlistnavigator.h" enum="QwwListNavigator::Button"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwListNavigator" fullname="QwwListNavigator::QwwListNavigator" href="qwwlistnavigator.html#QwwListNavigator" location="qwwlistnavigator.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwListNavigator(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setButtons" fullname="QwwListNavigator::setButtons" href="qwwlistnavigator.html#buttons-prop" location="qwwlistnavigator.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="buttons" type="void" signature="setButtons(QFlags&lt;QwwListNavigator::Button&gt; b)">
+                <parameter left="QFlags&lt;QwwListNavigator::Button&gt;" right="" name="b" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="buttons" fullname="QwwListNavigator::buttons" href="qwwlistnavigator.html#buttons-prop" location="qwwlistnavigator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="buttons" type="Buttons" signature="buttons() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="autoRaise" fullname="QwwListNavigator::autoRaise" href="qwwlistnavigator.html#autoRaise-prop" location="qwwlistnavigator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="autoRaise" type="bool" signature="autoRaise() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toolButtonStyle" fullname="QwwListNavigator::toolButtonStyle" href="qwwlistnavigator.html#toolButtonStyle-prop" location="qwwlistnavigator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="toolButtonStyle" type="Qt::ToolButtonStyle" signature="toolButtonStyle() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setListWidget" fullname="QwwListNavigator::setListWidget" href="qwwlistnavigator.html#setListWidget" location="qwwlistnavigator.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setListWidget(QwwListWidget * lw)">
+                <parameter left="QwwListWidget *" right="" name="lw" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setOrientation" fullname="QwwListNavigator::setOrientation" href="qwwlistnavigator.html#orientation-prop" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="orientation" type="void" signature="setOrientation(Qt::Orientation o)">
+                <parameter left="Qt::Orientation" right="" name="o" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setAutoRaise" fullname="QwwListNavigator::setAutoRaise" href="qwwlistnavigator.html#autoRaise-prop" location="qwwlistnavigator.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="autoRaise" type="void" signature="setAutoRaise(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setToolButtonStyle" fullname="QwwListNavigator::setToolButtonStyle" href="qwwlistnavigator.html#toolButtonStyle-prop" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="toolButtonStyle" type="void" signature="setToolButtonStyle(Qt::ToolButtonStyle v)">
+                <parameter left="Qt::ToolButtonStyle" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toFirst" fullname="QwwListNavigator::toFirst" href="qwwlistnavigator.html#toFirst" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="toFirst()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toLast" fullname="QwwListNavigator::toLast" href="qwwlistnavigator.html#toLast" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="toLast()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toPrevious" fullname="QwwListNavigator::toPrevious" href="qwwlistnavigator.html#toPrevious" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="toPrevious()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toNext" fullname="QwwListNavigator::toNext" href="qwwlistnavigator.html#toNext" location="qwwlistnavigator.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="toNext()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="first" fullname="QwwListNavigator::first" href="qwwlistnavigator.html#first" location="qwwlistnavigator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="first()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="previous" fullname="QwwListNavigator::previous" href="qwwlistnavigator.html#previous" location="qwwlistnavigator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="previous()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="next" fullname="QwwListNavigator::next" href="qwwlistnavigator.html#next" location="qwwlistnavigator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="next()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="last" fullname="QwwListNavigator::last" href="qwwlistnavigator.html#last" location="qwwlistnavigator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="last()"/>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="sliderChange" fullname="QwwListNavigator::sliderChange" href="qwwlistnavigator.html#sliderChange" location="qwwlistnavigator.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="sliderChange(SliderChange change)">
+                <parameter left="SliderChange" right="" name="change" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwColorComboBox" href="qwwcolorcombobox.html" location="qwwcolorcombobox.h" bases="QComboBox" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="colorDialogEnabled" fullname="QwwColorComboBox::colorDialogEnabled" href="qwwcolorcombobox.html#colorDialogEnabled-prop" location="qwwcolorcombobox.h" type="bool">
+                <getter name="isColorDialogEnabled"/>
+                <setter name="setColorDialogEnabled"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="colorCount" fullname="QwwColorComboBox::colorCount" href="qwwcolorcombobox.html#colorCount-prop" location="qwwcolorcombobox.h" type="int">
+                <getter name="colorCount"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentColor" fullname="QwwColorComboBox::currentColor" href="qwwcolorcombobox.html#currentColor-prop" location="qwwcolorcombobox.h" type="QColor">
+                <getter name="currentColor"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="colors" fullname="QwwColorComboBox::colors" href="qwwcolorcombobox.html#colors-prop" location="qwwcolorcombobox.h" type="QStringList">
+                <getter name="colors"/>
+                <setter name="setColors"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwColorComboBox" fullname="QwwColorComboBox::QwwColorComboBox" href="qwwcolorcombobox.html#QwwColorComboBox" location="qwwcolorcombobox.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwColorComboBox(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addColor" fullname="QwwColorComboBox::addColor" href="qwwcolorcombobox.html#addColor" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addColor(const QColor &amp; color, const QString &amp; name)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+                <parameter left="const QString &amp;" right="" name="name" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwColorComboBox::color" href="qwwcolorcombobox.html#color" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QColor" signature="color(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colors" fullname="QwwColorComboBox::colors" href="qwwcolorcombobox.html#colors-prop" location="qwwcolorcombobox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="colors" type="QStringList" signature="colors() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColors" fullname="QwwColorComboBox::setColors" href="qwwcolorcombobox.html#colors-prop" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="colors" type="void" signature="setColors(const QStringList &amp; map)">
+                <parameter left="const QStringList &amp;" right="" name="map" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colorCount" fullname="QwwColorComboBox::colorCount" href="qwwcolorcombobox.html#colorCount-prop" location="qwwcolorcombobox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="colorCount" type="int" signature="colorCount() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentColor" fullname="QwwColorComboBox::currentColor" href="qwwcolorcombobox.html#currentColor-prop" location="qwwcolorcombobox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentColor" type="QColor" signature="currentColor() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertColor" fullname="QwwColorComboBox::insertColor" href="qwwcolorcombobox.html#insertColor" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="insertColor(int index, const QColor &amp; color, const QString &amp; name)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+                <parameter left="const QString &amp;" right="" name="name" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isColorDialogEnabled" fullname="QwwColorComboBox::isColorDialogEnabled" href="qwwcolorcombobox.html#colorDialogEnabled-prop" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="colorDialogEnabled" type="bool" signature="isColorDialogEnabled() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColorDialogEnabled" fullname="QwwColorComboBox::setColorDialogEnabled" href="qwwcolorcombobox.html#colorDialogEnabled-prop" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="colorDialogEnabled" type="void" signature="setColorDialogEnabled(bool enabled)">
+                <parameter left="bool" right="" name="enabled" default="true"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setStandardColors" fullname="QwwColorComboBox::setStandardColors" href="qwwcolorcombobox.html#setStandardColors" location="qwwcolorcombobox.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setStandardColors()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentColor" fullname="QwwColorComboBox::setCurrentColor" href="qwwcolorcombobox.html#setCurrentColor" location="qwwcolorcombobox.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setCurrentColor(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="activated" fullname="QwwColorComboBox::activated" href="qwwcolorcombobox.html#activated" location="qwwcolorcombobox.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="activated(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwHueSatPicker" href="qwwhuesatpicker.html" location="qwwhuesatpicker.h" bases="QFrame" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="minimumHue" fullname="QwwHueSatPicker::minimumHue" href="qwwhuesatpicker.html#minimumHue-prop" location="qwwhuesatpicker.h" type="int">
+                <getter name="minimumHue"/>
+                <setter name="setMinimumHue"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="maximumHue" fullname="QwwHueSatPicker::maximumHue" href="qwwhuesatpicker.html#maximumHue-prop" location="qwwhuesatpicker.h" type="int">
+                <getter name="maximumHue"/>
+                <setter name="setMaximumHue"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="minimumSat" fullname="QwwHueSatPicker::minimumSat" href="qwwhuesatpicker.html#minimumSat-prop" location="qwwhuesatpicker.h" type="int">
+                <getter name="minimumSat"/>
+                <setter name="setMinimumSat"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="maximumSat" fullname="QwwHueSatPicker::maximumSat" href="qwwhuesatpicker.html#maximumSat-prop" location="qwwhuesatpicker.h" type="int">
+                <getter name="maximumSat"/>
+                <setter name="setMaximumSat"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwHueSatPicker::value" href="qwwhuesatpicker.html#value-prop" location="qwwhuesatpicker.h" type="int">
+                <getter name="value"/>
+                <setter name="setValue"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwHueSatPicker::color" href="qwwhuesatpicker.html#color-prop" location="qwwhuesatpicker.h" type="QColor">
+                <getter name="color"/>
+                <setter name="setColor"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwHueSatPicker" fullname="QwwHueSatPicker::QwwHueSatPicker" href="qwwhuesatpicker.html#QwwHueSatPicker" location="qwwhuesatpicker.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwHueSatPicker(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwHueSatPicker::value" href="qwwhuesatpicker.html#value-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="value" type="int" signature="value() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwHueSatPicker::color" href="qwwhuesatpicker.html#color-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="color" type="QColor" signature="color() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="minimumSat" fullname="QwwHueSatPicker::minimumSat" href="qwwhuesatpicker.html#minimumSat-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="minimumSat" type="int" signature="minimumSat() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="maximumSat" fullname="QwwHueSatPicker::maximumSat" href="qwwhuesatpicker.html#maximumSat-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="maximumSat" type="int" signature="maximumSat() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="minimumHue" fullname="QwwHueSatPicker::minimumHue" href="qwwhuesatpicker.html#minimumHue-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="minimumHue" type="int" signature="minimumHue() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="maximumHue" fullname="QwwHueSatPicker::maximumHue" href="qwwhuesatpicker.html#maximumHue-prop" location="qwwhuesatpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="maximumHue" type="int" signature="maximumHue() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setHueRange" fullname="QwwHueSatPicker::setHueRange" href="qwwhuesatpicker.html#setHueRange" location="qwwhuesatpicker.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setHueRange(int mi, int ma)">
+                <parameter left="int" right="" name="mi" default=""/>
+                <parameter left="int" right="" name="ma" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setSatRange" fullname="QwwHueSatPicker::setSatRange" href="qwwhuesatpicker.html#setSatRange" location="qwwhuesatpicker.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setSatRange(int mi, int ma)">
+                <parameter left="int" right="" name="mi" default=""/>
+                <parameter left="int" right="" name="ma" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setValue" fullname="QwwHueSatPicker::setValue" href="qwwhuesatpicker.html#value-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="value" type="void" signature="setValue(int v)">
+                <parameter left="int" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMinimumSat" fullname="QwwHueSatPicker::setMinimumSat" href="qwwhuesatpicker.html#minimumSat-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="minimumSat" type="void" signature="setMinimumSat(int v)">
+                <parameter left="int" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMaximumSat" fullname="QwwHueSatPicker::setMaximumSat" href="qwwhuesatpicker.html#maximumSat-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="maximumSat" type="void" signature="setMaximumSat(int v)">
+                <parameter left="int" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMinimumHue" fullname="QwwHueSatPicker::setMinimumHue" href="qwwhuesatpicker.html#minimumHue-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="minimumHue" type="void" signature="setMinimumHue(int h)">
+                <parameter left="int" right="" name="h" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMaximumHue" fullname="QwwHueSatPicker::setMaximumHue" href="qwwhuesatpicker.html#maximumHue-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="maximumHue" type="void" signature="setMaximumHue(int h)">
+                <parameter left="int" right="" name="h" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColor" fullname="QwwHueSatPicker::setColor" href="qwwhuesatpicker.html#color-prop" location="qwwhuesatpicker.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="color" type="void" signature="setColor(const QColor &amp; c)">
+                <parameter left="const QColor &amp;" right="" name="c" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="valueChanged" fullname="QwwHueSatPicker::valueChanged" href="qwwhuesatpicker.html#valueChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="valueChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="minimumHueChanged" fullname="QwwHueSatPicker::minimumHueChanged" href="qwwhuesatpicker.html#minimumHueChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="minimumHueChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="maximumHueChanged" fullname="QwwHueSatPicker::maximumHueChanged" href="qwwhuesatpicker.html#maximumHueChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="maximumHueChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="minimumSatChanged" fullname="QwwHueSatPicker::minimumSatChanged" href="qwwhuesatpicker.html#minimumSatChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="minimumSatChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="maximumSatChanged" fullname="QwwHueSatPicker::maximumSatChanged" href="qwwhuesatpicker.html#maximumSatChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="maximumSatChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="satRangeChanged" fullname="QwwHueSatPicker::satRangeChanged" href="qwwhuesatpicker.html#satRangeChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="satRangeChanged(int , int )">
+                <parameter left="int" right="" name="" default=""/>
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="hueRangeChanged" fullname="QwwHueSatPicker::hueRangeChanged" href="qwwhuesatpicker.html#hueRangeChanged" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="hueRangeChanged(int min, int max)">
+                <parameter left="int" right="" name="min" default=""/>
+                <parameter left="int" right="" name="max" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colorPicked" fullname="QwwHueSatPicker::colorPicked" href="qwwhuesatpicker.html#colorPicked" location="qwwhuesatpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="colorPicked(QColor color)">
+                <parameter left="QColor" right="" name="color" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="drawCrosshair" fullname="QwwHueSatPicker::drawCrosshair" href="qwwhuesatpicker.html#drawCrosshair" location="qwwhuesatpicker.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="drawCrosshair(QPainter * p, const QPoint &amp; pt)">
+                <parameter left="QPainter *" right="" name="p" default=""/>
+                <parameter left="const QPoint &amp;" right="" name="pt" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwHueSatRadialPicker" href="qwwhuesatradialpicker.html" location="qwwhuesatradialpicker.h" bases="QWidget" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwHueSatRadialPicker::value" href="qwwhuesatradialpicker.html#value-prop" location="qwwhuesatradialpicker.h" type="int">
+                <getter name="value"/>
+                <setter name="setValue"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwHueSatRadialPicker::color" href="qwwhuesatradialpicker.html#color-prop" location="qwwhuesatradialpicker.h" type="QColor">
+                <getter name="color"/>
+                <setter name="setColor"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwHueSatRadialPicker" fullname="QwwHueSatRadialPicker::QwwHueSatRadialPicker" href="qwwhuesatradialpicker.html#QwwHueSatRadialPicker" location="qwwhuesatradialpicker.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwHueSatRadialPicker(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwHueSatRadialPicker::value" href="qwwhuesatradialpicker.html#value-prop" location="qwwhuesatradialpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="value" type="int" signature="value() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwHueSatRadialPicker::color" href="qwwhuesatradialpicker.html#color-prop" location="qwwhuesatradialpicker.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="color" type="const QColor" signature="color() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setValue" fullname="QwwHueSatRadialPicker::setValue" href="qwwhuesatradialpicker.html#value-prop" location="qwwhuesatradialpicker.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="value" type="void" signature="setValue(int v)">
+                <parameter left="int" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColor" fullname="QwwHueSatRadialPicker::setColor" href="qwwhuesatradialpicker.html#color-prop" location="qwwhuesatradialpicker.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="color" type="void" signature="setColor(const QColor &amp; c)">
+                <parameter left="const QColor &amp;" right="" name="c" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="valueChanged" fullname="QwwHueSatRadialPicker::valueChanged" href="qwwhuesatradialpicker.html#valueChanged" location="qwwhuesatradialpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="valueChanged(int value)">
+                <parameter left="int" right="" name="value" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colorPicked" fullname="QwwHueSatRadialPicker::colorPicked" href="qwwhuesatradialpicker.html#colorPicked" location="qwwhuesatradialpicker.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="colorPicked(QColor color)">
+                <parameter left="QColor" right="" name="color" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="drawCrosshair" fullname="QwwHueSatRadialPicker::drawCrosshair" href="qwwhuesatradialpicker.html#drawCrosshair" location="qwwhuesatradialpicker.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="drawCrosshair(QPainter * p, const QPoint &amp; pt)">
+                <parameter left="QPainter *" right="" name="p" default=""/>
+                <parameter left="const QPoint &amp;" right="" name="pt" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwButtonLineEdit" href="qwwbuttonlineedit.html" location="qwwbuttonlineedit.h" bases="QLineEdit" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="icon" fullname="QwwButtonLineEdit::icon" href="qwwbuttonlineedit.html#icon-prop" location="qwwbuttonlineedit.h" type="QIcon">
+                <getter name="icon"/>
+                <setter name="setIcon"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="autoRaise" fullname="QwwButtonLineEdit::autoRaise" href="qwwbuttonlineedit.html#autoRaise-prop" location="qwwbuttonlineedit.h" type="bool">
+                <getter name="autoRaise"/>
+                <setter name="setAutoRaise"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="buttonPosition" fullname="QwwButtonLineEdit::buttonPosition" href="qwwbuttonlineedit.html#buttonPosition-prop" location="qwwbuttonlineedit.h" type="Position">
+                <getter name="buttonPosition"/>
+                <setter name="setButtonPosition"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="buttonVisible" fullname="QwwButtonLineEdit::buttonVisible" href="qwwbuttonlineedit.html#buttonVisible-prop" location="qwwbuttonlineedit.h" type="bool">
+                <getter name="buttonIsVisible"/>
+                <setter name="setButtonVisible"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="regExp" fullname="QwwButtonLineEdit::regExp" href="qwwbuttonlineedit.html#regExp-prop" location="qwwbuttonlineedit.h" type="QString">
+                <getter name="regExp"/>
+                <setter name="setRegExp"/>
+                <setter name="setRegExp"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="buttonFocusPolicy" fullname="QwwButtonLineEdit::buttonFocusPolicy" href="qwwbuttonlineedit.html#buttonFocusPolicy-prop" location="qwwbuttonlineedit.h" type="Qt::FocusPolicy">
+                <getter name="buttonFocusPolicy"/>
+                <setter name="setButtonFocusPolicy"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="placeholderText" fullname="QwwButtonLineEdit::placeholderText" href="qwwbuttonlineedit.html#placeholderText-prop" location="qwwbuttonlineedit.h" type="QString">
+                <getter name="placeholderText"/>
+                <setter name="setPlaceholderText"/>
+            </property>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Position" fullname="QwwButtonLineEdit::Position" href="qwwbuttonlineedit.html#Position-enum" location="qwwbuttonlineedit.h">
+                <value name="None" value="0"/>
+                <value name="RightOutside" value="1"/>
+                <value name="RightInside" value="2"/>
+                <value name="LeftOutside" value="3"/>
+                <value name="LeftInside" value="4"/>
+            </enum>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwButtonLineEdit" fullname="QwwButtonLineEdit::QwwButtonLineEdit" href="qwwbuttonlineedit.html#QwwButtonLineEdit" location="qwwbuttonlineedit.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwButtonLineEdit(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwButtonLineEdit" fullname="QwwButtonLineEdit::QwwButtonLineEdit" href="qwwbuttonlineedit.html#QwwButtonLineEdit-2" location="qwwbuttonlineedit.h" virtual="non" meta="constructor" const="false" static="false" overload="true" overload-number="2" type="" signature="QwwButtonLineEdit(const QString &amp; contents, QWidget * parent)">
+                <parameter left="const QString &amp;" right="" name="contents" default=""/>
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="icon" fullname="QwwButtonLineEdit::icon" href="qwwbuttonlineedit.html#icon-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="icon" type="QIcon" signature="icon() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="autoRaise" fullname="QwwButtonLineEdit::autoRaise" href="qwwbuttonlineedit.html#autoRaise-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="autoRaise" type="bool" signature="autoRaise() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="buttonPosition" fullname="QwwButtonLineEdit::buttonPosition" href="qwwbuttonlineedit.html#buttonPosition-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="buttonPosition" type="Position" signature="buttonPosition() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setButtonPosition" fullname="QwwButtonLineEdit::setButtonPosition" href="qwwbuttonlineedit.html#buttonPosition-prop" location="qwwbuttonlineedit.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="buttonPosition" type="void" signature="setButtonPosition(Position pos)">
+                <parameter left="Position" right="" name="pos" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="buttonIsVisible" fullname="QwwButtonLineEdit::buttonIsVisible" href="qwwbuttonlineedit.html#buttonVisible-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="buttonVisible" type="bool" signature="buttonIsVisible() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="regExp" fullname="QwwButtonLineEdit::regExp" href="qwwbuttonlineedit.html#regExp-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="regExp" type="QString" signature="regExp() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="buttonFocusPolicy" fullname="QwwButtonLineEdit::buttonFocusPolicy" href="qwwbuttonlineedit.html#buttonFocusPolicy-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="buttonFocusPolicy" type="Qt::FocusPolicy" signature="buttonFocusPolicy() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setButtonFocusPolicy" fullname="QwwButtonLineEdit::setButtonFocusPolicy" href="qwwbuttonlineedit.html#buttonFocusPolicy-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="buttonFocusPolicy" type="void" signature="setButtonFocusPolicy(Qt::FocusPolicy )">
+                <parameter left="Qt::FocusPolicy" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="placeholderText" fullname="QwwButtonLineEdit::placeholderText" href="qwwbuttonlineedit.html#placeholderText-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="placeholderText" type="QString" signature="placeholderText() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setRegExp" fullname="QwwButtonLineEdit::setRegExp" href="qwwbuttonlineedit.html#regExp-prop" location="qwwbuttonlineedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="regExp" type="void" signature="setRegExp(const QString &amp; v)">
+                <parameter left="const QString &amp;" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setRegExp" fullname="QwwButtonLineEdit::setRegExp" href="qwwbuttonlineedit.html#regExp-prop" location="qwwbuttonlineedit.h" virtual="non" meta="slot" const="false" static="false" overload="true" overload-number="2" associated-property="regExp" type="void" signature="setRegExp(const QRegExp &amp; rx)">
+                <parameter left="const QRegExp &amp;" right="" name="rx" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setIcon" fullname="QwwButtonLineEdit::setIcon" href="qwwbuttonlineedit.html#icon-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="icon" type="void" signature="setIcon(const QIcon &amp; )">
+                <parameter left="const QIcon &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setAutoRaise" fullname="QwwButtonLineEdit::setAutoRaise" href="qwwbuttonlineedit.html#autoRaise-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="autoRaise" type="void" signature="setAutoRaise(bool )">
+                <parameter left="bool" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setButtonVisible" fullname="QwwButtonLineEdit::setButtonVisible" href="qwwbuttonlineedit.html#buttonVisible-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="buttonVisible" type="void" signature="setButtonVisible(bool )">
+                <parameter left="bool" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setPlaceholderText" fullname="QwwButtonLineEdit::setPlaceholderText" href="qwwbuttonlineedit.html#placeholderText-prop" location="qwwbuttonlineedit.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="placeholderText" type="void" signature="setPlaceholderText(const QString &amp; )">
+                <parameter left="const QString &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="buttonClicked" fullname="QwwButtonLineEdit::buttonClicked" href="qwwbuttonlineedit.html#buttonClicked" location="qwwbuttonlineedit.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="buttonClicked()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="validatorChanged" fullname="QwwButtonLineEdit::validatorChanged" href="qwwbuttonlineedit.html#validatorChanged" location="qwwbuttonlineedit.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="validatorChanged(const QString &amp; regexp)">
+                <parameter left="const QString &amp;" right="" name="regexp" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="paintEvent" fullname="QwwButtonLineEdit::paintEvent" href="qwwbuttonlineedit.html#paintEvent" location="qwwbuttonlineedit.cpp" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="paintEvent(QPaintEvent * )">
+                <parameter left="QPaintEvent *" right="" name="" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="button" fullname="QwwButtonLineEdit::button" href="qwwbuttonlineedit.html#button" location="qwwbuttonlineedit.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QToolButton *" signature="button() const"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwListWidget" href="qwwlistwidget.html" location="qwwlistwidget.h" bases="QListWidget" module="wwWidgets">
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwListWidget" fullname="QwwListWidget::QwwListWidget" href="qwwlistwidget.html#QwwListWidget" location="qwwlistwidget.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwListWidget(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentAvailable" fullname="QwwListWidget::currentAvailable" href="qwwlistwidget.html#currentAvailable" location="qwwlistwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="currentAvailable(bool avail)">
+                <parameter left="bool" right="" name="avail" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="moveDownAvailable" fullname="QwwListWidget::moveDownAvailable" href="qwwlistwidget.html#moveDownAvailable" location="qwwlistwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="moveDownAvailable(bool avail)">
+                <parameter left="bool" right="" name="avail" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="moveUpAvailable" fullname="QwwListWidget::moveUpAvailable" href="qwwlistwidget.html#moveUpAvailable" location="qwwlistwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="moveUpAvailable(bool avail)">
+                <parameter left="bool" right="" name="avail" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="moveCurrentDown" fullname="QwwListWidget::moveCurrentDown" href="qwwlistwidget.html#moveCurrentDown" location="qwwlistwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="moveCurrentDown()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="moveCurrentUp" fullname="QwwListWidget::moveCurrentUp" href="qwwlistwidget.html#moveCurrentUp" location="qwwlistwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="moveCurrentUp()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="removeCurrent" fullname="QwwListWidget::removeCurrent" href="qwwlistwidget.html#removeCurrent" location="qwwlistwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="removeCurrent()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="main" name="QwwTwoColorIndicator" href="qwwtwocolorindicator.html" location="qwwtwocolorindicator.h" bases="QWidget" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="fgColor" fullname="QwwTwoColorIndicator::fgColor" href="qwwtwocolorindicator.html#fgColor-prop" location="qwwtwocolorindicator.h" type="QColor">
+                <getter name="fgColor"/>
+                <setter name="setFgColor"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="bgColor" fullname="QwwTwoColorIndicator::bgColor" href="qwwtwocolorindicator.html#bgColor-prop" location="qwwtwocolorindicator.h" type="QColor">
+                <getter name="bgColor"/>
+                <setter name="setBgColor"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="active" fullname="QwwTwoColorIndicator::active" href="qwwtwocolorindicator.html#active-prop" location="qwwtwocolorindicator.h" type="bool">
+                <getter name="isActive"/>
+                <setter name="setActive"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="dragEnabled" fullname="QwwTwoColorIndicator::dragEnabled" href="qwwtwocolorindicator.html#dragEnabled-prop" location="qwwtwocolorindicator.h" type="bool">
+                <getter name="dragEnabled"/>
+                <setter name="setDragEnabled"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwTwoColorIndicator" fullname="QwwTwoColorIndicator::QwwTwoColorIndicator" href="qwwtwocolorindicator.html#QwwTwoColorIndicator" location="qwwtwocolorindicator.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwTwoColorIndicator(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fgColor" fullname="QwwTwoColorIndicator::fgColor" href="qwwtwocolorindicator.html#fgColor-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="fgColor" type="const QColor &amp;" signature="fgColor() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="bgColor" fullname="QwwTwoColorIndicator::bgColor" href="qwwtwocolorindicator.html#bgColor-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="bgColor" type="const QColor &amp;" signature="bgColor() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isActive" fullname="QwwTwoColorIndicator::isActive" href="qwwtwocolorindicator.html#active-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="active" type="bool" signature="isActive() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="dragEnabled" fullname="QwwTwoColorIndicator::dragEnabled" href="qwwtwocolorindicator.html#dragEnabled-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="dragEnabled" type="bool" signature="dragEnabled() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setDragEnabled" fullname="QwwTwoColorIndicator::setDragEnabled" href="qwwtwocolorindicator.html#dragEnabled-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="dragEnabled" type="void" signature="setDragEnabled(bool )">
+                <parameter left="bool" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFgColor" fullname="QwwTwoColorIndicator::setFgColor" href="qwwtwocolorindicator.html#fgColor-prop" location="qwwtwocolorindicator.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="fgColor" type="void" signature="setFgColor(const QColor &amp; f)">
+                <parameter left="const QColor &amp;" right="" name="f" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setBgColor" fullname="QwwTwoColorIndicator::setBgColor" href="qwwtwocolorindicator.html#bgColor-prop" location="qwwtwocolorindicator.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="bgColor" type="void" signature="setBgColor(const QColor &amp; b)">
+                <parameter left="const QColor &amp;" right="" name="b" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="switchColors" fullname="QwwTwoColorIndicator::switchColors" href="qwwtwocolorindicator.html#switchColors" location="qwwtwocolorindicator.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="switchColors()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setActive" fullname="QwwTwoColorIndicator::setActive" href="qwwtwocolorindicator.html#active-prop" location="qwwtwocolorindicator.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="active" type="void" signature="setActive(bool )">
+                <parameter left="bool" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fgChanged" fullname="QwwTwoColorIndicator::fgChanged" href="qwwtwocolorindicator.html#fgChanged" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="fgChanged(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="bgChanged" fullname="QwwTwoColorIndicator::bgChanged" href="qwwtwocolorindicator.html#bgChanged" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="bgChanged(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fgClicked" fullname="QwwTwoColorIndicator::fgClicked" href="qwwtwocolorindicator.html#fgClicked" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="fgClicked()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="bgClicked" fullname="QwwTwoColorIndicator::bgClicked" href="qwwtwocolorindicator.html#bgClicked" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="bgClicked()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fgPressed" fullname="QwwTwoColorIndicator::fgPressed" href="qwwtwocolorindicator.html#fgPressed" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="fgPressed()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="bgPressed" fullname="QwwTwoColorIndicator::bgPressed" href="qwwtwocolorindicator.html#bgPressed" location="qwwtwocolorindicator.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="bgPressed()"/>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="paintSection" fullname="QwwTwoColorIndicator::paintSection" href="qwwtwocolorindicator.html#paintSection" location="qwwtwocolorindicator.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="paintSection(QPainter * painter, const QRect &amp; rect, const QColor &amp; color)">
+                <parameter left="QPainter *" right="" name="painter" default=""/>
+                <parameter left="const QRect &amp;" right="" name="rect" default=""/>
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwColorButton" href="qwwcolorbutton.html" location="qwwcolorbutton.h" bases="QPushButton" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="colors" fullname="QwwColorButton::colors" href="qwwcolorbutton.html#colors-prop" location="qwwcolorbutton.h" type="QStringList">
+                <getter name="colors"/>
+                <setter name="setColors"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentColor" fullname="QwwColorButton::currentColor" href="qwwcolorbutton.html#currentColor-prop" location="qwwcolorbutton.h" type="QColor">
+                <getter name="currentColor"/>
+                <setter name="setCurrentColor"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="dragEnabled" fullname="QwwColorButton::dragEnabled" href="qwwcolorbutton.html#dragEnabled-prop" location="qwwcolorbutton.h" type="bool">
+                <getter name="dragEnabled"/>
+                <setter name="setDragEnabled"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="showName" fullname="QwwColorButton::showName" href="qwwcolorbutton.html#showName-prop" location="qwwcolorbutton.h" type="bool">
+                <getter name="showName"/>
+                <setter name="setShowName"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwColorButton" fullname="QwwColorButton::QwwColorButton" href="qwwcolorbutton.html#QwwColorButton" location="qwwcolorbutton.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwColorButton(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addColor" fullname="QwwColorButton::addColor" href="qwwcolorbutton.html#addColor" location="qwwcolorbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addColor(const QColor &amp; color, const QString &amp; name)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+                <parameter left="const QString &amp;" right="" name="name" default="QString::null"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="clear" fullname="QwwColorButton::clear" href="qwwcolorbutton.html#clear" location="qwwcolorbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="clear()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colors" fullname="QwwColorButton::colors" href="qwwcolorbutton.html#colors-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="colors" type="QStringList" signature="colors() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentColor" fullname="QwwColorButton::currentColor" href="qwwcolorbutton.html#currentColor-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentColor" type="QColor" signature="currentColor() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="dragEnabled" fullname="QwwColorButton::dragEnabled" href="qwwcolorbutton.html#dragEnabled-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="dragEnabled" type="bool" signature="dragEnabled() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColors" fullname="QwwColorButton::setColors" href="qwwcolorbutton.html#colors-prop" location="qwwcolorbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="colors" type="void" signature="setColors(const QStringList &amp; map)">
+                <parameter left="const QStringList &amp;" right="" name="map" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setDragEnabled" fullname="QwwColorButton::setDragEnabled" href="qwwcolorbutton.html#dragEnabled-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="dragEnabled" type="void" signature="setDragEnabled(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setStandardColors" fullname="QwwColorButton::setStandardColors" href="qwwcolorbutton.html#setStandardColors" location="qwwcolorbutton.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="setStandardColors()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="showName" fullname="QwwColorButton::showName" href="qwwcolorbutton.html#showName-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="showName" type="bool" signature="showName() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentColor" fullname="QwwColorButton::setCurrentColor" href="qwwcolorbutton.html#currentColor-prop" location="qwwcolorbutton.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="currentColor" type="void" signature="setCurrentColor(const QColor &amp; c)">
+                <parameter left="const QColor &amp;" right="" name="c" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setShowName" fullname="QwwColorButton::setShowName" href="qwwcolorbutton.html#showName-prop" location="qwwcolorbutton.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="showName" type="void" signature="setShowName(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colorPicked" fullname="QwwColorButton::colorPicked" href="qwwcolorbutton.html#colorPicked" location="qwwcolorbutton.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="colorPicked(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="main" name="QwwLed" href="qwwled.html" location="qwwled.h" bases="QWidget" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwLed::color" href="qwwled.html#color-prop" location="qwwled.h" type="QColor">
+                <getter name="color"/>
+                <setter name="setColor"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="checked" fullname="QwwLed::checked" href="qwwled.html#checked-prop" location="qwwled.h" type="bool">
+                <getter name="isChecked"/>
+                <setter name="setChecked"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="shape" fullname="QwwLed::shape" href="qwwled.html#shape-prop" location="qwwled.h" type="Shape">
+                <getter name="shape"/>
+                <setter name="setShape"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="frameWidth" fullname="QwwLed::frameWidth" href="qwwled.html#frameWidth-prop" location="qwwled.h" type="int">
+                <getter name="frameWidth"/>
+                <setter name="setFrameWidth"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="animated" fullname="QwwLed::animated" href="qwwled.html#animated-prop" location="qwwled.h" type="bool">
+                <getter name="isAnimated"/>
+                <setter name="setAnimated"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="period" fullname="QwwLed::period" href="qwwled.html#period-prop" location="qwwled.h" type="int">
+                <getter name="period"/>
+                <setter name="setPeriod"/>
+            </property>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Shape" fullname="QwwLed::Shape" href="qwwled.html#Shape-enum" location="qwwled.h">
+                <value name="Circular" value="0"/>
+                <value name="RectangularSunken" value="1"/>
+                <value name="RectangularRaised" value="2"/>
+                <value name="RectangularPlain" value="3"/>
+            </enum>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwLed" fullname="QwwLed::QwwLed" href="qwwled.html#QwwLed" location="qwwled.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwLed(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwLed" fullname="QwwLed::QwwLed" href="qwwled.html#QwwLed-2" location="qwwled.h" virtual="non" meta="constructor" const="false" static="false" overload="true" overload-number="2" type="" signature="QwwLed(const QColor &amp; col, Shape shap, QWidget * parent)">
+                <parameter left="const QColor &amp;" right="" name="col" default=""/>
+                <parameter left="Shape" right="" name="shap" default="Circular"/>
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="color" fullname="QwwLed::color" href="qwwled.html#color-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="color" type="QColor" signature="color() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isChecked" fullname="QwwLed::isChecked" href="qwwled.html#checked-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="checked" type="bool" signature="isChecked() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="shape" fullname="QwwLed::shape" href="qwwled.html#shape-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="shape" type="Shape" signature="shape() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="frameWidth" fullname="QwwLed::frameWidth" href="qwwled.html#frameWidth-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="frameWidth" type="int" signature="frameWidth() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="period" fullname="QwwLed::period" href="qwwled.html#period-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="period" type="int" signature="period() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isAnimated" fullname="QwwLed::isAnimated" href="qwwled.html#animated-prop" location="qwwled.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="animated" type="bool" signature="isAnimated() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColor" fullname="QwwLed::setColor" href="qwwled.html#color-prop" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="color" type="void" signature="setColor(const QColor &amp; c)">
+                <parameter left="const QColor &amp;" right="" name="c" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setChecked" fullname="QwwLed::setChecked" href="qwwled.html#checked-prop" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="checked" type="void" signature="setChecked(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setShape" fullname="QwwLed::setShape" href="qwwled.html#shape-prop" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="shape" type="void" signature="setShape(Shape s)">
+                <parameter left="Shape" right="" name="s" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toggle" fullname="QwwLed::toggle" href="qwwled.html#toggle" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="toggle()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFrameWidth" fullname="QwwLed::setFrameWidth" href="qwwled.html#frameWidth-prop" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="frameWidth" type="void" signature="setFrameWidth(int w)">
+                <parameter left="int" right="" name="w" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setAnimated" fullname="QwwLed::setAnimated" href="qwwled.html#animated-prop" location="qwwled.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="animated" type="void" signature="setAnimated(bool )">
+                <parameter left="bool" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setPeriod" fullname="QwwLed::setPeriod" href="qwwled.html#period-prop" location="qwwled.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="period" type="void" signature="setPeriod(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="blink" fullname="QwwLed::blink" href="qwwled.html#blink" location="qwwled.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="blink()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="colorChanged" fullname="QwwLed::colorChanged" href="qwwled.html#colorChanged" location="qwwled.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="colorChanged(const QColor &amp; color)">
+                <parameter left="const QColor &amp;" right="" name="color" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toggled" fullname="QwwLed::toggled" href="qwwled.html#toggled" location="qwwled.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="toggled(bool checked)">
+                <parameter left="bool" right="" name="checked" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="clicked" fullname="QwwLed::clicked" href="qwwled.html#clicked" location="qwwled.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="clicked()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwLongSpinBox" href="qwwlongspinbox.html" location="qwwlongspinbox.h" bases="QAbstractSpinBox" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="minimum" fullname="QwwLongSpinBox::minimum" href="qwwlongspinbox.html#minimum-prop" location="qwwlongspinbox.h" type="qlonglong">
+                <getter name="minimum"/>
+                <setter name="setMinimum"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="maximum" fullname="QwwLongSpinBox::maximum" href="qwwlongspinbox.html#maximum-prop" location="qwwlongspinbox.h" type="qlonglong">
+                <getter name="maximum"/>
+                <setter name="setMaximum"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwLongSpinBox::value" href="qwwlongspinbox.html#value-prop" location="qwwlongspinbox.h" type="qlonglong">
+                <getter name="value"/>
+                <setter name="setValue"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="prefix" fullname="QwwLongSpinBox::prefix" href="qwwlongspinbox.html#prefix-prop" location="qwwlongspinbox.h" type="QString">
+                <getter name="prefix"/>
+                <setter name="setPrefix"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="suffix" fullname="QwwLongSpinBox::suffix" href="qwwlongspinbox.html#suffix-prop" location="qwwlongspinbox.h" type="QString">
+                <getter name="suffix"/>
+                <setter name="setSuffix"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="singleStep" fullname="QwwLongSpinBox::singleStep" href="qwwlongspinbox.html#singleStep-prop" location="qwwlongspinbox.h" type="qlonglong">
+                <getter name="singleStep"/>
+                <setter name="setSingleStep"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwLongSpinBox" fullname="QwwLongSpinBox::QwwLongSpinBox" href="qwwlongspinbox.html#QwwLongSpinBox" location="qwwlongspinbox.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwLongSpinBox(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="stepBy" fullname="QwwLongSpinBox::stepBy" href="qwwlongspinbox.html#stepBy" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="stepBy(int steps)">
+                <parameter left="int" right="" name="steps" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="value" fullname="QwwLongSpinBox::value" href="qwwlongspinbox.html#value-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="value" type="qlonglong" signature="value() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="minimum" fullname="QwwLongSpinBox::minimum" href="qwwlongspinbox.html#minimum-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="minimum" type="qlonglong" signature="minimum() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMinimum" fullname="QwwLongSpinBox::setMinimum" href="qwwlongspinbox.html#minimum-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="minimum" type="void" signature="setMinimum(qlonglong v)">
+                <parameter left="qlonglong" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="maximum" fullname="QwwLongSpinBox::maximum" href="qwwlongspinbox.html#maximum-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="maximum" type="qlonglong" signature="maximum() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setMaximum" fullname="QwwLongSpinBox::setMaximum" href="qwwlongspinbox.html#maximum-prop" location="qwwlongspinbox.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="maximum" type="void" signature="setMaximum(qlonglong v)">
+                <parameter left="qlonglong" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="prefix" fullname="QwwLongSpinBox::prefix" href="qwwlongspinbox.html#prefix-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="prefix" type="const QString &amp;" signature="prefix() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setPrefix" fullname="QwwLongSpinBox::setPrefix" href="qwwlongspinbox.html#prefix-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="prefix" type="void" signature="setPrefix(const QString &amp; )">
+                <parameter left="const QString &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="suffix" fullname="QwwLongSpinBox::suffix" href="qwwlongspinbox.html#suffix-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="suffix" type="const QString &amp;" signature="suffix() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setSuffix" fullname="QwwLongSpinBox::setSuffix" href="qwwlongspinbox.html#suffix-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="suffix" type="void" signature="setSuffix(const QString &amp; )">
+                <parameter left="const QString &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="singleStep" fullname="QwwLongSpinBox::singleStep" href="qwwlongspinbox.html#singleStep-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="singleStep" type="qlonglong" signature="singleStep() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setSingleStep" fullname="QwwLongSpinBox::setSingleStep" href="qwwlongspinbox.html#singleStep-prop" location="qwwlongspinbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="singleStep" type="void" signature="setSingleStep(qlonglong s)">
+                <parameter left="qlonglong" right="" name="s" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setRange" fullname="QwwLongSpinBox::setRange" href="qwwlongspinbox.html#setRange" location="qwwlongspinbox.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setRange(qlonglong min, qlonglong max)">
+                <parameter left="qlonglong" right="" name="min" default=""/>
+                <parameter left="qlonglong" right="" name="max" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="validate" fullname="QwwLongSpinBox::validate" href="qwwlongspinbox.html#validate" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="true" static="false" overload="false" type="QValidator::State" signature="validate(QString &amp; input, int &amp; pos) const">
+                <parameter left="QString &amp;" right="" name="input" default=""/>
+                <parameter left="int &amp;" right="" name="pos" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fixup" fullname="QwwLongSpinBox::fixup" href="qwwlongspinbox.html#fixup" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="true" static="false" overload="false" type="void" signature="fixup(QString &amp; input) const">
+                <parameter left="QString &amp;" right="" name="input" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setValue" fullname="QwwLongSpinBox::setValue" href="qwwlongspinbox.html#value-prop" location="qwwlongspinbox.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="value" type="void" signature="setValue(qlonglong v)">
+                <parameter left="qlonglong" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="valueChanged" fullname="QwwLongSpinBox::valueChanged" href="qwwlongspinbox.html#valueChanged" location="qwwlongspinbox.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="valueChanged(qlonglong i)">
+                <parameter left="qlonglong" right="" name="i" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="valueChanged" fullname="QwwLongSpinBox::valueChanged" href="qwwlongspinbox.html#valueChanged-2" location="qwwlongspinbox.h" virtual="non" meta="signal" const="false" static="false" overload="true" overload-number="2" type="void" signature="valueChanged(const QString &amp; text)">
+                <parameter left="const QString &amp;" right="" name="text" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="textFromValue" fullname="QwwLongSpinBox::textFromValue" href="qwwlongspinbox.html#textFromValue" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="true" static="false" overload="false" type="QString" signature="textFromValue(qlonglong value) const">
+                <parameter left="qlonglong" right="" name="value" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="valueFromText" fullname="QwwLongSpinBox::valueFromText" href="qwwlongspinbox.html#valueFromText" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="true" static="false" overload="false" type="qlonglong" signature="valueFromText(const QString &amp; text) const">
+                <parameter left="const QString &amp;" right="" name="text" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="stepEnabled" fullname="QwwLongSpinBox::stepEnabled" href="qwwlongspinbox.html#stepEnabled" location="qwwlongspinbox.h" virtual="impure" meta="plain" const="true" static="false" overload="false" type="StepEnabled" signature="stepEnabled() const"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwTaskPanel" href="qwwtaskpanel.html" location="qwwtaskpanel.h" bases="QWidget" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwTaskPanel::currentIndex" href="qwwtaskpanel.html#currentIndex-prop" location="qwwtaskpanel.h" type="int">
+                <getter name="currentIndex"/>
+                <setter name="setCurrentIndex"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="toggleIcon" fullname="QwwTaskPanel::toggleIcon" href="qwwtaskpanel.html#toggleIcon-prop" location="qwwtaskpanel.h" type="QIcon">
+                <getter name="toggleIcon"/>
+                <setter name="setToggleIcon"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="animated" fullname="QwwTaskPanel::animated" href="qwwtaskpanel.html#animated-prop" location="qwwtaskpanel.h" type="bool">
+                <getter name="isAnimated"/>
+                <setter name="setAnimated"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwTaskPanel" fullname="QwwTaskPanel::QwwTaskPanel" href="qwwtaskpanel.html#QwwTaskPanel" location="qwwtaskpanel.cpp" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwTaskPanel(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="~QwwTaskPanel" fullname="QwwTaskPanel::~QwwTaskPanel" href="qwwtaskpanel.html#dtor.QwwTaskPanel" location="qwwtaskpanel.cpp" virtual="non" meta="destructor" const="false" static="false" overload="false" type="" signature="~QwwTaskPanel()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addTask" fullname="QwwTaskPanel::addTask" href="qwwtaskpanel.html#addTask" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addTask(QWidget * task, const QString &amp; label)">
+                <parameter left="QWidget *" right="" name="task" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addTask" fullname="QwwTaskPanel::addTask" href="qwwtaskpanel.html#addTask-2" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="addTask(QWidget * task, const QIcon &amp; icon, const QString &amp; label)">
+                <parameter left="QWidget *" right="" name="task" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertTask" fullname="QwwTaskPanel::insertTask" href="qwwtaskpanel.html#insertTask" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="insertTask(int index, QWidget * task, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="QWidget *" right="" name="task" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertTask" fullname="QwwTaskPanel::insertTask" href="qwwtaskpanel.html#insertTask-2" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="insertTask(int index, QWidget * task, const QIcon &amp; icon, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="QWidget *" right="" name="task" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="removeTask" fullname="QwwTaskPanel::removeTask" href="qwwtaskpanel.html#removeTask" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="removeTask(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="taskCount" fullname="QwwTaskPanel::taskCount" href="qwwtaskpanel.html#taskCount" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" type="int" signature="taskCount() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="task" fullname="QwwTaskPanel::task" href="qwwtaskpanel.html#task" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="task(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentTask" fullname="QwwTaskPanel::currentTask" href="qwwtaskpanel.html#currentTask" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="currentTask() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="indexOf" fullname="QwwTaskPanel::indexOf" href="qwwtaskpanel.html#indexOf" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" type="int" signature="indexOf(QWidget * task) const">
+                <parameter left="QWidget *" right="" name="task" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toggleIcon" fullname="QwwTaskPanel::toggleIcon" href="qwwtaskpanel.html#toggleIcon-prop" location="qwwtaskpanel.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="toggleIcon" type="const QIcon &amp;" signature="toggleIcon() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setToggleIcon" fullname="QwwTaskPanel::setToggleIcon" href="qwwtaskpanel.html#toggleIcon-prop" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="toggleIcon" type="void" signature="setToggleIcon(const QIcon &amp; icon)">
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTaskIcon" fullname="QwwTaskPanel::setTaskIcon" href="qwwtaskpanel.html#setTaskIcon" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setTaskIcon(int index, const QIcon &amp; icon)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTaskTitle" fullname="QwwTaskPanel::setTaskTitle" href="qwwtaskpanel.html#setTaskTitle" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setTaskTitle(int index, const QString &amp; title)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QString &amp;" right="" name="title" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTaskName" fullname="QwwTaskPanel::setTaskName" href="qwwtaskpanel.html#setTaskName" location="qwwtaskpanel.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setTaskName(int index, const QString &amp; name)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QString &amp;" right="" name="name" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwTaskPanel::currentIndex" href="qwwtaskpanel.html#currentIndex-prop" location="qwwtaskpanel.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentIndex" type="int" signature="currentIndex() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isAnimated" fullname="QwwTaskPanel::isAnimated" href="qwwtaskpanel.html#animated-prop" location="qwwtaskpanel.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="animated" type="bool" signature="isAnimated() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentIndex" fullname="QwwTaskPanel::setCurrentIndex" href="qwwtaskpanel.html#currentIndex-prop" location="qwwtaskpanel.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="currentIndex" type="void" signature="setCurrentIndex(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setAnimated" fullname="QwwTaskPanel::setAnimated" href="qwwtaskpanel.html#animated-prop" location="qwwtaskpanel.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="animated" type="void" signature="setAnimated(bool a)">
+                <parameter left="bool" right="" name="a" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndexChanged" fullname="QwwTaskPanel::currentIndexChanged" href="qwwtaskpanel.html#currentIndexChanged" location="qwwtaskpanel.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="currentIndexChanged(int )">
+                <parameter left="int" right="" name="" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwTextSpinBox" href="qwwtextspinbox.html" location="qwwtextspinbox.h" bases="QSpinBox" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="strings" fullname="QwwTextSpinBox::strings" href="qwwtextspinbox.html#strings-prop" location="qwwtextspinbox.h" type="QStringList">
+                <getter name="strings"/>
+                <setter name="setStrings"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwTextSpinBox" fullname="QwwTextSpinBox::QwwTextSpinBox" href="qwwtextspinbox.html#QwwTextSpinBox" location="qwwtextspinbox.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwTextSpinBox(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwTextSpinBox" fullname="QwwTextSpinBox::QwwTextSpinBox" href="qwwtextspinbox.html#QwwTextSpinBox-2" location="qwwtextspinbox.h" virtual="non" meta="constructor" const="false" static="false" overload="true" overload-number="2" type="" signature="QwwTextSpinBox(const QStringList &amp; strings, QWidget * parent)">
+                <parameter left="const QStringList &amp;" right="" name="strings" default=""/>
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setStrings" fullname="QwwTextSpinBox::setStrings" href="qwwtextspinbox.html#strings-prop" location="qwwtextspinbox.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="strings" type="void" signature="setStrings(const QStringList &amp; strings)">
+                <parameter left="const QStringList &amp;" right="" name="strings" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="strings" fullname="QwwTextSpinBox::strings" href="qwwtextspinbox.html#strings-prop" location="qwwtextspinbox.cpp" virtual="non" meta="slot" const="true" static="false" overload="false" associated-property="strings" type="const QStringList &amp;" signature="strings() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="stringsChanged" fullname="QwwTextSpinBox::stringsChanged" href="qwwtextspinbox.html#stringsChanged" location="qwwtextspinbox.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="stringsChanged(const QStringList &amp; strings)">
+                <parameter left="const QStringList &amp;" right="" name="strings" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="main" name="QwwFileChooser" href="qwwfilechooser.html" location="qwwfilechooser.h" bases="QwwButtonLineEdit" module="">
+            <property access="public" threadsafety="unspecified" status="commendable" name="completionMode" fullname="QwwFileChooser::completionMode" href="qwwfilechooser.html#completionMode-prop" location="qwwfilechooser.h" type="QCompleter::CompletionMode">
+                <getter name="completionMode"/>
+                <setter name="setCompletionMode"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="fileMode" fullname="QwwFileChooser::fileMode" href="qwwfilechooser.html#fileMode-prop" location="qwwfilechooser.h" type="QFileDialog::FileMode">
+                <getter name="fileMode"/>
+                <setter name="setFileMode"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="acceptMode" fullname="QwwFileChooser::acceptMode" href="qwwfilechooser.html#acceptMode-prop" location="qwwfilechooser.h" type="QFileDialog::AcceptMode">
+                <getter name="acceptMode"/>
+                <setter name="setAcceptMode"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="usesNativeFileDialog" fullname="QwwFileChooser::usesNativeFileDialog" href="qwwfilechooser.html#usesNativeFileDialog-prop" location="qwwfilechooser.h" type="bool">
+                <getter name="usesNativeFileDialog"/>
+                <setter name="setUsesNativeFileDialog"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="filter" fullname="QwwFileChooser::filter" href="qwwfilechooser.html#filter-prop" location="qwwfilechooser.h" type="QString">
+                <getter name="filter"/>
+                <setter name="setFilter"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwFileChooser" fullname="QwwFileChooser::QwwFileChooser" href="qwwfilechooser.html#QwwFileChooser" location="qwwfilechooser.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwFileChooser(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="completionMode" fullname="QwwFileChooser::completionMode" href="qwwfilechooser.html#completionMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="completionMode" type="QCompleter::CompletionMode" signature="completionMode() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCompletionMode" fullname="QwwFileChooser::setCompletionMode" href="qwwfilechooser.html#completionMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="completionMode" type="void" signature="setCompletionMode(QCompleter::CompletionMode m)">
+                <parameter left="QCompleter::CompletionMode" right="" name="m" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setModel" fullname="QwwFileChooser::setModel" href="qwwfilechooser.html#setModel" location="qwwfilechooser.h" virtual="impure" meta="plain" const="false" static="false" overload="false" type="void" signature="setModel(QAbstractItemModel * m)">
+                <parameter left="QAbstractItemModel *" right="" name="m" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fileMode" fullname="QwwFileChooser::fileMode" href="qwwfilechooser.html#fileMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="fileMode" type="QFileDialog::FileMode" signature="fileMode() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFileMode" fullname="QwwFileChooser::setFileMode" href="qwwfilechooser.html#fileMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="fileMode" type="void" signature="setFileMode(QFileDialog::FileMode m)">
+                <parameter left="QFileDialog::FileMode" right="" name="m" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="acceptMode" fullname="QwwFileChooser::acceptMode" href="qwwfilechooser.html#acceptMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="acceptMode" type="QFileDialog::AcceptMode" signature="acceptMode() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setAcceptMode" fullname="QwwFileChooser::setAcceptMode" href="qwwfilechooser.html#acceptMode-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="acceptMode" type="void" signature="setAcceptMode(QFileDialog::AcceptMode m)">
+                <parameter left="QFileDialog::AcceptMode" right="" name="m" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="usesNativeFileDialog" fullname="QwwFileChooser::usesNativeFileDialog" href="qwwfilechooser.html#usesNativeFileDialog-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="usesNativeFileDialog" type="bool" signature="usesNativeFileDialog() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setUsesNativeFileDialog" fullname="QwwFileChooser::setUsesNativeFileDialog" href="qwwfilechooser.html#usesNativeFileDialog-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="usesNativeFileDialog" type="void" signature="setUsesNativeFileDialog(bool n)">
+                <parameter left="bool" right="" name="n" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="filter" fullname="QwwFileChooser::filter" href="qwwfilechooser.html#filter-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="filter" type="const QString &amp;" signature="filter() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFilter" fullname="QwwFileChooser::setFilter" href="qwwfilechooser.html#filter-prop" location="qwwfilechooser.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="filter" type="void" signature="setFilter(const QString &amp; f)">
+                <parameter left="const QString &amp;" right="" name="f" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="chooseFile" fullname="QwwFileChooser::chooseFile" href="qwwfilechooser.html#chooseFile" location="qwwfilechooser.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="chooseFile()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwResetLineEdit" href="qwwresetlineedit.html" location="qwwresetlineedit.h" bases="QwwButtonLineEdit" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="defaultText" fullname="QwwResetLineEdit::defaultText" href="qwwresetlineedit.html#defaultText-prop" location="qwwresetlineedit.h" type="QString">
+                <getter name="defaultText"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwResetLineEdit" fullname="QwwResetLineEdit::QwwResetLineEdit" href="qwwresetlineedit.html#QwwResetLineEdit" location="qwwresetlineedit.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwResetLineEdit(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="defaultText" fullname="QwwResetLineEdit::defaultText" href="qwwresetlineedit.html#defaultText-prop" location="qwwresetlineedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="defaultText" type="const QString &amp;" signature="defaultText() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="resetText" fullname="QwwResetLineEdit::resetText" href="qwwresetlineedit.html#resetText" location="qwwresetlineedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="resetText()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwRichTextButton" href="qwwrichtextbutton.html" location="qwwrichtextbutton.h" bases="QAbstractButton" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="html" fullname="QwwRichTextButton::html" href="qwwrichtextbutton.html#html-prop" location="qwwrichtextbutton.h" type="QString">
+                <getter name="html"/>
+                <setter name="setHtml"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwRichTextButton" fullname="QwwRichTextButton::QwwRichTextButton" href="qwwrichtextbutton.html#QwwRichTextButton" location="qwwrichtextbutton.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwRichTextButton(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwRichTextButton" fullname="QwwRichTextButton::QwwRichTextButton" href="qwwrichtextbutton.html#QwwRichTextButton-2" location="qwwrichtextbutton.h" virtual="non" meta="constructor" const="false" static="false" overload="true" overload-number="2" type="" signature="QwwRichTextButton(QTextDocument * doc, QWidget * parent)">
+                <parameter left="QTextDocument *" right="" name="doc" default=""/>
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setDocument" fullname="QwwRichTextButton::setDocument" href="qwwrichtextbutton.html#setDocument" location="qwwrichtextbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setDocument(QTextDocument * doc)">
+                <parameter left="QTextDocument *" right="" name="doc" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="document" fullname="QwwRichTextButton::document" href="qwwrichtextbutton.html#document" location="qwwrichtextbutton.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QTextDocument *" signature="document() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="html" fullname="QwwRichTextButton::html" href="qwwrichtextbutton.html#html-prop" location="qwwrichtextbutton.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="html" type="QString" signature="html() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setHtml" fullname="QwwRichTextButton::setHtml" href="qwwrichtextbutton.html#html-prop" location="qwwrichtextbutton.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="html" type="void" signature="setHtml(const QString &amp; txt)">
+                <parameter left="const QString &amp;" right="" name="txt" default=""/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwLoginBox" href="qwwloginbox.html" location="qwwloginbox.h" bases="QWidget" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="fields" fullname="QwwLoginBox::fields" href="qwwloginbox.html#fields-prop" location="qwwloginbox.h" type="Fields">
+                <getter name="fields"/>
+                <setter name="setFields"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="host" fullname="QwwLoginBox::host" href="qwwloginbox.html#host-prop" location="qwwloginbox.h" type="QString">
+                <getter name="host"/>
+                <setter name="setHost"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="port" fullname="QwwLoginBox::port" href="qwwloginbox.html#port-prop" location="qwwloginbox.h" type="int">
+                <getter name="port"/>
+                <setter name="setPort"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="user" fullname="QwwLoginBox::user" href="qwwloginbox.html#user-prop" location="qwwloginbox.h" type="QString">
+                <getter name="user"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="rememberPassword" fullname="QwwLoginBox::rememberPassword" href="qwwloginbox.html#rememberPassword-prop" location="qwwloginbox.h" type="bool">
+                <getter name="rememberPassword"/>
+                <setter name="setRememberPassword"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="proxyEnabled" fullname="QwwLoginBox::proxyEnabled" href="qwwloginbox.html#proxyEnabled-prop" location="qwwloginbox.h" type="bool">
+                <getter name="proxyIsEnabled"/>
+                <setter name="setProxyEnabled"/>
+            </property>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Field" fullname="QwwLoginBox::Field" href="qwwloginbox.html#Field-enum" location="qwwloginbox.h" typedef="QwwLoginBox::Fields">
+                <value name="NoFields" value="0x0"/>
+                <value name="HostField" value="0x1"/>
+                <value name="PortField" value="0x2"/>
+                <value name="UserField" value="0x4"/>
+                <value name="PasswordField" value="0x8"/>
+                <value name="RepeatPasswordField" value="0x10"/>
+                <value name="RememberPasswordField" value="0x20"/>
+                <value name="ProxyField" value="0x40"/>
+            </enum>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwLoginBox" fullname="QwwLoginBox::QwwLoginBox" href="qwwloginbox.html#QwwLoginBox" location="qwwloginbox.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwLoginBox(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <typedef access="public" threadsafety="unspecified" status="commendable" name="Fields" fullname="QwwLoginBox::Fields" href="qwwloginbox.html#Fields-typedef" location="qwwloginbox.h" enum="QwwLoginBox::Field"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="fields" fullname="QwwLoginBox::fields" href="qwwloginbox.html#fields-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="fields" type="Fields" signature="fields() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFields" fullname="QwwLoginBox::setFields" href="qwwloginbox.html#fields-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="fields" type="void" signature="setFields(QFlags&lt;QwwLoginBox::Field&gt; f)">
+                <parameter left="QFlags&lt;QwwLoginBox::Field&gt;" right="" name="f" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="host" fullname="QwwLoginBox::host" href="qwwloginbox.html#host-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="host" type="QString" signature="host() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="port" fullname="QwwLoginBox::port" href="qwwloginbox.html#port-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="port" type="int" signature="port() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setPort" fullname="QwwLoginBox::setPort" href="qwwloginbox.html#port-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="port" type="void" signature="setPort(int p)">
+                <parameter left="int" right="" name="p" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="user" fullname="QwwLoginBox::user" href="qwwloginbox.html#user-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="user" type="QString" signature="user() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="password" fullname="QwwLoginBox::password" href="qwwloginbox.html#password" location="qwwloginbox.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QString" signature="password() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isRepeatCorrect" fullname="QwwLoginBox::isRepeatCorrect" href="qwwloginbox.html#isRepeatCorrect" location="qwwloginbox.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="bool" signature="isRepeatCorrect() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="isProxyRepeatCorrect" fullname="QwwLoginBox::isProxyRepeatCorrect" href="qwwloginbox.html#isProxyRepeatCorrect" location="qwwloginbox.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="bool" signature="isProxyRepeatCorrect() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="proxyIsEnabled" fullname="QwwLoginBox::proxyIsEnabled" href="qwwloginbox.html#proxyEnabled-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="proxyEnabled" type="bool" signature="proxyIsEnabled() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="rememberPassword" fullname="QwwLoginBox::rememberPassword" href="qwwloginbox.html#rememberPassword-prop" location="qwwloginbox.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="rememberPassword" type="bool" signature="rememberPassword() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setProxyEnabled" fullname="QwwLoginBox::setProxyEnabled" href="qwwloginbox.html#proxyEnabled-prop" location="qwwloginbox.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="proxyEnabled" type="void" signature="setProxyEnabled(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setRememberPassword" fullname="QwwLoginBox::setRememberPassword" href="qwwloginbox.html#rememberPassword-prop" location="qwwloginbox.h" virtual="non" meta="plain" const="false" static="false" overload="false" associated-property="rememberPassword" type="void" signature="setRememberPassword(bool r)">
+                <parameter left="bool" right="" name="r" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setHost" fullname="QwwLoginBox::setHost" href="qwwloginbox.html#host-prop" location="qwwloginbox.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="host" type="void" signature="setHost(const QString &amp; t)">
+                <parameter left="const QString &amp;" right="" name="t" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setUser" fullname="QwwLoginBox::setUser" href="qwwloginbox.html#setUser" location="qwwloginbox.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setUser(const QString &amp; user, const QString &amp; password)">
+                <parameter left="const QString &amp;" right="" name="user" default=""/>
+                <parameter left="const QString &amp;" right="" name="password" default="QString::null"/>
+            </function>
+        </class>
+        <class access="public" threadsafety="unspecified" status="main" name="QwwRichTextEdit" href="qwwrichtextedit.html" location="qwwrichtextedit.h" bases="QTextEdit" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="options" fullname="QwwRichTextEdit::options" href="qwwrichtextedit.html#options-prop" location="qwwrichtextedit.h" type="Options">
+                <getter name="options"/>
+                <setter name="setOptions"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwRichTextEdit" fullname="QwwRichTextEdit::QwwRichTextEdit" href="qwwrichtextedit.html#QwwRichTextEdit" location="qwwrichtextedit.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwRichTextEdit(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Option" fullname="QwwRichTextEdit::Option" href="qwwrichtextedit.html#Option-enum" location="qwwrichtextedit.h" typedef="QwwRichTextEdit::Options">
+                <value name="NoOptions" value="0x0"/>
+                <value name="Style" value="0x01"/>
+                <value name="Alignment" value="0x02"/>
+                <value name="FontFamily" value="0x04"/>
+                <value name="FontSize" value="0x08"/>
+                <value name="Color" value="0x10"/>
+            </enum>
+            <typedef access="public" threadsafety="unspecified" status="commendable" name="Options" fullname="QwwRichTextEdit::Options" href="qwwrichtextedit.html#Options-typedef" location="qwwrichtextedit.h" enum="QwwRichTextEdit::Option"/>
+            <enum access="public" threadsafety="unspecified" status="commendable" name="Action" fullname="QwwRichTextEdit::Action" href="qwwrichtextedit.html#Action-enum" location="qwwrichtextedit.h">
+                <value name="BoldAction" value="0"/>
+                <value name="ItalicAction" value="1"/>
+                <value name="UnderlineAction" value="2"/>
+                <value name="LeftAlignAction" value="3"/>
+                <value name="RightAlignAction" value="4"/>
+                <value name="AlignCenterAction" value="5"/>
+                <value name="JustifyAction" value="6"/>
+                <value name="ColorAction" value="7"/>
+                <value name="FontFamilyAction" value="8"/>
+                <value name="FontSizeAction" value="9"/>
+            </enum>
+            <function access="public" threadsafety="unspecified" status="commendable" name="options" fullname="QwwRichTextEdit::options" href="qwwrichtextedit.html#options-prop" location="qwwrichtextedit.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="options" type="Options" signature="options() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="toolBarAction" fullname="QwwRichTextEdit::toolBarAction" href="qwwrichtextedit.html#toolBarAction" location="qwwrichtextedit.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QAction *" signature="toolBarAction(Action act) const">
+                <parameter left="Action" right="" name="act" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="changeAlignment" fullname="QwwRichTextEdit::changeAlignment" href="qwwrichtextedit.html#changeAlignment" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="changeAlignment(QAction * a)">
+                <parameter left="QAction *" right="" name="a" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setBold" fullname="QwwRichTextEdit::setBold" href="qwwrichtextedit.html#setBold" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setBold(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setItalic" fullname="QwwRichTextEdit::setItalic" href="qwwrichtextedit.html#setItalic" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setItalic(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setUnderline" fullname="QwwRichTextEdit::setUnderline" href="qwwrichtextedit.html#setUnderline" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setUnderline(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setFont" fullname="QwwRichTextEdit::setFont" href="qwwrichtextedit.html#setFont" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setFont(const QFont &amp; f)">
+                <parameter left="const QFont &amp;" right="" name="f" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setList" fullname="QwwRichTextEdit::setList" href="qwwrichtextedit.html#setList" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setList(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setColor" fullname="QwwRichTextEdit::setColor" href="qwwrichtextedit.html#setColor" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setColor(const QColor &amp; c)">
+                <parameter left="const QColor &amp;" right="" name="c" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setOptions" fullname="QwwRichTextEdit::setOptions" href="qwwrichtextedit.html#options-prop" location="qwwrichtextedit.cpp" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="options" type="void" signature="setOptions(QFlags&lt;QwwRichTextEdit::Option&gt; opt)">
+                <parameter left="QFlags&lt;QwwRichTextEdit::Option&gt;" right="" name="opt" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="updateCurrentCharFormat" fullname="QwwRichTextEdit::updateCurrentCharFormat" href="qwwrichtextedit.html#updateCurrentCharFormat" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="updateCurrentCharFormat(const QTextCharFormat &amp; fmt)">
+                <parameter left="const QTextCharFormat &amp;" right="" name="fmt" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="updateCurrentBlockFormat" fullname="QwwRichTextEdit::updateCurrentBlockFormat" href="qwwrichtextedit.html#updateCurrentBlockFormat" location="qwwrichtextedit.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="updateCurrentBlockFormat()"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="m_actions" fullname="QwwRichTextEdit::m_actions" href="qwwrichtextedit.html#m_actions-var" location="qwwrichtextedit.h" type="QAction *[10]" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="cB" fullname="QwwRichTextEdit::cB" href="qwwrichtextedit.html#cB-var" location="qwwrichtextedit.h" type="QAction *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="tb" fullname="QwwRichTextEdit::tb" href="qwwrichtextedit.html#tb-var" location="qwwrichtextedit.h" type="QToolBar *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="li" fullname="QwwRichTextEdit::li" href="qwwrichtextedit.html#li-var" location="qwwrichtextedit.h" type="QAction *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="fcb" fullname="QwwRichTextEdit::fcb" href="qwwrichtextedit.html#fcb-var" location="qwwrichtextedit.h" type="QFontComboBox *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="fsp" fullname="QwwRichTextEdit::fsp" href="qwwrichtextedit.html#fsp-var" location="qwwrichtextedit.h" type="QComboBox *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="currentList" fullname="QwwRichTextEdit::currentList" href="qwwrichtextedit.html#currentList-var" location="qwwrichtextedit.h" type="QTextList *" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="m_options" fullname="QwwRichTextEdit::m_options" href="qwwrichtextedit.html#m_options-var" location="qwwrichtextedit.h" type="Options" static="false"/>
+            <variable access="protected" threadsafety="unspecified" status="commendable" name="colorButton" fullname="QwwRichTextEdit::colorButton" href="qwwrichtextedit.html#colorButton-var" location="qwwrichtextedit.h" type="QwwColorButton *" static="false"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwTipWidget" href="qwwtipwidget.html" location="qwwtipwidget.h" bases="QWidget" module="wwWidgets">
+            <property access="public" threadsafety="unspecified" status="commendable" name="canvasFrameShape" fullname="QwwTipWidget::canvasFrameShape" href="qwwtipwidget.html#canvasFrameShape-prop" location="qwwtipwidget.h" type="QFrame::Shape">
+                <getter name="canvasFrameShape"/>
+                <setter name="setCanvasFrameShape"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="checkVisible" fullname="QwwTipWidget::checkVisible" href="qwwtipwidget.html#checkVisible-prop" location="qwwtipwidget.h" type="bool">
+                <getter name="checkIsVisible"/>
+                <setter name="setCheckVisible"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="closeVisible" fullname="QwwTipWidget::closeVisible" href="qwwtipwidget.html#closeVisible-prop" location="qwwtipwidget.h" type="bool">
+                <getter name="closeIsVisible"/>
+                <setter name="setCloseVisible"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="tips" fullname="QwwTipWidget::tips" href="qwwtipwidget.html#tips-prop" location="qwwtipwidget.h" type="QStringList">
+                <getter name="tips"/>
+                <setter name="setTips"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentTip" fullname="QwwTipWidget::currentTip" href="qwwtipwidget.html#currentTip-prop" location="qwwtipwidget.h" type="int">
+                <getter name="currentTip"/>
+                <setter name="setCurrentTip"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="tipsEnabled" fullname="QwwTipWidget::tipsEnabled" href="qwwtipwidget.html#tipsEnabled-prop" location="qwwtipwidget.h" type="bool">
+                <getter name="tipsEnabled"/>
+                <setter name="setTipsEnabled"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwTipWidget" fullname="QwwTipWidget::QwwTipWidget" href="qwwtipwidget.html#QwwTipWidget" location="qwwtipwidget.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwTipWidget(const QStringList &amp; list, QWidget * parent)">
+                <parameter left="const QStringList &amp;" right="" name="list" default=""/>
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentTip" fullname="QwwTipWidget::currentTip" href="qwwtipwidget.html#currentTip-prop" location="qwwtipwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentTip" type="int" signature="currentTip() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="tipsEnabled" fullname="QwwTipWidget::tipsEnabled" href="qwwtipwidget.html#tipsEnabled-prop" location="qwwtipwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="tipsEnabled" type="bool" signature="tipsEnabled() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="headerWidget" fullname="QwwTipWidget::headerWidget" href="qwwtipwidget.html#headerWidget" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="headerWidget() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setHeaderWidget" fullname="QwwTipWidget::setHeaderWidget" href="qwwtipwidget.html#setHeaderWidget" location="qwwtipwidget.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setHeaderWidget(QWidget * hw)">
+                <parameter left="QWidget *" right="" name="hw" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="nextButton" fullname="QwwTipWidget::nextButton" href="qwwtipwidget.html#nextButton" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="const QPushButton *" signature="nextButton() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="prevButton" fullname="QwwTipWidget::prevButton" href="qwwtipwidget.html#prevButton" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="const QPushButton *" signature="prevButton() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="closeButton" fullname="QwwTipWidget::closeButton" href="qwwtipwidget.html#closeButton" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="const QPushButton *" signature="closeButton() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="tipCanvas" fullname="QwwTipWidget::tipCanvas" href="qwwtipwidget.html#tipCanvas" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="const QTextBrowser *" signature="tipCanvas() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="checkIsVisible" fullname="QwwTipWidget::checkIsVisible" href="qwwtipwidget.html#checkVisible-prop" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="checkVisible" type="bool" signature="checkIsVisible() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="closeIsVisible" fullname="QwwTipWidget::closeIsVisible" href="qwwtipwidget.html#closeVisible-prop" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="closeVisible" type="bool" signature="closeIsVisible() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="canvasFrameShape" fullname="QwwTipWidget::canvasFrameShape" href="qwwtipwidget.html#canvasFrameShape-prop" location="qwwtipwidget.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="canvasFrameShape" type="QFrame::Shape" signature="canvasFrameShape() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="tips" fullname="QwwTipWidget::tips" href="qwwtipwidget.html#tips-prop" location="qwwtipwidget.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="tips" type="const QStringList" signature="tips() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="nextTip" fullname="QwwTipWidget::nextTip" href="qwwtipwidget.html#nextTip" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="nextTip()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="prevTip" fullname="QwwTipWidget::prevTip" href="qwwtipwidget.html#prevTip" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="prevTip()"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTipsEnabled" fullname="QwwTipWidget::setTipsEnabled" href="qwwtipwidget.html#tipsEnabled-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="tipsEnabled" type="void" signature="setTipsEnabled(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCheckVisible" fullname="QwwTipWidget::setCheckVisible" href="qwwtipwidget.html#checkVisible-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="checkVisible" type="void" signature="setCheckVisible(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCheckHidden" fullname="QwwTipWidget::setCheckHidden" href="qwwtipwidget.html#setCheckHidden" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setCheckHidden(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCloseVisible" fullname="QwwTipWidget::setCloseVisible" href="qwwtipwidget.html#closeVisible-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="closeVisible" type="void" signature="setCloseVisible(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCloseHidden" fullname="QwwTipWidget::setCloseHidden" href="qwwtipwidget.html#setCloseHidden" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setCloseHidden(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCanvasFrameShape" fullname="QwwTipWidget::setCanvasFrameShape" href="qwwtipwidget.html#canvasFrameShape-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="canvasFrameShape" type="void" signature="setCanvasFrameShape(QFrame::Shape s)">
+                <parameter left="QFrame::Shape" right="" name="s" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTips" fullname="QwwTipWidget::setTips" href="qwwtipwidget.html#tips-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="tips" type="void" signature="setTips(const QStringList &amp; slist)">
+                <parameter left="const QStringList &amp;" right="" name="slist" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentTip" fullname="QwwTipWidget::setCurrentTip" href="qwwtipwidget.html#currentTip-prop" location="qwwtipwidget.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="currentTip" type="void" signature="setCurrentTip(int v)">
+                <parameter left="int" right="" name="v" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="tipChanged" fullname="QwwTipWidget::tipChanged" href="qwwtipwidget.html#tipChanged" location="qwwtipwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="tipChanged(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="closed" fullname="QwwTipWidget::closed" href="qwwtipwidget.html#closed" location="qwwtipwidget.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="closed()"/>
+        </class>
+        <class access="public" threadsafety="unspecified" status="commendable" name="QwwNavigationBar" href="qwwnavigationbar.html" location="qwwnavigationbar.h" bases="QWidget" module="wwWidgets">
+            <contents name="action-management" title="Action management" level="4"/>
+            <property access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwNavigationBar::currentIndex" href="qwwnavigationbar.html#currentIndex-prop" location="qwwnavigationbar.h" type="int">
+                <getter name="currentIndex"/>
+                <setter name="setCurrentIndex"/>
+            </property>
+            <property access="public" threadsafety="unspecified" status="commendable" name="topWidgetVisible" fullname="QwwNavigationBar::topWidgetVisible" href="qwwnavigationbar.html#topWidgetVisible-prop" location="qwwnavigationbar.h" type="bool">
+                <getter name="topWidgetIsVisible"/>
+                <setter name="setTopWidgetVisible"/>
+            </property>
+            <function access="public" threadsafety="unspecified" status="commendable" name="QwwNavigationBar" fullname="QwwNavigationBar::QwwNavigationBar" href="qwwnavigationbar.html#QwwNavigationBar" location="qwwnavigationbar.h" virtual="non" meta="constructor" const="false" static="false" overload="false" type="" signature="QwwNavigationBar(QWidget * parent)">
+                <parameter left="QWidget *" right="" name="parent" default="0"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addWidget" fullname="QwwNavigationBar::addWidget" href="qwwnavigationbar.html#addWidget-2" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="addWidget(QWidget * child, const QString &amp; label)">
+                <parameter left="QWidget *" right="" name="child" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="addWidget" fullname="QwwNavigationBar::addWidget" href="qwwnavigationbar.html#addWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addWidget(QWidget * child, const QIcon &amp; icon, const QString &amp; label)">
+                <parameter left="QWidget *" right="" name="child" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertWidget" fullname="QwwNavigationBar::insertWidget" href="qwwnavigationbar.html#insertWidget-2" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="insertWidget(int index, QWidget * child, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="QWidget *" right="" name="child" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="insertWidget" fullname="QwwNavigationBar::insertWidget" href="qwwnavigationbar.html#insertWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="insertWidget(int index, QWidget * child, const QIcon &amp; icon, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="QWidget *" right="" name="child" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="removeWidget" fullname="QwwNavigationBar::removeWidget" href="qwwnavigationbar.html#removeWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="removeWidget(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetCount" fullname="QwwNavigationBar::widgetCount" href="qwwnavigationbar.html#widgetCount" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="int" signature="widgetCount() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widget" fullname="QwwNavigationBar::widget" href="qwwnavigationbar.html#widget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QWidget *" signature="widget(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="indexOf" fullname="QwwNavigationBar::indexOf" href="qwwnavigationbar.html#indexOf" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="int" signature="indexOf(QWidget * widget) const">
+                <parameter left="QWidget *" right="" name="widget" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="button" fullname="QwwNavigationBar::button" href="qwwnavigationbar.html#button" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="const QPushButton *" signature="button(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndex" fullname="QwwNavigationBar::currentIndex" href="qwwnavigationbar.html#currentIndex-prop" location="qwwnavigationbar.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="currentIndex" type="int" signature="currentIndex() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentWidget" fullname="QwwNavigationBar::setCurrentWidget" href="qwwnavigationbar.html#setCurrentWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setCurrentWidget(QWidget * widget)">
+                <parameter left="QWidget *" right="" name="widget" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setWidgetLabel" fullname="QwwNavigationBar::setWidgetLabel" href="qwwnavigationbar.html#setWidgetLabel" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setWidgetLabel(int index, const QString &amp; label)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QString &amp;" right="" name="label" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetLabel" fullname="QwwNavigationBar::widgetLabel" href="qwwnavigationbar.html#widgetLabel" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QString" signature="widgetLabel(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setWidgetIcon" fullname="QwwNavigationBar::setWidgetIcon" href="qwwnavigationbar.html#setWidgetIcon" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="setWidgetIcon(int index, const QIcon &amp; icon)">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetIcon" fullname="QwwNavigationBar::widgetIcon" href="qwwnavigationbar.html#widgetIcon" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" type="QIcon" signature="widgetIcon(int index) const">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="topWidgetIsVisible" fullname="QwwNavigationBar::topWidgetIsVisible" href="qwwnavigationbar.html#topWidgetVisible-prop" location="qwwnavigationbar.h" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="topWidgetVisible" type="bool" signature="topWidgetIsVisible() const"/>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setCurrentIndex" fullname="QwwNavigationBar::setCurrentIndex" href="qwwnavigationbar.html#currentIndex-prop" location="qwwnavigationbar.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="currentIndex" type="void" signature="setCurrentIndex(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="setTopWidgetVisible" fullname="QwwNavigationBar::setTopWidgetVisible" href="qwwnavigationbar.html#topWidgetVisible-prop" location="qwwnavigationbar.h" virtual="non" meta="slot" const="false" static="false" overload="false" associated-property="topWidgetVisible" type="void" signature="setTopWidgetVisible(bool v)">
+                <parameter left="bool" right="" name="v" default=""/>
+            </function>
+            <function access="protected" threadsafety="unspecified" status="commendable" name="eventFilter" fullname="QwwNavigationBar::eventFilter" href="qwwnavigationbar.html#eventFilter" location="qwwnavigationbar.cpp" virtual="impure" meta="plain" const="false" static="false" overload="false" type="bool" signature="eventFilter(QObject * , QEvent * )">
+                <parameter left="QObject *" right="" name="" default=""/>
+                <parameter left="QEvent *" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="currentIndexChanged" fullname="QwwNavigationBar::currentIndexChanged" href="qwwnavigationbar.html#currentIndexChanged" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="currentIndexChanged(int index)">
+                <parameter left="int" right="" name="index" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetLabelChanged" fullname="QwwNavigationBar::widgetLabelChanged" href="qwwnavigationbar.html#widgetLabelChanged" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="widgetLabelChanged(const QString &amp; label)">
+                <parameter left="const QString &amp;" right="" name="label" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetIconChanged" fullname="QwwNavigationBar::widgetIconChanged" href="qwwnavigationbar.html#widgetIconChanged" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="widgetIconChanged(const QIcon &amp; icon)">
+                <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="topWidgetVisibleChanged" fullname="QwwNavigationBar::topWidgetVisibleChanged" href="qwwnavigationbar.html#topWidgetVisibleChanged" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="false" type="void" signature="topWidgetVisibleChanged(bool vis)">
+                <parameter left="bool" right="" name="vis" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetLabelChanged" fullname="QwwNavigationBar::widgetLabelChanged" href="qwwnavigationbar.html#widgetLabelChanged-2" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="true" overload-number="2" type="void" signature="widgetLabelChanged(int index, const QString &amp; )">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QString &amp;" right="" name="" default=""/>
+            </function>
+            <function access="public" threadsafety="unspecified" status="commendable" name="widgetIconChanged" fullname="QwwNavigationBar::widgetIconChanged" href="qwwnavigationbar.html#widgetIconChanged-2" location="qwwnavigationbar.h" virtual="non" meta="signal" const="false" static="false" overload="true" overload-number="2" type="void" signature="widgetIconChanged(int index, const QIcon &amp; )">
+                <parameter left="int" right="" name="index" default=""/>
+                <parameter left="const QIcon &amp;" right="" name="" default=""/>
+            </function>
+        </class>
+        <page access="public" status="commendable" name="wwWidgets" href="wwwidgets.html" subtype="module" title="wwWidgets Module" fulltitle="wwWidgets Module" subtitle="" location="wwwidgets.qdoc"/>
+        <page access="public" status="commendable" name="texteditor" href="texteditor.html" subtype="example" title="Text editor example" fulltitle="Text editor example" subtitle="" location="texteditor.qdoc">
+            <page access="public" status="commendable" name="texteditor/main.cpp" href="texteditor-main-cpp.html" subtype="file" title="" fulltitle="main.cpp Example File" subtitle="texteditor/main.cpp" location=""/>
+            <page access="public" status="commendable" name="texteditor/texteditor.pro" href="texteditor-texteditor-pro.html" subtype="file" title="" fulltitle="texteditor.pro Example File" subtitle="texteditor/texteditor.pro" location=""/>
+        </page>
+        <page access="public" status="commendable" name="index.html" href="index.html" subtype="page" title="wwWidgets Manual" fulltitle="wwWidgets Manual" subtitle="" location="wwWidgets-manual.qdoc">
+            <target name="overview"/>
+            <target name="classes"/>
+            <contents name="overview" title="Overview" level="1"/>
+            <contents name="class-list" title="Class list" level="1"/>
+            <contents name="overviews" title="Overviews" level="1"/>
+        </page>
+        <page access="public" status="commendable" name="frameworks-technologies" href="frameworks-technologies.html" subtype="group" title="Frameworks and Technologies" fulltitle="Frameworks and Technologies" subtitle="" location="wwWidgets-manual.qdoc"/>
+        <page access="public" status="commendable" name="icons.html" href="icons.html" subtype="page" title="Use of icons" fulltitle="Use of icons" subtitle="" location="wwWidgets-manual.qdoc">
+            <contents name="icon-themes" title="Icon themes" level="1"/>
+        </page>
+        <page access="public" status="commendable" name="listwidget" href="listwidget.html" subtype="example" title="List widget example" fulltitle="List widget example" subtitle="" location="listwidget.qdoc">
+            <page access="public" status="commendable" name="listwidget/main.cpp" href="listwidget-main-cpp.html" subtype="file" title="" fulltitle="main.cpp Example File" subtitle="listwidget/main.cpp" location=""/>
+            <page access="public" status="commendable" name="listwidget/listwidget.pro" href="listwidget-listwidget-pro.html" subtype="file" title="" fulltitle="listwidget.pro Example File" subtitle="listwidget/listwidget.pro" location=""/>
+        </page>
+        <page access="public" status="commendable" name="functions.html" href="functions.html" subtype="page" title="Member Function Index" fulltitle="Member Function Index" subtitle="" location="functions.qdoc"/>
+        <page access="public" status="commendable" name="classes.html" href="classes.html" subtype="page" title="wwWidgets Classes" fulltitle="wwWidgets Classes" subtitle="" location="classes.qdoc"/>
+        <page access="public" status="commendable" name="pinpad" href="pinpad.html" subtype="example" title="Pinpad example" fulltitle="Pinpad example" subtitle="" location="pinpad.qdoc">
+            <page access="public" status="commendable" name="pinpad/main.cpp" href="pinpad-main-cpp.html" subtype="file" title="" fulltitle="main.cpp Example File" subtitle="pinpad/main.cpp" location=""/>
+            <page access="public" status="commendable" name="pinpad/pinpad.pro" href="pinpad-pinpad-pro.html" subtype="file" title="" fulltitle="pinpad.pro Example File" subtitle="pinpad/pinpad.pro" location=""/>
+        </page>
+        <page access="public" status="commendable" name="groups" href="groups.html" subtype="group" title="Groups" fulltitle="Groups" subtitle="" location="groups.qdoc"/>
+        <page access="public" status="commendable" name="modules" href="modules.html" subtype="group" title="Modules" fulltitle="Modules" subtitle="" location="groups.qdoc"/>
+        <page access="public" status="commendable" name="classlists" href="classlists.html" subtype="group" title="Class lists" fulltitle="Class lists" subtitle="" location="groups.qdoc"/>
+        <page access="public" status="commendable" name="colorclasses" href="colorclasses.html" subtype="group" title="Colour manipulation classes" fulltitle="Colour manipulation classes" subtitle="" location="groups.qdoc"/>
+        <page access="public" status="commendable" name="mainclasses.html" href="mainclasses.html" subtype="page" title="wwWidgets Main Classes" fulltitle="wwWidgets Main Classes" subtitle="" location="mainclasses.qdoc"/>
+        <page access="public" status="commendable" name="colorpickers" href="colorpickers.html" subtype="example" title="Color pickers example" fulltitle="Color pickers example" subtitle="" location="colorpickers.qdoc">
+            <page access="public" status="commendable" name="colorpickers/colorpickers.ui" href="colorpickers-colorpickers-ui.html" subtype="file" title="" fulltitle="colorpickers.ui Example File" subtitle="colorpickers/colorpickers.ui" location=""/>
+            <page access="public" status="commendable" name="colorpickers/main.cpp" href="colorpickers-main-cpp.html" subtype="file" title="" fulltitle="main.cpp Example File" subtitle="colorpickers/main.cpp" location=""/>
+            <page access="public" status="commendable" name="colorpickers/colorpickers.pro" href="colorpickers-colorpickers-pro.html" subtype="file" title="" fulltitle="colorpickers.pro Example File" subtitle="colorpickers/colorpickers.pro" location=""/>
+        </page>
+        <page access="public" status="commendable" name="examples.html" href="examples.html" subtype="page" title="wwWidgets Examples" fulltitle="wwWidgets Examples" subtitle="" location="examples.qdoc"/>
+        <page access="public" status="commendable" name="trademarks.html" href="trademarks.html" subtype="page" title="Trademarks" fulltitle="Trademarks" subtitle="" location="trademarks.qdoc"/>
+    </namespace>
+</INDEX>
