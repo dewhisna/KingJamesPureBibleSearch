@@ -16,7 +16,7 @@ wwwidgets_install_docs_qch {
 
 wwwidgets_register_qch {
     unix:register.commands = $$[QT_INSTALL_BINS]/assistant -register $$[QT_INSTALL_DOCS]/qch/wwwidgets.qch
-    win32:register.commands = $$[QT_INSTALL_BINS]\assistant -register $$[QT_INSTALL_DOCS]\qch\wwwidgets.qch
+	win32:register.commands = $$[QT_INSTALL_BINS]\\assistant -register $$[QT_INSTALL_DOCS]\\qch\\wwwidgets.qch
     register.target = register
     QMAKE_EXTRA_TARGETS += register
 }

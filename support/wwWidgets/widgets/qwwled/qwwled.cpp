@@ -18,6 +18,9 @@
 #include <QGradient>
 #include <QApplication>
 #include "wwglobal_p.h"
+#if QT_VERSION >= 0x050000
+#include <qdrawutil.h>
+#endif
 
 class QwwLedPrivate : public QwwPrivate {
 public:

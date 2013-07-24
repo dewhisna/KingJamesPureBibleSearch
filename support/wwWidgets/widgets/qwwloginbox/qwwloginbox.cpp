@@ -22,22 +22,22 @@ public:
     Ui::LoginBox ui;
     QwwLoginBox::Fields fields;
     void updateFields() {
-        ui.labelHost->setShown(fields & QwwLoginBox::HostField);
-        ui.host->setShown(fields & QwwLoginBox::HostField);
-        ui.labelPort->setShown(fields & QwwLoginBox::HostField && fields & QwwLoginBox::PortField);
-        ui.port->setShown(fields & QwwLoginBox::HostField && fields & QwwLoginBox::PortField);
-        ui.labelUser->setShown(fields & QwwLoginBox::UserField);
-        ui.user->setShown(fields & QwwLoginBox::UserField);
-        ui.labelPassword->setShown(fields & QwwLoginBox::PasswordField);
-        ui.password->setShown(fields & QwwLoginBox::PasswordField);
-        ui.labelRepeat->setShown(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RepeatPasswordField);
-        ui.repeat->setShown(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RepeatPasswordField);
+		ui.labelHost->setVisible(fields & QwwLoginBox::HostField);
+		ui.host->setVisible(fields & QwwLoginBox::HostField);
+		ui.labelPort->setVisible(fields & QwwLoginBox::HostField && fields & QwwLoginBox::PortField);
+		ui.port->setVisible(fields & QwwLoginBox::HostField && fields & QwwLoginBox::PortField);
+		ui.labelUser->setVisible(fields & QwwLoginBox::UserField);
+		ui.user->setVisible(fields & QwwLoginBox::UserField);
+		ui.labelPassword->setVisible(fields & QwwLoginBox::PasswordField);
+		ui.password->setVisible(fields & QwwLoginBox::PasswordField);
+		ui.labelRepeat->setVisible(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RepeatPasswordField);
+		ui.repeat->setVisible(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RepeatPasswordField);
 
-        ui.remember->setShown(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RememberPasswordField);
+		ui.remember->setVisible(fields & QwwLoginBox::PasswordField && fields & QwwLoginBox::RememberPasswordField);
 
-        ui.proxy->setShown(fields & QwwLoginBox::ProxyField);
-        ui.proxyRepeat->setShown(fields & QwwLoginBox::ProxyField && fields & QwwLoginBox::RepeatPasswordField);
-        ui.labelProxyRepeat->setShown(fields & QwwLoginBox::ProxyField && fields & QwwLoginBox::RepeatPasswordField);
+		ui.proxy->setVisible(fields & QwwLoginBox::ProxyField);
+		ui.proxyRepeat->setVisible(fields & QwwLoginBox::ProxyField && fields & QwwLoginBox::RepeatPasswordField);
+		ui.labelProxyRepeat->setVisible(fields & QwwLoginBox::ProxyField && fields & QwwLoginBox::RepeatPasswordField);
     }
 private:
     WW_DECLARE_PUBLIC(QwwLoginBox);

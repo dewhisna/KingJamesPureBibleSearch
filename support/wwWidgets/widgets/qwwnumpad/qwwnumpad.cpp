@@ -125,7 +125,11 @@ QwwNumPad::QwwNumPad(QWidget *parent) : QWidget(parent), QwwPrivatable(new QwwNu
  */
 void QwwNumPad::animateClick(const QString & button, int msec) {
     if (button.size()!=1) return;
+#if QT_VERSION < 0x050000
     char key = button[0].toAscii();
+#else
+	char key = button[0].toLatin1();
+#endif
     QList<QToolButton*> items;
     QString name;
     switch (key) {
@@ -138,7 +142,11 @@ void QwwNumPad::animateClick(const QString & button, int msec) {
     default:
         name = QString("b%1").arg(key);
     }
+#if QT_VERSION < 0x050000
     QToolButton *buttonPtr = qFindChild<QToolButton*>(this, name);
+#else
+	QToolButton *buttonPtr = this->findChild<QToolButton *>(name);
+#endif
     if (!buttonPtr) return;
     buttonPtr->animateClick(msec);
 }

@@ -72,7 +72,11 @@ void QwwHueSatRadialPickerPrivate::buildPixmap() {
     acpainter.setPen(Qt::NoPen);
     acpainter.setBrush(QBrush(rg));
     acpainter.drawEllipse(q->rect().adjusted(1, 1, -1, -1));
+#if QT_VERSION < 0x050000
     px.setAlphaChannel(QPixmap::fromImage(ac));
+#else
+	px.setMask(px.createMaskFromColor(Qt::transparent, Qt::MaskOutColor));
+#endif
 
     // destination image
     QImage dst(q->size(), QImage::Format_ARGB32);

@@ -92,7 +92,7 @@ QwwConfigWidget::QwwConfigWidget(QWidget *parent)
     hline->setSizePolicy(pol);
 
     connect(d->view, SIGNAL(currentRowChanged(int)), this, SLOT(setCurrentIndex(int)));
-    connect(d->view, SIGNAL(currentRowChanged(int)), this, SLOT(_q_clicked()));
+//    connect(d->view, SIGNAL(currentRowChanged(int)), this, SLOT(_q_clicked()));
 //     connect(d->stack, SIGNAL(currentChanged(int)), d->view, SLOT(setCurrentRow(int)));
 }
 

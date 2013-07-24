@@ -241,7 +241,11 @@ void QwwFileChooser::chooseFile() {
         dlg.setAcceptMode(d->acceptMode);
         dlg.setFileMode(d->fileMode);
         dlg.setDirectory(text());
+#if QT_VERSION < 0x050000
         dlg.setFilter(filter());
+#else
+		dlg.setNameFilter(filter());
+#endif
         if (dlg.exec()) {
             QStringList s = dlg.selectedFiles();
             path = s.isEmpty() ? QString::null : s.at(0);

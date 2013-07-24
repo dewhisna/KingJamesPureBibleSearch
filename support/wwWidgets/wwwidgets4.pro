@@ -7,6 +7,7 @@ win32 {
 
 TEMPLATE = subdirs
 SUBDIRS += widgets plugin
+#SUBDIRS += widgets
 
 #SUBDIRS += examples
 
