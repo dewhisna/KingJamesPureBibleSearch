@@ -427,7 +427,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	}
 	if (m_lstActionGroups[ndx]->checkedAction() == NULL) strHighlighter.clear();			// If we didn't check something, we didn't have a matching highlighter
 	setHighlighterPreview(ndx, strHighlighter);
-	connect(m_lstActionGroups[ndx], SIGNAL(selected(QAction*)), this, SLOT(en_highlighterSelectionChanged(QAction*)));
+	connect(m_lstActionGroups[ndx], SIGNAL(triggered(QAction*)), this, SLOT(en_highlighterSelectionChanged(QAction*)));
 }
 
 void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName)
