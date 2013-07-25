@@ -1,6 +1,7 @@
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/wwWidgets
 
-qtAddLibrary(wwwidgets4)
+#qtAddLibrary(wwwidgets4)
+LIBS += -lwwwidgets4
 
 DEFINES += WWWIDGETS
 DEFINES -= NO_WWWIDGETS
