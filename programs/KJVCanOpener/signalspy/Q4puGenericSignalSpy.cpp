@@ -319,9 +319,15 @@ bool q4pugss_GetMethodString(QObject* caller, int method_index, void **argv,  QS
 	string = QString("%1 (%2) ")
 				.arg(caller->objectName().isNull()?"noname":caller->objectName())
 				.arg(mo->className());
+#if QT_VERSION < 0x050000
 	string += QString("%1: %2(")
 				.arg(methodType[(int)m.methodType()])
 				.arg(QString(m.signature()).section('(',0,0));
+#else
+	string += QString("%1: %2(")
+				.arg(methodType[(int)m.methodType()])
+				.arg(QString(m.methodSignature()).section('(',0,0));
+#endif
 	
 	QList<QByteArray> pNames = m.parameterNames();
 	QList<QByteArray> pTypes = m.parameterTypes();
