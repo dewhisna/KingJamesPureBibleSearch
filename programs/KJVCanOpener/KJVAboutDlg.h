@@ -52,6 +52,7 @@ private:
 	Ui::CKJVAboutDlg *ui;
 	QGraphicsPixmapItem *m_pBethelChurch;
 	QGraphicsTextItem *m_pAppTitle;
+	QGraphicsTextItem *m_pAppSpecialVersion;
 	QGraphicsTextItem *m_pBroughtToYouBy;
 	QGraphicsTextItem *m_pBethelURL;
 };

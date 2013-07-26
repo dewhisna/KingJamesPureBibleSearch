@@ -50,15 +50,32 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
 	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
+	if (!strSpecialVersion.isEmpty()) {
+		m_pAppSpecialVersion = scene->addText(strSpecialVersion, QFont("Times Neew Roman", 10));
+		m_pAppSpecialVersion->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	} else {
+		m_pAppSpecialVersion = NULL;
+	}
 	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
 	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + Qt::escape(tr("Click Here to Visit Bethel Church")) + QString("</a></body></html>"));
 	m_pBethelURL->setOpenExternalLinks(true);
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	m_pBethelURL->setPos(m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2) - (m_pBethelURL->boundingRect().width() / 2), m_pBethelChurch->pos().y() + m_pBethelChurch->boundingRect().height());
-	m_pAppTitle->setPos(m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2) - (m_pAppTitle->boundingRect().width() / 2), m_pBethelURL->pos().y() + m_pBethelURL->boundingRect().height());
-	m_pBroughtToYouBy->setPos(m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2) - (m_pBroughtToYouBy->boundingRect().width() / 2), m_pAppTitle->pos().y() + m_pAppTitle->boundingRect().height());
+	// --------
+	qreal nXCenterLine = m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2);
+	qreal nYPos = m_pBethelChurch->pos().y() + m_pBethelChurch->boundingRect().height();
+	m_pBethelURL->setPos(nXCenterLine - (m_pBethelURL->boundingRect().width() / 2), nYPos);
+	nYPos += m_pBethelURL->boundingRect().height();
+	m_pAppTitle->setPos(nXCenterLine - (m_pAppTitle->boundingRect().width() / 2), nYPos);
+	nYPos += m_pAppTitle->boundingRect().height();
+	if (m_pAppSpecialVersion) {
+		m_pAppSpecialVersion->setPos(nXCenterLine - (m_pAppSpecialVersion->boundingRect().width() / 2), nYPos);
+		nYPos += m_pAppSpecialVersion->boundingRect().height();
+	}
+	m_pBroughtToYouBy->setPos(nXCenterLine - (m_pBroughtToYouBy->boundingRect().width() / 2), nYPos);
+	nYPos += m_pBroughtToYouBy->boundingRect().height();
 	ui->graphicsView->setScene(scene);
 	adjustSize();
 
