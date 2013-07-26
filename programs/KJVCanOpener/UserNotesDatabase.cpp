@@ -89,6 +89,10 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #2")] = TUserDefinedColor(QColor(170, 255, 255));			// "blue" highlighter
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #3")] = TUserDefinedColor(QColor(170, 255, 170));			// "green" highligher
 	m_mapHighlighterDefinitions[tr("Basic Highlighter #4")] = TUserDefinedColor(QColor(255, 170, 255));			// "pink" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #5")] = TUserDefinedColor(QColor(255, 200, 0));			// "orange" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #6")] = TUserDefinedColor(QColor(230, 200, 255));			// "purple" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #7")] = TUserDefinedColor(QColor(255, 230, 230));			// "apricot" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #8")] = TUserDefinedColor(QColor(255, 70, 200));			// "hot pink" highlighter
 }
 
 // ============================================================================
