@@ -21,12 +21,12 @@
 #ifndef GRANTLEE_TEXTDOCUMENT_H
 #define GRANTLEE_TEXTDOCUMENT_H
 
-#include "grantlee/abstractmarkupbuilder.h"
-#include "grantlee/bbcodebuilder.h"
-#include "grantlee/markupdirector.h"
-#include "grantlee/plaintextmarkupbuilder.h"
-#include "grantlee/texthtmlbuilder.h"
-#include "grantlee/mediawikimarkupbuilder.h"
-#include "grantlee/grantlee_gui_export.h"
+#include "abstractmarkupbuilder.h"
+#include "bbcodebuilder.h"
+#include "markupdirector.h"
+#include "plaintextmarkupbuilder.h"
+#include "texthtmlbuilder.h"
+#include "mediawikimarkupbuilder.h"
+#include "grantlee_gui_export.h"
 
 #endif

@@ -4,7 +4,7 @@ DEPENDPATH += $$PWD
 HEADERS +=	\
 		$$PWD/abstractmarkupbuilder.h \
 		$$PWD/bbcodebuilder.h \
-#		$$PWD/grantlee_textdocument.h \
+		$$PWD/grantlee_textdocument.h \
 		$$PWD/markupdirector.h \
 		$$PWD/markupdirector_p.h \
 		$$PWD/mediawikimarkupbuilder.h \
