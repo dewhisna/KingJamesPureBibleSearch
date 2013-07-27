@@ -37,6 +37,7 @@ CONFIG += wwwidgets
 #CONFIG += pcre
 
 include(../qtiocompressor/src/qtiocompressor.pri)
+include(../grantlee/textdocument/textdocument.pri)
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
