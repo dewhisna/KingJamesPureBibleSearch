@@ -200,7 +200,7 @@ void TextHTMLBuilder::beginParagraph( Qt::Alignment al, qreal topMargin, qreal b
   }
 
   if ( !styleString.isEmpty() ) {
-	appendRawText( QLatin1String( " \"" ) + styleString + QLatin1Char( '"' ) );
+	appendRawText( QLatin1String( " \"" ) + styleString + QLatin1Char( '\"' ) );
   }
   appendRawText( QLatin1String( ">" ) );
 //     }
@@ -265,7 +265,7 @@ void TextHTMLBuilder::endParagraph()
 
 void TextHTMLBuilder::addNewline()
 {
-  appendRawText( QLatin1String( "<p>&nbsp;" ) );
+  appendRawText( QLatin1String( "<p>&nbsp;</p>\n" ) );
 }
 
 void TextHTMLBuilder::insertHorizontalRule( int width )
