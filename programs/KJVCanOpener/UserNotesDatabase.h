@@ -88,7 +88,7 @@ public:
 	~CUserNoteEntry() { }
 
 	QString htmlText() const;		// Formatted HTML to insert into Scripture Browser (with background colored)
-	QString htmlText(const QString &strNoteText) const;
+	QString plainText() const;		// Formatted PlainText rendering
 
 	QString text() const
 	{

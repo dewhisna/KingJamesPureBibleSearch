@@ -16,6 +16,13 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
+
 */
 
 #ifndef GRANTLEE_ABSTRACTMARKUPBUILDER_H
@@ -235,6 +242,8 @@ public:
     @param text The text to append.
   */
   virtual void appendLiteralText( const QString &text ) = 0;
+
+  virtual const QString escape( const QString &s ) = 0;
 
   /**
     Appends the raw text @p text to the markup. @p text is added unescaped.

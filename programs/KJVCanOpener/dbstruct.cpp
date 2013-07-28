@@ -28,11 +28,14 @@
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
+#include "ScriptureDocument.h"
 
 #include <QtAlgorithms>
 #include <QSet>
 #include <QObject>
 #include <iterator>
+#include <QAbstractTextDocumentLayout>
+#include <QTextDocument>
 
 #include <assert.h>
 
@@ -160,6 +163,34 @@ int CPhraseList::removeDuplicates()
 	if (n != j)
 		erase(begin() + j, end());
 	return n - j;
+}
+
+// ============================================================================
+
+QString CFootnoteEntry::htmlText(const CBibleDatabase *pBibleDatabase) const
+{
+	QTextDocument docFootote;
+	docFootote.setHtml(text());
+
+	CScriptureTextHtmlBuilder scriptureHTML;
+	CScriptureTextDocumentDirector scriptureDirector(&scriptureHTML, pBibleDatabase);		// Only need BibleDatabase for embedded scripture and cross-refs, etc
+
+	scriptureDirector.processDocument(&docFootote);
+
+	return scriptureHTML.getResult();
+}
+
+QString CFootnoteEntry::plainText(const CBibleDatabase *pBibleDatabase) const
+{
+	QTextDocument docFootote;
+	docFootote.setHtml(text());
+
+	CScripturePlainTextBuilder scripturePlainText;
+	CScriptureTextDocumentDirector scriptureDirector(&scripturePlainText, pBibleDatabase);		// Only need BibleDatabase for embedded scripture and cross-refs, etc
+
+	scriptureDirector.processDocument(&docFootote);
+
+	return scripturePlainText.getResult();
 }
 
 // ============================================================================
@@ -818,14 +849,24 @@ CRelIndex CBibleDatabase::calcRelIndex(
 CBibleDatabase::CBibleDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID)
 	:	m_strName(strName),
 		m_strDescription(strDescription),
-		m_strCompatibilityUUID(strCompatUUID)
+		m_strCompatibilityUUID(strCompatUUID),
+		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 
 }
 
 CBibleDatabase::~CBibleDatabase()
 {
+	if (m_pKJPBSWordScriptureObject) {
+		delete m_pKJPBSWordScriptureObject;
+		m_pKJPBSWordScriptureObject = NULL;
+	}
+}
 
+void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
+{
+	assert(m_pKJPBSWordScriptureObject != NULL);
+	m_pKJPBSWordScriptureObject->registerTextLayoutHandlers(pDocLayout);
 }
 
 const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
@@ -887,11 +928,16 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 
 QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
 {
-	assert((ndxNormal >= 1) && (ndxNormal <= m_lstConcordanceMapping.size()));
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
 		return QString();
 
 	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
+}
+
+QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex) const
+{
+	if (!relIndex.isSet()) return QString();
+	return wordAtIndex(NormalizeIndex(relIndex));
 }
 
 QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const

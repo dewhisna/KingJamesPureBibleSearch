@@ -16,6 +16,13 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
+
 */
 
 #include "plaintextmarkupbuilder.h"
@@ -154,50 +161,42 @@ PlainTextMarkupBuilder::~PlainTextMarkupBuilder()
 
 void PlainTextMarkupBuilder::beginStrong()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '*' ) );
+  appendRawText( QLatin1String( "*" ) );
 }
 
 void PlainTextMarkupBuilder::endStrong()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '*' ) );
+  appendRawText( QLatin1String( "*" ) );
 }
 
 void PlainTextMarkupBuilder::beginEmph()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '/' ) );
+  appendRawText( QLatin1String( "/" ) );
 }
 
 void PlainTextMarkupBuilder::endEmph()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '/' ) );
+  appendRawText( QLatin1String( "/" ) );
 }
 
 void PlainTextMarkupBuilder::beginUnderline()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '_' ) );
+  appendRawText( QLatin1String( "_" ) );
 }
 
 void PlainTextMarkupBuilder::endUnderline()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '_' ) );
+  appendRawText( QLatin1String( "_" ) );
 }
 
 void PlainTextMarkupBuilder::beginStrikeout()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '-' ) );
+  appendRawText( QLatin1String( "-" ) );
 }
 
 void PlainTextMarkupBuilder::endStrikeout()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '-' ) );
+  appendRawText( QLatin1String( "-" ) );
 }
 
 void PlainTextMarkupBuilder::beginAnchor( const QString &href, const QString &name )
@@ -214,27 +213,24 @@ void PlainTextMarkupBuilder::beginAnchor( const QString &href, const QString &na
 void PlainTextMarkupBuilder::endAnchor()
 {
   Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QString::fromLatin1( "[%1]" ).arg( d->m_urls.indexOf( d->activeLink ) + 1 ) );
+  appendRawText( QString::fromLatin1( "[%1]" ).arg( d->m_urls.indexOf( d->activeLink ) + 1 ) );
 }
 
 void PlainTextMarkupBuilder::endParagraph()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '\n' ) );
+  appendRawText( QLatin1String( "\n" ) );
 }
 
 void PlainTextMarkupBuilder::addNewline()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '\n' ) );
+  appendRawText( QLatin1String( "\n" ) );
 }
 
 void PlainTextMarkupBuilder::insertHorizontalRule( int width )
 {
   Q_UNUSED( width )
-  Q_D( PlainTextMarkupBuilder );
 
-  d->m_text.append( QLatin1String( "--------------------\n" ) );
+  appendRawText( QLatin1String( "--------------------\n" ) );
 }
 
 int PlainTextMarkupBuilder::addReference( const QString& reference )
@@ -248,13 +244,12 @@ int PlainTextMarkupBuilder::addReference( const QString& reference )
 
 void PlainTextMarkupBuilder::insertImage( const QString &src, qreal width, qreal height )
 {
-  Q_D( PlainTextMarkupBuilder );
   Q_UNUSED( width )
   Q_UNUSED( height )
 
   int ref = addReference( src );
 
-  d->m_text.append( QString::fromLatin1( "[%1]" ).arg( ref ) );
+  appendRawText( QString::fromLatin1( "[%1]" ).arg( ref ) );
 }
 
 void PlainTextMarkupBuilder::beginList( QTextListFormat::Style style )
@@ -277,35 +272,35 @@ void PlainTextMarkupBuilder::beginListItem()
 {
   Q_D( PlainTextMarkupBuilder );
   for ( int i = 0; i < d->currentListItemNumbers.size(); i++ ) {
-    d->m_text.append( QLatin1String( "    " ) );
+	appendRawText( QLatin1String( "    " ) );
   }
 
   int itemNumber = d->currentListItemNumbers.last();
 
   switch ( d->currentListItemStyles.last() ) {
   case QTextListFormat::ListDisc:
-    d->m_text.append( QLatin1String( " *  " ) );
+	appendRawText( QLatin1String( " *  " ) );
     break;
   case QTextListFormat::ListCircle:
-    d->m_text.append( QLatin1String( " o  " ) );
+	appendRawText( QLatin1String( " o  " ) );
     break;
   case QTextListFormat::ListSquare:
-    d->m_text.append( QLatin1String( " -  " ) );
+	appendRawText( QLatin1String( " -  " ) );
     break;
   case QTextListFormat::ListDecimal:
-    d->m_text.append( QString::fromLatin1( " %1. " ).arg( itemNumber + 1 ) );
+	appendRawText( QString::fromLatin1( " %1. " ).arg( itemNumber + 1 ) );
     break;
   case QTextListFormat::ListLowerAlpha:
-    d->m_text.append( QString::fromLatin1( " %1. " ).arg( d->getLetterString( itemNumber ) ) );
+	appendRawText( QString::fromLatin1( " %1. " ).arg( d->getLetterString( itemNumber ) ) );
     break;
   case QTextListFormat::ListUpperAlpha:
-    d->m_text.append( QString::fromLatin1( " %1. " ).arg( d->getLetterString( itemNumber ).toUpper() ) );
+	appendRawText( QString::fromLatin1( " %1. " ).arg( d->getLetterString( itemNumber ).toUpper() ) );
     break;
   case QTextListFormat::ListLowerRoman:
-    d->m_text.append( QString::fromLatin1( " %1. " ).arg( d->getRomanString( itemNumber +1 ) ) );
+	appendRawText( QString::fromLatin1( " %1. " ).arg( d->getRomanString( itemNumber +1 ) ) );
     break;
   case QTextListFormat::ListUpperRoman:
-    d->m_text.append( QString::fromLatin1( " %1. " ).arg( d->getRomanString( itemNumber +1 ).toUpper() ) );
+	appendRawText( QString::fromLatin1( " %1. " ).arg( d->getRomanString( itemNumber +1 ).toUpper() ) );
     break;
   default:
     break;
@@ -316,37 +311,37 @@ void PlainTextMarkupBuilder::endListItem()
 {
   Q_D( PlainTextMarkupBuilder );
   d->currentListItemNumbers.last() = d->currentListItemNumbers.last() + 1;
-  d->m_text.append( QLatin1Char('\n') );
+  appendRawText( QLatin1String("\n") );
 }
 
 void PlainTextMarkupBuilder::beginSuperscript()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1String( "^{" ) );
+  appendRawText( QLatin1String( "^{" ) );
 }
 
 void PlainTextMarkupBuilder::endSuperscript()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '}' ) );
+  appendRawText( QLatin1String( "}" ) );
 }
 
 void PlainTextMarkupBuilder::beginSubscript()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1String( "_{" ) );
+  appendRawText( QLatin1String( "_{" ) );
 }
 
 void PlainTextMarkupBuilder::endSubscript()
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( QLatin1Char( '}' ) );
+  appendRawText( QLatin1String( "}" ) );
 }
 
 void PlainTextMarkupBuilder::appendLiteralText( const QString &text )
 {
-  Q_D( PlainTextMarkupBuilder );
-  d->m_text.append( text );
+  appendRawText( escape(text) );
+}
+
+const QString PlainTextMarkupBuilder::escape( const QString &s )
+{
+	return s;
 }
 
 void PlainTextMarkupBuilder::appendRawText( const QString &text )

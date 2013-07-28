@@ -27,6 +27,7 @@
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
 #include "UserNotesDatabase.h"
+#include "ScriptureDocument.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -801,12 +802,22 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		return;
 	}
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
-//						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
+	CScriptureTextHtmlBuilder scriptureHTML;
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-line; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
-						.arg(Qt::escape(m_pBibleDatabase->PassageReferenceText(ndx)));		// Document Title
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
+//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
+//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+										"<html><head><title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-line; font-size:medium; }\n"
+										".book { font-size:xx-large; font-weight:bold; }\n"
+										".chapter { font-size:x-large; font-weight:bold; }\n"
+										".subtitle { font-size:medium; font-weight:normal; }\n"
+										".category { font-size:medium; font-weight:normal; }\n"
+										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										"</style></head><body>\n")
+										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 
 	uint32_t nFirstWordNormal = m_pBibleDatabase->NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
 	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + pChapter->m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
@@ -818,110 +829,91 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		CRelIndex relPrev(nRelPrevChapter);
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
-		strHTML += "<p>";
-		if (!bNoAnchors) {
-			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(relPrev.asAnchor()).arg(relPrev.verse());
-		} else {
-			strHTML += QString("<b> %1 </b>").arg(relPrev.verse());
-		}
-		strHTML += m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors);
-		strHTML += "</p>\n";
+		scriptureHTML.beginParagraph();
+		if (!bNoAnchors) scriptureHTML.beginAnchorID(relPrev.asAnchor());
+		scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relPrev.verse()));
+		scriptureHTML.endBold();
+		if (!bNoAnchors) scriptureHTML.endAnchor();
 
-		if (g_pUserNotesDatabase->existsNoteFor(relPrev)) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relPrev);
-			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
-								.arg(relPrev.asAnchor())
-								.arg(userNote.htmlText());
-			} else {
-				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(relPrev.asAnchor());
-			}
-		}
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors));
+		scriptureHTML.endParagraph();
 
+		scriptureHTML.addNoteFor(relPrev, !bNoAnchors);
 
-		// If we have a footnote for this book and this is the end of the last chapter,
+		// If we have a footnote or user note for this book and this is the end of the last chapter,
 		//		print it too:
 		if (relPrev.chapter() == bookPrev.m_nNumChp) {
-			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(relPrev.book(),0,0,0));
-			if (pFootnote) {
-				if (!bNoAnchors) {
-					strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
-									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
-									.arg(pFootnote->text())
-									.arg(CRelIndex(relPrev.book(),0,0,0).asAnchor())
-									.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
-				} else {
-					strHTML += QString("<p>%1</p>\n")
-									.arg(pFootnote->text());
-				}
+			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
+			if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), !bNoAnchors)) {
+				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+				scriptureHTML.beginDiv("colophon");
+				scriptureHTML.flushBuffer();
+				scriptureHTML.endDiv();
 			}
+			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
+
+			scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), !bNoAnchors);		// No extra <hr> as we have one below for the whole chapter anyway
 		}
 	}
 
-	strHTML += "<hr />\n";
+	scriptureHTML.insertHorizontalRule();
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 
-	// Print Heading for this Book/Chapter:
+	// Print Heading for this Book:
+	scriptureHTML.beginDiv("book");
+	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
 	if (!bNoAnchors) {
-		strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-						.arg(ndxBookChap.asAnchor())
-						.arg(Qt::escape(book.m_strBkName));
-		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(book.m_strDesc);
-		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
-							.arg(Qt::escape(tr("Category:")))
-							.arg(book.m_strCat);
-		// If we have a chapter note for this chapter, print it too:
-		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
-		if (pFootnote) {
-			strHTML += QString("<div class=chapter>%1 %2</div>\n")
-						.arg(Qt::escape(tr("Chapter")))
-						.arg(ndx.chapter());
-			strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-						.arg(pFootnote->text())
-						.arg(ndxBookChap.asAnchor());
-		} else {
-			strHTML += QString("<div class=chapter>%1 %2<a id=\"X%3\"> </a></div>\n")
-						.arg(Qt::escape(tr("Chapter")))
-						.arg(ndx.chapter())
-						.arg(ndxBookChap.asAnchor());
+		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
+		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+		scriptureHTML.endAnchor();
+	}
+	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(),0,0,0).asAnchor());
+	scriptureHTML.appendLiteralText(book.m_strBkName);
+	if (!bNoAnchors) scriptureHTML.endAnchor();
+	scriptureHTML.endDiv();
+	// If this is the first chapter of the book:
+	if (ndx.chapter() == 1) {
+		// Print Book Descriptionsk:
+		if (!book.m_strDesc.isEmpty()) {
+			scriptureHTML.beginDiv("subtitle");
+			scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
+			scriptureHTML.endDiv();
 		}
-	} else {
-		strHTML += QString("<div class=book>%1</div>\n")
-						.arg(Qt::escape(book.m_strBkName));
-		if ((!book.m_strDesc.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=subtitle>(%1)</div>\n")
-							.arg(book.m_strDesc);
-		if  ((!book.m_strCat.isEmpty()) && (ndx.chapter() == 1))
-			strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
-							.arg(Qt::escape(tr("Category:")))
-							.arg(book.m_strCat);
-		strHTML += QString("<div class=chapter>%1 %2</div>\n")
-						.arg(Qt::escape(tr("Chapter")))
-						.arg(ndx.chapter());
-		// If we have a chapter note for this chapter, print it too:
-		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
-		if (pFootnote) {
-			strHTML += QString("<div class=subtitle>%1</div>\n")
-						.arg(pFootnote->text());
+		// Print Book Category:
+		if  (!book.m_strCat.isEmpty()) {
+			scriptureHTML.beginDiv("category");
+			scriptureHTML.beginBold();
+			scriptureHTML.appendLiteralText(tr("Category:"));
+			scriptureHTML.endBold();
+			scriptureHTML.appendRawText(QString(" %1").arg(book.m_strCat));
+			scriptureHTML.endDiv();
 		}
+		// If we have a User Note for this book, print it too:
+		if (scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 	}
 
-	if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
-		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
-		if (userNote.isVisible()) {
-			strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />")
-							.arg(ndxBookChap.asAnchor())
-							.arg(userNote.htmlText());
-		} else {
-			strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxBookChap.asAnchor());
-		}
+	// Print Heading for this Chapter:
+	scriptureHTML.beginDiv("chapter");
+	if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
+	scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter")).arg(ndx.chapter()));
+	if (!bNoAnchors) scriptureHTML.endAnchor();
+	scriptureHTML.endDiv();
+	// If we have a chapter Footnote for this chapter, print it too:
+	scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
+	if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !bNoAnchors)) {
+		scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
+		scriptureHTML.beginDiv("subtitle");
+		scriptureHTML.flushBuffer();
+		scriptureHTML.endDiv();
 	}
+	scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
-	// Print this Chapter Text:
+	// If we have a chapter User Note for this chapter, print it too:
+	if (scriptureHTML.addNoteFor(ndxBookChap, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+
+	// Print the Chapter Text:
 	bool bParagraph = false;
 	CRelIndex ndxVerse;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
@@ -933,67 +925,62 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 		if (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) {
 			if (bParagraph) {
-				strHTML += "</p>\n";
+				scriptureHTML.endParagraph();
 				bParagraph=false;
 			}
 		}
 		if (!bParagraph) {
-			strHTML += "<p>";
+			scriptureHTML.beginParagraph();
 			bParagraph = true;
 		}
-		if (!bNoAnchors) {
-			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>")
-						.arg(ndxVerse.asAnchor())
-						.arg(ndxVrs+1);
-		} else {
-			strHTML += QString("<b> %1 </b>")
-						.arg(ndxVrs+1);
-		}
-		strHTML += m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors);
 
-		if (g_pUserNotesDatabase->existsNoteFor(ndxVerse)) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxVerse);
-			if (userNote.isVisible()) {
-				if (bParagraph) {
-					strHTML += "</p>\n";
-					bParagraph = false;
-				}
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
-								.arg(ndxVerse.asAnchor())
-								.arg(userNote.htmlText());
-				if (ndxVrs != (pChapter->m_nNumVrs - 1)) strHTML += QString("<hr />");
-				strHTML += "\n";
-			} else {
-				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxVerse.asAnchor());
+		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
+		scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(QString(" %1 ").arg(ndxVrs+1));
+		scriptureHTML.endBold();
+		if (!bNoAnchors) scriptureHTML.endAnchor();
+
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors));
+
+		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
+		scriptureHTML.startBuffered();
+		if (scriptureHTML.addNoteFor(ndxVerse, !bNoAnchors)) {
+			if (bParagraph) {
+				scriptureHTML.stopBuffered();	// Switch to direct output to end the paragraph ahead of the note
+				scriptureHTML.endParagraph();
+				bParagraph = false;
+			}
+			// Do an extra horizontal break if not at the end of the chapter:
+			if (ndxVrs != (pChapter->m_nNumVrs - 1)) {
+				scriptureHTML.flushBuffer(true);		// Flush our note, stop buffering (call below is redundant in this one case)
+				scriptureHTML.insertHorizontalRule();	//	but is needed so we can output this <hr>
 			}
 		}
+		scriptureHTML.flushBuffer(true);		// Stop buffering and flush
 
 		ndxVerse.setWord(pVerse->m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
 	}
 	if (bParagraph) {
-		strHTML += "</p>";
+		scriptureHTML.endParagraph();
 		bParagraph = false;
 	}
 
-	// If we have a footnote for this book and this is the end of the last chapter,
+	// If we have a footnote or user note for this book and this is the end of the last chapter,
 	//		print it too:
 	if (ndx.chapter() == book.m_nNumChp) {
-		const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(),0,0,0));
-		if (pFootnote) {
-			if (!bNoAnchors) {
-				strHTML += QString("<p><a id=\"%1\">%2</a><a id=\"X%3\">%4</a></p>\n")
-								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
-								.arg(pFootnote->text())
-								.arg(CRelIndex(ndx.book(),0,0,0).asAnchor())
-								.arg(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
-			} else {
-				strHTML += QString("<p>%1</p>\n")
-								.arg(pFootnote->text());
-			}
+		scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
+		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(ndx.book(),0,0,0), !bNoAnchors)) {
+			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+			scriptureHTML.beginDiv("colophon");
+			scriptureHTML.flushBuffer();
+			scriptureHTML.endDiv();
 		}
+		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
+
+		scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), !bNoAnchors);			// No extra <hr> as we have one below for the whole chapter anyway
 	}
 
-	strHTML += "<hr />\n";
+	scriptureHTML.insertHorizontalRule();
 
 	// Print first verse of next chapter if available:
 	if (nRelNextChapter != 0) {
@@ -1002,116 +989,73 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		CRelIndex ndxBookChap(relNext.book(), relNext.chapter(), 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 
-		// Print Heading for this Book/Chapter:
-		bool bNextChapterDifferentBook = false;
+		// Print Heading for this Book:
 		if (relNext.book() != ndx.book()) {
-			bNextChapterDifferentBook = true;
+			// Print Heading for this Book:
+			scriptureHTML.beginDiv("book");
+			// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
 			if (!bNoAnchors) {
-				strHTML += QString("<div class=book><a id=\"%1\">%2</a></div>\n")		// Note: No X anchor because it's coming with chapter heading below
-								.arg(ndxBookChap.asAnchor())
-								.arg(Qt::escape(bookNext.m_strBkName));
-				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(bookNext.m_strDesc);
-				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
-									.arg(Qt::escape(tr("Category:")))
-									.arg(bookNext.m_strCat);
-			} else {
-				strHTML += QString("<div class=book>%1</div>\n")
-								.arg(Qt::escape(bookNext.m_strBkName));
-				if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=subtitle>(%1)</div>\n")
-									.arg(bookNext.m_strDesc);
-				if  ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1))
-					strHTML += QString("<div class=category><b>%1</b> %2</div>\n")
-									.arg(Qt::escape(tr("Category:")))
-									.arg(bookNext.m_strCat);
+				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
+				scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+				scriptureHTML.endAnchor();
 			}
+			if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(relNext.book(),0,0,0).asAnchor());
+			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
+			if (!bNoAnchors) scriptureHTML.endAnchor();
+			scriptureHTML.endDiv();
+			// Print Book Descriptions for first chapter of book:
+			if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {
+				scriptureHTML.beginDiv("subtitle");
+				scriptureHTML.appendRawText(QString("(%1)").arg(bookNext.m_strDesc));
+				scriptureHTML.endDiv();
+			}
+			// Print Book Category for first chapter of book:
+			if ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1)) {
+				scriptureHTML.beginDiv("category");
+				scriptureHTML.beginBold();
+				scriptureHTML.appendLiteralText(tr("Category:"));
+				scriptureHTML.endBold();
+				scriptureHTML.appendRawText(QString(" %1").arg(bookNext.m_strCat));
+				scriptureHTML.endDiv();
+			}
+			// If we have a User Note for this book, print it too:
+			if (scriptureHTML.addNoteFor(CRelIndex(relNext.book(),0,0,0), !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 		}
-		if (!bNoAnchors) {
-			if (bNextChapterDifferentBook) {
-				// If we have a chapter note for this chapter, print it too:
-				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
-				if (pFootnote) {
-					strHTML += QString("<div class=chapter>%1 %2</div>\n")
-									.arg(Qt::escape(tr("Chapter")))
-									.arg(relNext.chapter());
-					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-									.arg(pFootnote->text())
-									.arg(ndxBookChap.asAnchor());
-				} else {
-					strHTML += QString("<div class=chapter>%1 %2<a id=\"X%3\"> </a></div>\n")
-									.arg(Qt::escape(tr("Chapter")))
-									.arg(relNext.chapter())
-									.arg(ndxBookChap.asAnchor());
-				}
-			} else {
-				// If we have a chapter note for this chapter, print it too:
-				const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
-				if (pFootnote) {
-					strHTML += QString("<div class=chapter><a id=\"%1\">%2 %3</a></div>\n")
-									.arg(ndxBookChap.asAnchor())
-									.arg(Qt::escape(tr("Chapter")))
-									.arg(relNext.chapter());
-					strHTML += QString("<div class=subtitle>%1<a id=\"X%2\"> </a></div>\n")
-									.arg(pFootnote->text())
-									.arg(ndxBookChap.asAnchor());
-				} else {
-					strHTML += QString("<div class=chapter><a id=\"%1\">%2 %3</a><a id=\"X%4\"> </a></div>\n")
-									.arg(ndxBookChap.asAnchor())
-									.arg(Qt::escape(tr("Chapter")))
-									.arg(relNext.chapter())
-									.arg(ndxBookChap.asAnchor());
-				}
-			}
-		} else {
-			strHTML += QString("<div class=chapter>%1 %2</div>\n")
-								.arg(Qt::escape(tr("Chapter")))
-								.arg(relNext.chapter());
-			// If we have a chapter note for this chapter, print it too:
-			const CFootnoteEntry *pFootnote = m_pBibleDatabase->footnoteEntry(ndxBookChap);
-			if (pFootnote) {
-				strHTML += QString("<div class=subtitle>%1</div>\n")
-							.arg(pFootnote->text());
-			}
-		}
+		// Print Heading for this Chapter:
+		scriptureHTML.beginDiv("chapter");
+		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
+		scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter")).arg(relNext.chapter()));
+		if (!bNoAnchors) scriptureHTML.endAnchor();
+		scriptureHTML.endDiv();
 
-		if (g_pUserNotesDatabase->existsNoteFor(ndxBookChap)) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxBookChap);
-			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2<hr />")
-								.arg(ndxBookChap.asAnchor())
-								.arg(userNote.htmlText());
-			} else {
-				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(ndxBookChap.asAnchor());
-			}
+		// If we have a chapter note for this chapter, print it too:
+		scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
+		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !bNoAnchors)) {
+			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
+			scriptureHTML.beginDiv("subtitle");
+			scriptureHTML.flushBuffer();
+			scriptureHTML.endDiv();
 		}
+		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
-		strHTML += "<p>";
-		if (!bNoAnchors) {
-			strHTML += QString("<a id=\"%1\"><b> %2 </b></a>").arg(relNext.asAnchor()).arg(relNext.verse());
-		} else {
-			strHTML += QString("<b> %1 </b>").arg(relNext.verse());
-		}
-		strHTML += m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors);
-		strHTML += "</p>\n";
+		// If we have a chapter User Note for this chapter, print it too:
+		if (scriptureHTML.addNoteFor(ndxBookChap, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 
-		if (g_pUserNotesDatabase->existsNoteFor(relNext)) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNext);
-			if (userNote.isVisible()) {
-				strHTML += QString("<a href=\"N%1\">[-]</a><hr />%2")
-								.arg(relNext.asAnchor())
-								.arg(userNote.htmlText());
-			} else {
-				strHTML += QString("<a href=\"N%1\">[+]</a>").arg(relNext.asAnchor());
-			}
-		}
+		scriptureHTML.beginParagraph();
+		if (!bNoAnchors) scriptureHTML.beginAnchorID(relNext.asAnchor());
+		scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relNext.verse()));
+		scriptureHTML.endBold();
+		if (!bNoAnchors) scriptureHTML.endAnchor();
 
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors));
+		scriptureHTML.endParagraph();
+
+		scriptureHTML.addNoteFor(relNext, !bNoAnchors);
 	}
 
-	strHTML += "</body></html>";
-	m_TextDocument.setHtml(strHTML);
+	scriptureHTML.appendRawText("</body></html>");
+	m_TextDocument.setHtml(scriptureHTML.getResult());
 	emit changedDocumentText();
 }
 

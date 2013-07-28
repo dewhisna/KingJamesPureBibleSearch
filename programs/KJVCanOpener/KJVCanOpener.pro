@@ -116,7 +116,8 @@ SOURCES += main.cpp \
 	KJVConfiguration.cpp \
 	UserNotesDatabase.cpp \
 	SubControls.cpp \
-	KJVNoteEditDlg.cpp
+	KJVNoteEditDlg.cpp \
+	ScriptureDocument.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -159,7 +160,9 @@ HEADERS  += main.h \
 	KJVConfiguration.h \
 	UserNotesDatabase.h \
 	SubControls.h \
-	KJVNoteEditDlg.h
+	KJVNoteEditDlg.h \
+	ScriptureDocument.h \
+	ScriptureTextFormatProperties.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \

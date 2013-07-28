@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "UserNotesDatabase.h"
+#include "ScriptureDocument.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -97,10 +98,10 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 
 // ============================================================================
 
-QString CUserNoteEntry::htmlText(const QString &strNoteText) const
+QString CUserNoteEntry::htmlText() const
 {
 	QTextDocument docUserNote;
-	docUserNote.setHtml(strNoteText);
+	docUserNote.setHtml(text());
 	QTextCursor cursorDocUserNote(&docUserNote);
 
 	cursorDocUserNote.select(QTextCursor::Document);
@@ -111,12 +112,38 @@ QString CUserNoteEntry::htmlText(const QString &strNoteText) const
 	cursorDocUserNote.mergeBlockFormat(fmtBlockUserNote);
 	cursorDocUserNote.mergeBlockCharFormat(fmtCharUserNote);
 
+// TODO : Figure out how to make this do background color correctly:
+//
+//	CScriptureTextHtmlBuilder scriptureHTML;
+//	CScriptureTextDocumentDirector scriptureDirector(&scriptureHTML);		// Note: No Bible Database needed since user notes contains no database generated scripture
+//
+//	scriptureDirector.processDocument(&docUserNote);
+//
+//	return scriptureHTML.getResult();
+
 	return docUserNote.toHtml();
 }
 
-QString CUserNoteEntry::htmlText() const
+QString CUserNoteEntry::plainText() const
 {
-	return htmlText(text());
+	QTextDocument docUserNote;
+	docUserNote.setHtml(text());
+	QTextCursor cursorDocUserNote(&docUserNote);
+
+	cursorDocUserNote.select(QTextCursor::Document);
+	QTextCharFormat fmtCharUserNote;
+	fmtCharUserNote.setBackground(backgroundColor());
+	QTextBlockFormat fmtBlockUserNote;
+	fmtBlockUserNote.setBackground(backgroundColor());
+	cursorDocUserNote.mergeBlockFormat(fmtBlockUserNote);
+	cursorDocUserNote.mergeBlockCharFormat(fmtCharUserNote);
+
+	CScripturePlainTextBuilder scripturePlainText;
+	CScriptureTextDocumentDirector scriptureDirector(&scripturePlainText);		// Note: No Bible Database needed since user notes contains no database generated scripture
+
+	scriptureDirector.processDocument(&docUserNote);
+
+	return scripturePlainText.getResult();
 }
 
 // ============================================================================

@@ -368,6 +368,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
@@ -423,6 +424,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 
 	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(ev->pos())).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
+	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
 	QMenu menu;
 	menu.addAction(m_pActionCopy);
@@ -500,6 +502,7 @@ void CScriptureText<T,U>::en_cursorPositionChanged()
 	CPhraseCursor cursor(T::textCursor());
 	m_tagLast.relIndex() = m_navigator.getSelection(cursor).relIndex();
 	if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
+	setLastActiveTag();
 
 	// Move start of selection tag so we can later simulate pseudo-selection of
 	//		single word when nothing is really selected:
@@ -549,6 +552,16 @@ void CScriptureText<T,U>::updateSelection()
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
 	m_bDoingSelectionChange = false;
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::setLastActiveTag()
+{
+	if (m_tagLast.isSet()) {
+		// Note: Special case chapter != 0, verse == 0 for special top-of-book/chapter scroll
+		if ((m_tagLast.relIndex().verse() != 0) || (m_tagLast.relIndex().word() != 0) ||
+			((m_tagLast.relIndex().chapter() != 0) && (m_tagLast.relIndex().verse() == 0))) m_tagLastActive = m_tagLast;
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -733,7 +746,13 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 	userNote.setIsVisible(!userNote.isVisible());
 	g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
 
-	emit T::gotoIndex(selection());			// Re-render text
+	// Re-render text:
+	if (selection().relIndex().chapter() == 0) {
+		// Special case if it's an entire book, use our last active tag:
+		emit T::gotoIndex(m_tagLastActive);
+	} else {
+		emit T::gotoIndex(selection());
+	}
 }
 
 // ============================================================================

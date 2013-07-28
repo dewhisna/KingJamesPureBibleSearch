@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "Highlighter.h"
+#include "ScriptureTextFormatProperties.h"
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
@@ -37,15 +38,6 @@
 // ============================================================================
 
 #define NUM_HIGHLIGHTER_TOOLBAR_BUTTONS 4
-
-
-//
-// UserProperties:
-//
-#define USERPROP_FOREGROUND_BRUSH		0			//		+0		Foreground Brush
-#define USERPROP_BACKGROUND_BRUSH		1			//		+1		Background Brush
-#define USERPROP_UNDERLINE_COLOR		2			//		+2		Underline Color
-#define USERPROP_UNDERLINE_STYLE		3			//		+3		Underline Style
 
 // ============================================================================
 
@@ -139,13 +131,13 @@ CSearchResultHighlighter::~CSearchResultHighlighter()
 void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
 	if ((!bClear) && (enabled())) {
-		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH)) {
-			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
+		if (!aFormat.hasProperty(USERPROP_FOREGROUND_BRUSH)) {
+			aFormat.setProperty(USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
 		}
 		aFormat.setForeground(QBrush(CPersistentSettings::instance()->colorSearchResults()));
 	} else {
-		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH))
-			aFormat.setForeground(aFormat.property(QTextFormat::UserProperty + USERPROP_FOREGROUND_BRUSH).value<QBrush>());
+		if (aFormat.hasProperty(USERPROP_FOREGROUND_BRUSH))
+			aFormat.setForeground(aFormat.property(USERPROP_FOREGROUND_BRUSH).value<QBrush>());
 	}
 }
 
@@ -197,19 +189,19 @@ Q_DECLARE_METATYPE(QTextCharFormat::UnderlineStyle)
 void CCursorFollowHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
 {
 	if ((!bClear) && (enabled())) {
-		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR)) {
-			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR, QVariant(aFormat.underlineColor()));
+		if (!aFormat.hasProperty(USERPROP_UNDERLINE_COLOR)) {
+			aFormat.setProperty(USERPROP_UNDERLINE_COLOR, QVariant(aFormat.underlineColor()));
 		}
-		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE)) {
-			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
+		if (!aFormat.hasProperty(USERPROP_UNDERLINE_STYLE)) {
+			aFormat.setProperty(USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
 		}
 		aFormat.setUnderlineColor(CPersistentSettings::instance()->colorCursorFollow());
 		aFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);		// TODO : Get properties from global settings! ??
 	} else {
-		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR))
-			aFormat.setUnderlineColor(aFormat.property(QTextFormat::UserProperty + USERPROP_UNDERLINE_COLOR).value<QColor>());
-		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE))
-			aFormat.setUnderlineStyle(aFormat.property(QTextFormat::UserProperty + USERPROP_UNDERLINE_STYLE).value<QTextCharFormat::UnderlineStyle>());
+		if (aFormat.hasProperty(USERPROP_UNDERLINE_COLOR))
+			aFormat.setUnderlineColor(aFormat.property(USERPROP_UNDERLINE_COLOR).value<QColor>());
+		if (aFormat.hasProperty(USERPROP_UNDERLINE_STYLE))
+			aFormat.setUnderlineStyle(aFormat.property(USERPROP_UNDERLINE_STYLE).value<QTextCharFormat::UnderlineStyle>());
 	}
 }
 
@@ -250,13 +242,13 @@ void CUserDefinedHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bCle
 	if ((!bClear) && (enabled()) &&
 		(highlighterDefinition.isValid()) &&
 		(highlighterDefinition.m_bEnabled)) {
-		if (!aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH)) {
-			aFormat.setProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
+		if (!aFormat.hasProperty(USERPROP_BACKGROUND_BRUSH)) {
+			aFormat.setProperty(USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
 		}
 		aFormat.setBackground(QBrush(highlighterDefinition.m_color));
 	} else {
-		if (aFormat.hasProperty(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH))
-			aFormat.setBackground(aFormat.property(QTextFormat::UserProperty + USERPROP_BACKGROUND_BRUSH).value<QBrush>());
+		if (aFormat.hasProperty(USERPROP_BACKGROUND_BRUSH))
+			aFormat.setBackground(aFormat.property(USERPROP_BACKGROUND_BRUSH).value<QBrush>());
 	}
 }
 

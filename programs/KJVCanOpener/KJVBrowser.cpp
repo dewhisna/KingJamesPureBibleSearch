@@ -165,7 +165,8 @@ void CKJVBrowser::initialize()
 
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
-	TPhraseTag tagActual = tag;
+	// Note: Special case !tag->relIndex().isSet() means reload current index
+	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
 
 	begin_update();
 
@@ -177,19 +178,22 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 
 	end_update();
 
-	gotoIndex2(tagActual);
+	gotoIndex2(tag.relIndex().isSet() ? tagActual : tag);		// Pass special-case on to gotoIndex2
 }
 
 void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 {
-	setBook(tag.relIndex());
-	setChapter(tag.relIndex());
-	setVerse(tag.relIndex());
-	setWord(tag);
+	// Note: Special case !tag->relIndex().isSet() means reload current index
+	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
+
+	setBook(tagActual.relIndex());
+	setChapter(tagActual.relIndex());
+	setVerse(tagActual.relIndex());
+	setWord(tagActual);
 
 	doHighlighting();
 
-	emit en_gotoIndex(tag);
+	emit en_gotoIndex(tagActual);
 }
 
 void CKJVBrowser::en_sourceChanged(const QUrl &src)

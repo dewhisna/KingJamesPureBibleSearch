@@ -135,6 +135,9 @@ public:
 	virtual void en_anchorClicked(const QUrl &link);
 
 private:
+	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
+
+private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
@@ -144,6 +147,7 @@ private:
 	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
+	TPhraseTag m_tagLastActive;		// Last active position -- i.e. m_tagLast for a verse and/or word (as opposed to book/chapter
 	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference
 	bool m_bDoPlainCopyOnly;		// Flag for the createMimeDataFromSelection function to use only plain text
 

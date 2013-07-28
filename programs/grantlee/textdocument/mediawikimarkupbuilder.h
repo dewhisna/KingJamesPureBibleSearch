@@ -16,6 +16,13 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
+
 */
 
 #ifndef GRANTLEE_MEDIAWIKIMARKUPBUILDER_H
@@ -69,7 +76,9 @@ public:
   /**
     Escapes @p text appropriately for MediaWiki.
   */
-  const QString escape( const QString &s );
+  /* reimp */ const QString escape( const QString &s );
+
+  /* reimp */ void appendRawText( const QString &text );
 
   /* reimp */ QString getResult();
 

@@ -443,6 +443,9 @@ public:
 	{ }
 	~CFootnoteEntry() { }
 
+	QString htmlText(const CBibleDatabase *pBibleDatabase = NULL) const;		// Formatted HTML to insert into Scripture Browser (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
+	QString plainText(const CBibleDatabase *pBibleDatabase = NULL) const;		// Formatted PlainText rendering (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
+
 	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
 	{
 		return m_strText;
@@ -553,6 +556,8 @@ class COSISXmlHandler;
 
 class CVerseTextRichifierTags;
 class TPhraseTag;
+class CKJPBSWordScriptureObject;
+class QAbstractTextDocumentLayout;
 
 // CBibleDatabase - Class to define a Bible Database file
 class CBibleDatabase
@@ -565,6 +570,8 @@ public:
 	QString name() const { return m_strName; }
 	QString description() const { return m_strDescription; }
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
+
+	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
 	// CRelIndex Name/Report Functions:
 	QString SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
@@ -625,6 +632,7 @@ public:
 		return m_lstConcordanceWords;
 	}
 	QString wordAtIndex(uint32_t ndxNormal) const;						// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
+	QString wordAtIndex(const CRelIndex &relIndex) const;				// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above)
 	QString decomposedWordAtIndex(uint32_t ndxNormal) const;			// Returns word of the Bible (decomposed) based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
 	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
@@ -667,6 +675,8 @@ private:
 	QString m_strName;						// Name for this database
 	QString m_strDescription;				// Database description
 	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
+
+	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
 
 // Cache:
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
