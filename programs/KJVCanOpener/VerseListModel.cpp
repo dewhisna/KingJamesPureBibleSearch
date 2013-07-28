@@ -79,6 +79,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pPar
 		connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
 		connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 	}
+
+	en_changedHighlighters();		// Make sure we've loaded the initial default highlighters (or from the current set if we are rebuilding this class for some reason)
 }
 
 int CVerseListModel::rowCount(const QModelIndex &zParent) const

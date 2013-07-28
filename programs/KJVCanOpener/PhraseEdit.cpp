@@ -813,7 +813,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 										"body, p, li { white-space: pre-line; font-size:medium; }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
-										".subtitle { font-size:medium; font-weight:normal; }\n"
+										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
