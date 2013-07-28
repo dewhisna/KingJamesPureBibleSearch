@@ -56,6 +56,9 @@ void DelayedExecutionTimer::trigger()
 	}
 	m_minimumTimer->stop();
 	if (m_minimumDelay > 0) m_minimumTimer->start(m_minimumDelay);
+
+	if (((m_maximumDelay == -1) || (m_maximumDelay == 0)) &&
+		((m_minimumDelay == -1) || (m_minimumDelay == 0))) timeout();		// If the delay is disabled, trigger immediately so we act as a pass-through
 }
 
 void DelayedExecutionTimer::trigger(QString string)

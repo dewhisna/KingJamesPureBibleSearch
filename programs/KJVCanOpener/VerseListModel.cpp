@@ -773,6 +773,8 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 
 void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
+	if (m_private.m_nDisplayMode == nDisplayMode) return;
+
 	clearAllSizeHints();
 	emit layoutAboutToBeChanged();
 	m_private.m_nDisplayMode = nDisplayMode;
@@ -781,6 +783,8 @@ void CVerseListModel::setDisplayMode(VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 
 void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 {
+	if (m_private.m_nTreeMode == nTreeMode) return;
+
 	clearAllSizeHints();
 	emit beginResetModel();
 	m_private.m_nTreeMode = nTreeMode;
@@ -789,6 +793,8 @@ void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 
 void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
+	if (m_private.m_nViewMode == nViewMode) return;
+
 	clearAllSizeHints();
 	emit beginResetModel();
 	m_private.m_nViewMode = nViewMode;
@@ -797,6 +803,8 @@ void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMod
 
 void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 {
+	if (m_private.m_bShowMissingLeafs == bShowMissing) return;
+
 	// Note: No need to clear sizeHints on this mode change as the size of existing items shouldn't change
 	if ((m_private.m_nTreeMode != VTME_LIST) || (m_private.m_nViewMode != VVME_SEARCH_RESULTS)) beginResetModel();
 	m_private.m_bShowMissingLeafs = bShowMissing;

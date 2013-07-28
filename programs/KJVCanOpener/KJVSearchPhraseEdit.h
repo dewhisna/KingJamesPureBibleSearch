@@ -179,6 +179,9 @@ public:
 	const CParsedPhrase *parsedPhrase() const;
 	CPhraseLineEdit *phraseEditor() const;
 
+	int searchActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
+	void setSearchActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
+
 signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);

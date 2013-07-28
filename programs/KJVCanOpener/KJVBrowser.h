@@ -55,6 +55,9 @@ public:
 	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVBrowser();
 
+	int navigationActivationDelay() const { return m_nNavigationActivationDelay; }
+	void setNavigationActivationDelay(int nDelay);
+
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
 	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
 
@@ -164,6 +167,7 @@ private:
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
 
+	int m_nNavigationActivationDelay;			// Navigation Delay to set on Scripture Browser controls
 	DelayedExecutionTimer m_dlyBkCombo;
 	DelayedExecutionTimer m_dlyBkChpCombo;
 	DelayedExecutionTimer m_dlyTstBkCombo;

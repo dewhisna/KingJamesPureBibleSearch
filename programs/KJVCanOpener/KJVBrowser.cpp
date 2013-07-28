@@ -36,6 +36,7 @@
 #include <QTextCharFormat>
 #include <QTextBlock>
 #include <QTextFragment>
+#include <QApplication>
 
 
 // ============================================================================
@@ -46,6 +47,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_ndxCurrent(0),
 	m_Highlighter(pModel),
 	m_bDoingUpdate(false),
+	m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
 {
@@ -57,6 +59,13 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	initialize();
 
 	assert(m_pScriptureBrowser != NULL);
+
+	m_dlyBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyBkChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyTstBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyTstChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyBibleBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyBibleChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -105,6 +114,21 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 CKJVBrowser::~CKJVBrowser()
 {
 	delete ui;
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::setNavigationActivationDelay(int nDelay)
+{
+	if (m_nNavigationActivationDelay != nDelay) {
+		m_nNavigationActivationDelay = nDelay;
+		m_dlyBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+		m_dlyBkChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+		m_dlyTstBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+		m_dlyTstChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+		m_dlyBibleBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
+		m_dlyBibleChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	}
 }
 
 // ----------------------------------------------------------------------------

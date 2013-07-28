@@ -101,6 +101,8 @@ namespace {
 
 	// Search Phrases:
 	const QString constrLastSearchGroup("LastSearch");
+	const QString constrSearchPhrasesGroup("SearchPhrases");
+	const QString constrSearchActivationDelayKey("SearchActivationDelay");
 
 	// Search Results View:
 	const QString constrSearchResultsViewGroup("SearchResultsView");
@@ -119,6 +121,7 @@ namespace {
 	const QString constrLastSelectionSizeKey("SelectionSize");
 	//const QString constrHasFocusKey("HasFocus");
 	//const QString constrFontKey("Font");
+	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
 }
 
 // ============================================================================
@@ -610,19 +613,25 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
 
+	// Search Phrases Settings:
+	settings.beginGroup(constrSearchPhrasesGroup);
+	settings.setValue(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay());
+	settings.endGroup();
+
 	// Last Search:
 	m_pSearchSpecWidget->writeKJVSearchFile(settings, constrLastSearchGroup);
 
-	// Current Browser Reference:
+	// Current Browser Reference and Browser Settings:
 	settings.beginGroup(constrBrowserViewGroup);
 	TPhraseTag tag = m_pBrowserWidget->selection();
 	settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
 	settings.setValue(constrLastSelectionSizeKey, tag.count());
 	settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
+	settings.setValue(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay());
 	settings.endGroup();
 
-	// Browser Object (used for FindDialog, etc):
+	// Browser Object (used for Subwindows: FindDialog, UserNotesEditor, etc):
 	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
 }
 
@@ -717,6 +726,25 @@ void CKJVCanOpener::restorePersistentSettings()
 	}
 	settings.endArray();
 
+	// Search Phrases Settings:
+	settings.beginGroup(constrSearchPhrasesGroup);
+	m_pSearchSpecWidget->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay()).toInt());
+	settings.endGroup();
+
+	// Read Last Search before setting Search Results mode or else the last settings
+	//	won't get restored -- they will be overriden by the loading of the Last Search...
+	//	But, we first need to disable our SearchActivationDelay so that the updates
+	//	will happen immediately -- otherwise, Search Results mode settings won't
+	//	restore properly:
+	int nSaveSearchActivationDelay = m_pSearchSpecWidget->searchActivationDelay();
+	m_pSearchSpecWidget->setSearchActivationDelay(-1);
+
+	// Last Search:
+	m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+
+	// Restore our activation delay:
+	m_pSearchSpecWidget->setSearchActivationDelay(nSaveSearchActivationDelay);
+
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
 	setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
@@ -739,9 +767,6 @@ void CKJVCanOpener::restorePersistentSettings()
 		CPersistentSettings::instance()->setFontSearchResults(aFont2);
 	}
 	settings.endGroup();
-
-	// Last Search:
-	m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
 
 	// Current Browser Reference:
 	//		Note: The actual browser reference has already been loaded in
@@ -769,6 +794,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		aFont2.setPointSizeF(aFont.pointSizeF());
 		CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
 	}
+	m_pBrowserWidget->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay()).toInt());
 	settings.endGroup();
 
 	// Browser Object (used for FindDialog, etc):
@@ -1049,6 +1075,9 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria,
 {
 	m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
 	m_pSearchSpecWidget->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
+	// Auto-switch to Search Results mode:
+	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
+		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);
 }
 
 // ------------------------------------------------------------------
