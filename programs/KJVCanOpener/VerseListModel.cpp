@@ -309,12 +309,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-				QString strBookText = m_private.m_pBibleDatabase->bookName(ndxRel);
-				if (m_private.m_nDisplayMode != VDME_HEADING) return strBookText;		// For Rich Text, Let delegate add results so it can be formatted
-				int nVerses = zResults.GetVerseCount(ndxRel.book());
-				int nResults = zResults.GetResultsCount(ndxRel.book());
-				if ((nResults) || (nVerses)) strBookText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strBookText;
-				return strBookText;
+				return m_private.m_pBibleDatabase->bookName(ndxRel);
 			}
 			if ((role == Qt::ToolTipRole) ||
 				(role == TOOLTIP_ROLE) ||
@@ -328,12 +323,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		if (ndxRel.verse() == 0) {
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-				QString strChapterText = m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
-				if (m_private.m_nDisplayMode != VDME_HEADING) return strChapterText;	// For Rich Text, Let delegate add results so it can be formatted
-				int nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-				int nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-				if ((nResults) || (nVerses)) strChapterText = QString("{%1} (%2) ").arg(nVerses).arg(nResults) + strChapterText;
-				return strChapterText;
+				return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
 			}
 			if ((role == Qt::ToolTipRole) ||
 				(role == TOOLTIP_ROLE) ||

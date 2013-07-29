@@ -28,6 +28,7 @@
 #include "KJVCanOpener.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#include "ScriptureDocument.h"
 
 #include <QModelIndex>
 #include <QApplication>
@@ -67,10 +68,19 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 //			.arg(option.palette.color(QPalette::Active, ((option.state & QStyle::State_Selected) ? QPalette::Highlight : QPalette::Base)).name())
 //			.arg(option.palette.color(QPalette::Active, ((option.state & QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::Text)).name()));
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n");
+	CScriptureTextHtmlBuilder scriptureHTML;
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n");
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n");
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n"));
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n"));
+	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+										"<html><head><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-wrap; font-size:medium; }\n"
+										".book { font-size:xx-large; font-weight:bold; }\n"
+										".chapter { font-size:x-large; font-weight:bold; }\n"
+										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										".category { font-size:medium; font-weight:normal; }\n"
+										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										"</style></head><body>\n"));
 
 	if (ndxRel.isSet()) {
 		if (ndxRel.verse() != 0) {
@@ -78,9 +88,11 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
 			if (m_model.displayMode() == CVerseListModel::VDME_HEADING) {
-				strHTML += "<p>" + index.data().toString() + "</p>\n";
-				strHTML += "</body></html>";
-				doc.setHtml(strHTML);
+				scriptureHTML.beginParagraph();
+				scriptureHTML.appendLiteralText(index.data().toString());
+				scriptureHTML.endParagraph();
+				scriptureHTML.appendRawText("</body></html>");
+				doc.setHtml(scriptureHTML.getResult());
 			} else {
 				CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
 				if (!bDoingSizeHint) {
@@ -102,38 +114,61 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 			nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
-				strHTML += QString("<p>{%1} (%2) %3</p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
+			if ((nResults) || (nVerses)) {
+				scriptureHTML.beginParagraph();
+				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(index.data().toString()));
+				scriptureHTML.endParagraph();
 			} else {
-				strHTML += QString("<p>%1</p>\n").arg(Qt::escape(index.data().toString()));
+				scriptureHTML.beginParagraph();
+				scriptureHTML.appendLiteralText(index.data().toString());
+				scriptureHTML.endParagraph();
 			}
-			strHTML += "</body></html>";
-			doc.setHtml(strHTML);
+			scriptureHTML.appendRawText("</body></html>");
+			doc.setHtml(scriptureHTML.getResult());
 		} else {
 			// Books:
 			int nVerses = 0;
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book());
 			nResults = zResults.GetResultsCount(ndxRel.book());
-			if (((nResults) || (nVerses)) && (m_model.displayMode() != CVerseListModel::VDME_HEADING)) {
-				strHTML += QString("<p>{%1} (%2) <b>%3</b></p>\n").arg(nVerses).arg(nResults).arg(Qt::escape(index.data().toString()));
+			if ((nResults) || (nVerses)) {
+				scriptureHTML.beginParagraph();
+				scriptureHTML.appendLiteralText(QString("{%1} (%2) ").arg(nVerses).arg(nResults));
+				scriptureHTML.beginBold();
+				scriptureHTML.appendLiteralText(index.data().toString());
+				scriptureHTML.endBold();
+				scriptureHTML.endParagraph();
 			} else {
-				strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
+				scriptureHTML.beginParagraph();
+				scriptureHTML.beginBold();
+				scriptureHTML.appendLiteralText(index.data().toString());
+				scriptureHTML.endBold();
+				scriptureHTML.endParagraph();
 			}
-			strHTML += "</body></html>";
-			doc.setHtml(strHTML);
+			scriptureHTML.appendRawText("</body></html>");
+			doc.setHtml(scriptureHTML.getResult());
 		}
 	} else {
 		// Highlighter Name:
 		assert(g_pUserNotesDatabase != NULL);
 		const TUserDefinedColor udcHighlighter = g_pUserNotesDatabase->highlighterDefinition(zResults.resultsName());
 		if (udcHighlighter.isValid()) {
-			strHTML += QString("<p><b><span style=\"background-color:%1;\">%2</span></b></p>\n").arg(udcHighlighter.m_color.name()).arg(Qt::escape(index.data().toString()));
+			scriptureHTML.beginParagraph();
+			scriptureHTML.beginBold();
+			scriptureHTML.beginBackground(udcHighlighter.m_color);
+			scriptureHTML.appendLiteralText(index.data().toString());
+			scriptureHTML.endBackground();
+			scriptureHTML.endBold();
+			scriptureHTML.endParagraph();
 		} else {
-			strHTML += QString("<p><b>%1</b></p>\n").arg(Qt::escape(index.data().toString()));
+			scriptureHTML.beginParagraph();
+			scriptureHTML.beginBold();
+			scriptureHTML.appendLiteralText(index.data().toString());
+			scriptureHTML.endBold();
+			scriptureHTML.endParagraph();
 		}
-		strHTML += "</body></html>";
-		doc.setHtml(strHTML);
+		scriptureHTML.appendRawText("</body></html>");
+		doc.setHtml(scriptureHTML.getResult());
 	}
 }
 

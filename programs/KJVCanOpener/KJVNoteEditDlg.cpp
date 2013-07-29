@@ -69,7 +69,7 @@ void CKJVNoteEditDlg::setActionUserNoteEditor(QAction *pAction)
 // ============================================================================
 
 CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
-	:	QDialog(parent),
+	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		ui(new Ui::CKJVNoteEditDlg),
 		m_pBackgroundColorButton(NULL),
 		m_pRichTextEdit(NULL),
