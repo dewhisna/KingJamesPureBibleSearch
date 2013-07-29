@@ -1097,33 +1097,34 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		return;
 	}
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
-//						.arg(Qt::escape(ndx.PassageReferenceText()));		// Document Title
+	CScriptureTextHtmlBuilder scriptureHTML;
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-						.arg(Qt::escape(m_pBibleDatabase->PassageReferenceText(ndx)));		// Document Title
 
-	if (bAddDividerLineBefore) strHTML += "<hr />";
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
+//						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
+//						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+										"<html><head><title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-wrap; font-size:medium; }\n"
+										".book { font-size:xx-large; font-weight:bold; }\n"
+										".chapter { font-size:x-large; font-weight:bold; }\n"
+										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										".category { font-size:medium; font-weight:normal; }\n"
+										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										"</style></head><body>\n")
+						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+
+	if (bAddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 
 	// Print Book/Chapter for this verse:
-	if (!bNoAnchors) {
-		//		Note: This little shenanigan is so we can have an ending "X" anchor within the name of the book
-		//				itself.  This is because the chapter/verse reference anchor below must begin with
-		//				a space so that we can find a dual unique anchor in our searching.  If we don't do
-		//				this with the book name, we have to insert an extra space at the end for the "X" anchor
-		//				and that extra space was just annoying me!!!
-		QString strBook = book.m_strBkName;
-		strBook = strBook.leftJustified(2, ' ', false);
-		strHTML += QString("<p><a id=\"%1\"><b>%2</b></a><a id=\"X%3\"><b>%4</b></a>")
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-						.arg(Qt::escape(strBook.left(strBook.size()-1)))
-						.arg(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor())
-						.arg(Qt::escape(strBook.right(1)));
-	} else {
-		strHTML += QString("<p><b>%1</b>")
-						.arg(Qt::escape(book.m_strBkName));
-	}
+	scriptureHTML.beginParagraph();
+
+	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+	scriptureHTML.beginBold();
+	scriptureHTML.appendLiteralText(book.m_strBkName);
+	scriptureHTML.endBold();
+	if (!bNoAnchors) scriptureHTML.endAnchor();
 
 	// Print this Verse Text:
 	const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
@@ -1132,20 +1133,17 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		emit changedDocumentText();
 		return;
 	}
-	if (!bNoAnchors) {
-		strHTML += QString("<a id=\"%1\"><b> %2:%3 </b></a>")
-					.arg(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor())
-					.arg(ndx.chapter())
-					.arg(ndx.verse());
-	} else {
-		strHTML += QString("<b> %1:%2 </b>")
-					.arg(ndx.chapter())
-					.arg(ndx.verse());
-	}
-	strHTML += m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !bNoAnchors) + "\n";
+	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor());
+	scriptureHTML.beginBold();
+	scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
+	scriptureHTML.endBold();
+	if (!bNoAnchors) scriptureHTML.endAnchor();
+	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !bNoAnchors));
 
-	strHTML += "</p></body></html>";
-	m_TextDocument.setHtml(strHTML);
+	scriptureHTML.endParagraph();
+
+	scriptureHTML.appendRawText("</body></html>");
+	m_TextDocument.setHtml(scriptureHTML.getResult());
 	emit changedDocumentText();
 }
 

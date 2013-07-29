@@ -280,7 +280,14 @@ bool CScriptureText<T,U>::eventFilter(QObject *obj, QEvent *ev)
 template<class T, class U>
 bool CScriptureText<T,U>::event(QEvent *ev)
 {
-	if (ev->type() == QEvent::FocusIn) emit T::activatedScriptureText();
+	if (ev->type() == QEvent::FocusIn) {
+		emit T::activatedScriptureText();
+		if (qobject_cast<QTextBrowser *>(this) != NULL) {
+			CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(true);
+		} else {
+			CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(false);
+		}
+	}
 
 	switch (ev->type()) {
 		case QEvent::ToolTip:

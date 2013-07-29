@@ -433,10 +433,6 @@ QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role)
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	if (!index.isValid()) return false;
-
-	TVerseListModelResults &zResults = const_cast<TVerseListModelResults &>(results(index));
-
 	if (role == Qt::SizeHintRole) {
 		if (!index.isValid()) {
 			// Special Case:  QModelIndex() is "invalidate all":
@@ -444,6 +440,8 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 			emit cachedSizeHintsInvalidated();
 			return false;				// But return false because we can't actually set a SizeHint for an invalid index
 		}
+
+		TVerseListModelResults &zResults = const_cast<TVerseListModelResults &>(results(index));
 
 		zResults.m_mapSizeHints[*toVerseIndex(index)] = value.toSize();
 		// Note: Do not fire dataChanged() here, as this is just a cache used by ReflowDelegate
