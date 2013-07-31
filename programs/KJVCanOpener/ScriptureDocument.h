@@ -81,7 +81,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) = 0;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor) = 0;
+	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible) = 0;
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors) = 0;
 };
 
@@ -128,7 +128,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex);
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true);
+	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false);
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true);
 };
 
@@ -147,7 +147,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex);
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true);
+	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false);
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true);
 };
 

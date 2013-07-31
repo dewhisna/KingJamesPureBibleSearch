@@ -87,9 +87,13 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			// Verses:
 			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
-			if (m_model.displayMode() == CVerseListModel::VDME_HEADING) {
+			if ((m_model.displayMode() == CVerseListModel::VDME_HEADING) || (m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
-				scriptureHTML.appendLiteralText(index.data().toString());
+				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
+					scriptureHTML.appendRawText(index.data().toString());
+				} else {
+					scriptureHTML.appendLiteralText(index.data().toString());
+				}
 				scriptureHTML.endParagraph();
 				scriptureHTML.appendRawText("</body></html>");
 				doc.setHtml(scriptureHTML.getResult());
@@ -114,13 +118,17 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 			nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			if ((nResults) || (nVerses)) {
+			if (((nResults) || (nVerses)) && (m_model.viewMode() != CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(index.data().toString()));
 				scriptureHTML.endParagraph();
 			} else {
 				scriptureHTML.beginParagraph();
-				scriptureHTML.appendLiteralText(index.data().toString());
+				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
+					scriptureHTML.appendRawText(index.data().toString());
+				} else {
+					scriptureHTML.appendLiteralText(index.data().toString());
+				}
 				scriptureHTML.endParagraph();
 			}
 			scriptureHTML.appendRawText("</body></html>");
@@ -131,7 +139,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book());
 			nResults = zResults.GetResultsCount(ndxRel.book());
-			if ((nResults) || (nVerses)) {
+			if (((nResults) || (nVerses)) && (m_model.viewMode() != CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendLiteralText(QString("{%1} (%2) ").arg(nVerses).arg(nResults));
 				scriptureHTML.beginBold();
@@ -141,7 +149,11 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			} else {
 				scriptureHTML.beginParagraph();
 				scriptureHTML.beginBold();
-				scriptureHTML.appendLiteralText(index.data().toString());
+				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
+					scriptureHTML.appendRawText(index.data().toString());
+				} else {
+					scriptureHTML.appendLiteralText(index.data().toString());
+				}
 				scriptureHTML.endBold();
 				scriptureHTML.endParagraph();
 			}
@@ -150,6 +162,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 		}
 	} else {
 		// Highlighter Name:
+		assert(m_model.viewMode() == CVerseListModel::VVME_HIGHLIGHTERS);
 		assert(g_pUserNotesDatabase != NULL);
 		const TUserDefinedColor udcHighlighter = g_pUserNotesDatabase->highlighterDefinition(zResults.resultsName());
 		if (udcHighlighter.isValid()) {
@@ -226,7 +239,8 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 				}
 
 				CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
-				if ((ndxRel.isSet()) && (index.row() != 0) && (ndxRel.verse() != 0)) {
+				if ((ndxRel.isSet()) &&
+					(((index.row() != 0) && (ndxRel.verse() != 0)) || (m_model.viewMode() == CVerseListModel::VVME_USERNOTES))) {
 					// Ideally we would just draw the line on the top of all entries except for
 					//		when index.row() == 0. However, there seems to be a one row overlap
 					//		in the rectangles from one cell to the next (QTreeView bug?) and the
@@ -237,7 +251,8 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 					//		moving up and down.
 					// ... update...  Adding 1 to the top row fixes the drawing issue and we
 					//		can now just draw it on the rows we want...
-					qDrawShadeLine(painter, textRect.left(), textRect.top()+1, textRect.right(), textRect.top()+1, /*, textRect.topLeft(), textRect.topRight() */ optionV4.palette);
+					int nLineWidth = ((m_model.viewMode() == CVerseListModel::VVME_USERNOTES) ? 4 : 1);
+					qDrawShadeLine(painter, textRect.left(), textRect.top()+1, textRect.right(), textRect.top()+1, /*, textRect.topLeft(), textRect.topRight() */ optionV4.palette, true, nLineWidth);
 				}
 
 			}

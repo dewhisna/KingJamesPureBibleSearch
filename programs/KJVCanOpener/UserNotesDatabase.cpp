@@ -565,6 +565,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 {
 	emit aboutToChangeHighlighters();
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
+	emit removedUserNote(CRelIndex());
 	m_strLastError.clear();
 
 	QtIOCompressor inUND(pIODevice);
@@ -596,6 +597,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	m_pUserNotesDatabaseData->m_bIsDirty = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
+	emit addedUserNote(CRelIndex());
 
 	return true;
 }
@@ -754,16 +756,25 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 
 void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote)
 {
+	bool bExists = existsNoteFor(ndx);
 	m_mapNotes[ndx] = strNote;
 	m_mapNotes[ndx].setPhraseTag(ndx, strNote.count());
 	m_bIsDirty = true;
+	if (!bExists) {
+		emit addedUserNote(ndx);
+	} else {
+		emit changedUserNote(ndx);
+	}
 	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeNoteFor(const CRelIndex &ndx)
 {
+	bool bExists = existsNoteFor(ndx);
+	if (!bExists) return;
 	m_mapNotes.erase(ndx);
 	m_bIsDirty = true;
+	emit removedUserNote(ndx);
 	emit changedUserNotesDatabase();
 }
 
@@ -771,6 +782,7 @@ void CUserNotesDatabase::removeAllNotes()
 {
 	m_mapNotes.clear();
 	m_bIsDirty = true;
+	emit removedUserNote(CRelIndex());
 	emit changedUserNotesDatabase();
 }
 

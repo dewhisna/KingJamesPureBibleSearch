@@ -46,33 +46,51 @@
 
 // ============================================================================
 
+// Verse List Model Results Type Enum:
+//		Note: Either keep this in-sync with VERSE_VIEW_MODE_ENUM or
+//				update VVME_to_VLMRTE and VLMRTE_to_VVME functions:
+enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
+	VLMRTE_UNDEFINED = -1,							// Undefined Index (used for defaults)
+	VLMRTE_SEARCH_RESULTS = 0,						// Search Results Display Index
+	VLMRTE_HIGHLIGHTERS = 1,						// Highlighter Display Index
+	VLMRTE_USER_NOTES = 2							// User Notes Display Index
+};
+
+#define VLM_SI_UNDEFINED -1							// Undefined Highlighter Index
+
 class TVerseIndex {
 public:
-	TVerseIndex(const CRelIndex &ndx = CRelIndex(), int nHighlighter = -1)
+	TVerseIndex(const CRelIndex &ndx = CRelIndex(), VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultType = VLMRTE_UNDEFINED, int nSpecialIndex = VLM_SI_UNDEFINED)
 		:	m_nRelIndex(ndx),
-			m_nHighlighterIndex(nHighlighter)
+			m_nResultsType(nResultType),
+			m_nSpecialIndex(nSpecialIndex)
 	{ }
 
 	TVerseIndex(const TVerseIndex &aVerseIndex)
 		:	m_nRelIndex(aVerseIndex.m_nRelIndex),
-			m_nHighlighterIndex(aVerseIndex.m_nHighlighterIndex)
+			m_nResultsType(aVerseIndex.m_nResultsType),
+			m_nSpecialIndex(aVerseIndex.m_nSpecialIndex)
 	{
 
 	}
 
-	const CRelIndex &relIndex() const { return m_nRelIndex; }
-	const int &highlighterIndex() const { return m_nHighlighterIndex; }
+	const CRelIndex relIndex() const { return m_nRelIndex; }
+	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
+	int specialIndex() const { return m_nSpecialIndex; }
 
 	bool operator <(const TVerseIndex &other) const
 	{
-		return ((m_nHighlighterIndex < other.m_nHighlighterIndex) || ((m_nHighlighterIndex == other.m_nHighlighterIndex) && (m_nRelIndex < other.m_nRelIndex)));
+		return ((m_nResultsType < other.m_nResultsType) ||
+				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex < other.m_nSpecialIndex)) ||
+				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex == other.m_nSpecialIndex) && (m_nRelIndex < other.m_nRelIndex)));
 	}
 
 protected:
 	friend class CVerseListModel;
 
 	CRelIndex m_nRelIndex;					// Relative Bible index
-	int m_nHighlighterIndex;				// Index into list of highlighters (0 to n) or -1 if this is a Search Result index instead of a highlighter
+	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM m_nResultsType;		// Type of index this is
+	int m_nSpecialIndex;				// Index into list of highlighters (0 to n) or VLM_SI_UNDEFINED for Results Types that don't use indexes
 };
 typedef QSharedPointer<TVerseIndex> TVerseIndexPtr;
 typedef QList<TVerseIndex> TVerseIndexList;
@@ -106,11 +124,11 @@ public:
 //			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
 //	}
 
-	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag)
+	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag = TPhraseTag())
 		:	m_pBibleDatabase(pBibleDatabase)
 	{
 		m_pVerseIndex = TVerseIndexPtr(new TVerseIndex(aVerseIndex));
-		m_lstTags.push_back(tag);
+		if (tag.relIndex().isSet()) m_lstTags.push_back(tag);
 	}
 
 	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &lstTags)
@@ -127,19 +145,23 @@ public:
 	inline QString getHeading() const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
-		bool bSearchRefs = (verseIndex()->highlighterIndex() == -1);		// For Search Results, show word positions too
+		bool bSearchRefs = (verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS);		// For Search Results, show word positions too
 		QString strHeading;
-		if (m_lstTags.size() > 0) strHeading += QString("(%1) ").arg(m_lstTags.size());
-		for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
-			if (ndx == 0) {
-				if (bSearchRefs) {
-					strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
+		if (m_lstTags.size() > 0) {
+			strHeading += QString("(%1) ").arg(m_lstTags.size());
+			for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
+				if (ndx == 0) {
+					if (bSearchRefs) {
+						strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
+					} else {
+						strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
+					}
 				} else {
-					strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
+					if (bSearchRefs) strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
 				}
-			} else {
-				if (bSearchRefs) strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
 			}
+		} else {
+			strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
 		}
 		return strHeading;
 	}
@@ -314,8 +336,17 @@ public:
 
 	enum VERSE_VIEW_MODE_ENUM {
 		VVME_SEARCH_RESULTS = 0,		// Display Search Results in the Tree View
-		VVME_HIGHLIGHTERS = 1			// Display Tree of Highlighter Tags
+		VVME_HIGHLIGHTERS = 1,			// Display Tree of Highlighter Tags
+		VVME_USERNOTES = 2				// Display Tree of User Notes
 	};
+	static VERSE_LIST_MODEL_RESULTS_TYPE_ENUM VVME_to_VLMRTE(VERSE_VIEW_MODE_ENUM nViewMode)
+	{
+		return static_cast<VERSE_LIST_MODEL_RESULTS_TYPE_ENUM>(nViewMode);
+	}
+	static VERSE_VIEW_MODE_ENUM VLMRTE_to_VVME(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType)
+	{
+		return static_cast<VERSE_VIEW_MODE_ENUM>(nResultsType);
+	}
 
 	enum VERSE_DATA_ROLES_ENUM {
 		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Full verse text display mode
@@ -359,7 +390,8 @@ public:
 				m_mapSizeHints(other.m_mapSizeHints),
 				m_private(other.m_private),
 				m_strResultsName(other.m_strResultsName),
-				m_nHighlighterIndex(other.m_nHighlighterIndex)
+				m_nResultsType(other.m_nResultsType),
+				m_nSpecialIndex(other.m_nSpecialIndex)
 		{
 
 		}
@@ -367,16 +399,17 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelResults(TVerseListModelPrivate *priv, const QString &strResultsName, int nHighlighterIndex = -1)
+		TVerseListModelResults(TVerseListModelPrivate *priv, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex = VLM_SI_UNDEFINED)
 			:	m_private(priv),
 				m_strResultsName(strResultsName),
-				m_nHighlighterIndex(nHighlighterIndex)
+				m_nResultsType(nResultsType),
+				m_nSpecialIndex(nSpecialIndex)
 		{ }
 
 		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 		QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
 		mutable TVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
-		QMap<TVerseIndex, QSize> m_mapSizeHints;	// Map of TVerseIndex (CRelIndex [nBk|nChp|nVrs|0] and Highlighter) to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
+		QMap<TVerseIndex, QSize> m_mapSizeHints;	// Map of TVerseIndex (CRelIndex [nBk|nChp|nVrs|0] and Results Type and Special Index) to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 
 		// --------------------------------------
 
@@ -404,12 +437,18 @@ public:
 
 		const CVerseMap &verseMap() const { return m_mapVerses; }
 		const QString resultsName() const { return m_strResultsName; }
-		int highlighterIndex() const { return m_nHighlighterIndex; }
+		VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
+		int specialIndex() const { return m_nSpecialIndex; }
+		const TVerseIndex makeVerseIndex(const CRelIndex &ndxRel) const
+		{
+			return TVerseIndex(ndxRel, resultsType(), specialIndex());
+		}
 	protected:
 		TVerseListModelPrivate *m_private;
 	private:
-		QString m_strResultsName;						// Name of the Highlighter or "Search Results"
-		int m_nHighlighterIndex;
+		QString m_strResultsName;						// Name of the Highlighter or "Search Results" or "Notes", etc...
+		VERSE_LIST_MODEL_RESULTS_TYPE_ENUM m_nResultsType;
+		int m_nSpecialIndex;
 	};
 	typedef QList<TVerseListModelResults> THighlighterVLMRList;
 
@@ -418,7 +457,7 @@ public:
 		friend class CVerseListModel;
 
 		TVerseListModelSearchResults(TVerseListModelPrivate *priv)
-			:	TVerseListModelResults(priv, tr("Search Results"))
+			:	TVerseListModelResults(priv, tr("Search Results"), VLMRTE_SEARCH_RESULTS)
 		{ }
 
 		TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
@@ -434,6 +473,17 @@ public:
 
 		using TVerseListModelResults::GetVerseCount;
 		using TVerseListModelResults::verseMap;
+	};
+
+	class TVerseListModelNotesResults : public TVerseListModelResults {
+	protected:
+		friend class CVerseListModel;
+
+		TVerseListModelNotesResults(TVerseListModelPrivate *priv)
+			:	TVerseListModelResults(priv, tr("Notes"), VLMRTE_USER_NOTES)
+		{ }
+
+		// --------------------------------------
 	};
 
 	// ------------------------------------------------------------------------
@@ -462,7 +512,7 @@ public:
 	virtual Qt::DropActions supportedDropActions() const;
 
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
-	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strHighlighterName) const;
+	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)
 
 	TParsedPhrasesList parsedPhrases() const;
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
@@ -472,18 +522,49 @@ public:
 	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
 	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
 
-	const TVerseListModelResults &results(int ndxResults) const
+// TODO : CLEAN
+//	const TVerseListModelResults &results(int ndxResults) const
+//	{
+//		if (ndxResults == VLM_HI_UNDEFINED) return m_undefinedResults;
+//		if (ndxResults == VLM_HI_SEARCH_RESULTS) return m_searchResults;
+//		if (ndxResults == VLM_HI_USER_NOTES) return m_userNotesResults;
+//		assert((ndxResults >= 0) && (ndxResults < m_vlmrListHighlighters.size()));
+//		return m_vlmrListHighlighters.at(ndxResults);
+//	}
+
+	const TVerseListModelResults &results(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex) const
 	{
-		if (ndxResults == -1) return m_searchResults;
-		assert((ndxResults >= 0) && (ndxResults < m_vlmrListHighlighters.size()));
-		return m_vlmrListHighlighters.at(ndxResults);
+		switch (nResultsType) {
+			case VLMRTE_UNDEFINED:
+				return m_undefinedResults;
+			case VLMRTE_SEARCH_RESULTS:
+				return m_searchResults;
+			case VLMRTE_USER_NOTES:
+				return m_userNotesResults;
+			case VLMRTE_HIGHLIGHTERS:
+				break;				// Fall through and lookup
+			default:
+				assert(false);
+		}
+
+		assert((nSpecialIndex >= 0) && (nSpecialIndex < m_vlmrListHighlighters.size()));
+		return m_vlmrListHighlighters.at(nSpecialIndex);
 	}
 	const TVerseListModelResults &results(const TVerseIndex &ndxVerse) const
 	{
-		return results(ndxVerse.highlighterIndex());
+		return results(ndxVerse.resultsType(), ndxVerse.specialIndex());
 	}
 	const TVerseListModelResults &results(const QModelIndex &index) const
 	{
+		// Note: Invalid QModelIndex() will have a results type of undefined.  Only those types with
+		//			Pseudo-top-labels, like highlighters, will use the undefinedResults to complete them.
+		//			The rest will use the results for the model's current mode.  As more things are added
+		//			with pseudo-labels using the undefinedResults, add additional logic here for them:
+		TVerseIndex *pVerseIndex = toVerseIndex(index);
+		if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) {
+			return results(VVME_to_VLMRTE(m_private.m_nViewMode), pVerseIndex->specialIndex());
+		}
+
 		return results(*toVerseIndex(index));
 	}
 	const TVerseListModelSearchResults &searchResults() const { return m_searchResults; }
@@ -508,6 +589,10 @@ protected slots:
 	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_changedHighlighters();
 
+	void en_changedUserNote(const CRelIndex &ndx);
+	void en_addedUserNote(const CRelIndex &ndx);
+	void en_removedUserNote(const CRelIndex &ndx);
+
 public:
 	// Total Verse/Result count for the whole model for the current mode:
 	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
@@ -520,15 +605,19 @@ private:
 	void buildScopedResultsFromParsedPhrases();
 	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
 
-	void buildHighlighterResults(int ndxHighlighter = -1);		// Note: index of -1 = All Highlighters
+	void buildHighlighterResults(int ndxHighlighter = -1);								// Note: index of -1 = All Highlighters
 	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!
+
+	void buildUserNotesResults(const CRelIndex &ndx, bool bAdd);
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	TVerseListModelPrivate m_private;
 
 	THighlighterVLMRList m_vlmrListHighlighters;	// Per-Highlighter VerseListModelResults
+	TVerseListModelResults m_undefinedResults;		// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
 	TVerseListModelSearchResults m_searchResults;	// VerseListModelResults for Search Results
+	TVerseListModelNotesResults m_userNotesResults;	// VerseListModelResults for User Notes
 };
 
 // ============================================================================

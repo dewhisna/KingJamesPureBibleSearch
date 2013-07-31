@@ -195,13 +195,13 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 	return (!strWordAt.isEmpty());
 }
 
-bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor)
+bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
 {
 	assert(g_pUserNotesDatabase != NULL);
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
-		if (userNote.isVisible()) {
+		if (bForceVisible || userNote.isVisible()) {
 			if (bAddExpandAnchor) {
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[-]"));
@@ -277,13 +277,13 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 	return (!strWordAt.isEmpty());
 }
 
-bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor)
+bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
 {
 	assert(g_pUserNotesDatabase != NULL);
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
-		if (userNote.isVisible()) {
+		if (bForceVisible || userNote.isVisible()) {
 			if (bAddExpandAnchor) {
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[-]"));

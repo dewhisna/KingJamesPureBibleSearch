@@ -190,10 +190,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":res/chalkboard-note-128.png"), tr("Add/Edit/Remove User Note"));
+	pAction = ui->usernotesToolBar->addAction(QIcon(":res/chalkboard-note-128.png"), tr("Add/Edit/Remove Note..."));
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
-	pAction->setStatusTip(tr("Add/Edit/Remove User Note to current verse or passage"));
-	pAction->setToolTip(tr("Add/Edit/Remove User Note to current verse or passage"));
+	pAction->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
+	pAction->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
 	CKJVNoteEditDlg::setActionUserNoteEditor(pAction);
 
 	ui->usernotesToolBar->addSeparator();
@@ -315,6 +315,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("View Highlighted Passages"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_HIGHLIGHTERS);
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+
+	pAction = m_pActionGroupViewMode->addAction(tr("View &Notes"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VVME_USERNOTES);
+	pAction->setStatusTip(tr("View All Notes"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
 
 	m_pViewMenu->addSeparator();
@@ -607,8 +615,9 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode());
 	settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
 	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentIndex().relIndex().asAnchor());
-	settings.setValue(constrCurrentHighlighterKey, (m_pSearchResultWidget->currentIndex().highlighterIndex() == -1) ? QString() :
-													m_pSearchResultWidget->vlmodel()->results(m_pSearchResultWidget->currentIndex().highlighterIndex()).resultsName());
+	settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
+													(m_pSearchResultWidget->currentIndex().specialIndex() == VLM_SI_UNDEFINED)) ? QString() :
+													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentIndex().specialIndex()).resultsName());
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
@@ -753,6 +762,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
 	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
 	QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
+	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc
 	bool bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
 	strFont = settings.value(constrFontKey).toString();
 	if (!strFont.isEmpty()) {
@@ -775,7 +785,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	//			will set the current index for the search result to that
 	//			as a fallback for when there is no Last Current Index:
 	bool bLastSet = false;
-	if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastCurrentIndex, strHighlighterName), false);
+	if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastCurrentIndex, strHighlighterName), false);	// Note: Uses ViewMode set above! (this must come after Search Results mode restoration)
 	settings.beginGroup(constrBrowserViewGroup);
 	bool bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
 	if (!bLastSet) {

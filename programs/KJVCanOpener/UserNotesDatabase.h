@@ -185,6 +185,7 @@ public:
 	void setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote);
 	void removeNoteFor(const CRelIndex &ndx);
 	void removeAllNotes();
+	const CUserNoteEntryMap &notesMap() const { return m_mapNotes; }
 
 	// --------------------
 
@@ -275,6 +276,10 @@ signals:
 	void removedHighlighter(const QString &strUserDefinedHighlighterName);		// Note: If entire map is swapped or cleared, this signal isn't fired!
 	void aboutToChangeHighlighters();											// Fired before either individual or entire UserDefinedColor map change
 	void changedHighlighters();													// Fired on both individual and entire UserDefinedColor map change
+
+	void changedUserNote(const CRelIndex &ndx);			// Fired on Set with data changed only -- not used on add/remove all
+	void addedUserNote(const CRelIndex &ndx);			// Fired on Set (as new).  If !ndx.isSet() then the entire list changed (such as file load)
+	void removedUserNote(const CRelIndex &ndx);			// Fired on Remove.  If !ndx.isSet() then the entire list changed (such as remove all)
 
 	void changedUserNotesDatabase();
 
