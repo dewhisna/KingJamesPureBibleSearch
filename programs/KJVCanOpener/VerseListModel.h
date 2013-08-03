@@ -57,6 +57,8 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 };
 
 #define VLM_SI_UNDEFINED -1							// Undefined Highlighter Index
+#define VLM_SI_BOOK_TERMINATOR_NODE -2				// Terminator Node for Tree Book nodes
+#define VLM_SI_CHAPTER_TERMINATOR_NODE -3			// Terminator Node for Tree Chapter nodes
 
 class TVerseIndex {
 public:
@@ -147,7 +149,7 @@ public:
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		bool bSearchRefs = (verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS);		// For Search Results, show word positions too
 		QString strHeading;
-		if (m_lstTags.size() > 0) {
+		if ((m_lstTags.size() > 0) && (verseIndex()->resultsType() != VLMRTE_USER_NOTES)) {
 			strHeading += QString("(%1) ").arg(m_lstTags.size());
 			for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 				if (ndx == 0) {
@@ -430,9 +432,9 @@ public:
 		int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
 		unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
 		CVerseMap::const_iterator FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in m_mapVerses and returns its index
-		CVerseMap::const_iterator GetVerse(int ndxVerse, unsigned int nBk = 0, unsigned int nChp = 0) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
+		CVerseMap::const_iterator GetVerse(int ndxVerse, int nBk = -1, int nChp = -1) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 	public:
-		int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+		int GetVerseCount(int nBk = -1, int nChp = -1) const;
 		int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Results Phrase Tags (can be limited to book or book/chapter)
 
 		const CVerseMap &verseMap() const { return m_mapVerses; }
@@ -595,7 +597,7 @@ protected slots:
 
 public:
 	// Total Verse/Result count for the whole model for the current mode:
-	int GetVerseCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+	int GetVerseCount(int nBk = -1, int nChp = -1) const;
 	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
 
 private:

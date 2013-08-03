@@ -96,35 +96,78 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 {
 	const TVerseListModelResults &zResults = results(zParent);
 
-	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-	bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-						!zParent.isValid() :			// Search Results top is the root node
-						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+	if (m_private.m_nViewMode != VVME_USERNOTES) {
+		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
+		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
+							!zParent.isValid() :			// Search Results top is the root node
+							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
 
-	if (bHighlighterNode) {
-		return m_vlmrListHighlighters.size();
+		if (bHighlighterNode) {
+			return m_vlmrListHighlighters.size();
+		} else {
+			switch (m_private.m_nTreeMode) {
+				case VTME_LIST:
+				{
+					if (!bTreeTop) return 0;
+					return zResults.m_mapVerses.size();
+				}
+				case VTME_TREE_BOOKS:
+				{
+					if (bTreeTop) return zResults.GetBookCount();
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
+					return 0;
+				}
+				case VTME_TREE_CHAPTERS:
+				{
+					if (bTreeTop) return zResults.GetBookCount();
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
+					if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+					return 0;
+				}
+				default:
+					break;
+			}
+		}
 	} else {
+		// User Notes Mode (Book/Chapter Co-regent):
+
+		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+		int nLevel = 0;
+		if (zParent.isValid()) {
+			nLevel++;
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
+				nLevel++;
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
+					nLevel++;
+				}
+			}
+		}
+
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (!bTreeTop) return 0;
+				if (nLevel != 0) return 0;
 				return zResults.m_mapVerses.size();
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (bTreeTop) return zResults.GetBookCount();
+				if (nLevel == 0) return zResults.GetBookCount();
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
+				if (nLevel == 1) return zResults.GetVerseCount(ndxRel.book());
 				return 0;
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (bTreeTop) return zResults.GetBookCount();
+				if (nLevel == 0) return zResults.GetBookCount();
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
-				if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				if (nLevel == 1) return zResults.GetChapterCount(ndxRel.book());
+				if (nLevel == 2) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 				return 0;
 			}
 			default:
@@ -137,36 +180,75 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 
 int CVerseListModel::columnCount(const QModelIndex &zParent) const
 {
-	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-	bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-						!zParent.isValid() :			// Search Results top is the root node
-						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+	if (m_private.m_nViewMode != VVME_USERNOTES) {
+		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
+		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
+							!zParent.isValid() :			// Search Results top is the root node
+							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
 
-	if (bHighlighterNode) {
-		return 1;
+		if (bHighlighterNode) {
+			return 1;
+		} else {
+			switch (m_private.m_nTreeMode) {
+				case VTME_LIST:
+				{
+					if (bTreeTop) return 1;
+					return 0;
+				}
+				case VTME_TREE_BOOKS:
+				{
+					if (bTreeTop) return 1;
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) return 1;
+					return 0;
+				}
+				case VTME_TREE_CHAPTERS:
+				{
+					if (bTreeTop) return 1;
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) return 1;
+					if (ndxRel.verse() == 0) return 1;
+					return 0;
+				}
+				default:
+					break;
+			}
+		}
 	} else {
+		// User Notes Mode (Book/Chapter Co-regent):
+
+		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+		int nLevel = 0;
+		if (zParent.isValid()) {
+			nLevel++;
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
+				nLevel++;
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
+					nLevel++;
+				}
+			}
+		}
+
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (bTreeTop) return 1;
-				return 0;
+				if (nLevel == 0) return 1;				// Root has 1 column
+				return 0;								// Other (real data) Nodes have 0 columns
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (bTreeTop) return 1;
-				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) return 1;
-				return 0;
+				if (nLevel == 0) return 1;				// Root has 1 column
+				if (nLevel == 1) return 1;				// Book Node has 1 column
+				return 0;								// Other (real data) Nodes have 0 columns
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (bTreeTop) return 1;
-				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) return 1;
-				if (ndxRel.verse() == 0) return 1;
-				return 0;
+				if (nLevel == 0) return 1;				// Root has 1 column
+				if (nLevel == 1) return 1;				// Book Node has 1 column
+				if (nLevel == 2) return 1;				// Chapter Node has 1 column
+				return 0;								// Other (real data) Nodes have 0 columns
 			}
 			default:
 				break;
@@ -180,22 +262,84 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 {
 	if (!hasIndex(row, column, zParent)) return QModelIndex();
 
-	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-	const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the highlighter entry, the parent will be invalid but our row is our highlighter results index
+	if (m_private.m_nViewMode != VVME_USERNOTES) {
+		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
+		const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the highlighter entry, the parent will be invalid but our row is our highlighter results index
 
-	bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-						!zParent.isValid() :			// Search Results top is the root node
-						 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
+							!zParent.isValid() :			// Search Results top is the root node
+							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
 
-	if (bHighlighterNode) {
-		assert(row < m_vlmrListHighlighters.size());
-		if (row < m_vlmrListHighlighters.size()) {
-			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+		if (bHighlighterNode) {
+			assert(row < m_vlmrListHighlighters.size());
+			if (row < m_vlmrListHighlighters.size()) {
+				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+			}
+		} else {
+			switch (m_private.m_nTreeMode) {
+				case VTME_LIST:
+				{
+					assert(row < zResults.m_mapVerses.size());
+					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
+					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+				}
+				case VTME_TREE_BOOKS:
+				{
+					if (bTreeTop) {
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+					}
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) {
+						CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
+						if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+						return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+					}
+					return QModelIndex();
+				}
+				case VTME_TREE_CHAPTERS:
+				{
+					if (bTreeTop) {
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+					}
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.chapter() == 0) {
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0))).data()));
+					}
+					if (ndxRel.verse() == 0) {
+						CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
+						if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+						return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+					}
+					return QModelIndex();
+				}
+				default:
+					break;
+			}
 		}
 	} else {
+		// User Notes Mode (Book/Chapter Co-regent):
+
+		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+		int nLevel = 0;
+		if (zParent.isValid()) {
+			nLevel++;
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
+				nLevel++;
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
+					nLevel++;
+				}
+			}
+		}
+
+		const TVerseListModelResults &zResults = results(zParent);
+
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
+				assert(nLevel == 0);
 				assert(row < zResults.m_mapVerses.size());
 				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
 				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
@@ -203,33 +347,35 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (bTreeTop) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+				if (nLevel == 0) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) {
+				if (nLevel == 1) {
 					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
 					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
 					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 				}
+				assert(false);
 				return QModelIndex();
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (bTreeTop) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+				if (nLevel == 0) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.chapter() == 0) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0))).data()));
+				if (nLevel == 1) {
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
 				}
-				if (ndxRel.verse() == 0) {
+				if (nLevel == 2) {
 					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
 					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
 					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
 				}
+				assert(false);
 				return QModelIndex();
 			}
 			default:
@@ -246,46 +392,88 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 	const TVerseListModelResults &zResults = results(index);
 
-	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : (!toVerseIndex(index)->relIndex().isSet()));
+	if (m_private.m_nViewMode != VVME_USERNOTES) {
+		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : (!toVerseIndex(index)->relIndex().isSet()));
 
-	if (bHighlighterNode) {
-		return QModelIndex();
+		if (bHighlighterNode) {
+			return QModelIndex();
+		} else {
+			switch (m_private.m_nTreeMode) {
+				case VTME_LIST:
+				{
+					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				}
+				case VTME_TREE_BOOKS:
+				{
+					CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.verse() != 0) {
+						if (zResults.m_mapVerses.contains(ndxRel)) {
+							return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
+						} else {
+							assert(false);
+						}
+					}
+					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				}
+				case VTME_TREE_CHAPTERS:
+				{
+					CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					if (ndxRel.verse() != 0) {
+						if (zResults.m_mapVerses.contains(ndxRel)) {
+							return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0))).data()));
+						} else {
+							assert(false);
+						}
+					} else if (ndxRel.chapter() != 0) {
+						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
+					}
+					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				}
+				default:
+					break;
+			}
+		}
 	} else {
+		// User Notes Mode (Book/Chapter Co-regent):
+
+		TVerseIndex *pCurrentVerseIndex = toVerseIndex(index);
+		int nLevel = 0;
+		if (pCurrentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {			// If This is a Book Terminator, then Parent must be the root
+			nLevel++;
+			if (pCurrentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If This is a Chapter Terminator, then Parent must be a Book Node
+				nLevel++;
+			}
+		}
+
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-				return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				assert(nLevel == 2);
+				return QModelIndex();
 			}
 			case VTME_TREE_BOOKS:
 			{
+				if (nLevel == 0) return QModelIndex();
+				assert(nLevel == 2);
 				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.verse() != 0) {
-					if (zResults.m_mapVerses.contains(ndxRel)) {
-						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
-					} else {
-						assert(false);
-					}
-				}
-				if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-				return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
 			}
 			case VTME_TREE_CHAPTERS:
 			{
+				if (nLevel == 0) return QModelIndex();
 				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (ndxRel.verse() != 0) {
-					if (zResults.m_mapVerses.contains(ndxRel)) {
-						return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0))).data()));
-					} else {
-						assert(false);
-					}
-				} else if (ndxRel.chapter() != 0) {
-					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
+				if (nLevel == 1) {
+					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
 				}
-				if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-				return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				assert(nLevel == 2);
+				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
 			}
 			default:
 				break;
@@ -302,8 +490,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid()) return QVariant();
 
 	const TVerseListModelResults &zResults = results(index);
+	TVerseIndex *pVerseIndex = toVerseIndex(index);
 
-	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(*toVerseIndex(index), QSize());
+	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(*pVerseIndex, QSize());
 
 	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !parent(index).isValid());
 
@@ -312,16 +501,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return zResults.resultsName();
 		}
 	} else {
-		CRelIndex ndxModelRel(toVerseIndex(index)->m_nRelIndex);
-		assert(ndxModelRel.isSet());
-		if (!ndxModelRel.isSet()) return QVariant();
-		// Note: toVerseIndex(index)->m_nRelIndex may not be equal to itrVerseItem->getIndex()
-		//			due to the trick we are playing with User Notes.  Highlighters and Search
-		//			Results are always Verse Entries only, but User Notes may be Book-Only or
-		//			Chapter-Only in addition to Verse-Only, so we sneak them in as Verse-Only
-		//			VerseIndex values, but render them with the real value in the VerseListItem:
-		CVerseMap::const_iterator itrVerseItem = zResults.m_mapVerses.find(ndxModelRel);
-		CRelIndex ndxRel((itrVerseItem != zResults.m_mapVerses.find(ndxModelRel)) ? itrVerseItem->getIndex() : ndxModelRel);
+		CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+		assert(ndxRel.isSet());
+		if (!ndxRel.isSet()) return QVariant();
 
 		CScriptureTextHtmlBuilder usernoteHTML;
 
@@ -559,7 +741,9 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
 	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-	if ((ndxRel.isSet()) && (ndxRel.verse() != 0))
+	if ((ndxRel.isSet()) &&
+		((ndxRel.verse() != 0) ||
+		 ((m_private.m_nViewMode == VVME_USERNOTES) && (g_pUserNotesDatabase->existsNoteFor(ndxRel)))))
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
@@ -673,7 +857,7 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 	const CRelIndex &ndxRel = ndxVerse.relIndex();
 	if (!ndxRel.isSet()) return QModelIndex();
 
-	const TVerseListModelResults &zResults = results(ndxVerse);
+	const TVerseListModelResults &zResults = results(resolveVerseIndex(ndxRel, results(ndxVerse).resultsName(), VLMRTE_UNDEFINED));
 
 	// See if this is a verse (search result) reference.  If so resolve:
 	if (ndxRel.verse() != 0) {
@@ -684,7 +868,7 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		if (m_private.m_nTreeMode == VTME_LIST) {
 			itrFirst = zResults.m_mapVerses.constBegin();		// For list mode, the list includes everything, so start with the first index
 		} else {
-			itrFirst = zResults.GetVerse(0, ndxRel.book(), ((m_private.m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : 0));
+			itrFirst = zResults.GetVerse(0, ndxRel.book(), ((m_private.m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : -1));
 		}
 		itrTarget = zResults.FindVerseIndex(ndxRel);
 		if (itrTarget == zResults.m_mapVerses.constEnd()) return QModelIndex();
@@ -701,13 +885,23 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		int ndxTarget = zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter());
 		if (ndxTarget == -1) return QModelIndex();
 		CRelIndex ndxChapter(ndxRel.book(), ndxRel.chapter(), 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
-		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxChapter)).data()));
+		if (zResults.FindVerseIndex(ndxChapter) == zResults.m_mapVerses.constEnd()) return QModelIndex();
+		if (m_private.m_nViewMode != VVME_USERNOTES) {
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxChapter)).data()));
+		} else {
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxChapter, zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
+		}
 	} else {
 		// If this is a book-only reference, resolve it:
 		int ndxTarget = zResults.IndexByBook(ndxRel.book());
 		if (ndxTarget == -1) return QModelIndex();
 		CRelIndex ndxBook(ndxRel.book(), 0, 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
-		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxBook)).data()));
+		if (zResults.FindVerseIndex(ndxBook) == zResults.m_mapVerses.constEnd()) return QModelIndex();
+		if (m_private.m_nViewMode != VVME_USERNOTES) {
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxBook)).data()));
+		} else {
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxBook, zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+		}
 	}
 
 	return QModelIndex();
@@ -903,23 +1097,10 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	for (CUserNoteEntryMap::const_iterator itrNote = mapNotes.begin(); itrNote != mapNotes.end(); ++itrNote) {
 		CRelIndex ndxNote = (itrNote->first);
 		assert(ndxNote.isSet());
-		if (ndxNote.chapter() == 0) ndxNote.setChapter(1);		// Sneak Book only notes into Chapter 1 Entries since Model only deals with Verse Indexes
-		if (ndxNote.verse() == 0) ndxNote.setVerse(1);			// Sneak Chapter only notes into Verse 1 Entries since Model only deals with Verse Indexes
 		ndxNote.setWord(0);			// Whole verses only
 
-		bool bHaveIndex = false;
-		if (zResults.m_mapVerses.contains(ndxNote)) bHaveIndex = true;
-		// Note: Sort order of our Maps (both CUserNoteEntryMap and CVerseMap) is CRelIndex which means
-		//			our Book only entries come ahead of Chapter only entries which come ahead of Verse
-		//			entries.  Therefore, we will REPLACE the map value with the successive "more refined"
-		//			values.  However, for the list, to keep it in sorted order without having to resort
-		//			again, we'll remove the existing value and replace it with the new:
-		zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(itrNote->first), m_private.m_pBibleDatabase));
-		if (bHaveIndex) {
-			int nLstPos = zResults.m_lstVerseIndexes.indexOf(ndxNote);
-			assert(nLstPos != -1);
-			zResults.m_lstVerseIndexes.removeAt(nLstPos);
-		}
+		assert(!zResults.m_mapVerses.contains(ndxNote));
+		zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(ndxNote), m_private.m_pBibleDatabase));
 		zResults.m_lstVerseIndexes.append(ndxNote);
 	}
 
@@ -1132,7 +1313,7 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 	// Find the first and last entries with the correct Book number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
@@ -1151,30 +1332,31 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 {
 	assert(m_private->m_pBibleDatabase);
 
-	if ((nBk == 0) || (nChp == 0)) return -1;
+	if (nBk == 0) return -1;
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
 		if (nChp > m_private->m_pBibleDatabase->bookEntry(nBk)->m_nNumChp) return -1;
 		return (nChp-1);
 	}
 
-	// Find the first entry with the correct Book number and with the correct Book/Chapter number:
-	CVerseMap::const_iterator itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));
-	CVerseMap::const_iterator itrVerseMapBookChapter = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));
+	// Find the first and last entries with the correct Book number:
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
+	CVerseMap::const_iterator itrVerseMapBookChapterLast;
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
-	// If we didn't find the book and/or book/chapter, return -1 (not found):
-	if ((itrVerseMapBook == m_mapVerses.end()) || (itrVerseMapBookChapter == m_mapVerses.end())) return -1;
-	if (itrVerseMapBook.key().book() != nBk) return -1;
-	if ((itrVerseMapBookChapter.key().book() != nBk) || (itrVerseMapBookChapter.key().chapter() != nChp)) return -1;
+	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return -1;
+	if (itrVerseMapBookChapterFirst.key().book() != nBk) return -1;
 
 	int nIndex = 0;
-	while (itrVerseMapBook != itrVerseMapBookChapter) {
+	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
+		if (itrVerseMapBookChapterFirst.key().chapter() == nChp) return nIndex;
+
 		// Find next chapter (bypassing any verses in the current chapter):
-		itrVerseMapBook = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBook.key().chapter() + 1, 0, 0));
-		assert(itrVerseMapBook != m_mapVerses.end());		// Shouldn't hit the end because we already know the correct book/chapter exists
+		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBookChapterFirst.key().chapter() + 1, 0, 0));
 		++nIndex;
 	}
-	return nIndex;
+	return -1;
 }
 
 unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook, int ndxChapter) const
@@ -1192,7 +1374,7 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 	if (nBk == 0) return 0;
 
 	// Find the first and last entries with the correct Book number:
-	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));		// This will be the first verse of the first chapter of this book
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));		// This will be the first verse of the first chapter of this book
 	CVerseMap::const_iterator itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));		// This will be the first verse of the next book/chapter
 
 	// We should have found the book, because of the above BookByIndex() call and nBk check, but safe-guard:
@@ -1202,11 +1384,11 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 	int nIndex = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
 		if (nIndex == ndxChapter) return itrVerseMapBookChapterFirst.key().chapter();			// If we've found the right index, return the chapter
+
 		// Find next chapter (bypassing any verses in the current chapter):
 		itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, itrVerseMapBookChapterFirst.key().chapter() + 1, 0, 0));
 		++nIndex;
 	}
-	assert(false);
 	return 0;				// Should have already returned a chapter above, but 0 if we're given an index beyond the list
 }
 
@@ -1219,38 +1401,44 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::FindVerseInde
 	return m_mapVerses.find(ndxSearch);
 }
 
-CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int ndxVerse, unsigned int nBk, unsigned int nChp) const
+CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int ndxVerse, int nBk, int nChp) const
 {
-	// Note: This function has a special case for nBk == 0 and nChp == 0 (unlike the other index functions)
+	// Note: This function has a special case for nBk == -1 and nChp == -1 (unlike the other index functions)
 
 	if (ndxVerse < 0) return m_mapVerses.constEnd();
 
-	if ((nBk == 0) && (nChp == 0)) {
-		assert((ndxVerse >= 0) && (ndxVerse < m_lstVerseIndexes.size()));
+	if ((nBk == -1) && (nChp == -1)) {
 		if (ndxVerse >= m_lstVerseIndexes.size()) return m_mapVerses.constEnd();	// Note: (ndxVerse < 0) is handled above for both Map/List methods
 		return m_mapVerses.find(m_lstVerseIndexes.at(ndxVerse));
 	}
+	assert(nBk != -1);
 
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp != 0) {
-		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));	// This will be the first verse of the next book/chapter
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : 1), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp > 0) {
+		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));
 	}
 
 	// If we didn't find the book and/or book/chapter, return (not found):
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return m_mapVerses.constEnd();
-	if ((itrVerseMapBookChapterFirst.key().book() != nBk) ||
-		((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return m_mapVerses.constEnd();
+	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
+		((nChp > 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return m_mapVerses.constEnd();
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
-		if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst;
+		// Don't count non-verse entries for Tree-by-Chapters mode since we will roll them
+		//		into the Chapter entry:
+		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
+			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) && (itrVerseMapBookChapterFirst.key().verse() != 0))) {
+			if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst;
+			++nVerses;
+		}
+
 		++itrVerseMapBookChapterFirst;
-		++nVerses;
 	}
 	assert(false);
 	return m_mapVerses.constEnd();			// Should have already returned a verse above, but end() if we're given an index beyond the list
@@ -1258,17 +1446,17 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 
 // ----------------------------------------------------------------------------
 
-int CVerseListModel::TVerseListModelResults::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) const
 {
-	// Note: This function has special cases for nBk == 0 and nChp == 0 (unlike the other count functions)
+	// Note: This function has special cases for nBk == -1 and nChp == -1 (unlike the other count functions)
 
-	if (nBk == 0) return m_mapVerses.size();		// Quick special-case
+	if (nBk == -1) return m_mapVerses.size();		// Quick special-case
 
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nChp, 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp != 0) {
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : 1), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp > 0) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book
@@ -1276,12 +1464,18 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(unsigned int nBk, uns
 
 	// If we didn't find the book and/or book/chapter, return none found:
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
-	if ((itrVerseMapBookChapterFirst.key().book() != nBk) || ((nChp != 0) && (itrVerseMapBookChapterFirst.key().chapter() != nChp))) return 0;
+	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
+		((nChp > 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return 0;
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
+		// Don't count non-verse entries for Tree-by-Chapters mode since we will roll them
+		//		into the Chapter entry:
+		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
+			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) && (itrVerseMapBookChapterFirst.key().verse() != 0))) {
+			++nVerses;
+		}
 		++itrVerseMapBookChapterFirst;
-		++nVerses;
 	}
 	return nVerses;
 }
@@ -1301,7 +1495,7 @@ int CVerseListModel::TVerseListModelResults::GetResultsCount(unsigned int nBk, u
 
 // ----------------------------------------------------------------------------
 
-int CVerseListModel::GetVerseCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::GetVerseCount(int nBk, int nChp) const
 {
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetVerseCount(nBk, nChp);
 	if (m_private.m_nViewMode == VVME_USERNOTES) return m_userNotesResults.GetVerseCount(nBk, nChp);
@@ -1331,7 +1525,9 @@ int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 
 void CVerseListModel::clearAllSizeHints()
 {
+	m_undefinedResults.m_mapSizeHints.clear();
 	m_searchResults.m_mapSizeHints.clear();
+	m_userNotesResults.m_mapSizeHints.clear();
 	for (THighlighterVLMRList::iterator itrHighlighter = m_vlmrListHighlighters.begin(); itrHighlighter != m_vlmrListHighlighters.end(); ++itrHighlighter) {
 		itrHighlighter->m_mapSizeHints.clear();
 	}
@@ -1339,7 +1535,9 @@ void CVerseListModel::clearAllSizeHints()
 
 void CVerseListModel::clearAllExtraVerseIndexes()
 {
+	m_undefinedResults.m_mapExtraVerseIndexes.clear();
 	m_searchResults.m_mapExtraVerseIndexes.clear();
+	m_userNotesResults.m_mapExtraVerseIndexes.clear();
 	for (THighlighterVLMRList::iterator itrHighlighter = m_vlmrListHighlighters.begin(); itrHighlighter != m_vlmrListHighlighters.end(); ++itrHighlighter) {
 		itrHighlighter->m_mapExtraVerseIndexes.clear();
 	}

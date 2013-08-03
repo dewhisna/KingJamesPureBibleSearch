@@ -206,8 +206,8 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[-]"));
 				endAnchor();
+				insertHorizontalRule();
 			}
-			insertHorizontalRule();
 			appendRawText(userNote.htmlText());
 		} else {
 			if (bAddExpandAnchor) {
@@ -288,8 +288,8 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[-]"));
 				endAnchor();
+				insertHorizontalRule();
 			}
-			insertHorizontalRule();
 			appendRawText(userNote.plainText());
 		} else {
 			if (bAddExpandAnchor) {
