@@ -171,12 +171,12 @@ void PlainTextMarkupBuilder::endStrong()
 
 void PlainTextMarkupBuilder::beginEmph()
 {
-  appendRawText( QLatin1String( "/" ) );
+  appendRawText( QLatin1String( "[" ) );
 }
 
 void PlainTextMarkupBuilder::endEmph()
 {
-  appendRawText( QLatin1String( "/" ) );
+  appendRawText( QLatin1String( "]" ) );
 }
 
 void PlainTextMarkupBuilder::beginUnderline()

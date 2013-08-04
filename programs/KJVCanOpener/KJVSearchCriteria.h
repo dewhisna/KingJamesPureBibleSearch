@@ -26,12 +26,19 @@
 
 #include "dbstruct.h"
 
+#include <QString>
+#include <QStringList>
 #include <QObject>
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QList>
 #include <QMap>
+
+// ============================================================================
+
+// Forward Declarations:
+class CSearchWithinModel;
 
 // ============================================================================
 
@@ -59,8 +66,36 @@ public:
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
 	void setSearchScopeMode(SEARCH_SCOPE_MODE_ENUM nMode) { m_nSearchScopeMode = nMode; }
 
+	const TRelativeIndexSet &searchWithin() const { return m_setSearchWithin; }
+	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin) { m_setSearchWithin = aSetSearchWithin; }
+	void setSearchWithin(const QString &strSearchWithin = QString())
+	{
+		QStringList lstIndexes = strSearchWithin.split(QChar(','));
+		m_setSearchWithin.clear();
+		// Check for quick "Entire Bible":
+		if ((lstIndexes.size() == 0) ||
+			((lstIndexes.size() == 1) && (lstIndexes.at(0).toUInt() == 0))) {
+			return;
+		}
+		for (int ndx = 0; ndx < lstIndexes.size(); ++ndx) {
+			CRelIndex ndxRel(lstIndexes.at(ndx));
+			if (ndxRel.isSet()) m_setSearchWithin.insert(ndxRel);
+		}
+	}
+	QString searchWithinToString() const
+	{
+		if (m_setSearchWithin.size() == 0) return QString("0");
+		QStringList lstIndexes;
+		for (TRelativeIndexSet::const_iterator itrIndexes = m_setSearchWithin.begin(); itrIndexes != m_setSearchWithin.end(); ++itrIndexes) {
+			lstIndexes.append(itrIndexes->asAnchor());
+		}
+		return lstIndexes.join(QString(","));
+	}
+	QString searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const;
+
 private:
 	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
+	TRelativeIndexSet m_setSearchWithin;
 };
 
 // ============================================================================
@@ -82,7 +117,7 @@ public:
 	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
 
 signals:
-	void changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
+	void changedSearchCriteria();
 	void addSearchPhraseClicked();
 	void copySearchPhraseSummary();
 
@@ -90,16 +125,21 @@ public slots:
 	void enableCopySearchPhraseSummary(bool bEnable);
 	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 
+	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin);
+	void setSearchWithin(const QString &strSearchWithin);
+
 	void setTextBrightness(bool bInvert, int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 
 private slots:
 	void en_changeSearchScopeMode(int ndx);
+	void en_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CSearchCriteria m_SearchCriteria;
+	CSearchWithinModel *m_pSearchWithinModel;
 
 // UI Private:
 private:
@@ -198,8 +238,12 @@ class CSearchWithinModel : public QAbstractItemModel
 	Q_OBJECT
 
 public:
-	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent = 0);
+	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin = TRelativeIndexSet(), QObject *pParent = 0);
 	virtual ~CSearchWithinModel();
+
+	QString searchWithinDescription() const;
+	TRelativeIndexSet searchWithin() const;
+	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin);
 
 	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const;

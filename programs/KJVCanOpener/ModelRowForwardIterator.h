@@ -35,10 +35,10 @@ class CModelRowForwardIterator : public QObject
 	Q_OBJECT
 public:
 	CModelRowForwardIterator() {}
-	CModelRowForwardIterator(QAbstractItemModel *pModel) { *this = pModel; }
+	CModelRowForwardIterator(const QAbstractItemModel *pModel) { *this = pModel; }
 	CModelRowForwardIterator(QModelIndex &index) { *this = index; }
 
-	CModelRowForwardIterator & operator=(QAbstractItemModel *pModel)
+	CModelRowForwardIterator & operator=(const QAbstractItemModel *pModel)
 	{
 		assert(pModel != NULL);
 		return *this = (pModel->hasChildren() ? pModel->index(0,0) : QModelIndex());

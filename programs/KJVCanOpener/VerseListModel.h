@@ -186,7 +186,7 @@ public:
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Selected Search Text")
 										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetPhraseTagSearchResults().size())
 										.arg(pPhrase->phrase()) + "\n";

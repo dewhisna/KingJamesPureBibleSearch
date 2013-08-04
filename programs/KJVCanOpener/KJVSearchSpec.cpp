@@ -89,7 +89,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
-	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM)), this, SLOT(en_changedSearchCriteria()));
+	connect(ui->widgetSearchCriteria, SIGNAL(changedSearchCriteria()), this, SLOT(en_changedSearchCriteria()));
 
 	// Connect Pass-through:
 	connect(ui->widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SIGNAL(copySearchPhraseSummary()));
@@ -145,17 +145,20 @@ void CKJVSearchSpec::reset()
 void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
 {
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
+	QString strSearchWithin;
 
 	closeAllSearchPhrases();
 
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
 	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_WHOLE_BIBLE).toInt());
+	strSearchWithin = kjsFile.value("SearchWithin", QString()).toString();
 	if ((nSearchScope < SSME_MINIMUM) ||
 		(nSearchScope > SSME_MAXIMUM))
 		nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
 	kjsFile.endGroup();
 
 	ui->widgetSearchCriteria->setSearchScopeMode(nSearchScope);
+	ui->widgetSearchCriteria->setSearchWithin(strSearchWithin);
 
 	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = NULL;
 	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
@@ -188,6 +191,7 @@ void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSu
 {
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
 	kjsFile.setValue("SearchScope", ui->widgetSearchCriteria->searchCriteria().searchScopeMode());
+	kjsFile.setValue("SearchWithin", ui->widgetSearchCriteria->searchCriteria().searchWithinToString());
 	kjsFile.endGroup();
 
 	int ndxCurrent = 0;
@@ -400,11 +404,11 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 		if (nNumPhrases > 1) {
 			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Entire Bible, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches)
+								tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches)
 									.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Entire Bible)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
+								tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
 				assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 			}
 		} else {
