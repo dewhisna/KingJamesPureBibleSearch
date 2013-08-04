@@ -1671,6 +1671,20 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::S
 				}
 			}
 			break;
+		case (CSearchCriteria::SSME_CATEGORY):
+			// For Category, set the Book to the 1st Book of the corresponding Category:
+			if (index.book()) {
+				uint32_t nCat = m_private.m_pBibleDatabase->bookCategory(index);
+				if (nCat) {
+					assert(m_private.m_pBibleDatabase->bookCategoryEntry(nCat) != NULL);
+					const CBookCategoryEntry &category = *m_private.m_pBibleDatabase->bookCategoryEntry(nCat);
+					if (category.m_setBooksNum.find(index.book()) != category.m_setBooksNum.end()) {
+						// Get first book of the category for the scope:
+						indexScoped = CRelIndex(*(category.m_setBooksNum.begin()), 0, 0, 0);
+					}
+				}
+			}
+			break;
 		case (CSearchCriteria::SSME_BOOK):
 			// For Book, mask off Chapter, Verse, and Word:
 			indexScoped = CRelIndex(index.book(), 0, 0, 0);

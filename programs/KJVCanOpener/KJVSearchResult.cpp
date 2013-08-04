@@ -598,8 +598,6 @@ void CSearchResultsTreeView::setTextBrightness(bool bInvert, int nBrightness)
 	setStyleSheet(QString("CSearchResultsTreeView { background-color:%1; color:%2; } ")
 									.arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
 									.arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
-
-	return;
 }
 
 QStyleOptionViewItem CSearchResultsTreeView::viewOptions () const

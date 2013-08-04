@@ -166,8 +166,20 @@ bool CReadDatabase::ReadBooksTable()
 		entryBook.m_nNumChp = queryData.value(6).toUInt();
 		entryBook.m_nNumVrs = queryData.value(7).toUInt();
 		entryBook.m_nNumWrd = queryData.value(8).toUInt();
-		entryBook.m_strCat = queryData.value(9).toString();
+		QString strCategory = queryData.value(9).toString();
 		entryBook.m_strDesc = queryData.value(10).toString();
+
+		TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
+		while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
+			if (itrCat->m_strCategoryName.compare(strCategory) == 0) break;
+			++itrCat;
+		}
+		if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
+			m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(strCategory));
+			itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
+		}
+		itrCat->m_setBooksNum.insert(nBkNdx);
+		entryBook.m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
 
 		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumBk++;
 		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumChp += entryBook.m_nNumChp;

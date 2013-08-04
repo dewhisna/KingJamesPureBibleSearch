@@ -82,6 +82,10 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 //m_modelSearchPhraseEditors.setPhraseEditorsList(m_lstSearchPhraseEditors);
 
 
+	// -------------------- Search Criteria Widget:
+
+	ui->widgetSearchCriteria->initialize(m_pBibleDatabase);
+
 	ui->widgetSearchCriteria->enableCopySearchPhraseSummary(false);
 
 	connect(ui->widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
@@ -146,8 +150,8 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
 	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_WHOLE_BIBLE).toInt());
-	if ((nSearchScope < CSearchCriteria::SSME_WHOLE_BIBLE) ||
-		(nSearchScope > CSearchCriteria::SSME_VERSE))
+	if ((nSearchScope < SSME_MINIMUM) ||
+		(nSearchScope > SSME_MAXIMUM))
 		nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
 	kjsFile.endGroup();
 
@@ -367,6 +371,9 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 			break;
 		case (CSearchCriteria::SSME_TESTAMENT):
 			strScope = tr("in the same Testament");
+			break;
+		case (CSearchCriteria::SSME_CATEGORY):
+			strScope = tr(" in the same Category");
 			break;
 		case (CSearchCriteria::SSME_BOOK):
 			strScope = tr("in the same Book");

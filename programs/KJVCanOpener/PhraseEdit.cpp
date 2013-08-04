@@ -860,6 +860,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	scriptureHTML.insertHorizontalRule();
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
+	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
 
 	// Print Heading for this Book:
 	scriptureHTML.beginDiv("book");
@@ -869,29 +870,29 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 		scriptureHTML.endAnchor();
 	}
-	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(),0,0,0).asAnchor());
+	if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
 	scriptureHTML.appendLiteralText(book.m_strBkName);
 	if (!bNoAnchors) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If this is the first chapter of the book:
 	if (ndx.chapter() == 1) {
-		// Print Book Descriptionsk:
+		// Print Book Descriptions:
 		if (!book.m_strDesc.isEmpty()) {
 			scriptureHTML.beginDiv("subtitle");
 			scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
 			scriptureHTML.endDiv();
 		}
 		// Print Book Category:
-		if  (!book.m_strCat.isEmpty()) {
+		if  (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty()) {
 			scriptureHTML.beginDiv("category");
 			scriptureHTML.beginBold();
 			scriptureHTML.appendLiteralText(tr("Category:"));
 			scriptureHTML.endBold();
-			scriptureHTML.appendRawText(QString(" %1").arg(book.m_strCat));
+			scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
 			scriptureHTML.endDiv();
 		}
 		// If we have a User Note for this book, print it too:
-		if (scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+		if (scriptureHTML.addNoteFor(ndxBook, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 	}
 
 	// Print Heading for this Chapter:
@@ -986,7 +987,8 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	if (nRelNextChapter != 0) {
 		CRelIndex relNext(nRelNextChapter);
 		relNext.setWord(0);
-		CRelIndex ndxBookChap(relNext.book(), relNext.chapter(), 0, 0);
+		CRelIndex ndxBookChapNext(relNext.book(), relNext.chapter(), 0, 0);
+		CRelIndex ndxBookNext(relNext.book(), 0, 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 
 		// Print Heading for this Book:
@@ -995,11 +997,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			scriptureHTML.beginDiv("book");
 			// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
 			if (!bNoAnchors) {
-				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
+				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChapNext.asAnchor()));
 				scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 				scriptureHTML.endAnchor();
 			}
-			if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(relNext.book(),0,0,0).asAnchor());
+			if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
 			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
 			if (!bNoAnchors) scriptureHTML.endAnchor();
 			scriptureHTML.endDiv();
@@ -1010,27 +1012,27 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 				scriptureHTML.endDiv();
 			}
 			// Print Book Category for first chapter of book:
-			if ((!bookNext.m_strCat.isEmpty()) && (relNext.chapter() == 1)) {
+			if ((!m_pBibleDatabase->bookCategoryName(ndxBookNext).isEmpty()) && (relNext.chapter() == 1)) {
 				scriptureHTML.beginDiv("category");
 				scriptureHTML.beginBold();
 				scriptureHTML.appendLiteralText(tr("Category:"));
 				scriptureHTML.endBold();
-				scriptureHTML.appendRawText(QString(" %1").arg(bookNext.m_strCat));
+				scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBookNext)));
 				scriptureHTML.endDiv();
 			}
 			// If we have a User Note for this book, print it too:
-			if (scriptureHTML.addNoteFor(CRelIndex(relNext.book(),0,0,0), !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+			if (scriptureHTML.addNoteFor(ndxBookNext, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 		}
 		// Print Heading for this Chapter:
 		scriptureHTML.beginDiv("chapter");
-		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
+		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChapNext.asAnchor());
 		scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter")).arg(relNext.chapter()));
 		if (!bNoAnchors) scriptureHTML.endAnchor();
 		scriptureHTML.endDiv();
 
 		// If we have a chapter note for this chapter, print it too:
 		scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
-		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !bNoAnchors)) {
+		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !bNoAnchors)) {
 			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
 			scriptureHTML.beginDiv("subtitle");
 			scriptureHTML.flushBuffer();
@@ -1039,7 +1041,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 		// If we have a chapter User Note for this chapter, print it too:
-		if (scriptureHTML.addNoteFor(ndxBookChap, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+		if (scriptureHTML.addNoteFor(ndxBookChapNext, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph();
 		if (!bNoAnchors) scriptureHTML.beginAnchorID(relNext.asAnchor());

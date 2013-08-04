@@ -349,15 +349,28 @@ QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
 {
 	uint32_t nTst = testament(nRelIndex);
 	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return QString();
-	return m_lstTestaments[nTst-1].m_strTstName;
+	return m_lstTestaments.at(nTst-1).m_strTstName;
 }
 
 uint32_t CBibleDatabase::testament(const CRelIndex &nRelIndex) const
 {
 	uint32_t nBk = nRelIndex.book();
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return 0;
-	const CBookEntry &book = m_lstBooks[nBk-1];
-	return book.m_nTstNdx;
+	return m_lstBooks.at(nBk-1).m_nTstNdx;
+}
+
+QString CBibleDatabase::bookCategoryName(const CRelIndex &nRelIndex) const
+{
+	uint32_t nCat = bookCategory(nRelIndex);
+	if ((nCat < 1) || (nCat > m_lstBookCategories.size())) return QString();
+	return m_lstBookCategories.at(nCat-1).m_strCategoryName;
+}
+
+uint32_t CBibleDatabase::bookCategory(const CRelIndex &nRelIndex) const
+{
+	uint32_t nBk = nRelIndex.book();
+	if ((nBk < 1) || (nBk > m_lstBooks.size())) return 0;
+	return m_lstBooks.at(nBk-1).m_nCatNdx;
 }
 
 QString CBibleDatabase::bookName(const CRelIndex &nRelIndex) const
@@ -876,6 +889,13 @@ const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
 	return &m_lstTestaments.at(nTst-1);
 }
 
+const CBookCategoryEntry *CBibleDatabase::bookCategoryEntry(uint32_t nCat) const
+{
+	assert((nCat >= 1) && (nCat <= m_lstBookCategories.size()));
+	if ((nCat < 1) || (nCat > m_lstBookCategories.size())) return NULL;
+	return &m_lstBookCategories.at(nCat-1);
+}
+
 const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 {
 	assert((nBk >= 1) && (nBk <= m_lstBooks.size()));
@@ -955,18 +975,6 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	if (footnote == m_mapFootnotes.end()) return NULL;
 	return &(footnote->second);
 }
-
-/*
-	TODO : CLEAN
-
-TPhraseTag CBibleDatabase::footnotePhraseTag(const CRelIndex &ndx) const
-{
-	const CFootnoteEntry *pFootnote = footnoteEntry(ndx);
-	if (pFootnote == NULL) return TPhraseTag();
-
-	return TPhraseTag(ndx, pFootnote->count());
-}
-*/
 
 QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
 {
