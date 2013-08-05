@@ -986,8 +986,10 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 {
 	assert(g_pUserNotesDatabase != NULL);
 
-	emit verseListAboutToChange();
-	emit beginResetModel();
+	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
 
 	if (ndxHighlighter == -1) {
 		m_vlmrListHighlighters.clear();
@@ -1017,8 +1019,10 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 		buildHighlighterResults(ndxHighlighter, g_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, zResults.resultsName()));
 	}
 
-	emit endResetModel();
-	emit verseListChanged();
+	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
 }
 
 void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags)
@@ -1092,8 +1096,10 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	assert(g_pUserNotesDatabase != NULL);
 	TVerseListModelNotesResults &zResults = m_userNotesResults;
 
-	emit verseListAboutToChange();
-	emit beginResetModel();
+	if (m_private.m_nViewMode == VVME_USERNOTES) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
 
 	zResults.m_mapVerses.clear();
 	zResults.m_lstVerseIndexes.clear();
@@ -1113,8 +1119,10 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 		zResults.m_lstVerseIndexes.append(ndxNote);
 	}
 
-	emit endResetModel();
-	emit verseListChanged();
+	if (m_private.m_nViewMode == VVME_USERNOTES) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -1564,8 +1572,10 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	QList<bool> lstNeedScope;
 	int nNumPhrases = zResults.m_lstParsedPhrases.size();
 
-	emit verseListAboutToChange();
-	emit beginResetModel();
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
 
 	zResults.m_mapVerses.clear();
 	zResults.m_lstVerseIndexes.clear();
@@ -1653,8 +1663,10 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		zResults.m_lstVerseIndexes.append(itr.key());
 	}
 
-	emit endResetModel();
-	emit verseListChanged();
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
 }
 
 void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase)
