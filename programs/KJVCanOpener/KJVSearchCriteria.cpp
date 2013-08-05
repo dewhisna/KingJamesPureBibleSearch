@@ -42,6 +42,36 @@ QString CSearchCriteria::searchWithinDescription(CBibleDatabasePtr pBibleDatabas
 	return modelSearchWithin.searchWithinDescription();
 }
 
+QString CSearchCriteria::searchScopeDescription() const
+{
+	QString strScope;
+
+	switch (m_nSearchScopeMode) {
+		case (SSME_WHOLE_BIBLE):
+			strScope = QObject::tr("anywhere");
+			break;
+		case (SSME_TESTAMENT):
+			strScope = QObject::tr("in the same Testament");
+			break;
+		case (SSME_CATEGORY):
+			strScope = QObject::tr("in the same Category");
+			break;
+		case (SSME_BOOK):
+			strScope = QObject::tr("in the same Book");
+			break;
+		case (SSME_CHAPTER):
+			strScope = QObject::tr("in the same Chapter");
+			break;
+		case (SSME_VERSE):
+			strScope = QObject::tr("in the same Verse");
+			break;
+		default:
+			break;
+	}
+
+	return strScope;
+}
+
 // ============================================================================
 
 CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin, QObject *pParent)
@@ -72,10 +102,10 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const T
 				mapCategoryIndexes.insert(pBookEntry->m_nCatNdx, pIndexCategory);
 			}
 			assert(pIndexCategory != NULL);
-			pIndexCategory->insertIndex(CSearchCriteria::SSME_BOOK, nBk);
+			CSearchWithinModelIndex *pIndexBook = pIndexCategory->insertIndex(CSearchCriteria::SSME_BOOK, nBk);
+			pIndexBook->setCheck(aSetSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) != aSetSearchWithin.end());
 		}
 	}
-	if (aSetSearchWithin.size()) setSearchWithin(aSetSearchWithin);
 }
 
 CSearchWithinModel::~CSearchWithinModel()
@@ -93,7 +123,6 @@ QString CSearchWithinModel::searchWithinDescription() const
 		// Fully checked items completely define it, so use it -- except for Category,
 		//	since they are subjective, which will translate to the child names:
 		if ((pSearchWithinModelIndex->checkState() == Qt::Checked) && (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_CATEGORY)) {
-
 			lstDescription.append(fwdItr->data(Qt::EditRole).toString());
 			fwdItr.nextSibling();
 		} else {
@@ -101,7 +130,7 @@ QString CSearchWithinModel::searchWithinDescription() const
 		}
 	}
 
-	return lstDescription.join(QString(","));
+	return lstDescription.join(QString(", "));
 }
 
 TRelativeIndexSet CSearchWithinModel::searchWithin() const
@@ -125,12 +154,11 @@ TRelativeIndexSet CSearchWithinModel::searchWithin() const
 
 void CSearchWithinModel::setSearchWithin(const TRelativeIndexSet &aSetSearchWithin)
 {
-	bool bSelectAll = (aSetSearchWithin.size() == 0);
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
 		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
 		assert(pSearchWithinModelIndex != NULL);
 		if (pSearchWithinModelIndex->childIndexCount() == 0) {
-			setData(*fwdItr, (((bSelectAll) || (aSetSearchWithin.find(CRelIndex(pSearchWithinModelIndex->itemIndex(), 0, 0, 0)) != aSetSearchWithin.end())) ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+			setData(*fwdItr, ((aSetSearchWithin.find(CRelIndex(pSearchWithinModelIndex->itemIndex(), 0, 0, 0)) != aSetSearchWithin.end()) ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 	}
 }
@@ -414,7 +442,7 @@ void CKJVSearchCriteriaWidget::setSearchWithin(const QString &strSearchWithin)
 {
 	begin_update();
 
-	m_SearchCriteria.setSearchWithin(strSearchWithin);
+	m_SearchCriteria.setSearchWithin(m_pBibleDatabase, strSearchWithin);
 	m_pSearchWithinModel->setSearchWithin(m_SearchCriteria.searchWithin());
 
 	end_update();

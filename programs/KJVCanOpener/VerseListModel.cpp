@@ -674,7 +674,16 @@ QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role)
 			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 			QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
 			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-			strToolTip += itrVerse->getToolTip(m_searchResults.m_lstParsedPhrases);
+			QString strSearchScopeDescription = m_searchResults.m_SearchCriteria.searchScopeDescription();
+			if (!strSearchScopeDescription.isEmpty()) {
+				QString strSearchWithinDescription = m_searchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+				if (!strSearchWithinDescription.isEmpty()) {
+					strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
+				} else {
+					strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
+				}
+			}
+			strToolTip += itrVerse->getToolTip(m_searchResults.m_SearchCriteria, m_searchResults.m_lstParsedPhrases);
 			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 			return strToolTip;
@@ -1566,7 +1575,8 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 	//		setting the phrase size details:
 	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetPhraseTagSearchResults();
+		buildWithinResultsInParsedPhrase(zResults.m_SearchCriteria, zResults.m_lstParsedPhrases.at(ndx));
+		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults();
 		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
 		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
 		lstScopedRefs.append(CRelIndex());
@@ -1584,7 +1594,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		uint32_t nMaxScope = 0;
 		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
-			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetPhraseTagSearchResults();
+			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
 			if (!lstNeedScope[ndx]) {
 				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
 				continue;		// Only find next scope for a phrase if we need it
@@ -1594,9 +1604,9 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 				bDone = true;
 				break;
 			}
-			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria.searchScopeMode());
+			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria);
 			for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
-				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria.searchScopeMode());
+				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
 				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 			}
 			// Here lstItrEnd will be one more than the number of matching, either the next index
@@ -1647,13 +1657,29 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	emit verseListChanged();
 }
 
-CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode)
+void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase)
+{
+	const TPhraseTagList &lstPhraseTags = pParsedPhrase->GetPhraseTagSearchResults();
+	TPhraseTagList &lstWithinPhraseTags = pParsedPhrase->GetWithinPhraseTagSearchResultsNonConst();
+
+	if (searchCriteria.withinIsEntireBible(m_private.m_pBibleDatabase)) {
+		lstWithinPhraseTags = lstPhraseTags;
+		return;
+	}
+
+	lstWithinPhraseTags.reserve(lstPhraseTags.size());
+	for (TPhraseTagList::const_iterator itrTags = lstPhraseTags.constBegin(); itrTags != lstPhraseTags.constEnd(); ++itrTags) {
+		if (searchCriteria.indexIsWithin(itrTags->relIndex())) lstWithinPhraseTags.append(*itrTags);
+	}
+}
+
+CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria)
 {
 	assert(m_private.m_pBibleDatabase);
 
 	CRelIndex indexScoped;
 
-	switch (nMode) {
+	switch (searchCriteria.searchScopeMode()) {
 		case (CSearchCriteria::SSME_WHOLE_BIBLE):
 			// For Whole Bible, we'll set the Book to 1 so that anything in the Bible matches:
 			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);

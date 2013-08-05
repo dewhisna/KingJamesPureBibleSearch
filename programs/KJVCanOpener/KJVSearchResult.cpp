@@ -777,11 +777,18 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 	strResults += "    " + tr("in %n Verse(s)", NULL, nVerses) +
 					" " + tr("in %n Chapter(s)", NULL, nChapters) +
 					" " + tr("in %n Book(s)", NULL, nBooks);
-	if (nResults > 0) {
-		strResults += "\n";
-		strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
-		strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
-		strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
+	if (aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		if (nResults > 0) {
+			strResults += "\n";
+			strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
+			strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
+			strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
+		}
+	} else {
+		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+		if (!strSearchWithinDescription.isEmpty()) {
+			strResults += " " + tr("within") + " " + strSearchWithinDescription;
+		}
 	}
 
 	m_pSearchResultsCount->setText(strResults);
@@ -802,10 +809,17 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastSearchVerses) + "\n";
 		strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastSearchChapters) + "\n";
 		strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastSearchBooks) + "\n";
-		strSummary += "\n";
-		strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
-		strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
-		strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+			strSummary += "\n";
+			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+		} else {
+			QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+			if (!strSearchWithinDescription.isEmpty()) {
+				strSummary += "    " + tr("within") + " " + strSearchWithinDescription;
+			}
+		}
 	} else {
 		strSummary += tr("Search was incomplete -- too many possible matches") + "\n";
 	}

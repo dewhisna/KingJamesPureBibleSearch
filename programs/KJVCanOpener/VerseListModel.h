@@ -168,7 +168,7 @@ public:
 		return strHeading;
 	}
 
-	inline QString getToolTip(const TParsedPhrasesList &phrases = TParsedPhrasesList()) const {
+	inline QString getToolTip(const CSearchCriteria &searchCriteria, const TParsedPhrasesList &phrases = TParsedPhrasesList()) const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		QString strToolTip;
@@ -182,20 +182,35 @@ public:
 			}
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
+				QString strSearchWithinDescription = searchCriteria.searchWithinDescription(m_pBibleDatabase);
+				QString strSearchScopeDescription = searchCriteria.searchScopeDescription();
 				const CParsedPhrase *pPhrase = phrases.at(ndxPhrase);
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Selected Search Text")
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
 										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetPhraseTagSearchResults().size())
 										.arg(pPhrase->phrase()) + "\n";
 				}
-				if (pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Search Scope")
+				if ((!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
+					(!strSearchWithinDescription.isEmpty()) &&
+					(pPhrase->GetWithinPhraseTagSearchResults().contains(phraseTags().at(ndx)))) {
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4")
+										.arg(pPhrase->GetWithinPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+										.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
+										.arg(pPhrase->phrase())
+										.arg(strSearchWithinDescription) + "\n";
+				}
+				if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope");
+				if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
+					(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE) &&
+					(!strSearchScopeDescription.isEmpty())) {
+					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4")
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 										.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase()) + "\n";
+										.arg(pPhrase->phrase())
+										.arg(strSearchScopeDescription) + "\n";
 				}
 			}
 		}
@@ -605,7 +620,8 @@ private:
 	void clearAllExtraVerseIndexes();
 
 	void buildScopedResultsFromParsedPhrases();
-	CRelIndex ScopeIndex(const CRelIndex &index, CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nMode);
+	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase);
+	CRelIndex ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria);
 
 	void buildHighlighterResults(int ndxHighlighter = -1);								// Note: index of -1 = All Highlighters
 	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!

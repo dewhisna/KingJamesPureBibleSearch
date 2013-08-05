@@ -675,6 +675,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	if (!m_bLastPhraseChangeHadResults) {
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0) || (pPhrase->isDisabled())) {
 			pPhrase->setIsDuplicate(false);
+			pPhrase->ClearWithinPhraseTagSearchResults();
 			pPhrase->ClearScopedPhraseTagSearchResults();
 			phraseStatisticsChanged();
 		} else {
@@ -698,7 +699,7 @@ void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 	if (parsedPhrase()->isDuplicate()) {
 		strTemp += tr("(Duplicate)");
 	} else {
-		strTemp += QString("%1/%2").arg(!parsedPhrase()->isDisabled() ? parsedPhrase()->GetContributingNumberOfMatches() : 0).arg(parsedPhrase()->GetNumberOfMatches());
+		strTemp += QString("%1/%2/%3").arg(!parsedPhrase()->isDisabled() ? parsedPhrase()->GetContributingNumberOfMatches() : 0).arg(parsedPhrase()->GetNumberOfMatchesWithin()).arg(parsedPhrase()->GetNumberOfMatches());
 	}
 	ui->lblOccurrenceCount->setText(strTemp);
 }

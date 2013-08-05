@@ -334,6 +334,7 @@ void CKJVSearchSpec::en_changedSearchCriteria()
 
 typedef struct {
 	unsigned int m_nNumMatches;
+	unsigned int m_nNumMatchesWithin;
 	unsigned int m_nNumContributingMatches;
 } TPhraseOccurrenceInfo;
 Q_DECLARE_METATYPE(TPhraseOccurrenceInfo)
@@ -356,6 +357,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 			entry.setFromPhrase(pPhrase);
 			TPhraseOccurrenceInfo poiUsage;
 			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
+			poiUsage.m_nNumMatchesWithin = pPhrase->GetNumberOfMatchesWithin();
 			poiUsage.m_nNumContributingMatches = pPhrase->GetContributingNumberOfMatches();
 			entry.setExtraInfo(QVariant::fromValue(poiUsage));
 			phrases.append(entry);
@@ -367,36 +369,23 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	CPhraseListModel mdlPhrases(phrases);
 	mdlPhrases.sort(0);
 
-	QString strScope;
+	QString strScope = ui->widgetSearchCriteria->searchCriteria().searchScopeDescription();
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nScope = ui->widgetSearchCriteria->searchCriteria().searchScopeMode();
-	switch (nScope) {
-		case (CSearchCriteria::SSME_WHOLE_BIBLE):
-			strScope = tr("in the Entire Bible");
-			break;
-		case (CSearchCriteria::SSME_TESTAMENT):
-			strScope = tr("in the same Testament");
-			break;
-		case (CSearchCriteria::SSME_CATEGORY):
-			strScope = tr(" in the same Category");
-			break;
-		case (CSearchCriteria::SSME_BOOK):
-			strScope = tr("in the same Book");
-			break;
-		case (CSearchCriteria::SSME_CHAPTER):
-			strScope = tr("in the same Chapter");
-			break;
-		case (CSearchCriteria::SSME_VERSE):
-			strScope = tr("in the same Verse");
-			break;
-		default:
-			break;
-	}
 
 	QString strSummary;
-	if (nNumPhrases != 1) {
-		strSummary += tr("Search of %n Phrase(s) %1:\n", NULL, nNumPhrases).arg(strScope);
+	QString strSearchWithinDescription = ui->widgetSearchCriteria->searchCriteria().searchWithinDescription(m_pBibleDatabase);
+	if (!strSearchWithinDescription.isEmpty()) {
+		if (nNumPhrases != 1) {
+			strSummary += tr("Search of %n Phrase(s) %1 within %2\n", NULL, nNumPhrases).arg(strScope).arg(strSearchWithinDescription);
+		} else {
+			strSummary += tr("Search within %1 of:").arg(strSearchWithinDescription) + " ";
+		}
 	} else {
-		strSummary += tr("Search of:") + " ";
+		if (nNumPhrases != 1) {
+			strSummary += tr("Search of %n Phrase(s) %1\n", NULL, nNumPhrases).arg(strScope);
+		} else {
+			strSummary += tr("Search of:") + " ";
+		}
 	}
 	if (nNumPhrases > 1) strSummary += "\n";
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
@@ -404,12 +393,12 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 		if (nNumPhrases > 1) {
 			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches)
+								tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
 									.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches) + "\n";
-				assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatches == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+								tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
+				assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 			}
 		} else {
 			strSummary += QString("\"%1\"\n").arg(mdlPhrases.index(ndx).data().toString());
@@ -442,6 +431,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		assert(pPhrase != NULL);
 		if (pPhrase->isDisabled()) continue;
 		pPhrase->setIsDuplicate(false);
+		pPhrase->ClearWithinPhraseTagSearchResults();
 		pPhrase->ClearScopedPhraseTagSearchResults();
 		if ((!pPhrase->isCompleteMatch()) || (pPhrase->GetNumberOfMatches() == 0)) {
 			continue;		// Don't include phrases that had no matches of themselves

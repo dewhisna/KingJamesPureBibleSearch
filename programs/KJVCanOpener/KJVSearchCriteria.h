@@ -66,25 +66,43 @@ public:
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
 	void setSearchScopeMode(SEARCH_SCOPE_MODE_ENUM nMode) { m_nSearchScopeMode = nMode; }
 
+	bool indexIsWithin(const CRelIndex &ndxRel) const
+	{
+		return (m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end());
+	}
+	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase) const
+	{
+		assert(pBibleDatabase != NULL);
+		bool bIsEntire = true;
+		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
+			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
+		}
+		return bIsEntire;
+	}
 	const TRelativeIndexSet &searchWithin() const { return m_setSearchWithin; }
 	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin) { m_setSearchWithin = aSetSearchWithin; }
-	void setSearchWithin(const QString &strSearchWithin = QString())
+	void setSearchWithin(CBibleDatabasePtr pBibleDatabase, const QString &strSearchWithin = QString())
 	{
 		QStringList lstIndexes = strSearchWithin.split(QChar(','));
 		m_setSearchWithin.clear();
-		// Check for quick "Entire Bible":
+		if (strSearchWithin.compare("-") == 0) return;
+		// Check for "Entire Bible" shortcut (i.e. empty string or single "0"):
 		if ((lstIndexes.size() == 0) ||
 			((lstIndexes.size() == 1) && (lstIndexes.at(0).toUInt() == 0))) {
-			return;
-		}
-		for (int ndx = 0; ndx < lstIndexes.size(); ++ndx) {
-			CRelIndex ndxRel(lstIndexes.at(ndx));
-			if (ndxRel.isSet()) m_setSearchWithin.insert(ndxRel);
+			assert(pBibleDatabase != NULL);
+			for (uint32_t nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+				m_setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+			}
+		} else {
+			for (int ndx = 0; ndx < lstIndexes.size(); ++ndx) {
+				CRelIndex ndxRel(lstIndexes.at(ndx));
+				if (ndxRel.isSet()) m_setSearchWithin.insert(ndxRel);
+			}
 		}
 	}
 	QString searchWithinToString() const
 	{
-		if (m_setSearchWithin.size() == 0) return QString("0");
+		if (m_setSearchWithin.size() == 0) return QString("-");
 		QStringList lstIndexes;
 		for (TRelativeIndexSet::const_iterator itrIndexes = m_setSearchWithin.begin(); itrIndexes != m_setSearchWithin.end(); ++itrIndexes) {
 			lstIndexes.append(itrIndexes->asAnchor());
@@ -92,6 +110,7 @@ public:
 		return lstIndexes.join(QString(","));
 	}
 	QString searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const;
+	QString searchScopeDescription() const;
 
 private:
 	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
@@ -229,6 +248,8 @@ private:
 	const CSearchWithinModelIndex *m_pParentIndex;
 	int m_nLevel;										// Hierarchy level -- determined by ascending the parent nodes at creation
 	mutable bool m_bChecked;							// Checkstate for this item
+
+	Q_DISABLE_COPY(CSearchWithinModelIndex)
 };
 
 typedef QMap<uint32_t, CSearchWithinModelIndex *> CSearchWithinModelIndexMap;
@@ -238,7 +259,7 @@ class CSearchWithinModel : public QAbstractItemModel
 	Q_OBJECT
 
 public:
-	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin = TRelativeIndexSet(), QObject *pParent = 0);
+	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin, QObject *pParent = 0);
 	virtual ~CSearchWithinModel();
 
 	QString searchWithinDescription() const;

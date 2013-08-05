@@ -679,7 +679,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	}
 
 	m_previewSearchPhrase.ParsePhrase("trumpet");
-	m_previewSearchPhrase.FindWords(m_previewSearchPhrase.GetCursorWordPos());
+	m_previewSearchPhrase.FindWords();
 	TParsedPhrasesList lstPhrases;
 	lstPhrases.append(&m_previewSearchPhrase);
 	CSearchCriteria aSearchCriteria;

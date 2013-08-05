@@ -65,9 +65,13 @@ public:
 	inline const TPhraseTagList &GetScopedPhraseTagSearchResults() const { return m_lstScopedPhraseTagResults; }			// Returned as reference so we don't have to keep copying
 	inline TPhraseTagList &GetScopedPhraseTagSearchResultsNonConst() const { return m_lstScopedPhraseTagResults; }			// Non-const version used by VerseListModel for setting
 	inline void ClearScopedPhraseTagSearchResults() const { m_lstScopedPhraseTagResults.clear(); }
+	inline int GetNumberOfMatchesWithin() const { return m_lstWithinPhraseTagResults.size(); }
+	inline const TPhraseTagList &GetWithinPhraseTagSearchResults() const { return m_lstWithinPhraseTagResults; }			// Returned as reference so we don't have to keep copying
+	inline TPhraseTagList &GetWithinPhraseTagSearchResultsNonConst() const { return m_lstWithinPhraseTagResults; }			// Non-const version used by VerseListModel for setting
+	inline void ClearWithinPhraseTagSearchResults() const { m_lstWithinPhraseTagResults.clear(); }
 	// -------
 	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
-	uint32_t GetNumberOfMatches() const;
+	unsigned int GetNumberOfMatches() const;
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	const TNormalizedIndexList &GetNormalizedSearchResults() const;		// Returned as reference so we don't have to keep copying
 #endif
@@ -120,7 +124,7 @@ public:
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 
-	void FindWords(int nCursorWord);			// Uses m_lstWords and nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
+	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
 
 	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
@@ -135,7 +139,8 @@ protected:
 	// -------
 	mutable bool m_bIsDuplicate;							// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDisabled;								// Indicates this phrase is disabled.  Set/Cleared by parent phraseChanged logic
-	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel.  The size of this list is the ContributingMatchCount
+	mutable TPhraseTagList m_lstScopedPhraseTagResults;		// List of Denormalized Search Results from Scope.  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel.  The size of this list is the GetContributingNumberOfMatches
+	mutable TPhraseTagList m_lstWithinPhraseTagResults;		// List of Denormalized Search Results from within Selected Search Documents (but not scoped with other phrases).  Set/Cleared by parent phraseChanged logic and buildScopedResultsInParsedPhrases on VerseListModel.  The size of this list is the GetNumberOfMatchesWithin
 	// -------
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;

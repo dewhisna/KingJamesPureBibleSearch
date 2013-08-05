@@ -76,7 +76,7 @@ bool CPhraseEntry::operator!=(const CParsedPhrase &src) const
 	return (!(operator==(src)));
 }
 
-uint32_t CParsedPhrase::GetNumberOfMatches() const
+unsigned int CParsedPhrase::GetNumberOfMatches() const
 {
 	return m_lstMatchMapping.size();
 }
@@ -262,7 +262,7 @@ void CParsedPhrase::clearCache() const
 void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter)
 {
 	ParsePhrase(curInsert);
-	FindWords(m_nCursorWord);
+	FindWords();
 	aCompleter.setWordsFromPhrase();
 }
 
@@ -330,10 +330,11 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_nCursorWord = m_lstWords.size();
 }
 
-void CParsedPhrase::FindWords(int nCursorWord)
+void CParsedPhrase::FindWords()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	int nCursorWord = m_nCursorWord;
 	assert((nCursorWord >= 0) && (nCursorWord <= m_lstWords.size()));
 
 	m_lstMatchMapping.clear();

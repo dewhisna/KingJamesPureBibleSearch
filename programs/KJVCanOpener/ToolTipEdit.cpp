@@ -176,9 +176,9 @@ void CTipEdit::adjustToolTipSize()
 	QSize docSize = document()->size().toSize();
 	extern QMainWindow *g_pMainWindow;
 	if (widget) {
-		resize(QSize(docSize.width(), qMin(widget->height(), docSize.height())) + extra);
+		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
 	} else if (g_pMainWindow) {
-		resize(QSize(docSize.width(), qMin(g_pMainWindow->height(), docSize.height())) + extra);
+		resize (QSize(qMin(g_pMainWindow->width()/2, docSize.width()), qMin(g_pMainWindow->height(), docSize.height())) + extra);
 	} else {
 		resize(docSize + extra);
 	}
