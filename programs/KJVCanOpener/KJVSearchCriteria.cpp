@@ -274,6 +274,7 @@ bool CSearchWithinModel::setData(const QModelIndex &index, const QVariant &value
 			emit dataChanged(indexParent, indexParent);
 			indexParent = parent(indexParent);
 		}
+		emit changedSearchWithin();
 		return true;
 	}
 
@@ -355,7 +356,7 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	// Set Initial Mode:
 	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));
 
-	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changeSearchScopeMode(int)));
+	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchScopeMode(int)));
 	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 	connect(ui->buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
@@ -383,12 +384,12 @@ void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 	ui->treeViewSearchWithin->expandAll();
 	ui->treeViewSearchWithin->resizeColumnToContents(0);
 
-	connect(m_pSearchWithinModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
+	connect(m_pSearchWithinModel, SIGNAL(changedSearchWithin()), this, SLOT(en_changedSearchWithin()));
 
 	end_update();
 }
 
-void CKJVSearchCriteriaWidget::en_changeSearchScopeMode(int ndx)
+void CKJVSearchCriteriaWidget::en_changedSearchScopeMode(int ndx)
 {
 	if (m_bDoingUpdate) return;
 
@@ -401,12 +402,9 @@ void CKJVSearchCriteriaWidget::en_changeSearchScopeMode(int ndx)
 	end_update();
 }
 
-void CKJVSearchCriteriaWidget::en_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void CKJVSearchCriteriaWidget::en_changedSearchWithin()
 {
 	assert(m_pSearchWithinModel != NULL);
-
-	Q_UNUSED(topLeft);
-	Q_UNUSED(bottomRight);
 
 	if (m_bDoingUpdate) return;
 

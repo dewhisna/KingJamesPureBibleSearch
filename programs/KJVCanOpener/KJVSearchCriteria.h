@@ -151,8 +151,8 @@ public slots:
 	void setAdjustDialogElementBrightness(bool bAdjust);
 
 private slots:
-	void en_changeSearchScopeMode(int ndx);
-	void en_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	void en_changedSearchScopeMode(int ndx);
+	void en_changedSearchWithin();
 
 // Data Private:
 private:
@@ -286,6 +286,9 @@ public:
 		return reinterpret_cast<const CSearchWithinModelIndex *>(ndx.internalPointer());
 	}
 	static void *fromSearchWithinModelIndex(const CSearchWithinModelIndex *pIndex) { return reinterpret_cast<void *>(const_cast<CSearchWithinModelIndex *>(pIndex)); }
+
+signals:
+	void changedSearchWithin();
 
 private:
 	void fireChildrenChange(const QModelIndex &index);
