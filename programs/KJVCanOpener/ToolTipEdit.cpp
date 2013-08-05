@@ -80,6 +80,8 @@ CTipEdit::CTipEdit(QWidget *parent)
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setContextMenuPolicy(Qt::DefaultContextMenu /* Qt::NoContextMenu */);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard /* Qt::NoTextInteraction */);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 	delete instance;
 	instance = this;
@@ -166,7 +168,7 @@ void CTipEdit::reuseTip(const QString &text)
 void CTipEdit::adjustToolTipSize()
 {
 	QFontMetrics fm(font());
-	QSize extra(1 + verticalScrollBar()->sizeHint().width() + frameWidth()*2, frameWidth()*2);
+	QSize extra(1 + verticalScrollBar()->sizeHint().width() + frameWidth()*2, 1 + horizontalScrollBar()->sizeHint().height() + frameWidth()*2);
 
 	// Make it look good with the default ToolTip font on Mac, which has a small descent.
 	if (fm.descent() == 2 && fm.ascent() >= 11)
@@ -191,11 +193,14 @@ void CTipEdit::activate()
 
 void CTipEdit::paintEvent(QPaintEvent *ev)
 {
-	QStylePainter p(this->viewport());
-	QStyleOptionFrame opt;
-	opt.init(this->viewport());
-	p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
-	p.end();
+// Note: This code causes weird painting bug with scrollbar sliding.  I think we
+//			are getting a double paint that doesn't quite agree with each other:
+//
+//	QStylePainter p(this->viewport());
+//	QStyleOptionFrame opt;
+//	opt.init(this->viewport());
+//	p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+//	p.end();
 
 	QTextEdit::paintEvent(ev);
 }
