@@ -641,15 +641,23 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_nLastSearchBooks(0),
 	m_bLastCalcSuccess(true),
 	m_nLastSearchNumPhrases(0),
+	m_pSearchResultsType(NULL),
+	m_pSearchResultsCount(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
-	pLayout->setSpacing(6);
+	pLayout->setSpacing(4);
 	pLayout->setContentsMargins(11, 11, 11, 11);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 	pLayout->setContentsMargins(0, 0, 0, 0);
+	m_pSearchResultsType = new QLabel(this);
+	m_pSearchResultsType->setObjectName(QString::fromUtf8("SearchResultsType"));
+	m_pSearchResultsType->setWordWrap(true);
+	m_pSearchResultsType->setAlignment(Qt::AlignHCenter);
+	m_pSearchResultsType->setTextFormat(Qt::RichText);
+	pLayout->addWidget(m_pSearchResultsType);
 	m_pSearchResultsCount = new QLabel(this);
 	m_pSearchResultsCount->setObjectName(QString::fromUtf8("SearchResultsCount"));
 	m_pSearchResultsCount->setWordWrap(true);
@@ -692,6 +700,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	connect(this, SIGNAL(collapseAll()), m_pSearchResultsTreeView, SLOT(collapseAll()));
 	connect(this, SIGNAL(setFontSearchResults(const QFont &)), m_pSearchResultsTreeView, SLOT(setFontSearchResults(const QFont &)));
 	connect(this, SIGNAL(setTextBrightness(bool, int)), m_pSearchResultsTreeView, SLOT(setTextBrightness(bool, int)));
+
+	setSearchResultsType();
 }
 
 CKJVSearchResult::~CKJVSearchResult()
@@ -738,6 +748,29 @@ void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMo
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
+	setSearchResultsType();
+}
+
+void CKJVSearchResult::setSearchResultsType()
+{
+	QString strResultsType;
+
+	switch (m_pSearchResultsTreeView->viewMode()) {
+		case CVerseListModel::VVME_SEARCH_RESULTS:
+			strResultsType = tr("Search Results");
+			break;
+		case CVerseListModel::VVME_HIGHLIGHTERS:
+			strResultsType = tr("Highlighters");
+			break;
+		case CVerseListModel::VVME_USERNOTES:
+			strResultsType = tr("Notes");
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_pSearchResultsType->setText(QString("<h2><b>%1</b></h2>").arg(strResultsType));
 }
 
 void CKJVSearchResult::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)

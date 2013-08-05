@@ -212,6 +212,9 @@ signals:			// Incoming Pass-Through:
 public:
 	inline CVerseListModel *vlmodel() const { return m_pSearchResultsTreeView->vlmodel(); }
 
+private:
+	void setSearchResultsType();
+
 // Private Data:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -225,8 +228,9 @@ private:
 
 // UI Private:
 private:
-	CSearchResultsTreeView *m_pSearchResultsTreeView;
+	QLabel *m_pSearchResultsType;
 	QLabel *m_pSearchResultsCount;
+	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };
 
 #endif // KJVSEARCHRESULT_H
