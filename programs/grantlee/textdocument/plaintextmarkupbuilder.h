@@ -30,7 +30,9 @@ Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
 
 
 #ifdef Q_OS_WIN
+#ifdef _MSC_VER			// Warning disabling is only needed on Microsoft Compiler
 #pragma warning( disable : 4250 )
+#endif
 #endif
 
 #define LETTERSINALPHABET 26
