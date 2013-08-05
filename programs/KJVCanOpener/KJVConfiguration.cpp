@@ -683,6 +683,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	TParsedPhrasesList lstPhrases;
 	lstPhrases.append(&m_previewSearchPhrase);
 	CSearchCriteria aSearchCriteria;
+	aSearchCriteria.setSearchWithin(m_pSearchResultsTreeView->vlmodel()->bibleDatabase());
 	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, lstPhrases);
 	m_pSearchResultsTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 	m_pSearchResultsTreeView->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
