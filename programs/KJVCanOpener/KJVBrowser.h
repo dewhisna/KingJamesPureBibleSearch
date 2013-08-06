@@ -37,6 +37,7 @@
 #include <QUrl>
 #include <QMenu>
 #include <QPoint>
+#include <QPlastiqueStyle>
 
 // ============================================================================
 
@@ -166,6 +167,7 @@ private:
 private:
 	bool m_bDoingUpdate;					// True if combo boxes, etc, are being updated and change notifications should be ignored
 	QPoint m_ptChapterScrollerMousePos;		// Last mouse position tracked for chapter scroller for rolling tooltips
+	QPlastiqueStyle m_PlastiqueStyle;		// Used to define specific style for our chapter scroller so that it will have extra scroller buttons, etc, even on the limited Mac
 
 #define begin_update()					\
 	CBusyCursor iAmBusy(NULL);			\

@@ -206,6 +206,7 @@ void CKJVBrowser::initialize()
 	}
 
 	// Setup the Chapter Scroller:
+	ui->scrollbarChapter->setStyle(&m_PlastiqueStyle);
 	ui->scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
 	ui->scrollbarChapter->setTracking(true);
 	ui->scrollbarChapter->setMouseTracking(true);
