@@ -37,7 +37,10 @@
 #include <QTextBlock>
 #include <QTextFragment>
 #include <QApplication>
-
+#include <QScrollBar>
+#include <QToolTip>
+#include <QMouseEvent>
+#include <QStyleOptionSlider>
 
 // ============================================================================
 
@@ -82,6 +85,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
 	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
 
+	connect(ui->scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
+	connect(ui->scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
+	connect(ui->scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
+
 	connect(&m_dlyBkCombo, SIGNAL(triggered(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(&m_dlyBkChpCombo, SIGNAL(triggered(int)), this, SLOT(BkChpComboIndexChanged(int)));
 	connect(&m_dlyTstBkCombo, SIGNAL(triggered(int)), this, SLOT(TstBkComboIndexChanged(int)));
@@ -114,6 +121,20 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 CKJVBrowser::~CKJVBrowser()
 {
 	delete ui;
+}
+
+// ----------------------------------------------------------------------------
+
+bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
+{
+	if ((obj == ui->scrollbarChapter) &&
+		(ev->type() == QEvent::MouseMove) &&
+		(ui->scrollbarChapter->isSliderDown())) {
+		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(ev);
+		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
+	}
+
+	return QWidget::eventFilter(obj, ev);
 }
 
 // ----------------------------------------------------------------------------
@@ -183,6 +204,12 @@ void CKJVBrowser::initialize()
 	for (unsigned int ndxBibleChp=1; ndxBibleChp<=nBibleChp; ++ndxBibleChp) {
 		ui->comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
 	}
+
+	// Setup the Chapter Scroller:
+	ui->scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
+	ui->scrollbarChapter->setTracking(true);
+	ui->scrollbarChapter->setMouseTracking(true);
+	ui->scrollbarChapter->installEventFilter(this);
 
 	end_update();
 }
@@ -486,6 +513,10 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	ui->comboTstChp->setCurrentIndex(ui->comboTstChp->findData(nTstChp));
 	ui->comboBibleChp->setCurrentIndex(ui->comboBibleChp->findData(nBibleChp));
 
+	// Set the chapter scroller to the chapter of the Bible:
+	ui->scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
+//	ui->scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
+
 	end_update();
 
 	m_pScriptureBrowser->navigator().setDocumentToChapter(ndx);
@@ -593,6 +624,36 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 		ndxTarget.setWord(0);
 	}
 	gotoIndex(TPhraseTag(ndxTarget));
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::ChapterSliderMoved(int index)
+{
+	CRelIndex ndxTarget(m_pBibleDatabase->calcRelIndex(0, 0, index, 0, 0));
+	ndxTarget.setVerse(0);
+	ndxTarget.setWord(0);
+	ui->scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(ndxTarget));
+	if (!m_ptChapterScrollerMousePos.isNull()) {
+		QToolTip::showText(m_ptChapterScrollerMousePos, ui->scrollbarChapter->toolTip());
+	} else {
+//		QToolTip::showText(ui->scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), ui->scrollbarChapter->toolTip());
+		QStyleOptionSlider opt;
+		opt.initFrom(ui->scrollbarChapter);
+		QRect rcSlider = ui->scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui->scrollbarChapter);
+		QToolTip::showText(ui->scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), ui->scrollbarChapter->toolTip());
+	}
+
+	if (m_bDoingUpdate) return;
+
+	if (ui->scrollbarChapter->isSliderDown()) return;		// Just set ToolTip and exit
+	gotoIndex(TPhraseTag(ndxTarget));
+}
+
+void CKJVBrowser::ChapterSliderValueChanged()
+{
+	ChapterSliderMoved(ui->scrollbarChapter->value());
+	m_ptChapterScrollerMousePos = QPoint();
 }
 
 // ----------------------------------------------------------------------------

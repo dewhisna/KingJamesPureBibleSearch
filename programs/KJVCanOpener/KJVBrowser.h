@@ -36,6 +36,7 @@
 #include <QTimer>
 #include <QUrl>
 #include <QMenu>
+#include <QPoint>
 
 // ============================================================================
 
@@ -53,7 +54,7 @@ class CKJVBrowser : public QWidget
 
 public:
 	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
-	~CKJVBrowser();
+	virtual ~CKJVBrowser();
 
 	int navigationActivationDelay() const { return m_nNavigationActivationDelay; }
 	void setNavigationActivationDelay(int nDelay);
@@ -78,6 +79,8 @@ public:
 	void clearHistory() { return m_pScriptureBrowser->clearHistory(); }
 	inline QString historyTitle(int i) const { return m_pScriptureBrowser->historyTitle(i); }
 	inline QUrl historyUrl(int i) const { return m_pScriptureBrowser->historyUrl(i); }
+
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 public slots:
 	void setFontScriptureBrowser(const QFont& aFont);
@@ -130,6 +133,9 @@ private slots:
 	void BibleBkComboIndexChanged(int index);
 	void BibleChpComboIndexChanged(int index);
 
+	void ChapterSliderMoved(int index);
+	void ChapterSliderValueChanged();
+
 	void delayBkComboIndexChanged(int index);
 	void delayBkChpComboIndexChanged(int index);
 	void delayTstBkComboIndexChanged(int index);
@@ -158,7 +164,8 @@ private:
 
 // UI Private:
 private:
-	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
+	bool m_bDoingUpdate;					// True if combo boxes, etc, are being updated and change notifications should be ignored
+	QPoint m_ptChapterScrollerMousePos;		// Last mouse position tracked for chapter scroller for rolling tooltips
 
 #define begin_update()					\
 	CBusyCursor iAmBusy(NULL);			\
