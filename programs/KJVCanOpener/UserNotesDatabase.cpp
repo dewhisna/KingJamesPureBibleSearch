@@ -78,6 +78,7 @@ namespace {
 	const QString constrBackgroundColorAttr("BackgroundColor");
 	const QString constrEnabledAttr("Enabled");
 	const QString constrVisibleAttr("Visible");
+	const QString constrKeywordsAttr("Keywords");
 }
 
 // ============================================================================
@@ -191,6 +192,7 @@ void CUserNotesDatabase::clearXMLVars()
 	m_strBackgroundColor.clear();
 	m_bEnabled = true;
 	m_bVisible = true;
+	m_strKeywords.clear();
 	m_bInKJNDocument = false;
 	m_bInKJNDocumentText = false;
 	m_bInNotes = false;
@@ -290,9 +292,21 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 				return false;
 			}
 		}
+		int ndxKeywords = findAttribute(attr, constrKeywordsAttr);			// Keywords are optional
+		if (ndxKeywords != -1) {
+			m_strKeywords = attr.value(ndxKeywords);
+		} else {
+			m_strKeywords.clear();
+		}
 		m_strXMLBuffer.clear();		// Clear buffer to get ready to capture the Note Text
 #ifdef DEBUG_KJN_XML_READ
-		qDebug("%s : RelIndex: %d  Count: %d  BackgroundColor: \"%s\"  Visible: %s", localName.toUtf8().data(), m_ndxRelIndex.index(), m_nCount, m_strBackgroundColor.toUtf8().data(), (m_bVisible ? "True" : "False"));
+		qDebug("%s : RelIndex: %d  Count: %d  BackgroundColor: \"%s\"  Visible: %s  Keywords: \"%s\"",
+					localName.toUtf8().data(),
+					m_ndxRelIndex.index(),
+					m_nCount,
+					m_strBackgroundColor.toUtf8().data(),
+					(m_bVisible ? "True" : "False"),
+					m_strKeywords.toUtf8().data());
 #endif
 		m_bInNote = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInHighlighting) && (localName.compare(constrHighlightingTag, Qt::CaseInsensitive) == 0) &&
@@ -464,10 +478,12 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 #endif
 		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
+		userNote.m_lstKeywords = m_strKeywords.split(QChar(','), QString::SkipEmptyParts);
 		userNote.setCount(m_nCount);
 		if (!m_strBackgroundColor.isEmpty()) userNote.setBackgroundColor(QColor(m_strBackgroundColor));
 		userNote.setIsVisible(m_bVisible);
 		m_strXMLBuffer.clear();
+		m_strKeywords.clear();
 		m_ndxRelIndex.clear();
 		m_nCount = 0;
 		m_strBackgroundColor.clear();
@@ -671,11 +687,12 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 							.arg(constrSizeAttr).arg(m_mapNotes.size())
 							.toUtf8());
 	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
-		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\">\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
+		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
 								.arg(constrCountAttr).arg((itrNotes->second).count())
 								.arg(constrBackgroundColorAttr).arg(Qt::escape((itrNotes->second).backgroundColor().name()))
 								.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
+								.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(Qt::escape((itrNotes->second).m_lstKeywords.join(","))) : QString())
 								.toUtf8());
 		QString strNote = (itrNotes->second).text();
 		strNote.replace("]]>", "]]&gt;");			// safe-guard to make sure we don't have any embedded CDATA terminators

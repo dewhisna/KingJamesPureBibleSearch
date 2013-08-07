@@ -31,6 +31,9 @@
 #include <QtXml>
 #include <QSharedPointer>
 #include <QIODevice>
+#include <QStringList>
+
+#include <assert.h>
 
 // ============================================================================
 
@@ -99,6 +102,13 @@ public:
 		m_strText = strText;
 	}
 
+	const QStringList &keywordList() const { return m_lstKeywords; }
+	int keywordCount() const { return m_lstKeywords.size(); }
+	QString keyword(int ndx) const { assert((ndx >= 0) && (ndx < m_lstKeywords.size())); return m_lstKeywords.at(ndx); }
+	void setKeywordList(const QStringList &lstKeywords) { m_lstKeywords = lstKeywords; }
+	void addKeyword(const QString &strKeyword) { if (!m_lstKeywords.contains(strKeyword, Qt::CaseInsensitive)) m_lstKeywords.append(strKeyword); }
+	void clearKeywords() { m_lstKeywords.clear(); }
+
 	TPhraseTag phraseTag() const { return m_PhraseTag; }
 	CRelIndex index() const { return m_PhraseTag.relIndex(); }
 
@@ -125,6 +135,7 @@ protected:
 
 private:
 	QString m_strText;			// Rich text
+	QStringList m_lstKeywords;	// List of keywords for this note
 	TPhraseTag m_PhraseTag;		// RelIndex of tag and count
 	QColor m_clrBackground;		// Tag Background Color
 	bool m_bIsVisible;			// Visible in Scripture Browser
@@ -348,6 +359,7 @@ private:
 	QString m_strBackgroundColor;						// BackgroundColor attribute when present
 	bool m_bEnabled;									// Enabled attribute when present
 	bool m_bVisible;									// Visible attribute when present
+	QString m_strKeywords;								// Keywords attribute when present
 	bool m_bInKJNDocument;								// Inside <KJNDocument> tag
 	bool m_bInKJNDocumentText;							// Inside <KJNDocumentText> tag
 	bool m_bInNotes;									// Inside <Notes> tag
