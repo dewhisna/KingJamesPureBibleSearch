@@ -83,6 +83,7 @@ public:
 	{ }
 	CUserNoteEntry(const CUserNoteEntry &other)
 		:	m_strText(other.m_strText),
+			m_lstKeywords(other.m_lstKeywords),
 			m_PhraseTag(other.m_PhraseTag),
 			m_clrBackground(other.m_clrBackground),
 			m_bIsVisible(other.m_bIsVisible)
@@ -197,6 +198,7 @@ public:
 	void removeNoteFor(const CRelIndex &ndx);
 	void removeAllNotes();
 	const CUserNoteEntryMap &notesMap() const { return m_mapNotes; }
+	QStringList compositeKeywordList() const;
 
 	// --------------------
 

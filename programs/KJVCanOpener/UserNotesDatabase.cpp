@@ -803,6 +803,18 @@ void CUserNotesDatabase::removeAllNotes()
 	emit changedUserNotesDatabase();
 }
 
+QStringList CUserNotesDatabase::compositeKeywordList() const
+{
+	QStringList lstKeywords;
+
+	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
+		lstKeywords.append((itrNotes->second).m_lstKeywords);
+	}
+
+	lstKeywords.removeDuplicates();
+	return lstKeywords;
+}
+
 // ============================================================================
 
 void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)

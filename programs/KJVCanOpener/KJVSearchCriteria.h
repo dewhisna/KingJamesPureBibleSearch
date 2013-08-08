@@ -295,6 +295,7 @@ private:
 
 // Data Private:
 private:
+	Q_DISABLE_COPY(CSearchWithinModel)
 	CBibleDatabasePtr m_pBibleDatabase;
 	CSearchWithinModelIndex m_rootSearchWithinModelIndex;
 };
