@@ -222,6 +222,8 @@ private:
 
 private slots:
 	void en_modelKeywordListChanged();
+	void en_customContextMenuRequested(const QPoint &pos);
+	void en_customContextMenuRequestedView(const QPoint &pos);
 
 // Private Data:
 private:
@@ -242,6 +244,7 @@ private:
 	bool m_bInitialKeywordsSet;
 	CComboBox *m_pKeywordsCombo;
 	QLabel *m_pKeywordsLabel;
+	QLabel *m_pKeywordsPreviewLabel;
 	CNoteKeywordModel *m_pKeywordModel;
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };

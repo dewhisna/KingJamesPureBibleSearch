@@ -39,6 +39,8 @@
 #include <QStringList>
 #include <QAbstractListModel>
 #include <QListView>
+#include <QMenu>
+#include <QAction>
 
 // ============================================================================
 
@@ -117,14 +119,27 @@ public:
 
 //	virtual Qt::DropActions supportedDropActions() const;
 
+	QMenu *contextMenu() { return &m_keywordContextMenu; }
+
 signals:
 	void changedNoteKeywords();
+
+private slots:
+	void en_selectAllKeywords();
+	void en_clearKeywordSelection();
+	void updateContextMenu();
 
 // Data Private:
 private:
 	Q_DISABLE_COPY(CNoteKeywordModel)
 
 	CNoteKeywordModelItemDataList m_lstKeywordData;
+
+// UI Private:
+private:
+	QMenu m_keywordContextMenu;
+	QAction *m_pActionSelectAllKeywords;
+	QAction *m_pActionClearKeywordSelection;
 };
 
 // ============================================================================

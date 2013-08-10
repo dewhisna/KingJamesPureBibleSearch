@@ -156,13 +156,22 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="4">
+	 <item row="1" column="3" colspan="2">
       <widget class="QLabel" name="lblKeywordsListPreview">
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
        <property name="text">
         <string>Keyword List Preview</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>4</number>
        </property>
       </widget>
      </item>

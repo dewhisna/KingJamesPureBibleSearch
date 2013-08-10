@@ -54,9 +54,17 @@ namespace {
 // ============================================================================
 
 CNoteKeywordModel::CNoteKeywordModel(QObject *pParent)
-	:	QAbstractListModel(pParent)
-{
+	:	QAbstractListModel(pParent),
+		m_pActionSelectAllKeywords(NULL),
+		m_pActionClearKeywordSelection(NULL)
 
+{
+	m_pActionSelectAllKeywords = m_keywordContextMenu.addAction(tr("Select &All"), this, SLOT(en_selectAllKeywords()));
+	m_pActionSelectAllKeywords->setStatusTip(tr("Select all keywords"));
+	m_pActionSelectAllKeywords->setEnabled(false);
+	m_pActionClearKeywordSelection = m_keywordContextMenu.addAction(tr("&Clear Selection"), this, SLOT(en_clearKeywordSelection()));
+	m_pActionClearKeywordSelection->setStatusTip(tr("Clear keyword selection"));
+	m_pActionClearKeywordSelection->setEnabled(false);
 }
 
 CNoteKeywordModel::~CNoteKeywordModel()
@@ -88,6 +96,20 @@ QVariant CNoteKeywordModel::data(const QModelIndex &index, int role) const
 
 bool CNoteKeywordModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+	if (!index.isValid()) {
+		// Special "do all" cases:
+		if (role == Qt::CheckStateRole) {
+			for (int n = 0; n < m_lstKeywordData.size(); ++n) {
+				m_lstKeywordData[n].m_bChecked = value.toBool();
+			}
+			emit dataChanged(createIndex(0, 0, 0), createIndex(m_lstKeywordData.size()-1, 0, 0));
+			emit changedNoteKeywords();
+			updateContextMenu();
+			return true;
+		}
+		return false;
+	}
+
 	if ((index.row() >= 0) && (index.row() < m_lstKeywordData.size())) {
 		switch (role) {
 			case Qt::EditRole:
@@ -107,6 +129,7 @@ bool CNoteKeywordModel::setData(const QModelIndex &index, const QVariant &value,
 					m_lstKeywordData[index.row()].m_bChecked = value.toBool();
 					emit dataChanged(index, index);
 					emit changedNoteKeywords();
+					updateContextMenu();
 				}
 				return true;
 			default:
@@ -151,6 +174,8 @@ bool CNoteKeywordModel::insertRows(int row, int count, const QModelIndex &zParen
 
 	endInsertRows();
 
+	updateContextMenu();
+
 	return true;
 }
 
@@ -164,6 +189,8 @@ bool CNoteKeywordModel::removeRows(int row, int count, const QModelIndex &zParen
 		m_lstKeywordData.removeAt(row);
 
 	endRemoveRows();
+
+	updateContextMenu();
 
 	return true;
 }
@@ -220,6 +247,7 @@ void CNoteKeywordModel::setItemList(const CNoteKeywordModelItemDataList &aList)
 	emit beginResetModel();
 	m_lstKeywordData = aList;
 	emit endResetModel();
+	updateContextMenu();
 }
 
 QStringList CNoteKeywordModel::selectedKeywordList() const
@@ -246,6 +274,7 @@ void CNoteKeywordModel::setKeywordList(const QStringList &lstSelectedKeywords, c
 	}
 
 	emit endResetModel();
+	updateContextMenu();
 }
 
 /*
@@ -254,6 +283,34 @@ Qt::DropActions CNoteKeywordModel::supportedDropActions() const
 
 }
 */
+
+// ----------------------------------------------------------------------------
+
+void CNoteKeywordModel::en_selectAllKeywords()
+{
+	setData(QModelIndex(), Qt::Checked, Qt::CheckStateRole);		// Special-case index for check-all
+}
+
+void CNoteKeywordModel::en_clearKeywordSelection()
+{
+	setData(QModelIndex(), Qt::Unchecked, Qt::CheckStateRole);		// Special-case index for uncheck-all
+}
+
+void CNoteKeywordModel::updateContextMenu()
+{
+	bool bAllSelected = true;
+	bool bNoneSelected = true;
+	for (int ndx = 0; ndx < m_lstKeywordData.size(); ++ndx) {
+		if (!m_lstKeywordData.at(ndx).m_bChecked) {
+			bAllSelected = false;
+		} else {
+			bNoneSelected = false;
+		}
+	}
+
+	m_pActionSelectAllKeywords->setEnabled(!bAllSelected);
+	m_pActionClearKeywordSelection->setEnabled(!bNoneSelected);
+}
 
 // ============================================================================
 
