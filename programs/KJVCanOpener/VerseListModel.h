@@ -599,6 +599,7 @@ public slots:
 	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setShowMissingLeafs(bool bShowMissing);
 	virtual void setFont(const QFont& aFont);
+	void setUserNoteKeywordFilter(const QStringList &lstKeywordFilter);			// Note: An empty string is a special "show notes without keywords" entry.  This list should be DECOMPOSED words!
 
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color);
@@ -626,7 +627,7 @@ private:
 	void buildHighlighterResults(int ndxHighlighter = -1);								// Note: index of -1 = All Highlighters
 	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!
 
-	void buildUserNotesResults(const CRelIndex &ndx, bool bAdd);
+	void buildUserNotesResults(const CRelIndex &ndx = CRelIndex(), bool bAdd = true);
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
@@ -636,6 +637,7 @@ private:
 	TVerseListModelResults m_undefinedResults;		// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
 	TVerseListModelSearchResults m_searchResults;	// VerseListModelResults for Search Results
 	TVerseListModelNotesResults m_userNotesResults;	// VerseListModelResults for User Notes
+	QStringList m_lstUserNoteKeywordFilter;			// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry
 };
 
 // ============================================================================

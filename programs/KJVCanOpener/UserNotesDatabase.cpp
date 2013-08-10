@@ -614,6 +614,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
 	emit addedUserNote(CRelIndex());
+	emit changedUserNotesKeywords();
 
 	return true;
 }
@@ -774,13 +775,19 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote)
 {
 	bool bExists = existsNoteFor(ndx);
+	QStringList lstKeywords;
+	if (bExists) {
+		lstKeywords = m_mapNotes.at(ndx).keywordList();
+	}
 	m_mapNotes[ndx] = strNote;
 	m_mapNotes[ndx].setPhraseTag(ndx, strNote.count());
 	m_bIsDirty = true;
 	if (!bExists) {
 		emit addedUserNote(ndx);
+		emit changedUserNotesKeywords();
 	} else {
 		emit changedUserNote(ndx);
+		if (lstKeywords != strNote.keywordList()) emit changedUserNotesKeywords();
 	}
 	emit changedUserNotesDatabase();
 }
@@ -792,6 +799,7 @@ void CUserNotesDatabase::removeNoteFor(const CRelIndex &ndx)
 	m_mapNotes.erase(ndx);
 	m_bIsDirty = true;
 	emit removedUserNote(ndx);
+	emit changedUserNotesKeywords();
 	emit changedUserNotesDatabase();
 }
 
@@ -800,6 +808,7 @@ void CUserNotesDatabase::removeAllNotes()
 	m_mapNotes.clear();
 	m_bIsDirty = true;
 	emit removedUserNote(CRelIndex());
+	emit changedUserNotesKeywords();
 	emit changedUserNotesDatabase();
 }
 
@@ -812,6 +821,7 @@ QStringList CUserNotesDatabase::compositeKeywordList() const
 	}
 
 	lstKeywords.removeDuplicates();
+	lstKeywords.removeOne(QString());
 	return lstKeywords;
 }
 

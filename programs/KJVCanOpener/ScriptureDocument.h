@@ -72,6 +72,9 @@ public:
 	virtual void beginItalics() { }
 	virtual void endItalics() { }
 
+	virtual void beginFontRelativeSize(const QString &strSize) { Q_UNUSED(strSize); }
+	virtual void endFontRelativeSize() { }
+
 	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString())
 	{
 		Q_UNUSED(strClass);
@@ -122,6 +125,9 @@ public:
 
 	virtual void beginItalics();
 	virtual void endItalics();
+
+	virtual void beginFontRelativeSize(const QString &strSize);
+	virtual void endFontRelativeSize();
 
 	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString());
 	virtual void endDiv();

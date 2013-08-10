@@ -93,7 +93,7 @@ class CNoteKeywordModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	CNoteKeywordModel(const QStringList &lstSelectedKeywords = QStringList(), const QStringList &lstCompositeKeywords = QStringList(), QObject *pParent = 0);
+	CNoteKeywordModel(QObject *pParent = 0);
 	virtual ~CNoteKeywordModel();
 
 	int rowCount(const QModelIndex &zParent = QModelIndex()) const;
@@ -113,6 +113,7 @@ public:
 	const CNoteKeywordModelItemDataList &itemList() const;
 	void setItemList(const CNoteKeywordModelItemDataList &aList);
 	QStringList selectedKeywordList() const;
+	void setKeywordList(const QStringList &lstSelectedKeywords = QStringList(), const QStringList &lstCompositeKeywords = QStringList());
 
 //	virtual Qt::DropActions supportedDropActions() const;
 

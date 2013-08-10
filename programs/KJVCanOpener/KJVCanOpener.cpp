@@ -735,6 +735,9 @@ void CKJVCanOpener::restorePersistentSettings()
 	}
 	settings.endArray();
 
+	// Set Search Results View Keyword Filter:
+	m_pSearchResultWidget->keywordListChanged(true);
+
 	// Search Phrases Settings:
 	settings.beginGroup(constrSearchPhrasesGroup);
 	m_pSearchSpecWidget->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay()).toInt());

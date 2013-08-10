@@ -293,6 +293,7 @@ signals:
 	void changedUserNote(const CRelIndex &ndx);			// Fired on Set with data changed only -- not used on add/remove all
 	void addedUserNote(const CRelIndex &ndx);			// Fired on Set (as new).  If !ndx.isSet() then the entire list changed (such as file load)
 	void removedUserNote(const CRelIndex &ndx);			// Fired on Remove.  If !ndx.isSet() then the entire list changed (such as remove all)
+	void changedUserNotesKeywords();					// Fired if a note changes its keyword list
 
 	void changedUserNotesDatabase();
 

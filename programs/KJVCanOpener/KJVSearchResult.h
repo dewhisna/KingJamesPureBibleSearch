@@ -49,6 +49,9 @@
 class CKJVCanOpener;
 class CReflowDelegate;
 
+class CNoteKeywordModel;
+class CComboBox;
+
 // ============================================================================
 
  class CSearchResultsTreeView : public QTreeView
@@ -191,6 +194,7 @@ public slots:
 	void showPassageNavigator();
 	void showDetails();
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void keywordListChanged(bool bInitialLoad = false);
 
 signals:			// Outgoing Pass-Through:
 	void activated(const QModelIndex &);
@@ -214,6 +218,10 @@ public:
 
 private:
 	void setSearchResultsType();
+	void setKeywordListPreview();
+
+private slots:
+	void en_modelKeywordListChanged();
 
 // Private Data:
 private:
@@ -228,8 +236,13 @@ private:
 
 // UI Private:
 private:
+	bool m_bDoingUpdate;
 	QLabel *m_pSearchResultsType;
 	QLabel *m_pSearchResultsCount;
+	bool m_bInitialKeywordsSet;
+	CComboBox *m_pKeywordsCombo;
+	QLabel *m_pKeywordsLabel;
+	CNoteKeywordModel *m_pKeywordModel;
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };
 

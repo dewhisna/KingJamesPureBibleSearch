@@ -53,13 +53,10 @@ namespace {
 
 // ============================================================================
 
-CNoteKeywordModel::CNoteKeywordModel(const QStringList &lstSelectedKeywords, const QStringList &lstCompositeKeywords, QObject *pParent)
+CNoteKeywordModel::CNoteKeywordModel(QObject *pParent)
 	:	QAbstractListModel(pParent)
 {
-	m_lstKeywordData.reserve(lstCompositeKeywords.size());
-	for (int ndx = 0; ndx < lstCompositeKeywords.size(); ++ndx) {
-		m_lstKeywordData.append(CNoteKeywordModelItemData(lstCompositeKeywords.at(ndx), lstSelectedKeywords.contains(lstCompositeKeywords.at(ndx), Qt::CaseInsensitive)));
-	}
+
 }
 
 CNoteKeywordModel::~CNoteKeywordModel()
@@ -238,6 +235,19 @@ QStringList CNoteKeywordModel::selectedKeywordList() const
 	return lstKeywords;
 }
 
+void CNoteKeywordModel::setKeywordList(const QStringList &lstSelectedKeywords, const QStringList &lstCompositeKeywords)
+{
+	emit beginResetModel();
+
+	m_lstKeywordData.clear();
+	m_lstKeywordData.reserve(lstCompositeKeywords.size());
+	for (int ndx = 0; ndx < lstCompositeKeywords.size(); ++ndx) {
+		m_lstKeywordData.append(CNoteKeywordModelItemData(lstCompositeKeywords.at(ndx), lstSelectedKeywords.contains(lstCompositeKeywords.at(ndx), Qt::CaseInsensitive)));
+	}
+
+	emit endResetModel();
+}
+
 /*
 Qt::DropActions CNoteKeywordModel::supportedDropActions() const
 {
@@ -410,7 +420,8 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	setBackgroundColorPreview();
 
 	// Setup Keywords:
-	m_pKeywordModel = new CNoteKeywordModel(m_UserNote.keywordList(), g_pUserNotesDatabase->compositeKeywordList(), ui->comboKeywords);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
+	m_pKeywordModel = new CNoteKeywordModel(ui->comboKeywords);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
+	m_pKeywordModel->setKeywordList(m_UserNote.keywordList(), g_pUserNotesDatabase->compositeKeywordList());
 	m_pKeywordModel->sort(0);
 	ui->comboKeywords->setInsertPolicy(QComboBox::NoInsert);		// No auto-insert as we need to parse and decide how to insert it
 	ui->comboKeywords->setModel(m_pKeywordModel);

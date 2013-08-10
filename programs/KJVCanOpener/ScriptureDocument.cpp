@@ -164,6 +164,16 @@ void CScriptureTextHtmlBuilder::endItalics()
 	appendRawText(QString::fromLatin1("</i>"));
 }
 
+void CScriptureTextHtmlBuilder::beginFontRelativeSize(const QString &strSize)
+{
+	appendRawText( QString::fromLatin1( "<span style=\"font-size:%1;\">" ).arg(strSize) );
+}
+
+void CScriptureTextHtmlBuilder::endFontRelativeSize()
+{
+	appendRawText( QLatin1String( "</span>" ) );
+}
+
 void CScriptureTextHtmlBuilder::beginDiv(const QString &strClass, const QString &strStyle)
 {
 	if (!strClass.isEmpty()) {
@@ -207,6 +217,16 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 				appendLiteralText(QString::fromLatin1("[-]"));
 				endAnchor();
 				insertHorizontalRule();
+			}
+			if (!userNote.keywordList().isEmpty()) {
+				beginParagraph();
+				beginFontRelativeSize("xx-small");
+				appendLiteralText(QObject::tr("Keywords:") + " ");
+				beginItalics();
+				appendLiteralText(userNote.keywordList().join(", "));
+				endItalics();
+				endFontRelativeSize();
+				endParagraph();
 			}
 			appendRawText(userNote.htmlText());
 		} else {
@@ -289,6 +309,16 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 				appendLiteralText(QString::fromLatin1("[-]"));
 				endAnchor();
 				insertHorizontalRule();
+			}
+			if (!userNote.keywordList().isEmpty()) {
+				beginParagraph();
+				beginFontRelativeSize("xx-small");
+				appendLiteralText(QObject::tr("Keywords:") + " ");
+				beginItalics();
+				appendLiteralText(userNote.keywordList().join(", "));
+				endItalics();
+				endFontRelativeSize();
+				endParagraph();
 			}
 			appendRawText(userNote.plainText());
 		} else {

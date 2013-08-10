@@ -30,6 +30,9 @@
 #include "KJVCanOpener.h"
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
+#include "KJVNoteEditDlg.h"
+#include "SubControls.h"
+#include "SearchCompleter.h"
 
 #ifdef SIGNAL_SPY_DEBUG
 #include "main.h"
@@ -38,6 +41,7 @@
 #include <assert.h>
 
 #include <QVBoxLayout>
+#include <QGridLayout>
 #include <QHeaderView>
 #include <QAbstractItemView>
 #include <QMenu>
@@ -52,9 +56,7 @@
 #include <QToolTip>
 #include <ToolTipEdit.h>
 
-
 // ============================================================================
-
 
 CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QTreeView(parent),
@@ -641,11 +643,17 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_nLastSearchBooks(0),
 	m_bLastCalcSuccess(true),
 	m_nLastSearchNumPhrases(0),
+	m_bDoingUpdate(false),
 	m_pSearchResultsType(NULL),
 	m_pSearchResultsCount(NULL),
+	m_bInitialKeywordsSet(false),
+	m_pKeywordsCombo(NULL),
+	m_pKeywordsLabel(NULL),
+	m_pKeywordModel(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setSpacing(4);
@@ -665,6 +673,30 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
 	pLayout->addWidget(m_pSearchResultsCount);
 
+	// --------------------------------
+
+	QGridLayout *pKeywordGrid = new QGridLayout();
+	pKeywordGrid->setObjectName("gridKeywords");
+
+	m_pKeywordsLabel = new QLabel(this);
+	m_pKeywordsLabel->setObjectName("labelKeywords");
+	m_pKeywordsLabel->setWordWrap(true);
+	pKeywordGrid->addWidget(m_pKeywordsLabel, 0, 0, 1, 1);
+
+	m_pKeywordsCombo = new CComboBox(this);
+	m_pKeywordsCombo->setObjectName("comboKeywords");
+	m_pKeywordsCombo->setMinimumSize(QSize(180, 0));
+	m_pKeywordsCombo->setEditable(false);
+	m_pKeywordsCombo->setFrame(false);
+	m_pKeywordsCombo->setInsertPolicy(QComboBox::NoInsert);		// No auto-insert as we need to parse and decide how to insert it
+	m_pKeywordsCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+	m_pKeywordsCombo->setEditText(tr("<Select Keywords to Filter>"));
+	pKeywordGrid->addWidget(m_pKeywordsCombo, 1, 0, 1, 1);
+
+	pLayout->addLayout(pKeywordGrid);
+
+	// --------------------------------
+
 	m_pSearchResultsTreeView = new CSearchResultsTreeView(m_pBibleDatabase, this);
 	m_pSearchResultsTreeView->setObjectName(QString::fromUtf8("SearchResultsTreeView"));
 	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -680,6 +712,22 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	CMyApplication::createSpy(this);
 #endif
 #endif
+
+	// --------------------------------
+
+	// Setup our keyword model -- note we have to do this after setting up our SearchResultsTreeView
+	//		since it will call it to set the keyword list for filtering:
+	m_pKeywordModel = new CNoteKeywordModel(m_pKeywordsCombo);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
+	m_pKeywordModel->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(), g_pUserNotesDatabase->compositeKeywordList());
+	m_pKeywordModel->sort(0);
+	m_pKeywordsCombo->setModel(m_pKeywordModel);
+	m_pKeywordsCombo->setEditText(tr("<Select Keywords to Filter>"));
+	m_pKeywordsCombo->setToolTip(tr("Select Keywords to Filter"));
+	m_pKeywordsCombo->setStatusTip(tr("Select the keywords for notes to display"));
+	setKeywordListPreview();
+
+	connect(m_pKeywordModel, SIGNAL(changedNoteKeywords()), this, SLOT(en_modelKeywordListChanged()));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesKeywords()), this, SLOT(keywordListChanged()));
 
 	// -------------------- Search Results List View:
 
@@ -747,6 +795,8 @@ bool CKJVSearchResult::canShowPassageNavigator() const
 void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
+	m_pKeywordsLabel->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
+	m_pKeywordsCombo->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 	setSearchResultsType();
 }
@@ -858,4 +908,70 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	}
 
 	return strSummary;
+}
+
+void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	QStringList lstCompositeKeywords = g_pUserNotesDatabase->compositeKeywordList();
+	lstCompositeKeywords.insert(0, tr("<Notes without Keywords>"));
+
+	if (bInitialLoad) {
+		m_pKeywordModel->setKeywordList(lstCompositeKeywords, lstCompositeKeywords);
+	} else {
+		m_pKeywordModel->setKeywordList(m_pKeywordModel->selectedKeywordList(), lstCompositeKeywords);
+	}
+
+	m_bDoingUpdate = false;
+
+	en_modelKeywordListChanged();
+}
+
+void CKJVSearchResult::en_modelKeywordListChanged()
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	QStringList lstKeywordFilter;
+
+	bool bAllSelected = true;
+	for (int ndx = 0; ndx < m_pKeywordModel->rowCount(); ++ndx) {
+		if (!m_pKeywordModel->index(ndx).data(Qt::CheckStateRole).toBool()) {
+			bAllSelected = false;
+		} else {
+			if (ndx == 0) {
+				lstKeywordFilter.append(QString());		// Special show notes without keywords entry
+			} else {
+				lstKeywordFilter.append(CSearchStringListModel::decompose(m_pKeywordModel->index(ndx).data(Qt::EditRole).toString()));
+			}
+		}
+	}
+	if (bAllSelected) lstKeywordFilter.clear();			// Special shortcut for select all so VerseListModel won't have to even check for intersection
+
+	vlmodel()->setUserNoteKeywordFilter(lstKeywordFilter);
+	setKeywordListPreview();
+
+	m_bDoingUpdate = false;
+}
+
+void CKJVSearchResult::setKeywordListPreview()
+{
+	bool bAllSelected = true;
+	bool bNoneSelected = true;
+	for (int ndx = 0; ndx < m_pKeywordModel->rowCount(); ++ndx) {
+		if (!m_pKeywordModel->index(ndx).data(Qt::CheckStateRole).toBool()) {
+			bAllSelected = false;
+		} else {
+			bNoneSelected = false;
+		}
+	}
+	QString strKeywordList = tr("Keywords:") + " ";
+	if (bAllSelected || bNoneSelected) {
+		strKeywordList += tr("<All Keywords>");
+	} else {
+		strKeywordList += m_pKeywordModel->selectedKeywordList().join(", ");
+	}
+	m_pKeywordsLabel->setText(strKeywordList);
 }

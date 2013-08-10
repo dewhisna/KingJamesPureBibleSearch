@@ -25,6 +25,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
+#include "SearchCompleter.h"
 
 #include <QVector>
 #include <QModelIndexList>
@@ -519,7 +520,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
-						usernoteHTML.addNoteFor(ndxRel, false, true);
+						if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
+							usernoteHTML.addNoteFor(ndxRel, false, true);
+						}
 						return usernoteHTML.getResult();
 					default:
 						assert(false);
@@ -548,7 +551,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
-						usernoteHTML.addNoteFor(ndxRel, false, true);
+						if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
+							usernoteHTML.addNoteFor(ndxRel, false, true);
+						}
 						return usernoteHTML.getResult();
 					default:
 						assert(false);
@@ -629,7 +634,9 @@ QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role)
 					scriptureDirector.processDocument(&doc);
 					usernoteHTML.endParagraph();
 				}
-				usernoteHTML.addNoteFor(pVerseIndex->relIndex(), false, true);
+				if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
+					usernoteHTML.addNoteFor(pVerseIndex->relIndex(), false, true);
+				}
 				return usernoteHTML.getResult();
 			}
 			default:
@@ -1071,11 +1078,19 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 
 // ----------------------------------------------------------------------------
 
+void CVerseListModel::setUserNoteKeywordFilter(const QStringList &lstKeywordFilter)
+{
+	m_lstUserNoteKeywordFilter = lstKeywordFilter;
+	if (m_private.m_nViewMode == VVME_USERNOTES) buildUserNotesResults();
+}
+
 void CVerseListModel::en_changedUserNote(const CRelIndex &ndx)
 {
 	Q_UNUSED(ndx);				// TODO : Add logic to use ndx to insert/remove a single note if we can
-	emit layoutAboutToBeChanged();
-	emit layoutChanged();
+	if (m_private.m_nViewMode == VVME_USERNOTES) {
+		emit layoutAboutToBeChanged();
+		emit layoutChanged();
+	}
 }
 
 void CVerseListModel::en_addedUserNote(const CRelIndex &ndx)
@@ -1101,6 +1116,8 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 		emit beginResetModel();
 	}
 
+	bool bShowNotesWithoutKeywords = m_lstUserNoteKeywordFilter.contains(QString());
+
 	zResults.m_mapVerses.clear();
 	zResults.m_lstVerseIndexes.clear();
 	zResults.m_mapExtraVerseIndexes.clear();
@@ -1114,9 +1131,27 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 		assert(ndxNote.isSet());
 		ndxNote.setWord(0);			// Whole verses only
 
-		assert(!zResults.m_mapVerses.contains(ndxNote));
-		zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(ndxNote), m_private.m_pBibleDatabase));
-		zResults.m_lstVerseIndexes.append(ndxNote);
+		const QStringList &noteKeywordList = (itrNote->second).keywordList();
+
+		bool bInclude = false;
+
+		if ((m_lstUserNoteKeywordFilter.isEmpty()) ||
+			((bShowNotesWithoutKeywords) && (noteKeywordList.isEmpty()))) {
+			bInclude = true;
+		} else {
+			for (int n = 0; n < noteKeywordList.size(); ++n) {
+				if (m_lstUserNoteKeywordFilter.contains(CSearchStringListModel::decompose(noteKeywordList.at(n)), Qt::CaseInsensitive)) {
+					bInclude = true;
+					break;
+				}
+			}
+		}
+
+		if (bInclude) {
+			assert(!zResults.m_mapVerses.contains(ndxNote));
+			zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(ndxNote), m_private.m_pBibleDatabase));
+			zResults.m_lstVerseIndexes.append(ndxNote);
+		}
 	}
 
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
