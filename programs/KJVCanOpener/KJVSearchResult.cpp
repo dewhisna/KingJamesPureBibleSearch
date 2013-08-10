@@ -47,6 +47,7 @@
 #include <QMenu>
 #include <QKeySequence>
 #include <QLabel>
+#include <QLineEdit>
 #include <QItemSelection>
 #include <QMimeData>
 #include <QApplication>
@@ -677,20 +678,26 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	QGridLayout *pKeywordGrid = new QGridLayout();
 	pKeywordGrid->setObjectName("gridKeywords");
+	pKeywordGrid->setSpacing(0);
 
 	m_pKeywordsLabel = new QLabel(this);
 	m_pKeywordsLabel->setObjectName("labelKeywords");
 	m_pKeywordsLabel->setWordWrap(true);
+	m_pKeywordsLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	m_pKeywordsLabel->setMargin(4);
 	pKeywordGrid->addWidget(m_pKeywordsLabel, 0, 0, 1, 1);
 
 	m_pKeywordsCombo = new CComboBox(this);
 	m_pKeywordsCombo->setObjectName("comboKeywords");
 	m_pKeywordsCombo->setMinimumSize(QSize(180, 0));
 	m_pKeywordsCombo->setEditable(false);
-	m_pKeywordsCombo->setFrame(false);
+//	m_pKeywordsCombo->setFrame(false);
 	m_pKeywordsCombo->setInsertPolicy(QComboBox::NoInsert);		// No auto-insert as we need to parse and decide how to insert it
 	m_pKeywordsCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-	m_pKeywordsCombo->setEditText(tr("<Select Keywords to Filter>"));
+	QLineEdit *pLineEdit = new QLineEdit(m_pKeywordsCombo);
+	pLineEdit->setReadOnly(true);
+	pLineEdit->setFrame(false);
+	m_pKeywordsCombo->setLineEdit(pLineEdit);
 	pKeywordGrid->addWidget(m_pKeywordsCombo, 1, 0, 1, 1);
 
 	pLayout->addLayout(pKeywordGrid);
@@ -974,4 +981,6 @@ void CKJVSearchResult::setKeywordListPreview()
 		strKeywordList += m_pKeywordModel->selectedKeywordList().join(", ");
 	}
 	m_pKeywordsLabel->setText(strKeywordList);
+	// Have to do this here because model reset clears our lineEdit:
+	m_pKeywordsCombo->lineEdit()->setText(tr("<Select Keywords to Filter>"));
 }

@@ -96,7 +96,7 @@ public:
 	CNoteKeywordModel(QObject *pParent = 0);
 	virtual ~CNoteKeywordModel();
 
-	int rowCount(const QModelIndex &zParent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
