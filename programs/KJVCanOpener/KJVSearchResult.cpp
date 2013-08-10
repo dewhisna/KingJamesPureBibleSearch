@@ -30,7 +30,7 @@
 #include "KJVCanOpener.h"
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
-#include "KJVNoteEditDlg.h"
+#include "NoteKeywordWidget.h"
 #include "SubControls.h"
 #include "SearchCompleter.h"
 

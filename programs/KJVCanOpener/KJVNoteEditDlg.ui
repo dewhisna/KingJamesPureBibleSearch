@@ -114,36 +114,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="lblKeywords">
-       <property name="text">
-        <string>&amp;Keywords:</string>
-       </property>
-       <property name="buddy">
-        <cstring>comboKeywords</cstring>
-       </property>
-      </widget>
+	 <item row="0" column="3" rowspan="2">
+      <widget class="CNoteKeywordWidget" name="widgetNoteKeywords" native="true"/>
      </item>
-     <item row="0" column="4">
-      <widget class="CComboBox" name="comboKeywords">
-       <property name="minimumSize">
-        <size>
-         <width>180</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <property name="insertPolicy">
-        <enum>QComboBox::InsertAlphabetically</enum>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5">
+	 <item row="0" column="4" rowspan="2">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -155,25 +129,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-	 <item row="1" column="3" colspan="2">
-      <widget class="QLabel" name="lblKeywordsListPreview">
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>Keyword List Preview</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-       <property name="margin">
-        <number>4</number>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
@@ -194,9 +149,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CComboBox</class>
-   <extends>QComboBox</extends>
-   <header>SubControls.h</header>
+   <class>CNoteKeywordWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">NoteKeywordWidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

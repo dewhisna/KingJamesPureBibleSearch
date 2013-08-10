@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>****************************************************************************
+**
+** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************</comment>
+ <class>CNoteKeywordWidget</class>
+ <widget class="QWidget" name="CNoteKeywordWidget">
+  <property name="windowTitle">
+   <string>NoteKeywordWidget</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblKeywords">
+     <property name="text">
+      <string>&amp;Keywords:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>comboKeywords</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="CComboBox" name="comboKeywords">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>180</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="insertPolicy">
+      <enum>QComboBox::InsertAlphabetically</enum>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="lblKeywordsPreview">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Panel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string>Keyword Preview</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="margin">
+      <number>4</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CComboBox</class>
+   <extends>QComboBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>comboKeywords</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

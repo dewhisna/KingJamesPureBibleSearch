@@ -211,6 +211,8 @@ void CKJVBrowser::initialize()
 	ui->scrollbarChapter->setTracking(true);
 	ui->scrollbarChapter->setMouseTracking(true);
 	ui->scrollbarChapter->installEventFilter(this);
+	ui->scrollbarChapter->setSingleStep(1);
+	ui->scrollbarChapter->setPageStep(3);
 
 	end_update();
 }
@@ -631,6 +633,8 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 
 void CKJVBrowser::ChapterSliderMoved(int index)
 {
+	if (m_bDoingUpdate) return;
+
 	CRelIndex ndxTarget(m_pBibleDatabase->calcRelIndex(0, 0, index, 0, 0));
 	ndxTarget.setVerse(0);
 	ndxTarget.setWord(0);
@@ -644,8 +648,6 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 		QRect rcSlider = ui->scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui->scrollbarChapter);
 		QToolTip::showText(ui->scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), ui->scrollbarChapter->toolTip());
 	}
-
-	if (m_bDoingUpdate) return;
 
 	if (ui->scrollbarChapter->isSliderDown()) return;		// Just set ToolTip and exit
 	gotoIndex(TPhraseTag(ndxTarget));

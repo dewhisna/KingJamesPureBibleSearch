@@ -117,7 +117,8 @@ SOURCES += main.cpp \
 	UserNotesDatabase.cpp \
 	SubControls.cpp \
 	KJVNoteEditDlg.cpp \
-	ScriptureDocument.cpp
+	ScriptureDocument.cpp \
+	NoteKeywordWidget.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -162,7 +163,8 @@ HEADERS  += main.h \
 	SubControls.h \
 	KJVNoteEditDlg.h \
 	ScriptureDocument.h \
-	ScriptureTextFormatProperties.h
+	ScriptureTextFormatProperties.h \
+	NoteKeywordWidget.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -175,7 +177,8 @@ FORMS    += KJVCanOpener.ui \
 	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
 	KJVSearchSpec.ui \
 	KJVTextFormatConfig.ui \
-	KJVNoteEditDlg.ui
+	KJVNoteEditDlg.ui \
+	NoteKeywordWidget.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

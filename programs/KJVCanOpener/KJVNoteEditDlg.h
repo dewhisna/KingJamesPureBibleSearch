@@ -27,120 +27,14 @@
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
 
-#include <QString>
-#include <QAction>
 #include <QDialog>
+#include <QString>
 #include <QwwColorButton>
 #include <QwwRichTextEdit>
 #include <QPushButton>
 #include <QAbstractButton>
 #include <QSettings>
-#include <QList>
-#include <QStringList>
-#include <QAbstractListModel>
-#include <QListView>
-#include <QMenu>
 #include <QAction>
-
-// ============================================================================
-
-class CNoteKeywordModelItemData
-{
-public:
-	CNoteKeywordModelItemData()
-		:	m_bChecked(false)
-	{ }
-	CNoteKeywordModelItemData(const CNoteKeywordModelItemData &other)
-		:	m_strKeyword(other.m_strKeyword),
-			m_bChecked(other.m_bChecked)
-	{ }
-	CNoteKeywordModelItemData(const QString &strKeyword, bool bChecked)
-		:	m_strKeyword(strKeyword),
-			m_bChecked(bChecked)
-	{ }
-
-	QString m_strKeyword;
-	bool m_bChecked;
-};
-
-class CNoteKeywordModelListView : public QListView
-{
-	Q_OBJECT
-
-public:
-	CNoteKeywordModelListView(QWidget *pParent = 0)
-		:	QListView(pParent)
-	{
-		connect(this, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_activated(const QModelIndex &)));
-	}
-
-	virtual ~CNoteKeywordModelListView() { }
-
-signals:
-	void currentKeywordChanged(const QString &strKeyword);
-
-protected slots:
-	void en_activated(const QModelIndex &index)
-	{
-		if (index.isValid()) {
-			emit currentKeywordChanged(index.data(Qt::EditRole).toString());
-		}
-	}
-};
-
-typedef QList<CNoteKeywordModelItemData> CNoteKeywordModelItemDataList;
-
-class CNoteKeywordModel : public QAbstractListModel
-{
-	Q_OBJECT
-
-public:
-	CNoteKeywordModel(QObject *pParent = 0);
-	virtual ~CNoteKeywordModel();
-
-	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
-
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-
-	virtual QModelIndex findKeyword(const QString &strKeyword) const;
-
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-
-	virtual bool insertRows(int row, int count, const QModelIndex &zparent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex());
-
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
-
-	const CNoteKeywordModelItemDataList &itemList() const;
-	void setItemList(const CNoteKeywordModelItemDataList &aList);
-	QStringList selectedKeywordList() const;
-	void setKeywordList(const QStringList &lstSelectedKeywords = QStringList(), const QStringList &lstCompositeKeywords = QStringList());
-
-//	virtual Qt::DropActions supportedDropActions() const;
-
-	QMenu *contextMenu() { return &m_keywordContextMenu; }
-
-signals:
-	void changedNoteKeywords();
-
-private slots:
-	void en_selectAllKeywords();
-	void en_clearKeywordSelection();
-	void updateContextMenu();
-
-// Data Private:
-private:
-	Q_DISABLE_COPY(CNoteKeywordModel)
-
-	CNoteKeywordModelItemDataList m_lstKeywordData;
-
-// UI Private:
-private:
-	QMenu m_keywordContextMenu;
-	QAction *m_pActionSelectAllKeywords;
-	QAction *m_pActionClearKeywordSelection;
-};
 
 // ============================================================================
 
@@ -176,13 +70,10 @@ private slots:
 	void en_textChanged();
 	void en_BackgroundColorPicked(const QColor &color);
 	void en_ButtonClicked(QAbstractButton *button);
-	void en_keywordEntered();
 	void en_keywordListChanged();
-	void en_keywordCurrentIndexChanged(const QString &text);
 
 private:
 	void setBackgroundColorPreview();
-	void setKeywordListPreview();
 
 private:
 	static QAction *m_pActionUserNoteEditor;
@@ -191,7 +82,6 @@ private:
 	QwwColorButton *m_pBackgroundColorButton;
 	QwwRichTextEdit *m_pRichTextEdit;
 	QPushButton *m_pDeleteNoteButton;
-	CNoteKeywordModel *m_pKeywordModel;
 	// ----
 	CBibleDatabasePtr m_pBibleDatabase;
 	// ----
