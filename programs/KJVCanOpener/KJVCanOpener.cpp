@@ -609,6 +609,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
 	settings.endGroup();
 
+	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
+
 	// Highlighter Tool Bar:
 	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
 	settings.remove("");
@@ -650,9 +652,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay());
 	settings.endGroup();
 
-	// Browser Object (used for Subwindows: FindDialog, UserNotesEditor, etc):
+	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
-	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrBrowserViewGroup, constrUserNoteEditorGroup));
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -696,6 +697,8 @@ void CKJVCanOpener::restorePersistentSettings()
 	g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
 	g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
 	settings.endGroup();
+
+	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 
 	if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 		if (!g_pUserNotesDatabase->load()) {
@@ -821,9 +824,8 @@ void CKJVCanOpener::restorePersistentSettings()
 	m_pBrowserWidget->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay()).toInt());
 	settings.endGroup();
 
-	// Browser Object (used for Subwindows: FindDialog, UserNotesEditor, etc):
+	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
-	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrBrowserViewGroup, constrUserNoteEditorGroup));
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
