@@ -45,6 +45,11 @@
 
 // ============================================================================
 
+// Forward Declares:
+class CKJVNoteEditDlg;
+
+// ============================================================================
+
 namespace Ui {
 class CKJVCanOpener;
 }
@@ -62,6 +67,10 @@ public:
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
 	bool isPhraseEditorActive() const { return m_bPhraseEditorActive; }
+
+	bool isBrowserFocusedOrActive() const;
+	bool isSearchResultsFocusedOrActive() const;
+	bool isPhraseEditorFocusedOrActive() const;
 
 protected:
 	void savePersistentSettings();
@@ -111,6 +120,8 @@ protected slots:
 	void en_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
 	void en_PassageNavigatorTriggered();
+
+	void en_userNoteEditorTriggered();
 
 	void en_viewDetails();
 	void setDetailsEnable();
@@ -169,6 +180,7 @@ private:
 	QSplitter *m_pSplitter;
 	CKJVSearchResult *m_pSearchResultWidget;
 	CKJVBrowser *m_pBrowserWidget;
+	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	Ui::CKJVCanOpener *ui;
 };
 

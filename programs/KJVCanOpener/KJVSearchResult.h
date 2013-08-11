@@ -62,6 +62,7 @@ public:
 
 	inline QMenu *getEditMenu() { return m_pEditMenu; }
 	inline QMenu *getLocalEditMenu() { return m_pEditMenuLocal; }
+	inline QAction *getLocalEditMenuInsertionPoint() const { return m_pMenuInsertionPoint; }
 
 	bool haveDetails() const;
 	bool isActive() const;
@@ -147,6 +148,8 @@ private:
 	QAction *m_pActionSelectAll;	// Edit menu select all
 	QAction *m_pActionClearSelection;	// Edit menu clear selection
 	// ----
+	QAction *m_pMenuInsertionPoint;	// Point in the menu for the main KJVCanOpener to insert the view menu
+	// ----
 	QAction *m_pActionNavigator;	// Launch Passage Navigator for Search Result
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
@@ -175,6 +178,7 @@ public:
 
 	inline QMenu *getEditMenu() { return m_pSearchResultsTreeView->getEditMenu(); }
 	inline QMenu *getLocalEditMenu() { return m_pSearchResultsTreeView->getLocalEditMenu(); }
+	inline QAction *getLocalEditMenuInsertionPoint() const { return m_pSearchResultsTreeView->getLocalEditMenuInsertionPoint(); }
 
 	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }

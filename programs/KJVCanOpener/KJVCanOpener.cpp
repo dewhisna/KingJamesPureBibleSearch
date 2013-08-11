@@ -122,6 +122,9 @@ namespace {
 	//const QString constrHasFocusKey("HasFocus");
 	//const QString constrFontKey("Font");
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
+
+	// UserNoteEditor Dialog:
+	const QString constrUserNoteEditorGroup("UserNoteEditor");
 }
 
 // ============================================================================
@@ -164,6 +167,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSplitter(NULL),
 	m_pSearchResultWidget(NULL),
 	m_pBrowserWidget(NULL),
+	m_pUserNoteEditorDlg(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -296,7 +300,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	ui->usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
 	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
 
 	m_pActionGroupViewMode = new QActionGroup(this);
 	m_pActionGroupViewMode->setExclusive(true);
@@ -307,7 +311,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("View Search Results from Search Phrases"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters"));
 	m_pViewMenu->addAction(pAction);
@@ -315,7 +319,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("View Highlighted Passages"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_HIGHLIGHTERS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Notes"));
 	m_pViewMenu->addAction(pAction);
@@ -323,10 +327,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("View All Notes"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_USERNOTES);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
 
 	connect(m_pActionGroupViewMode, SIGNAL(triggered(QAction*)), this, SLOT(en_viewModeChange(QAction*)));
 
@@ -339,7 +343,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("Show Search Results as a List"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nTreeMode == CVerseListModel::VTME_LIST);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	pAction = m_pActionGroupTreeMode->addAction(tr("View as Tree by &Book"));
 	m_pViewMenu->addAction(pAction);
@@ -347,7 +351,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("Show Search Results in a Tree by Book"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nTreeMode == CVerseListModel::VTME_TREE_BOOKS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	pAction = m_pActionGroupTreeMode->addAction(tr("View as Tree by Book/&Chapter"));
 	m_pViewMenu->addAction(pAction);
@@ -355,34 +359,34 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("Show Search Results in a Tree by Book and Chapter"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nTreeMode == CVerseListModel::VTME_TREE_CHAPTERS);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	connect(m_pActionGroupTreeMode, SIGNAL(triggered(QAction*)), this, SLOT(en_treeModeChange(QAction*)));
 
 	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
 
 	m_pActionShowMissingLeafs = m_pViewMenu->addAction(tr("View &Missing Books/Chapters"), this, SLOT(en_viewShowMissingsLeafs()));
 	m_pActionShowMissingLeafs->setStatusTip(tr("Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)"));
 	m_pActionShowMissingLeafs->setCheckable(true);
 	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
 	m_pActionShowMissingLeafs->setEnabled(nTreeMode != CVerseListModel::VTME_LIST);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionShowMissingLeafs);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionShowMissingLeafs);
 
 	m_pActionExpandAll = m_pViewMenu->addAction(tr("E&xpand All"), m_pSearchResultWidget, SIGNAL(expandAll()));
 	m_pActionExpandAll->setStatusTip(tr("Expand all tree nodes in Search Results (Warning: May be slow if there are a lot of search results!)"));
 	m_pActionExpandAll->setEnabled(false);
 	connect(m_pSearchResultWidget, SIGNAL(canExpandAll(bool)), m_pActionExpandAll, SLOT(setEnabled(bool)));
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionExpandAll);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionExpandAll);
 
 	m_pActionCollapseAll = m_pViewMenu->addAction(tr("Collap&se All"), m_pSearchResultWidget, SIGNAL(collapseAll()));
 	m_pActionCollapseAll->setStatusTip(tr("Collapse all tree nodes in Search Results"));
 	m_pActionCollapseAll->setEnabled(false);
 	connect(m_pSearchResultWidget, SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionCollapseAll);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionCollapseAll);
 
 	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
 
 	m_pActionGroupDisplayMode = new QActionGroup(this);
 	m_pActionGroupDisplayMode->setExclusive(true);
@@ -393,7 +397,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("Show Search Results Verse References Only"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nDisplayMode == CVerseListModel::VDME_HEADING);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	pAction = m_pActionGroupDisplayMode->addAction(tr("View Verse &Preview"));
 	m_pViewMenu->addAction(pAction);
@@ -401,12 +405,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("Show Search Results as Rich Text Verse Preview"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nDisplayMode == CVerseListModel::VDME_RICHTEXT);
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(pAction);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	connect(m_pActionGroupDisplayMode, SIGNAL(triggered(QAction*)), this, SLOT(en_displayModeChange(QAction*)));
 
 	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();
+	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();			// Put details at the end
 
 	m_pActionViewDetails = m_pViewMenu->addAction(tr("View &Details..."), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionViewDetails->setStatusTip(tr("View Passage Details"));
@@ -536,6 +540,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// -------------------- Scripture Browser:
 
 
+	// -------------------- UserNoteEditor Dialog:
+	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, this);
+	m_pUserNoteEditorDlg->setModal(true);
+	connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
+
+
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
 }
@@ -642,6 +652,7 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Browser Object (used for Subwindows: FindDialog, UserNotesEditor, etc):
 	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
+	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrBrowserViewGroup, constrUserNoteEditorGroup));
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -810,8 +821,9 @@ void CKJVCanOpener::restorePersistentSettings()
 	m_pBrowserWidget->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay()).toInt());
 	settings.endGroup();
 
-	// Browser Object (used for FindDialog, etc):
+	// Browser Object (used for Subwindows: FindDialog, UserNotesEditor, etc):
 	m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
+	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrBrowserViewGroup, constrUserNoteEditorGroup));
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
@@ -1176,6 +1188,25 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	setDetailsEnable();
 }
 
+bool CKJVCanOpener::isBrowserFocusedOrActive() const
+{
+	assert(m_pBrowserWidget != NULL);
+
+	return (m_pBrowserWidget->hasFocusBrowser() || isBrowserActive());
+}
+
+bool CKJVCanOpener::isSearchResultsFocusedOrActive() const
+{
+	assert(m_pSearchResultWidget != NULL);
+
+	return (m_pSearchResultWidget->hasFocusSearchResult() || isSearchResultsActive());
+}
+
+bool CKJVCanOpener::isPhraseEditorFocusedOrActive() const
+{
+	return (isPhraseEditorActive());			// TODO : Add PhraseEditor hasFocus() when it's actually needed
+}
+
 // ------------------------------------------------------------------
 
 void CKJVCanOpener::en_viewModeChange(QAction *pAction)
@@ -1317,11 +1348,9 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	if ((m_pBrowserWidget->hasFocusBrowser()) ||
-		(m_bBrowserActive)) {
+	if (isBrowserFocusedOrActive()) {
 		m_pBrowserWidget->showPassageNavigator();
-	} else if (((m_pSearchResultWidget->hasFocusSearchResult()) || (m_bSearchResultsActive)) &&
-				(m_pSearchResultWidget->canShowPassageNavigator())) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->canShowPassageNavigator())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
 		CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
@@ -1333,13 +1362,36 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	}
 }
 
+void CKJVCanOpener::en_userNoteEditorTriggered()
+{
+	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
+
+	assert(m_pUserNoteEditorDlg != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
+
+	CRelIndex indexNote;
+
+	if (isBrowserFocusedOrActive()) {
+		indexNote = m_pBrowserWidget->selection().relIndex();
+	} else if (isSearchResultsFocusedOrActive()) {
+		TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+		indexNote = ndxCurrent.relIndex();
+	}
+
+	if (!indexNote.isSet()) return;
+	m_pUserNoteEditorDlg->setLocationIndex(indexNote);
+	if (m_pUserNoteEditorDlg->exec() == QDialog::Accepted) {
+		if (isBrowserFocusedOrActive())
+			m_pBrowserWidget->gotoIndex(m_pBrowserWidget->selection());		// Re-render text (note: The Note may be deleted as well as changed)
+	}
+}
+
 void CKJVCanOpener::en_viewDetails()
 {
-	if (((m_pBrowserWidget->hasFocusBrowser()) || (m_bBrowserActive)) &&
-		 (m_pBrowserWidget->haveDetails())) {
+	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveDetails())) {
 		m_pBrowserWidget->showDetails();
-	} else if (((m_pSearchResultWidget->hasFocusSearchResult()) || (m_bSearchResultsActive)) &&
-				(m_pSearchResultWidget->haveDetails())) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveDetails())) {
 		m_pSearchResultWidget->showDetails();
 	}
 }
@@ -1348,11 +1400,9 @@ void CKJVCanOpener::setDetailsEnable()
 {
 	bool bDetailsEnable = false;
 
-	if (((m_pBrowserWidget->hasFocusBrowser()) || (m_bBrowserActive)) &&
-		 (m_pBrowserWidget->haveDetails())) {
+	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveDetails())) {
 		bDetailsEnable = true;
-	} else if (((m_pSearchResultWidget->hasFocusSearchResult()) || (m_bSearchResultsActive)) &&
-				(m_pSearchResultWidget->haveDetails())) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveDetails())) {
 		bDetailsEnable = true;
 	}
 

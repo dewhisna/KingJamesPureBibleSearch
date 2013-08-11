@@ -31,7 +31,7 @@
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
-#include "SubControls.h"
+#include "KJVNoteEditDlg.h"
 #include "SearchCompleter.h"
 
 #ifdef SIGNAL_SPY_DEBUG
@@ -72,6 +72,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pActionCopyComplete(NULL),
 		m_pActionSelectAll(NULL),
 		m_pActionClearSelection(NULL),
+		m_pMenuInsertionPoint(NULL),
 		m_pActionNavigator(NULL),
 		m_pStatusAction(NULL),
 		m_pReflowDelegate(NULL)
@@ -162,8 +163,11 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 	// ----
+	m_pMenuInsertionPoint = m_pEditMenuLocal->addSeparator();
+	m_pEditMenuLocal->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+	// ----
 	m_pEditMenuLocal->addSeparator();
-	m_pActionNavigator = m_pEditMenuLocal->addAction(tr("Passage &Navigator..."));
+	m_pActionNavigator = m_pEditMenuLocal->addAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator..."));
 	m_pActionNavigator->setEnabled(false);
 	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));

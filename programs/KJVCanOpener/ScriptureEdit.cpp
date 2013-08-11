@@ -54,9 +54,6 @@ namespace {
 	// --------------
 	// Find Dialog:
 	const QString constrFindDialogGroup("FindDialog");
-
-	// UserNoteEditor Dialog:
-	const QString constrUserNoteEditorGroup("UserNoteEditor");
 }
 
 // ============================================================================
@@ -66,7 +63,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	:	T(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
-		m_pUserNoteEditorDlg(NULL),
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
@@ -109,10 +105,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pFindDialog->setModal(false);
 	m_pFindDialog->setTextEdit(this);
 
-	// UserNoteEditor Dialog:
-	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, this);
-	m_pUserNoteEditorDlg->setModal(true);
-
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), this, SLOT(clearHighlighting()));
@@ -154,14 +146,12 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard"));
 	m_pEditMenu->addSeparator();
 
-	m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
-	T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+//	m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
+//	T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
 
-	m_pEditMenu->addSeparator();
-
-	m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
-	T::connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+//		m_pEditMenu->addSeparator();
+//		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 	}
 
@@ -215,7 +205,6 @@ void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
-	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(strGroup, constrUserNoteEditorGroup));
 }
 
 template<class T, class U>
@@ -223,7 +212,6 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 {
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
-	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(strGroup, constrUserNoteEditorGroup));
 }
 
 // ----------------------------------------------------------------------------
@@ -446,10 +434,6 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	menu.addAction(m_pActionCopyPassageStatistics);
 	menu.addAction(m_pActionCopyEntirePassageDetails);
 	menu.addSeparator();
-	menu.addActions(CHighlighterButtons::instance()->actions());
-	menu.addSeparator();
-	menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
-	menu.addSeparator();
 	menu.addAction(m_pActionSelectAll);
 	if (T::useFindDialog()) {
 		menu.addSeparator();
@@ -457,8 +441,14 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 		menu.addAction(m_pActionFindNext);
 		menu.addAction(m_pActionFindPrev);
 	}
+	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		menu.addSeparator();
+		menu.addActions(CHighlighterButtons::instance()->actions());
+		menu.addSeparator();
+		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+	}
 	menu.addSeparator();
-	QAction *pActionNavigator = menu.addAction(T::tr("Passage &Navigator..."));
+	QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
 	if (qobject_cast<QTextBrowser *>(this) != NULL) {
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 		pActionNavigator->setEnabled(true);
@@ -718,22 +708,6 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 }
 
 // ----------------------------------------------------------------------------
-
-template<class T, class U>
-void CScriptureText<T,U>::en_userNoteEditorTriggered()
-{
-	if (!U::hasFocus()) return;
-	assert(m_pUserNoteEditorDlg != NULL);
-	assert(g_pUserNotesDatabase != NULL);
-	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
-
-	if (!selection().isSet()) return;
-
-	m_pUserNoteEditorDlg->setLocationIndex(selection().relIndex());
-	if (m_pUserNoteEditorDlg->exec() == QDialog::Accepted) {
-		emit T::gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
-	}
-}
 
 template<class T, class U>
 void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
