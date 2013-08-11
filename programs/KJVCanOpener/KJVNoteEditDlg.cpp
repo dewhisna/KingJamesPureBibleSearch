@@ -76,7 +76,8 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *pare
 		m_pDeleteNoteButton(NULL),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bDoingUpdate(false),
-		m_bIsDirty(false)
+		m_bIsDirty(false),
+		m_bHaveGeometry(false)
 {
 	assert(pBibleDatabase != NULL);
 
@@ -179,7 +180,7 @@ void CKJVNoteEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 {
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
-	settings.setValue(constrGeometryKey, saveGeometry());
+	if (m_bHaveGeometry) settings.setValue(constrGeometryKey, saveGeometry());
 	settings.endGroup();
 }
 
@@ -187,7 +188,10 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 {
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
-	restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+	if (!settings.value(constrGeometryKey).toByteArray().isEmpty()) {
+		restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+		m_bHaveGeometry = true;
+	}
 	settings.endGroup();
 }
 
@@ -229,6 +233,7 @@ void CKJVNoteEditDlg::accept()
 	m_UserNote.setIsVisible(true);			// Make note visible when they are explicitly setting it
 	g_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);
 	m_bIsDirty = false;
+	m_bHaveGeometry = true;
 	QDialog::accept();
 }
 
@@ -240,6 +245,7 @@ void CKJVNoteEditDlg::reject()
 		if (nResult != QMessageBox::Ok) return;
 	}
 
+	m_bHaveGeometry = true;
 	QDialog::reject();
 }
 

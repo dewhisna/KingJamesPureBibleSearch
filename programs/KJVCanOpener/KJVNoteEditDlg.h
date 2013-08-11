@@ -89,6 +89,7 @@ private:
 	bool m_bIsDirty;
 	CRelIndex m_ndxLocation;
 	CUserNoteEntry m_UserNote;
+	bool m_bHaveGeometry;
 };
 
 // ============================================================================
