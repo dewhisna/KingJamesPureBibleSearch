@@ -48,7 +48,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="CComboBox" name="comboKeywords">
+    <widget class="CKeywordComboBox" name="comboKeywords">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -65,7 +65,7 @@
       <bool>true</bool>
      </property>
      <property name="insertPolicy">
-      <enum>QComboBox::InsertAlphabetically</enum>
+      <enum>QComboBox::NoInsert</enum>
      </property>
      <property name="sizeAdjustPolicy">
       <enum>QComboBox::AdjustToContents</enum>
@@ -101,9 +101,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CComboBox</class>
+   <class>CKeywordComboBox</class>
    <extends>QComboBox</extends>
-   <header>SubControls.h</header>
+   <header>NoteKeywordWidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

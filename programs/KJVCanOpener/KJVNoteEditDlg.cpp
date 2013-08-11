@@ -157,6 +157,10 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *pare
 
 	// --------------------------------------------------------------
 
+	ui->widgetNoteKeywords->setMode(CNoteKeywordWidget::KWME_EDITOR);
+
+	// --------------------------------------------------------------
+
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
 	connect(ui->widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));

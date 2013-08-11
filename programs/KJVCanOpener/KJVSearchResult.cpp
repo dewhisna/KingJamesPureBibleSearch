@@ -41,14 +41,11 @@
 #include <assert.h>
 
 #include <QVBoxLayout>
-#include <QGridLayout>
 #include <QHeaderView>
 #include <QAbstractItemView>
-#include <QPoint>
 #include <QMenu>
 #include <QKeySequence>
 #include <QLabel>
-#include <QLineEdit>
 #include <QItemSelection>
 #include <QMimeData>
 #include <QApplication>
@@ -648,11 +645,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_bDoingUpdate(false),
 	m_pSearchResultsType(NULL),
 	m_pSearchResultsCount(NULL),
-	m_bInitialKeywordsSet(false),
-	m_pKeywordsCombo(NULL),
-	m_pKeywordsLabel(NULL),
-	m_pKeywordsPreviewLabel(NULL),
-	m_pKeywordModel(NULL),
+	m_pNoteKeywordWidget(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
 	assert(m_pBibleDatabase != NULL);
@@ -678,38 +671,11 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-	QGridLayout *pKeywordGrid = new QGridLayout();
-	pKeywordGrid->setObjectName("gridKeywords");
-	pKeywordGrid->setSpacing(0);
+	m_pNoteKeywordWidget = new CNoteKeywordWidget(this);
+	m_pNoteKeywordWidget->setObjectName("keywordWidget");
+	m_pNoteKeywordWidget->setMode(CNoteKeywordWidget::KWME_SELECTOR);
 
-	m_pKeywordsLabel = new QLabel(this);
-	m_pKeywordsLabel->setObjectName("labelKeywords");
-	m_pKeywordsLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	m_pKeywordsLabel->setText(tr("Keywords:"));
-	pKeywordGrid->addWidget(m_pKeywordsLabel, 0, 0, 1, 1);
-
-	m_pKeywordsCombo = new CComboBox(this);
-	m_pKeywordsCombo->setObjectName("comboKeywords");
-	m_pKeywordsCombo->setMinimumSize(QSize(180, 0));
-	m_pKeywordsCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-	m_pKeywordsCombo->setEditable(false);
-//	m_pKeywordsCombo->setFrame(false);
-	m_pKeywordsCombo->setInsertPolicy(QComboBox::NoInsert);		// No auto-insert as we need to parse and decide how to insert it
-	m_pKeywordsCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-	QLineEdit *pLineEdit = new QLineEdit(m_pKeywordsCombo);
-	pLineEdit->setReadOnly(true);
-	pLineEdit->setFrame(false);
-	m_pKeywordsCombo->setLineEdit(pLineEdit);
-	pKeywordGrid->addWidget(m_pKeywordsCombo, 0, 1, 1, 1);
-
-	m_pKeywordsPreviewLabel = new QLabel(this);
-	m_pKeywordsPreviewLabel->setObjectName("labelKeywordsPreview");
-	m_pKeywordsPreviewLabel->setWordWrap(true);
-	m_pKeywordsPreviewLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-	m_pKeywordsPreviewLabel->setMargin(4);
-	pKeywordGrid->addWidget(m_pKeywordsPreviewLabel, 2, 0, 1, 2);
-
-	pLayout->addLayout(pKeywordGrid);
+	pLayout->addWidget(m_pNoteKeywordWidget);
 
 	// --------------------------------
 
@@ -733,23 +699,10 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// Setup our keyword model -- note we have to do this after setting up our SearchResultsTreeView
 	//		since it will call it to set the keyword list for filtering:
-	m_pKeywordModel = new CNoteKeywordModel(m_pKeywordsCombo);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
-	m_pKeywordModel->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(), g_pUserNotesDatabase->compositeKeywordList());
-	m_pKeywordModel->sort(0);
-	m_pKeywordsCombo->setModel(m_pKeywordModel);
-	m_pKeywordsCombo->setEditText(tr("<Select Keywords to Filter>"));
-	m_pKeywordsCombo->setToolTip(tr("Select Keywords to Filter"));
-	m_pKeywordsCombo->setStatusTip(tr("Select the keywords for notes to display"));
-	m_pKeywordsCombo->setContextMenuPolicy(Qt::CustomContextMenu);
-	m_pKeywordsCombo->view()->setContextMenuPolicy(Qt::CustomContextMenu);
-	setKeywordListPreview();
+	m_pNoteKeywordWidget->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(), g_pUserNotesDatabase->compositeKeywordList());
 
-	connect(m_pKeywordModel, SIGNAL(changedNoteKeywords()), this, SLOT(en_modelKeywordListChanged()));
+	connect(m_pNoteKeywordWidget, SIGNAL(keywordListChanged()), this, SLOT(en_modelKeywordListChanged()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesKeywords()), this, SLOT(keywordListChanged()));
-
-
-	connect(m_pKeywordsCombo, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
-	connect(m_pKeywordsCombo->view(), SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequestedView(const QPoint &)));
 
 	// -------------------- Search Results List View:
 
@@ -817,9 +770,7 @@ bool CKJVSearchResult::canShowPassageNavigator() const
 void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
-	m_pKeywordsLabel->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
-	m_pKeywordsPreviewLabel->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
-	m_pKeywordsCombo->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
+	m_pNoteKeywordWidget->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 	setSearchResultsType();
 }
@@ -937,16 +888,19 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 
 void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
 {
+	assert(g_pUserNotesDatabase != NULL);
+
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	QStringList lstCompositeKeywords = g_pUserNotesDatabase->compositeKeywordList();
-	lstCompositeKeywords.insert(0, tr("<Notes without Keywords>"));
+	QStringList lstCompositeKeywords;
+	lstCompositeKeywords.append(QString());			// Special entry for notes without keywords
+	lstCompositeKeywords.append(g_pUserNotesDatabase->compositeKeywordList());
 
 	if (bInitialLoad) {
-		m_pKeywordModel->setKeywordList(lstCompositeKeywords, lstCompositeKeywords);
+		m_pNoteKeywordWidget->setKeywordList(lstCompositeKeywords, lstCompositeKeywords);
 	} else {
-		m_pKeywordModel->setKeywordList(m_pKeywordModel->selectedKeywordList(), lstCompositeKeywords);
+		m_pNoteKeywordWidget->setKeywordList(m_pNoteKeywordWidget->selectedKeywordList(), lstCompositeKeywords);
 	}
 
 	m_bDoingUpdate = false;
@@ -959,60 +913,22 @@ void CKJVSearchResult::en_modelKeywordListChanged()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	QStringList lstKeywordFilter;
+	QStringList lstKeywordFilter = m_pNoteKeywordWidget->selectedKeywordList();
 
-	bool bAllSelected = true;
-	for (int ndx = 0; ndx < m_pKeywordModel->rowCount(); ++ndx) {
-		if (!m_pKeywordModel->index(ndx).data(Qt::CheckStateRole).toBool()) {
-			bAllSelected = false;
-		} else {
-			if (ndx == 0) {
-				lstKeywordFilter.append(QString());		// Special show notes without keywords entry
-			} else {
-				lstKeywordFilter.append(CSearchStringListModel::decompose(m_pKeywordModel->index(ndx).data(Qt::EditRole).toString()));
+	if (m_pNoteKeywordWidget->isAllKeywordsSelected()) {
+		lstKeywordFilter.clear();			// Special shortcut for select all so VerseListModel won't have to even check for intersection
+	} else {
+		// Decompose our keyword matches for filtering:
+		for (int ndx = 0; ndx < lstKeywordFilter.size(); ++ndx) {
+			if (!lstKeywordFilter.at(ndx).isEmpty()) {
+				lstKeywordFilter.replace(ndx, CSearchStringListModel::decompose(lstKeywordFilter.at(ndx)));
 			}
 		}
 	}
-	if (bAllSelected) lstKeywordFilter.clear();			// Special shortcut for select all so VerseListModel won't have to even check for intersection
 
 	vlmodel()->setUserNoteKeywordFilter(lstKeywordFilter);
-	setKeywordListPreview();
 
 	m_bDoingUpdate = false;
-}
-
-void CKJVSearchResult::setKeywordListPreview()
-{
-	bool bAllSelected = true;
-	bool bNoneSelected = true;
-	for (int ndx = 0; ndx < m_pKeywordModel->rowCount(); ++ndx) {
-		if (!m_pKeywordModel->index(ndx).data(Qt::CheckStateRole).toBool()) {
-			bAllSelected = false;
-		} else {
-			bNoneSelected = false;
-		}
-	}
-	QString strKeywordList;
-	if (bAllSelected || bNoneSelected) {
-		strKeywordList += tr("<All Keywords>");
-	} else {
-		strKeywordList += m_pKeywordModel->selectedKeywordList().join(", ");
-	}
-	m_pKeywordsPreviewLabel->setText(strKeywordList);
-	// Have to do this here because model reset clears our lineEdit:
-	m_pKeywordsCombo->lineEdit()->setText(tr("<Select Keywords to Filter>"));
-}
-
-// ----------------------------------------------------------------------------
-
-void CKJVSearchResult::en_customContextMenuRequested(const QPoint &pos)
-{
-	m_pKeywordModel->contextMenu()->exec(m_pKeywordsCombo->mapToGlobal(pos));
-}
-
-void CKJVSearchResult::en_customContextMenuRequestedView(const QPoint &pos)
-{
-	m_pKeywordModel->contextMenu()->exec(m_pKeywordsCombo->view()->mapToGlobal(pos));
 }
 
 // ============================================================================

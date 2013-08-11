@@ -49,8 +49,7 @@
 class CKJVCanOpener;
 class CReflowDelegate;
 
-class CNoteKeywordModel;
-class CComboBox;
+class CNoteKeywordWidget;
 
 // ============================================================================
 
@@ -218,12 +217,9 @@ public:
 
 private:
 	void setSearchResultsType();
-	void setKeywordListPreview();
 
 private slots:
 	void en_modelKeywordListChanged();
-	void en_customContextMenuRequested(const QPoint &pos);
-	void en_customContextMenuRequestedView(const QPoint &pos);
 
 // Private Data:
 private:
@@ -241,11 +237,7 @@ private:
 	bool m_bDoingUpdate;
 	QLabel *m_pSearchResultsType;
 	QLabel *m_pSearchResultsCount;
-	bool m_bInitialKeywordsSet;
-	CComboBox *m_pKeywordsCombo;
-	QLabel *m_pKeywordsLabel;
-	QLabel *m_pKeywordsPreviewLabel;
-	CNoteKeywordModel *m_pKeywordModel;
+	CNoteKeywordWidget *m_pNoteKeywordWidget;
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };
 
