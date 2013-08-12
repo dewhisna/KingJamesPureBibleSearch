@@ -32,6 +32,7 @@
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
 #include "KJVNoteEditDlg.h"
+#include "KJVCrossRefEditDlg.h"
 #include "SearchCompleter.h"
 
 #ifdef SIGNAL_SPY_DEBUG
@@ -167,6 +168,9 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	// ----
 	m_pEditMenuLocal->addSeparator();
+	m_pEditMenuLocal->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+	// ----
+	m_pEditMenuLocal->addSeparator();
 	m_pActionNavigator = m_pEditMenuLocal->addAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator..."));
 	m_pActionNavigator->setEnabled(false);
 	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
@@ -228,7 +232,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
-		} else {
+		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
 			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
 			navigator.doHighlighting(highlighter);
 		}
@@ -347,7 +351,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
-		} else {
+		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
 			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
 			navigator.doHighlighting(highlighter);
 		}
@@ -792,6 +796,9 @@ void CKJVSearchResult::setSearchResultsType()
 			break;
 		case CVerseListModel::VVME_USERNOTES:
 			strResultsType = tr("Notes");
+			break;
+		case CVerseListModel::VVME_CROSSREFS:
+			strResultsType = tr("Cross References");
 			break;
 		default:
 			assert(false);

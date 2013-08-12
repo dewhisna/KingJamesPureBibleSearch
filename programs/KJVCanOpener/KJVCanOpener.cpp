@@ -207,7 +207,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference"));
+	pAction = ui->usernotesToolBar->addAction(QIcon(":res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."));
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
 	pAction->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	pAction->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
@@ -332,6 +332,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setStatusTip(tr("View All Notes"));
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_USERNOTES);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
+
+	pAction = m_pActionGroupViewMode->addAction(tr("View Cross Re&ferences"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VVME_CROSSREFS);
+	pAction->setStatusTip(tr("View Cross References"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nViewMode == CVerseListModel::VVME_CROSSREFS);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	m_pViewMenu->addSeparator();

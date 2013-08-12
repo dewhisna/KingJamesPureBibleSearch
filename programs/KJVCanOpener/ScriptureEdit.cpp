@@ -28,6 +28,8 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#include "KJVNoteEditDlg.h"
+#include "KJVCrossRefEditDlg.h"
 
 #include <assert.h>
 
@@ -152,6 +154,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	if (qobject_cast<QTextBrowser *>(this) != NULL) {
 //		m_pEditMenu->addSeparator();
 //		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+//		m_pEditMenu->addSeparator();
+//		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 	}
 
@@ -446,6 +450,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 		menu.addActions(CHighlighterButtons::instance()->actions());
 		menu.addSeparator();
 		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+		menu.addSeparator();
+		menu.addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 	}
 	menu.addSeparator();
 	QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));

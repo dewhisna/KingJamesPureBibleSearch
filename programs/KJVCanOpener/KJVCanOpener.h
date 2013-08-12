@@ -152,7 +152,7 @@ private:
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
 	// ----
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
-	QActionGroup *m_pActionGroupViewMode;		// Group for View Mode (Search Results vs highlighters)
+	QActionGroup *m_pActionGroupViewMode;		// Group for View Mode (Search Results vs highlighters vs user notes vs references, etc)
 	QActionGroup *m_pActionGroupDisplayMode;	// Group for Verse Display Mode (heading vs. richtext)
 	QActionGroup *m_pActionGroupTreeMode;		// Group for Tree Mode (List, Tree Books, Tree Chapters)
 	QAction *m_pActionShowMissingLeafs;			// Toggle action for tree modes to show missing leafs

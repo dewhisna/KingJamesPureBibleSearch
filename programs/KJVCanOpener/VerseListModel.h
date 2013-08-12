@@ -53,12 +53,17 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 	VLMRTE_UNDEFINED = -1,							// Undefined Index (used for defaults)
 	VLMRTE_SEARCH_RESULTS = 0,						// Search Results Display Index
 	VLMRTE_HIGHLIGHTERS = 1,						// Highlighter Display Index
-	VLMRTE_USER_NOTES = 2							// User Notes Display Index
+	VLMRTE_USER_NOTES = 2,							// User Notes Display Index
+	VLMRTE_CROSS_REFS = 3							// Cross References Index
 };
 
 #define VLM_SI_UNDEFINED -1							// Undefined Highlighter Index
-#define VLM_SI_BOOK_TERMINATOR_NODE -2				// Terminator Node for Tree Book nodes
-#define VLM_SI_CHAPTER_TERMINATOR_NODE -3			// Terminator Node for Tree Chapter nodes
+#define VLM_SI_TESTAMENT_TERMINATOR_NODE -2			// Terminator Node for Tree Testament nodes
+#define VLM_SI_CATEGORY_TERMINATOR_NODE -3			// Terminator Node for Tree Category nodes
+#define VLM_SI_BOOK_TERMINATOR_NODE -4				// Terminator Node for Tree Book nodes
+#define VLM_SI_CHAPTER_TERMINATOR_NODE -5			// Terminator Node for Tree Chapter nodes
+#define VLM_SI_VERSE_TERMINATOR_NODE -6				// Terminator Node for Tree Verse nodes
+#define VLM_SI_CROSS_REFERENCE_SOURCE_NODE -7		// Source Reference Node for Tree Cross References
 
 class TVerseIndex {
 public:
@@ -354,7 +359,8 @@ public:
 	enum VERSE_VIEW_MODE_ENUM {
 		VVME_SEARCH_RESULTS = 0,		// Display Search Results in the Tree View
 		VVME_HIGHLIGHTERS = 1,			// Display Tree of Highlighter Tags
-		VVME_USERNOTES = 2				// Display Tree of User Notes
+		VVME_USERNOTES = 2,				// Display Tree of User Notes
+		VVME_CROSSREFS = 3				// Display Tree of User Cross References
 	};
 	static VERSE_LIST_MODEL_RESULTS_TYPE_ENUM VVME_to_VLMRTE(VERSE_VIEW_MODE_ENUM nViewMode)
 	{
@@ -503,6 +509,17 @@ public:
 		// --------------------------------------
 	};
 
+	class TVerseListModelCrossRefsResults : public TVerseListModelResults {
+	protected:
+		friend class CVerseListModel;
+
+		TVerseListModelCrossRefsResults(TVerseListModelPrivate *priv)
+			:	TVerseListModelResults(priv, tr("Cross References"), VLMRTE_CROSS_REFS)
+		{ }
+
+		// --------------------------------------
+	};
+
 	// ------------------------------------------------------------------------
 
 	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent = 0);
@@ -560,6 +577,8 @@ public:
 				return m_userNotesResults;
 			case VLMRTE_HIGHLIGHTERS:
 				break;				// Fall through and lookup
+			case VLMRTE_CROSS_REFS:
+				return m_crossRefsResults;
 			default:
 				assert(false);
 		}
@@ -633,11 +652,12 @@ private:
 	Q_DISABLE_COPY(CVerseListModel)
 	TVerseListModelPrivate m_private;
 
-	THighlighterVLMRList m_vlmrListHighlighters;	// Per-Highlighter VerseListModelResults
-	TVerseListModelResults m_undefinedResults;		// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
-	TVerseListModelSearchResults m_searchResults;	// VerseListModelResults for Search Results
-	TVerseListModelNotesResults m_userNotesResults;	// VerseListModelResults for User Notes
-	QStringList m_lstUserNoteKeywordFilter;			// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry
+	THighlighterVLMRList m_vlmrListHighlighters;		// Per-Highlighter VerseListModelResults
+	TVerseListModelResults m_undefinedResults;			// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
+	TVerseListModelSearchResults m_searchResults;		// VerseListModelResults for Search Results
+	TVerseListModelNotesResults m_userNotesResults;		// VerseListModelResults for User Notes
+	TVerseListModelCrossRefsResults m_crossRefsResults;	// VerseListModelResults for Cross References
+	QStringList m_lstUserNoteKeywordFilter;				// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry
 };
 
 // ============================================================================

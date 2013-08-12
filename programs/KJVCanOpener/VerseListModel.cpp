@@ -74,7 +74,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pPar
 		m_private(pBibleDatabase),
 		m_undefinedResults(&m_private, tr("Undefined"), VLMRTE_UNDEFINED),
 		m_searchResults(&m_private),
-		m_userNotesResults(&m_private)
+		m_userNotesResults(&m_private),
+		m_crossRefsResults(&m_private)
 {
 	m_private.m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
@@ -625,7 +626,6 @@ QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role)
 					usernoteHTML.appendLiteralText(itrVerse->getHeading());
 					usernoteHTML.endBold();
 					usernoteHTML.endParagraph();
-					return usernoteHTML.getResult();
 				} else {
 					QTextDocument doc;
 					CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
@@ -942,6 +942,8 @@ TVerseIndex CVerseListModel::resolveVerseIndex(const CRelIndex &ndxRel, const QS
 			break;
 		case VVME_USERNOTES:
 			return TVerseIndex(ndxRel, VLMRTE_USER_NOTES);
+		case VVME_CROSSREFS:
+			return TVerseIndex(ndxRel, VLMRTE_CROSS_REFS);
 		default:
 			assert(false);
 	}

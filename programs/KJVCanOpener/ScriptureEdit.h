@@ -27,7 +27,6 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 #include "PhraseEdit.h"
-#include "KJVNoteEditDlg.h"
 
 #include "QtFindReplaceDialog/dialogs/finddialog.h"
 
