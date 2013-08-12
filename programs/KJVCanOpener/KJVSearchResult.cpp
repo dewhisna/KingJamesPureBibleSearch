@@ -222,9 +222,9 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		// Note:  Qt bug with fragments causes leading <hr /> tags
 		//		to get converted to <br /> tags.  Since this may
 		//		change on us if/when they get it fixed, we'll pass
-		//		false here and set our <hr /> or <br /> below as
+		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), false);
+		navigator.setDocumentToVerse(item.getIndex());
 		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
@@ -268,7 +268,7 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-		navigator.setDocumentToVerse(item.getIndex(), false);
+		navigator.setDocumentToVerse(item.getIndex());
 
 		QTextCursor cursorDocVerse(&docVerse);
 		cursorDocVerse.select(QTextCursor::Document);
@@ -341,9 +341,9 @@ void CSearchResultsTreeView::en_copyComplete() const
 		// Note:  Qt bug with fragments causes leading <hr /> tags
 		//		to get converted to <br /> tags.  Since this may
 		//		change on us if/when they get it fixed, we'll pass
-		//		false here and set our <hr /> or <br /> below as
+		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), false);
+		navigator.setDocumentToVerse(item.getIndex());
 		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);

@@ -47,6 +47,7 @@
 
 // Forward Declares:
 class CKJVNoteEditDlg;
+class CKJVCrossRefEditDlg;
 
 // ============================================================================
 
@@ -122,6 +123,7 @@ protected slots:
 	void en_PassageNavigatorTriggered();
 
 	void en_userNoteEditorTriggered();
+	void en_crossRefsEditorTriggered();
 
 	void en_viewDetails();
 	void setDetailsEnable();
@@ -181,6 +183,7 @@ private:
 	CKJVSearchResult *m_pSearchResultWidget;
 	CKJVBrowser *m_pBrowserWidget;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
+	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
 	Ui::CKJVCanOpener *ui;
 };
 

@@ -207,6 +207,19 @@ class CPhraseNavigator : public QObject
 {
 	Q_OBJECT
 public:
+	enum TextRenderOptions {
+		TRO_None = 0x0,								// Default for no options
+		TRO_NoAnchors = 0x1,						// Suppresses internal navigation anchors
+		TRO_AddDividerLineBefore = 0x2,				// Add <hr> line before (Verse output only)
+		TRO_Subtitles = 0x4,						// Add chapter titles
+		TRO_Colophons = 0x8,						// Add chapter colophons
+		TRO_UserNotes = 0x10,						// Displays active/visible user notes
+		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes)
+		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
+		TRO_CrossRefAnchors = 0x80					// Add navigation anchors for cross-references
+	};
+	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
+
 	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL)
 		:	QObject(parent),
 			m_pBibleDatabase(pBibleDatabase),
@@ -228,8 +241,14 @@ public:
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
 	// Text Fill Functions:
-	void setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors = false);
-	void setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore = false, bool bNoAnchors = false);
+#define defaultDocumentToChapterFlags	(CPhraseNavigator::TRO_UserNotes | \
+										 CPhraseNavigator::TRO_UserNoteExpandAnchors | \
+										 CPhraseNavigator::TRO_CrossRefAnchors | \
+										 CPhraseNavigator::TRO_Subtitles | \
+										 CPhraseNavigator::TRO_Colophons)
+	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TRO_None);
+	void setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
+	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TRO_None);
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
 	TPhraseTag getSelection(const CPhraseCursor &aCursor,
@@ -254,6 +273,8 @@ protected:
 private:
 	QTextDocument &m_TextDocument;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(CPhraseNavigator::TextRenderOptionFlags)
 
 // ============================================================================
 

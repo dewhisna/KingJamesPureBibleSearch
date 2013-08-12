@@ -118,7 +118,8 @@ SOURCES += main.cpp \
 	SubControls.cpp \
 	KJVNoteEditDlg.cpp \
 	ScriptureDocument.cpp \
-	NoteKeywordWidget.cpp
+	NoteKeywordWidget.cpp \
+	KJVCrossRefEditDlg.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -164,7 +165,8 @@ HEADERS  += main.h \
 	KJVNoteEditDlg.h \
 	ScriptureDocument.h \
 	ScriptureTextFormatProperties.h \
-	NoteKeywordWidget.h
+	NoteKeywordWidget.h \
+	KJVCrossRefEditDlg.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -178,7 +180,8 @@ FORMS    += KJVCanOpener.ui \
 	KJVSearchSpec.ui \
 	KJVTextFormatConfig.ui \
 	KJVNoteEditDlg.ui \
-	NoteKeywordWidget.ui
+	NoteKeywordWidget.ui \
+	KJVCrossRefEditDlg.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

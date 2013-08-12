@@ -625,13 +625,15 @@ QVariant CVerseListModel::dataForVerse(const TVerseIndex *pVerseIndex, int role)
 					usernoteHTML.appendLiteralText(itrVerse->getHeading());
 					usernoteHTML.endBold();
 					usernoteHTML.endParagraph();
+					return usernoteHTML.getResult();
 				} else {
 					QTextDocument doc;
 					CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
-					navigator.setDocumentToVerse(ndxVerse, false, true);
+					navigator.setDocumentToVerse(ndxVerse, CPhraseNavigator::TRO_NoAnchors);
 					CScriptureTextDocumentDirector scriptureDirector(&usernoteHTML, m_private.m_pBibleDatabase.data());
 					usernoteHTML.beginParagraph();
 					scriptureDirector.processDocument(&doc);
+					usernoteHTML.appendRawText(itrVerse->getVerseRichText(m_private.m_richifierTags));
 					usernoteHTML.endParagraph();
 				}
 				if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {

@@ -109,7 +109,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 						navigator.doHighlighting(highlighter);
 					}
 				} else {
-					navigator.setDocumentToVerse(item.getIndex(), false, true);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 				}
 			}
 		} else if (ndxRel.chapter() != 0) {

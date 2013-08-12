@@ -36,6 +36,7 @@
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
 #include "KJVNoteEditDlg.h"
+#include "KJVCrossRefEditDlg.h"
 
 #include <assert.h>
 
@@ -125,6 +126,9 @@ namespace {
 
 	// UserNoteEditor Dialog:
 	const QString constrUserNoteEditorGroup("UserNoteEditor");
+
+	// CrossRefsEditor Dialog:
+	const QString constrCrossRefsEditorGroup("CrossRefsEditor");
 }
 
 // ============================================================================
@@ -168,6 +172,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pSearchResultWidget(NULL),
 	m_pBrowserWidget(NULL),
 	m_pUserNoteEditorDlg(NULL),
+	m_pCrossRefsEditorDlg(NULL),
 	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -206,7 +211,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
 	pAction->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	pAction->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
-
+	CKJVCrossRefEditDlg::setActionCrossRefsEditor(pAction);
 
 	// -------------------- Setup the Three Panes:
 
@@ -546,6 +551,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 
 
+	// -------------------- CrossRefsEditor Dialog:
+	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, this);
+	m_pCrossRefsEditorDlg->setModal(true);
+	connect(CKJVCrossRefEditDlg::actionCrossRefsEditor(), SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
+
+
 	// -------------------- Persistent Settings:
 	restorePersistentSettings();
 }
@@ -610,6 +621,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
+	m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 
 	// Highlighter Tool Bar:
 	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
@@ -699,6 +711,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	settings.endGroup();
 
 	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
+	m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 
 	if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 		if (!g_pUserNotesDatabase->load()) {
@@ -1386,6 +1399,31 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if (m_pUserNoteEditorDlg->exec() == QDialog::Accepted) {
 		if (isBrowserFocusedOrActive())
 			m_pBrowserWidget->gotoIndex(m_pBrowserWidget->selection());		// Re-render text (note: The Note may be deleted as well as changed)
+	}
+}
+
+void CKJVCanOpener::en_crossRefsEditorTriggered()
+{
+	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
+
+	assert(m_pCrossRefsEditorDlg != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
+
+	TPhraseTag tagCrossRef;
+
+	if (isBrowserFocusedOrActive()) {
+		tagCrossRef = m_pBrowserWidget->selection();
+	} else if (isSearchResultsFocusedOrActive()) {
+		TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+		tagCrossRef = TPhraseTag(ndxCurrent.relIndex());
+	}
+
+	if (!tagCrossRef.isSet()) return;
+	m_pCrossRefsEditorDlg->setSourcePassage(tagCrossRef);
+	if (m_pCrossRefsEditorDlg->exec() == QDialog::Accepted) {
+		if (isBrowserFocusedOrActive())
+			m_pBrowserWidget->gotoIndex(m_pBrowserWidget->selection());		// Re-render text (note: The Cross-Ref may be deleted as well as changed)
 	}
 }
 

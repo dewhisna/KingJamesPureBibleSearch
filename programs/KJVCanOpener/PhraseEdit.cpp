@@ -773,7 +773,82 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	myCursor.endEditBlock();
 }
 
-void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchors)
+void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
+{
+	assert(m_pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+
+	m_TextDocument.clear();
+
+	if (ndx.book() == 0) return;
+
+	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
+		assert(false);
+		emit changedDocumentText();
+		return;
+	}
+
+	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
+
+	CScriptureTextHtmlBuilder scriptureHTML;
+
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
+//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
+//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+										"<html><head><title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-line; font-size:medium; }\n"
+										".book { font-size:xx-large; font-weight:bold; }\n"
+										".chapter { font-size:x-large; font-weight:bold; }\n"
+										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										".category { font-size:medium; font-weight:normal; }\n"
+										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+										"</style></head><body>\n")
+										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+
+	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
+	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
+
+	// Print Heading for this Book:
+	scriptureHTML.beginDiv("book");
+	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
+	if (!(flagsTRO & TRO_NoAnchors)) {
+		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
+		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+		scriptureHTML.endAnchor();
+	}
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
+	scriptureHTML.appendLiteralText(book.m_strBkName);
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+	scriptureHTML.endDiv();
+
+	// Print Book Descriptions:
+	if (!book.m_strDesc.isEmpty()) {
+		scriptureHTML.beginDiv("subtitle");
+		scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
+		scriptureHTML.endDiv();
+	}
+	// Print Book Category:
+	if  (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty()) {
+		scriptureHTML.beginDiv("category");
+		scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(tr("Category:"));
+		scriptureHTML.endBold();
+		scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
+		scriptureHTML.endDiv();
+	}
+	// If we have a User Note for this book, print it too:
+	if ((flagsTRO & TRO_UserNotes) &&
+		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+		scriptureHTML.insertHorizontalRule();
+
+	scriptureHTML.appendRawText("</body></html>");
+	m_TextDocument.setHtml(scriptureHTML.getResult());
+	emit changedDocumentText();
+}
+
+void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase != NULL);
@@ -831,22 +906,24 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		scriptureHTML.beginParagraph();
-		if (!bNoAnchors) scriptureHTML.beginAnchorID(relPrev.asAnchor());
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relPrev.verse()));
 		scriptureHTML.endBold();
-		if (!bNoAnchors) scriptureHTML.endAnchor();
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !bNoAnchors));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 		scriptureHTML.endParagraph();
 
-		scriptureHTML.addNoteFor(relPrev, !bNoAnchors);
+		if (flagsTRO & TRO_UserNotes)
+			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
 
 		// If we have a footnote or user note for this book and this is the end of the last chapter,
 		//		print it too:
 		if (relPrev.chapter() == bookPrev.m_nNumChp) {
 			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
-			if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), !bNoAnchors)) {
+			if ((flagsTRO & TRO_Colophons) &&
+				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), !(flagsTRO & TRO_NoAnchors)))) {
 				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
 				scriptureHTML.beginDiv("colophon");
 				scriptureHTML.flushBuffer();
@@ -854,7 +931,9 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			}
 			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
-			scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), !bNoAnchors);		// No extra <hr> as we have one below for the whole chapter anyway
+			if (flagsTRO & TRO_UserNotes)
+				scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+				// No extra <hr> as we have one below for the whole chapter anyway
 		}
 	}
 
@@ -866,14 +945,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	// Print Heading for this Book:
 	scriptureHTML.beginDiv("book");
 	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
-	if (!bNoAnchors) {
+	if (!(flagsTRO & TRO_NoAnchors)) {
 		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
 		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 		scriptureHTML.endAnchor();
 	}
-	if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
 	scriptureHTML.appendLiteralText(book.m_strBkName);
-	if (!bNoAnchors) scriptureHTML.endAnchor();
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If this is the first chapter of the book:
 	if (ndx.chapter() == 1) {
@@ -893,18 +972,21 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			scriptureHTML.endDiv();
 		}
 		// If we have a User Note for this book, print it too:
-		if (scriptureHTML.addNoteFor(ndxBook, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+		if ((flagsTRO & TRO_UserNotes) &&
+			(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+			scriptureHTML.insertHorizontalRule();
 	}
 
 	// Print Heading for this Chapter:
 	scriptureHTML.beginDiv("chapter");
-	if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
 	scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter")).arg(ndx.chapter()));
-	if (!bNoAnchors) scriptureHTML.endAnchor();
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If we have a chapter Footnote for this chapter, print it too:
 	scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
-	if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !bNoAnchors)) {
+	if ((flagsTRO & TRO_Subtitles) &&
+		(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !(flagsTRO & TRO_NoAnchors)))) {
 		scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
 		scriptureHTML.beginDiv("subtitle");
 		scriptureHTML.flushBuffer();
@@ -913,7 +995,9 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 	// If we have a chapter User Note for this chapter, print it too:
-	if (scriptureHTML.addNoteFor(ndxBookChap, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+	if ((flagsTRO & TRO_UserNotes) &&
+		(scriptureHTML.addNoteFor(ndxBookChap, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+		scriptureHTML.insertHorizontalRule();
 
 	// Print the Chapter Text:
 	bool bParagraph = false;
@@ -936,17 +1020,18 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			bParagraph = true;
 		}
 
-		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString(" %1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
-		if (!bNoAnchors) scriptureHTML.endAnchor();
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !bNoAnchors));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 
 		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
 		scriptureHTML.startBuffered();
-		if (scriptureHTML.addNoteFor(ndxVerse, !bNoAnchors)) {
+		if ((flagsTRO & TRO_UserNotes) &&
+			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible)))) {
 			if (bParagraph) {
 				scriptureHTML.stopBuffered();	// Switch to direct output to end the paragraph ahead of the note
 				scriptureHTML.endParagraph();
@@ -971,7 +1056,8 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	//		print it too:
 	if (ndx.chapter() == book.m_nNumChp) {
 		scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
-		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(ndx.book(),0,0,0), !bNoAnchors)) {
+		if ((flagsTRO & TRO_Colophons) &&
+			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(ndx.book(),0,0,0), !(flagsTRO & TRO_NoAnchors)))) {
 			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
 			scriptureHTML.beginDiv("colophon");
 			scriptureHTML.flushBuffer();
@@ -979,7 +1065,9 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		}
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
-		scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), !bNoAnchors);			// No extra <hr> as we have one below for the whole chapter anyway
+		if (flagsTRO & TRO_UserNotes)
+			scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+			// No extra <hr> as we have one below for the whole chapter anyway
 	}
 
 	scriptureHTML.insertHorizontalRule();
@@ -997,14 +1085,14 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 			// Print Heading for this Book:
 			scriptureHTML.beginDiv("book");
 			// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
-			if (!bNoAnchors) {
+			if (!(flagsTRO & TRO_NoAnchors)) {
 				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChapNext.asAnchor()));
 				scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 				scriptureHTML.endAnchor();
 			}
-			if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
+			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
 			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
-			if (!bNoAnchors) scriptureHTML.endAnchor();
+			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 			scriptureHTML.endDiv();
 			// Print Book Descriptions for first chapter of book:
 			if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {
@@ -1022,18 +1110,21 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 				scriptureHTML.endDiv();
 			}
 			// If we have a User Note for this book, print it too:
-			if (scriptureHTML.addNoteFor(ndxBookNext, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+			if ((flagsTRO & TRO_UserNotes) &&
+				(scriptureHTML.addNoteFor(ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+				scriptureHTML.insertHorizontalRule();
 		}
 		// Print Heading for this Chapter:
 		scriptureHTML.beginDiv("chapter");
-		if (!bNoAnchors) scriptureHTML.beginAnchorID(ndxBookChapNext.asAnchor());
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookChapNext.asAnchor());
 		scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter")).arg(relNext.chapter()));
-		if (!bNoAnchors) scriptureHTML.endAnchor();
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 		scriptureHTML.endDiv();
 
 		// If we have a chapter note for this chapter, print it too:
 		scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
-		if (scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !bNoAnchors)) {
+		if ((flagsTRO & TRO_Subtitles) &&
+			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !(flagsTRO & TRO_NoAnchors)))) {
 			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
 			scriptureHTML.beginDiv("subtitle");
 			scriptureHTML.flushBuffer();
@@ -1042,19 +1133,22 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 		// If we have a chapter User Note for this chapter, print it too:
-		if (scriptureHTML.addNoteFor(ndxBookChapNext, !bNoAnchors)) scriptureHTML.insertHorizontalRule();
+		if ((flagsTRO & TRO_UserNotes) &&
+			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph();
-		if (!bNoAnchors) scriptureHTML.beginAnchorID(relNext.asAnchor());
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relNext.verse()));
 		scriptureHTML.endBold();
-		if (!bNoAnchors) scriptureHTML.endAnchor();
+		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !bNoAnchors));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 		scriptureHTML.endParagraph();
 
-		scriptureHTML.addNoteFor(relNext, !bNoAnchors);
+		if (flagsTRO & TRO_UserNotes)
+			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
 	}
 
 	scriptureHTML.appendRawText("</body></html>");
@@ -1062,7 +1156,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, bool bNoAnchor
 	emit changedDocumentText();
 }
 
-void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDividerLineBefore, bool bNoAnchors)
+void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1100,6 +1194,9 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		return;
 	}
 
+	CRelIndex ndxVerse = ndx;
+	ndxVerse.setWord(0);			// Create special index to make sure we use a verse only reference
+
 	CScriptureTextHtmlBuilder scriptureHTML;
 
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
@@ -1117,16 +1214,16 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 										"</style></head><body>\n")
 						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 
-	if (bAddDividerLineBefore) scriptureHTML.insertHorizontalRule();
+	if (flagsTRO & TRO_AddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 
 	// Print Book/Chapter for this verse:
 	scriptureHTML.beginParagraph();
 
-	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
 	scriptureHTML.beginBold();
 	scriptureHTML.appendLiteralText(book.m_strBkName);
 	scriptureHTML.endBold();
-	if (!bNoAnchors) scriptureHTML.endAnchor();
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 	// Print this Verse Text:
 	const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
@@ -1135,14 +1232,17 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, bool bAddDivider
 		emit changedDocumentText();
 		return;
 	}
-	if (!bNoAnchors) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0).asAnchor());
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 	scriptureHTML.beginBold();
 	scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
 	scriptureHTML.endBold();
-	if (!bNoAnchors) scriptureHTML.endAnchor();
-	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !bNoAnchors));
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 
 	scriptureHTML.endParagraph();
+
+	if (flagsTRO & TRO_UserNotes)
+		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
 
 	scriptureHTML.appendRawText("</body></html>");
 	m_TextDocument.setHtml(scriptureHTML.getResult());
