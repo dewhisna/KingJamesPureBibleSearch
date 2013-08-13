@@ -275,7 +275,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 		if (bHighlighterNode) {
 			assert(row < m_vlmrListHighlighters.size());
 			if (row < m_vlmrListHighlighters.size()) {
-				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
 			}
 		} else {
 			switch (m_private.m_nTreeMode) {
@@ -289,7 +289,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				case VTME_TREE_BOOKS:
 				{
 					if (bTreeTop) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0)).data()));
 					}
 					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 					assert(ndxRel.isSet());
@@ -303,12 +303,12 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				case VTME_TREE_CHAPTERS:
 				{
 					if (bTreeTop) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0))).data()));
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0)).data()));
 					}
 					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 					assert(ndxRel.isSet());
 					if (ndxRel.chapter() == 0) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0))).data()));
+						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0)).data()));
 					}
 					if (ndxRel.verse() == 0) {
 						CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
@@ -350,7 +350,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			case VTME_TREE_BOOKS:
 			{
 				if (nLevel == 0) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
@@ -365,12 +365,12 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			case VTME_TREE_CHAPTERS:
 			{
 				if (nLevel == 0) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
 				if (nLevel == 1) {
-					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
 				}
 				if (nLevel == 2) {
 					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
@@ -404,7 +404,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				case VTME_LIST:
 				{
 					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
 				}
 				case VTME_TREE_BOOKS:
 				{
@@ -412,13 +412,13 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 					assert(ndxRel.isSet());
 					if (ndxRel.verse() != 0) {
 						if (zResults.m_mapVerses.contains(ndxRel)) {
-							return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
+							return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0)).data()));
 						} else {
 							assert(false);
 						}
 					}
 					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
 				}
 				case VTME_TREE_CHAPTERS:
 				{
@@ -426,15 +426,15 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 					assert(ndxRel.isSet());
 					if (ndxRel.verse() != 0) {
 						if (zResults.m_mapVerses.contains(ndxRel)) {
-							return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0))).data()));
+							return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0)).data()));
 						} else {
 							assert(false);
 						}
 					} else if (ndxRel.chapter() != 0) {
-						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0))).data()));
+						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0)).data()));
 					}
 					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(CRelIndex())).data()));
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
 				}
 				default:
 					break;
@@ -464,7 +464,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				assert(nLevel == 2);
 				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 			}
 			case VTME_TREE_CHAPTERS:
 			{
@@ -472,10 +472,10 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 				assert(ndxRel.isSet());
 				if (nLevel == 1) {
-					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 				}
 				assert(nLevel == 2);
-				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
+				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
 			}
 			default:
 				break;
@@ -905,9 +905,9 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		CRelIndex ndxChapter(ndxRel.book(), ndxRel.chapter(), 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 		if (zResults.FindVerseIndex(ndxChapter) == zResults.m_mapVerses.constEnd()) return QModelIndex();
 		if (m_private.m_nViewMode != VVME_USERNOTES) {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxChapter)).data()));
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxChapter).data()));
 		} else {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxChapter, zResults.resultsType(), VLM_SI_CHAPTER_TERMINATOR_NODE)).data()));
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxChapter, VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
 		}
 	} else {
 		// If this is a book-only reference, resolve it:
@@ -916,9 +916,9 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		CRelIndex ndxBook(ndxRel.book(), 0, 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 		if (zResults.FindVerseIndex(ndxBook) == zResults.m_mapVerses.constEnd()) return QModelIndex();
 		if (m_private.m_nViewMode != VVME_USERNOTES) {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(zResults.makeVerseIndex(ndxBook)).data()));
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxBook).data()));
 		} else {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(TVerseIndex(ndxBook, zResults.resultsType(), VLM_SI_BOOK_TERMINATOR_NODE)).data()));
+			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxBook, VLM_SI_BOOK_TERMINATOR_NODE).data()));
 		}
 	}
 
@@ -1159,6 +1159,55 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	}
 
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+void CVerseListModel::buildCrossRefsResults(const CRelIndex &ndx)		// If ndx == CRelIndex() (or unset), builds all cross-refs, else builds refs for a specific source passage
+{
+	assert(g_pUserNotesDatabase != NULL);
+	TVerseListModelCrossRefsResults &zResults = m_crossRefsResults;
+
+	if (m_private.m_nViewMode == VVME_CROSSREFS) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
+
+	bool bShowAllRefs = (!ndx.isSet());
+
+	zResults.m_mapVerses.clear();
+	zResults.m_lstVerseIndexes.clear();
+	zResults.m_mapExtraVerseIndexes.clear();
+	zResults.m_mapSizeHints.clear();
+
+	const TCrossReferenceMap &mapCrossRefs = g_pUserNotesDatabase->crossRefsMap();
+
+	if (bShowAllRefs) {
+		zResults.m_lstVerseIndexes.reserve(mapCrossRefs.size());
+		for (TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.begin(); itrCrossRef != mapCrossRefs.end(); ++itrCrossRef) {
+			CRelIndex ndxCrossRef = (itrCrossRef->first);
+			assert(ndxCrossRef.isSet());
+			ndxCrossRef.setWord(0);			// Whole verses only
+
+			assert(!zResults.m_mapVerses.contains(ndxCrossRef));
+			zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLM_SI_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
+			zResults.m_lstVerseIndexes.append(ndxCrossRef);
+		}
+	} else {
+		TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.find(ndx);
+		CRelIndex ndxCrossRef = (itrCrossRef->first);
+		assert(ndxCrossRef.isSet());
+		ndxCrossRef.setWord(0);				// Whole verses only
+
+		assert(!zResults.m_mapVerses.contains(ndxCrossRef));
+		zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLM_SI_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
+		zResults.m_lstVerseIndexes.append(ndxCrossRef);
+	}
+
+	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		emit endResetModel();
 		emit verseListChanged();
 	}

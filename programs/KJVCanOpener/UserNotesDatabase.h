@@ -264,6 +264,7 @@ public:
 	void removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);
 	void removeCrossReferencesFor(const CRelIndex &ndx);
 	void removeAllCrossReferences();
+	const TCrossReferenceMap &crossRefsMap() const { return m_mapCrossReference; }
 
 	// --------------------
 

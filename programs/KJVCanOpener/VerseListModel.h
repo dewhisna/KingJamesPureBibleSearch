@@ -57,7 +57,7 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 	VLMRTE_CROSS_REFS = 3							// Cross References Index
 };
 
-#define VLM_SI_UNDEFINED -1							// Undefined Highlighter Index
+#define VLM_SI_UNDEFINED -1							// Undefined Special Index
 #define VLM_SI_TESTAMENT_TERMINATOR_NODE -2			// Terminator Node for Tree Testament nodes
 #define VLM_SI_CATEGORY_TERMINATOR_NODE -3			// Terminator Node for Tree Category nodes
 #define VLM_SI_BOOK_TERMINATOR_NODE -4				// Terminator Node for Tree Book nodes
@@ -444,6 +444,11 @@ public:
 			return m_mapExtraVerseIndexes.insert(aVerseIndex.relIndex(), TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
 		}
 
+		TVerseIndexPtr extraVerseIndex(const CRelIndex &ndxRel, int nSpecialIndexOverride = VLM_SI_UNDEFINED) const
+		{
+			return extraVerseIndex(makeVerseIndex(ndxRel, nSpecialIndexOverride));
+		}
+
 		// --------------------------------------
 
 		int GetBookCount() const;						// Returns the number of books in the model based on mode
@@ -462,9 +467,9 @@ public:
 		const QString resultsName() const { return m_strResultsName; }
 		VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
 		int specialIndex() const { return m_nSpecialIndex; }
-		const TVerseIndex makeVerseIndex(const CRelIndex &ndxRel) const
+		const TVerseIndex makeVerseIndex(const CRelIndex &ndxRel, int nSpecialIndexOverride = VLM_SI_UNDEFINED) const
 		{
-			return TVerseIndex(ndxRel, resultsType(), specialIndex());
+			return TVerseIndex(ndxRel, resultsType(), ((nSpecialIndexOverride != VLM_SI_UNDEFINED) ? nSpecialIndexOverride : specialIndex()));
 		}
 	protected:
 		TVerseListModelPrivate *m_private;
@@ -556,16 +561,6 @@ public:
 	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
 	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
 
-// TODO : CLEAN
-//	const TVerseListModelResults &results(int ndxResults) const
-//	{
-//		if (ndxResults == VLM_HI_UNDEFINED) return m_undefinedResults;
-//		if (ndxResults == VLM_HI_SEARCH_RESULTS) return m_searchResults;
-//		if (ndxResults == VLM_HI_USER_NOTES) return m_userNotesResults;
-//		assert((ndxResults >= 0) && (ndxResults < m_vlmrListHighlighters.size()));
-//		return m_vlmrListHighlighters.at(ndxResults);
-//	}
-
 	const TVerseListModelResults &results(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex) const
 	{
 		switch (nResultsType) {
@@ -647,6 +642,8 @@ private:
 	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!
 
 	void buildUserNotesResults(const CRelIndex &ndx = CRelIndex(), bool bAdd = true);
+
+	void buildCrossRefsResults(const CRelIndex &ndx = CRelIndex());		// If ndx == CRelIndex() (or unset), builds all cross-refs, else builds refs for a specific source passage
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)
