@@ -208,22 +208,6 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 	}
 
 	return lstSelectedItems;
-
-
-// TODO : CLEAN
-//
-//	TVerseIndexList lstVerses;
-//	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-//		if (lstSelectedItems.at(ndx).isValid()) {
-//			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
-//			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-//				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
-//			}
-//		}
-//	}
-//	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
-//
-//	return lstVerses;
 }
 
 // ----------------------------------------------------------------------------

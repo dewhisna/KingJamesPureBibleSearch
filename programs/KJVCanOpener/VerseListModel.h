@@ -121,17 +121,6 @@ public:
 
 	}
 
-//	explicit CVerseListItem(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(),
-//							const CRelIndex &ndx = CRelIndex(),
-//							const unsigned int nPhraseSize = 1)
-//		:	m_pBibleDatabase(pBibleDatabase),
-//			m_ndxRelative(ndx)
-//	{
-//		m_ndxRelative.setWord(0);								// Primary index will have a zero word index
-//		if (nPhraseSize > 0)
-//			m_lstTags.push_back(TPhraseTag(ndx, nPhraseSize));		// But the corresponding tag will have non-zero word index
-//	}
-
 	CVerseListItem(const TVerseIndex &aVerseIndex, CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag = TPhraseTag())
 		:	m_pBibleDatabase(pBibleDatabase)
 	{

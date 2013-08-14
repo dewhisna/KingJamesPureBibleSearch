@@ -80,8 +80,6 @@ public:
 	TVerseIndex currentIndex() const;
 	bool canShowPassageNavigator() const;
 
-// TODO : CLEAN
-//	TVerseIndexList getSelectedVerses() const;
 	QModelIndexList getSelectedVerses() const;
 
 protected slots:
