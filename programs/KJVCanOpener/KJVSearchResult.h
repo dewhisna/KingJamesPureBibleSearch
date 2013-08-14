@@ -80,7 +80,9 @@ public:
 	TVerseIndex currentIndex() const;
 	bool canShowPassageNavigator() const;
 
-	TVerseIndexList getSelectedVerses() const;
+// TODO : CLEAN
+//	TVerseIndexList getSelectedVerses() const;
+	QModelIndexList getSelectedVerses() const;
 
 protected slots:
 	void en_copyVerseText() const;

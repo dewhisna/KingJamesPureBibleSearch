@@ -64,6 +64,7 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 #define VLM_SI_CHAPTER_TERMINATOR_NODE -5			// Terminator Node for Tree Chapter nodes
 #define VLM_SI_VERSE_TERMINATOR_NODE -6				// Terminator Node for Tree Verse nodes
 #define VLM_SI_CROSS_REFERENCE_SOURCE_NODE -7		// Source Reference Node for Tree Cross References
+#define VLM_SI_CROSS_REFERENCE_TARGET_NODE -8		// Target Reference Node for Tree Cross References
 
 class TVerseIndex {
 public:
@@ -81,7 +82,7 @@ public:
 
 	}
 
-	const CRelIndex relIndex() const { return m_nRelIndex; }
+	const CRelIndex &relIndex() const { return m_nRelIndex; }
 	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
 	int specialIndex() const { return m_nSpecialIndex; }
 
@@ -154,7 +155,9 @@ public:
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		bool bSearchRefs = (verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS);		// For Search Results, show word positions too
 		QString strHeading;
-		if ((m_lstTags.size() > 0) && (verseIndex()->resultsType() != VLMRTE_USER_NOTES)) {
+		if ((m_lstTags.size() > 0) &&
+			(verseIndex()->resultsType() != VLMRTE_USER_NOTES) &&
+			(verseIndex()->resultsType() != VLMRTE_CROSS_REFS)) {
 			strHeading += QString("(%1) ").arg(m_lstTags.size());
 			for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 				if (ndx == 0) {
@@ -274,20 +277,25 @@ public:
 
 	QStringList getVerseAsWordList() const
 	{
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return QStringList();
-		if (!isSet()) return QStringList();
+		return getVerseAsWordList(getIndex(), m_pBibleDatabase);
+	}
+	static QStringList getVerseAsWordList(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
+	{
+		assert(pBibleDatabase != NULL);
+		if (pBibleDatabase == NULL) return QStringList();
+		if (!ndx.isSet()) return QStringList();
 		QStringList strWords;
-		const CVerseEntry *pVerseEntry = m_pBibleDatabase->verseEntry(CRelIndex(getBook(), getChapter(), getVerse(), 0));
+		const CVerseEntry *pVerseEntry = pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
 		unsigned int nNumWords = (pVerseEntry ? pVerseEntry->m_nNumWrd : 0);
-		uint32_t ndxNormal = getIndexNormalized();
+		uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndx);
 		while (nNumWords) {
-			strWords.push_back(m_pBibleDatabase->wordAtIndex(ndxNormal));
+			strWords.push_back(pBibleDatabase->wordAtIndex(ndxNormal));
 			ndxNormal++;
 			nNumWords--;
 		}
 		return strWords;
 	}
+
 	QString getVerseVeryPlainText() const		// Very Plain has no punctuation!
 	{
 #ifdef VERSE_LIST_PLAIN_TEXT_CACHE
@@ -298,20 +306,29 @@ public:
 		return getVerseAsWordList().join(" ");
 #endif
 	}
+	static QString getVerseVeryPlainText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
+	{
+		return getVerseAsWordList(ndx, pBibleDatabase).join(" ");
+	}
+
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 #endif
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return QString();
-		if (!isSet()) return QString();
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = m_pBibleDatabase->richVerseText(m_pVerseIndex->relIndex(), richifierTags, false);
+		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
 		return m_strRichTextCache;
 #else
-		return m_pBibleDatabase->richVerseText(m_pVerseIndex->relIndex(), richifierTags, false);
+		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
 #endif
+	}
+	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase, const CVerseTextRichifierTags &richifierTags)
+	{
+		assert(pBibleDatabase != NULL);
+		if (pBibleDatabase == NULL) return QString();
+		if (!ndx.isSet()) return QString();
+		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
 	}
 
 private:
@@ -458,6 +475,7 @@ public:
 		int IndexByChapter(unsigned int nBk, unsigned int nChp) const;	// Returns the index (in the number of chapters) for the specified Chapter number
 		unsigned int ChapterByIndex(int ndxBook, int ndxChapter) const;		// Returns the Chapter Number for the specified index (in the number of chapters)
 		CVerseMap::const_iterator FindVerseIndex(const CRelIndex &ndxRel) const;	// Looks for the specified CRelIndex in m_mapVerses and returns its index
+		int IndexByVerse(const CRelIndex &ndxRel) const;	// Returns the index in the list for specified CRelIndex in m_mapVerses
 		CVerseMap::const_iterator GetVerse(int ndxVerse, int nBk = -1, int nChp = -1) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 	public:
 		int GetVerseCount(int nBk = -1, int nChp = -1) const;
@@ -538,8 +556,12 @@ public:
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	QVariant dataForVerse(const TVerseIndex *pVerseIndex, int role) const;
+	QVariant dataForVerse(const QModelIndex &index, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+	void sortModelIndexList(QModelIndexList &lstIndexes) const;				// Sorts a list of model indexes for the current set of model settings
+	static bool ascendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2);
+	static bool ascendingLessThanXRefTargets(const QModelIndex &ndx1, const QModelIndex &ndx2);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 

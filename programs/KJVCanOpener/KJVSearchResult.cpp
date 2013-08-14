@@ -190,22 +190,40 @@ CSearchResultsTreeView::~CSearchResultsTreeView()
 
 // ----------------------------------------------------------------------------
 
-TVerseIndexList CSearchResultsTreeView::getSelectedVerses() const
+QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 {
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 
-	TVerseIndexList lstVerses;
-	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+	for (int ndx = 0; ndx < lstSelectedItems.size(); /* Increment inside loop */) {
 		if (lstSelectedItems.at(ndx).isValid()) {
 			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
-				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
+				++ndx;
+			} else {
+				lstSelectedItems.removeAt(ndx);
 			}
+		} else {
+			lstSelectedItems.removeAt(ndx);
 		}
 	}
-	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
 
-	return lstVerses;
+	return lstSelectedItems;
+
+
+// TODO : CLEAN
+//
+//	TVerseIndexList lstVerses;
+//	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+//		if (lstSelectedItems.at(ndx).isValid()) {
+//			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
+//			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+//				lstVerses.append(*CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx)));
+//			}
+//		}
+//	}
+//	qSort(lstVerses.begin(), lstVerses.end(), TVerseIndexListSortPredicate::ascendingLessThan);
+//
+//	return lstVerses;
 }
 
 // ----------------------------------------------------------------------------
@@ -214,12 +232,12 @@ void CSearchResultsTreeView::en_copyVerseText() const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
 
-	TVerseIndexList lstVerses = getSelectedVerses();
+	QModelIndexList lstVerses = getSelectedVerses();
 
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		const CVerseListItem &item(vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
 
@@ -265,11 +283,11 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
 
-	TVerseIndexList lstVerses = getSelectedVerses();
+	QModelIndexList lstVerses = getSelectedVerses();
 
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		const CVerseListItem &item(vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
 		navigator.setDocumentToVerse(item.getIndex());
@@ -293,11 +311,11 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 
 void CSearchResultsTreeView::en_copyVerseHeadings() const
 {
-	TVerseIndexList lstVerses = getSelectedVerses();
+	QModelIndexList lstVerses = getSelectedVerses();
 
 	QString strVerseHeadings;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		const CVerseListItem &item(vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		strVerseHeadings += item.getHeading() + "\n";
 	}
 
@@ -309,7 +327,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 
 void CSearchResultsTreeView::en_copyReferenceDetails() const
 {
-	TVerseIndexList lstVerses = getSelectedVerses();
+	QModelIndexList lstVerses = getSelectedVerses();
 
 	QString strPlainText;
 	QString strRichText;
@@ -318,8 +336,8 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 			strPlainText += "--------------------\n";
 			strRichText += "<hr />\n";
 		}
-		strPlainText += vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
+		strPlainText += vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -333,12 +351,12 @@ void CSearchResultsTreeView::en_copyComplete() const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
 
-	TVerseIndexList lstVerses = getSelectedVerses();
+	QModelIndexList lstVerses = getSelectedVerses();
 
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		const CVerseListItem &item(vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
 
@@ -361,7 +379,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 		cursorDocList.insertFragment(fragment);
 
 		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
-			cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(&lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
+			cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->dataForVerse(lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
 			if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
 		} else {
 			cursorDocList.insertHtml("<br />\n");
