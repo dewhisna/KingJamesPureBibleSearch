@@ -108,7 +108,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 	int nLevel = 0;									// 0
 	if (zParent.isValid()) {
 		nLevel++;									// 1
-		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+		if (pParentVerseIndex->nodeType() != VLMNTE_HIGHLIGHTER_NODE) {
 			nLevel++;								// 2
 			if (pParentVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE) {
 				nLevel++;							// 3
@@ -193,7 +193,7 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 	int nLevel = 0;									// 0
 	if (zParent.isValid()) {
 		nLevel++;									// 1
-		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+		if (pParentVerseIndex->nodeType() != VLMNTE_HIGHLIGHTER_NODE) {
 			nLevel++;								// 2
 			if (pParentVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE) {
 				nLevel++;							// 3
@@ -219,7 +219,7 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (nLevel < 2) return 1;				// Root has 1 column
+				if (nLevel < 2) return 1;				// Root and Highlighter have 1 column
 				assert(nLevel != 2);					// Should have no books in list mode
 				assert(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
@@ -230,7 +230,7 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (nLevel < 2) return 1;				// Root has 1 column
+				if (nLevel < 2) return 1;				// Root and Highlighter have 1 column
 				if (nLevel == 2) return 1;				// Book Node has 1 column
 				assert(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
@@ -241,7 +241,7 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (nLevel < 2) return 1;				// Root has 1 column
+				if (nLevel < 2) return 1;				// Root and Highlighter have 1 column
 				if (nLevel == 2) return 1;				// Book Node has 1 column
 				if (nLevel == 3) return 1;				// Chapter Node has 1 column
 				if (nLevel == 4) {
@@ -274,7 +274,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 	int nLevel = 0;									// 0
 	if (zParent.isValid()) {
 		nLevel++;									// 1
-		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+		if (pParentVerseIndex->nodeType() != VLMNTE_HIGHLIGHTER_NODE) {
 			nLevel++;								// 2
 			if (pParentVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE) {
 				nLevel++;							// 3
@@ -295,9 +295,10 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 	const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the top-level highlighter entry, the given parent will be invalid but our row is our highlighter results index
 
 	if (bHighlighterNode) {
+		assert(nLevel == 0);
 		assert(row < m_vlmrListHighlighters.size());
 		if (row < m_vlmrListHighlighters.size()) {
-			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter specialIndex with unset CRelIndex
+			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 		}
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -375,7 +376,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 	TVerseIndex *pCurrentVerseIndex = toVerseIndex(index);
 	int nLevel = 0;								// 0
-	if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pCurrentVerseIndex->specialIndex() < 0)) {
+	if (pCurrentVerseIndex->nodeType() != VLMNTE_HIGHLIGHTER_NODE) {
 		nLevel++;								// 1
 		if (pCurrentVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE) {
 			nLevel++;							// 2
@@ -412,7 +413,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				assert(nLevel != 1);					// Should have no books in list mode
 				assert(nLevel == 5);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter specialIndex with unset CRelIndex
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
 				return QModelIndex();
 
@@ -433,7 +434,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				assert(nLevel != 2);					// Should have no chapters in book mode
 				assert(nLevel == 1);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter specialIndex with unset CRelIndex
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
 				return QModelIndex();
 
@@ -454,8 +455,9 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				if (nLevel == 2) {
 					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLMNTE_BOOK_TERMINATOR_NODE).data()));
 				}
+				assert(nLevel == 1);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter specialIndex with unset CRelIndex
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
 				return QModelIndex();
 

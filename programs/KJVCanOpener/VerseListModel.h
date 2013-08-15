@@ -66,7 +66,8 @@ enum VERSE_LIST_MODEL_NODE_TYPE_ENUM {
 	VLMNTE_CHAPTER_TERMINATOR_NODE = 3,				// Terminator Node for Tree Chapter nodes
 	VLMNTE_VERSE_TERMINATOR_NODE = 4,				// Terminator Node for Tree Verse nodes
 	VLMNTE_CROSS_REFERENCE_SOURCE_NODE = 5,			// Source Reference Node for Tree Cross References
-	VLMNTE_CROSS_REFERENCE_TARGET_NODE = 6			// Target Reference Node for Tree Cross References
+	VLMNTE_CROSS_REFERENCE_TARGET_NODE = 6,			// Target Reference Node for Tree Cross References
+	VLMNTE_HIGHLIGHTER_NODE = 7						// Highlighter Name Node
 };
 
 class TVerseIndex {
@@ -606,6 +607,7 @@ public:
 				assert(false);
 		}
 
+		if (nSpecialIndex == -1) return m_undefinedResults;
 		assert((nSpecialIndex >= 0) && (nSpecialIndex < m_vlmrListHighlighters.size()));
 		return m_vlmrListHighlighters.at(nSpecialIndex);
 	}
