@@ -78,9 +78,7 @@ public:
 		:	m_nRelIndex(aVerseIndex.m_nRelIndex),
 			m_nResultsType(aVerseIndex.m_nResultsType),
 			m_nSpecialIndex(aVerseIndex.m_nSpecialIndex)
-	{
-
-	}
+	{ }
 
 	const CRelIndex &relIndex() const { return m_nRelIndex; }
 	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }

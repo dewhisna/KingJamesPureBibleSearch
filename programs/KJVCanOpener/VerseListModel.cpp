@@ -96,97 +96,79 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pPar
 
 int CVerseListModel::rowCount(const QModelIndex &zParent) const
 {
-	const TVerseListModelResults &zResults = results(zParent);
+	// 0 - Root (Follow with: Highlighter or Book Terminator or List Item or CrossRef-Source)
+	// 1 - Highlighter (Follow with: Book Terminator or List Item or CrossRef-Source)
+	// 2 - Book Terminator (Follow with: Chapter Terminator or List Item or CrossRef-Source or CrossRef-Target)
+	// 3 - Chapter Terminator (Follow with: List Item or CrossRef-Source or CrossRef-Target)
+	// 4 - CrossRef-Source (Follow with: CrossRef-Target)
+	// 5 - CrossRef-Target
+	// 6 - List Item
 
-	if (m_private.m_nViewMode != VVME_USERNOTES) {
-		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-							!zParent.isValid() :			// Search Results top is the root node
-							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
-
-		if (bHighlighterNode) {
-			return m_vlmrListHighlighters.size();
-		} else {
-			switch (m_private.m_nTreeMode) {
-				case VTME_LIST:
-				{
-					if (!bTreeTop) {
-						if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-							(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-							return 0;
-						} else {
-							return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+	TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+	int nLevel = 0;									// 0
+	if (zParent.isValid()) {
+		nLevel++;									// 1
+		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+			nLevel++;								// 2
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {
+				nLevel++;							// 3
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {
+					nLevel++;						// 4
+					if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE) {
+						nLevel++;					// 5
+						if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_TARGET_NODE) {
+							nLevel++;				// 6
 						}
 					}
-					return zResults.m_mapVerses.size();
 				}
-				case VTME_TREE_BOOKS:
-				{
-					if (bTreeTop) return zResults.GetBookCount();
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) return zResults.GetVerseCount(ndxRel.book());
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return 0;
-					} else {
-						return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
-					}
-				}
-				case VTME_TREE_CHAPTERS:
-				{
-					if (bTreeTop) return zResults.GetBookCount();
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) return zResults.GetChapterCount(ndxRel.book());
-					if (ndxRel.verse() == 0) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return 0;
-					} else {
-						return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
-					}
-				}
-				default:
-					break;
 			}
 		}
+	}
+
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+	const TVerseListModelResults &zResults = results(zParent);
+
+	if (bHighlighterNode) {
+		return m_vlmrListHighlighters.size();
 	} else {
-		// User Notes Mode (Book/Chapter Co-regent):
-
-		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
-		int nLevel = 0;
-		if (zParent.isValid()) {
-			nLevel++;
-			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
-				nLevel++;
-				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
-					nLevel++;
-				}
-			}
-		}
-
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (nLevel != 0) return 0;
-				return zResults.m_mapVerses.size();
+				if (nLevel < 2) return zResults.m_mapVerses.size();
+				assert(nLevel != 2);					// Should have no books in list mode
+				assert(nLevel != 3);					// Should have no chapters in list mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+				}
+				return 0;
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (nLevel == 0) return zResults.GetBookCount();
-				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-				assert(ndxRel.isSet());
-				if (nLevel == 1) return zResults.GetVerseCount(ndxRel.book());
+				if (nLevel < 2) return zResults.GetBookCount();
+				if (nLevel == 2) {
+					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
+					assert(ndxRel.isSet());
+					return zResults.GetVerseCount(ndxRel.book());
+				}
+				assert(nLevel != 3);					// Should have no chapters in book mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+				}
 				return 0;
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (nLevel == 0) return zResults.GetBookCount();
+				if (nLevel < 2) return zResults.GetBookCount();
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (nLevel == 1) return zResults.GetChapterCount(ndxRel.book());
-				if (nLevel == 2) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				if (nLevel == 2) return zResults.GetChapterCount(ndxRel.book());
+				if (nLevel == 3) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+				}
 				return 0;
 			}
 			default:
@@ -199,90 +181,74 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 
 int CVerseListModel::columnCount(const QModelIndex &zParent) const
 {
-	if (m_private.m_nViewMode != VVME_USERNOTES) {
-		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-							!zParent.isValid() :			// Search Results top is the root node
-							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
+	// 0 - Root (Follow with: Highlighter or Book Terminator or List Item or CrossRef-Source)
+	// 1 - Highlighter (Follow with: Book Terminator or List Item or CrossRef-Source)
+	// 2 - Book Terminator (Follow with: Chapter Terminator or List Item or CrossRef-Source or CrossRef-Target)
+	// 3 - Chapter Terminator (Follow with: List Item or CrossRef-Source or CrossRef-Target)
+	// 4 - CrossRef-Source (Follow with: CrossRef-Target)
+	// 5 - CrossRef-Target
+	// 6 - List Item
 
-		if (bHighlighterNode) {
-			return 1;
-		} else {
-			switch (m_private.m_nTreeMode) {
-				case VTME_LIST:
-				{
-					if (bTreeTop) return 1;
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return 0;
-					} else {
-						return 1;
+	TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+	int nLevel = 0;									// 0
+	if (zParent.isValid()) {
+		nLevel++;									// 1
+		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+			nLevel++;								// 2
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {
+				nLevel++;							// 3
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {
+					nLevel++;						// 4
+					if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE) {
+						nLevel++;					// 5
+						if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_TARGET_NODE) {
+							nLevel++;				// 6
+						}
 					}
 				}
-				case VTME_TREE_BOOKS:
-				{
-					if (bTreeTop) return 1;
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) return 1;
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return 0;
-					} else {
-						return 1;
-					}
-				}
-				case VTME_TREE_CHAPTERS:
-				{
-					if (bTreeTop) return 1;
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) return 1;
-					if (ndxRel.verse() == 0) return 1;
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return 0;
-					} else {
-						return 1;
-					}
-				}
-				default:
-					break;
 			}
 		}
+	}
+
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+//	const TVerseListModelResults &zResults = results(zParent);
+
+	if (bHighlighterNode) {
+		return 1;
 	} else {
-		// User Notes Mode (Book/Chapter Co-regent):
-
-		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
-		int nLevel = 0;
-		if (zParent.isValid()) {
-			nLevel++;
-			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
-				nLevel++;
-				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
-					nLevel++;
-				}
-			}
-		}
-
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				if (nLevel == 0) return 1;				// Root has 1 column
+				if (nLevel < 2) return 1;				// Root has 1 column
+				assert(nLevel != 2);					// Should have no books in list mode
+				assert(nLevel != 3);					// Should have no chapters in list mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return 1;							// Cross-Reference Target Nodes
+				}
 				return 0;								// Other (real data) Nodes have 0 columns
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (nLevel == 0) return 1;				// Root has 1 column
-				if (nLevel == 1) return 1;				// Book Node has 1 column
+				if (nLevel < 2) return 1;				// Root has 1 column
+				if (nLevel == 2) return 1;				// Book Node has 1 column
+				assert(nLevel != 3);					// Should have no chapters in book mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return 1;							// Cross-Reference Target Nodes
+				}
 				return 0;								// Other (real data) Nodes have 0 columns
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (nLevel == 0) return 1;				// Root has 1 column
-				if (nLevel == 1) return 1;				// Book Node has 1 column
-				if (nLevel == 2) return 1;				// Chapter Node has 1 column
-				return 0;								// Other (real data) Nodes have 0 columns
+				if (nLevel < 2) return 1;				// Root has 1 column
+				if (nLevel == 2) return 1;				// Book Node has 1 column
+				if (nLevel == 3) return 1;				// Chapter Node has 1 column
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return 1;							// Cross-Reference Target Nodes
+				}
+				return 0;							// Other (real data) Nodes have 0 columns
 			}
 			default:
 				break;
@@ -296,142 +262,97 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 {
 	if (!hasIndex(row, column, zParent)) return QModelIndex();
 
-	if (m_private.m_nViewMode != VVME_USERNOTES) {
-		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !zParent.isValid());
-		const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the highlighter entry, the parent will be invalid but our row is our highlighter results index
+	// 0 - Root (Follow with: Highlighter or Book Terminator or List Item or CrossRef-Source)
+	// 1 - Highlighter (Follow with: Book Terminator or List Item or CrossRef-Source)
+	// 2 - Book Terminator (Follow with: Chapter Terminator or List Item or CrossRef-Source or CrossRef-Target)
+	// 3 - Chapter Terminator (Follow with: List Item or CrossRef-Source or CrossRef-Target)
+	// 4 - CrossRef-Source (Follow with: CrossRef-Target)
+	// 5 - CrossRef-Target
+	// 6 - List Item
 
-		bool bTreeTop = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ?
-							!zParent.isValid() :			// Search Results top is the root node
-							 (zParent.isValid() && !toVerseIndex(zParent)->relIndex().isSet() && !parent(zParent).isValid()));	// Highlighter Results top is the node whose parent has no relIndex and whose parent's parent is the root node
-
-		if (bHighlighterNode) {
-			assert(row < m_vlmrListHighlighters.size());
-			if (row < m_vlmrListHighlighters.size()) {
-				return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
-			}
-		} else {
-			switch (m_private.m_nTreeMode) {
-				case VTME_LIST:
-				{
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						assert(row < zResults.m_mapVerses.size());
-						CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
-						if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-						return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
-					} else {
-						// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
-						assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
-					}
-				}
-				case VTME_TREE_BOOKS:
-				{
-					if (bTreeTop) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0)).data()));
-					}
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) {
-						if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-							(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-							CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
-							if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-							return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
-						} else {
-							// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
-							assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
-							return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
+	TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
+	int nLevel = 0;									// 0
+	if (zParent.isValid()) {
+		nLevel++;									// 1
+		if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pParentVerseIndex->specialIndex() < 0)) {
+			nLevel++;								// 2
+			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {
+				nLevel++;							// 3
+				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {
+					nLevel++;						// 4
+					if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE) {
+						nLevel++;					// 5
+						if (pParentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_TARGET_NODE) {
+							nLevel++;				// 6
 						}
 					}
-					return QModelIndex();
 				}
-				case VTME_TREE_CHAPTERS:
-				{
-					if (bTreeTop) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0)).data()));
-					}
-					CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.chapter() == 0) {
-						return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0)).data()));
-					}
-					if (ndxRel.verse() == 0) {
-						if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-							(toVerseIndex(zParent)->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-							CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
-							if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-							return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
-						} else {
-							// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
-							assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
-							return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
-						}
-					}
-					return QModelIndex();
-				}
-				default:
-					break;
 			}
+		}
+	}
+
+	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+	const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the top-level highlighter entry, the given parent will be invalid but our row is our highlighter results index
+
+	if (bHighlighterNode) {
+		assert(row < m_vlmrListHighlighters.size());
+		if (row < m_vlmrListHighlighters.size()) {
+			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter VLM_SI with unset CRelIndex
 		}
 	} else {
-		// User Notes Mode (Book/Chapter Co-regent):
-
-		TVerseIndex *pParentVerseIndex = toVerseIndex(zParent);
-		int nLevel = 0;
-		if (zParent.isValid()) {
-			nLevel++;
-			if (pParentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {		// If Parent is a Book Terminator, then this must be a chapter and/or verse entry
-				nLevel++;
-				if (pParentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If Parent is a Chapter Terminator, then this must be a verse entry
-					nLevel++;
-				}
-			}
-		}
-
-		const TVerseListModelResults &zResults = results(zParent);
-
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				assert(nLevel == 0);
+				assert(nLevel != 2);					// Should have no books in list mode
+				assert(nLevel != 3);					// Should have no chapters in list mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
+					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
+				}
 				assert(row < zResults.m_mapVerses.size());
 				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row);
 				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));				// Real Data item (using VLM_SI of model data)
 			}
 			case VTME_TREE_BOOKS:
 			{
-				if (nLevel == 0) {
+				if (nLevel < 2) {
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
+				}
+				assert(nLevel != 3);					// Should have no chapters in book mode
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
+					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (nLevel == 1) {
-					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
-					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
-				}
-				assert(false);
-				return QModelIndex();
+				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book());
+				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));			// Real Data item (using VLM_SI of model mode)
 			}
 			case VTME_TREE_CHAPTERS:
 			{
-				if (nLevel == 0) {
+				if (nLevel < 2) {
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
 				assert(ndxRel.isSet());
-				if (nLevel == 1) {
+				if (nLevel == 2) {
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
 				}
-				if (nLevel == 2) {
-					CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
-					if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
-					return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					// For cross-references, the child entries use the parent's ndxRel, but have target not specialIndexes set (it's relIndex comes from row()):
+					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLM_SI_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
-				assert(false);
-				return QModelIndex();
+				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
+				if (itrVerse == zResults.m_mapVerses.constEnd()) return QModelIndex();
+				return createIndex(row, column, fromVerseIndex(itrVerse->verseIndex().data()));			// Real Data item (using VLM_SI of model mode)
 			}
 			default:
 				break;
@@ -445,111 +366,99 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 {
 	if (!index.isValid()) return QModelIndex();
 
+	// 0 - Highlighter
+	// 1 - Book Terminator
+	// 2 - Chapter Terminator
+	// 3 - CrossRef-Source
+	// 4 - CrossRef-Target
+	// 5 - List Item
+
+	TVerseIndex *pCurrentVerseIndex = toVerseIndex(index);
+	int nLevel = 0;								// 0
+	if ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) || (pCurrentVerseIndex->specialIndex() < 0)) {
+		nLevel++;								// 1
+		if (pCurrentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {
+			nLevel++;							// 2
+			if (pCurrentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {
+				nLevel++;						// 3
+				if (pCurrentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_SOURCE_NODE) {
+					nLevel++;					// 4
+					if (pCurrentVerseIndex->specialIndex() != VLM_SI_CROSS_REFERENCE_TARGET_NODE) {
+						nLevel++;				// 5
+					}
+				}
+			}
+		}
+	}
+
 	const TVerseListModelResults &zResults = results(index);
+	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 
-	if (m_private.m_nViewMode != VVME_USERNOTES) {
-		bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : (!toVerseIndex(index)->relIndex().isSet()));
-
-		if (bHighlighterNode) {
-			return QModelIndex();
-		} else {
-			switch (m_private.m_nTreeMode) {
-				case VTME_LIST:
-				{
-					if (m_private.m_nViewMode == VVME_HIGHLIGHTERS)
-						return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
-					if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-						(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-						return QModelIndex();
-					} else {
-						assert(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_TARGET_NODE);
-						CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-						return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));
-					}
-				}
-				case VTME_TREE_BOOKS:
-				{
-					CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.verse() != 0) {
-						if (zResults.m_mapVerses.contains(ndxRel)) {
-							if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-								(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-								return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0)).data()));
-							} else {
-								assert(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_TARGET_NODE);
-								return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));
-							}
-						} else {
-							assert(false);
-						}
-					}
-					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
-				}
-				case VTME_TREE_CHAPTERS:
-				{
-					CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-					assert(ndxRel.isSet());
-					if (ndxRel.verse() != 0) {
-						if (zResults.m_mapVerses.contains(ndxRel)) {
-							if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-								(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_SOURCE_NODE)) {
-								return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0)).data()));
-							} else {
-								assert(toVerseIndex(index)->specialIndex() == VLM_SI_CROSS_REFERENCE_TARGET_NODE);
-								return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));
-							}
-						} else {
-							assert(false);
-						}
-					} else if (ndxRel.chapter() != 0) {
-						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0)).data()));
-					}
-					if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return QModelIndex();
-					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));
-				}
-				default:
-					break;
-			}
-		}
+	if (nLevel == 0) {
+		return QModelIndex();			// Highlighters are always at the top
 	} else {
-		// User Notes Mode (Book/Chapter Co-regent):
-
-		TVerseIndex *pCurrentVerseIndex = toVerseIndex(index);
-		int nLevel = 0;
-		if (pCurrentVerseIndex->specialIndex() != VLM_SI_BOOK_TERMINATOR_NODE) {			// If This is a Book Terminator, then Parent must be the root
-			nLevel++;
-			if (pCurrentVerseIndex->specialIndex() != VLM_SI_CHAPTER_TERMINATOR_NODE) {		// If This is a Chapter Terminator, then Parent must be a Book Node
-				nLevel++;
-			}
-		}
-
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
-			{
-				assert(nLevel == 2);
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					assert(ndxRel.isSet());
+					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE VLM_SI from buildCrossRefs()
+				}
+				if (nLevel == 3) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					return QModelIndex();					// CrossRef-Source is at top of list
+				}
+				assert(nLevel != 2);					// Should have no chapters in list mode
+				assert(nLevel != 1);					// Should have no books in list mode
+				assert(nLevel == 5);
+				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter VLM_SI with unset CRelIndex
+				}
 				return QModelIndex();
-			}
+
 			case VTME_TREE_BOOKS:
-			{
-				if (nLevel == 0) return QModelIndex();
-				assert(nLevel == 2);
-				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-				assert(ndxRel.isSet());
-				return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
-			}
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					assert(ndxRel.isSet());
+					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE VLM_SI from buildCrossRefs()
+				}
+				if ((nLevel == 5) || (nLevel == 3)) {
+					assert(ndxRel.isSet());
+					if (zResults.m_mapVerses.contains(ndxRel)) {
+						return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
+					} else {
+						assert(false);
+					}
+				}
+				assert(nLevel != 2);					// Should have no chapters in book mode
+				assert(nLevel == 1);
+				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter VLM_SI with unset CRelIndex
+				}
+				return QModelIndex();
+
 			case VTME_TREE_CHAPTERS:
-			{
-				if (nLevel == 0) return QModelIndex();
-				CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-				assert(ndxRel.isSet());
-				if (nLevel == 1) {
+				if (nLevel == 4) {
+					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					assert(ndxRel.isSet());
+					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE VLM_SI from buildCrossRefs()
+				}
+				if ((nLevel == 5) || (nLevel == 3)) {
+					assert(ndxRel.isSet());
+					if (zResults.m_mapVerses.contains(ndxRel)) {
+						return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
+					} else {
+						assert(false);
+					}
+				}
+				if (nLevel == 2) {
 					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLM_SI_BOOK_TERMINATOR_NODE).data()));
 				}
-				assert(nLevel == 2);
-				return createIndex(zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), ndxRel.chapter(), 0, 0), VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
-			}
+				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex()).data()));		// Highlighter VLM_SI with unset CRelIndex
+				}
+				return QModelIndex();
+
 			default:
 				break;
 		}
@@ -1053,22 +962,14 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		if (ndxTarget == -1) return QModelIndex();
 		CRelIndex ndxChapter(ndxRel.book(), ndxRel.chapter(), 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 		if (zResults.FindVerseIndex(ndxChapter) == zResults.m_mapVerses.constEnd()) return QModelIndex();
-		if (m_private.m_nViewMode != VVME_USERNOTES) {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxChapter).data()));
-		} else {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxChapter, VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
-		}
+		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxChapter, VLM_SI_CHAPTER_TERMINATOR_NODE).data()));
 	} else {
 		// If this is a book-only reference, resolve it:
 		int ndxTarget = zResults.IndexByBook(ndxRel.book());
 		if (ndxTarget == -1) return QModelIndex();
 		CRelIndex ndxBook(ndxRel.book(), 0, 0, 0);			// Create CRelIndex rather than using ndxRel, since we aren't requiring word() to match
 		if (zResults.FindVerseIndex(ndxBook) == zResults.m_mapVerses.constEnd()) return QModelIndex();
-		if (m_private.m_nViewMode != VVME_USERNOTES) {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxBook).data()));
-		} else {
-			return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxBook, VLM_SI_BOOK_TERMINATOR_NODE).data()));
-		}
+		return createIndex(ndxTarget, 0, fromVerseIndex(zResults.extraVerseIndex(ndxBook, VLM_SI_BOOK_TERMINATOR_NODE).data()));
 	}
 
 	return QModelIndex();
