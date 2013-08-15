@@ -648,7 +648,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
 	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentIndex().relIndex().asAnchor());
 	settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
-													(m_pSearchResultWidget->currentIndex().specialIndex() == VLM_SI_UNDEFINED)) ? QString() :
+													(m_pSearchResultWidget->currentIndex().specialIndex() == -1)) ? QString() :
 													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentIndex().specialIndex()).resultsName());
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());

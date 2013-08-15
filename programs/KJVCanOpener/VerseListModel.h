@@ -57,46 +57,57 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 	VLMRTE_CROSS_REFS = 3							// Cross References Index
 };
 
-#define VLM_SI_UNDEFINED -1							// Undefined Special Index
-#define VLM_SI_TESTAMENT_TERMINATOR_NODE -2			// Terminator Node for Tree Testament nodes
-#define VLM_SI_CATEGORY_TERMINATOR_NODE -3			// Terminator Node for Tree Category nodes
-#define VLM_SI_BOOK_TERMINATOR_NODE -4				// Terminator Node for Tree Book nodes
-#define VLM_SI_CHAPTER_TERMINATOR_NODE -5			// Terminator Node for Tree Chapter nodes
-#define VLM_SI_VERSE_TERMINATOR_NODE -6				// Terminator Node for Tree Verse nodes
-#define VLM_SI_CROSS_REFERENCE_SOURCE_NODE -7		// Source Reference Node for Tree Cross References
-#define VLM_SI_CROSS_REFERENCE_TARGET_NODE -8		// Target Reference Node for Tree Cross References
+// Verse List Model Node Type Enum:
+enum VERSE_LIST_MODEL_NODE_TYPE_ENUM {
+	VLMNTE_UNDEFINED = -1,							// Undefined/Unset Node
+	VLMNTE_TESTAMENT_TERMINATOR_NODE = 0,			// Terminator Node for Tree Testament nodes
+	VLMNTE_CATEGORY_TERMINATOR_NODE = 1,			// Terminator Node for Tree Category nodes
+	VLMNTE_BOOK_TERMINATOR_NODE = 2,				// Terminator Node for Tree Book nodes
+	VLMNTE_CHAPTER_TERMINATOR_NODE = 3,				// Terminator Node for Tree Chapter nodes
+	VLMNTE_VERSE_TERMINATOR_NODE = 4,				// Terminator Node for Tree Verse nodes
+	VLMNTE_CROSS_REFERENCE_SOURCE_NODE = 5,			// Source Reference Node for Tree Cross References
+	VLMNTE_CROSS_REFERENCE_TARGET_NODE = 6			// Target Reference Node for Tree Cross References
+};
 
 class TVerseIndex {
 public:
-	TVerseIndex(const CRelIndex &ndx = CRelIndex(), VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultType = VLMRTE_UNDEFINED, int nSpecialIndex = VLM_SI_UNDEFINED)
+	TVerseIndex(const CRelIndex &ndx = CRelIndex(),
+				VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultType = VLMRTE_UNDEFINED,
+				VERSE_LIST_MODEL_NODE_TYPE_ENUM nNodeType = VLMNTE_UNDEFINED,
+				int nSpecialIndex = -1)
 		:	m_nRelIndex(ndx),
 			m_nResultsType(nResultType),
+			m_nNodeType(nNodeType),
 			m_nSpecialIndex(nSpecialIndex)
 	{ }
 
 	TVerseIndex(const TVerseIndex &aVerseIndex)
 		:	m_nRelIndex(aVerseIndex.m_nRelIndex),
 			m_nResultsType(aVerseIndex.m_nResultsType),
+			m_nNodeType(aVerseIndex.m_nNodeType),
 			m_nSpecialIndex(aVerseIndex.m_nSpecialIndex)
 	{ }
 
 	const CRelIndex &relIndex() const { return m_nRelIndex; }
 	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
+	VERSE_LIST_MODEL_NODE_TYPE_ENUM nodeType() const { return m_nNodeType; }
 	int specialIndex() const { return m_nSpecialIndex; }
 
 	bool operator <(const TVerseIndex &other) const
 	{
 		return ((m_nResultsType < other.m_nResultsType) ||
 				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex < other.m_nSpecialIndex)) ||
-				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex == other.m_nSpecialIndex) && (m_nRelIndex < other.m_nRelIndex)));
+				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex == other.m_nSpecialIndex) && (m_nNodeType < other.m_nNodeType)) ||
+				((m_nResultsType == other.m_nResultsType) && (m_nSpecialIndex == other.m_nSpecialIndex) && (m_nNodeType == other.m_nNodeType) && (m_nRelIndex < other.m_nRelIndex)));
 	}
 
 protected:
 	friend class CVerseListModel;
 
 	CRelIndex m_nRelIndex;					// Relative Bible index
-	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM m_nResultsType;		// Type of index this is
-	int m_nSpecialIndex;				// Index into list of highlighters (0 to n) or VLM_SI_UNDEFINED for Results Types that don't use indexes
+	VERSE_LIST_MODEL_RESULTS_TYPE_ENUM m_nResultsType;		// Type of index this is (i.e. which Search Results structure)
+	VERSE_LIST_MODEL_NODE_TYPE_ENUM m_nNodeType;			// Type of node this is (view node type)
+	int m_nSpecialIndex;				// Index into list of highlighters (0 to n) or -1 for Results Types that don't use indexes
 };
 typedef QSharedPointer<TVerseIndex> TVerseIndexPtr;
 typedef QList<TVerseIndex> TVerseIndexList;
@@ -418,6 +429,7 @@ public:
 				m_private(other.m_private),
 				m_strResultsName(other.m_strResultsName),
 				m_nResultsType(other.m_nResultsType),
+				m_nDefaultNodeType(other.m_nDefaultNodeType),
 				m_nSpecialIndex(other.m_nSpecialIndex)
 		{
 
@@ -426,10 +438,15 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelResults(TVerseListModelPrivate *priv, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex = VLM_SI_UNDEFINED)
+		TVerseListModelResults(TVerseListModelPrivate *priv,
+								const QString &strResultsName,
+								VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType,
+								VERSE_LIST_MODEL_NODE_TYPE_ENUM nDefaultNodeType = VLMNTE_UNDEFINED,
+								int nSpecialIndex = -1)
 			:	m_private(priv),
 				m_strResultsName(strResultsName),
 				m_nResultsType(nResultsType),
+				m_nDefaultNodeType(nDefaultNodeType),
 				m_nSpecialIndex(nSpecialIndex)
 		{ }
 
@@ -448,9 +465,9 @@ public:
 			return m_mapExtraVerseIndexes.insert(aVerseIndex.relIndex(), TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
 		}
 
-		TVerseIndexPtr extraVerseIndex(const CRelIndex &ndxRel, int nSpecialIndexOverride = VLM_SI_UNDEFINED) const
+		TVerseIndexPtr extraVerseIndex(const CRelIndex &ndxRel, VERSE_LIST_MODEL_NODE_TYPE_ENUM nNodeType = VLMNTE_UNDEFINED) const
 		{
-			return extraVerseIndex(makeVerseIndex(ndxRel, nSpecialIndexOverride));
+			return extraVerseIndex(makeVerseIndex(ndxRel, nNodeType));
 		}
 
 		// --------------------------------------
@@ -471,16 +488,18 @@ public:
 		const CVerseMap &verseMap() const { return m_mapVerses; }
 		const QString resultsName() const { return m_strResultsName; }
 		VERSE_LIST_MODEL_RESULTS_TYPE_ENUM resultsType() const { return m_nResultsType; }
+		VERSE_LIST_MODEL_NODE_TYPE_ENUM defaultNodeType() const { return m_nDefaultNodeType; }
 		int specialIndex() const { return m_nSpecialIndex; }
-		const TVerseIndex makeVerseIndex(const CRelIndex &ndxRel, int nSpecialIndexOverride = VLM_SI_UNDEFINED) const
+		const TVerseIndex makeVerseIndex(const CRelIndex &ndxRel, VERSE_LIST_MODEL_NODE_TYPE_ENUM nNodeTypeOverride = VLMNTE_UNDEFINED) const
 		{
-			return TVerseIndex(ndxRel, resultsType(), ((nSpecialIndexOverride != VLM_SI_UNDEFINED) ? nSpecialIndexOverride : specialIndex()));
+			return TVerseIndex(ndxRel, resultsType(), ((nNodeTypeOverride != VLMNTE_UNDEFINED) ? nNodeTypeOverride : defaultNodeType()), specialIndex());
 		}
 	protected:
 		TVerseListModelPrivate *m_private;
 	private:
 		QString m_strResultsName;						// Name of the Highlighter or "Search Results" or "Notes", etc...
 		VERSE_LIST_MODEL_RESULTS_TYPE_ENUM m_nResultsType;
+		VERSE_LIST_MODEL_NODE_TYPE_ENUM m_nDefaultNodeType;
 		int m_nSpecialIndex;
 	};
 	typedef QList<TVerseListModelResults> THighlighterVLMRList;
@@ -524,7 +543,7 @@ public:
 		friend class CVerseListModel;
 
 		TVerseListModelCrossRefsResults(TVerseListModelPrivate *priv)
-			:	TVerseListModelResults(priv, tr("Cross References"), VLMRTE_CROSS_REFS)
+			:	TVerseListModelResults(priv, tr("Cross References"), VLMRTE_CROSS_REFS, VLMNTE_CROSS_REFERENCE_SOURCE_NODE)
 		{ }
 
 		// --------------------------------------
@@ -596,14 +615,19 @@ public:
 	}
 	const TVerseListModelResults &results(const QModelIndex &index) const
 	{
-		// Note: Invalid QModelIndex() will have a results type of undefined.  Only those types with
-		//			Pseudo-top-labels, like highlighters, will use the undefinedResults to complete them.
-		//			The rest will use the results for the model's current mode.  As more things are added
-		//			with pseudo-labels using the undefinedResults, add additional logic here for them:
+// TODO : CLEAN
+//		// Note: Invalid QModelIndex() will have a results type of undefined.  Only those types with
+//		//			Pseudo-top-labels, like highlighters, will use the undefinedResults to complete them.
+//		//			The rest will use the results for the model's current mode.  As more things are added
+//		//			with pseudo-labels using the undefinedResults, add additional logic here for them:
+//		TVerseIndex *pVerseIndex = toVerseIndex(index);
+//		if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) {
+//			return results(VVME_to_VLMRTE(m_private.m_nViewMode), pVerseIndex->specialIndex());
+//		}
+
+		if (!index.isValid()) return results(VVME_to_VLMRTE(m_private.m_nViewMode), -1);
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
-		if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) {
-			return results(VVME_to_VLMRTE(m_private.m_nViewMode), pVerseIndex->specialIndex());
-		}
+		assert(pVerseIndex->resultsType() == VVME_to_VLMRTE(m_private.m_nViewMode));
 
 		return results(*toVerseIndex(index));
 	}
