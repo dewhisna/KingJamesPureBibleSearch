@@ -214,7 +214,8 @@ public:
 		TRO_Subtitles = 0x4,						// Add chapter titles
 		TRO_Colophons = 0x8,						// Add chapter colophons
 		TRO_UserNotes = 0x10,						// Displays active/visible user notes
-		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes)
+		TRO_UserNotesForceVisible = 0x20,			// Force show user notes (Force only flag)
+		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes for setting both)
 		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
 		TRO_CrossRefAnchors = 0x80					// Add navigation anchors for cross-references
 	};

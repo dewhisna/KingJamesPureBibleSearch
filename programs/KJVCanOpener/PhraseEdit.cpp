@@ -840,7 +840,7 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 	}
 	// If we have a User Note for this book, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
-		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 		scriptureHTML.insertHorizontalRule();
 
 	scriptureHTML.appendRawText("</body></html>");
@@ -916,7 +916,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		scriptureHTML.endParagraph();
 
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 
 		// If we have a footnote or user note for this book and this is the end of the last chapter,
 		//		print it too:
@@ -932,7 +932,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 			if (flagsTRO & TRO_UserNotes)
-				scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+				scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 				// No extra <hr> as we have one below for the whole chapter anyway
 		}
 	}
@@ -973,7 +973,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		}
 		// If we have a User Note for this book, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+			(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 			scriptureHTML.insertHorizontalRule();
 	}
 
@@ -996,7 +996,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 
 	// If we have a chapter User Note for this chapter, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
-		(scriptureHTML.addNoteFor(ndxBookChap, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+		(scriptureHTML.addNoteFor(ndxBookChap, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 		scriptureHTML.insertHorizontalRule();
 
 	// Print the Chapter Text:
@@ -1031,7 +1031,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
 		scriptureHTML.startBuffered();
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible)))) {
+			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible)))) {
 			if (bParagraph) {
 				scriptureHTML.stopBuffered();	// Switch to direct output to end the paragraph ahead of the note
 				scriptureHTML.endParagraph();
@@ -1066,7 +1066,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+			scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 			// No extra <hr> as we have one below for the whole chapter anyway
 	}
 
@@ -1111,7 +1111,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 			}
 			// If we have a User Note for this book, print it too:
 			if ((flagsTRO & TRO_UserNotes) &&
-				(scriptureHTML.addNoteFor(ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+				(scriptureHTML.addNoteFor(ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 				scriptureHTML.insertHorizontalRule();
 		}
 		// Print Heading for this Chapter:
@@ -1134,7 +1134,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 
 		// If we have a chapter User Note for this chapter, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible))))
+			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph();
@@ -1148,7 +1148,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		scriptureHTML.endParagraph();
 
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 	}
 
 	scriptureHTML.appendRawText("</body></html>");
@@ -1242,7 +1242,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 	scriptureHTML.endParagraph();
 
 	if (flagsTRO & TRO_UserNotes)
-		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_AllUserNotesVisible));
+		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 
 	scriptureHTML.appendRawText("</body></html>");
 	m_TextDocument.setHtml(scriptureHTML.getResult());
