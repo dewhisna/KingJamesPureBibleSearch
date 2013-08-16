@@ -70,8 +70,8 @@ class CUserNoteEntry
 {
 protected:
 	friend class CUserNotesDatabase;
-	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nCount = 0)
-		:	m_PhraseTag(ndxRel, nCount),
+	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nVerseCount = 0)
+		:	m_PassageTag(ndxRel, nVerseCount),
 			m_clrBackground("#F0F0A0"),			// Default note background
 			m_bIsVisible(true)
 	{ }
@@ -84,7 +84,7 @@ public:
 	CUserNoteEntry(const CUserNoteEntry &other)
 		:	m_strText(other.m_strText),
 			m_lstKeywords(other.m_lstKeywords),
-			m_PhraseTag(other.m_PhraseTag),
+			m_PassageTag(other.m_PassageTag),
 			m_clrBackground(other.m_clrBackground),
 			m_bIsVisible(other.m_bIsVisible)
 	{ }
@@ -110,16 +110,16 @@ public:
 	void addKeyword(const QString &strKeyword) { if (!m_lstKeywords.contains(strKeyword, Qt::CaseInsensitive)) m_lstKeywords.append(strKeyword); }
 	void clearKeywords() { m_lstKeywords.clear(); }
 
-	TPhraseTag phraseTag() const { return m_PhraseTag; }
-	CRelIndex index() const { return m_PhraseTag.relIndex(); }
+	TPassageTag passageTag() const { return m_PassageTag; }
+	CRelIndex index() const { return m_PassageTag.relIndex(); }
 
-	unsigned int count() const
+	unsigned int verseCount() const
 	{
-		return m_PhraseTag.count();
+		return m_PassageTag.verseCount();
 	}
-	void setCount(unsigned int nCount)
+	void setVerseCount(unsigned int nCount)
 	{
-		m_PhraseTag = TPhraseTag(m_PhraseTag.relIndex(), nCount);
+		m_PassageTag = TPassageTag(m_PassageTag.relIndex(), nCount);
 	}
 
 	QColor backgroundColor() const { return m_clrBackground; }
@@ -129,15 +129,15 @@ public:
 	void setIsVisible(bool bIsVisible) { m_bIsVisible = bIsVisible; }
 
 protected:
-	void setPhraseTag(const CRelIndex &ndxRel, unsigned int nCount = 0)
+	void setPassageTag(const CRelIndex &ndxRel, unsigned int nVerseCount = 0)
 	{
-		m_PhraseTag = TPhraseTag(ndxRel, nCount);
+		m_PassageTag = TPassageTag(ndxRel, nVerseCount);
 	}
 
 private:
 	QString m_strText;			// Rich text
 	QStringList m_lstKeywords;	// List of keywords for this note
-	TPhraseTag m_PhraseTag;		// RelIndex of tag and count
+	TPassageTag m_PassageTag;	// RelIndex of tag and Verse count
 	QColor m_clrBackground;		// Tag Background Color
 	bool m_bIsVisible;			// Visible in Scripture Browser
 };

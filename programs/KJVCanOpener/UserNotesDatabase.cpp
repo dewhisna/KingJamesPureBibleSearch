@@ -479,7 +479,7 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
 		userNote.m_lstKeywords = m_strKeywords.split(QChar(','), QString::SkipEmptyParts);
-		userNote.setCount(m_nCount);
+		userNote.setVerseCount(m_nCount);
 		if (!m_strBackgroundColor.isEmpty()) userNote.setBackgroundColor(QColor(m_strBackgroundColor));
 		userNote.setIsVisible(m_bVisible);
 		m_strXMLBuffer.clear();
@@ -690,7 +690,7 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
 		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
-								.arg(constrCountAttr).arg((itrNotes->second).count())
+								.arg(constrCountAttr).arg((itrNotes->second).verseCount())
 								.arg(constrBackgroundColorAttr).arg(Qt::escape((itrNotes->second).backgroundColor().name()))
 								.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
 								.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(Qt::escape((itrNotes->second).m_lstKeywords.join(","))) : QString())
@@ -780,7 +780,7 @@ void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &
 		lstKeywords = m_mapNotes.at(ndx).keywordList();
 	}
 	m_mapNotes[ndx] = strNote;
-	m_mapNotes[ndx].setPhraseTag(ndx, strNote.count());
+	m_mapNotes[ndx].setPassageTag(ndx, strNote.verseCount());
 	m_bIsDirty = true;
 	if (!bExists) {
 		emit addedUserNote(ndx);

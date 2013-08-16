@@ -815,6 +815,97 @@ typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						//
 
 // ============================================================================
 
+// Relative Index and VERSE Count pair used for highlighting Passages:
+
+class TPassageTag
+{
+public:
+	explicit inline TPassageTag(const CRelIndex &ndx = CRelIndex(), unsigned int nVerseCount = 0)
+		:	m_RelIndex(ndx),
+			m_nVerseCount(nVerseCount)
+	{ }
+
+	inline const CRelIndex &relIndex() const { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }
+	inline const unsigned int &verseCount() const { return m_nVerseCount; }
+	inline unsigned int &verseCount() { return m_nVerseCount; }
+
+	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
+		assert(pBibleDatabase.data() != NULL);
+
+		if (pBibleDatabase.data() == NULL) return QString();
+		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
+		if (m_nVerseCount > 1) {
+			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(pBibleDatabase->calcRelIndex(0, m_nVerseCount, 0, 0, 0, m_RelIndex));
+		}
+		return strReferenceRangeText;
+	}
+
+	bool isSet() const {
+		return (m_RelIndex.isSet());
+	}
+
+	bool haveSelection() const {
+		return ((m_RelIndex.isSet()) && (m_nVerseCount != 0));
+	}
+
+	bool operator==(const TPassageTag &otherTag) {
+		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
+				(m_nVerseCount == otherTag.verseCount()));
+	}
+
+	bool operator!=(const TPassageTag &otherTag) {
+		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
+				(m_nVerseCount != otherTag.verseCount()));
+	}
+
+//	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
+	friend class TPassageTagList;
+
+private:
+	CRelIndex m_RelIndex;
+	unsigned int m_nVerseCount;
+};
+inline QDataStream& operator<<(QDataStream &out, const TPassageTag &ndx) {
+	out << ndx.relIndex() << ndx.verseCount();
+	return out;
+}
+inline QDataStream& operator>>(QDataStream &in, TPassageTag &ndx) {
+	in >> ndx.relIndex() >> ndx.verseCount();
+	return in;
+}
+Q_DECLARE_METATYPE(TPassageTag)
+
+const QString g_constrPassageTagMimeType("application/vnd.dewtronics.kjvcanopener.passagetag");
+
+// List of tags used for highlighting found phrases, etc:
+class TPassageTagList : public QList<TPassageTag>
+{
+public:
+	TPassageTagList()
+		:	QList<TPassageTag>()
+	{ }
+
+	TPassageTagList(const TPassageTagList &src)
+		:	QList<TPassageTag>(src)
+	{ }
+
+//	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
+//	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
+//	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
+};
+
+struct TPassageTagListSortPredicate {
+	static bool ascendingLessThan(const TPassageTag &s1, const TPassageTag &s2)
+	{
+		return (s1.relIndex().index() < s2.relIndex().index());
+	}
+};
+
+// ============================================================================
+
 // Global Variables:
 
 extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
