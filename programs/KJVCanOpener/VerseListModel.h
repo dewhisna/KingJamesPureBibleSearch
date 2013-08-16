@@ -617,16 +617,6 @@ public:
 	}
 	const TVerseListModelResults &results(const QModelIndex &index) const
 	{
-// TODO : CLEAN
-//		// Note: Invalid QModelIndex() will have a results type of undefined.  Only those types with
-//		//			Pseudo-top-labels, like highlighters, will use the undefinedResults to complete them.
-//		//			The rest will use the results for the model's current mode.  As more things are added
-//		//			with pseudo-labels using the undefinedResults, add additional logic here for them:
-//		TVerseIndex *pVerseIndex = toVerseIndex(index);
-//		if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) {
-//			return results(VVME_to_VLMRTE(m_private.m_nViewMode), pVerseIndex->specialIndex());
-//		}
-
 		if (!index.isValid()) return results(VVME_to_VLMRTE(m_private.m_nViewMode), -1);
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
 		assert(pVerseIndex->resultsType() == VVME_to_VLMRTE(m_private.m_nViewMode));

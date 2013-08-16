@@ -33,6 +33,12 @@
 #include <list>
 #include <QTextDocument>
 
+#if 0
+#define ASSERT_MODEL_DEBUG(x) assert(x)
+#else
+#define ASSERT_MODEL_DEBUG(x)
+#endif
+
 // ============================================================================
 
 static bool ascendingLessThanVLI(const CVerseListItem &s1, const CVerseListItem &s2)
@@ -135,10 +141,10 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 			case VTME_LIST:
 			{
 				if (nLevel < 2) return zResults.m_mapVerses.size();
-				assert(nLevel != 2);					// Should have no books in list mode
-				assert(nLevel != 3);					// Should have no chapters in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 2);					// Should have no books in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
@@ -151,9 +157,9 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 					assert(ndxRel.isSet());
 					return zResults.GetVerseCount(ndxRel.book());
 				}
-				assert(nLevel != 3);					// Should have no chapters in book mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
@@ -166,7 +172,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				if (nLevel == 2) return zResults.GetChapterCount(ndxRel.book());
 				if (nLevel == 3) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
@@ -220,10 +226,10 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 			case VTME_LIST:
 			{
 				if (nLevel < 2) return 1;				// Root and Highlighter have 1 column
-				assert(nLevel != 2);					// Should have no books in list mode
-				assert(nLevel != 3);					// Should have no chapters in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 2);		// Should have no books in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);		// Should have no chapters in list mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return 1;							// Cross-Reference Target Nodes
 				}
 				return 0;								// Other (real data) Nodes have 0 columns
@@ -232,9 +238,9 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 			{
 				if (nLevel < 2) return 1;				// Root and Highlighter have 1 column
 				if (nLevel == 2) return 1;				// Book Node has 1 column
-				assert(nLevel != 3);					// Should have no chapters in book mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);		// Should have no chapters in book mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return 1;							// Cross-Reference Target Nodes
 				}
 				return 0;								// Other (real data) Nodes have 0 columns
@@ -245,7 +251,7 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 				if (nLevel == 2) return 1;				// Book Node has 1 column
 				if (nLevel == 3) return 1;				// Chapter Node has 1 column
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					return 1;							// Cross-Reference Target Nodes
 				}
 				return 0;							// Other (real data) Nodes have 0 columns
@@ -295,7 +301,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 	const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the top-level highlighter entry, the given parent will be invalid but our row is our highlighter results index
 
 	if (bHighlighterNode) {
-		assert(nLevel == 0);
+		ASSERT_MODEL_DEBUG(nLevel == 0);
 		assert(row < m_vlmrListHighlighters.size());
 		if (row < m_vlmrListHighlighters.size()) {
 			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
@@ -304,10 +310,10 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 			{
-				assert(nLevel != 2);					// Should have no books in list mode
-				assert(nLevel != 3);					// Should have no chapters in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 2);					// Should have no books in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
 					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
@@ -322,9 +328,9 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel < 2) {
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(zResults.BookByIndex(row), 0, 0, 0), VLMNTE_BOOK_TERMINATOR_NODE).data()));
 				}
-				assert(nLevel != 3);					// Should have no chapters in book mode
+				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
 					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
@@ -346,7 +352,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), zResults.ChapterByIndex(zParent.row(), row), 0, 0), VLMNTE_CHAPTER_TERMINATOR_NODE).data()));
 				}
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
 					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
@@ -401,17 +407,17 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					assert(ndxRel.isSet());
 					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE nodeType from buildCrossRefs()
 				}
 				if (nLevel == 3) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
-					return QModelIndex();					// CrossRef-Source is at top of list
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
+					return QModelIndex();						// CrossRef-Source is at top of list
 				}
-				assert(nLevel != 2);					// Should have no chapters in list mode
-				assert(nLevel != 1);					// Should have no books in list mode
-				assert(nLevel == 5);
+				ASSERT_MODEL_DEBUG(nLevel != 2);					// Should have no chapters in list mode
+				ASSERT_MODEL_DEBUG(nLevel != 1);					// Should have no books in list mode
+				ASSERT_MODEL_DEBUG(nLevel == 5);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
@@ -419,7 +425,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 			case VTME_TREE_BOOKS:
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					assert(ndxRel.isSet());
 					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE nodeType from buildCrossRefs()
 				}
@@ -431,8 +437,8 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 						assert(false);
 					}
 				}
-				assert(nLevel != 2);					// Should have no chapters in book mode
-				assert(nLevel == 1);
+				ASSERT_MODEL_DEBUG(nLevel != 2);					// Should have no chapters in book mode
+				ASSERT_MODEL_DEBUG(nLevel == 1);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
@@ -440,7 +446,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 			case VTME_TREE_CHAPTERS:
 				if (nLevel == 4) {
-					assert(m_private.m_nViewMode == VVME_CROSSREFS);
+					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					assert(ndxRel.isSet());
 					return createIndex(zResults.IndexByVerse(ndxRel), 0, fromVerseIndex(zResults.FindVerseIndex(ndxRel)->verseIndex().data()));				// CROSSREFS_SOURCE nodeType from buildCrossRefs()
 				}
@@ -455,7 +461,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 				if (nLevel == 2) {
 					return createIndex(zResults.IndexByBook(ndxRel.book()), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(ndxRel.book(), 0, 0, 0), VLMNTE_BOOK_TERMINATOR_NODE).data()));
 				}
-				assert(nLevel == 1);
+				ASSERT_MODEL_DEBUG(nLevel == 1);
 				if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 					return createIndex(zResults.specialIndex(), 0, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 				}
