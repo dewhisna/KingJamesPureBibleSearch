@@ -76,6 +76,7 @@ public:
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return vlmodel()->displayMode(); }
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
+	inline CRelIndex singleCrossRefSourceIndex() const { return vlmodel()->singleCrossRefSourceIndex(); }
 
 	TVerseIndex currentVerseIndex() const;
 	bool canShowPassageNavigator() const;
@@ -98,6 +99,7 @@ public slots:
 	virtual void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	virtual void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	virtual void setShowMissingLeafs(bool bShowMissing);
+	virtual void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	virtual void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	virtual void showPassageNavigator();
@@ -171,6 +173,7 @@ public:
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_pSearchResultsTreeView->displayMode(); }
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
 	inline bool showMissingLeafs() const { return m_pSearchResultsTreeView->showMissingLeafs(); }
+	inline CRelIndex singleCrossRefSourceIndex() const { return m_pSearchResultsTreeView->singleCrossRefSourceIndex(); }
 
 	QModelIndex currentIndex() const;
 	TVerseIndex currentVerseIndex() const;
@@ -195,6 +198,7 @@ public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
+	void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	void showPassageNavigator();
 	void showDetails();
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc

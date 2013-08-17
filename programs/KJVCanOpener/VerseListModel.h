@@ -407,6 +407,7 @@ public:
 		VERSE_TREE_MODE_ENUM m_nTreeMode;			// List, Tree by Books, Tree by Chapters, etc.
 		VERSE_VIEW_MODE_ENUM m_nViewMode;			// Search Results vs Highlighters, etc
 		bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
+		CRelIndex m_ndxSingleCrossRefSource;		// If Set, will be in special Cross-Reference Display mode, which is limited to this single source reference (used for the Cross-Reference Editor)
 		CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the results in this list
 		QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
 	};
@@ -590,6 +591,7 @@ public:
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_private.m_nTreeMode; }
 	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
 	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
+	CRelIndex singleCrossRefSourceIndex() const { return m_private.m_ndxSingleCrossRefSource; }
 
 	const TVerseListModelResults &results(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex) const
 	{
@@ -638,6 +640,7 @@ public slots:
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setShowMissingLeafs(bool bShowMissing);
+	void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	virtual void setFont(const QFont& aFont);
 	void setUserNoteKeywordFilter(const QStringList &lstKeywordFilter);			// Note: An empty string is a special "show notes without keywords" entry.  This list should be DECOMPOSED words!
 
@@ -650,6 +653,10 @@ protected slots:
 	void en_changedUserNote(const CRelIndex &ndx);
 	void en_addedUserNote(const CRelIndex &ndx);
 	void en_removedUserNote(const CRelIndex &ndx);
+
+	void en_addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void en_removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void en_changedAllCrossRefs();
 
 public:
 	// Total Verse/Result count for the whole model for the current mode:
@@ -669,7 +676,7 @@ private:
 
 	void buildUserNotesResults(const CRelIndex &ndx = CRelIndex(), bool bAdd = true);
 
-	void buildCrossRefsResults(const CRelIndex &ndx = CRelIndex());		// If ndx == CRelIndex() (or unset), builds all cross-refs, else builds refs for a specific source passage
+	void buildCrossRefsResults();
 
 private:
 	Q_DISABLE_COPY(CVerseListModel)

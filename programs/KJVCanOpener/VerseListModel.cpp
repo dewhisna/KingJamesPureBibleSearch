@@ -94,10 +94,15 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pPar
 		connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_changedUserNote(const CRelIndex &)));
 		connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_addedUserNote(const CRelIndex &)));
 		connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_removedUserNote(const CRelIndex &)));
+
+		connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
+		connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(const CRelIndex &, const CRelIndex &)));
+		connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(const CRelIndex &, const CRelIndex &)));
 	}
 
 	en_changedHighlighters();			// Make sure we've loaded the initial default highlighters (or from the current set if we are rebuilding this class for some reason)
 	en_addedUserNote(CRelIndex());		// Make sure we've loaded the initial notes list from the document
+	en_changedAllCrossRefs();			// Make sure we've loaded the initial crossRefs list from the document
 }
 
 int CVerseListModel::rowCount(const QModelIndex &zParent) const
@@ -132,10 +137,14 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 	}
 
 	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+	bool bSingleCrossRefNode = ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_ndxSingleCrossRefSource.isSet()) && (nLevel == 0));
 	const TVerseListModelResults &zResults = results(zParent);
 
 	if (bHighlighterNode) {
 		return m_vlmrListHighlighters.size();
+	} else if (bSingleCrossRefNode) {
+		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
+		return g_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -217,9 +226,12 @@ int CVerseListModel::columnCount(const QModelIndex &zParent) const
 	}
 
 	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+	bool bSingleCrossRefNode = ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_ndxSingleCrossRefSource.isSet()) && (nLevel == 0));
 //	const TVerseListModelResults &zResults = results(zParent);
 
 	if (bHighlighterNode) {
+		return 1;
+	} else if (bSingleCrossRefNode) {
 		return 1;
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -298,6 +310,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 	}
 
 	bool bHighlighterNode = ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) && (nLevel == 0));
+	bool bSingleCrossRefNode = ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_ndxSingleCrossRefSource.isSet()) && (nLevel == 0));
 	const TVerseListModelResults &zResults = (!bHighlighterNode ? results(zParent) : results(VLMRTE_HIGHLIGHTERS, row));			// If this is the top-level highlighter entry, the given parent will be invalid but our row is our highlighter results index
 
 	if (bHighlighterNode) {
@@ -306,6 +319,11 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 		if (row < m_vlmrListHighlighters.size()) {
 			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 		}
+	} else if (bSingleCrossRefNode) {
+		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
+		// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
+		assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
+		return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(m_private.m_ndxSingleCrossRefSource, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -398,11 +416,14 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 		}
 	}
 
+	bool bSingleCrossRefTargetNode = ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_ndxSingleCrossRefSource.isSet()) && (nLevel == 4));
 	const TVerseListModelResults &zResults = results(index);
 	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 
 	if (nLevel == 0) {
 		return QModelIndex();			// Highlighters are always at the top
+	} else if (bSingleCrossRefTargetNode) {
+		return QModelIndex();			// The single Target Cross Refs are always at the top
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -1229,7 +1250,26 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::buildCrossRefsResults(const CRelIndex &ndx)		// If ndx == CRelIndex() (or unset), builds all cross-refs, else builds refs for a specific source passage
+void CVerseListModel::en_addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
+{
+	Q_UNUSED(ndxRef1);			// TODO : Add logic to use ndxRef1/ndxRef2 to insert/remove a single cross-ref if we can
+	Q_UNUSED(ndxRef2);
+	buildCrossRefsResults();
+}
+
+void CVerseListModel::en_removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
+{
+	Q_UNUSED(ndxRef1);			// TODO : Add logic to use ndxRef1/ndxRef2 to insert/remove a single cross-ref if we can
+	Q_UNUSED(ndxRef2);
+	buildCrossRefsResults();
+}
+
+void CVerseListModel::en_changedAllCrossRefs()
+{
+	buildCrossRefsResults();
+}
+
+void CVerseListModel::buildCrossRefsResults()
 {
 	assert(g_pUserNotesDatabase != NULL);
 	TVerseListModelCrossRefsResults &zResults = m_crossRefsResults;
@@ -1239,8 +1279,6 @@ void CVerseListModel::buildCrossRefsResults(const CRelIndex &ndx)		// If ndx == 
 		emit beginResetModel();
 	}
 
-	bool bShowAllRefs = (!ndx.isSet());
-
 	zResults.m_mapVerses.clear();
 	zResults.m_lstVerseIndexes.clear();
 	zResults.m_mapExtraVerseIndexes.clear();
@@ -1248,27 +1286,18 @@ void CVerseListModel::buildCrossRefsResults(const CRelIndex &ndx)		// If ndx == 
 
 	const TCrossReferenceMap &mapCrossRefs = g_pUserNotesDatabase->crossRefsMap();
 
-	if (bShowAllRefs) {
-		zResults.m_lstVerseIndexes.reserve(mapCrossRefs.size());
-		for (TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.begin(); itrCrossRef != mapCrossRefs.end(); ++itrCrossRef) {
-			CRelIndex ndxCrossRef = (itrCrossRef->first);
-			assert(ndxCrossRef.isSet());
-			ndxCrossRef.setWord(0);			// Whole verses only
-
-			assert(!zResults.m_mapVerses.contains(ndxCrossRef));
-			zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
-			zResults.m_lstVerseIndexes.append(ndxCrossRef);
-		}
-	} else {
-		TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.find(ndx);
+	zResults.m_lstVerseIndexes.reserve(mapCrossRefs.size());
+	for (TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.begin(); itrCrossRef != mapCrossRefs.end(); ++itrCrossRef) {
 		CRelIndex ndxCrossRef = (itrCrossRef->first);
 		assert(ndxCrossRef.isSet());
-		ndxCrossRef.setWord(0);				// Whole verses only
+		ndxCrossRef.setWord(0);			// Whole verses only
 
 		assert(!zResults.m_mapVerses.contains(ndxCrossRef));
 		zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
 		zResults.m_lstVerseIndexes.append(ndxCrossRef);
 	}
+
+	if (m_private.m_ndxSingleCrossRefSource.isSet()) assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));	// If removing the single reference, clear m_ndxSingleCrossRefSource first!!
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		emit endResetModel();
@@ -1323,6 +1352,22 @@ void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 	if ((m_private.m_nTreeMode != VTME_LIST) || (m_private.m_nViewMode == VVME_HIGHLIGHTERS)) beginResetModel();
 	m_private.m_bShowMissingLeafs = bShowMissing;
 	if ((m_private.m_nTreeMode != VTME_LIST) || (m_private.m_nViewMode == VVME_HIGHLIGHTERS)) endResetModel();
+}
+
+void CVerseListModel::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
+{
+	if (m_private.m_ndxSingleCrossRefSource == ndx) return;
+
+	if (m_private.m_nViewMode == VVME_CROSSREFS) {
+		clearAllSizeHints();
+		beginResetModel();
+	}
+
+	m_private.m_ndxSingleCrossRefSource = ndx;
+
+	if (m_private.m_nViewMode == VVME_CROSSREFS) {
+		endResetModel();
+	}
 }
 
 // ----------------------------------------------------------------------------

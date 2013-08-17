@@ -296,6 +296,10 @@ signals:
 	void removedUserNote(const CRelIndex &ndx);			// Fired on Remove.  If !ndx.isSet() then the entire list changed (such as remove all)
 	void changedUserNotesKeywords();					// Fired if a note changes its keyword list
 
+	void addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void changedAllCrossRefs();
+
 	void changedUserNotesDatabase();
 
 	// --------------------

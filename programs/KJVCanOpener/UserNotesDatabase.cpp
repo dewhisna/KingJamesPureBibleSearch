@@ -615,6 +615,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	emit changedHighlighters();
 	emit addedUserNote(CRelIndex());
 	emit changedUserNotesKeywords();
+	emit changedAllCrossRefs();
 
 	return true;
 }
@@ -935,6 +936,7 @@ void CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRel
 	m_mapCrossReference[ndxFirst].insert(ndxSecond);
 	m_mapCrossReference[ndxSecond].insert(ndxFirst);
 	m_bIsDirty = true;
+	emit addedCrossRef(ndxFirst, ndxSecond);
 	emit changedUserNotesDatabase();
 }
 
@@ -953,6 +955,10 @@ void CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const C
 	// Remove mappings that become empty:
 	if ((itrMapFirst->second).empty()) m_mapCrossReference.erase(ndxFirst);
 	if ((itrMapSecond->second).empty()) m_mapCrossReference.erase(ndxSecond);
+
+	m_bIsDirty = true;
+	emit removedCrossRef(ndxFirst, ndxSecond);
+	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
@@ -969,6 +975,7 @@ void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 	m_mapCrossReference.erase(ndx);		// Now, remove this index mapping to other indexes
 
 	m_bIsDirty = true;
+	emit changedAllCrossRefs();				// TODO : Once we get better support for individual changes in the model, replace this with individual remove calls during erases above
 	emit changedUserNotesDatabase();
 }
 
@@ -976,6 +983,7 @@ void CUserNotesDatabase::removeAllCrossReferences()
 {
 	m_mapCrossReference.clear();
 	m_bIsDirty = true;
+	emit changedAllCrossRefs();
 	emit changedUserNotesDatabase();
 }
 

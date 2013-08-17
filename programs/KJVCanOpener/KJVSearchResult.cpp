@@ -103,7 +103,9 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setModel(pModel);
 	assert(pModel == vlmodel());
 	if (pOldModel) delete pOldModel;
-	setRootIsDecorated((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
+	setRootIsDecorated(bDecorateRoot);
 
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
@@ -404,7 +406,9 @@ bool CSearchResultsTreeView::canShowPassageNavigator() const
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
-	setRootIsDecorated((vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS);
+	if ((nViewMode == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
+	setRootIsDecorated(bDecorateRoot);
 	vlmodel()->setViewMode(nViewMode);
 }
 
@@ -417,13 +421,24 @@ void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_
 void CSearchResultsTreeView::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
-	setRootIsDecorated((nTreeMode != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
+	bool bDecorateRoot = (nTreeMode != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
+	setRootIsDecorated(bDecorateRoot);
 	vlmodel()->setTreeMode(nTreeMode);
 }
 
 void CSearchResultsTreeView::setShowMissingLeafs(bool bShowMissing)
 {
 	vlmodel()->setShowMissingLeafs(bShowMissing);
+}
+
+void CSearchResultsTreeView::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
+{
+	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (ndx.isSet())) bDecorateRoot = false;
+	setRootIsDecorated(bDecorateRoot);
+	vlmodel()->setSingleCrossRefSourceIndex(ndx);
 }
 
 void CSearchResultsTreeView::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
@@ -829,6 +844,11 @@ void CKJVSearchResult::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMo
 void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 {
 	m_pSearchResultsTreeView->setShowMissingLeafs(bShowMissing);
+}
+
+void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
+{
+	m_pSearchResultsTreeView->setSingleCrossRefSourceIndex(ndx);
 }
 
 void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
