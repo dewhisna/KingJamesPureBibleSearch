@@ -77,7 +77,7 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return vlmodel()->treeMode(); }
 	inline bool showMissingLeafs() const { return vlmodel()->showMissingLeafs(); }
 
-	TVerseIndex currentIndex() const;
+	TVerseIndex currentVerseIndex() const;
 	bool canShowPassageNavigator() const;
 
 	QModelIndexList getSelectedVerses() const;
@@ -172,7 +172,8 @@ public:
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
 	inline bool showMissingLeafs() const { return m_pSearchResultsTreeView->showMissingLeafs(); }
 
-	TVerseIndex currentIndex() const;
+	QModelIndex currentIndex() const;
+	TVerseIndex currentVerseIndex() const;
 	bool hasFocusSearchResult() const;
 	bool canShowPassageNavigator() const;
 

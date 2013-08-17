@@ -585,55 +585,40 @@ QVariant CVerseListModel::dataForVerse(const QModelIndex &index, int role) const
 	CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(ndxVerse);
 	if (itrVerse == zResults.m_mapVerses.constEnd()) return QVariant();
 
+	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
+		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
+		const TRelativeIndexSet setCrossRefs = g_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
+		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
+		for (int i = index.row(); i > 0; ++itrRef, --i);
+		ndxVerse = *(itrRef);
+		ndxVerse.setWord(0);
+		itrVerse = zResults.m_mapVerses.find(ndxVerse);
+		if (itrVerse == zResults.m_mapVerses.constEnd()) {
+			assert(false);							// Should have cross-linked parent
+			return QVariant();
+		}
+	}
+
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 		QString strVerseText;
-		if ((m_private.m_nViewMode != VVME_CROSSREFS) ||
-			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE)) {
-			switch (m_private.m_nDisplayMode) {
-				case VDME_HEADING:
-					strVerseText = itrVerse->getHeading();
-					break;
-				case VDME_VERYPLAIN:
-					strVerseText = itrVerse->getVerseVeryPlainText();
-					break;
-				case VDME_RICHTEXT:
-					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
-					break;
-				case VDME_COMPLETE:
-					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
-					break;
-				default:
-					assert(false);
-					strVerseText = QString();
-					break;
-			}
-		} else {
-			assert(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE);
-			const TRelativeIndexSet setCrossRefs = g_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
-			assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
-			TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
-			for (int i = index.row(); i > 0; ++itrRef, --i);
-			ndxVerse = *(itrRef);
-			ndxVerse.setWord(0);
-
-			switch (m_private.m_nDisplayMode) {
-				case VDME_HEADING:
-					strVerseText = m_private.m_pBibleDatabase->PassageReferenceText(ndxVerse);
-					break;
-				case VDME_VERYPLAIN:
-					strVerseText = CVerseListItem::getVerseVeryPlainText(ndxVerse, m_private.m_pBibleDatabase);
-					break;
-				case VDME_RICHTEXT:
-					strVerseText = CVerseListItem::getVerseRichText(ndxVerse, m_private.m_pBibleDatabase, m_private.m_richifierTags);
-					break;
-				case VDME_COMPLETE:
-					strVerseText = CVerseListItem::getVerseRichText(ndxVerse, m_private.m_pBibleDatabase, m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
-					break;
-				default:
-					assert(false);
-					strVerseText = QString();
-					break;
-			}
+		switch (m_private.m_nDisplayMode) {
+			case VDME_HEADING:
+				strVerseText = itrVerse->getHeading();
+				break;
+			case VDME_VERYPLAIN:
+				strVerseText = itrVerse->getVerseVeryPlainText();
+				break;
+			case VDME_RICHTEXT:
+				strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
+				break;
+			case VDME_COMPLETE:
+				strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
+				break;
+			default:
+				assert(false);
+				strVerseText = QString();
+				break;
 		}
 
 		switch (m_private.m_nViewMode) {
@@ -728,6 +713,26 @@ QVariant CVerseListModel::dataForVerse(const QModelIndex &index, int role) const
 	}
 
 	return QVariant();
+}
+
+CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
+{
+	const TVerseIndex *pVerseIndex = toVerseIndex(index);
+	assert(pVerseIndex != NULL);
+
+	CRelIndex ndxVerse = pVerseIndex->relIndex();
+	if (!ndxVerse.isSet()) return CRelIndex();
+
+	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
+		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
+		const TRelativeIndexSet setCrossRefs = g_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
+		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
+		for (int i = index.row(); i > 0; ++itrRef, --i);
+		ndxVerse = *(itrRef);
+	}
+
+	return ndxVerse;
 }
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)

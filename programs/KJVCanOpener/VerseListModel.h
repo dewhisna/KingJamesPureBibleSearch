@@ -564,6 +564,7 @@ public:
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	QVariant dataForVerse(const QModelIndex &index, int role) const;
+	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	void sortModelIndexList(QModelIndexList &lstIndexes) const;				// Sorts a list of model indexes for the current set of model settings

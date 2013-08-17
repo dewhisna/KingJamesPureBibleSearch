@@ -646,10 +646,10 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode());
 	settings.setValue(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode());
 	settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
-	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentIndex().relIndex().asAnchor());
-	settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
-													(m_pSearchResultWidget->currentIndex().specialIndex() == -1)) ? QString() :
-													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentIndex().specialIndex()).resultsName());
+	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentVerseIndex().relIndex().asAnchor());
+	settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentVerseIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
+													(m_pSearchResultWidget->currentVerseIndex().specialIndex() == -1)) ? QString() :
+													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentVerseIndex().specialIndex()).resultsName());
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.endGroup();
@@ -1239,7 +1239,7 @@ void CKJVCanOpener::en_viewModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentVerseIndex());
 
 	m_pSearchResultWidget->setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(pAction->data().toUInt()));
 
@@ -1255,7 +1255,7 @@ void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentVerseIndex());
 
 	m_pSearchResultWidget->setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(pAction->data().toUInt()));
 
@@ -1271,7 +1271,7 @@ void CKJVCanOpener::en_treeModeChange(QAction *pAction)
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentVerseIndex());
 
 	m_pSearchResultWidget->setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()));
 	m_pActionShowMissingLeafs->setEnabled(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(pAction->data().toUInt()) != CVerseListModel::VTME_LIST);
@@ -1288,7 +1288,7 @@ void CKJVCanOpener::en_viewShowMissingsLeafs()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
+	TVerseIndex ndxCurrent(m_pSearchResultWidget->currentVerseIndex());
 
 	if (m_pSearchResultWidget->treeMode() == CVerseListModel::VTME_LIST) {
 		if (m_pSearchResultWidget->showMissingLeafs()) m_pSearchResultWidget->setShowMissingLeafs(false);
@@ -1360,7 +1360,8 @@ void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 
 	if (!index.isValid()) return;
 
-	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
+	CRelIndex ndxRel(m_pSearchResultWidget->vlmodel()->navigationIndexForModelIndex(index));
+
 	if (!ndxRel.isSet()) return;				// If user double-clicks on a highligher, there will be no RelIndex
 
 	m_pBrowserWidget->gotoIndex(TPhraseTag(ndxRel));
@@ -1398,8 +1399,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if (isBrowserFocusedOrActive()) {
 		indexNote = m_pBrowserWidget->selection().relIndex();
 	} else if (isSearchResultsFocusedOrActive()) {
-		TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
-		indexNote = ndxCurrent.relIndex();
+		indexNote = m_pSearchResultWidget->vlmodel()->navigationIndexForModelIndex(m_pSearchResultWidget->currentIndex());
 	}
 
 	if (!indexNote.isSet()) return;
@@ -1423,8 +1423,8 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	if (isBrowserFocusedOrActive()) {
 		tagCrossRef = m_pBrowserWidget->selection();
 	} else if (isSearchResultsFocusedOrActive()) {
-		TVerseIndex ndxCurrent(m_pSearchResultWidget->currentIndex());
-		tagCrossRef = TPhraseTag(ndxCurrent.relIndex());
+		// Unlike editing notes and passage navigation, editing cross-references should bring up the "Source" Cross-Reference:
+		tagCrossRef = TPhraseTag(m_pSearchResultWidget->currentVerseIndex().relIndex());
 	}
 
 	if (!tagCrossRef.isSet()) return;

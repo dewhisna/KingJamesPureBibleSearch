@@ -196,7 +196,7 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 
 	for (int ndx = 0; ndx < lstSelectedItems.size(); /* Increment inside loop */) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
+			CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				++ndx;
 			} else {
@@ -379,15 +379,16 @@ void CSearchResultsTreeView::en_copyComplete() const
 
 // ----------------------------------------------------------------------------
 
-TVerseIndex CSearchResultsTreeView::currentIndex() const
+TVerseIndex CSearchResultsTreeView::currentVerseIndex() const
 {
-	return (*CVerseListModel::toVerseIndex(QTreeView::currentIndex()));
+	return (*CVerseListModel::toVerseIndex(currentIndex()));
 }
 
 bool CSearchResultsTreeView::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)
 {
 	QModelIndex ndxModel = vlmodel()->locateIndex(ndx);
 	QTreeView::setCurrentIndex(ndxModel);
+	if (ndxModel.isValid()) expand(ndxModel);
 	scrollTo(ndxModel, QAbstractItemView::EnsureVisible);
 	if (bFocusTreeView) setFocus();
 	return ndxModel.isValid();
@@ -397,7 +398,7 @@ bool CSearchResultsTreeView::setCurrentIndex(const TVerseIndex &ndx, bool bFocus
 
 bool CSearchResultsTreeView::canShowPassageNavigator() const
 {
-	return ((selectionModel()->selectedRows().count() == 1) || (currentIndex().relIndex().isSet()));
+	return ((selectionModel()->selectedRows().count() == 1) || (vlmodel()->navigationIndexForModelIndex(currentIndex()).isSet()));
 }
 
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
@@ -439,11 +440,11 @@ void CSearchResultsTreeView::showPassageNavigator()
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() == 1) {
 		if (!lstSelectedItems.at(0).isValid()) return;
-		ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(0))->relIndex();
+		ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(0));
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return;
 	} else {
-		ndxRel = currentIndex().relIndex();
+		ndxRel = vlmodel()->navigationIndexForModelIndex(currentIndex());
 		assert(ndxRel.isSet());			// Should have had one or the other because of canShowPassageNavigator()
 		if (!ndxRel.isSet()) return;
 	}
@@ -491,7 +492,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = CVerseListModel::toVerseIndex(lstSelectedItems.at(ndx))->relIndex();
+			CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				nNumResultsSelected++;
 			}
@@ -538,21 +539,21 @@ void CSearchResultsTreeView::en_listChanged()
 
 void CSearchResultsTreeView::showDetails()
 {
-	QVariant varTooltip = vlmodel()->data(QTreeView::currentIndex(), CVerseListModel::TOOLTIP_ROLE);
+	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
 	if (varTooltip.canConvert<QString>()) {
-		scrollTo(QTreeView::currentIndex(), QAbstractItemView::EnsureVisible);
+		scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
 
 //		QToolTip::showText(mapToGlobal(visualRect(QTreeView::currentIndex()).topRight()), varTooltip.toString(), this);
 		QToolTip::hideText();
-		CToolTipEdit::showText(mapToGlobal(visualRect(QTreeView::currentIndex()).topRight()), varTooltip.toString(), this, rect());
+		CToolTipEdit::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
 	}
 }
 
 bool CSearchResultsTreeView::haveDetails() const
 {
-	if (!QTreeView::currentIndex().isValid()) return false;
+	if (!currentIndex().isValid()) return false;
 
-	QVariant varTooltip = vlmodel()->data(QTreeView::currentIndex(), CVerseListModel::TOOLTIP_ROLE);
+	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
 	if ((varTooltip.canConvert<QString>()) &&
 		(!varTooltip.toString().isEmpty())) return true;
 
@@ -742,9 +743,14 @@ CKJVSearchResult::~CKJVSearchResult()
 
 }
 
-TVerseIndex CKJVSearchResult::currentIndex() const
+QModelIndex CKJVSearchResult::currentIndex() const
 {
 	return m_pSearchResultsTreeView->currentIndex();
+}
+
+TVerseIndex CKJVSearchResult::currentVerseIndex() const
+{
+	return m_pSearchResultsTreeView->currentVerseIndex();
 }
 
 bool CKJVSearchResult::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)

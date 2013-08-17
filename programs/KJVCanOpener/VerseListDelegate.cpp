@@ -87,7 +87,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			// Verses:
 			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
-			if ((m_model.displayMode() == CVerseListModel::VDME_HEADING) || (m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
+			if ((m_model.displayMode() == CVerseListModel::VDME_HEADING) ||
+				(m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
 					scriptureHTML.appendRawText(index.data().toString());
@@ -118,7 +119,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 			nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			if (((nResults) || (nVerses)) && (m_model.viewMode() != CVerseListModel::VVME_USERNOTES)) {
+			if (((nResults) || (nVerses)) &&
+				(m_model.viewMode() != CVerseListModel::VVME_USERNOTES) &&
+				(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) {
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(index.data().toString()));
 				scriptureHTML.endParagraph();
@@ -139,7 +142,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			int nResults = 0;
 			nVerses = zResults.GetVerseCount(ndxRel.book());
 			nResults = zResults.GetResultsCount(ndxRel.book());
-			if (((nResults) || (nVerses)) && (m_model.viewMode() != CVerseListModel::VVME_USERNOTES)) {
+			if (((nResults) || (nVerses)) &&
+				(m_model.viewMode() != CVerseListModel::VVME_USERNOTES) &&
+				(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) {
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendLiteralText(QString("{%1} (%2) ").arg(nVerses).arg(nResults));
 				scriptureHTML.beginBold();
