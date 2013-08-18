@@ -262,11 +262,12 @@ public:
 		if (itr == m_mapCrossReference.end()) return TRelativeIndexSet();
 		return (itr->second);
 	}
-	void setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);
-	void removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);
-	void removeCrossReferencesFor(const CRelIndex &ndx);
+	bool setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);			// Returns true if it was set or false if it was already set or can't be set
+	bool removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Returns true if it was removed or false if it wasn't there or can't be removed
+	bool removeCrossReferencesFor(const CRelIndex &ndx);									// Returns true if it was removed or false if it wasn't there or can't be removed
 	void removeAllCrossReferences();
 	const TCrossReferenceMap &crossRefsMap() const { return m_mapCrossReference; }
+	void setCrossRefsMap(const TCrossReferenceMap &mapCrossRefs);
 
 	// --------------------
 

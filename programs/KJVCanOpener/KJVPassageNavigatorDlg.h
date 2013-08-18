@@ -43,6 +43,8 @@ public:
 	explicit CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent);
 	virtual ~CKJVPassageNavigatorDlg();
 
+	void setGotoButtonText(const QString &strText);
+
 	TPhraseTag passage() const;
 	void setPassage(const TPhraseTag &tag);
 	CKJVPassageNavigator &navigator();

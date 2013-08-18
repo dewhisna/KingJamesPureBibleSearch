@@ -26,11 +26,10 @@
 
 #include "PersistentSettings.h"
 
-#include "UserNotesDatabase.h"
-
 #include "KJVSearchResult.h"
 #include "ScriptureEdit.h"
 #include "PhraseEdit.h"
+#include "KJVPassageNavigatorDlg.h"
 
 #include <QMessageBox>
 
@@ -86,7 +85,8 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 	// Create a working copy and initialize it to the existing database:
 	m_pWorkingUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
-	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
+//	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
+	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pUserNotesDatabase->crossRefsMap());
 
 	ui->setupUi(this);
 
@@ -207,8 +207,10 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	}
 
 	// Update working database from source database:
-	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
+//	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
+	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pUserNotesDatabase->crossRefsMap());
 	m_pCrossRefTreeView->setSingleCrossRefSourceIndex(ndxRel);
+	m_bIsDirty = false;
 }
 
 // ============================================================================
@@ -216,7 +218,7 @@ void CKJVCrossRefEditDlg::accept()
 {
 	assert(m_pUserNotesDatabase != NULL);
 
-	// TODO : Set Cross References in User Notes Database
+	m_pUserNotesDatabase->setCrossRefsMap(m_pWorkingUserNotesDatabase->crossRefsMap());
 
 	m_bIsDirty = false;
 	m_bHaveGeometry = true;
@@ -257,12 +259,40 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 
 void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 {
-	// TODO : Finish
+	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
+	dlg.setGotoButtonText(tr("&OK"));
+	TPhraseTag tagNav(m_tagSourcePassage.relIndex());
+	dlg.navigator().startAbsoluteMode(tagNav);
+	if (dlg.exec() == QDialog::Accepted) {
+		CRelIndex ndxTarget = dlg.passage().relIndex();
+		ndxTarget.setWord(0);			// Whole verse references only
+		if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+			m_bIsDirty = true;
+		}
+	}
 }
 
 void CKJVCrossRefEditDlg::en_DelReferenceClicked()
 {
-	// TODO : Finish
+	TRelativeIndexList lstRefsToRemove;
+
+	// Fetch our list of selections first because once we start removing them, our selection will be changing:
+	QModelIndexList lstSelectedItems = m_pCrossRefTreeView->selectionModel()->selectedRows();
+	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+		if (lstSelectedItems.at(ndx).isValid()) {
+			CRelIndex ndxRel = m_pCrossRefTreeView->vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+			if (ndxRel.isSet()) lstRefsToRemove.push_back(ndxRel);
+		}
+	}
+
+	bool bSomethingChanged = false;
+	for (unsigned int ndx = 0; ndx < lstRefsToRemove.size(); ++ndx) {
+		if (m_pWorkingUserNotesDatabase->removeCrossReference(m_tagSourcePassage.relIndex(), lstRefsToRemove.at(ndx))) {
+			bSomethingChanged = true;
+		}
+	}
+
+	if (bSomethingChanged) m_bIsDirty = true;
 }
 
 // ============================================================================

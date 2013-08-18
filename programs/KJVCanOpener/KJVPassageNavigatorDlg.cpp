@@ -93,6 +93,11 @@ CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
 	delete ui;
 }
 
+void CKJVPassageNavigatorDlg::setGotoButtonText(const QString &strText)
+{
+	m_pOKButton->setText(strText);
+}
+
 TPhraseTag CKJVPassageNavigatorDlg::passage() const
 {
 	return m_pNavigator->passage();

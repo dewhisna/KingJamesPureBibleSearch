@@ -951,23 +951,29 @@ void CUserNotesDatabase::removeAllHighlighterTags()
 
 // ============================================================================
 
-void CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+bool CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
-	if (ndxFirst == ndxSecond) return;							// Don't allow cross references to ourselves (that's just stupid, and can lead to weird consequences)
+	if (ndxFirst == ndxSecond) return false;							// Don't allow cross references to ourselves (that's just stupid, and can lead to weird consequences)
+
+	// Since they are cross-linked, it doesn't matter which way we do this check:
+	TRelativeIndexSet sCrossRef = crossReferencesFor(ndxFirst);
+	if (sCrossRef.find(ndxSecond) != sCrossRef.end()) return false;		// Don't add it if it already exists
+
 	m_mapCrossReference[ndxFirst].insert(ndxSecond);
 	m_mapCrossReference[ndxSecond].insert(ndxFirst);
 	m_bIsDirty = true;
 	emit addedCrossRef(ndxFirst, ndxSecond);
 	emit changedUserNotesDatabase();
+	return true;
 }
 
-void CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+bool CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
 	assert(ndxFirst != ndxSecond);
-	if (ndxFirst == ndxSecond) return;
+	if (ndxFirst == ndxSecond) return false;
 	TCrossReferenceMap::iterator itrMapFirst = m_mapCrossReference.find(ndxFirst);
 	TCrossReferenceMap::iterator itrMapSecond = m_mapCrossReference.find(ndxSecond);
-	if ((itrMapFirst == m_mapCrossReference.end()) || (itrMapSecond == m_mapCrossReference.end())) return;
+	if ((itrMapFirst == m_mapCrossReference.end()) || (itrMapSecond == m_mapCrossReference.end())) return false;
 
 	// Remove the cross-reference entries from each other:
 	(itrMapFirst->second).erase(ndxSecond);
@@ -980,12 +986,13 @@ void CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const C
 	m_bIsDirty = true;
 	emit removedCrossRef(ndxFirst, ndxSecond);
 	emit changedUserNotesDatabase();
+	return true;
 }
 
-void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
+bool CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 {
 	TCrossReferenceMap::iterator itrMap = m_mapCrossReference.find(ndx);
-	if (itrMap == m_mapCrossReference.end()) return;
+	if (itrMap == m_mapCrossReference.end()) return false;
 
 	for (TRelativeIndexSet::iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
 		assert(*itrSet != ndx);		// Shouldn't have any cross references to our same index, as we didn't allow them to be added
@@ -998,11 +1005,20 @@ void CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 	m_bIsDirty = true;
 	emit changedAllCrossRefs();				// TODO : Once we get better support for individual changes in the model, replace this with individual remove calls during erases above
 	emit changedUserNotesDatabase();
+	return true;
 }
 
 void CUserNotesDatabase::removeAllCrossReferences()
 {
 	m_mapCrossReference.clear();
+	m_bIsDirty = true;
+	emit changedAllCrossRefs();
+	emit changedUserNotesDatabase();
+}
+
+void CUserNotesDatabase::setCrossRefsMap(const TCrossReferenceMap &mapCrossRefs)
+{
+	m_mapCrossReference = mapCrossRefs;
 	m_bIsDirty = true;
 	emit changedAllCrossRefs();
 	emit changedUserNotesDatabase();
