@@ -23,7 +23,6 @@
 
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
-#include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "SearchCompleter.h"
 
@@ -32,6 +31,7 @@
 #include <iterator>
 #include <list>
 #include <QTextDocument>
+#include <QAtomicInt>
 
 #if 0
 #define ASSERT_MODEL_DEBUG(x) assert(x)
@@ -65,8 +65,9 @@ void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 
 // ============================================================================
 
-CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase)
+CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase)
 	:	m_pBibleDatabase(pBibleDatabase),
+		m_pUserNotesDatabase(pUserNotesDatabase),
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
 		m_nViewMode(VVME_SEARCH_RESULTS),
@@ -75,29 +76,31 @@ CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePt
 
 }
 
-CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent)
+CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
 	:	QAbstractItemModel(pParent),
-		m_private(pBibleDatabase),
+		m_private(pBibleDatabase, pUserNotesDatabase),
 		m_undefinedResults(&m_private, tr("Undefined"), VLMRTE_UNDEFINED),
 		m_searchResults(&m_private),
 		m_userNotesResults(&m_private),
 		m_crossRefsResults(&m_private)
 {
+	assert(pBibleDatabase != NULL);
+	assert(pUserNotesDatabase != NULL);
+
 	m_private.m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 
-	assert(g_pUserNotesDatabase != NULL);
-	if (g_pUserNotesDatabase != NULL) {
-		connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
-		connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
+	if (m_private.m_pUserNotesDatabase != NULL) {
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 
-		connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_changedUserNote(const CRelIndex &)));
-		connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_addedUserNote(const CRelIndex &)));
-		connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_removedUserNote(const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_changedUserNote(const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_addedUserNote(const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_removedUserNote(const CRelIndex &)));
 
-		connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
-		connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(const CRelIndex &, const CRelIndex &)));
-		connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(const CRelIndex &, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(const CRelIndex &, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(const CRelIndex &, const CRelIndex &)));
 	}
 
 	en_changedHighlighters();			// Make sure we've loaded the initial default highlighters (or from the current set if we are rebuilding this class for some reason)
@@ -144,7 +147,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 		return m_vlmrListHighlighters.size();
 	} else if (bSingleCrossRefNode) {
 		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
-		return g_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
+		return m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -154,7 +157,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -169,7 +172,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -182,7 +185,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				if (nLevel == 3) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -322,7 +325,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 	} else if (bSingleCrossRefNode) {
 		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
 		// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-		assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
+		assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
 		return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(m_private.m_ndxSingleCrossRefSource, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -333,7 +336,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				assert(row < zResults.m_mapVerses.size());
@@ -350,7 +353,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
@@ -372,7 +375,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < g_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
@@ -608,7 +611,7 @@ QVariant CVerseListModel::dataForVerse(const QModelIndex &index, int role) const
 
 	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
 		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
-		const TRelativeIndexSet setCrossRefs = g_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+		const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
 		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
 		for (int i = index.row(); i > 0; ++itrRef, --i);
@@ -746,7 +749,7 @@ CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index
 
 	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
 		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
-		const TRelativeIndexSet setCrossRefs = g_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+		const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
 		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
 		for (int i = index.row(); i > 0; ++itrRef, --i);
@@ -818,7 +821,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 
 	CRelIndex ndxRel1(toVerseIndex(ndx1)->relIndex());
 	if (vi1->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
-		const TRelativeIndexSet setCrossRefs1 = g_pUserNotesDatabase->crossReferencesFor(ndxRel1);
+		const TRelativeIndexSet setCrossRefs1 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel1);
 		assert((ndx1.row() >= 0) && (static_cast<unsigned int>(ndx1.row()) < setCrossRefs1.size()));
 		TRelativeIndexSet::const_iterator itrRef1 = setCrossRefs1.begin();
 		for (int i = ndx1.row(); i > 0; ++itrRef1, --i);
@@ -826,7 +829,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 	}
 	CRelIndex ndxRel2(toVerseIndex(ndx2)->relIndex());
 	if (vi2->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
-		const TRelativeIndexSet setCrossRefs2 = g_pUserNotesDatabase->crossReferencesFor(ndxRel2);
+		const TRelativeIndexSet setCrossRefs2 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel2);
 		assert((ndx2.row() >= 0) && (static_cast<unsigned int>(ndx2.row()) < setCrossRefs2.size()));
 		TRelativeIndexSet::const_iterator itrRef2 = setCrossRefs2.begin();
 		for (int i = ndx2.row(); i > 0; ++itrRef2, --i);
@@ -835,13 +838,21 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 	return (ndxRel1 < ndxRel2);
 }
 
+// Static thread-locked data, locked in sortModelIndexList:
+CUserNotesDatabase *CVerseListModel::ms_pUserNotesDatabase = NULL;
+
 void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes) const
 {
+	static QAtomicInt nThreadLock(0);
+	while (!nThreadLock.testAndSetRelaxed(0, 1));	// Mutex wait for thread if someone is currently running this function
+	ms_pUserNotesDatabase = m_private.m_pUserNotesDatabase.data();
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
 	} else {
 		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
 	}
+	ms_pUserNotesDatabase = NULL;
+	nThreadLock = 0;
 }
 
 Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
@@ -852,8 +863,8 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
 	if ((ndxRel.isSet()) &&
 		((ndxRel.verse() != 0) ||
-		 ((m_private.m_nViewMode == VVME_USERNOTES) && (g_pUserNotesDatabase->existsNoteFor(ndxRel))) ||
-		 ((m_private.m_nViewMode == VVME_CROSSREFS) && (g_pUserNotesDatabase->haveCrossReferencesFor(ndxRel)))))
+		 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))) ||
+		 ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_pUserNotesDatabase->haveCrossReferencesFor(ndxRel)))))
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
@@ -1079,8 +1090,6 @@ void CVerseListModel::en_changedHighlighters()
 
 void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 {
-	assert(g_pUserNotesDatabase != NULL);
-
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		emit verseListAboutToChange();
 		emit beginResetModel();
@@ -1088,16 +1097,16 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 
 	if (ndxHighlighter == -1) {
 		m_vlmrListHighlighters.clear();
-		const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+		const TUserDefinedColorMap &mapHighlighters = m_private.m_pUserNotesDatabase->highlighterDefinitionsMap();
 		ndxHighlighter = 0;
 		for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 			// Must add it to our list before calling buildHighlighterResults(ndx):
 			m_vlmrListHighlighters.push_back(TVerseListModelResults(&m_private, itrHighlighters.key(), VLMRTE_HIGHLIGHTERS, VLMNTE_UNDEFINED, ndxHighlighter));
-			buildHighlighterResults(ndxHighlighter, g_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, itrHighlighters.key()));
+			buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, itrHighlighters.key()));
 			ndxHighlighter++;
 		}
 
-//		const THighlighterTagMap *pHighlighters = g_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase);
+//		const THighlighterTagMap *pHighlighters = m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase);
 //		if (pHighlighters != NULL) {
 //			ndxHighlighter = 0;
 //			for (THighlighterTagMap::const_iterator itrHighlighters = pHighlighters->begin(); itrHighlighters != pHighlighters->end(); ++itrHighlighters) {
@@ -1111,7 +1120,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 		assert((ndxHighlighter >= 0) && (ndxHighlighter < m_vlmrListHighlighters.size()));
 		TVerseListModelResults &zResults = const_cast<TVerseListModelResults &>(results(VLMRTE_HIGHLIGHTERS, ndxHighlighter));
 
-		buildHighlighterResults(ndxHighlighter, g_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, zResults.resultsName()));
+		buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, zResults.resultsName()));
 	}
 
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
@@ -1196,7 +1205,6 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	Q_UNUSED(ndx);				// TODO : Add logic to use ndx to insert/remove a single note if we can
 	Q_UNUSED(bAdd);
 
-	assert(g_pUserNotesDatabase != NULL);
 	TVerseListModelNotesResults &zResults = m_userNotesResults;
 
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
@@ -1211,7 +1219,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	zResults.m_mapExtraVerseIndexes.clear();
 	zResults.m_mapSizeHints.clear();
 
-	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
+	const CUserNoteEntryMap &mapNotes = m_private.m_pUserNotesDatabase->notesMap();
 	zResults.m_lstVerseIndexes.reserve(mapNotes.size());
 
 	for (CUserNoteEntryMap::const_iterator itrNote = mapNotes.begin(); itrNote != mapNotes.end(); ++itrNote) {
@@ -1271,7 +1279,6 @@ void CVerseListModel::en_changedAllCrossRefs()
 
 void CVerseListModel::buildCrossRefsResults()
 {
-	assert(g_pUserNotesDatabase != NULL);
 	TVerseListModelCrossRefsResults &zResults = m_crossRefsResults;
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
@@ -1284,7 +1291,7 @@ void CVerseListModel::buildCrossRefsResults()
 	zResults.m_mapExtraVerseIndexes.clear();
 	zResults.m_mapSizeHints.clear();
 
-	const TCrossReferenceMap &mapCrossRefs = g_pUserNotesDatabase->crossRefsMap();
+	const TCrossReferenceMap &mapCrossRefs = m_private.m_pUserNotesDatabase->crossRefsMap();
 
 	zResults.m_lstVerseIndexes.reserve(mapCrossRefs.size());
 	for (TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.begin(); itrCrossRef != mapCrossRefs.end(); ++itrCrossRef) {
@@ -1330,6 +1337,13 @@ void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	if (m_private.m_nViewMode == nViewMode) return;
+
+	// Don't allow Highlighters, UserNotes, or Cross-Refs if we have no UserNotesDatabase:
+	if (((nViewMode == VVME_HIGHLIGHTERS) || (nViewMode == VVME_USERNOTES) || (nViewMode == VVME_CROSSREFS)) &&
+		(m_private.m_pUserNotesDatabase == NULL)) {
+		assert(false);
+		return;
+	}
 
 	clearAllSizeHints();
 	emit beginResetModel();

@@ -165,6 +165,27 @@ CUserNotesDatabase::~CUserNotesDatabase()
 
 }
 
+void CUserNotesDatabase::setDataFrom(const CUserNotesDatabase &other)
+{
+	// Copy Highlighter Defintions:
+	m_UserNotesDatabaseData1 = other.m_UserNotesDatabaseData1;
+	m_UserNotesDatabaseData1.m_bIsDirty = false;
+	m_UserNotesDatabaseData2 = other.m_UserNotesDatabaseData2;
+	m_UserNotesDatabaseData2.m_bIsDirty = false;
+	m_pUserNotesDatabaseData = ((other.m_pUserNotesDatabaseData == &other.m_UserNotesDatabaseData1) ? &m_UserNotesDatabaseData1 : &m_UserNotesDatabaseData2);
+
+	m_mapNotes = other.m_mapNotes;							// Notes
+	m_mapHighlighterTags = other.m_mapHighlighterTags;		// Highlighter Tags
+	m_mapCrossReference = other.m_mapCrossReference;		// Cross-References
+
+	m_bIsDirty = false;
+	emit changedUserNotesDatabase();
+	emit changedHighlighters();
+	emit addedUserNote(CRelIndex());
+	emit changedUserNotesKeywords();
+	emit changedAllCrossRefs();
+}
+
 void CUserNotesDatabase::clear()
 {
 	removeAllNotes();

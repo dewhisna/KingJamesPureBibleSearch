@@ -25,6 +25,7 @@
 #define KJVSEARCHRESULT_H
 
 #include "dbstruct.h"
+#include "UserNotesDatabase.h"
 #include "SearchPhraseListModel.h"
 #include "VerseListModel.h"
 
@@ -57,7 +58,7 @@ class CNoteKeywordWidget;
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
 	virtual ~CSearchResultsTreeView();
 
 	inline QMenu *getEditMenu() { return m_pEditMenu; }

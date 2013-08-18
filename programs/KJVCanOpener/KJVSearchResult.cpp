@@ -58,7 +58,7 @@
 
 // ============================================================================
 
-CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QTreeView(parent),
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
@@ -78,7 +78,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pStatusAction(NULL),
 		m_pReflowDelegate(NULL)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
+	assert(pUserNotesDatabase != NULL);
 
 #ifdef SIGNAL_SPY_DEBUG
 #ifdef SEARCH_RESULTS_SPY
@@ -98,7 +99,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, this);
+	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
 	QAbstractItemModel *pOldModel = model();
 	setModel(pModel);
 	assert(pModel == vlmodel());
@@ -705,7 +706,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-	m_pSearchResultsTreeView = new CSearchResultsTreeView(m_pBibleDatabase, this);
+	m_pSearchResultsTreeView = new CSearchResultsTreeView(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pSearchResultsTreeView->setObjectName(QString::fromUtf8("SearchResultsTreeView"));
 	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	aSizePolicy.setHorizontalStretch(10);

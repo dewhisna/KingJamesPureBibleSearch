@@ -164,6 +164,8 @@ public:
 	CUserNotesDatabase(QObject *pParent = NULL);
 	virtual ~CUserNotesDatabase();
 
+	void setDataFrom(const CUserNotesDatabase &other);		// Works like a load() from the other object
+
 	inline bool isDirty() const { return m_bIsDirty || m_pUserNotesDatabaseData->m_bIsDirty; }
 	void clear();
 	inline int version() const { return m_nVersion; }

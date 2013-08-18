@@ -47,7 +47,7 @@ class CKJVNoteEditDlg : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
 	virtual ~CKJVNoteEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "UserNoteEditor");
@@ -84,6 +84,7 @@ private:
 	QPushButton *m_pDeleteNoteButton;
 	// ----
 	CBibleDatabasePtr m_pBibleDatabase;
+	CUserNotesDatabasePtr m_pUserNotesDatabase;
 	// ----
 	bool m_bDoingUpdate;
 	bool m_bIsDirty;

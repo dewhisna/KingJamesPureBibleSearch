@@ -71,9 +71,10 @@ void CKJVCrossRefEditDlg::setActionCrossRefsEditor(QAction *pAction)
 
 // ============================================================================
 
-CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent),
 		m_pBibleDatabase(pBibleDatabase),
+		m_pUserNotesDatabase(pUserNotesDatabase),
 		ui(new Ui::CKJVCrossRefEditDlg),
 		m_pEditSourcePassage(NULL),
 		m_pCrossRefTreeView(NULL),
@@ -81,6 +82,11 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, QWidg
 		m_bHaveGeometry(false)
 {
 	assert(m_pBibleDatabase != NULL);
+	assert(m_pUserNotesDatabase != NULL);
+
+	// Create a working copy and initialize it to the existing database:
+	m_pWorkingUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
+	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
 
 	ui->setupUi(this);
 
@@ -127,7 +133,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, QWidg
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
-	m_pCrossRefTreeView = new CSearchResultsTreeView(m_pBibleDatabase, this);
+	m_pCrossRefTreeView = new CSearchResultsTreeView(m_pBibleDatabase, m_pWorkingUserNotesDatabase, this);
 	m_pCrossRefTreeView->setObjectName("treeViewCrossRefs");
 	QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	sizePolicy2.setHorizontalStretch(5);
@@ -201,7 +207,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPhraseTag &tag)
 // ============================================================================
 void CKJVCrossRefEditDlg::accept()
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase != NULL);
 
 	// TODO : Set Cross References in User Notes Database
 

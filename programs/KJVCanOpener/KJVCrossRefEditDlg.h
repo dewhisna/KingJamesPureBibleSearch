@@ -25,6 +25,7 @@
 #define KJVCROSSREFEDITDLG_H
 
 #include "dbstruct.h"
+#include "UserNotesDatabase.h"
 
 #include <QDialog>
 #include <QPoint>
@@ -48,7 +49,7 @@ class CKJVCrossRefEditDlg : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
 	virtual ~CKJVCrossRefEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
@@ -75,7 +76,10 @@ private slots:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+	CUserNotesDatabasePtr m_pUserNotesDatabase;
 	TPhraseTag m_tagSourcePassage;
+
+	CUserNotesDatabasePtr m_pWorkingUserNotesDatabase;			// Working user notes allows us to model cross-refs in the tree-view without nuking the main database until the user accepts changes
 
 // UI Private:
 private:

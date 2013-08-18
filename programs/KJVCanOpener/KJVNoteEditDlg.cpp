@@ -68,18 +68,20 @@ void CKJVNoteEditDlg::setActionUserNoteEditor(QAction *pAction)
 
 // ============================================================================
 
-CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		ui(new Ui::CKJVNoteEditDlg),
 		m_pBackgroundColorButton(NULL),
 		m_pRichTextEdit(NULL),
 		m_pDeleteNoteButton(NULL),
 		m_pBibleDatabase(pBibleDatabase),
+		m_pUserNotesDatabase(pUserNotesDatabase),
 		m_bDoingUpdate(false),
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
 	assert(pBibleDatabase != NULL);
+	assert(pUserNotesDatabase != NULL);
 
 	ui->setupUi(this);
 
@@ -200,13 +202,13 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase != NULL);
 
 	m_ndxLocation = ndxLocation;
 	m_ndxLocation.setWord(0);		// Work with whole verses only
 	ui->editNoteLocation->setText(m_pBibleDatabase->PassageReferenceText(m_ndxLocation));
 
-	m_UserNote = g_pUserNotesDatabase->noteFor(m_ndxLocation);
+	m_UserNote = m_pUserNotesDatabase->noteFor(m_ndxLocation);
 
 	m_bDoingUpdate = true;
 
@@ -214,7 +216,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	setBackgroundColorPreview();
 
 	// Setup Keywords:
-	ui->widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), g_pUserNotesDatabase->compositeKeywordList());
+	ui->widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), m_pUserNotesDatabase->compositeKeywordList());
 
 	m_pRichTextEdit->setHtml(m_UserNote.text());
 	m_bIsDirty = false;
@@ -227,11 +229,11 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 void CKJVNoteEditDlg::accept()
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase != NULL);
 
 	m_UserNote.setText(m_pRichTextEdit->toHtml());
 	m_UserNote.setIsVisible(true);			// Make note visible when they are explicitly setting it
-	g_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);
+	m_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);
 	m_bIsDirty = false;
 	m_bHaveGeometry = true;
 	QDialog::accept();
@@ -282,14 +284,14 @@ void CKJVNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
 void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
 	assert(button != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase != NULL);
 
 	if (button == m_pDeleteNoteButton) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 		m_bIsDirty = false;
-		g_pUserNotesDatabase->removeNoteFor(m_ndxLocation);
+		m_pUserNotesDatabase->removeNoteFor(m_ndxLocation);
 		QDialog::accept();
 	}
 }

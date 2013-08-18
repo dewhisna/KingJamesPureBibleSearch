@@ -28,6 +28,7 @@
 #include "PhraseEdit.h"
 #include "KJVSearchCriteria.h"
 #include "VerseRichifier.h"
+#include "UserNotesDatabase.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -400,9 +401,10 @@ public:
 
 	class TVerseListModelPrivate {
 	public:
-		TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase);
+		TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase);
 
 		CBibleDatabasePtr m_pBibleDatabase;
+		CUserNotesDatabasePtr m_pUserNotesDatabase;
 		VERSE_DISPLAY_MODE_ENUM m_nDisplayMode;		// Headings vs RichText, etc
 		VERSE_TREE_MODE_ENUM m_nTreeMode;			// List, Tree by Books, Tree by Chapters, etc.
 		VERSE_VIEW_MODE_ENUM m_nViewMode;			// Search Results vs Highlighters, etc
@@ -553,9 +555,10 @@ public:
 
 	// ------------------------------------------------------------------------
 
-	CVerseListModel(CBibleDatabasePtr pBibleDatabase, QObject *pParent = 0);
+	CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent = 0);
 
 	inline CBibleDatabasePtr bibleDatabase() const { return m_private.m_pBibleDatabase; }
+	inline CUserNotesDatabasePtr userNotesDatabase() const { return m_private.m_pUserNotesDatabase; }
 
 	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const;
@@ -688,6 +691,9 @@ private:
 	TVerseListModelNotesResults m_userNotesResults;		// VerseListModelResults for User Notes
 	TVerseListModelCrossRefsResults m_crossRefsResults;	// VerseListModelResults for Cross References
 	QStringList m_lstUserNoteKeywordFilter;				// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry
+// ---
+	// Special static needed for sorting (mutexed in sorting function to be thread-safe):
+	static CUserNotesDatabase *ms_pUserNotesDatabase;
 };
 
 // ============================================================================

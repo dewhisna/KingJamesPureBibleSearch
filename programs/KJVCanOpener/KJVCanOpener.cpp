@@ -554,13 +554,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 
 	// -------------------- UserNoteEditor Dialog:
-	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, this);
+	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
 	connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 
 
 	// -------------------- CrossRefsEditor Dialog:
-	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, this);
+	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
 	connect(CKJVCrossRefEditDlg::actionCrossRefsEditor(), SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
 
