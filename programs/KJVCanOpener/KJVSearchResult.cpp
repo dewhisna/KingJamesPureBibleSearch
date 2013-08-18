@@ -540,6 +540,8 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
+
+	emit selectionListChanged();
 }
 
 void CSearchResultsTreeView::en_listChanged()

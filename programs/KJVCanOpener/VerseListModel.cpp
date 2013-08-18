@@ -146,7 +146,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 	if (bHighlighterNode) {
 		return m_vlmrListHighlighters.size();
 	} else if (bSingleCrossRefNode) {
-		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
+		if (!m_private.m_pUserNotesDatabase->haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return 0;
 		return m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -323,7 +323,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 		}
 	} else if (bSingleCrossRefNode) {
-		assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));
+		if (!m_private.m_pUserNotesDatabase->haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return QModelIndex();
 		// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
 		assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
 		return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(m_private.m_ndxSingleCrossRefSource, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
@@ -1303,8 +1303,6 @@ void CVerseListModel::buildCrossRefsResults()
 		zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
 		zResults.m_lstVerseIndexes.append(ndxCrossRef);
 	}
-
-	if (m_private.m_ndxSingleCrossRefSource.isSet()) assert(zResults.m_mapVerses.contains(m_private.m_ndxSingleCrossRefSource));	// If removing the single reference, clear m_ndxSingleCrossRefSource first!!
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		emit endResetModel();

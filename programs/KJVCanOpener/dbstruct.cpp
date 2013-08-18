@@ -641,7 +641,7 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 CRelIndex CBibleDatabase::calcRelIndex(
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 					unsigned int nBook, unsigned int nTestament,
-					CRelIndex ndxStart,
+					const CRelIndex &ndxStart,
 					bool bReverse) const
 {
 	uint32_t ndxWord = 0;			// We will calculate target via word, which we can then call Denormalize on
@@ -1031,6 +1031,20 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 
 // ============================================================================
 
+void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage)
+{
+	if (!tagPassage.isSet()) {
+		m_RelIndex = CRelIndex();
+		m_nCount = 0;
+	} else {
+		assert(pBibleDatabase != NULL);
+		m_RelIndex = tagPassage.relIndex();
+		CRelIndex ndxTarget = pBibleDatabase->calcRelIndex(0, tagPassage.verseCount(), 0, 0, 0, tagPassage.relIndex());
+		ndxTarget.setWord(pBibleDatabase->verseEntry(ndxTarget)->m_nNumWrd);		// Select all words of last verse
+		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(tagPassage.relIndex());
+	}
+}
+
 bool TPhraseTag::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
@@ -1233,6 +1247,22 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 	}
 
 	return bRemovedIntersection;
+}
+
+// ============================================================================
+
+void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase)
+{
+	if (!tagPhrase.isSet()) {
+		m_RelIndex = CRelIndex();
+		m_nVerseCount = 0;
+	} else {
+		assert(pBibleDatabase != NULL);
+		m_RelIndex = tagPhrase.relIndex();
+		CRelIndex ndxTarget = pBibleDatabase->calcRelIndex(tagPhrase.count(), 0, 0, 0, 0, tagPhrase.relIndex());
+		m_nVerseCount = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
+						CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first;
+	}
 }
 
 // ============================================================================

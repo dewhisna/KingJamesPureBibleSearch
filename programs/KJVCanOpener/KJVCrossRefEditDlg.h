@@ -55,8 +55,8 @@ public:
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
 	virtual void readSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
 
-	TPhraseTag sourcePassage() const { return m_tagSourcePassage; }
-	void setSourcePassage(const TPhraseTag &tag);
+	TPassageTag sourcePassage() const { return m_tagSourcePassage; }
+	void setSourcePassage(const TPassageTag &tag);
 
 	static QAction *actionCrossRefsEditor();
 
@@ -70,6 +70,8 @@ public slots:
 
 private slots:
 	void en_crossRefTreeViewContextMenuRequested(const QPoint &pos);
+	void en_crossRefTreeViewCurrentItemChanged();
+	void en_crossRefTreeViewSelectionListChanged();
 	void en_AddReferenceClicked();
 	void en_DelReferenceClicked();
 
@@ -77,7 +79,7 @@ private slots:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CUserNotesDatabasePtr m_pUserNotesDatabase;
-	TPhraseTag m_tagSourcePassage;
+	TPassageTag m_tagSourcePassage;
 
 	CUserNotesDatabasePtr m_pWorkingUserNotesDatabase;			// Working user notes allows us to model cross-refs in the tree-view without nuking the main database until the user accepts changes
 

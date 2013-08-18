@@ -114,6 +114,7 @@ signals:
 	void canExpandAll(bool bEnable);
 	void canCollapseAll(bool bEnable);
 	void currentItemChanged();
+	void selectionListChanged();
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);

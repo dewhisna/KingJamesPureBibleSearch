@@ -627,7 +627,7 @@ public:
 	CRelIndex calcRelIndex(
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 					unsigned int nBook, unsigned int nTestament,
-					CRelIndex ndxStart = CRelIndex(),
+					const CRelIndex &ndxStart = CRelIndex(),
 					bool bReverse = false) const;
 
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
@@ -719,6 +719,9 @@ typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
 
 // ============================================================================
 
+// Forward declaration:
+class TPassageTag;
+
 // Relative Index and Word Count pair used for highlighting phrases:
 class TPhraseTag
 {
@@ -732,6 +735,8 @@ public:
 	inline CRelIndex &relIndex() { return m_RelIndex; }
 	inline const unsigned int &count() const { return m_nCount; }
 	inline unsigned int &count() { return m_nCount; }
+
+	void setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage);
 
 	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
 		assert(pBibleDatabase.data() != NULL);
@@ -829,6 +834,8 @@ public:
 	inline CRelIndex &relIndex() { return m_RelIndex; }
 	inline const unsigned int &verseCount() const { return m_nVerseCount; }
 	inline unsigned int &verseCount() { return m_nVerseCount; }
+
+	void setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase);
 
 	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
 		assert(pBibleDatabase.data() != NULL);

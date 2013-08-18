@@ -142,12 +142,16 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pCrossRefTreeView->setSizePolicy(sizePolicy2);
 	m_pCrossRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_pCrossRefTreeView->setToolTip(tr("Cross Reference Passages Linked to the Source Reference"));
+	m_pCrossRefTreeView->setViewMode(CVerseListModel::VVME_CROSSREFS);
+	m_pCrossRefTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 
 	delete ui->treeCrossRefs;
 	ui->treeCrossRefs = NULL;
 	ui->verticalLayoutRefList->insertWidget(ndx, m_pCrossRefTreeView);
 
 	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_crossRefTreeViewContextMenuRequested(const QPoint &)));
+	connect(m_pCrossRefTreeView, SIGNAL(currentItemChanged()), this, SLOT(en_crossRefTreeViewCurrentItemChanged()));
+	connect(m_pCrossRefTreeView, SIGNAL(selectionListChanged()), this, SLOT(en_crossRefTreeViewSelectionListChanged()));
 
 	// --------------------------------------------------------------
 
@@ -186,11 +190,11 @@ void CKJVCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefi
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::setSourcePassage(const TPhraseTag &tag)
+void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 {
-	m_tagSourcePassage = tag;
-	CRelIndex ndxRel = m_tagSourcePassage.relIndex();
+	CRelIndex ndxRel = tag.relIndex();
 	ndxRel.setWord(0);			// Make sure we have only a book, chapter, or verse
+	m_tagSourcePassage = TPassageTag(ndxRel, tag.verseCount());
 
 	ui->editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
 
@@ -202,6 +206,9 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPhraseTag &tag)
 		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	}
 
+	// Update working database from source database:
+	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
+	m_pCrossRefTreeView->setSingleCrossRefSourceIndex(ndxRel);
 }
 
 // ============================================================================
@@ -233,6 +240,17 @@ void CKJVCrossRefEditDlg::reject()
 void CKJVCrossRefEditDlg::en_crossRefTreeViewContextMenuRequested(const QPoint &pos)
 {
 	// TODO : Finish
+}
+
+void CKJVCrossRefEditDlg::en_crossRefTreeViewCurrentItemChanged()
+{
+
+}
+
+void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
+{
+	QModelIndexList lstSelectedItems = m_pCrossRefTreeView->selectionModel()->selectedRows();
+	ui->buttonDeleteRef->setEnabled(lstSelectedItems.size() != 0);
 }
 
 // ============================================================================

@@ -1418,13 +1418,13 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	assert(g_pUserNotesDatabase != NULL);
 	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
 
-	TPhraseTag tagCrossRef;
+	TPassageTag tagCrossRef;
 
 	if (isBrowserFocusedOrActive()) {
-		tagCrossRef = m_pBrowserWidget->selection();
+		tagCrossRef.setFromPhraseTag(m_pBibleDatabase, m_pBrowserWidget->selection());
 	} else if (isSearchResultsFocusedOrActive()) {
 		// Unlike editing notes and passage navigation, editing cross-references should bring up the "Source" Cross-Reference:
-		tagCrossRef = TPhraseTag(m_pSearchResultWidget->currentVerseIndex().relIndex());
+		tagCrossRef = TPassageTag(m_pSearchResultWidget->currentVerseIndex().relIndex());
 	}
 
 	if (!tagCrossRef.isSet()) return;
