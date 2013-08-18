@@ -29,6 +29,8 @@
 #include "Highlighter.h"
 #include "BusyCursor.h"
 
+#include <QTextCursor>
+
 #include <assert.h>
 
 // ============================================================================
@@ -263,19 +265,32 @@ void CKJVPassageNavigator::CalcPassage()
 	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.relIndex()));
 	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
 
+	CRelIndex ndxWord(m_tagPassage.relIndex());
+	CRelIndex ndxVerse(ndxWord);
+	ndxVerse.setWord(0);
+	CRelIndex ndxChapter(ndxVerse);
+	ndxChapter.setVerse(0);
+	CRelIndex ndxBook(ndxChapter);
+	ndxBook.setChapter(0);
+
+	QTextCursor txtCursor;
+
 	switch (m_nRefType) {
 		case NRTE_WORD:
-			navigator.setDocumentToVerse(m_tagPassage.relIndex());
+			navigator.setDocumentToVerse(ndxWord, defaultDocumentToVerseFlags);
 			navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 			break;
 		case NRTE_VERSE:
-			navigator.setDocumentToVerse(m_tagPassage.relIndex());
+			navigator.setDocumentToVerse(ndxVerse, defaultDocumentToVerseFlags);
 			break;
 		case NRTE_CHAPTER:
-			navigator.setDocumentToChapter(m_tagPassage.relIndex(), CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
+			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
+			txtCursor = m_pEditVersePreview->textCursor();
+			txtCursor.movePosition(QTextCursor::Start);
+			m_pEditVersePreview->setTextCursor(txtCursor);
 			break;
 		case NRTE_BOOK:
-			navigator.setDocumentToBookInfo(m_tagPassage.relIndex());
+			navigator.setDocumentToBookInfo(ndxBook, defaultDocumentToBookInfoFlags);
 			break;
 	}
 

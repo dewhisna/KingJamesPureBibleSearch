@@ -32,6 +32,7 @@
 #include "KJVPassageNavigatorDlg.h"
 
 #include <QMessageBox>
+#include <QTextCursor>
 
 #include <assert.h>
 
@@ -152,6 +153,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_crossRefTreeViewContextMenuRequested(const QPoint &)));
 	connect(m_pCrossRefTreeView, SIGNAL(currentItemChanged()), this, SLOT(en_crossRefTreeViewCurrentItemChanged()));
 	connect(m_pCrossRefTreeView, SIGNAL(selectionListChanged()), this, SLOT(en_crossRefTreeViewSelectionListChanged()));
+	connect(m_pCrossRefTreeView, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_crossRefTreeViewEntryActivated(const QModelIndex &)));
 
 	// --------------------------------------------------------------
 
@@ -202,6 +204,10 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	} else if (ndxRel.chapter()) {
 		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters);
+		QTextCursor txtCursor;
+		txtCursor = m_pEditSourcePassage->textCursor();
+		txtCursor.movePosition(QTextCursor::Start);
+		m_pEditSourcePassage->setTextCursor(txtCursor);
 	} else {
 		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, defaultDocumentToBookInfoFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	}
@@ -255,20 +261,46 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 	ui->buttonDeleteRef->setEnabled(lstSelectedItems.size() != 0);
 }
 
+void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
+{
+	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->navigationIndexForModelIndex(index);
+	assert(ndxInitial.isSet());
+	CRelIndex ndxTarget = navigateCrossRef(ndxInitial);
+	if ((ndxTarget.isSet()) && (ndxInitial != ndxTarget)) {
+		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(m_tagSourcePassage.relIndex(), ndxInitial);
+		assert(bRemove);
+		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget);
+		assert(bAdd);
+		if (bAdd || bRemove) m_bIsDirty = true;
+	}
+}
+
+// ============================================================================
+
+CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
+{
+	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CKJVPassageNavigator::NRTE_VERSE;
+	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
+	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
+
+	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	dlg.setGotoButtonText(tr("&OK"));
+	TPhraseTag tagNav(ndxStart);
+	dlg.navigator().startAbsoluteMode(tagNav);
+	if (dlg.exec() != QDialog::Accepted) return CRelIndex();
+
+	CRelIndex ndxTarget = dlg.passage().relIndex();
+	ndxTarget.setWord(0);			// Whole verse references only
+	return ndxTarget;
+}
+
 // ============================================================================
 
 void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 {
-	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
-	dlg.setGotoButtonText(tr("&OK"));
-	TPhraseTag tagNav(m_tagSourcePassage.relIndex());
-	dlg.navigator().startAbsoluteMode(tagNav);
-	if (dlg.exec() == QDialog::Accepted) {
-		CRelIndex ndxTarget = dlg.passage().relIndex();
-		ndxTarget.setWord(0);			// Whole verse references only
-		if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
-			m_bIsDirty = true;
-		}
+	CRelIndex ndxTarget = navigateCrossRef(m_tagSourcePassage.relIndex());
+	if ((ndxTarget.isSet()) && (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget))) {
+		m_bIsDirty = true;
 	}
 }
 

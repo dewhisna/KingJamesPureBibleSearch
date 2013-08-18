@@ -57,7 +57,10 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 	assert(pView != NULL);
 	bool bViewHasFocus = pView->hasFocus();
 
-	CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
+	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
+	assert(pVerseIndex != NULL);
+
+	CRelIndex ndxRel(m_model.navigationIndexForModelIndex(index));
 
 	doc.setDefaultFont(m_model.font());
 	doc.setDefaultStyleSheet(QString("body, p, li, book, chapter { background-color:%1; color:%2; }")
@@ -127,11 +130,15 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				scriptureHTML.endParagraph();
 			} else {
 				scriptureHTML.beginParagraph();
+				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
+					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.beginBold();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
 					scriptureHTML.appendRawText(index.data().toString());
 				} else {
 					scriptureHTML.appendLiteralText(index.data().toString());
 				}
+				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
+					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.endBold();
 				scriptureHTML.endParagraph();
 			}
 			scriptureHTML.appendRawText("</body></html>");
@@ -153,13 +160,17 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				scriptureHTML.endParagraph();
 			} else {
 				scriptureHTML.beginParagraph();
-				scriptureHTML.beginBold();
+				if (((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
+					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
+					(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) scriptureHTML.beginBold();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
 					scriptureHTML.appendRawText(index.data().toString());
 				} else {
 					scriptureHTML.appendLiteralText(index.data().toString());
 				}
-				scriptureHTML.endBold();
+				if (((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
+					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
+					(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) scriptureHTML.endBold();
 				scriptureHTML.endParagraph();
 			}
 			scriptureHTML.appendRawText("</body></html>");

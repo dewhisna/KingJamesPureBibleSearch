@@ -253,9 +253,10 @@ public:
 										 CPhraseNavigator::TRO_Subtitles | \
 										 CPhraseNavigator::TRO_Colophons | \
 										 CPhraseNavigator::TRO_Category)
+#define defaultDocumentToVerseFlags		(CPhraseNavigator::TRO_None)
 	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	void setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
-	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TRO_None);
+	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
 
 	TPhraseTag getSelection(const CPhraseCursor &aCursor,

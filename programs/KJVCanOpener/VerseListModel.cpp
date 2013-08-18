@@ -506,9 +506,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid()) return QVariant();
 
 	const TVerseListModelResults &zResults = results(index);
-	TVerseIndex *pVerseIndex = toVerseIndex(index);
 
-	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(*pVerseIndex, QSize());
+	if (role == Qt::SizeHintRole) return zResults.m_mapSizeHints.value(index, QSize());
 
 	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !parent(index).isValid());
 
@@ -517,7 +516,25 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return zResults.resultsName();
 		}
 	} else {
-		CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
+		TVerseIndex *pVerseIndex = toVerseIndex(index);
+		assert(pVerseIndex != NULL);
+
+		CRelIndex ndxRel(pVerseIndex->relIndex());
+		CRelIndex ndxVerse(pVerseIndex->relIndex());
+		ndxVerse.setWord(0);
+
+		if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
+			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
+			// For Cross-Ref targets, swapout the RelIndexes (which will be the Cross-Ref source) for the target:
+			const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+			assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
+			TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
+			for (int i = index.row(); i > 0; ++itrRef, --i);
+			ndxRel = *(itrRef);
+			ndxVerse = *(itrRef);
+			ndxVerse.setWord(0);
+		}
+
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return QVariant();
 
@@ -587,153 +604,123 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 
-		if (!zResults.m_mapVerses.contains(ndxRel)) return QVariant();
-
 		if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
 
-		return dataForVerse(index, role);
-	}
-
-	return QVariant();
-}
-
-QVariant CVerseListModel::dataForVerse(const QModelIndex &index, int role) const
-{
-	const TVerseIndex *pVerseIndex = toVerseIndex(index);
-	assert(pVerseIndex != NULL);
-
-	const TVerseListModelResults &zResults = results(*pVerseIndex);
-
-	CRelIndex ndxVerse = pVerseIndex->relIndex();
-	ndxVerse.setWord(0);
-	CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(ndxVerse);
-	if (itrVerse == zResults.m_mapVerses.constEnd()) return QVariant();
-
-	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
-		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
-		const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
-		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
-		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
-		for (int i = index.row(); i > 0; ++itrRef, --i);
-		ndxVerse = *(itrRef);
-		ndxVerse.setWord(0);
-		itrVerse = zResults.m_mapVerses.find(ndxVerse);
+		const TVerseListModelResults &zResults = results(*pVerseIndex);
+		CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(ndxVerse);
 		if (itrVerse == zResults.m_mapVerses.constEnd()) {
-			assert(false);							// Should have cross-linked parent
+			assert(false);
 			return QVariant();
 		}
-	}
 
-	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		QString strVerseText;
-		switch (m_private.m_nDisplayMode) {
-			case VDME_HEADING:
-				strVerseText = itrVerse->getHeading();
-				break;
-			case VDME_VERYPLAIN:
-				strVerseText = itrVerse->getVerseVeryPlainText();
-				break;
-			case VDME_RICHTEXT:
-				strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
-				break;
-			case VDME_COMPLETE:
-				strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
-				break;
-			default:
-				assert(false);
-				strVerseText = QString();
-				break;
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			QString strVerseText;
+			switch (m_private.m_nDisplayMode) {
+				case VDME_HEADING:
+					strVerseText = itrVerse->getHeading();
+					break;
+				case VDME_VERYPLAIN:
+					strVerseText = itrVerse->getVerseVeryPlainText();
+					break;
+				case VDME_RICHTEXT:
+					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
+					break;
+				case VDME_COMPLETE:
+					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
+					break;
+				default:
+					assert(false);
+					strVerseText = QString();
+					break;
+			}
+
+			switch (m_private.m_nViewMode) {
+				case VVME_SEARCH_RESULTS:
+				case VVME_HIGHLIGHTERS:
+				case VVME_CROSSREFS:
+					return strVerseText;
+				case VVME_USERNOTES:
+					if (m_private.m_nDisplayMode == VDME_HEADING) {
+						usernoteHTML.beginParagraph();
+						usernoteHTML.beginBold();
+						usernoteHTML.appendLiteralText(itrVerse->getHeading());
+						usernoteHTML.endBold();
+						usernoteHTML.endParagraph();
+					} else {
+						QTextDocument doc;
+						CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
+						navigator.setDocumentToVerse(ndxVerse, CPhraseNavigator::TRO_NoAnchors);
+						CScriptureTextDocumentDirector scriptureDirector(&usernoteHTML, m_private.m_pBibleDatabase.data());
+						usernoteHTML.beginParagraph();
+						scriptureDirector.processDocument(&doc);
+						usernoteHTML.appendRawText(itrVerse->getVerseRichText(m_private.m_richifierTags));
+						usernoteHTML.endParagraph();
+					}
+					if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
+						usernoteHTML.addNoteFor(pVerseIndex->relIndex(), false, true);
+					}
+					return usernoteHTML.getResult();
+				default:
+					assert(false);
+					return QVariant();
+			}
 		}
 
-		switch (m_private.m_nViewMode) {
-			case VVME_SEARCH_RESULTS:
-			case VVME_HIGHLIGHTERS:
-			case VVME_CROSSREFS:
-				return strVerseText;
-			case VVME_USERNOTES:
-			{
-				CScriptureTextHtmlBuilder usernoteHTML;
-				if (m_private.m_nDisplayMode == VDME_HEADING) {
-					usernoteHTML.beginParagraph();
-					usernoteHTML.beginBold();
-					usernoteHTML.appendLiteralText(itrVerse->getHeading());
-					usernoteHTML.endBold();
-					usernoteHTML.endParagraph();
+		if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+			if ((role == TOOLTIP_ROLE) ||
+				(role == TOOLTIP_PLAINTEXT_ROLE) ||
+				(role == TOOLTIP_NOHEADING_ROLE) ||
+				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+
+				// Switch to Search Results as our incoming index may not have been for Search Results,
+				//		even though we are now in Search Results View Mode:
+				itrVerse = m_searchResults.m_mapVerses.find(ndxVerse);
+				if (itrVerse == m_searchResults.m_mapVerses.constEnd()) return QVariant();
+
+				bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
+				QString strToolTip;
+				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
+				if (bHeading) strToolTip += itrVerse->getHeading() + "\n";
+				QPair<int, int> nResultsIndexes = m_searchResults.GetResultsIndexes(itrVerse);
+				if (nResultsIndexes.first != nResultsIndexes.second) {
+					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+								tr("Search Results %1-%2 of %3 phrase occurrences")
+											.arg(nResultsIndexes.first)
+											.arg(nResultsIndexes.second)
+											.arg(m_searchResults.GetResultsCount()) + "\n";
 				} else {
-					QTextDocument doc;
-					CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
-					navigator.setDocumentToVerse(ndxVerse, CPhraseNavigator::TRO_NoAnchors);
-					CScriptureTextDocumentDirector scriptureDirector(&usernoteHTML, m_private.m_pBibleDatabase.data());
-					usernoteHTML.beginParagraph();
-					scriptureDirector.processDocument(&doc);
-					usernoteHTML.appendRawText(itrVerse->getVerseRichText(m_private.m_richifierTags));
-					usernoteHTML.endParagraph();
+					assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
+					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+								tr("Search Result %1 of %2 phrase occurrences")
+											.arg(nResultsIndexes.first)
+											.arg(m_searchResults.GetResultsCount()) + "\n";
 				}
-				if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
-					usernoteHTML.addNoteFor(pVerseIndex->relIndex(), false, true);
+				QPair<int, int> nVerseResult = m_searchResults.GetVerseIndexAndCount(itrVerse);
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
+				QPair<int, int> nChapterResult = m_searchResults.GetChapterIndexAndCount(itrVerse);
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
+				QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
+				QString strSearchScopeDescription = m_searchResults.m_SearchCriteria.searchScopeDescription();
+				if (!strSearchScopeDescription.isEmpty()) {
+					QString strSearchWithinDescription = m_searchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+					if (!strSearchWithinDescription.isEmpty()) {
+						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
+					} else {
+						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
+					}
 				}
-				return usernoteHTML.getResult();
+				strToolTip += itrVerse->getToolTip(m_searchResults.m_SearchCriteria, m_searchResults.m_lstParsedPhrases);
+				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
+					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
+				return strToolTip;
 			}
-			default:
-				assert(false);
-				return QVariant();
 		}
-	}
 
-	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
-		if ((role == TOOLTIP_ROLE) ||
-			(role == TOOLTIP_PLAINTEXT_ROLE) ||
-			(role == TOOLTIP_NOHEADING_ROLE) ||
-			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-
-			// Switch to Search Results as our incoming index may not have been for Search Results,
-			//		even though we are now in Search Results View Mode:
-			itrVerse = m_searchResults.m_mapVerses.find(ndxVerse);
-			if (itrVerse == m_searchResults.m_mapVerses.constEnd()) return QVariant();
-
-			bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
-			QString strToolTip;
-			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
-				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
-			if (bHeading) strToolTip += itrVerse->getHeading() + "\n";
-			QPair<int, int> nResultsIndexes = m_searchResults.GetResultsIndexes(itrVerse);
-			if (nResultsIndexes.first != nResultsIndexes.second) {
-				strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-							tr("Search Results %1-%2 of %3 phrase occurrences")
-										.arg(nResultsIndexes.first)
-										.arg(nResultsIndexes.second)
-										.arg(m_searchResults.GetResultsCount()) + "\n";
-			} else {
-				assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
-				strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-							tr("Search Result %1 of %2 phrase occurrences")
-										.arg(nResultsIndexes.first)
-										.arg(m_searchResults.GetResultsCount()) + "\n";
-			}
-			QPair<int, int> nVerseResult = m_searchResults.GetVerseIndexAndCount(itrVerse);
-			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
-			QPair<int, int> nChapterResult = m_searchResults.GetChapterIndexAndCount(itrVerse);
-			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
-			QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
-			strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-			QString strSearchScopeDescription = m_searchResults.m_SearchCriteria.searchScopeDescription();
-			if (!strSearchScopeDescription.isEmpty()) {
-				QString strSearchWithinDescription = m_searchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
-				if (!strSearchWithinDescription.isEmpty()) {
-					strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
-				} else {
-					strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
-				}
-			}
-			strToolTip += itrVerse->getToolTip(m_searchResults.m_SearchCriteria, m_searchResults.m_lstParsedPhrases);
-			if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
-				(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
-			return strToolTip;
+		if (role == VERSE_ENTRY_ROLE) {
+			return QVariant::fromValue(*itrVerse);
 		}
-	}
-
-	if (role == VERSE_ENTRY_ROLE) {
-		return QVariant::fromValue(*itrVerse);
 	}
 
 	return QVariant();
@@ -771,7 +758,7 @@ bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, i
 
 		TVerseListModelResults &zResults = const_cast<TVerseListModelResults &>(results(index));
 
-		zResults.m_mapSizeHints[*toVerseIndex(index)] = value.toSize();
+		zResults.m_mapSizeHints[index] = value.toSize();
 		// Note: Do not fire dataChanged() here, as this is just a cache used by ReflowDelegate
 		return true;
 	}
@@ -860,12 +847,20 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	if (!index.isValid())
 		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
-	CRelIndex ndxRel(toVerseIndex(index)->m_nRelIndex);
-	if ((ndxRel.isSet()) &&
-		((ndxRel.verse() != 0) ||
-		 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))) ||
-		 ((m_private.m_nViewMode == VVME_CROSSREFS) && (m_private.m_pUserNotesDatabase->haveCrossReferencesFor(ndxRel)))))
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
+	assert(pVerseIndex != NULL);
+
+	CRelIndex ndxRel(navigationIndexForModelIndex(index));
+	if (m_private.m_nViewMode != VVME_CROSSREFS) {
+		if ((ndxRel.isSet()) &&
+			((ndxRel.verse() != 0) ||
+			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel)))))
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	} else {
+		if ((pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE) ||
+			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE))
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	}
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
@@ -1328,6 +1323,11 @@ void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 
 	clearAllSizeHints();
 	emit beginResetModel();
+
+	// The following is especially needed for Cross-Ref's which completely revamps the model,
+	//		but we'll do it for all in case we change how they are generated:
+	clearAllExtraVerseIndexes();
+
 	m_private.m_nTreeMode = nTreeMode;
 	emit endResetModel();
 }
@@ -1373,6 +1373,8 @@ void CVerseListModel::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		clearAllSizeHints();
 		beginResetModel();
+
+		m_crossRefsResults.m_mapExtraVerseIndexes.clear();
 	}
 
 	m_private.m_ndxSingleCrossRefSource = ndx;
@@ -1776,6 +1778,7 @@ void CVerseListModel::clearAllSizeHints()
 	for (THighlighterVLMRList::iterator itrHighlighter = m_vlmrListHighlighters.begin(); itrHighlighter != m_vlmrListHighlighters.end(); ++itrHighlighter) {
 		itrHighlighter->m_mapSizeHints.clear();
 	}
+	m_crossRefsResults.m_mapSizeHints.clear();
 }
 
 void CVerseListModel::clearAllExtraVerseIndexes()
@@ -1786,6 +1789,7 @@ void CVerseListModel::clearAllExtraVerseIndexes()
 	for (THighlighterVLMRList::iterator itrHighlighter = m_vlmrListHighlighters.begin(); itrHighlighter != m_vlmrListHighlighters.end(); ++itrHighlighter) {
 		itrHighlighter->m_mapExtraVerseIndexes.clear();
 	}
+	m_crossRefsResults.m_mapExtraVerseIndexes.clear();
 }
 
 // ----------------------------------------------------------------------------

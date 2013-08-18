@@ -457,7 +457,7 @@ public:
 		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 		QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
 		mutable TVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
-		QMap<TVerseIndex, QSize> m_mapSizeHints;	// Map of TVerseIndex (CRelIndex [nBk|nChp|nVrs|0] and Results Type and Special Index) to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
+		QMap<QModelIndex, QSize> m_mapSizeHints;	// Map of QModelIndex to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 
 		// --------------------------------------
 
@@ -567,7 +567,6 @@ public:
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	QVariant dataForVerse(const QModelIndex &index, int role) const;
 	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 

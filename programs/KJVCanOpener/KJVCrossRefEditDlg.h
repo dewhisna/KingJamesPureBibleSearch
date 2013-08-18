@@ -72,8 +72,12 @@ private slots:
 	void en_crossRefTreeViewContextMenuRequested(const QPoint &pos);
 	void en_crossRefTreeViewCurrentItemChanged();
 	void en_crossRefTreeViewSelectionListChanged();
+	void en_crossRefTreeViewEntryActivated(const QModelIndex &index);		// Enter or double-click activated
 	void en_AddReferenceClicked();
 	void en_DelReferenceClicked();
+
+private:
+	CRelIndex navigateCrossRef(const CRelIndex &ndxStart);		// Bring up navigator at specified starting location for entering a cross-ref and return selected ref.  If user cancels, returns CRelIndex()
 
 // Data Private:
 private:
