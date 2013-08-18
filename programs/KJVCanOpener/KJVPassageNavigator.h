@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "ScriptureEdit.h"
 
+#include <QFlags>
 #include <QWidget>
 
 namespace Ui {
@@ -38,12 +39,34 @@ class CKJVPassageNavigator : public QWidget
 	Q_OBJECT
 
 public:
-	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	// Specific RefType Selected:
+	enum NAVIGATOR_REF_TYPE_ENUM {
+		NRTE_WORD = 0,
+		NRTE_VERSE = 1,
+		NRTE_CHAPTER = 2,
+		NRTE_BOOK = 3
+	};
+
+	// Allowed RefType Selections:
+	enum NavigatorRefTypeOptions {
+		NRTO_Default = 0x0,							// Default Options (all)
+		NRTO_Word = 0x1,							// Allow Word Reference
+		NRTO_Verse = 0x2,							// Allow Verse Reference
+		NRTO_Chapter = 0x4,							// Allow Chapter Reference
+		NRTO_Book = 0x8								// Allow Book Reference
+	};
+	Q_DECLARE_FLAGS(NavigatorRefTypeOptionFlags, NavigatorRefTypeOptions)
+
+
+	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0, NavigatorRefTypeOptionFlags flagsRefTypes = NRTO_Default, NAVIGATOR_REF_TYPE_ENUM nRefType = NRTE_WORD);
 	virtual ~CKJVPassageNavigator();
 
-	TPhraseTag passage() const { return m_tagPassage; }
+	TPhraseTag passage() const;
 	void setPassage(const TPhraseTag &tag);
 	TPhraseTag startRef() const { return m_tagStartRef; }
+
+	NAVIGATOR_REF_TYPE_ENUM refType() const { return m_nRefType; }
+	void setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType);
 
 	bool isReversed() const;
 	bool isRelative() const { return m_tagStartRef.relIndex().isSet(); }
@@ -70,6 +93,7 @@ private slots:
 	void VerseChanged(int nVerse);
 	void WordChanged(int nWord);
 	void en_ReverseChanged(bool bReverse);
+	void en_RefTypeChanged(int nType);
 
 // Data Private:
 private:
@@ -81,6 +105,8 @@ private:
 	unsigned int m_nChapter;
 	unsigned int m_nVerse;
 	unsigned int m_nWord;
+	NavigatorRefTypeOptionFlags m_flagsRefTypes;		// Allowed Ref Types
+	NAVIGATOR_REF_TYPE_ENUM m_nRefType;					// Selected Ref Type
 
 // UI Private:
 private:
@@ -96,5 +122,8 @@ private:
 	CScriptureEdit *m_pEditVersePreview;
 	Ui::CKJVPassageNavigator *ui;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(CKJVPassageNavigator::NavigatorRefTypeOptionFlags)
+
 
 #endif // KJVPASSAGENAVIGATOR_H

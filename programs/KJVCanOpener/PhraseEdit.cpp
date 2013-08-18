@@ -824,13 +824,13 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 	scriptureHTML.endDiv();
 
 	// Print Book Descriptions:
-	if (!book.m_strDesc.isEmpty()) {
+	if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
 		scriptureHTML.beginDiv("subtitle");
 		scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
 		scriptureHTML.endDiv();
 	}
 	// Print Book Category:
-	if  (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty()) {
+	if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
 		scriptureHTML.beginDiv("category");
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(tr("Category:"));
@@ -901,7 +901,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	uint32_t nRelNextChapter = m_pBibleDatabase->DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
 
 	// Print last verse of previous chapter if available:
-	if (nRelPrevChapter != 0) {
+	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (nRelPrevChapter != 0)) {
 		CRelIndex relPrev(nRelPrevChapter);
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
@@ -937,7 +937,7 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		}
 	}
 
-	scriptureHTML.insertHorizontalRule();
+	if (!(flagsTRO & TRO_SuppressPrePostChapters)) scriptureHTML.insertHorizontalRule();
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
@@ -957,13 +957,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	// If this is the first chapter of the book:
 	if (ndx.chapter() == 1) {
 		// Print Book Descriptions:
-		if (!book.m_strDesc.isEmpty()) {
+		if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
 			scriptureHTML.beginDiv("subtitle");
 			scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
 			scriptureHTML.endDiv();
 		}
 		// Print Book Category:
-		if  (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty()) {
+		if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
 			scriptureHTML.beginDiv("category");
 			scriptureHTML.beginBold();
 			scriptureHTML.appendLiteralText(tr("Category:"));
@@ -1070,10 +1070,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 			// No extra <hr> as we have one below for the whole chapter anyway
 	}
 
-	scriptureHTML.insertHorizontalRule();
+	if (!(flagsTRO & TRO_SuppressPrePostChapters)) scriptureHTML.insertHorizontalRule();
 
 	// Print first verse of next chapter if available:
-	if (nRelNextChapter != 0) {
+	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (nRelNextChapter != 0)) {
 		CRelIndex relNext(nRelNextChapter);
 		relNext.setWord(0);
 		CRelIndex ndxBookChapNext(relNext.book(), relNext.chapter(), 0, 0);
@@ -1095,13 +1095,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 			scriptureHTML.endDiv();
 			// Print Book Descriptions for first chapter of book:
-			if ((!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {
+			if ((flagsTRO & TRO_Subtitles) && (!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {
 				scriptureHTML.beginDiv("subtitle");
 				scriptureHTML.appendRawText(QString("(%1)").arg(bookNext.m_strDesc));
 				scriptureHTML.endDiv();
 			}
 			// Print Book Category for first chapter of book:
-			if ((!m_pBibleDatabase->bookCategoryName(ndxBookNext).isEmpty()) && (relNext.chapter() == 1)) {
+			if ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBookNext).isEmpty()) && (relNext.chapter() == 1)) {
 				scriptureHTML.beginDiv("category");
 				scriptureHTML.beginBold();
 				scriptureHTML.appendLiteralText(tr("Category:"));

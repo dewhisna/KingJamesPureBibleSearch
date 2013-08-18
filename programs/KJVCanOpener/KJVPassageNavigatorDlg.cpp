@@ -29,16 +29,19 @@
 #include <QTimer>
 #include <assert.h>
 
-CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
-	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-	m_pBibleDatabase(pBibleDatabase),
-	m_pApplyButton(NULL),
-	m_pModeButton(NULL),
-	m_pResetButton(NULL),
-	m_pOKButton(NULL),
-	m_pCancelButton(NULL),
-	m_pNavigator(NULL),
-	ui(new Ui::CKJVPassageNavigatorDlg)
+CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
+												 QWidget *parent,
+												 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes,
+												 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
+	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
+		m_pBibleDatabase(pBibleDatabase),
+		m_pApplyButton(NULL),
+		m_pModeButton(NULL),
+		m_pResetButton(NULL),
+		m_pOKButton(NULL),
+		m_pCancelButton(NULL),
+		m_pNavigator(NULL),
+		ui(new Ui::CKJVPassageNavigatorDlg)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -58,7 +61,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	int nColSpan;
 	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
-	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this);
+	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this, flagsRefTypes, nRefType);
 	m_pNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
 	delete ui->widgetKJVPassageNavigator;
 	ui->widgetKJVPassageNavigator = NULL;
@@ -111,6 +114,16 @@ void CKJVPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
 CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
 {
 	return *(m_pNavigator);
+}
+
+CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM CKJVPassageNavigatorDlg::refType() const
+{
+	return m_pNavigator->refType();
+}
+
+void CKJVPassageNavigatorDlg::setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
+{
+	m_pNavigator->setRefType(nRefType);
 }
 
 void CKJVPassageNavigatorDlg::en_modeChanged(bool bRelative)

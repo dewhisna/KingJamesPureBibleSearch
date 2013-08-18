@@ -36,122 +36,6 @@
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="lblWord">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>&amp;Word:</string>
-         </property>
-         <property name="buddy">
-          <cstring>spinWord</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinWord"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="lblVerse">
-         <property name="text">
-          <string>&amp;Verse:</string>
-         </property>
-         <property name="buddy">
-          <cstring>spinVerse</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinVerse"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="2">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="lblChapter">
-         <property name="text">
-          <string>C&amp;hapter:</string>
-         </property>
-         <property name="buddy">
-          <cstring>spinChapter</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinChapter"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="3">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="lblBook">
-         <property name="text">
-          <string>&amp;Book:</string>
-         </property>
-         <property name="buddy">
-          <cstring>spinBook</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinBook"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="4">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="lblTestament">
-         <property name="text">
-          <string>Bible/T&amp;estament:</string>
-         </property>
-         <property name="buddy">
-          <cstring>comboTestament</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboTestament">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
      <item row="0" column="5">
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <property name="spacing">
@@ -219,6 +103,92 @@
        </item>
       </layout>
      </item>
+     <item row="0" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lblVerse">
+         <property name="text">
+          <string>&amp;Verse:</string>
+         </property>
+         <property name="buddy">
+          <cstring>spinVerse</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinVerse"/>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lblChapter">
+         <property name="text">
+          <string>C&amp;hapter:</string>
+         </property>
+         <property name="buddy">
+          <cstring>spinChapter</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinChapter"/>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="3">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lblBook">
+         <property name="text">
+          <string>&amp;Book:</string>
+         </property>
+         <property name="buddy">
+          <cstring>spinBook</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBook"/>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lblWord">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&amp;Word:</string>
+         </property>
+         <property name="buddy">
+          <cstring>spinWord</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinWord"/>
+       </item>
+      </layout>
+     </item>
      <item row="1" column="0" colspan="4">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -283,12 +253,72 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="5">
-      <widget class="QCheckBox" name="chkboxReverse">
-       <property name="text">
-        <string>Reverse &amp;Direction</string>
+     <item row="0" column="6">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="spacing">
+        <number>0</number>
        </property>
-      </widget>
+       <item>
+        <widget class="QLabel" name="lblTestament">
+         <property name="text">
+          <string>Bible/T&amp;estament:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboTestament</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboTestament">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="5" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="chkboxReverse">
+         <property name="text">
+          <string>Reverse &amp;Direction</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblRefType">
+         <property name="text">
+          <string>T&amp;ype:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboRefType</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboRefType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -325,10 +355,10 @@
   <tabstop>spinChapter</tabstop>
   <tabstop>spinBook</tabstop>
   <tabstop>comboTestament</tabstop>
-  <tabstop>chkboxReverse</tabstop>
   <tabstop>editStartRef</tabstop>
   <tabstop>editResolved</tabstop>
   <tabstop>editVersePreview</tabstop>
+  <tabstop>comboRefType</tabstop>
  </tabstops>
  <resources/>
  <connections/>

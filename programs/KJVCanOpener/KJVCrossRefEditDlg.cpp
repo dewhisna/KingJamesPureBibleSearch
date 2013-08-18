@@ -201,9 +201,9 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	if (ndxRel.verse()) {
 		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	} else if (ndxRel.chapter()) {
-		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
+		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters);
 	} else {
-		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
+		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, defaultDocumentToBookInfoFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	}
 
 	// Update working database from source database:

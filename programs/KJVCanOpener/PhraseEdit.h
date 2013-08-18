@@ -29,6 +29,7 @@
 #include "VerseRichifier.h"
 #include "PersistentSettings.h"
 
+#include <QFlags>
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTextCursor>
@@ -217,7 +218,9 @@ public:
 		TRO_UserNotesForceVisible = 0x20,			// Force show user notes (Force only flag)
 		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes for setting both)
 		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
-		TRO_CrossRefAnchors = 0x80					// Add navigation anchors for cross-references
+		TRO_CrossRefAnchors = 0x80,					// Add navigation anchors for cross-references
+		TRO_Category = 0x100,						// Add book category
+		TRO_SuppressPrePostChapters = 0x200			// Suppress adding pre/post chapter displays
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
@@ -242,12 +245,15 @@ public:
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
 	// Text Fill Functions:
+#define defaultDocumentToBookInfoFlags	(CPhraseNavigator::TRO_Subtitles | \
+										 CPhraseNavigator::TRO_Category)
 #define defaultDocumentToChapterFlags	(CPhraseNavigator::TRO_UserNotes | \
 										 CPhraseNavigator::TRO_UserNoteExpandAnchors | \
 										 CPhraseNavigator::TRO_CrossRefAnchors | \
 										 CPhraseNavigator::TRO_Subtitles | \
-										 CPhraseNavigator::TRO_Colophons)
-	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TRO_None);
+										 CPhraseNavigator::TRO_Colophons | \
+										 CPhraseNavigator::TRO_Category)
+	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	void setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
 	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TRO_None);
 	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors

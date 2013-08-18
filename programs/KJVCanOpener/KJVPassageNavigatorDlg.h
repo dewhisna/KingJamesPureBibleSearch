@@ -40,7 +40,10 @@ class CKJVPassageNavigatorDlg : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase, QWidget *parent);
+	explicit CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
+									 QWidget *parent,
+									 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
+									 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD);
 	virtual ~CKJVPassageNavigatorDlg();
 
 	void setGotoButtonText(const QString &strText);
@@ -48,6 +51,9 @@ public:
 	TPhraseTag passage() const;
 	void setPassage(const TPhraseTag &tag);
 	CKJVPassageNavigator &navigator();
+
+	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM refType() const;
+	void setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType);
 
 private slots:
 	void en_modeChanged(bool bRelative);

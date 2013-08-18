@@ -35,7 +35,7 @@
 
 // Placeholder Constructor:
 
-CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent, NavigatorRefTypeOptionFlags flagsRefTypes, NAVIGATOR_REF_TYPE_ENUM nRefType)
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_nTestament(0),
@@ -43,6 +43,8 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_nChapter(0),
 		m_nVerse(0),
 		m_nWord(0),
+		m_flagsRefTypes(flagsRefTypes),
+		m_nRefType(nRefType),
 		m_bDoingUpdate(false),
 		ui(new Ui::CKJVPassageNavigator)
 {
@@ -65,6 +67,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(ui->spinChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterChanged(int)));
 	connect(ui->spinBook, SIGNAL(valueChanged(int)), this, SLOT(BookChanged(int)));
 	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(en_ReverseChanged(bool)));
+	connect(ui->comboRefType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_RefTypeChanged(int)));
 	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
@@ -120,6 +123,16 @@ void CKJVPassageNavigator::initialize()
 	ui->spinChapter->setRange(0, nChapters);
 	ui->spinVerse->setRange(0, nVerses);
 	ui->spinWord->setRange(0, nWords);
+
+	bool bAllTypes = (m_flagsRefTypes == NRTO_Default);
+	ui->comboRefType->clear();
+	if ((m_flagsRefTypes & NRTO_Word) || (bAllTypes)) ui->comboRefType->addItem(tr("Word"), static_cast<int>(NRTE_WORD));
+	if ((m_flagsRefTypes & NRTO_Verse) || (bAllTypes)) ui->comboRefType->addItem(tr("Verse"), static_cast<int>(NRTE_VERSE));
+	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui->comboRefType->addItem(tr("Chapter"), static_cast<int>(NRTE_CHAPTER));
+	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui->comboRefType->addItem(tr("Book"), static_cast<int>(NRTE_BOOK));
+	int nTypeIndex = ui->comboRefType->findData(static_cast<int>(m_nRefType));
+	assert(nTypeIndex != -1);
+	ui->comboRefType->setCurrentIndex(nTypeIndex);
 
 	startAbsoluteMode();
 	reset();
@@ -188,6 +201,39 @@ void CKJVPassageNavigator::en_ReverseChanged(bool bReverse)
 	CalcPassage();
 }
 
+void CKJVPassageNavigator::en_RefTypeChanged(int nType)
+{
+	if (m_bDoingUpdate) return;
+
+	m_nRefType = static_cast<NAVIGATOR_REF_TYPE_ENUM>(ui->comboRefType->itemData(nType).toInt());
+	CalcPassage();
+}
+
+TPhraseTag CKJVPassageNavigator::passage() const
+{
+	TPhraseTag tagPassage;
+
+	switch (m_nRefType) {
+		case NRTE_WORD:
+			tagPassage = m_tagPassage;
+			break;
+		case NRTE_VERSE:
+			tagPassage = TPhraseTag(CRelIndex(m_tagPassage.relIndex().book(), m_tagPassage.relIndex().chapter(), m_tagPassage.relIndex().verse(), 0), m_tagPassage.count());
+			break;
+		case NRTE_CHAPTER:
+			tagPassage = TPhraseTag(CRelIndex(m_tagPassage.relIndex().book(), m_tagPassage.relIndex().chapter(), 0, 0), m_tagPassage.count());
+			break;
+		case NRTE_BOOK:
+			tagPassage = TPhraseTag(CRelIndex(m_tagPassage.relIndex().book(), 0, 0, 0), m_tagPassage.count());
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	return tagPassage;
+}
+
 void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 {
 	begin_update();
@@ -216,8 +262,38 @@ void CKJVPassageNavigator::CalcPassage()
 	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui->chkboxReverse->isChecked()));
 	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.relIndex()));
 	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
-	navigator.setDocumentToVerse(m_tagPassage.relIndex());
-	navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
+
+	switch (m_nRefType) {
+		case NRTE_WORD:
+			navigator.setDocumentToVerse(m_tagPassage.relIndex());
+			navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
+			break;
+		case NRTE_VERSE:
+			navigator.setDocumentToVerse(m_tagPassage.relIndex());
+			break;
+		case NRTE_CHAPTER:
+			navigator.setDocumentToChapter(m_tagPassage.relIndex(), CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
+			break;
+		case NRTE_BOOK:
+			navigator.setDocumentToBookInfo(m_tagPassage.relIndex());
+			break;
+	}
+
+}
+
+void CKJVPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
+{
+	begin_update();
+
+	int nTypeIndex = ui->comboRefType->findData(static_cast<int>(nRefType));
+	assert(nTypeIndex != -1);
+	if (nTypeIndex != -1) {
+		m_nRefType = nRefType;
+		ui->comboRefType->setCurrentIndex(nTypeIndex);
+		CalcPassage();
+	}
+
+	end_update();
 }
 
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
