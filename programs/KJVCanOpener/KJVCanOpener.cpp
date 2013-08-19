@@ -288,8 +288,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pAction->setToolTip(tr("Exit Application"));
 	pAction->setMenuRole(QAction::QuitRole);
 
-	ui->mainToolBar->addSeparator();
-
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedBrowser()));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
@@ -301,6 +299,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu(tr("&Toolbars"));
 	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
 	ui->mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
+	pViewToolbarsMenu->addAction(ui->browserNavigationToolBar->toggleViewAction());
+	ui->browserNavigationToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide the Scripture Browser Navigation Tool Bar"));
 	pViewToolbarsMenu->addAction(ui->usernotesToolBar->toggleViewAction());
 	ui->usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
@@ -459,7 +459,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), tr("History &Backward"), this);
 	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
 	m_pActionNavBackward->setStatusTip(tr("Go Backward in Navigation History"));
-	ui->mainToolBar->addAction(m_pActionNavBackward);
+	ui->browserNavigationToolBar->addAction(m_pActionNavBackward);
 	connect(m_pBrowserWidget, SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget, SIGNAL(backward()));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
@@ -469,7 +469,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), tr("History &Forward"), this);
 	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
 	m_pActionNavForward->setStatusTip(tr("Go Forward in Navigation History"));
-	ui->mainToolBar->addAction(m_pActionNavForward);
+	ui->browserNavigationToolBar->addAction(m_pActionNavForward);
 	connect(m_pBrowserWidget, SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget, SIGNAL(forward()));
 	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
@@ -484,7 +484,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), tr("&Clear Navigation History"), this);
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip(tr("Clear All Passage Navigation History"));
-	ui->mainToolBar->addAction(m_pActionNavClear);
+	ui->browserNavigationToolBar->addAction(m_pActionNavClear);
 	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(en_clearBrowserHistory()));
 	m_pActionNavClear->setEnabled(m_pBrowserWidget->isBackwardAvailable() ||
 									m_pBrowserWidget->isForwardAvailable());
@@ -496,7 +496,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator"), this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	m_pActionJump->setStatusTip(tr("Display the Passage Navigator Widget"));
-	ui->mainToolBar->addAction(m_pActionJump);
+	ui->browserNavigationToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
 
 	pNavMenu->addSeparator();
