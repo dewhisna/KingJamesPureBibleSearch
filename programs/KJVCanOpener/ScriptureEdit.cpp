@@ -719,26 +719,32 @@ template<class T, class U>
 void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 {
 	QString strAnchor = link.toString();
-	if (!strAnchor.startsWith(QChar('N'))) return;
+	if (strAnchor.startsWith(QChar('N'))) {
+		CRelIndex ndxLink(strAnchor.mid(1));
+		assert(ndxLink.isSet());
+		if (!ndxLink.isSet()) return;
 
-	CRelIndex ndxLink(strAnchor.mid(1));
-	assert(ndxLink.isSet());
-	if (!ndxLink.isSet()) return;
+		assert(g_pUserNotesDatabase != NULL);
+		assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
+		if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
 
-	assert(g_pUserNotesDatabase != NULL);
-	assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
-	if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
+		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
+		userNote.setIsVisible(!userNote.isVisible());
+		g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
 
-	CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
-	userNote.setIsVisible(!userNote.isVisible());
-	g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
+		// Re-render text:
+		if (selection().relIndex().chapter() == 0) {
+			// Special case if it's an entire book, use our last active tag:
+			emit T::gotoIndex(m_tagLastActive);
+		} else {
+			emit T::gotoIndex(selection());
+		}
+	} else if (strAnchor.startsWith(QChar('R'))) {
+		CRelIndex ndxLink(strAnchor.mid(1));
+		assert(ndxLink.isSet());
+		if (!ndxLink.isSet()) return;
 
-	// Re-render text:
-	if (selection().relIndex().chapter() == 0) {
-		// Special case if it's an entire book, use our last active tag:
-		emit T::gotoIndex(m_tagLastActive);
-	} else {
-		emit T::gotoIndex(selection());
+		emit T::gotoIndex(TPhraseTag(ndxLink));
 	}
 }
 

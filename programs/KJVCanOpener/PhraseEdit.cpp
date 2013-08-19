@@ -838,6 +838,10 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 		scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
 		scriptureHTML.endDiv();
 	}
+	// Add CrossRefs:
+	if (flagsTRO & TRO_CrossRefs) {
+		scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxBook, !(flagsTRO & TRO_NoAnchors));
+	}
 	// If we have a User Note for this book, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
 		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
@@ -913,6 +917,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		// Add CrossRefs:
+		if (flagsTRO & TRO_CrossRefs) {
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relPrev, !(flagsTRO & TRO_NoAnchors));
+		}
 		scriptureHTML.endParagraph();
 
 		if (flagsTRO & TRO_UserNotes)
@@ -971,6 +979,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 			scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
 			scriptureHTML.endDiv();
 		}
+		// Add CrossRefs:
+		if (flagsTRO & TRO_CrossRefs) {
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxBook, !(flagsTRO & TRO_NoAnchors));
+		}
 		// If we have a User Note for this book, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
 			(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
@@ -993,6 +1005,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		scriptureHTML.endDiv();
 	}
 	scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
+
+	// Add CrossRefs:
+	if (flagsTRO & TRO_CrossRefs) {
+		scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxBookChap, !(flagsTRO & TRO_NoAnchors));
+	}
 
 	// If we have a chapter User Note for this chapter, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
@@ -1027,6 +1044,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+
+		// Add CrossRefs:
+		if (flagsTRO & TRO_CrossRefs) {
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors));
+		}
 
 		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
 		scriptureHTML.startBuffered();
@@ -1109,6 +1131,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 				scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBookNext)));
 				scriptureHTML.endDiv();
 			}
+			// Add CrossRefs:
+			if (flagsTRO & TRO_CrossRefs) {
+				scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxBookNext, !(flagsTRO & TRO_NoAnchors));
+			}
 			// If we have a User Note for this book, print it too:
 			if ((flagsTRO & TRO_UserNotes) &&
 				(scriptureHTML.addNoteFor(ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
@@ -1132,6 +1158,11 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		}
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
+		// Add CrossRefs:
+		if (flagsTRO & TRO_CrossRefs) {
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxBookChapNext, !(flagsTRO & TRO_NoAnchors));
+		}
+
 		// If we have a chapter User Note for this chapter, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
 			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
@@ -1145,6 +1176,12 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+
+		// Add CrossRefs:
+		if (flagsTRO & TRO_CrossRefs) {
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relNext, !(flagsTRO & TRO_NoAnchors));
+		}
+
 		scriptureHTML.endParagraph();
 
 		if (flagsTRO & TRO_UserNotes)
@@ -1238,6 +1275,11 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 	scriptureHTML.endBold();
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+
+	// Add CrossRefs:
+	if (flagsTRO & TRO_CrossRefs) {
+		scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors));
+	}
 
 	scriptureHTML.endParagraph();
 

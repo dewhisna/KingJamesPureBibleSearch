@@ -218,7 +218,7 @@ public:
 		TRO_UserNotesForceVisible = 0x20,			// Force show user notes (Force only flag)
 		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes for setting both)
 		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
-		TRO_CrossRefAnchors = 0x80,					// Add navigation anchors for cross-references
+		TRO_CrossRefs = 0x80,						// Add navigation anchors/text for cross-references
 		TRO_Category = 0x100,						// Add book category
 		TRO_SuppressPrePostChapters = 0x200			// Suppress adding pre/post chapter displays
 	};
@@ -249,7 +249,7 @@ public:
 										 CPhraseNavigator::TRO_Category)
 #define defaultDocumentToChapterFlags	(CPhraseNavigator::TRO_UserNotes | \
 										 CPhraseNavigator::TRO_UserNoteExpandAnchors | \
-										 CPhraseNavigator::TRO_CrossRefAnchors | \
+										 CPhraseNavigator::TRO_CrossRefs | \
 										 CPhraseNavigator::TRO_Subtitles | \
 										 CPhraseNavigator::TRO_Colophons | \
 										 CPhraseNavigator::TRO_Category)

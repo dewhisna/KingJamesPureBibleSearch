@@ -381,6 +381,14 @@ QString CBibleDatabase::bookName(const CRelIndex &nRelIndex) const
 	return book.m_strBkName;
 }
 
+QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
+{
+	uint32_t nBk = nRelIndex.book();
+	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
+	const CBookEntry &book = m_lstBooks[nBk-1];
+	return book.m_strBkAbbr;
+}
+
 QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask, unsigned int nSelectionSize) const
 {
 	CRefCountCalc Bk(this, CRefCountCalc::RTE_BOOK, nRelIndex);
@@ -495,6 +503,22 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 	}
 	return QString("%1 %2:%3 [%4]").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
 }
+
+QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex) const
+{
+	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>");
+	if (nRelIndex.chapter() == 0) {
+		return QString("%1").arg(bookNameAbbr(nRelIndex));
+	}
+	if (nRelIndex.verse() == 0) {
+		return QString("%1 %2").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter());
+	}
+	if (nRelIndex.word() == 0) {
+		return QString("%1 %2:%3").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
+	}
+	return QString("%1 %2:%3 [%4]").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
+}
+
 
 // ============================================================================
 

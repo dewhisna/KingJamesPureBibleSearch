@@ -251,10 +251,31 @@ bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatab
 		beginParagraph();
 		if (bAddAnchors) beginAnchorID(relNdx.asAnchor());
 		appendRawText(pFootnote->htmlText(pBibleDatabase));
-		if (bAddAnchors) {
-			endAnchor();
-		}
+		if (bAddAnchors) endAnchor();
 		endParagraph();
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+{
+	assert(pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+
+	if (g_pUserNotesDatabase->haveCrossReferencesFor(relNdx)) {
+		const TRelativeIndexSet refs = g_pUserNotesDatabase->crossReferencesFor(relNdx);
+		bool bNext = false;
+		appendLiteralText("[");
+		for (TRelativeIndexSet::const_iterator itrRefs = refs.begin(); itrRefs != refs.end(); ++itrRefs) {
+			if (bNext) appendLiteralText(", ");
+			if (bAddAnchors) beginAnchor(QString("R%1").arg(itrRefs->asAnchor()));
+			appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(*itrRefs));
+			if (bAddAnchors) endAnchor();
+			bNext = true;
+		}
+		appendLiteralText("]");
 		return true;
 	} else {
 		return false;
@@ -343,10 +364,31 @@ bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleData
 		beginParagraph();
 		if (bAddAnchors) beginAnchorID(relNdx.asAnchor());
 		appendRawText(pFootnote->plainText(pBibleDatabase));
-		if (bAddAnchors) {
-			endAnchor();
-		}
+		if (bAddAnchors) endAnchor();
 		endParagraph();
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+{
+	assert(pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+
+	if (g_pUserNotesDatabase->haveCrossReferencesFor(relNdx)) {
+		const TRelativeIndexSet refs = g_pUserNotesDatabase->crossReferencesFor(relNdx);
+		bool bNext = false;
+		appendLiteralText("[");
+		for (TRelativeIndexSet::const_iterator itrRefs = refs.begin(); itrRefs != refs.end(); ++itrRefs) {
+			if (bNext) appendLiteralText(", ");
+			if (bAddAnchors) beginAnchor(QString("R%1").arg(itrRefs->asAnchor()));
+			appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(*itrRefs));
+			if (bAddAnchors) endAnchor();
+			bNext = true;
+		}
+		appendLiteralText("]");
 		return true;
 	} else {
 		return false;
