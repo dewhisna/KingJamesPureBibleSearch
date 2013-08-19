@@ -137,7 +137,7 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_parsedPhrase(parsedPhrase),
-		m_nCompletionFilterMode(SCFME_SOUNDEX),
+		m_nCompletionFilterMode(SCFME_NORMAL),
 		m_pSearchStringListModel(NULL),
 		m_pSoundExFilterModel(NULL)
 {
