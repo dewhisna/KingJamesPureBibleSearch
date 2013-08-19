@@ -156,6 +156,9 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 //		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 //		m_pEditMenu->addSeparator();
 //		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+
+		m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
+		T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 	}
 
