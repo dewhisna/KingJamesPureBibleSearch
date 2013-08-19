@@ -38,6 +38,19 @@
   <layout class="QGridLayout" name="gridLayoutMain">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayoutControls">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="buttonBackgroundColor">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Note Back&amp;ground Color</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="lblNoteLocation">
        <property name="text">
@@ -101,23 +114,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="buttonBackgroundColor">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Note Back&amp;ground Color</string>
-       </property>
-      </widget>
-     </item>
-	 <item row="0" column="3" rowspan="2">
-      <widget class="CNoteKeywordWidget" name="widgetNoteKeywords" native="true"/>
-     </item>
-	 <item row="0" column="4" rowspan="2">
+     <item row="0" column="5" rowspan="2">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -129,6 +126,32 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="0" column="3" rowspan="2">
+      <widget class="CNoteKeywordWidget" name="widgetNoteKeywords" native="true"/>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="buttonInsertLink">
+       <property name="toolTip">
+        <string>Insert Reference Link</string>
+       </property>
+       <property name="statusTip">
+        <string>Insert Scripture Reference Link</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="KJVCanOpener.qrc">
+         <normaloff>:/res/Actions-insert-link-icon-48.png</normaloff>:/res/Actions-insert-link-icon-48.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -160,7 +183,9 @@
   <tabstop>buttonBox</tabstop>
   <tabstop>editNoteLocation</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="KJVCanOpener.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

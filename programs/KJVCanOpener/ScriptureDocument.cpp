@@ -282,6 +282,17 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 	}
 }
 
+void CScriptureTextHtmlBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+{
+	assert(pBibleDatabase != NULL);
+
+	appendLiteralText("[");
+	if (bAddAnchors) beginAnchor(QString("R%1").arg(relNdx.asAnchor()));
+	appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(relNdx));
+	if (bAddAnchors) endAnchor();
+	appendLiteralText("]");
+}
+
 // ============================================================================
 
 CScripturePlainTextBuilder::CScripturePlainTextBuilder()
@@ -393,6 +404,18 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 	} else {
 		return false;
 	}
+}
+
+
+void CScripturePlainTextBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+{
+	assert(pBibleDatabase != NULL);
+
+	appendLiteralText("[");
+	if (bAddAnchors) beginAnchor(QString("R%1").arg(relNdx.asAnchor()));
+	appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(relNdx));
+	if (bAddAnchors) endAnchor();
+	appendLiteralText("]");
 }
 
 // ============================================================================

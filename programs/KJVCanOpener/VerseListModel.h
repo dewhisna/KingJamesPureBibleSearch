@@ -32,6 +32,7 @@
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QPersistentModelIndex>
 #include <QList>
 #include <QMap>
 #include <QStringList>
@@ -457,7 +458,7 @@ public:
 		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 		QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
 		mutable TVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
-		QMap<QModelIndex, QSize> m_mapSizeHints;	// Map of QModelIndex to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
+		QMap<QPersistentModelIndex, QSize> m_mapSizeHints;	// Map of QModelIndex to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 
 		// --------------------------------------
 

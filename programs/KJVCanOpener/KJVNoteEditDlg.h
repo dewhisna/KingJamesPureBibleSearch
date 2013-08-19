@@ -71,9 +71,11 @@ private slots:
 	void en_BackgroundColorPicked(const QColor &color);
 	void en_ButtonClicked(QAbstractButton *button);
 	void en_keywordListChanged();
+	void en_clickedInsertReferenceLink();
 
 private:
 	void setBackgroundColorPreview();
+	CRelIndex navigateCrossRef(const CRelIndex &ndxStart);		// Bring up navigator at specified starting location for entering a ref-link and return selected ref.  If user cancels, returns CRelIndex()
 
 private:
 	static QAction *m_pActionUserNoteEditor;
@@ -89,6 +91,7 @@ private:
 	bool m_bDoingUpdate;
 	bool m_bIsDirty;
 	CRelIndex m_ndxLocation;
+	CRelIndex m_ndxLastRefLink;
 	CUserNoteEntry m_UserNote;
 	bool m_bHaveGeometry;
 };

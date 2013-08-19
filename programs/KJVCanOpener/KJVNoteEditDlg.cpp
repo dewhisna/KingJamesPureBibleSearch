@@ -26,12 +26,17 @@
 
 #include "PersistentSettings.h"
 
+#include "KJVPassageNavigatorDlg.h"
+#include "ScriptureDocument.h"
+
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QByteArray>
 #include <QMessageBox>
 #include <QIcon>
 #include <QPair>
+#include <QTextDocument>
+#include <QTextCursor>
 
 // ============================================================================
 
@@ -167,6 +172,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
 	connect(ui->widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
+	connect(ui->buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
 
 	m_pRichTextEdit->setFocus();
 }
@@ -307,6 +313,44 @@ void CKJVNoteEditDlg::en_keywordListChanged()
 	m_bIsDirty = true;
 
 	m_bDoingUpdate = false;
+}
+
+// ============================================================================
+
+void CKJVNoteEditDlg::en_clickedInsertReferenceLink()
+{
+	CRelIndex ndxStart = m_ndxLastRefLink;
+
+	if (!ndxStart.isSet()) ndxStart = m_ndxLocation;
+
+	CRelIndex ndxTarget = navigateCrossRef(ndxStart);
+
+	if (ndxTarget.isSet()) {
+		m_ndxLastRefLink = ndxTarget;
+
+		CScriptureTextHtmlBuilder refHTML;
+		refHTML.addRefLinkFor(m_pBibleDatabase.data(), ndxTarget, true);
+
+		m_pRichTextEdit->insertHtml(refHTML.getResult());
+		m_bIsDirty = true;
+	}
+}
+
+CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
+{
+	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CKJVPassageNavigator::NRTE_VERSE;
+	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
+	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
+
+	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	dlg.setGotoButtonText(tr("&OK"));
+	TPhraseTag tagNav(ndxStart);
+	dlg.navigator().startAbsoluteMode(tagNav);
+	if (dlg.exec() != QDialog::Accepted) return CRelIndex();
+
+	CRelIndex ndxTarget = dlg.passage().relIndex();
+	ndxTarget.setWord(0);			// Whole verse references only
+	return ndxTarget;
 }
 
 // ============================================================================

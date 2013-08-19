@@ -1181,6 +1181,7 @@ void CVerseListModel::en_changedUserNote(const CRelIndex &ndx)
 	Q_UNUSED(ndx);				// TODO : Add logic to use ndx to insert/remove a single note if we can
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
 		emit layoutAboutToBeChanged();
+		m_userNotesResults.m_mapSizeHints.clear();
 		emit layoutChanged();
 	}
 }

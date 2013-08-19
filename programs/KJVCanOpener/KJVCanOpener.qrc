@@ -66,5 +66,10 @@
 		<file>res/ok_blue-24.png</file>
 		<file>res/cancel-24.png</file>
 		<file>res/deletered1-24.png</file>
+		<file>res/Actions-insert-link-icon-48.png</file>
+		<file>res/Add-link-icon-48.png</file>
+		<file>res/Delete-link-icon-48.png</file>
+		<file>res/link-icon2-48.png</file>
+		<file>res/link-icon-48.png</file>
 	</qresource>
 </RCC>
