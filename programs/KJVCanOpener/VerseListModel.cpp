@@ -529,7 +529,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
 			assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 			TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
-			for (int i = index.row(); i > 0; ++itrRef, --i);
+			for (int i = index.row(); i > 0; ++itrRef, --i) { }
 			ndxRel = *(itrRef);
 			ndxVerse = *(itrRef);
 			ndxVerse.setWord(0);
@@ -739,7 +739,7 @@ CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index
 		const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
 		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
-		for (int i = index.row(); i > 0; ++itrRef, --i);
+		for (int i = index.row(); i > 0; ++itrRef, --i) { }
 		ndxVerse = *(itrRef);
 	}
 
@@ -811,7 +811,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 		const TRelativeIndexSet setCrossRefs1 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel1);
 		assert((ndx1.row() >= 0) && (static_cast<unsigned int>(ndx1.row()) < setCrossRefs1.size()));
 		TRelativeIndexSet::const_iterator itrRef1 = setCrossRefs1.begin();
-		for (int i = ndx1.row(); i > 0; ++itrRef1, --i);
+		for (int i = ndx1.row(); i > 0; ++itrRef1, --i) { }
 		ndxRel1 = *(itrRef1);
 	}
 	CRelIndex ndxRel2(toVerseIndex(ndx2)->relIndex());
@@ -819,7 +819,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 		const TRelativeIndexSet setCrossRefs2 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel2);
 		assert((ndx2.row() >= 0) && (static_cast<unsigned int>(ndx2.row()) < setCrossRefs2.size()));
 		TRelativeIndexSet::const_iterator itrRef2 = setCrossRefs2.begin();
-		for (int i = ndx2.row(); i > 0; ++itrRef2, --i);
+		for (int i = ndx2.row(); i > 0; ++itrRef2, --i) { }
 		ndxRel2 = *(itrRef2);
 	}
 	return (ndxRel1 < ndxRel2);
@@ -831,7 +831,7 @@ CUserNotesDatabase *CVerseListModel::ms_pUserNotesDatabase = NULL;
 void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes) const
 {
 	static QAtomicInt nThreadLock(0);
-	while (!nThreadLock.testAndSetRelaxed(0, 1));	// Mutex wait for thread if someone is currently running this function
+	while (!nThreadLock.testAndSetRelaxed(0, 1)) { }	// Mutex wait for thread if someone is currently running this function
 	ms_pUserNotesDatabase = m_private.m_pUserNotesDatabase.data();
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
