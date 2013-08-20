@@ -400,6 +400,30 @@ void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 
 // ----------------------------------------------------------------------------
 
+bool CNoteKeywordWidget::haveUnenteredKeywords() const
+{
+	assert(m_nMode == KWME_EDITOR);
+
+	bool bHaveUnenteredKeywords = false;
+	QStringList lstNewKeywords = ui->comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
+	for (int ndx = 0; ndx < lstNewKeywords.size(); ++ndx) {
+		QString strNewKeyword = lstNewKeywords.at(ndx).trimmed();
+
+		if (!strNewKeyword.isEmpty()) {
+			QModelIndex index = m_pKeywordModel->findKeyword(strNewKeyword);
+			if (!index.isValid()) {
+				bHaveUnenteredKeywords = true;
+			} else {
+				if (!index.data(Qt::CheckStateRole).toBool()) {
+					bHaveUnenteredKeywords = true;
+				}
+			}
+		}
+	}
+
+	return bHaveUnenteredKeywords;
+}
+
 void CNoteKeywordWidget::en_keywordEntered()
 {
 	assert(m_nMode == KWME_EDITOR);

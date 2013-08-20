@@ -237,6 +237,14 @@ void CKJVNoteEditDlg::accept()
 	assert(m_pRichTextEdit != NULL);
 	assert(m_pUserNotesDatabase != NULL);
 
+	if (ui->widgetNoteKeywords->haveUnenteredKeywords()) {
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
+																   "haven't yet entered them to where they will take effect.\n\n"
+																   "Do you wish to set them as valid keywords for this note?"),
+																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
+		if (nResult == QMessageBox::Yes) ui->widgetNoteKeywords->enterKeywords();
+	}
+
 	m_UserNote.setText(m_pRichTextEdit->toHtml());
 	m_UserNote.setIsVisible(true);			// Make note visible when they are explicitly setting it
 	m_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);

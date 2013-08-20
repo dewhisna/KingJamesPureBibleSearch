@@ -168,6 +168,9 @@ public:
 	KEYWORD_WIDGET_MODE_ENUM mode() const { return m_nMode; }
 	void setMode(KEYWORD_WIDGET_MODE_ENUM nMode);
 
+	bool haveUnenteredKeywords() const;				// Returns true if the user has entered some text in the keyword editor, but hasn't pressed "enter" to make them take effect
+	void enterKeywords() { en_keywordEntered(); }	// Simulate user pressing "enter" to enter keyword text
+
 signals:
 	void keywordListChanged();
 
