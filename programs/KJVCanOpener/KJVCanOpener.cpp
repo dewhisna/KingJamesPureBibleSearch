@@ -199,7 +199,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":res/chalkboard-note-128.png"), tr("Add/Edit/Remove Note..."));
+	pAction = ui->usernotesToolBar->addAction(QIcon(":/res/chalkboard-note-128.png"), tr("Add/Edit/Remove Note..."));
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
 	pAction->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
 	pAction->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
@@ -207,7 +207,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."));
+	pAction = ui->usernotesToolBar->addAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."));
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
 	pAction->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	pAction->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
@@ -425,7 +425,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();			// Put details at the end
 
-	m_pActionViewDetails = m_pViewMenu->addAction(tr("View &Details..."), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionViewDetails = m_pViewMenu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), tr("View &Details..."), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
 	m_pActionViewDetails->setStatusTip(tr("View Passage Details"));
 	m_pActionViewDetails->setEnabled(false);
 	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
@@ -505,7 +505,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui->menuBar->addMenu(tr("Se&ttings"));
 
-	pAction = pSettingsMenu->addAction(QIcon(":res/Settings-icon2-128.png"), tr("Configure..."), this, SLOT(en_Configure()));
+	pAction = pSettingsMenu->addAction(QIcon(":/res/Settings-icon2-128.png"), tr("Configure..."), this, SLOT(en_Configure()));
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Configure King James Pure Bible Search"));
 	pAction->setMenuRole(QAction::PreferencesRole);

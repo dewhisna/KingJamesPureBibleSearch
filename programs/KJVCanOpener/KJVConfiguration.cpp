@@ -706,7 +706,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *
 
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, this);
 
-	addGroup(m_pTextFormatConfig, QIcon(":res/Font_Graphics_Color_Icon_128.png"), "Text Color and Fonts");
+	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), "Text Color and Fonts");
 	setCurrentGroup(m_pTextFormatConfig);
 
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));

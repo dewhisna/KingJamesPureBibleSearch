@@ -466,7 +466,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	}
 	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.addSeparator();
-	QAction *pActionDetails = menu.addAction(T::tr("View &Details..."));
+	QAction *pActionDetails = menu.addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), T::tr("View &Details..."));
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));

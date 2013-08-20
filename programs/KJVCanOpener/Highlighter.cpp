@@ -428,7 +428,7 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
-		m_lstButtons[ndx]->setIcon(QIcon(":res/highlighter_translucent_01-256.png"));
+		m_lstButtons[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
 	} else {
 		QIcon iconHighlighter(iconHighlighterPreview(strUserDefinedHighlighterName));
 		m_lstButtons[ndx]->setIcon(QIcon(iconHighlighter));

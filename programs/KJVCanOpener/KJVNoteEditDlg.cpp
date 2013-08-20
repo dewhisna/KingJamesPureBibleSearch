@@ -156,11 +156,11 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	// Setup Dialog buttons:
 
 	assert(ui->buttonBox->button(QDialogButtonBox::Ok) != NULL);
-	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":res/ok_blue-24.png"));
+	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
 	assert(ui->buttonBox->button(QDialogButtonBox::Cancel) != NULL);
-	ui->buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":res/cancel-24.png"));
+	ui->buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
 	m_pDeleteNoteButton = ui->buttonBox->addButton(tr("Delete Note"), QDialogButtonBox::ActionRole);
-	m_pDeleteNoteButton->setIcon(QIcon(":res/deletered1-24.png"));
+	m_pDeleteNoteButton->setIcon(QIcon(":/res/deletered1-24.png"));
 	connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(en_ButtonClicked(QAbstractButton*)));
 
 	// --------------------------------------------------------------
