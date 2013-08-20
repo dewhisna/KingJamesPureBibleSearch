@@ -262,7 +262,7 @@ void CKJVPassageNavigator::CalcPassage()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui->chkboxReverse->isChecked()));
-	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(m_tagPassage.relIndex()));
+	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
 	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
 
 	CRelIndex ndxWord(m_tagPassage.relIndex());
