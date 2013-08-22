@@ -80,7 +80,7 @@ public:
 	inline CRelIndex singleCrossRefSourceIndex() const { return vlmodel()->singleCrossRefSourceIndex(); }
 
 	TVerseIndex currentVerseIndex() const;
-	bool canShowPassageNavigator() const;
+	bool editableNodeSelected() const;
 
 	QModelIndexList getSelectedVerses() const;
 
@@ -180,7 +180,7 @@ public:
 	QModelIndex currentIndex() const;
 	TVerseIndex currentVerseIndex() const;
 	bool hasFocusSearchResult() const;
-	bool canShowPassageNavigator() const;
+	bool editableNodeSelected() const;
 
 	inline QMenu *getEditMenu() { return m_pSearchResultsTreeView->getEditMenu(); }
 	inline QMenu *getLocalEditMenu() { return m_pSearchResultsTreeView->getLocalEditMenu(); }

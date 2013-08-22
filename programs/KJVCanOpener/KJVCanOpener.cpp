@@ -1209,6 +1209,13 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(true, pEditor);
 	setDetailsEnable();
+
+	CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(false);
+	CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(false);
+	const QList<QAction *> lstHighlightActions = CHighlighterButtons::instance()->actions();
+	for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+		lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+	}
 }
 
 bool CKJVCanOpener::isBrowserFocusedOrActive() const
@@ -1374,7 +1381,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 
 	if (isBrowserFocusedOrActive()) {
 		m_pBrowserWidget->showPassageNavigator();
-	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->canShowPassageNavigator())) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
 		CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
@@ -1398,7 +1405,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 	if (isBrowserFocusedOrActive()) {
 		indexNote = m_pBrowserWidget->selection().relIndex();
-	} else if (isSearchResultsFocusedOrActive()) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected()))  {
 		indexNote = m_pSearchResultWidget->vlmodel()->navigationIndexForModelIndex(m_pSearchResultWidget->currentIndex());
 	}
 
@@ -1422,7 +1429,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 
 	if (isBrowserFocusedOrActive()) {
 		tagCrossRef.setFromPhraseTag(m_pBibleDatabase, m_pBrowserWidget->selection());
-	} else if (isSearchResultsFocusedOrActive()) {
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		// Unlike editing notes and passage navigation, editing cross-references should bring up the "Source" Cross-Reference:
 		tagCrossRef = TPassageTag(m_pSearchResultWidget->currentVerseIndex().relIndex());
 	}

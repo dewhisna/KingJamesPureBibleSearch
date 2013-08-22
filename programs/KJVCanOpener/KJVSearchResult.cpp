@@ -399,9 +399,11 @@ bool CSearchResultsTreeView::setCurrentIndex(const TVerseIndex &ndx, bool bFocus
 
 // ----------------------------------------------------------------------------
 
-bool CSearchResultsTreeView::canShowPassageNavigator() const
+bool CSearchResultsTreeView::editableNodeSelected() const
 {
-	return ((selectionModel()->selectedRows().count() == 1) || (vlmodel()->navigationIndexForModelIndex(currentIndex()).isSet()));
+	return ((selectionModel()->selectedRows().size() <= 1) &&
+			(currentIndex().isValid()) &&
+			(CVerseListModel::toVerseIndex(currentIndex())->relIndex().isSet()));
 }
 
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
@@ -461,7 +463,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 		if (!ndxRel.isSet()) return;
 	} else {
 		ndxRel = vlmodel()->navigationIndexForModelIndex(currentIndex());
-		assert(ndxRel.isSet());			// Should have had one or the other because of canShowPassageNavigator()
+		assert(ndxRel.isSet());			// Should have had one or the other because of editableNodeSelected()
 		if (!ndxRel.isSet()) return;
 	}
 
@@ -480,6 +482,7 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
 	QTreeView::focusInEvent(event);
+	handle_selectionChanged();
 }
 
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
@@ -536,7 +539,19 @@ void CSearchResultsTreeView::handle_selectionChanged()
 		m_pActionCopyComplete->setEnabled(false);
 		m_pActionClearSelection->setEnabled(false);
 	}
-	m_pActionNavigator->setEnabled((lstSelectedItems.size() <= 1) && (currentIndex().isValid()));		// Only allow navigation on a node (verse or otherwise)
+	// Only allow navigation, note adding, cross-refs, etc on a node (verse or otherwise)
+	bool bEditableNode = editableNodeSelected();
+
+	m_pActionNavigator->setEnabled(bEditableNode);
+
+	if (hasFocus()) {
+		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditableNode);
+		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditableNode);
+		const QList<QAction *> lstHighlightActions = CHighlighterButtons::instance()->actions();
+		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+			lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+		}
+	}
 
 	QString strStatusText;
 
@@ -817,9 +832,9 @@ void CKJVSearchResult::showDetails()
 	m_pSearchResultsTreeView->showDetails();
 }
 
-bool CKJVSearchResult::canShowPassageNavigator() const
+bool CKJVSearchResult::editableNodeSelected() const
 {
-	return m_pSearchResultsTreeView->canShowPassageNavigator();
+	return m_pSearchResultsTreeView->editableNodeSelected();
 }
 
 void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)

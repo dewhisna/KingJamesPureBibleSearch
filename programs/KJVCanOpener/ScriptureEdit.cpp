@@ -277,10 +277,16 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 {
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
+		bool bEditEnable = false;
 		if (qobject_cast<QTextBrowser *>(this) != NULL) {
-			CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(true);
-		} else {
-			CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(false);
+			bEditEnable = true;
+		}
+
+		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditEnable);
+		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditEnable);
+		const QList<QAction *> lstHighlightActions = CHighlighterButtons::instance()->actions();
+		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+			lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
 		}
 	}
 
