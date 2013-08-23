@@ -23,12 +23,14 @@
 
 #include "KJVConfiguration.h"
 #include "ui_KJVTextFormatConfig.h"
+#include "ui_KJVBibleDatabaseConfig.h"
+#include "ui_KJVUserNotesDatabaseConfig.h"
+#include "ui_KJVGeneralSettingsConfig.h"
 
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
 #include "PersistentSettings.h"
-#include "UserNotesDatabase.h"
 #include "Highlighter.h"
 
 #include <QIcon>
@@ -699,17 +701,100 @@ void CKJVTextFormatConfig::setPreview()
 
 // ============================================================================
 
-CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
-	:	QwwConfigWidget(parent)
+CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+	:	QWidget(parent),
+		m_pBibleDatabase(pBibleDatabase),
+		m_bIsDirty(false),
+		ui(new Ui::CKJVBibleDatabaseConfig)
 {
 	assert(pBibleDatabase != NULL);
 
+	ui->setupUi(this);
+
+}
+
+CKJVBibleDatabaseConfig::~CKJVBibleDatabaseConfig()
+{
+
+}
+
+void CKJVBibleDatabaseConfig::saveSettings()
+{
+
+}
+
+// ============================================================================
+
+CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
+	:	QWidget(parent),
+		m_pUserNotesDatabase(pUserNotesDatabase),
+		m_bIsDirty(false),
+		ui(new Ui::CKJVUserNotesDatabaseConfig)
+{
+	assert(pUserNotesDatabase != NULL);
+
+	ui->setupUi(this);
+
+}
+
+CKJVUserNotesDatabaseConfig::~CKJVUserNotesDatabaseConfig()
+{
+
+}
+
+void CKJVUserNotesDatabaseConfig::saveSettings()
+{
+
+}
+
+// ============================================================================
+
+CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		ui(new Ui::CKJVGeneralSettingsConfig)
+{
+	ui->setupUi(this);
+
+}
+
+CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
+{
+
+}
+
+void CKJVGeneralSettingsConfig::saveSettings()
+{
+
+}
+
+// ============================================================================
+
+CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+	:	QwwConfigWidget(parent),
+		m_pGeneralSettingsConfig(NULL),
+		m_pTextFormatConfig(NULL),
+		m_pUserNotesDatabaseConfig(NULL),
+		m_pBibleDatabaseConfig(NULL)
+{
+	assert(pBibleDatabase != NULL);
+	assert(g_pUserNotesDatabase != NULL);
+
+	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, this);
+	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
+	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
-	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), "Text Color and Fonts");
-	setCurrentGroup(m_pTextFormatConfig);
+	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
+	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
+	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
+	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
+	setCurrentGroup(m_pGeneralSettingsConfig);
 
+	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
 CKJVConfiguration::~CKJVConfiguration()

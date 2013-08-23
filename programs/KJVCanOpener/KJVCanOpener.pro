@@ -181,7 +181,10 @@ FORMS    += KJVCanOpener.ui \
 	KJVTextFormatConfig.ui \
 	KJVNoteEditDlg.ui \
 	NoteKeywordWidget.ui \
-	KJVCrossRefEditDlg.ui
+	KJVCrossRefEditDlg.ui \
+	KJVBibleDatabaseConfig.ui \
+	KJVUserNotesDatabaseConfig.ui \
+	KJVGeneralSettingsConfig.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

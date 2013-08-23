@@ -72,5 +72,11 @@
 		<file>res/link-icon2-48.png</file>
 		<file>res/link-icon-48.png</file>
 		<file>res/Windows-View-Detail-icon-48.png</file>
+		<file>res/Database1-128.png</file>
+		<file>res/Database2-128.png</file>
+		<file>res/Database3-128.png</file>
+		<file>res/Database4-128.png</file>
+		<file>res/Data_management_Icon_128.png</file>
+		<file>res/ControlPanel-256.png</file>
 	</qresource>
 </RCC>

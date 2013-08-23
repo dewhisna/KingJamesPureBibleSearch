@@ -723,7 +723,7 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 		if (!g_pUserNotesDatabase->load()) {
-			QMessageBox::warning(this, tr("King James User Notes Database Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
+			QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
 			// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 			//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
 			//		the time we exit.  But save a reference to it so we can get the user navigated back there:

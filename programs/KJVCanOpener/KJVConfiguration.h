@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
+#include "UserNotesDatabase.h"
 
 #include <QWidget>
 #include <QDialog>
@@ -145,6 +146,101 @@ private:
 
 // ============================================================================
 
+namespace Ui {
+	class CKJVBibleDatabaseConfig;
+}
+
+class CKJVBibleDatabaseConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	~CKJVBibleDatabaseConfig();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+// Data Private:
+private:
+	CBibleDatabasePtr m_pBibleDatabase;
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CKJVBibleDatabaseConfig *ui;
+};
+
+// ============================================================================
+
+namespace Ui {
+	class CKJVUserNotesDatabaseConfig;
+}
+
+class CKJVUserNotesDatabaseConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
+	~CKJVUserNotesDatabaseConfig();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+// Data Private:
+private:
+	CUserNotesDatabasePtr m_pUserNotesDatabase;
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CKJVUserNotesDatabaseConfig *ui;
+};
+
+// ============================================================================
+
+namespace Ui {
+	class CKJVGeneralSettingsConfig;
+}
+
+class CKJVGeneralSettingsConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVGeneralSettingsConfig(QWidget *parent = 0);
+	~CKJVGeneralSettingsConfig();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+// Data Private:
+private:
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CKJVGeneralSettingsConfig *ui;
+};
+
+// ============================================================================
+
 class CKJVConfiguration : public QwwConfigWidget
 {
 	Q_OBJECT
@@ -160,7 +256,10 @@ signals:
 	void dataChanged();
 
 private:
+	CKJVGeneralSettingsConfig *m_pGeneralSettingsConfig;
 	CKJVTextFormatConfig *m_pTextFormatConfig;
+	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
+	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
 };
 
 // ============================================================================
