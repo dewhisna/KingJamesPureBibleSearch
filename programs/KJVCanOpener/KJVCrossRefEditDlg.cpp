@@ -157,6 +157,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 	// --------------------------------------------------------------
 
+	connect(ui->buttonSelectSourceRef, SIGNAL(clicked()), this, SLOT(en_SelectSourceReferenceClicked()));
 	connect(ui->buttonAddRef, SIGNAL(clicked()), this, SLOT(en_AddReferenceClicked()));
 	connect(ui->buttonDeleteRef, SIGNAL(clicked()), this, SLOT(en_DelReferenceClicked()));
 
@@ -220,13 +221,18 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 }
 
 // ============================================================================
-void CKJVCrossRefEditDlg::accept()
+
+void CKJVCrossRefEditDlg::saveCrossRefs()
 {
 	assert(m_pUserNotesDatabase != NULL);
 
 	m_pUserNotesDatabase->setCrossRefsMap(m_pWorkingUserNotesDatabase->crossRefsMap());
-
 	m_bIsDirty = false;
+}
+
+void CKJVCrossRefEditDlg::accept()
+{
+	saveCrossRefs();
 	m_bHaveGeometry = true;
 	QDialog::accept();
 }
@@ -295,6 +301,21 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 }
 
 // ============================================================================
+
+void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
+{
+	if (m_bIsDirty) {
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??"),
+																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
+		if (nResult == QMessageBox::Yes) saveCrossRefs();
+	}
+
+	CRelIndex ndxTarget = navigateCrossRef(m_tagSourcePassage.relIndex());
+	if (ndxTarget.isSet()) {
+		setSourcePassage(TPassageTag(ndxTarget));		// This will reset m_bIsDirty for us
+	}
+	// If user cancels out of navigator, we leave the original reference dirtiness as-is
+}
 
 void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 {

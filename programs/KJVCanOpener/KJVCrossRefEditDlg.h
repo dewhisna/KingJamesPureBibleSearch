@@ -69,10 +69,12 @@ public slots:
 	virtual void reject();
 
 private slots:
+	void saveCrossRefs();
 	void en_crossRefTreeViewContextMenuRequested(const QPoint &pos);
 	void en_crossRefTreeViewCurrentItemChanged();
 	void en_crossRefTreeViewSelectionListChanged();
 	void en_crossRefTreeViewEntryActivated(const QModelIndex &index);		// Enter or double-click activated
+	void en_SelectSourceReferenceClicked();
 	void en_AddReferenceClicked();
 	void en_DelReferenceClicked();
 

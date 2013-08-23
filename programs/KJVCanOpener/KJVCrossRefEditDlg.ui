@@ -49,7 +49,7 @@
        <item>
         <widget class="QLabel" name="labelSourcePassage">
          <property name="text">
-          <string>&amp;Source Passage:</string>
+          <string>Source &amp;Passage:</string>
          </property>
          <property name="buddy">
           <cstring>editSourcePassage</cstring>
@@ -103,6 +103,17 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="buttonSelectSourceRef">
+         <property name="text">
+          <string>Select &amp;Source Reference...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="KJVCanOpener.qrc">
+           <normaloff>:/res/Nav3_Arrow_Up.png</normaloff>:/res/Nav3_Arrow_Up.png</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="layoutWidgetRefList">
@@ -128,6 +139,9 @@
          <property name="icon">
           <iconset resource="KJVCanOpener.qrc">
            <normaloff>:/res/green_arrow.png</normaloff>:/res/green_arrow.png</iconset>
+         </property>
+         <property name="shortcut">
+          <string>Ins</string>
          </property>
         </widget>
        </item>
@@ -166,6 +180,7 @@
   <tabstop>treeCrossRefs</tabstop>
   <tabstop>buttonAddRef</tabstop>
   <tabstop>buttonDeleteRef</tabstop>
+  <tabstop>buttonSelectSourceRef</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
