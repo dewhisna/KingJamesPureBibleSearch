@@ -68,7 +68,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Special Text Colors:
 		m_clrWordsOfJesus(QColor("red")),
 		m_clrSearchResults(QColor("blue")),
-		m_clrCursorFollow(QColor("blue"))
+		m_clrCursorFollow(QColor("blue")),
+		// Default Search Phrase Completer Filter Mode:
+		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL)
 {
 
 }
@@ -120,6 +122,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedColorWordsOfJesus(pTarget->m_clrWordsOfJesus);
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
+
+		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 	}
 }
 
@@ -202,3 +206,8 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
 }
 
+void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+{
+	m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
+	emit changedSearchPhraseCompleterFilterMode(m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode);
+}

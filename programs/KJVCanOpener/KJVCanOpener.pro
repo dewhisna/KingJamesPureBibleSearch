@@ -184,7 +184,9 @@ FORMS    += KJVCanOpener.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVBibleDatabaseConfig.ui \
 	KJVUserNotesDatabaseConfig.ui \
-	KJVGeneralSettingsConfig.ui
+	KJVGeneralSettingsConfig.ui \
+	ConfigSearchOptions.ui \
+	ConfigCopyOptions.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

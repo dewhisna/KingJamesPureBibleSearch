@@ -37,6 +37,7 @@
 #include "Highlighter.h"
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#include "SearchCompleter.h"
 
 #include <assert.h>
 
@@ -104,6 +105,7 @@ namespace {
 	const QString constrLastSearchGroup("LastSearch");
 	const QString constrSearchPhrasesGroup("SearchPhrases");
 	const QString constrSearchActivationDelayKey("SearchActivationDelay");
+	const QString constrSearchPhraseCompleterFilterModeKey("SearchPhraseCompleterFilterMode");
 
 	// Search Results View:
 	const QString constrSearchResultsViewGroup("SearchResultsView");
@@ -657,6 +659,7 @@ void CKJVCanOpener::savePersistentSettings()
 	// Search Phrases Settings:
 	settings.beginGroup(constrSearchPhrasesGroup);
 	settings.setValue(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay());
+	settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 	settings.endGroup();
 
 	// Last Search:
@@ -776,6 +779,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	// Search Phrases Settings:
 	settings.beginGroup(constrSearchPhrasesGroup);
 	m_pSearchSpecWidget->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay()).toInt());
+	CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 	settings.endGroup();
 
 	// Read Last Search before setting Search Results mode or else the last settings

@@ -211,6 +211,73 @@ private:
 // ============================================================================
 
 namespace Ui {
+	class CConfigSearchOptions;
+}
+
+class CConfigSearchOptions : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CConfigSearchOptions(QWidget *parent = 0);
+	~CConfigSearchOptions();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+private slots:
+	void en_changedSearchPhraseCompleterFilterMode(int nIndex);
+
+// Data Private:
+private:
+
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CConfigSearchOptions *ui;
+};
+
+// ============================================================================
+
+namespace Ui {
+	class CConfigCopyOptions;
+}
+
+class CConfigCopyOptions : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CConfigCopyOptions(QWidget *parent = 0);
+	~CConfigCopyOptions();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+// Data Private:
+private:
+
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CConfigCopyOptions *ui;
+};
+
+// ============================================================================
+
+namespace Ui {
 	class CKJVGeneralSettingsConfig;
 }
 
@@ -224,7 +291,7 @@ public:
 
 	void saveSettings();					// Writes changes back to system
 
-	bool isDirty() const { return m_bIsDirty; }
+	bool isDirty() const;
 
 signals:
 	void dataChanged();
@@ -234,8 +301,6 @@ private:
 
 // UI Private:
 private:
-	bool m_bIsDirty;
-
 	Ui::CKJVGeneralSettingsConfig *ui;
 };
 
@@ -250,7 +315,7 @@ public:
 	virtual ~CKJVConfiguration();
 
 	void saveSettings();					// Writes changes back to system
-	bool isDirty() const { return m_pTextFormatConfig->isDirty(); }
+	bool isDirty() const;
 
 signals:
 	void dataChanged();

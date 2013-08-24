@@ -114,6 +114,7 @@ private slots:
 	void en_textChanged();
 	void en_cursorPositionChanged();
 	void en_dropCommonPhrasesClicked();
+	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 
 signals:
 	void phraseChanged();

@@ -29,6 +29,7 @@
 #include <QFont>
 #include <QColor>
 #include <QList>
+#include "SearchCompleter.h"
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -56,9 +57,11 @@ public:
 	QColor textForegroundColor() const;
 	QColor textBackgroundColor() const;
 
-	inline QColor colorWordsOfJesus() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
-	inline QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
-	inline QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
+	QColor colorWordsOfJesus() const { return m_pPersistentSettingData->m_clrWordsOfJesus; }
+	QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
+	QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
+
+	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 
 	void togglePersistentSettingData(bool bCopy);
 
@@ -76,6 +79,8 @@ signals:
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
 
+	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
+
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
@@ -87,6 +92,8 @@ public slots:
 	void setColorWordsOfJesus(const QColor &color);
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
+
+	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -111,6 +118,8 @@ private:
 		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
+		// ----
+		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

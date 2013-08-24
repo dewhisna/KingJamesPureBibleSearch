@@ -26,12 +26,15 @@
 #include "ui_KJVBibleDatabaseConfig.h"
 #include "ui_KJVUserNotesDatabaseConfig.h"
 #include "ui_KJVGeneralSettingsConfig.h"
+#include "ui_ConfigSearchOptions.h"
+#include "ui_ConfigCopyOptions.h"
 
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
+#include "SearchCompleter.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -700,6 +703,7 @@ void CKJVTextFormatConfig::setPreview()
 }
 
 // ============================================================================
+// ============================================================================
 
 CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent),
@@ -723,6 +727,7 @@ void CKJVBibleDatabaseConfig::saveSettings()
 
 }
 
+// ============================================================================
 // ============================================================================
 
 CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
@@ -748,14 +753,83 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 }
 
 // ============================================================================
+// ============================================================================
+
+CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		ui(new Ui::CConfigSearchOptions)
+{
+	ui->setupUi(this);
+
+	ui->comboSearchPhraseCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
+	ui->comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
+	ui->comboSearchPhraseCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
+
+	int nIndex = ui->comboSearchPhraseCompleterMode->findData(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	if (nIndex != -1) {
+		ui->comboSearchPhraseCompleterMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	connect(ui->comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
+}
+
+CConfigSearchOptions::~CConfigSearchOptions()
+{
+
+}
+
+void CConfigSearchOptions::saveSettings()
+{
+	int nIndex = ui->comboSearchPhraseCompleterMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui->comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
+		m_bIsDirty = false;
+	} else {
+		assert(false);
+	}
+}
+
+void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
+{
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+// ============================================================================
+
+CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		ui(new Ui::CConfigCopyOptions)
+{
+	ui->setupUi(this);
+
+}
+
+CConfigCopyOptions::~CConfigCopyOptions()
+{
+
+}
+
+void CConfigCopyOptions::saveSettings()
+{
+
+}
+
+// ============================================================================
 
 CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(QWidget *parent)
 	:	QWidget(parent),
-		m_bIsDirty(false),
 		ui(new Ui::CKJVGeneralSettingsConfig)
 {
 	ui->setupUi(this);
 
+	connect(ui->widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui->widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
 CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
@@ -765,9 +839,16 @@ CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
 
 void CKJVGeneralSettingsConfig::saveSettings()
 {
-
+	ui->widgetSearchOptions->saveSettings();
+	ui->widgetCopyOptions->saveSettings();
 }
 
+bool CKJVGeneralSettingsConfig::isDirty() const
+{
+	return (ui->widgetSearchOptions->isDirty() || ui->widgetCopyOptions->isDirty());
+}
+
+// ============================================================================
 // ============================================================================
 
 CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
@@ -804,7 +885,18 @@ CKJVConfiguration::~CKJVConfiguration()
 
 void CKJVConfiguration::saveSettings()
 {
+	m_pGeneralSettingsConfig->saveSettings();
 	m_pTextFormatConfig->saveSettings();
+	m_pUserNotesDatabaseConfig->saveSettings();
+	m_pBibleDatabaseConfig->saveSettings();
+}
+
+bool CKJVConfiguration::isDirty() const
+{
+	return (m_pGeneralSettingsConfig->isDirty() ||
+			m_pTextFormatConfig->isDirty() ||
+			m_pUserNotesDatabaseConfig->isDirty() ||
+			m_pBibleDatabaseConfig->isDirty());
 }
 
 // ============================================================================

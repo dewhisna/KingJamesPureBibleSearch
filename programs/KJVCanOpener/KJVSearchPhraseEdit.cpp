@@ -26,6 +26,7 @@
 
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
+#include "PersistentSettings.h"
 
 #ifdef SIGNAL_SPY_DEBUG
 #include "main.h"
@@ -181,6 +182,8 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
 
+	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
 	m_pButtonDroplist->setToolTip(tr("Show Phrase List"));
@@ -203,6 +206,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 
 //	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 
@@ -538,6 +542,11 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
 	m_pCommonPhrasesCompleter->complete();
+}
+
+void CPhraseLineEdit::en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+{
+	m_pCompleter->setCompletionFilterMode(nMode);
 }
 
 // ============================================================================

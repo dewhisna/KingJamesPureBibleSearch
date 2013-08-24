@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0" >
-<comment>****************************************************************************
+<ui version="4.0">
+ <comment>****************************************************************************
 **
 ** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
@@ -23,19 +23,122 @@
 **
 ****************************************************************************</comment>
  <class>CKJVGeneralSettingsConfig</class>
- <widget class="QWidget" name="CKJVGeneralSettingsConfig" >
-  <property name="geometry" >
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
-   </rect>
-  </property>
-  <property name="windowTitle" >
+ <widget class="QWidget" name="CKJVGeneralSettingsConfig">
+  <property name="windowTitle">
    <string>General Settings</string>
   </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="verticalSpacing">
+    <number>0</number>
+   </property>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="frameSearchOptions">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="CConfigSearchOptions" name="widgetSearchOptions" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QFrame" name="frameCopyOptions">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="CConfigCopyOptions" name="widgetCopyOptions" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblSearchOptions">
+     <property name="text">
+      <string>Search Options:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="lblCopyOptions">
+     <property name="text">
+      <string>Copy Options:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>8</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>CConfigSearchOptions</class>
+   <extends>QWidget</extends>
+   <header>KJVConfiguration.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CConfigCopyOptions</class>
+   <extends>QWidget</extends>
+   <header>KJVConfiguration.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections/>
 </ui>

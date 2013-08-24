@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>****************************************************************************
+**
+** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************</comment>
+ <class>CConfigSearchOptions</class>
+ <widget class="QWidget" name="CConfigSearchOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>294</width>
+    <height>34</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Search Options</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="lblSearchPhraseCompleterMode">
+       <property name="text">
+        <string>Search Phrase &amp;Completer Mode:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>comboSearchPhraseCompleterMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboSearchPhraseCompleterMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
