@@ -35,6 +35,7 @@
 #include "PersistentSettings.h"
 #include "Highlighter.h"
 #include "SearchCompleter.h"
+#include "PhraseEdit.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -808,6 +809,66 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 {
 	ui->setupUi(this);
 
+	int nIndex;
+
+	// ----------
+
+	ui->comboReferenceDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui->comboReferenceDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui->comboReferenceDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui->comboReferenceDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
+
+	nIndex = ui->comboReferenceDelimiterMode->findData(CPersistentSettings::instance()->referenceDelimiterMode());
+	if (nIndex != -1) {
+		ui->comboReferenceDelimiterMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	connect(ui->comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
+
+	// ----------
+
+	ui->comboVerseNumberDelimiterMode->addItem(tr("No Numbers"), CPhraseNavigator::RDME_NO_NUMBER);
+	ui->comboVerseNumberDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui->comboVerseNumberDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui->comboVerseNumberDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui->comboVerseNumberDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
+	ui->comboVerseNumberDelimiterMode->addItem(tr("Superscript"), CPhraseNavigator::RDME_SUPERSCRIPT);
+
+	nIndex = ui->comboVerseNumberDelimiterMode->findData(CPersistentSettings::instance()->verseNumberDelimiterMode());
+	if (nIndex != -1) {
+		ui->comboVerseNumberDelimiterMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	connect(ui->comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
+
+	// ----------
+
+	ui->checkBoxUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->useAbbreviatedBookNames());
+	connect(ui->checkBoxUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedUseAbbreviatedBookName(bool)));
+
+	// ----------
+
+	ui->checkBoxAddQuotesAroundVerse->setChecked(CPersistentSettings::instance()->addQuotesAroundVerse());
+	connect(ui->checkBoxAddQuotesAroundVerse, SIGNAL(clicked(bool)), this, SLOT(en_changedAddQuotesAroundVerse(bool)));
+
+	// ----------
+
+	ui->comboTransChangeAddedMode->addItem(tr("No Marking"), CPhraseNavigator::TCAWME_NO_MARKING);
+	ui->comboTransChangeAddedMode->addItem(tr("Italics"), CPhraseNavigator::TCAWME_ITALICS);
+	ui->comboTransChangeAddedMode->addItem(tr("Brackets"), CPhraseNavigator::TCAWME_BRACKETS);
+
+	nIndex = ui->comboTransChangeAddedMode->findData(CPersistentSettings::instance()->transChangeAddWordMode());
+	if (nIndex != -1) {
+		ui->comboTransChangeAddedMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	connect(ui->comboTransChangeAddedMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTransChangeAddWordMode(int)));
 }
 
 CConfigCopyOptions::~CConfigCopyOptions()
@@ -817,7 +878,75 @@ CConfigCopyOptions::~CConfigCopyOptions()
 
 void CConfigCopyOptions::saveSettings()
 {
+	int nIndex;
 
+	nIndex = ui->comboReferenceDelimiterMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
+
+	// ----------
+
+	nIndex = ui->comboVerseNumberDelimiterMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
+	}
+
+	// ----------
+
+	CPersistentSettings::instance()->setUseAbbreviatedBookNames(ui->checkBoxUseAbbreviatedBookNames->isChecked());
+
+	// ----------
+
+	CPersistentSettings::instance()->setAddQuotesAroundVerse(ui->checkBoxAddQuotesAroundVerse->isChecked());
+
+	// ----------
+
+	nIndex = ui->comboTransChangeAddedMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui->comboTransChangeAddedMode->itemData(nIndex).toUInt()));
+	}
+
+	// ----------
+
+	m_bIsDirty = false;
+}
+
+void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
+{
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
+{
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigCopyOptions::en_changedUseAbbreviatedBookName(bool bUseAbbrBookName)
+{
+	Q_UNUSED(bUseAbbrBookName);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigCopyOptions::en_changedAddQuotesAroundVerse(bool bAddQuotes)
+{
+	Q_UNUSED(bAddQuotes);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
+{
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
 }
 
 // ============================================================================

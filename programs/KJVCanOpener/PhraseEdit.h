@@ -27,7 +27,6 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 #include "VerseRichifier.h"
-#include "PersistentSettings.h"
 
 #include <QFlags>
 #include <QTextDocument>
@@ -224,14 +223,22 @@ public:
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
-	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL)
-		:	QObject(parent),
-			m_pBibleDatabase(pBibleDatabase),
-			m_TextDocument(textDocument)
-	{
-		m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-		connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
-	}
+	enum REFERENCE_DELIMITER_MODE_ENUM {
+		RDME_NO_NUMBER = -1,						// No Numbers (Verse Number Delimiter Type only)
+		RDME_NO_DELIMITER = 0,						// No Delimiter
+		RDME_SQUARE_BRACKETS = 1,					// Reference and/or Verse in Square Brackets:  [Genesis 1:1], [2]
+		RDME_CURLY_BRACES = 2,						// Reference and/or Verse in Curly Braces: {Genesis 1:1}, {2}
+		RDME_PARENTHESES = 3,						// Reference and/or Verse in Parentheses: (Genesis 1:1), (2)
+		RDME_SUPERSCRIPT = 4						// Verse in Superscript (Verse Number Delimiter Type only)
+	};
+
+	enum TRANS_CHANGE_ADD_WORD_MODE_ENUM {
+		TCAWME_NO_MARKING = 0,						// Remove delimiters from translation add/change word
+		TCAWME_ITALICS = 1,							// Put translation add/change words in italics
+		TCAWME_BRACKETS = 2							// Put brackets around translation add/change words
+	};
+
+	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL);
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
 	int anchorPosition(const QString &strAnchorName) const;

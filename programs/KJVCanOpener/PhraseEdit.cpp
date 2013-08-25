@@ -28,6 +28,7 @@
 #include "SearchCompleter.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
+#include "PersistentSettings.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -623,6 +624,15 @@ void CPhraseCursor::selectCursorToLineEnd()
 }
 
 // ============================================================================
+
+CPhraseNavigator::CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent)
+	:	QObject(parent),
+		m_pBibleDatabase(pBibleDatabase),
+		m_TextDocument(textDocument)
+{
+	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+}
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 {

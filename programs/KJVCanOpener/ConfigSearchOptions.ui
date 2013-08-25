@@ -24,14 +24,6 @@
 ****************************************************************************</comment>
  <class>CConfigSearchOptions</class>
  <widget class="QWidget" name="CConfigSearchOptions">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>294</width>
-    <height>34</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Search Options</string>
   </property>
@@ -54,7 +46,7 @@
      <item>
       <widget class="QComboBox" name="comboSearchPhraseCompleterMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

@@ -126,6 +126,14 @@ namespace {
 	//const QString constrFontKey("Font");
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
 
+	// Copy Options:
+	const QString constrCopyOptionsGroup("CopyOptions");
+	const QString constrReferenceDelimiterModeKey("ReferenceDelimiterMode");
+	const QString constrVerseNumberDelimiterModeKey("VerseNumberDelimiterMode");
+	const QString constrAbbreviatedBookNamesKey("AbbreviatedBookNames");
+	const QString constrAddQuotesAroundVerseKey("AddQuotesAroundVerse");
+	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
+
 	// UserNoteEditor Dialog:
 	const QString constrUserNoteEditorGroup("UserNoteEditor");
 
@@ -677,6 +685,15 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
+
+	// Copy Options:
+	settings.beginGroup(constrCopyOptionsGroup);
+	settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
+	settings.setValue(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode());
+	settings.setValue(constrAbbreviatedBookNamesKey, CPersistentSettings::instance()->useAbbreviatedBookNames());
+	settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
+	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
+	settings.endGroup();
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -851,6 +868,15 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
+
+	// Copy Options:
+	settings.beginGroup(constrCopyOptionsGroup);
+	CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
+	CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
+	CPersistentSettings::instance()->setUseAbbreviatedBookNames(settings.value(constrAbbreviatedBookNamesKey, CPersistentSettings::instance()->useAbbreviatedBookNames()).toBool());
+	CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
+	CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
+	settings.endGroup();
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave

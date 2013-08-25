@@ -70,7 +70,13 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue")),
 		// Default Search Phrase Completer Filter Mode:
-		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL)
+		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+		// Default Copy Options:
+		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
+		m_nVerseNumberDelimiterMode(CPhraseNavigator::RDME_CURLY_BRACES),
+		m_bUseAbbreviatedBookNames(false),
+		m_bAddQuotesAroundVerse(false),
+		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS)
 {
 
 }
@@ -124,6 +130,12 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
+
+		if ((pSource->m_nReferenceDelimiterMode != pTarget->m_nReferenceDelimiterMode) ||
+			(pSource->m_nVerseNumberDelimiterMode != pTarget->m_nVerseNumberDelimiterMode) ||
+			(pSource->m_bUseAbbreviatedBookNames != pTarget->m_bUseAbbreviatedBookNames) ||
+			(pSource->m_bAddQuotesAroundVerse != pTarget->m_bAddQuotesAroundVerse) ||
+			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode)) emit changedCopyOptions();
 	}
 }
 
@@ -211,3 +223,34 @@ void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::S
 	m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
 	emit changedSearchPhraseCompleterFilterMode(m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode);
 }
+
+void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
+{
+	m_pPersistentSettingData->m_nReferenceDelimiterMode = nMode;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
+{
+	m_pPersistentSettingData->m_nVerseNumberDelimiterMode = nMode;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setUseAbbreviatedBookNames(bool bUseAbbrBookNames)
+{
+	m_pPersistentSettingData->m_bUseAbbreviatedBookNames = bUseAbbrBookNames;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setAddQuotesAroundVerse(bool bAddQuotes)
+{
+	m_pPersistentSettingData->m_bAddQuotesAroundVerse = bAddQuotes;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode)
+{
+	m_pPersistentSettingData->m_nTransChangeAddWordMode = nMode;
+	emit changedCopyOptions();
+}
+

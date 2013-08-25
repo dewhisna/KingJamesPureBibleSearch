@@ -30,6 +30,7 @@
 #include <QColor>
 #include <QList>
 #include "SearchCompleter.h"
+#include "PhraseEdit.h"
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -63,6 +64,12 @@ public:
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 
+	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
+	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM verseNumberDelimiterMode() const { return m_pPersistentSettingData->m_nVerseNumberDelimiterMode; }
+	bool useAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bUseAbbreviatedBookNames; }
+	bool addQuotesAroundVerse() const { return m_pPersistentSettingData->m_bAddQuotesAroundVerse; }
+	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
+
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
@@ -81,6 +88,8 @@ signals:
 
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 
+	void changedCopyOptions();
+
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
@@ -94,6 +103,12 @@ public slots:
 	void setColorCursorFollow(const QColor &color);
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+
+	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
+	void setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
+	void setUseAbbreviatedBookNames(bool bUseAbbrBookNames);
+	void setAddQuotesAroundVerse(bool bAddQuotes);
+	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -120,6 +135,12 @@ private:
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
+		// ----
+		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
+		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nVerseNumberDelimiterMode;
+		bool m_bUseAbbreviatedBookNames;
+		bool m_bAddQuotesAroundVerse;
+		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

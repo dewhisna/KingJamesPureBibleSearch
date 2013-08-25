@@ -46,7 +46,7 @@
      <item>
       <widget class="QComboBox" name="comboReferenceDelimiterMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -76,7 +76,7 @@
      <item>
       <widget class="QComboBox" name="comboVerseNumberDelimiterMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -113,17 +113,49 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buddy">
-        <cstring>comboBox</cstring>
+        <cstring>comboTransChangeAddedMode</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox"/>
+      <widget class="QComboBox" name="comboTransChangeAddedMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="editCopyOptionPreview">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboReferenceDelimiterMode</tabstop>
+  <tabstop>comboVerseNumberDelimiterMode</tabstop>
+  <tabstop>checkBoxUseAbbreviatedBookNames</tabstop>
+  <tabstop>checkBoxAddQuotesAroundVerse</tabstop>
+  <tabstop>comboTransChangeAddedMode</tabstop>
+  <tabstop>editCopyOptionPreview</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -264,9 +264,15 @@ public:
 signals:
 	void dataChanged();
 
+private slots:
+	void en_changedReferenceDelimiterMode(int nIndex);
+	void en_changedVerseNumberDelimiterMode(int nIndex);
+	void en_changedUseAbbreviatedBookName(bool bUseAbbrBookName);
+	void en_changedAddQuotesAroundVerse(bool bAddQuotes);
+	void en_changedTransChangeAddWordMode(int nIndex);
+
 // Data Private:
 private:
-
 
 // UI Private:
 private:
