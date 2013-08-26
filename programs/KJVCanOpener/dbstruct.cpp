@@ -1063,9 +1063,15 @@ void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPass
 	} else {
 		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPassage.relIndex();
-		CRelIndex ndxTarget = pBibleDatabase->calcRelIndex(0, tagPassage.verseCount(), 0, 0, 0, tagPassage.relIndex());
+		CRelIndex ndxStart = tagPassage.relIndex();
+		ndxStart.setWord(1);
+		CRelIndex ndxTarget = tagPassage.relIndex();
+		if (tagPassage.verseCount() > 1) {
+			// If more than one verse is specified, find the beginning of the last verse:
+			ndxTarget = pBibleDatabase->calcRelIndex(0, tagPassage.verseCount()-1, 0, 0, 0, ndxStart);
+		}
 		ndxTarget.setWord(pBibleDatabase->verseEntry(ndxTarget)->m_nNumWrd);		// Select all words of last verse
-		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(tagPassage.relIndex());
+		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(ndxStart);
 	}
 }
 
@@ -1283,9 +1289,13 @@ void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhra
 	} else {
 		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPhrase.relIndex();
-		CRelIndex ndxTarget = pBibleDatabase->calcRelIndex(tagPhrase.count(), 0, 0, 0, 0, tagPhrase.relIndex());
-		m_nVerseCount = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
-						CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first;
+		m_RelIndex.setWord(1);
+		CRelIndex ndxTarget = tagPhrase.relIndex();
+		if (tagPhrase.count() > 1) {
+			ndxTarget = pBibleDatabase->calcRelIndex(tagPhrase.count()-1, 0, 0, 0, 0, tagPhrase.relIndex());
+		}
+		m_nVerseCount = (CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
+						CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
 	}
 }
 

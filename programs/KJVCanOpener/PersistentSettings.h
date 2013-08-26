@@ -65,8 +65,11 @@ public:
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
+	bool referencesUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames; }
+	bool referencesInBold() const { return m_pPersistentSettingData->m_bReferencesInBold; }
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM verseNumberDelimiterMode() const { return m_pPersistentSettingData->m_nVerseNumberDelimiterMode; }
-	bool useAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bUseAbbreviatedBookNames; }
+	bool verseNumbersUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames; }
+	bool verseNumbersInBold() const { return m_pPersistentSettingData->m_bVerseNumbersInBold; }
 	bool addQuotesAroundVerse() const { return m_pPersistentSettingData->m_bAddQuotesAroundVerse; }
 	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
 
@@ -105,8 +108,11 @@ public slots:
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 
 	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
+	void setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames);
+	void setReferencesInBold(bool bInBold);
 	void setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
-	void setUseAbbreviatedBookNames(bool bUseAbbrBookNames);
+	void setVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookNames);
+	void setVerseNumbersInBold(bool bInBold);
 	void setAddQuotesAroundVerse(bool bAddQuotes);
 	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
 
@@ -137,8 +143,11 @@ private:
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		// ----
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
+		bool m_bReferencesUseAbbreviatedBookNames;
+		bool m_bReferencesInBold;
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nVerseNumberDelimiterMode;
-		bool m_bUseAbbreviatedBookNames;
+		bool m_bVerseNumbersUseAbbreviatedBookNames;
+		bool m_bVerseNumbersInBold;
 		bool m_bAddQuotesAroundVerse;
 		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;

@@ -59,11 +59,52 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxReferencesUseAbbreviatedBookNames">
+       <property name="text">
+        <string>Use &amp;Abbreviated Book Names</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxReferencesInBold">
+       <property name="text">
+        <string>In &amp;Bold</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QLabel" name="lblVerseNumberDelimiterMode">
        <property name="text">
-        <string>&amp;Verse Number Delimiter Mode:</string>
+        <string>&amp;Verse Number Delimiter:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -89,9 +130,43 @@
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxUseAbbreviatedBookNames">
-     <property name="text">
-      <string>Use &amp;Abbreviated Book Names</string>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxVerseNumbersUseAbbreviatedBookNames">
+       <property name="text">
+        <string>Use &amp;Abbreviated Book Names</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxVerseNumbersInBold">
+       <property name="text">
+        <string>In &amp;Bold</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -99,6 +174,13 @@
     <widget class="QCheckBox" name="checkBoxAddQuotesAroundVerse">
      <property name="text">
       <string>Add &amp;Quotes Around Verse/Passage</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -150,8 +232,11 @@
  </widget>
  <tabstops>
   <tabstop>comboReferenceDelimiterMode</tabstop>
+  <tabstop>checkBoxReferencesUseAbbreviatedBookNames</tabstop>
+  <tabstop>checkBoxReferencesInBold</tabstop>
   <tabstop>comboVerseNumberDelimiterMode</tabstop>
-  <tabstop>checkBoxUseAbbreviatedBookNames</tabstop>
+  <tabstop>checkBoxVerseNumbersUseAbbreviatedBookNames</tabstop>
+  <tabstop>checkBoxVerseNumbersInBold</tabstop>
   <tabstop>checkBoxAddQuotesAroundVerse</tabstop>
   <tabstop>comboTransChangeAddedMode</tabstop>
   <tabstop>editCopyOptionPreview</tabstop>

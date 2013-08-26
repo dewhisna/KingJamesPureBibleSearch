@@ -129,8 +129,11 @@ namespace {
 	// Copy Options:
 	const QString constrCopyOptionsGroup("CopyOptions");
 	const QString constrReferenceDelimiterModeKey("ReferenceDelimiterMode");
+	const QString constrReferencesAbbreviatedBookNamesKey("ReferencesAbbreviatedBookNames");
+	const QString constrReferencesInBoldKey("ReferencesInBold");
 	const QString constrVerseNumberDelimiterModeKey("VerseNumberDelimiterMode");
-	const QString constrAbbreviatedBookNamesKey("AbbreviatedBookNames");
+	const QString constrVerseNumbersAbbreviatedBookNamesKey("VerseNumbersAbbreviatedBookNames");
+	const QString constrVerseNumbersInBoldKey("VerseNumbersInBold");
 	const QString constrAddQuotesAroundVerseKey("AddQuotesAroundVerse");
 	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
 
@@ -689,8 +692,11 @@ void CKJVCanOpener::savePersistentSettings()
 	// Copy Options:
 	settings.beginGroup(constrCopyOptionsGroup);
 	settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
+	settings.setValue(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
+	settings.setValue(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold());
 	settings.setValue(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode());
-	settings.setValue(constrAbbreviatedBookNamesKey, CPersistentSettings::instance()->useAbbreviatedBookNames());
+	settings.setValue(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
+	settings.setValue(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold());
 	settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
 	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
 	settings.endGroup();
@@ -872,8 +878,11 @@ void CKJVCanOpener::restorePersistentSettings()
 	// Copy Options:
 	settings.beginGroup(constrCopyOptionsGroup);
 	CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
+	CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(settings.value(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames()).toBool());
+	CPersistentSettings::instance()->setReferencesInBold(settings.value(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold()).toBool());
 	CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
-	CPersistentSettings::instance()->setUseAbbreviatedBookNames(settings.value(constrAbbreviatedBookNamesKey, CPersistentSettings::instance()->useAbbreviatedBookNames()).toBool());
+	CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(settings.value(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames()).toBool());
+	CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
 	CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
 	CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
 	settings.endGroup();

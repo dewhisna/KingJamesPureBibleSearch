@@ -257,6 +257,8 @@ public:
 	explicit CConfigCopyOptions(QWidget *parent = 0);
 	~CConfigCopyOptions();
 
+	void initialize(CBibleDatabasePtr pBibleDatabase);						// Database for the preview
+
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -265,14 +267,23 @@ signals:
 	void dataChanged();
 
 private slots:
+	void en_changedScriptureBrowserFont(const QFont &aFont);
+
 	void en_changedReferenceDelimiterMode(int nIndex);
+	void en_changedReferencesUseAbbreviatedBookNames(bool bUseAbbrBookName);
+	void en_changedReferencesInBold(bool bInBold);
 	void en_changedVerseNumberDelimiterMode(int nIndex);
-	void en_changedUseAbbreviatedBookName(bool bUseAbbrBookName);
+	void en_changedVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookName);
+	void en_changedVerseNumbersInBold(bool bInBold);
 	void en_changedAddQuotesAroundVerse(bool bAddQuotes);
 	void en_changedTransChangeAddWordMode(int nIndex);
 
+private:
+	void setVerseCopyPreview();
+
 // Data Private:
 private:
+	CBibleDatabasePtr m_pBibleDatabase;
 
 // UI Private:
 private:
@@ -292,7 +303,7 @@ class CKJVGeneralSettingsConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVGeneralSettingsConfig(QWidget *parent = 0);
+	explicit CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVGeneralSettingsConfig();
 
 	void saveSettings();					// Writes changes back to system

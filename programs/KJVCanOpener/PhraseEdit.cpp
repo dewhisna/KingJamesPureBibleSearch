@@ -1301,75 +1301,178 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 	emit changedDocumentText();
 }
 
-void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
+void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tagPhrase)
+{
+	setDocumentToFormattedVerses(TPassageTag::fromPhraseTag(m_pBibleDatabase, tagPhrase));
+}
+
+void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassage)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	m_TextDocument.clear();
 
-	if ((!tag.relIndex().isSet()) || (tag.count() == 0)) {
+	if ((!tagPassage.relIndex().isSet()) || (tagPassage.verseCount() == 0)) {
 		emit changedDocumentText();
 		return;
 	}
 
-	CRelIndex ndxFirst = CRelIndex(tag.relIndex().book(), tag.relIndex().chapter(), tag.relIndex().verse(), 1);		// Start on first word of verse
-	CRelIndex ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex()) + tag.count() - 1);		// Add number of words to arrive at last word, wherever that is
-	ndxLast.setWord(1);			// Shift back to the first word of this verse
-	CRelIndex ndxNext = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxLast);	// Add a verse, so we ndxNext is on first word of next verse.
-	ndxLast = m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxNext) - 1);		// Move to next word so ndxLast is the last word of the last verse
-	TPhraseTag tagAdjusted(ndxFirst, m_pBibleDatabase->NormalizeIndex(ndxNext) - m_pBibleDatabase->NormalizeIndex(ndxFirst));
+	CRelIndex ndxFirst = tagPassage.relIndex();
+	ndxFirst.setWord(1);		// We aren't using words, only whole verses, but need to point to first word so normalize will work correctly
+	CRelIndex ndxLast = m_pBibleDatabase->calcRelIndex(0, tagPassage.verseCount()-1, 0, 0, 0, ndxFirst);		// Add number of verses to find last verse to output
+	assert(ndxLast.isSet());
+	assert(ndxLast.word() == 1);		// Note: When we calculate next verse, we'll automatically resolve to the first word.  Leave it at 1st word so our loop compare will work
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
-//						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText()));		// Document Title
+	CScriptureTextHtmlBuilder scriptureHTML;
 
-//	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-	QString strHTML = QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-						.arg(Qt::escape(tagAdjusted.PassageReferenceRangeText(m_pBibleDatabase)));		// Document Title
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+//								"<html><head><title>%1</title><style type=\"text/css\">\n"
+//								"body, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n"
+//								".book { font-size:24pt; font-weight:bold; }\n"
+//								".chapter { font-size:18pt; font-weight:bold; }\n"
+//								"</style></head><body>\n")
+//						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase))));		// Document Title
+
+//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+//								"<html><head><title>%1</title><style type=\"text/css\">\n"
+//								"body, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n"
+//								".book { font-size:xx-large; font-weight:bold; }\n"
+//								".chapter { font-size:x-large; font-weight:bold; }\n"
+//								"</style></head><body>\n")
+//						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase))));		// Document Title
+
+	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+								"<html><head><title>%1</title><style type=\"text/css\">\n"
+								"body, p, li { white-space: pre-wrap; font-size:medium; }\n"
+								".book { font-size:xx-large; font-weight:bold; }\n"
+								".chapter { font-size:x-large; font-weight:bold; }\n"
+								"</style></head><body>\n")
+						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase))));		// Document Title
+
 
 	QString strReference;
 
+	QString strBookNameFirst = (CPersistentSettings::instance()->referencesUseAbbreviatedBookNames() ? m_pBibleDatabase->bookNameAbbr(ndxFirst) : m_pBibleDatabase->bookName(ndxFirst));
+	QString strBookNameLast = (CPersistentSettings::instance()->referencesUseAbbreviatedBookNames() ? m_pBibleDatabase->bookNameAbbr(ndxLast) : m_pBibleDatabase->bookName(ndxLast));
+	strReference += referenceStartingDelimiter();
 	if (ndxFirst.book() == ndxLast.book()) {
 		if (ndxFirst.chapter() == ndxLast.chapter()) {
 			if (ndxFirst.verse() == ndxLast.verse()) {
-				strReference = QString("(%1 %2:%3)")
-										.arg(m_pBibleDatabase->bookName(ndxFirst))
+				strReference += QString("%1 %2:%3")
+										.arg(strBookNameFirst)
 										.arg(ndxFirst.chapter())
 										.arg(ndxFirst.verse());
 			} else {
-				strReference = QString("(%1 %2:%3-%4)")
-										.arg(m_pBibleDatabase->bookName(ndxFirst))
+				strReference += QString("%1 %2:%3-%4")
+										.arg(strBookNameFirst)
 										.arg(ndxFirst.chapter())
 										.arg(ndxFirst.verse())
 										.arg(ndxLast.verse());
 			}
 		} else {
-			strReference = QString("(%1 %2:%3-%4:%5)")
-									.arg(m_pBibleDatabase->bookName(ndxFirst))
+			strReference += QString("%1 %2:%3-%4:%5")
+									.arg(strBookNameFirst)
 									.arg(ndxFirst.chapter())
 									.arg(ndxFirst.verse())
 									.arg(ndxLast.chapter())
 									.arg(ndxLast.verse());
 		}
 	} else {
-		strReference = QString("(%1 %2:%3-%4 %5:%6)")
-								.arg(m_pBibleDatabase->bookName(ndxFirst))
+		strReference += QString("%1 %2:%3-%4 %5:%6")
+								.arg(strBookNameFirst)
 								.arg(ndxFirst.chapter())
 								.arg(ndxFirst.verse())
-								.arg(m_pBibleDatabase->bookName(ndxLast))
+								.arg(strBookNameLast)
 								.arg(ndxLast.chapter())
 								.arg(ndxLast.verse());
 	}
+	strReference += referenceEndingDelimiter();
 
-	strHTML += QString("<p><b>%1</b> &quot;").arg(Qt::escape(strReference));
+	scriptureHTML.beginParagraph();
+	if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
+	scriptureHTML.appendLiteralText(strReference);
+	if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
+	scriptureHTML.appendLiteralText(QString(" %1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+
+	CVerseTextRichifierTags richifierTags = m_richifierTags;
+	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
+		case TCAWME_NO_MARKING:
+			richifierTags.setTransChangeAddedTags(QString(), QString());
+			break;
+		case TCAWME_ITALICS:
+			richifierTags.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
+			break;
+		case TCAWME_BRACKETS:
+			richifierTags.setTransChangeAddedTags(QString("["), QString("]"));
+			break;
+		default:
+			assert(false);
+			break;
+	}
 
 	CRelIndex ndxPrev = ndxFirst;
-	for (CRelIndex ndx = ndxFirst; ndx.index() < ndxLast.index(); ndx=m_pBibleDatabase->calcRelIndex(0,1,0,0,0,ndx)) {
+	for (CRelIndex ndx = ndxFirst; ((ndx.index() <= ndxLast.index()) && (ndx.isSet())); ndx=m_pBibleDatabase->calcRelIndex(0,1,0,0,0,ndx)) {
 		if (ndx.book() != ndxPrev.book()) {
-			strHTML += QString("  <b>(%1 %2:%3)</b> ").arg(Qt::escape(m_pBibleDatabase->bookName(ndx))).arg(ndx.chapter()).arg(ndx.verse());
-		} else if (ndx.chapter() != ndxPrev.chapter()) {
-			strHTML += QString("  <b>{%1:%2}</b> ").arg(ndx.chapter()).arg(ndx.verse());
-		} else if (ndx.verse() != ndxPrev.verse()) {
-			strHTML += QString("  <b>{%1}</b> ").arg(ndx.verse());
+			scriptureHTML.appendLiteralText("  ");
+			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
+			scriptureHTML.appendLiteralText(QString("%1%2 %3:%4%5")
+											.arg(referenceStartingDelimiter())
+											.arg(CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames() ? m_pBibleDatabase->bookNameAbbr(ndx) : m_pBibleDatabase->bookName(ndx))
+											.arg(ndx.chapter())
+											.arg(ndx.verse())
+											.arg(referenceEndingDelimiter()));
+			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
+			scriptureHTML.appendLiteralText(" ");
+		} else if ((ndx.chapter() != ndxPrev.chapter()) || (ndx.verse() != ndxPrev.verse())) {
+			if (CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER)
+				scriptureHTML.appendLiteralText("  ");
+			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
+			switch (CPersistentSettings::instance()->verseNumberDelimiterMode()) {
+				case RDME_NO_NUMBER:
+					break;
+				case RDME_NO_DELIMITER:
+					if (ndx.chapter() != ndxPrev.chapter()) {
+						scriptureHTML.appendLiteralText(QString("%1:%2").arg(ndx.chapter()).arg(ndx.verse()));
+					} else {
+						scriptureHTML.appendLiteralText(QString("%1").arg(ndx.verse()));
+					}
+					break;
+				case RDME_SQUARE_BRACKETS:
+					if (ndx.chapter() != ndxPrev.chapter()) {
+						scriptureHTML.appendLiteralText(QString("[%1:%2]").arg(ndx.chapter()).arg(ndx.verse()));
+					} else {
+						scriptureHTML.appendLiteralText(QString("[%1]").arg(ndx.verse()));
+					}
+					break;
+				case RDME_CURLY_BRACES:
+					if (ndx.chapter() != ndxPrev.chapter()) {
+						scriptureHTML.appendLiteralText(QString("{%1:%2}").arg(ndx.chapter()).arg(ndx.verse()));
+					} else {
+						scriptureHTML.appendLiteralText(QString("{%1}").arg(ndx.verse()));
+					}
+					break;
+				case RDME_PARENTHESES:
+					if (ndx.chapter() != ndxPrev.chapter()) {
+						scriptureHTML.appendLiteralText(QString("(%1:%2)").arg(ndx.chapter()).arg(ndx.verse()));
+					} else {
+						scriptureHTML.appendLiteralText(QString("(%1)").arg(ndx.verse()));
+					}
+					break;
+				case RDME_SUPERSCRIPT:
+					scriptureHTML.beginSuperscript();
+					if (ndx.chapter() != ndxPrev.chapter()) {
+						scriptureHTML.appendLiteralText(QString("%1:%2").arg(ndx.chapter()).arg(ndx.verse()));
+					} else {
+						scriptureHTML.appendLiteralText(QString("%1").arg(ndx.verse()));
+					}
+					scriptureHTML.endSuperscript();
+					break;
+				default:
+					assert(false);
+					break;
+			}
+			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
+			scriptureHTML.appendLiteralText(" ");
 		}
 
 		if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
@@ -1386,14 +1489,53 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tag)
 			return;
 		}
 
-		strHTML += m_pBibleDatabase->richVerseText(ndx, m_richifierTags, false);
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, richifierTags, false));
 
 		ndxPrev = ndx;
 	}
 
-	strHTML += "&quot;</p></body></html>";
-	m_TextDocument.setHtml(strHTML);
+	scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+	scriptureHTML.endParagraph();
+	scriptureHTML.appendRawText("</body></html>");
+
+	m_TextDocument.setHtml(scriptureHTML.getResult());
 	emit changedDocumentText();
+}
+
+QString CPhraseNavigator::referenceStartingDelimiter()
+{
+	switch (CPersistentSettings::instance()->referenceDelimiterMode()) {
+		case RDME_NO_DELIMITER:
+			return QString();
+		case RDME_SQUARE_BRACKETS:
+			return QString("[");
+		case RDME_CURLY_BRACES:
+			return QString("{");
+		case RDME_PARENTHESES:
+			return QString("(");
+		default:
+			assert(false);
+			break;
+	}
+	return QString();
+}
+
+QString CPhraseNavigator::referenceEndingDelimiter()
+{
+	switch (CPersistentSettings::instance()->referenceDelimiterMode()) {
+		case RDME_NO_DELIMITER:
+			return QString();
+		case RDME_SQUARE_BRACKETS:
+			return QString("]");
+		case RDME_CURLY_BRACES:
+			return QString("}");
+		case RDME_PARENTHESES:
+			return QString(")");
+		default:
+			assert(false);
+			break;
+	}
+	return QString();
 }
 
 //#define DEBUG_CURSOR_SELECTION

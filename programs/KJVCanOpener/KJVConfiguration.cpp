@@ -809,6 +809,9 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 {
 	ui->setupUi(this);
 
+	ui->editCopyOptionPreview->document()->setDefaultFont(CPersistentSettings::instance()->fontScriptureBrowser());
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(en_changedScriptureBrowserFont(const QFont &)));
+
 	int nIndex;
 
 	// ----------
@@ -826,6 +829,16 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 	}
 
 	connect(ui->comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
+
+	// ----------
+
+	ui->checkBoxReferencesUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
+	connect(ui->checkBoxReferencesUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesUseAbbreviatedBookNames(bool)));
+
+	// ----------
+
+	ui->checkBoxReferencesInBold->setChecked(CPersistentSettings::instance()->referencesInBold());
+	connect(ui->checkBoxReferencesInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesInBold(bool)));
 
 	// ----------
 
@@ -847,8 +860,13 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 
 	// ----------
 
-	ui->checkBoxUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->useAbbreviatedBookNames());
-	connect(ui->checkBoxUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedUseAbbreviatedBookName(bool)));
+	ui->checkBoxVerseNumbersUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
+	connect(ui->checkBoxVerseNumbersUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersUseAbbreviatedBookNames(bool)));
+
+	// ----------
+
+	ui->checkBoxVerseNumbersInBold->setChecked(CPersistentSettings::instance()->verseNumbersInBold());
+	connect(ui->checkBoxVerseNumbersInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersInBold(bool)));
 
 	// ----------
 
@@ -876,86 +894,134 @@ CConfigCopyOptions::~CConfigCopyOptions()
 
 }
 
+void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
+{
+	assert(pBibleDatabase != NULL);
+	m_pBibleDatabase = pBibleDatabase;
+	setVerseCopyPreview();
+	QTextCursor aCursor(ui->editCopyOptionPreview->textCursor());
+	aCursor.movePosition(QTextCursor::Start);
+	ui->editCopyOptionPreview->setTextCursor(aCursor);
+}
+
 void CConfigCopyOptions::saveSettings()
 {
-	int nIndex;
+	// We've already saved settings in the change notification slots.  Just reset our
+	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
+	m_bIsDirty = false;
+}
 
-	nIndex = ui->comboReferenceDelimiterMode->currentIndex();
+void CConfigCopyOptions::en_changedScriptureBrowserFont(const QFont &aFont)
+{
+	ui->editCopyOptionPreview->document()->setDefaultFont(aFont);
+}
+
+void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
+{
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}
-
-	// ----------
-
-	nIndex = ui->comboVerseNumberDelimiterMode->currentIndex();
-	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
-	}
-
-	// ----------
-
-	CPersistentSettings::instance()->setUseAbbreviatedBookNames(ui->checkBoxUseAbbreviatedBookNames->isChecked());
-
-	// ----------
-
-	CPersistentSettings::instance()->setAddQuotesAroundVerse(ui->checkBoxAddQuotesAroundVerse->isChecked());
-
-	// ----------
-
-	nIndex = ui->comboTransChangeAddedMode->currentIndex();
-	if (nIndex != -1) {
-		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui->comboTransChangeAddedMode->itemData(nIndex).toUInt()));
-	}
-
-	// ----------
-
-	m_bIsDirty = false;
-}
-
-void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
-{
-	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
 	emit dataChanged();
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedReferencesUseAbbreviatedBookNames(bool bUseAbbrBookName)
+{
+	CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(bUseAbbrBookName);
+	m_bIsDirty = true;
+	emit dataChanged();
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedReferencesInBold(bool bInBold)
+{
+	CPersistentSettings::instance()->setReferencesInBold(bInBold);
+	m_bIsDirty = true;
+	emit dataChanged();
+	setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
 {
-	Q_UNUSED(nIndex);
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
 	m_bIsDirty = true;
 	emit dataChanged();
+	setVerseCopyPreview();
 }
 
-void CConfigCopyOptions::en_changedUseAbbreviatedBookName(bool bUseAbbrBookName)
+void CConfigCopyOptions::en_changedVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookName)
 {
-	Q_UNUSED(bUseAbbrBookName);
+	CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(bUseAbbrBookName);
 	m_bIsDirty = true;
 	emit dataChanged();
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedVerseNumbersInBold(bool bInBold)
+{
+	CPersistentSettings::instance()->setVerseNumbersInBold(bInBold);
+	m_bIsDirty = true;
+	emit dataChanged();
+	setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedAddQuotesAroundVerse(bool bAddQuotes)
 {
-	Q_UNUSED(bAddQuotes);
+	CPersistentSettings::instance()->setAddQuotesAroundVerse(bAddQuotes);
 	m_bIsDirty = true;
 	emit dataChanged();
+	setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 {
-	Q_UNUSED(nIndex);
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui->comboTransChangeAddedMode->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
 	m_bIsDirty = true;
 	emit dataChanged();
+	setVerseCopyPreview();
 }
+
+void CConfigCopyOptions::setVerseCopyPreview()
+{
+	assert(m_pBibleDatabase != NULL);
+
+	QString strHtml;
+	QTextDocument doc;
+	CPhraseNavigator navigator(m_pBibleDatabase, doc);
+	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(1, 1, 1, 0), 3));
+	strHtml += doc.toHtml();
+	strHtml += "<hr>\n";
+	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(40, 24, 50, 0), 4));
+	strHtml += doc.toHtml();
+	strHtml += "<hr>\n";
+	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(65, 1, 25, 0), 3));
+	strHtml += doc.toHtml();
+	ui->editCopyOptionPreview->document()->setHtml(strHtml);
+}
+
 
 // ============================================================================
 
-CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(QWidget *parent)
+CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent),
 		ui(new Ui::CKJVGeneralSettingsConfig)
 {
+	assert(pBibleDatabase != NULL);
+
 	ui->setupUi(this);
+
+	ui->widgetCopyOptions->initialize(pBibleDatabase);
 
 	connect(ui->widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(ui->widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
@@ -990,7 +1056,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *
 	assert(pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
-	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(this);
+	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, this);
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);

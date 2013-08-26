@@ -264,7 +264,11 @@ public:
 	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	void setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
 	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
-	void setDocumentToFormattedVerses(const TPhraseTag &tag);		// Note: By definition, this one doesn't include anchors
+	void setDocumentToFormattedVerses(const TPhraseTag &tagPhrase);		// Note: By definition, this one doesn't include anchors
+	void setDocumentToFormattedVerses(const TPassageTag &tagPassage);	// Note: By definition, this one doesn't include anchors
+
+	static QString referenceStartingDelimiter();
+	static QString referenceEndingDelimiter();
 
 	TPhraseTag getSelection(const CPhraseCursor &aCursor,
 							uint32_t *pNdxNormalFirst = NULL, uint32_t *pNdxNormalLast = NULL) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)

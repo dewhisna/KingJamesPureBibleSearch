@@ -73,9 +73,12 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		// Default Copy Options:
 		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
+		m_bReferencesUseAbbreviatedBookNames(false),
+		m_bReferencesInBold(true),
 		m_nVerseNumberDelimiterMode(CPhraseNavigator::RDME_CURLY_BRACES),
-		m_bUseAbbreviatedBookNames(false),
-		m_bAddQuotesAroundVerse(false),
+		m_bVerseNumbersUseAbbreviatedBookNames(true),
+		m_bVerseNumbersInBold(true),
+		m_bAddQuotesAroundVerse(true),
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS)
 {
 
@@ -132,8 +135,11 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 
 		if ((pSource->m_nReferenceDelimiterMode != pTarget->m_nReferenceDelimiterMode) ||
+			(pSource->m_bReferencesUseAbbreviatedBookNames != pTarget->m_bReferencesUseAbbreviatedBookNames) ||
+			(pSource->m_bReferencesInBold != pTarget->m_bReferencesInBold) ||
 			(pSource->m_nVerseNumberDelimiterMode != pTarget->m_nVerseNumberDelimiterMode) ||
-			(pSource->m_bUseAbbreviatedBookNames != pTarget->m_bUseAbbreviatedBookNames) ||
+			(pSource->m_bVerseNumbersUseAbbreviatedBookNames != pTarget->m_bVerseNumbersUseAbbreviatedBookNames) ||
+			(pSource->m_bVerseNumbersInBold != pTarget->m_bVerseNumbersInBold) ||
 			(pSource->m_bAddQuotesAroundVerse != pTarget->m_bAddQuotesAroundVerse) ||
 			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode)) emit changedCopyOptions();
 	}
@@ -230,15 +236,33 @@ void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_
 	emit changedCopyOptions();
 }
 
+void CPersistentSettings::setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames)
+{
+	m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames = bUseAbbrBookNames;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setReferencesInBold(bool bInBold)
+{
+	m_pPersistentSettingData->m_bReferencesInBold = bInBold;
+	emit changedCopyOptions();
+}
+
 void CPersistentSettings::setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
 	m_pPersistentSettingData->m_nVerseNumberDelimiterMode = nMode;
 	emit changedCopyOptions();
 }
 
-void CPersistentSettings::setUseAbbreviatedBookNames(bool bUseAbbrBookNames)
+void CPersistentSettings::setVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookNames)
 {
-	m_pPersistentSettingData->m_bUseAbbreviatedBookNames = bUseAbbrBookNames;
+	m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames = bUseAbbrBookNames;
+	emit changedCopyOptions();
+}
+
+void CPersistentSettings::setVerseNumbersInBold(bool bInBold)
+{
+	m_pPersistentSettingData->m_bVerseNumbersInBold = bInBold;
 	emit changedCopyOptions();
 }
 

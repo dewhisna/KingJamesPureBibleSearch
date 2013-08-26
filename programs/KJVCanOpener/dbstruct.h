@@ -739,6 +739,11 @@ public:
 	inline unsigned int &count() { return m_nCount; }
 
 	void setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage);
+	static TPhraseTag fromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage) {
+		TPhraseTag tagPhrase;
+		tagPhrase.setFromPassageTag(pBibleDatabase, tagPassage);
+		return tagPhrase;
+	}
 
 	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
 		assert(pBibleDatabase.data() != NULL);
@@ -838,14 +843,23 @@ public:
 	inline unsigned int &verseCount() { return m_nVerseCount; }
 
 	void setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase);
+	static TPassageTag fromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase) {
+		TPassageTag tagPassage;
+		tagPassage.setFromPhraseTag(pBibleDatabase, tagPhrase);
+		return tagPassage;
+	}
 
 	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
 		assert(pBibleDatabase.data() != NULL);
 
 		if (pBibleDatabase.data() == NULL) return QString();
-		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
+		CRelIndex ndxFirst(m_RelIndex);
+		ndxFirst.setWord(0);
+		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(ndxFirst);
 		if (m_nVerseCount > 1) {
-			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(pBibleDatabase->calcRelIndex(0, m_nVerseCount, 0, 0, 0, m_RelIndex));
+			CRelIndex ndxLast(pBibleDatabase->calcRelIndex(0, m_nVerseCount-1, 0, 0, 0, ndxFirst));
+			ndxLast.setWord(0);
+			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(ndxLast);
 		}
 		return strReferenceRangeText;
 	}
