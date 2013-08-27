@@ -116,6 +116,7 @@ public slots:
 	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
 	void en_addHighlighterClicked();
 	void en_removeHighlighterClicked();
+	void en_renameHighlighterClicked();
 	void en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious);
 
 	void navigateToDemoText();

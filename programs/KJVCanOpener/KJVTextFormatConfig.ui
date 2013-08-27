@@ -28,7 +28,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>717</width>
+    <width>730</width>
     <height>640</height>
    </rect>
   </property>
@@ -185,6 +185,23 @@
            <property name="icon">
             <iconset resource="KJVCanOpener.qrc">
              <normaloff>:/res/list_remove.png</normaloff>:/res/list_remove.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonRenameHighlighter">
+           <property name="toolTip">
+            <string>Rename the specified Custom Highlighter</string>
+           </property>
+           <property name="icon">
+            <iconset resource="KJVCanOpener.qrc">
+             <normaloff>:/res/rename-icon-128.png</normaloff>:/res/rename-icon-128.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -394,6 +411,7 @@
   <tabstop>comboBoxHighlighters</tabstop>
   <tabstop>toolButtonAddHighlighter</tabstop>
   <tabstop>toolButtonRemoveHighlighter</tabstop>
+  <tabstop>toolButtonRenameHighlighter</tabstop>
   <tabstop>buttonWordsOfJesusColor</tabstop>
   <tabstop>buttonSearchResultsColor</tabstop>
   <tabstop>buttonCursorFollowColor</tabstop>

@@ -36,6 +36,7 @@
 #include "Highlighter.h"
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
+#include "RenameHighlighterDlg.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -356,6 +357,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	ui->comboBoxHighlighters->lineEdit()->setMaxLength(MAX_HIGHLIGHTER_NAME_SIZE);
 	ui->toolButtonAddHighlighter->setEnabled(false);
 	ui->toolButtonRemoveHighlighter->setEnabled(false);
+	ui->toolButtonRenameHighlighter->setEnabled(false);
 
 	connect(ui->comboBoxHighlighters, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
 	connect(ui->comboBoxHighlighters, SIGNAL(editTextChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
@@ -363,13 +365,14 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	connect(ui->toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
 	connect(ui->toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
+	connect(ui->toolButtonRenameHighlighter, SIGNAL(clicked()), this, SLOT(en_renameHighlighterClicked()));
 
 	connect(ui->listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
 
 	// --------------------------------------------------------------
 
 	// Reinsert them in the correct TabOrder:
-	QWidget::setTabOrder(ui->toolButtonRemoveHighlighter, ui->buttonWordsOfJesusColor);
+	QWidget::setTabOrder(ui->toolButtonRenameHighlighter, ui->buttonWordsOfJesusColor);
 	QWidget::setTabOrder(ui->buttonWordsOfJesusColor, ui->buttonSearchResultsColor);
 	QWidget::setTabOrder(ui->buttonSearchResultsColor, ui->buttonCursorFollowColor);
 	QWidget::setTabOrder(ui->buttonCursorFollowColor, m_pSearchResultsTreeView);
@@ -549,6 +552,7 @@ void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &str
 	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+	ui->toolButtonRenameHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 }
 
 void CKJVTextFormatConfig::en_addHighlighterClicked()
@@ -609,16 +613,16 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(nListWidgetIndex));
 			if (pButtonItem->enabled()) {
 				int nResult = QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
-																				"edit your King James Notes file and remove all text highlighted with this highlighter and then you can remove it.  "
-																				"Or, open a new King James Notes file.\n\n"
+																				"use the Notes File Settings to edit your King James Notes file and remove all text highlighted with this "
+																				"highlighter and then you can remove it.  Or, open a new King James Notes file.\n\n"
 																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??"),
 																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
 				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
 			} else {
 				QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
-																 "edit your King James Notes file and remove all text highlighted with this highlighter and then you can remove it.  "
-																 "Or, open a new King James Notes file.  The Highlighter is already disabled so no text highlighted with this "
-																 "Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
+																 "use the Notes File Settings to edit your King James Notes file and remove all text highlighted with this "
+																 "highlighter and then you can remove it.  Or, open a new King James Notes file.  The Highlighter is already "
+																 "disabled so no text highlighted with this Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
 			}
 			return;		// Note: the setEnabled() call above will take care of updating our demo text and marking us dirty, etc, and nothing should have changed size...
 		}
@@ -629,6 +633,66 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_renameHighlighterClicked()
+{
+	assert(g_pUserNotesDatabase != NULL);
+	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
+	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
+
+	bool bCantRename = g_pUserNotesDatabase->existsHighlighterTagsFor(strUserDefinedHighlighterName);
+
+	if (!bCantRename) {
+		CRenameHighlighterDlg dlgRename(strUserDefinedHighlighterName);
+
+		if (dlgRename.exec() != QDialog::Accepted) return;
+		if (g_pUserNotesDatabase->existsHighlighter(dlgRename.newName())) {
+			QMessageBox::warning(this, windowTitle(), tr("That highlighter name already exists and can't be used as a new name for this highlighter. "
+														 "To try again, click the rename button again. Or, to combine highlighter tags, use the Notes "
+														 "File Settings to edit your notes file."));
+			return;
+		}
+
+		int nListWidgetIndex = -1;
+		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
+			if (static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx))->highlighterName().compare(strUserDefinedHighlighterName) == 0) {
+				nListWidgetIndex = ndx;
+				break;
+			}
+		}
+		assert(nListWidgetIndex != -1);
+		if (nListWidgetIndex != -1) {
+			QListWidgetItem *pItem = ui->listWidgetHighlighterColors->takeItem(nListWidgetIndex);
+			delete pItem;
+		}
+		if (!g_pUserNotesDatabase->renameHighlighter(strUserDefinedHighlighterName, dlgRename.newName())) {
+			assert(false);
+			return;
+		}
+
+		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, dlgRename.newName());
+
+		int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
+		assert(nComboIndex != -1);
+		if (nComboIndex != -1) {
+			ui->comboBoxHighlighters->setItemText(nComboIndex, dlgRename.newName());
+		}
+		ui->comboBoxHighlighters->setCurrentIndex(nComboIndex);
+		// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
+		en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
+
+		recalcColorListWidth();
+
+		navigateToDemoText();
+		m_bIsDirty = true;
+		emit dataChanged();
+	} else {
+		QMessageBox::warning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
+													 "To rename it, use the Notes File Settings to edit your King James Notes file and move and/or "
+													 "remove all text highlighted with this highlighter and then you can rename it."));
+	}
 }
 
 void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious)

@@ -62,7 +62,23 @@ public:
 	bool m_bEnabled;
 };
 
-typedef QMap<QString, TUserDefinedColor> TUserDefinedColorMap;
+class TQStringHighlighterName : public QString
+{
+public:
+	TQStringHighlighterName(const TQStringHighlighterName &other)
+		:	QString(other)
+	{ }
+	TQStringHighlighterName(const QString &other)
+		:	QString(other)
+	{ }
+
+	inline bool operator <(const TQStringHighlighterName &other) const {
+		HighlighterNameSortPredicate pred;
+		return (pred(*this, other));
+	}
+};
+
+typedef QMap<TQStringHighlighterName, TUserDefinedColor> TUserDefinedColorMap;
 
 // ============================================================================
 
@@ -276,6 +292,7 @@ public:
 	bool existsHighlighter(const QString &strUserDefinedHighlighterName) const { return (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.find(strUserDefinedHighlighterName) != m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constEnd()); }
 	const TUserDefinedColor highlighterDefinition(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()); }
 	inline const TUserDefinedColorMap &highlighterDefinitionsMap() const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions; }
+	bool renameHighlighter(const QString &strOldUserDefinedHighlighterName, const QString &strNewUserDefinedHighlighterName);
 
 	void toggleUserNotesDatabaseData(bool bCopy);
 

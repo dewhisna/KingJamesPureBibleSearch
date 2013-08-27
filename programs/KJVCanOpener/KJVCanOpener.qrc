@@ -78,5 +78,8 @@
 		<file>res/Database4-128.png</file>
 		<file>res/Data_management_Icon_128.png</file>
 		<file>res/ControlPanel-256.png</file>
+		<file>res/App-edit-icon-128.png</file>
+		<file>res/Apps-text-editor-icon-128.png</file>
+		<file>res/rename-icon-128.png</file>
 	</qresource>
 </RCC>

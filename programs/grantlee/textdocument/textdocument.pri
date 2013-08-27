@@ -1,3 +1,6 @@
+!contains( included_modules, grantlee/textdocument/textdocument.pri) {
+		included_modules += grantlee/textdocument/textdocument.pri
+
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
@@ -21,4 +24,4 @@ SOURCES +=	\
 
 #RESOURCES += 
 
-
+}

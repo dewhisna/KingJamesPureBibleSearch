@@ -1050,6 +1050,26 @@ void CUserNotesDatabase::setHighlighterEnabled(const QString &strUserDefinedHigh
 	}
 }
 
+bool CUserNotesDatabase::renameHighlighter(const QString &strOldUserDefinedHighlighterName, const QString &strNewUserDefinedHighlighterName)
+{
+	if (!existsHighlighter(strOldUserDefinedHighlighterName)) return false;
+	if (existsHighlighter(strNewUserDefinedHighlighterName)) return false;
+
+	for (TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.begin(); itrDB != m_mapHighlighterTags.end(); ++itrDB) {
+		if (highlighterTagsFor(itrDB->first, strOldUserDefinedHighlighterName)) return false;
+	}
+
+	emit aboutToChangeHighlighters();
+	m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.insert(strNewUserDefinedHighlighterName, m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strOldUserDefinedHighlighterName));
+	m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.remove(strOldUserDefinedHighlighterName);
+	emit changedHighlighter(strNewUserDefinedHighlighterName);
+	emit removedHighlighter(strOldUserDefinedHighlighterName);
+	emit changedHighlighters();
+	m_pUserNotesDatabaseData->m_bIsDirty = true;
+
+	return true;
+}
+
 void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighlighterName)
 {
 	if (existsHighlighter(strUserDefinedHighlighterName)) {

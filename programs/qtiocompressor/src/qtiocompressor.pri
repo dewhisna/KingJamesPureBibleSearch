@@ -1,3 +1,6 @@
+!contains( included_modules, qtiocompressor/src/qtiocompressor.pri) {
+		included_modules += qtiocompressor/src/qtiocompressor.pri
+
 include(../common.pri)
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
@@ -17,4 +20,6 @@ qtiocompressor-uselib:!qtiocompressor-buildlib {
 win32 {
     contains(TEMPLATE, lib):contains(CONFIG, shared):DEFINES += QT_QTIOCOMPRESSOR_EXPORT
     else:qtiocompressor-uselib:DEFINES += QT_QTIOCOMPRESSOR_IMPORT
+}
+
 }

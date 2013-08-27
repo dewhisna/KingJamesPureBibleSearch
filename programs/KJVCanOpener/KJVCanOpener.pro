@@ -29,6 +29,8 @@
 
 QT       += core gui sql xml
 
+greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
+
 CONFIG += rtti
 
 CONFIG += wwwidgets
@@ -119,7 +121,8 @@ SOURCES += main.cpp \
 	KJVNoteEditDlg.cpp \
 	ScriptureDocument.cpp \
 	NoteKeywordWidget.cpp \
-	KJVCrossRefEditDlg.cpp
+	KJVCrossRefEditDlg.cpp \
+	RenameHighlighterDlg.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -166,7 +169,8 @@ HEADERS  += main.h \
 	ScriptureDocument.h \
 	ScriptureTextFormatProperties.h \
 	NoteKeywordWidget.h \
-	KJVCrossRefEditDlg.h
+	KJVCrossRefEditDlg.h \
+	RenameHighlighterDlg.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -186,7 +190,8 @@ FORMS    += KJVCanOpener.ui \
 	KJVUserNotesDatabaseConfig.ui \
 	KJVGeneralSettingsConfig.ui \
 	ConfigSearchOptions.ui \
-	ConfigCopyOptions.ui
+	ConfigCopyOptions.ui \
+	RenameHighlighterDlg.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc
