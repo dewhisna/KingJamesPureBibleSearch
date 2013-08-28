@@ -95,7 +95,8 @@ CTipEdit::CTipEdit(QWidget *parent)
 	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
 	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
 
-	delete instance;
+	if (instance) instance->deleteLater();
+//	delete instance;
 	instance = this;
 	setForegroundRole(QPalette::ToolTipText);
 	setBackgroundRole(QPalette::ToolTipBase);
@@ -116,7 +117,7 @@ CTipEdit::CTipEdit(QWidget *parent)
 CTipEdit::~CTipEdit()
 {
 	savePersistentSettings();
-	instance = 0;
+	if (instance == this) instance = 0;
 }
 
 void CTipEdit::savePersistentSettings()
