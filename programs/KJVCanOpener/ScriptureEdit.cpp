@@ -30,6 +30,7 @@
 #include "UserNotesDatabase.h"
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#include "ToolTipEdit.h"
 
 #include <assert.h>
 
@@ -84,7 +85,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionFind(NULL),
 		m_pActionFindNext(NULL),
 		m_pActionFindPrev(NULL),
-		m_pStatusAction(NULL)
+		m_pStatusAction(NULL),
+		m_dlyDetailUpdate(-1, 500)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -111,6 +113,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), this, SLOT(clearHighlighting()));
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
+	T::connect(&m_dlyDetailUpdate, SIGNAL(triggered()), this, SLOT(en_detailUpdate()));
 
 	m_pEditMenu = new QMenu(T::tr("&Edit"), this);
 	m_pEditMenu->setStatusTip(T::tr("Scripture Text Edit Operations"));
@@ -537,6 +540,7 @@ void CScriptureText<T,U>::updateSelection()
 	m_bDoingSelectionChange = true;
 
 	bool bOldSel = haveSelection();
+	CSelectedPhrase prevSelection = m_selectedPhrase;
 	m_selectedPhrase = m_navigator.getSelectedPhrase();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
 	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0));
@@ -563,7 +567,16 @@ void CScriptureText<T,U>::updateSelection()
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
+	if ((CTipEdit::bTipEditPushPin) && (prevSelection.tag() != m_selectedPhrase.tag()))
+		m_dlyDetailUpdate.trigger();
+
 	m_bDoingSelectionChange = false;
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_detailUpdate()
+{
+	m_navigator.handleToolTipEvent(m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag());
 }
 
 template<class T, class U>

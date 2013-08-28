@@ -48,6 +48,7 @@
 #include <QDebug>
 #include <QToolTip>
 #include <QMenu>
+#include <QTimer>
 
 namespace {
 	//////////////////////////////////////////////////////////////////////
@@ -63,6 +64,7 @@ namespace {
 // ============================================================================
 
 CTipEdit *CTipEdit::instance = 0;
+bool CTipEdit::bTipEditPushPin = false;
 QPalette g_tooltipedit_palette(QToolTip::palette());
 
 // ============================================================================
@@ -71,9 +73,11 @@ CTipEdit::CTipEdit(QWidget *parent)
 	:	QTextEdit(parent),
 		styleSheetParent(0),
 		widget(0),
-		m_bDoingContextMenu(false)
+		m_bDoingContextMenu(false),
+		m_pPushButton(NULL)
 {
-	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
+//	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
+	setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (bTipEditPushPin ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
 	setAcceptRichText(true);
@@ -82,6 +86,14 @@ CTipEdit::CTipEdit(QWidget *parent)
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard /* Qt::NoTextInteraction */);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	setWindowTitle(tr("Details : King James Pure Bible Search"));
+
+	m_pPushButton = new QPushButton(this);
+	m_pPushButton->setFlat(true);
+	m_pPushButton->setIcon(QIcon(bTipEditPushPin ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	m_pPushButton->setIconSize(QSize(32, 32));
+	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
+	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
 
 	delete instance;
 	instance = this;
@@ -214,6 +226,27 @@ void CTipEdit::resizeEvent(QResizeEvent *e)
 		setMask(frameMask.region);
 
 	QTextEdit::resizeEvent(e);
+	setPushPinPosition();
+}
+
+void CTipEdit::setPushPinPosition()
+{
+	QSize szViewPort = viewport()->size();
+	m_pPushButton->move(szViewPort.width() - m_pPushButton->size().width(), 0);
+}
+
+void CTipEdit::en_pushPinPressed()
+{
+	bTipEditPushPin = !bTipEditPushPin;
+	m_pPushButton->setIcon(QIcon(bTipEditPushPin ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	if (bTipEditPushPin) {
+		QPoint pntTip = pos();
+		pntTip.ry() += this->height()/2;
+		setWindowFlags(windowFlags() | Qt::WindowTitleHint);
+		CToolTipEdit::showText(pntTip, toHtml(), widget);
+	} else {
+		setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
+	}
 }
 
 void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
@@ -259,8 +292,10 @@ void CTipEdit::hideTip()
 
 void CTipEdit::hideTipImmediately()
 {
-	close(); // to trigger QEvent::Close which stops the animation
-	deleteLater();
+	if (!bTipEditPushPin) {
+		close(); // to trigger QEvent::Close which stops the animation
+		deleteLater();
+	}
 }
 
 void CTipEdit::setTipRect(QWidget *w, const QRect &r)
@@ -344,7 +379,7 @@ bool CTipEdit::event(QEvent *e)
 		case QEvent::Leave:				// Leaving us, deactivating, or focusing us out hides us
 		case QEvent::WindowDeactivate:
 		case QEvent::FocusOut:
-			if (!m_bDoingContextMenu)
+			if ((!m_bDoingContextMenu) && (!bTipEditPushPin))
 				hideTip();
 			break;
 
@@ -453,25 +488,33 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 {
 	if (CTipEdit::instance && CTipEdit::instance->isVisible()){ // a tip does already exist
 		if (text.isEmpty()){ // empty text means hide current tip
-			CTipEdit::instance->hideTip();
+			if (!CTipEdit::bTipEditPushPin) {
+				CTipEdit::instance->hideTip();
+			} else {
+				CTipEdit::instance->setText(QString());
+			}
 			return;
 		}
 		else if (!CTipEdit::instance->fadingOut){
-			// If the tip has changed, reuse the one
-			// that is showing (removes flickering)
-			QPoint localPos = pos;
-			if (w)
-				localPos = w->mapFromGlobal(pos);
-			if (CTipEdit::instance->tipChanged(localPos, text, w)){
-				CTipEdit::instance->setTipRect(w, rect);
-				CTipEdit::instance->reuseTip(text);
-				CTipEdit::instance->placeTip(pos, w);
+			if (!CTipEdit::bTipEditPushPin) {
+				// If the tip has changed, reuse the one
+				// that is showing (removes flickering)
+				QPoint localPos = pos;
+				if (w)
+					localPos = w->mapFromGlobal(pos);
+				if (CTipEdit::instance->tipChanged(localPos, text, w)){
+					CTipEdit::instance->setTipRect(w, rect);
+					CTipEdit::instance->reuseTip(text);
+					CTipEdit::instance->placeTip(pos, w);
+				}
+			} else {
+				CTipEdit::instance->setText(text);
 			}
 			return;
 		}
 	}
 
-	if (!text.isEmpty()){ // no tip can be reused, create new tip:
+	if ((!text.isEmpty()) || CTipEdit::instance->bTipEditPushPin) { // no tip can be reused, create new tip:
 #ifndef Q_WS_WIN
 		new CTipEdit(w); // sets CTipEdit::instance to itself
 #else
@@ -486,7 +529,7 @@ void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, 
 		CTipEdit::instance->setTipRect(w, rect);
 		CTipEdit::instance->reuseTip(text);
 		CTipEdit::instance->placeTip(pos, w);
-		CTipEdit::instance->setObjectName(QLatin1String("qtooltip_label"));		//"ctooltip_edit"));
+		CTipEdit::instance->setObjectName(QLatin1String("ctooltip_edit"));
 		CTipEdit::instance->show();
 	}
 }

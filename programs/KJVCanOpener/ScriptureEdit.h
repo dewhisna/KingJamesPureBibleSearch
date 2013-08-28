@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "Highlighter.h"
 #include "PhraseEdit.h"
+#include "DelayedExecutionTimer.h"
 
 #include "QtFindReplaceDialog/dialogs/finddialog.h"
 
@@ -114,6 +115,8 @@ protected:
 	virtual void en_selectionChanged();
 	virtual void clearHighlighting();
 
+	virtual void en_detailUpdate();
+
 //public slots:
 public:
 	virtual void setFont(const QFont& aFont);
@@ -170,6 +173,8 @@ private:
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
+	DelayedExecutionTimer m_dlyDetailUpdate;
+
 #define begin_popup()							\
 			bool bPopupSave = m_bDoingPopup;	\
 			m_bDoingPopup = true;
@@ -206,6 +211,8 @@ protected slots:
 	virtual void en_cursorPositionChanged() = 0;
 	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
+
+	virtual void en_detailUpdate() = 0;
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;
@@ -248,6 +255,8 @@ protected slots:
 	virtual void en_cursorPositionChanged() = 0;
 	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
+
+	virtual void en_detailUpdate() = 0;
 
 public slots:
 	virtual void setFont(const QFont& aFont) = 0;

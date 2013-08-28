@@ -31,6 +31,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QTimer>
+#include <QPushButton>
 
 // ============================================================================
 
@@ -41,6 +42,7 @@ public:
 	CTipEdit(QWidget *parent);
 	virtual ~CTipEdit();
 	static CTipEdit *instance;
+	static bool bTipEditPushPin;					// Push Pin to convert to modeless dialog
 
 	bool eventFilter(QObject *o, QEvent *e);
 
@@ -79,6 +81,8 @@ public slots:
 
 protected slots:
 	void activate();
+	void setPushPinPosition();
+	void en_pushPinPressed();
 
 private:
 	QWidget *styleSheetParent;
@@ -87,6 +91,7 @@ private:
 	QWidget *widget;
 	QRect rect;
 	bool m_bDoingContextMenu;
+	QPushButton *m_pPushButton;
 };
 
 // ============================================================================
