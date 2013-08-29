@@ -515,6 +515,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
 
+	ui->browserNavigationToolBar->addSeparator();
+	ui->browserNavigationToolBar->addAction(m_pActionViewDetails);
+
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui->menuBar->addMenu(tr("Se&ttings"));
 

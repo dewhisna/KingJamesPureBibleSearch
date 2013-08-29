@@ -80,6 +80,7 @@ CTipEdit::CTipEdit(QWidget *parent)
 	setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (bTipEditPushPin ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
+	setWordWrapMode(QTextOption::NoWrap);
 	setAcceptRichText(true);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setContextMenuPolicy(Qt::DefaultContextMenu /* Qt::NoContextMenu */);
@@ -96,7 +97,6 @@ CTipEdit::CTipEdit(QWidget *parent)
 	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
 
 	if (instance) instance->deleteLater();
-//	delete instance;
 	instance = this;
 	setForegroundRole(QPalette::ToolTipText);
 	setBackgroundRole(QPalette::ToolTipBase);
@@ -400,8 +400,19 @@ bool CTipEdit::event(QEvent *e)
 
 void CTipEdit::wheelEvent(QWheelEvent *e)
 {
-	QTextEdit::wheelEvent(e);
-	adjustToolTipSize();
+	if (e->modifiers() & Qt::ControlModifier) {
+		const int delta = e->delta();
+		if (delta < 0) {
+			zoomOut();
+		} else if (delta > 0) {
+			zoomIn();
+		}
+		adjustToolTipSize();
+		return;
+	}
+
+	QAbstractScrollArea::wheelEvent(e);
+	updateMicroFocus();
 }
 
 int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
