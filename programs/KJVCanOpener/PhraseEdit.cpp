@@ -752,16 +752,28 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart).size();
 
 			// If this is a continuous highlighter, instead of stopping at the end of the word,
-			//		we'll find the start of the next word we'll be highlighting so that we
-			//		will highlight everything in between:
-			if ((aHighlighter.isContinuous()) && (ndxNormalStart != ndxNormalEnd)) {
-				CRelIndex ndxNextWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart + 1));
-				if (ndxNextWord.word() > 1) {			// If the next word is the first word of the verse and/or chapter, don't connect them as we'll have non-verse text between the words
-					int nNextWordPos = anchorPosition(ndxNextWord.asAnchor());
-					if (nNextWordPos != -1) {
-						assert(nWordEndPos <= nNextWordPos);
-						nWordEndPos = nNextWordPos;
+			//		we'll find the end of the last word of this verse that we'll be highlighting
+			//		so that we will highlight everything in between and also not have to search
+			//		for start/end of words within the verse.  We can't do more than one verse
+			//		because of notes and cross-references:
+			if ((aHighlighter.isContinuous()) & (ndxNormalStart != ndxNormalEnd)) {
+				CRelIndex ndxCurrentWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
+				const CVerseEntry *pCurrentWordVerseEntry = m_pBibleDatabase->verseEntry(ndxCurrentWord);
+				assert(pCurrentWordVerseEntry != NULL);
+				if (pCurrentWordVerseEntry) {
+					unsigned int nVrsWordCount = pCurrentWordVerseEntry->m_nNumWrd;
+					uint32_t ndxNormalLastVerseWord = ndxNormalStart + nVrsWordCount - ndxCurrentWord.word();
+					if (ndxNormalLastVerseWord > ndxNormalEnd) ndxNormalLastVerseWord = ndxNormalEnd;
+					CRelIndex ndxLastVerseWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalLastVerseWord));
+					int nNextLastVerseWordPos = anchorPosition(ndxLastVerseWord.asAnchor());
+					if (nNextLastVerseWordPos != -1) {
+						nNextLastVerseWordPos += m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord).size();
+					} else {
+						assert(false);
 					}
+					assert(nWordEndPos <= nNextLastVerseWordPos);
+					nWordEndPos = nNextLastVerseWordPos;
+					ndxNormalStart = ndxNormalLastVerseWord;
 				}
 			}
 
