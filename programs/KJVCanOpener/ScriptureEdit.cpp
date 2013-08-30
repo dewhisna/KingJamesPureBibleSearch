@@ -296,7 +296,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				if ((!U::hasFocus()) || (!haveDetails())) {
+				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::bTipEditPushPin)) {
 					ev->ignore();
 					return true;
 				}
