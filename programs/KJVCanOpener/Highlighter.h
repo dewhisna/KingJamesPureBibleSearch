@@ -79,7 +79,7 @@ public:
 	{
 	}
 
-	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const = 0;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const = 0;
 	virtual bool enabled() const { return m_bEnabled; }
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const = 0;
@@ -110,7 +110,7 @@ public:
 	CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent = NULL);
 	virtual ~CSearchResultHighlighter();
 
-	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;
@@ -159,7 +159,7 @@ public:
 		m_myPhraseTags.setPhraseTags(aCursorFollowHighlighter.m_myPhraseTags.phraseTags());
 	}
 
-	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;
@@ -211,7 +211,7 @@ public:
 		m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
 	}
 
-	virtual void doHighlighting(QTextCharFormat &aFormat, bool bClear) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;

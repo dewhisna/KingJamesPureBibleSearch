@@ -128,17 +128,21 @@ CSearchResultHighlighter::~CSearchResultHighlighter()
 	}
 }
 
-void CSearchResultHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
+	QTextCharFormat fmtNew;
+
 	if ((!bClear) && (enabled())) {
 		if (!aFormat.hasProperty(USERPROP_FOREGROUND_BRUSH)) {
-			aFormat.setProperty(USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
+			fmtNew.setProperty(USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
 		}
-		aFormat.setForeground(QBrush(CPersistentSettings::instance()->colorSearchResults()));
+		fmtNew.setForeground(QBrush(CPersistentSettings::instance()->colorSearchResults()));
 	} else {
 		if (aFormat.hasProperty(USERPROP_FOREGROUND_BRUSH))
-			aFormat.setForeground(aFormat.property(USERPROP_FOREGROUND_BRUSH).value<QBrush>());
+			fmtNew.setForeground(aFormat.property(USERPROP_FOREGROUND_BRUSH).value<QBrush>());
 	}
+
+	return fmtNew;
 }
 
 void CSearchResultHighlighter::verseListChanged()
@@ -186,23 +190,27 @@ bool CSearchResultHighlighter::isEmpty() const
 
 Q_DECLARE_METATYPE(QTextCharFormat::UnderlineStyle)
 
-void CCursorFollowHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CCursorFollowHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
+	QTextCharFormat fmtNew;
+
 	if ((!bClear) && (enabled())) {
 		if (!aFormat.hasProperty(USERPROP_UNDERLINE_COLOR)) {
-			aFormat.setProperty(USERPROP_UNDERLINE_COLOR, QVariant(aFormat.underlineColor()));
+			fmtNew.setProperty(USERPROP_UNDERLINE_COLOR, QVariant(aFormat.underlineColor()));
 		}
 		if (!aFormat.hasProperty(USERPROP_UNDERLINE_STYLE)) {
-			aFormat.setProperty(USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
+			fmtNew.setProperty(USERPROP_UNDERLINE_STYLE, QVariant(aFormat.underlineStyle()));
 		}
-		aFormat.setUnderlineColor(CPersistentSettings::instance()->colorCursorFollow());
-		aFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);		// TODO : Get properties from global settings! ??
+		fmtNew.setUnderlineColor(CPersistentSettings::instance()->colorCursorFollow());
+		fmtNew.setUnderlineStyle(QTextCharFormat::SingleUnderline);		// TODO : Get properties from global settings! ??
 	} else {
 		if (aFormat.hasProperty(USERPROP_UNDERLINE_COLOR))
-			aFormat.setUnderlineColor(aFormat.property(USERPROP_UNDERLINE_COLOR).value<QColor>());
+			fmtNew.setUnderlineColor(aFormat.property(USERPROP_UNDERLINE_COLOR).value<QColor>());
 		if (aFormat.hasProperty(USERPROP_UNDERLINE_STYLE))
-			aFormat.setUnderlineStyle(aFormat.property(USERPROP_UNDERLINE_STYLE).value<QTextCharFormat::UnderlineStyle>());
+			fmtNew.setUnderlineStyle(aFormat.property(USERPROP_UNDERLINE_STYLE).value<QTextCharFormat::UnderlineStyle>());
 	}
+
+	return fmtNew;
 }
 
 CHighlighterPhraseTagFwdItr CCursorFollowHighlighter::getForwardIterator() const
@@ -234,22 +242,26 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 // ============================================================================
 
-void CUserDefinedHighlighter::doHighlighting(QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
 	assert(g_pUserNotesDatabase != NULL);
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+
+	QTextCharFormat fmtNew;
 
 	if ((!bClear) && (enabled()) &&
 		(highlighterDefinition.isValid()) &&
 		(highlighterDefinition.m_bEnabled)) {
 		if (!aFormat.hasProperty(USERPROP_BACKGROUND_BRUSH)) {
-			aFormat.setProperty(USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
+			fmtNew.setProperty(USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
 		}
-		aFormat.setBackground(QBrush(highlighterDefinition.m_color));
+		fmtNew.setBackground(QBrush(highlighterDefinition.m_color));
 	} else {
 		if (aFormat.hasProperty(USERPROP_BACKGROUND_BRUSH))
-			aFormat.setBackground(aFormat.property(USERPROP_BACKGROUND_BRUSH).value<QBrush>());
+			fmtNew.setBackground(aFormat.property(USERPROP_BACKGROUND_BRUSH).value<QBrush>());
 	}
+
+	return fmtNew;
 }
 
 CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const

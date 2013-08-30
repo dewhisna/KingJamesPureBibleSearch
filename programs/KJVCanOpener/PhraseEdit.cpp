@@ -683,7 +683,6 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	QTextCharFormat fmt;
 	CPhraseCursor myCursor(&m_TextDocument);
 
 	myCursor.beginEditBlock();
@@ -777,14 +776,15 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 				}
 			}
 
-			while (nStartPos < nWordEndPos) {
+			if (nStartPos < nWordEndPos) {
 				if (myCursor.moveCursorCharRight(QTextCursor::KeepAnchor)) {
-					fmt = myCursor.charFormat();
-					aHighlighter.doHighlighting(fmt, bClear);
-					myCursor.setCharFormat(fmt);
+					QTextCharFormat fmtNew = aHighlighter.doHighlighting(myCursor.charFormat(), bClear);
+					myCursor.setPosition(nWordEndPos, QTextCursor::KeepAnchor);
+					myCursor.mergeCharFormat(fmtNew);
 					myCursor.clearSelection();
+				} else {
+					assert(false);
 				}
-				++nStartPos;
 			}
 
 			++ndxNormalStart;

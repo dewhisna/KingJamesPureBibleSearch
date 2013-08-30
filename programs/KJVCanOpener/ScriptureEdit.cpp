@@ -31,6 +31,7 @@
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #include "ToolTipEdit.h"
+#include "BusyCursor.h"
 
 #include <assert.h>
 
@@ -721,6 +722,8 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 
 	QString strHighlighterName = CHighlighterButtons::instance()->highlighter(pAction->data().toInt());
 	if (strHighlighterName.isEmpty()) return;
+
+	CBusyCursor iAmBusy(NULL);
 
 	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
 	if ((plstHighlighterTags != NULL) && (plstHighlighterTags->completelyContains(m_pBibleDatabase, tagSel))) {
