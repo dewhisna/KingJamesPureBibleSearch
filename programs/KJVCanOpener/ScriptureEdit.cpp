@@ -86,6 +86,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionFind(NULL),
 		m_pActionFindNext(NULL),
 		m_pActionFindPrev(NULL),
+		m_pActionShowAllNotes(NULL),
+		m_pActionHideAllNotes(NULL),
 		m_pStatusAction(NULL),
 		m_dlyDetailUpdate(-1, 500)
 {
@@ -151,22 +153,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_B));
 	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard"));
 	m_pEditMenu->addSeparator();
-
-//	m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
-//	T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
-
-	if (qobject_cast<QTextBrowser *>(this) != NULL) {
-//		m_pEditMenu->addSeparator();
-//		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
-//		m_pEditMenu->addSeparator();
-//		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
-
-		m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
-		T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
-		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
-	}
-
-	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text"));
 	m_pEditMenu->addSeparator();
@@ -179,6 +165,23 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionFindPrev = m_pEditMenu->addAction(T::tr("Find &Previous"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
 	m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser"));
 	m_pActionFindPrev->setEnabled(T::useFindDialog());
+
+	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
+		T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
+
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+		m_pActionShowAllNotes = m_pEditMenu->addAction(T::tr("Show All Notes"), this, SLOT(en_showAllNotes()));
+		m_pActionShowAllNotes->setStatusTip(T::tr("Expand all notes in the Scripture Browser, making them visible"));
+		m_pActionHideAllNotes = m_pEditMenu->addAction(T::tr("Hide All Notes"), this, SLOT(en_hideAllNotes()));
+		m_pActionHideAllNotes->setStatusTip(T::tr("Collapse all notes in the Scripture Browser, making them hidden"));
+
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+	}
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
@@ -463,6 +466,8 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 		menu.addActions(CHighlighterButtons::instance()->actions());
 		menu.addSeparator();
 		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+		menu.addAction(m_pActionShowAllNotes);
+		menu.addAction(m_pActionHideAllNotes);
 		menu.addSeparator();
 		menu.addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 		menu.addSeparator();
@@ -766,6 +771,60 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 		if (!ndxLink.isSet()) return;
 
 		emit T::gotoIndex(TPhraseTag(ndxLink));
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::en_showAllNotes()
+{
+	assert(g_pUserNotesDatabase != NULL);
+	bool bChanged = false;
+	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
+	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
+		if (!itrNotes->second.isVisible()) {
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
+			userNote.setIsVisible(true);
+			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
+			bChanged = true;
+		}
+	}
+
+	if (bChanged) {
+		// Re-render text:
+		if (selection().relIndex().chapter() == 0) {
+			// Special case if it's an entire book, use our last active tag:
+			emit T::gotoIndex(m_tagLastActive);
+		} else {
+			emit T::gotoIndex(selection());
+		}
+	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_hideAllNotes()
+{
+	assert(g_pUserNotesDatabase != NULL);
+	bool bChanged = false;
+	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
+	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
+		if (itrNotes->second.isVisible()) {
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
+			userNote.setIsVisible(false);
+			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
+			bChanged = true;
+		}
+	}
+
+	if (bChanged) {
+		// Re-render text:
+		if (selection().relIndex().chapter() == 0) {
+			// Special case if it's an entire book, use our last active tag:
+			emit T::gotoIndex(m_tagLastActive);
+		} else {
+			emit T::gotoIndex(selection());
+		}
 	}
 }
 

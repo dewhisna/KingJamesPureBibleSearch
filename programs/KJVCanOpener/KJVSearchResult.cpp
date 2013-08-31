@@ -167,9 +167,13 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 	// ----
+	m_pEditMenu->addSeparator();
+	m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	m_pMenuInsertionPoint = m_pEditMenuLocal->addSeparator();
 	m_pEditMenuLocal->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	// ----
+	m_pEditMenu->addSeparator();
+	m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 	m_pEditMenuLocal->addSeparator();
 	m_pEditMenuLocal->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 	// ----

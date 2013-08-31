@@ -134,6 +134,8 @@ public:
 	virtual void en_copyEntirePassageDetails();
 	virtual void en_highlightPassage(QAction *pAction);
 	virtual void en_anchorClicked(const QUrl &link);
+	virtual void en_showAllNotes();
+	virtual void en_hideAllNotes();
 
 private:
 	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
@@ -170,6 +172,9 @@ private:
 	QAction *m_pActionFind;			// Edit menu Find
 	QAction *m_pActionFindNext;		// Edit menu Find Next
 	QAction *m_pActionFindPrev;		// Edit menu Find Previous
+	// ----
+	QAction *m_pActionShowAllNotes;	// Edit menu Show All Notes
+	QAction *m_pActionHideAllNotes;	// Edit menu Hide All Notes
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 
@@ -230,6 +235,8 @@ public slots:
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
 	virtual void en_anchorClicked(const QUrl &link) = 0;
+	virtual void en_showAllNotes() = 0;
+	virtual void en_hideAllNotes() = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -274,6 +281,8 @@ public slots:
 	virtual void en_copyEntirePassageDetails() = 0;
 	virtual void en_highlightPassage(QAction *pAction) = 0;
 	virtual void en_anchorClicked(const QUrl &link) = 0;
+	virtual void en_showAllNotes() = 0;
+	virtual void en_hideAllNotes() = 0;
 };
 
 // ============================================================================

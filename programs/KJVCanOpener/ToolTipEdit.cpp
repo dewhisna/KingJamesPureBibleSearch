@@ -295,6 +295,7 @@ void CTipEdit::hideTipImmediately()
 {
 	if (!bTipEditPushPin) {
 		close(); // to trigger QEvent::Close which stops the animation
+		if (instance == this) instance = 0;
 		deleteLater();
 	}
 }
@@ -430,7 +431,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 		//the stylesheet need to know the real parent
 		CTipEdit::instance->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
 		//we force the style to be the QStyleSheetStyle, and force to clear the cache as well.
-		CTipEdit::instance->setStyleSheet(QLatin1String("/* */"));
+//		CTipEdit::instance->setStyleSheet(QLatin1String(" "));
 
 		// Set up for cleaning up this later...
 		CTipEdit::instance->styleSheetParent = w;
