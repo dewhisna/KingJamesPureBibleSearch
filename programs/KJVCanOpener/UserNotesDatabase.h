@@ -272,6 +272,12 @@ public:
 	{
 		return (m_mapCrossReference.find(ndx) != m_mapCrossReference.end());
 	}
+	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
+	{
+		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
+		TRelativeIndexSet::const_iterator itr = refs.find(ndxSecond);
+		return (itr != refs.end());
+	}
 	inline const TRelativeIndexSet crossReferencesFor(const CRelIndex &ndx) const
 	{
 		TCrossReferenceMap::const_iterator itr = m_mapCrossReference.find(ndx);

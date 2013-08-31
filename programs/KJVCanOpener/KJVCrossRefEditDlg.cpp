@@ -319,10 +319,21 @@ void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 
 void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 {
-	CRelIndex ndxTarget = navigateCrossRef(m_tagSourcePassage.relIndex());
-	if ((ndxTarget.isSet()) && (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget))) {
-		m_bIsDirty = true;
-	}
+	CRelIndex ndxTarget = m_tagSourcePassage.relIndex();
+	bool bRefSet = false;
+	do {
+		ndxTarget = navigateCrossRef(ndxTarget);
+		if (ndxTarget.isSet()) {
+			if (m_tagSourcePassage.relIndex() == ndxTarget) {
+				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself."));
+			} else if (m_pWorkingUserNotesDatabase->haveCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists."));
+			} else if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+				m_bIsDirty = true;
+				bRefSet = true;
+			}
+		}
+	} while ((ndxTarget.isSet()) && (!bRefSet));
 }
 
 void CKJVCrossRefEditDlg::en_DelReferenceClicked()
