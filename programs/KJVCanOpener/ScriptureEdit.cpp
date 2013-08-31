@@ -465,16 +465,12 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 		menu.addSeparator();
 		menu.addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
-	}
-	menu.addSeparator();
-	QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
-	if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		menu.addSeparator();
+		QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 		pActionNavigator->setEnabled(true);
-	} else {
-		pActionNavigator->setEnabled(false);
+		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	}
-	pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	menu.addSeparator();
 	QAction *pActionDetails = menu.addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), T::tr("View &Details..."));
 	pActionDetails->setEnabled(haveDetails());
