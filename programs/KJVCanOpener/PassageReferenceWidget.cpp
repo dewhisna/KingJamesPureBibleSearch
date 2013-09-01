@@ -155,6 +155,16 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 
 	QRegExp expReference("\\s*(\\d)?\\s*(\\w+)\\s*(\\d{1,3})?\\s*:?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*,?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*\\[?\\s*(\\d{1,3})?\\s*\\]?", Qt::CaseInsensitive);
 
+#define PARSENDX_ALL			0
+#define PARSENDX_PREBOOK		1
+#define PARSENDX_BOOK			2
+#define PARSENDX_CHAPTER		3
+#define PARSENDX_VERSE			4
+#define PARSENDX_RANGEEND1		5
+#define PARSENDX_RANGESTART2	6
+#define PARSENDX_RANGEEND2		7
+#define PARSENDX_WORD			8
+
 	int nPos = expReference.indexIn(strText);
 	QStringList lstMatches = expReference.capturedTexts();
 
@@ -172,28 +182,28 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 	} else {
 		CRelIndex ndxResolved;
 		unsigned int nWordCount = 0;
-		ndxResolved.setBook(resolveBook(lstMatches.at(1), lstMatches.at(2)));
+		ndxResolved.setBook(resolveBook(lstMatches.at(PARSENDX_PREBOOK), lstMatches.at(PARSENDX_BOOK)));
 		if (ndxResolved.book()) {
 			const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndxResolved.book());
-			if (!lstMatches.at(3).isEmpty()) {
+			if (!lstMatches.at(PARSENDX_CHAPTER).isEmpty()) {
 				// Resolve Chapter:
-				ndxResolved.setChapter(lstMatches.at(3).toUInt());
+				ndxResolved.setChapter(lstMatches.at(PARSENDX_CHAPTER).toUInt());
 				if ((ndxResolved.chapter() < 1) || (ndxResolved.chapter() > book.m_nNumChp)) ndxResolved.setChapter(0);
 			} else {
 				ndxResolved.setChapter(1);
 			}
 			if (ndxResolved.chapter()) {
 				const CChapterEntry &chapter = *m_pBibleDatabase->chapterEntry(ndxResolved);
-				if (!lstMatches.at(4).isEmpty()) {
+				if (!lstMatches.at(PARSENDX_VERSE).isEmpty()) {
 					// Resolve Verse:
-					ndxResolved.setVerse(lstMatches.at(4).toUInt());
+					ndxResolved.setVerse(lstMatches.at(PARSENDX_VERSE).toUInt());
 					if ((ndxResolved.verse() < 1) || (ndxResolved.verse() > chapter.m_nNumVrs)) ndxResolved.setVerse(0);
 				} else {
 					ndxResolved.setVerse(1);
 					ndxResolved.setWord(1);
-					if (!lstMatches.at(5).isEmpty()) {
+					if (!lstMatches.at(PARSENDX_RANGEEND1).isEmpty()) {
 						// Range of Chapters:
-						uint32_t nLastChapter = lstMatches.at(5).toUInt();
+						uint32_t nLastChapter = lstMatches.at(PARSENDX_RANGEEND1).toUInt();
 						if ((nLastChapter >= 1) && (nLastChapter <= book.m_nNumChp) && (nLastChapter >= ndxResolved.chapter())) {
 							CRelIndex ndxLast(ndxResolved.book(), nLastChapter, 1, 1);
 							const CChapterEntry &chapterLast = *m_pBibleDatabase->chapterEntry(ndxLast);
@@ -204,21 +214,21 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 						}
 					}
 				}
-				if (ndxResolved.verse() && (!lstMatches.at(4).isEmpty())) {
+				if (ndxResolved.verse() && (!lstMatches.at(PARSENDX_VERSE).isEmpty())) {
 					const CVerseEntry &verse = *m_pBibleDatabase->verseEntry(ndxResolved);
-					if (!lstMatches.at(8).isEmpty()) {
-						ndxResolved.setWord(lstMatches.at(8).toUInt());
+					if (!lstMatches.at(PARSENDX_WORD).isEmpty()) {
+						ndxResolved.setWord(lstMatches.at(PARSENDX_WORD).toUInt());
 						if ((ndxResolved.word() < 1) || (ndxResolved.word() > verse.m_nNumWrd)) ndxResolved.setWord(0);
 						nWordCount = 1;
 					} else {
 						ndxResolved.setWord(1);
 					}
-					if (!lstMatches.at(5).isEmpty() && ndxResolved.word()) {
+					if (!lstMatches.at(PARSENDX_RANGEEND1).isEmpty() && ndxResolved.word()) {
 						// Range of Verses:
-						uint32_t nLastVerse = lstMatches.at(5).toUInt();
+						uint32_t nLastVerse = lstMatches.at(PARSENDX_RANGEEND1).toUInt();
 						if ((nLastVerse >= 1) && (nLastVerse <= chapter.m_nNumVrs) && (nLastVerse >= ndxResolved.verse())) {
 							CRelIndex ndxLast = ndxResolved;
-							ndxResolved.setVerse(nLastVerse);
+							ndxLast.setVerse(nLastVerse);
 							const CVerseEntry &verseLast = *m_pBibleDatabase->verseEntry(ndxLast);
 							ndxLast.setWord(verseLast.m_nNumWrd);
 							nWordCount = m_pBibleDatabase->NormalizeIndex(ndxLast) - m_pBibleDatabase->NormalizeIndex(ndxResolved) + 1;
