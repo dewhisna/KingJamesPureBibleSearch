@@ -134,6 +134,9 @@ private slots:
 	void BibleBkComboIndexChanged(int index);
 	void BibleChpComboIndexChanged(int index);
 
+	void PassageReferenceChanged(const TPhraseTag &tag);
+	void PassageReferenceEnterPressed();
+
 	void ChapterSliderMoved(int index);
 	void ChapterSliderValueChanged();
 
@@ -143,6 +146,8 @@ private slots:
 	void delayTstChpComboIndexChanged(int index);
 	void delayBibleBkComboIndexChanged(int index);
 	void delayBibleChpComboIndexChanged(int index);
+
+	void delayPassageReference(const TPhraseTag &tag);
 
 	void en_WordsOfJesusColorChanged(const QColor &color);
 	void en_SearchResultsColorChanged(const QColor &color);
@@ -176,6 +181,7 @@ private:
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
 
+	bool m_bDoingPassageReference;
 	int m_nNavigationActivationDelay;			// Navigation Delay to set on Scripture Browser controls
 	DelayedExecutionTimer m_dlyBkCombo;
 	DelayedExecutionTimer m_dlyBkChpCombo;
@@ -183,6 +189,7 @@ private:
 	DelayedExecutionTimer m_dlyTstChpCombo;
 	DelayedExecutionTimer m_dlyBibleBkCombo;
 	DelayedExecutionTimer m_dlyBibleChpCombo;
+	DelayedExecutionTimer m_dlyPassageReference;
 	CScriptureBrowser *m_pScriptureBrowser;
 	Ui::CKJVBrowser *ui;
 };

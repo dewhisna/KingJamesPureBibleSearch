@@ -29,10 +29,12 @@
 #include <QRegExp>
 #include <QColor>
 #include <QStringList>
+#include <QKeyEvent>
 
 #include <assert.h>
 
 #define PASSAGE_SOUNDEX_LENGTH 4
+#define PASSAGE_SOUNDEX_MODE CSoundExSearchCompleterFilter::SEOME_ENHANCED
 
 // ============================================================================
 
@@ -65,8 +67,19 @@ void CPassageReferenceWidget::clear()
 
 void CPassageReferenceWidget::focusInEvent(QFocusEvent *event)
 {
-	Q_UNUSED(event);
+	QWidget::focusInEvent(event);
 	ui->editPassageReference->setFocus();
+}
+
+void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
+{
+	if ((event) &&
+		((event->key() == Qt::Key_Enter) ||
+		 (event->key() == Qt::Key_Return))) {
+		emit enterPressed();
+	}
+
+	QWidget::keyPressEvent(event);
 }
 
 // ============================================================================
@@ -158,7 +171,7 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 		m_tagPhrase = TPhraseTag();
 	} else {
 		CRelIndex ndxResolved;
-		unsigned int nWordCount = 1;
+		unsigned int nWordCount = 0;
 		ndxResolved.setBook(resolveBook(lstMatches.at(1), lstMatches.at(2)));
 		if (ndxResolved.book()) {
 			const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndxResolved.book());
@@ -196,6 +209,7 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 					if (!lstMatches.at(8).isEmpty()) {
 						ndxResolved.setWord(lstMatches.at(8).toUInt());
 						if ((ndxResolved.word() < 1) || (ndxResolved.word() > verse.m_nNumWrd)) ndxResolved.setWord(0);
+						nWordCount = 1;
 					} else {
 						ndxResolved.setWord(1);
 					}
@@ -255,7 +269,7 @@ void CPassageReferenceWidget::buildSoundExTables()
 		strSoundEx = strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
 																		CSoundExSearchCompleterFilter::SELE_ENGLISH,
 																		PASSAGE_SOUNDEX_LENGTH,
-																		CSoundExSearchCompleterFilter::SEOME_ENHANCED);
+																		PASSAGE_SOUNDEX_MODE);
 		m_lstBookSoundEx.append(strSoundEx);
 	}
 }
@@ -268,14 +282,14 @@ uint32_t CPassageReferenceWidget::resolveBook(const QString &strPreBook, const Q
 	QString strSoundEx = strPreBook + CSoundExSearchCompleterFilter::soundEx(strBookName,
 																			 CSoundExSearchCompleterFilter::SELE_ENGLISH,
 																			 PASSAGE_SOUNDEX_LENGTH,
-																			 CSoundExSearchCompleterFilter::SEOME_ENHANCED);
+																			 PASSAGE_SOUNDEX_MODE);
 	uint32_t nResolvedBook = 0;
 	QList<uint32_t> lstResolvedBooks;
 	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(nBk);
 		QString strBibleBookName = book.m_strBkName.toLower();
 		strBibleBookName.replace(QRegExp("\\s"), QString());
-		if ((strSoundEx.compare(m_lstBookSoundEx.at(nBk-1)) == 0) || (strBibleBookName.startsWith(strBook))) {
+		if ((strSoundEx.compare(m_lstBookSoundEx.at(nBk-1)) == 0) || (strBibleBookName.startsWith(strBookName))) {
 			lstResolvedBooks.append(nBk);
 		}
 	}
@@ -285,7 +299,7 @@ uint32_t CPassageReferenceWidget::resolveBook(const QString &strPreBook, const Q
 			const CBookEntry &book = *m_pBibleDatabase->bookEntry(lstResolvedBooks.at(ndx));
 			QString strBibleBookName = book.m_strBkName.toLower();
 			strBibleBookName.replace(QRegExp("\\s"), QString());
-			if (strBibleBookName.startsWith(strBook)) {
+			if (strBibleBookName.startsWith(strBookName)) {
 				if (nResolvedBook == 0) {
 					nResolvedBook = lstResolvedBooks.at(ndx);
 				} else {

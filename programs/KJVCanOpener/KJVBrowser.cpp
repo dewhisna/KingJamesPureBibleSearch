@@ -50,6 +50,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_ndxCurrent(0),
 	m_Highlighter(pModel),
 	m_bDoingUpdate(false),
+	m_bDoingPassageReference(false),
 	m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
@@ -69,6 +70,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_dlyTstChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
 	m_dlyBibleBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
 	m_dlyBibleChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
+	m_dlyPassageReference.setMinimumDelay(3000);			// TODO : Make this a settable delay time
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -85,6 +87,9 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
 	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
 
+	connect(ui->widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(delayPassageReference(const TPhraseTag &)));
+	connect(ui->widgetPassageReference, SIGNAL(enterPressed()), this, SLOT(PassageReferenceEnterPressed()));
+
 	connect(ui->scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
 	connect(ui->scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
 	connect(ui->scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
@@ -95,6 +100,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(&m_dlyTstChpCombo, SIGNAL(triggered(int)), this, SLOT(TstChpComboIndexChanged(int)));
 	connect(&m_dlyBibleBkCombo, SIGNAL(triggered(int)), this, SLOT(BibleBkComboIndexChanged(int)));
 	connect(&m_dlyBibleChpCombo, SIGNAL(triggered(int)), this, SLOT(BibleChpComboIndexChanged(int)));
+
+	connect(&m_dlyPassageReference, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(PassageReferenceChanged(const TPhraseTag &)));
 
 	// Set Outgoing Pass-Through Signals:
 	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SIGNAL(activatedScriptureText()));
@@ -156,6 +163,10 @@ void CKJVBrowser::setNavigationActivationDelay(int nDelay)
 
 void CKJVBrowser::initialize()
 {
+	// --------------------------------------------------------------
+
+	ui->widgetPassageReference->initialize(m_pBibleDatabase);
+
 	// --------------------------------------------------------------
 
 	//	Swapout the widgetKJVPassageNavigator from the layout with
@@ -224,6 +235,8 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
 
 	begin_update();
+
+	if (!m_bDoingPassageReference) ui->widgetPassageReference->clear();
 
 	// If branching to a "book only", goto chapter 1 of that book:
 	if ((tagActual.relIndex().book() != 0) &&
@@ -630,6 +643,21 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
+void CKJVBrowser::PassageReferenceChanged(const TPhraseTag &tag)
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingPassageReference = true;
+	gotoIndex(tag);
+	m_bDoingPassageReference = false;
+}
+
+void CKJVBrowser::PassageReferenceEnterPressed()
+{
+	if (m_bDoingUpdate) return;
+	m_dlyPassageReference.untrigger();
+	gotoIndex(ui->widgetPassageReference->phraseTag());
+}
+
 // ----------------------------------------------------------------------------
 
 void CKJVBrowser::ChapterSliderMoved(int index)
@@ -696,6 +724,12 @@ void CKJVBrowser::delayBibleChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyBibleChpCombo.trigger(index);
+}
+
+void CKJVBrowser::delayPassageReference(const TPhraseTag &tag)
+{
+	if (m_bDoingUpdate) return;
+	m_dlyPassageReference.trigger(tag);
 }
 
 // ----------------------------------------------------------------------------

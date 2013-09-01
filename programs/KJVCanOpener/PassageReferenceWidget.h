@@ -45,13 +45,15 @@ public:
 	void initialize(CBibleDatabasePtr pBibleDatabase);
 
 	void clear();
-	TPhraseTag passageTag() const { return m_tagPhrase; }
+	TPhraseTag phraseTag() const { return m_tagPhrase; }
 
 signals:
 	void passageReferenceChanged(const TPhraseTag &tagPhrase);
+	void enterPressed();
 
 protected slots:
 	virtual void focusInEvent(QFocusEvent *event);
+	virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
 	void en_PassageReferenceChanged(const QString &strText);

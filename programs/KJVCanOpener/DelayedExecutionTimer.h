@@ -36,6 +36,8 @@ Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
 #ifndef DELAYEDEXECUTIONTIMER_H
 #define DELAYEDEXECUTIONTIMER_H
 
+#include "dbstruct.h"
+
 #include <QObject>
 class QTimer;
 
@@ -77,13 +79,21 @@ public:
 
 signals:
 	void triggered();
-	void triggered(QString);
+	void triggered(const QString &string);
 	void triggered(int);
+	void triggered(const CRelIndex &ndx);
+	void triggered(const TPhraseTag &tag);
+	void triggered(const TPassageTag &tag);
 
 public slots:
 	void trigger();
-	void trigger(QString);
+	void trigger(const QString &string);
 	void trigger(int);
+	void trigger(const CRelIndex &ndx);
+	void trigger(const TPhraseTag &tag);
+	void trigger(const TPassageTag &tag);
+
+	void untrigger();
 
 private slots:
 	void timeout();
@@ -97,6 +107,9 @@ private:
 
 	QString m_lastString;
 	int m_lastInt;
+	CRelIndex m_lastRelIndex;
+	TPhraseTag m_lastPhraseTag;
+	TPassageTag m_lastPassageTag;
 
 	QString m_prefix;
 	QString m_postfix;

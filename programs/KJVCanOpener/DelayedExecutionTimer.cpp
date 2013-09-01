@@ -47,6 +47,15 @@ void DelayedExecutionTimer::timeout()
 	emit triggered();
 	emit triggered(m_prefix % m_lastString % m_postfix);
 	emit triggered(m_lastInt);
+	emit triggered(m_lastRelIndex);
+	emit triggered(m_lastPhraseTag);
+	emit triggered(m_lastPassageTag);
+}
+
+void DelayedExecutionTimer::untrigger()
+{
+	m_minimumTimer->stop();
+	m_maximumTimer->stop();
 }
 
 void DelayedExecutionTimer::trigger()
@@ -61,7 +70,7 @@ void DelayedExecutionTimer::trigger()
 		((m_minimumDelay == -1) || (m_minimumDelay == 0))) timeout();		// If the delay is disabled, trigger immediately so we act as a pass-through
 }
 
-void DelayedExecutionTimer::trigger(QString string)
+void DelayedExecutionTimer::trigger(const QString &string)
 {
 	m_lastString = string;
 	trigger();
@@ -70,5 +79,23 @@ void DelayedExecutionTimer::trigger(QString string)
 void DelayedExecutionTimer::trigger(int i)
 {
 	m_lastInt = i;
+	trigger();
+}
+
+void DelayedExecutionTimer::trigger(const CRelIndex &ndx)
+{
+	m_lastRelIndex = ndx;
+	trigger();
+}
+
+void DelayedExecutionTimer::trigger(const TPhraseTag &tag)
+{
+	m_lastPhraseTag = tag;
+	trigger();
+}
+
+void DelayedExecutionTimer::trigger(const TPassageTag &tag)
+{
+	m_lastPassageTag = tag;
 	trigger();
 }
