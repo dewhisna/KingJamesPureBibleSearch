@@ -615,8 +615,10 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui->buttonRemove->setToolTip(tr("Remove Phrase from Search Criteria"));
 	ui->buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
 
+	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(ui->editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchActivationDelay(int)));
 
 	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));

@@ -67,9 +67,6 @@ public:
 
 	QString searchPhraseSummaryText() const;
 
-	int searchActivationDelay() const { return m_nSearchActivationDelay; }
-	void setSearchActivationDelay(int nDelay);
-
 signals:
 	void changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
 
@@ -115,7 +112,6 @@ private:
 
 // UI Private:
 private:
-	int m_nSearchActivationDelay;			// Search Delay to set on all Search Phrases -- kept here because we aren't require to actually have a search phrase
 	QVBoxLayout *m_pLayoutPhrases;
 //	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;

@@ -27,6 +27,7 @@
 #include "ui_KJVUserNotesDatabaseConfig.h"
 #include "ui_KJVGeneralSettingsConfig.h"
 #include "ui_ConfigSearchOptions.h"
+#include "ui_ConfigBrowserOptions.h"
 #include "ui_ConfigCopyOptions.h"
 
 #include "ScriptureEdit.h"
@@ -37,6 +38,7 @@
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
 #include "RenameHighlighterDlg.h"
+#include "BusyCursor.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -839,6 +841,9 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 	}
 
 	connect(ui->comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
+
+	ui->spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
+	connect(ui->spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
 }
 
 CConfigSearchOptions::~CConfigSearchOptions()
@@ -855,11 +860,61 @@ void CConfigSearchOptions::saveSettings()
 	} else {
 		assert(false);
 	}
+	CPersistentSettings::instance()->setSearchActivationDelay(ui->spinSearchPhraseActivationDelay->value());
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
 {
 	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
+{
+	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+// ============================================================================
+
+CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		ui(new Ui::CConfigBrowserOptions)
+{
+	ui->setupUi(this);
+
+	ui->spinBrowserNavigationActivationDelay->setValue(CPersistentSettings::instance()->navigationActivationDelay());
+	connect(ui->spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
+
+	ui->spinBrowserPassageReferenceActivationDelay->setValue(CPersistentSettings::instance()->passageReferenceActivationDelay());
+	connect(ui->spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
+}
+
+CConfigBrowserOptions::~CConfigBrowserOptions()
+{
+
+}
+
+void CConfigBrowserOptions::saveSettings()
+{
+	CPersistentSettings::instance()->setNavigationActivationDelay(ui->spinBrowserNavigationActivationDelay->value());
+	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui->spinBrowserPassageReferenceActivationDelay->value());
+	m_bIsDirty = false;
+}
+
+void CConfigBrowserOptions::en_changedNavigationActivationDelay(int nValue)
+{
+	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue)
+{
+	Q_UNUSED(nValue);
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -1088,6 +1143,7 @@ CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDat
 	ui->widgetCopyOptions->initialize(pBibleDatabase);
 
 	connect(ui->widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui->widgetBrowserOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(ui->widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
@@ -1099,12 +1155,13 @@ CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
 void CKJVGeneralSettingsConfig::saveSettings()
 {
 	ui->widgetSearchOptions->saveSettings();
+	ui->widgetBrowserOptions->saveSettings();
 	ui->widgetCopyOptions->saveSettings();
 }
 
 bool CKJVGeneralSettingsConfig::isDirty() const
 {
-	return (ui->widgetSearchOptions->isDirty() || ui->widgetCopyOptions->isDirty());
+	return (ui->widgetSearchOptions->isDirty() || ui->widgetBrowserOptions->isDirty() || ui->widgetCopyOptions->isDirty());
 }
 
 // ============================================================================
@@ -1213,6 +1270,8 @@ void CKJVConfigurationDialog::en_dataChanged()
 
 void CKJVConfigurationDialog::accept()
 {
+	CBusyCursor iAmBusy(this);
+
 	m_pConfiguration->saveSettings();
 	QDialog::accept();
 	// Note: Leave the settings permanent, by not copying
@@ -1233,6 +1292,8 @@ void CKJVConfigurationDialog::reject()
 void CKJVConfigurationDialog::apply()
 {
 	assert(g_pUserNotesDatabase != NULL);
+
+	CBusyCursor iAmBusy(this);
 
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent

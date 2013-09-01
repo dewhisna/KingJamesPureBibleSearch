@@ -125,6 +125,7 @@ namespace {
 	//const QString constrHasFocusKey("HasFocus");
 	//const QString constrFontKey("Font");
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
+	const QString constrPassageReferenceActivationDelayKey("PassageReferenceActivationDelay");
 
 	// Copy Options:
 	const QString constrCopyOptionsGroup("CopyOptions");
@@ -672,7 +673,7 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Search Phrases Settings:
 	settings.beginGroup(constrSearchPhrasesGroup);
-	settings.setValue(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay());
+	settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
 	settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 	settings.endGroup();
 
@@ -686,7 +687,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrLastSelectionSizeKey, tag.count());
 	settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
-	settings.setValue(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay());
+	settings.setValue(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay());
+	settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
 	settings.endGroup();
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
@@ -804,7 +806,7 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Search Phrases Settings:
 	settings.beginGroup(constrSearchPhrasesGroup);
-	m_pSearchSpecWidget->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, m_pSearchSpecWidget->searchActivationDelay()).toInt());
+	CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
 	CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 	settings.endGroup();
 
@@ -813,14 +815,14 @@ void CKJVCanOpener::restorePersistentSettings()
 	//	But, we first need to disable our SearchActivationDelay so that the updates
 	//	will happen immediately -- otherwise, Search Results mode settings won't
 	//	restore properly:
-	int nSaveSearchActivationDelay = m_pSearchSpecWidget->searchActivationDelay();
-	m_pSearchSpecWidget->setSearchActivationDelay(-1);
+	int nSaveSearchActivationDelay = CPersistentSettings::instance()->searchActivationDelay();
+	CPersistentSettings::instance()->setSearchActivationDelay(-1);
 
 	// Last Search:
 	m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
 
 	// Restore our activation delay:
-	m_pSearchSpecWidget->setSearchActivationDelay(nSaveSearchActivationDelay);
+	CPersistentSettings::instance()->setSearchActivationDelay(nSaveSearchActivationDelay);
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
@@ -872,7 +874,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		aFont2.setPointSizeF(aFont.pointSizeF());
 		CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
 	}
-	m_pBrowserWidget->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, m_pBrowserWidget->navigationActivationDelay()).toInt());
+	CPersistentSettings::instance()->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay()).toInt());
+	CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
 	settings.endGroup();
 
 	// Browser Object (used for Subwindows: FindDialog, etc):

@@ -57,9 +57,6 @@ public:
 	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	virtual ~CKJVBrowser();
 
-	int navigationActivationDelay() const { return m_nNavigationActivationDelay; }
-	void setNavigationActivationDelay(int nDelay);
-
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
 	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
 
@@ -88,6 +85,9 @@ public slots:
 	void setTextBrightness(bool bInvert, int nBrightness);
 	void showDetails();
 	void showPassageNavigator();
+
+	void setNavigationActivationDelay(int nDelay);
+	void setPassageReferenceActivationDelay(int nDelay);
 
 	void gotoIndex(const TPhraseTag &tag);
 	void setFocusBrowser();
@@ -182,7 +182,6 @@ private:
 	m_bDoingUpdate = bUpdateSave;
 
 	bool m_bDoingPassageReference;
-	int m_nNavigationActivationDelay;			// Navigation Delay to set on Scripture Browser controls
 	DelayedExecutionTimer m_dlyBkCombo;
 	DelayedExecutionTimer m_dlyBkChpCombo;
 	DelayedExecutionTimer m_dlyTstBkCombo;

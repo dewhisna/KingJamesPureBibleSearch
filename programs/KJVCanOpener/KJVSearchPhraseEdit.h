@@ -181,7 +181,6 @@ public:
 	CPhraseLineEdit *phraseEditor() const;
 
 	int searchActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
-	void setSearchActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
 
 signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
@@ -196,6 +195,7 @@ public slots:
 	void phraseStatisticsChanged() const;
 	void closeSearchPhrase();
 	void setDisabled(bool bDisabled);
+	void setSearchActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
 
 protected slots:
 	void en_phraseChanged();

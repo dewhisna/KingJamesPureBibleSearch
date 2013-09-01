@@ -51,7 +51,6 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_Highlighter(pModel),
 	m_bDoingUpdate(false),
 	m_bDoingPassageReference(false),
-	m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 	m_pScriptureBrowser(NULL),
 	ui(new Ui::CKJVBrowser)
 {
@@ -64,13 +63,11 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	assert(m_pScriptureBrowser != NULL);
 
-	m_dlyBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyBkChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyTstBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyTstChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyBibleBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyBibleChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	m_dlyPassageReference.setMinimumDelay(3000);			// TODO : Make this a settable delay time
+	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
+	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
+
+	connect(CPersistentSettings::instance(), SIGNAL(changedNavigationActivationDelay(int)), this, SLOT(setNavigationActivationDelay(int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -148,15 +145,17 @@ bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 
 void CKJVBrowser::setNavigationActivationDelay(int nDelay)
 {
-	if (m_nNavigationActivationDelay != nDelay) {
-		m_nNavigationActivationDelay = nDelay;
-		m_dlyBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-		m_dlyBkChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-		m_dlyTstBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-		m_dlyTstChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-		m_dlyBibleBkCombo.setMinimumDelay(m_nNavigationActivationDelay);
-		m_dlyBibleChpCombo.setMinimumDelay(m_nNavigationActivationDelay);
-	}
+	m_dlyBkCombo.setMinimumDelay(nDelay);
+	m_dlyBkChpCombo.setMinimumDelay(nDelay);
+	m_dlyTstBkCombo.setMinimumDelay(nDelay);
+	m_dlyTstChpCombo.setMinimumDelay(nDelay);
+	m_dlyBibleBkCombo.setMinimumDelay(nDelay);
+	m_dlyBibleChpCombo.setMinimumDelay(nDelay);
+}
+
+void CKJVBrowser::setPassageReferenceActivationDelay(int nDelay)
+{
+	m_dlyPassageReference.setMinimumDelay(nDelay);
 }
 
 // ----------------------------------------------------------------------------
@@ -656,6 +655,7 @@ void CKJVBrowser::PassageReferenceEnterPressed()
 	if (m_bDoingUpdate) return;
 	m_dlyPassageReference.untrigger();
 	gotoIndex(ui->widgetPassageReference->phraseTag());
+	setFocusBrowser();
 }
 
 // ----------------------------------------------------------------------------
@@ -729,7 +729,7 @@ void CKJVBrowser::delayBibleChpComboIndexChanged(int index)
 void CKJVBrowser::delayPassageReference(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
-	m_dlyPassageReference.trigger(tag);
+	if (tag.isSet()) m_dlyPassageReference.trigger(tag);
 }
 
 // ----------------------------------------------------------------------------

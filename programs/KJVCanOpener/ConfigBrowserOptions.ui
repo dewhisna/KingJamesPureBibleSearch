@@ -22,56 +22,26 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CConfigSearchOptions</class>
- <widget class="QWidget" name="CConfigSearchOptions">
+ <class>CConfigBrowserOptions</class>
+ <widget class="QWidget" name="CConfigBrowserOptions">
   <property name="windowTitle">
-   <string>Search Options</string>
+   <string>Browser Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="lblSearchPhraseCompleterMode">
+      <widget class="QLabel" name="lblBrowserNavigationActivationDelay">
        <property name="text">
-        <string>Search Phrase &amp;Completer Mode:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <string>Navigation Activation &amp;Delay (ms):</string>
        </property>
        <property name="buddy">
-        <cstring>comboSearchPhraseCompleterMode</cstring>
+        <cstring>spinBrowserNavigationActivationDelay</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboSearchPhraseCompleterMode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="lblSearchPhraseActivationDelay">
-       <property name="text">
-        <string>Search Phrase Activation &amp;Delay (ms):</string>
-       </property>
-       <property name="buddy">
-        <cstring>spinSearchPhraseActivationDelay</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CSpinBox" name="spinSearchPhraseActivationDelay">
+      <widget class="CSpinBox" name="spinBrowserNavigationActivationDelay">
        <property name="minimum">
         <number>50</number>
        </property>
@@ -83,6 +53,36 @@
        </property>
        <property name="value">
         <number>500</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lblBrowserPassageReferenceActivationDelay">
+       <property name="text">
+        <string>Passage Reference Activation &amp;Delay (ms):</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinBrowserPassageReferenceActivationDelay</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CSpinBox" name="spinBrowserPassageReferenceActivationDelay">
+       <property name="minimum">
+        <number>100</number>
+       </property>
+       <property name="maximum">
+        <number>4000</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
        </property>
       </widget>
      </item>

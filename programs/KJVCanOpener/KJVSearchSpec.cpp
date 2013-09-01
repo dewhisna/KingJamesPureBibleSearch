@@ -53,7 +53,6 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bHaveUserDatabase(bHaveUserDatabase),
-		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
 		m_pLayoutPhrases(NULL),
 		m_pLastEditorActive(NULL),
 		m_bDoneActivation(false),
@@ -106,19 +105,6 @@ CKJVSearchSpec::~CKJVSearchSpec()
 	m_pLastEditorActive = NULL;
 
 	delete ui;
-}
-
-// ------------------------------------------------------------------
-
-void CKJVSearchSpec::setSearchActivationDelay(int nDelay)
-{
-	if (m_nSearchActivationDelay != nDelay) {
-		m_nSearchActivationDelay = nDelay;
-
-		for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-			m_lstSearchPhraseEditors.at(ndx)->setSearchActivationDelay(m_nSearchActivationDelay);
-		}
-	}
 }
 
 // ------------------------------------------------------------------
@@ -244,7 +230,6 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
-	pPhraseWidget->setSearchActivationDelay(m_nSearchActivationDelay);
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));

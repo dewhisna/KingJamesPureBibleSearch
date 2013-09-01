@@ -63,6 +63,10 @@ public:
 	QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
+	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
+
+	int navigationActivationDelay() const { return m_pPersistentSettingData->m_nNavigationActivationDelay; }
+	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
 
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
 	bool referencesUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames; }
@@ -90,6 +94,10 @@ signals:
 	void changedColorCursorFollow(const QColor &color);
 
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
+	void changedSearchPhraseActivationDelay(int nDelay);
+
+	void changedNavigationActivationDelay(int nDelay);
+	void changedPassageReferenceActivationDelay(int nDelay);
 
 	void changedCopyOptions();
 
@@ -106,6 +114,10 @@ public slots:
 	void setColorCursorFollow(const QColor &color);
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void setSearchActivationDelay(int nDelay);
+
+	void setNavigationActivationDelay(int nDelay);
+	void setPassageReferenceActivationDelay(int nDelay);
 
 	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames);
@@ -141,6 +153,10 @@ private:
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
+		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
+		// ----
+		int m_nNavigationActivationDelay;				// Navigation Delay to set on Scripture Browser controls
+		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls
 		// ----
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
 		bool m_bReferencesUseAbbreviatedBookNames;

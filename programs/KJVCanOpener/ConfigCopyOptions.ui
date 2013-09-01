@@ -27,7 +27,7 @@
   <property name="windowTitle">
    <string>Copy Options</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayoutMain">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>

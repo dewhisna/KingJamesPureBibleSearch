@@ -232,6 +232,7 @@ signals:
 
 private slots:
 	void en_changedSearchPhraseCompleterFilterMode(int nIndex);
+	void en_changedSearchPhraseActivationDelay(int nValue);
 
 // Data Private:
 private:
@@ -242,6 +243,38 @@ private:
 	bool m_bIsDirty;
 
 	Ui::CConfigSearchOptions *ui;
+};
+
+// ============================================================================
+
+namespace Ui {
+	class CConfigBrowserOptions;
+}
+
+class CConfigBrowserOptions : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CConfigBrowserOptions(QWidget *parent = 0);
+	~CConfigBrowserOptions();
+
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+private slots:
+	void en_changedNavigationActivationDelay(int nValue);
+	void en_changedPassageReferenceActivationDelay(int nValue);
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+
+	Ui::CConfigBrowserOptions *ui;
 };
 
 // ============================================================================

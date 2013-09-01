@@ -26,6 +26,7 @@
 #include "version.h"
 
 #include <QCoreApplication>
+#include <QApplication>
 
 #include <assert.h>
 
@@ -69,8 +70,12 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrWordsOfJesus(QColor("red")),
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue")),
-		// Default Search Phrase Completer Filter Mode:
+		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
+		// Default Browser Options:
+		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
+		m_nPassageReferenceActivationDelay(2000),
 		// Default Copy Options:
 		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
 		m_bReferencesUseAbbreviatedBookNames(false),
@@ -133,6 +138,10 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
+		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
+
+		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
+		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
 
 		if ((pSource->m_nReferenceDelimiterMode != pTarget->m_nReferenceDelimiterMode) ||
 			(pSource->m_bReferencesUseAbbreviatedBookNames != pTarget->m_bReferencesUseAbbreviatedBookNames) ||
@@ -228,6 +237,24 @@ void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::S
 {
 	m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
 	emit changedSearchPhraseCompleterFilterMode(m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode);
+}
+
+void CPersistentSettings::setSearchActivationDelay(int nDelay)
+{
+	m_pPersistentSettingData->m_nSearchActivationDelay = nDelay;
+	emit changedSearchPhraseActivationDelay(m_pPersistentSettingData->m_nSearchActivationDelay);
+}
+
+void CPersistentSettings::setNavigationActivationDelay(int nDelay)
+{
+	m_pPersistentSettingData->m_nNavigationActivationDelay = nDelay;
+	emit changedNavigationActivationDelay(m_pPersistentSettingData->m_nNavigationActivationDelay);
+}
+
+void CPersistentSettings::setPassageReferenceActivationDelay(int nDelay)
+{
+	m_pPersistentSettingData->m_nPassageReferenceActivationDelay = nDelay;
+	emit changedPassageReferenceActivationDelay(m_pPersistentSettingData->m_nPassageReferenceActivationDelay);
 }
 
 void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
