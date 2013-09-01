@@ -1582,6 +1582,7 @@ void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)
 	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
 		// Note: This will automatically cause a repaint:
 		g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+												"QLineEdit { background-color:%1; color:%2; }\n"
 												"QComboBox { background-color:%1; color:%2; }\n"
 												"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
 												"QFontComboBox { background-color:%1; color:%2; }\n"

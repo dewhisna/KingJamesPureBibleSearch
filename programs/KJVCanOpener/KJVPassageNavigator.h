@@ -85,15 +85,21 @@ signals:
 private:
 	void initialize();
 	void CalcPassage();
+	void setDirectReference(const CRelIndex &ndx);
 
 private slots:
-	void TestamentComboIndexChanged(int index);
-	void BookChanged(int nBook);
-	void ChapterChanged(int nChapter);
-	void VerseChanged(int nVerse);
-	void WordChanged(int nWord);
+	void en_TestamentComboIndexChanged(int index);
+	void en_BookChanged(int nBook);
+	void en_ChapterChanged(int nChapter);
+	void en_VerseChanged(int nVerse);
+	void en_WordChanged(int nWord);
 	void en_ReverseChanged(bool bReverse);
 	void en_RefTypeChanged(int nType);
+	void en_BookDirectChanged(int index);
+	void en_ChapterDirectChanged(int index);
+	void en_VerseDirectChanged(int index);
+	void en_WordDirectChanged(int index);
+	void en_PassageReferenceChanged(const TPhraseTag &tagPhrase);
 
 // Data Private:
 private:

@@ -27,13 +27,89 @@
   <property name="windowTitle">
    <string>PassageNavigatorForm</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>6</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayoutMain">
    <property name="margin">
-    <number>6</number>
+    <number>0</number>
    </property>
+   <item>
+    <layout class="QHBoxLayout" name="layoutDirectReference">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="lblBookDirect">
+         <property name="text">
+          <string>&amp;Book:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboBookDirect</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBookDirect"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QLabel" name="lblChapterDirect">
+         <property name="text">
+          <string>C&amp;hapter:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboChapterDirect</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboChapterDirect"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QLabel" name="lblVerseDirect">
+         <property name="text">
+          <string>&amp;Verse:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboVerseDirect</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboVerseDirect"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QLabel" name="lblWordDirect">
+         <property name="text">
+          <string>&amp;Word:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboWordDirect</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboWordDirect"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="lineDirectReference">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="5">
@@ -323,6 +399,20 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="linePassageReference">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutPassageReference">
+     <item>
+      <widget class="CPassageReferenceWidget" name="widgetPassageReference" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QTextEdit" name="editVersePreview">
      <property name="minimumSize">
       <size>
@@ -349,6 +439,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CPassageReferenceWidget</class>
+   <extends>QWidget</extends>
+   <header>PassageReferenceWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>spinWord</tabstop>
   <tabstop>spinVerse</tabstop>
@@ -358,7 +456,12 @@
   <tabstop>editStartRef</tabstop>
   <tabstop>editResolved</tabstop>
   <tabstop>editVersePreview</tabstop>
+  <tabstop>comboBookDirect</tabstop>
+  <tabstop>comboChapterDirect</tabstop>
+  <tabstop>comboVerseDirect</tabstop>
+  <tabstop>comboWordDirect</tabstop>
   <tabstop>comboRefType</tabstop>
+  <tabstop>chkboxReverse</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -122,7 +122,8 @@ SOURCES += main.cpp \
 	ScriptureDocument.cpp \
 	NoteKeywordWidget.cpp \
 	KJVCrossRefEditDlg.cpp \
-	RenameHighlighterDlg.cpp
+	RenameHighlighterDlg.cpp \
+	PassageReferenceWidget.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -170,7 +171,8 @@ HEADERS  += main.h \
 	ScriptureTextFormatProperties.h \
 	NoteKeywordWidget.h \
 	KJVCrossRefEditDlg.h \
-	RenameHighlighterDlg.h
+	RenameHighlighterDlg.h \
+	PassageReferenceWidget.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -191,7 +193,8 @@ FORMS    += KJVCanOpener.ui \
 	KJVGeneralSettingsConfig.ui \
 	ConfigSearchOptions.ui \
 	ConfigCopyOptions.ui \
-	RenameHighlighterDlg.ui
+	RenameHighlighterDlg.ui \
+	PassageReferenceWidget.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

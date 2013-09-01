@@ -196,6 +196,7 @@ void CKJVBrowser::initialize()
 	ui->comboBibleBk->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
+		assert(pBook != NULL);
 		ui->comboBk->addItem(pBook->m_strBkName, ndxBk);
 		ui->comboBibleBk->addItem(QString("%1").arg(ndxBk), ndxBk);
 		nBibleChp += pBook->m_nNumChp;
