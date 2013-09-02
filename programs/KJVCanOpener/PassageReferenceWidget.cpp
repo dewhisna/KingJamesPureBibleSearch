@@ -153,7 +153,7 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 	//		- (8) will be the Word Number, the value in the "[]" tags, if specified, or empty if not
 	//
 
-	QRegExp expReference("\\s*(\\d)?\\s*(\\w+)\\s*(\\d{1,3})?\\s*:?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*,?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*\\[?\\s*(\\d{1,3})?\\s*\\]?", Qt::CaseInsensitive);
+	QRegExp expReference("\\s*(\\d)?\\s*(\\w+)\\s*(\\d{1,3})?\\s*[:.]?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*,?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*\\[?\\s*(\\d{1,3})?\\s*\\]?", Qt::CaseInsensitive);
 
 #define PARSENDX_ALL			0
 #define PARSENDX_PREBOOK		1
