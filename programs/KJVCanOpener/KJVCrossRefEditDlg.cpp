@@ -117,7 +117,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pEditSourcePassage->setUndoRedoEnabled(false);
 	m_pEditSourcePassage->setTabChangesFocus(true);
 	m_pEditSourcePassage->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-	m_pEditSourcePassage->setContextMenuPolicy(Qt::NoContextMenu);
+	m_pEditSourcePassage->setContextMenuPolicy(Qt::DefaultContextMenu);
 	m_pEditSourcePassage->setToolTip(tr("Source Passage for Reference"));
 
 	delete ui->editSourcePassage;

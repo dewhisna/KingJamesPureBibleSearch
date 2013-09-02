@@ -303,7 +303,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	m_pScriptureBrowser->setTabChangesFocus(true);
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 	m_pScriptureBrowser->setOpenLinks(false);
-	m_pScriptureBrowser->setContextMenuPolicy(Qt::NoContextMenu);
+	m_pScriptureBrowser->setContextMenuPolicy(Qt::DefaultContextMenu);
 	m_pScriptureBrowser->setToolTip(tr("Scripture Browser Preview"));			// Note:  Also disables the "Press Ctrl-D" tooltip, since that mode isn't enable in the configurator
 
 	delete ui->textScriptureBrowserPreview;
@@ -924,12 +924,10 @@ void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue
 CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
+		m_pEditCopyOptionPreview(NULL),
 		ui(new Ui::CConfigCopyOptions)
 {
 	ui->setupUi(this);
-
-	ui->editCopyOptionPreview->document()->setDefaultFont(CPersistentSettings::instance()->fontScriptureBrowser());
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(en_changedScriptureBrowserFont(const QFont &)));
 
 	int nIndex;
 
@@ -1017,10 +1015,33 @@ void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
 {
 	assert(pBibleDatabase != NULL);
 	m_pBibleDatabase = pBibleDatabase;
+
+	// ----------
+
+	//	Swapout the editCopyOptionPreview from the layout with
+	//		one that we can set the database on:
+
+	m_pEditCopyOptionPreview = new CScriptureEdit(m_pBibleDatabase, this);
+	m_pEditCopyOptionPreview->setObjectName(QString::fromUtf8("editCopyOptionPreview"));
+	m_pEditCopyOptionPreview->setMinimumSize(QSize(200, 150));
+	m_pEditCopyOptionPreview->setMouseTracking(true);
+	m_pEditCopyOptionPreview->setAcceptDrops(false);
+	m_pEditCopyOptionPreview->setTabChangesFocus(true);
+	m_pEditCopyOptionPreview->setUndoRedoEnabled(false);
+	m_pEditCopyOptionPreview->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+	m_pEditCopyOptionPreview->setReadOnly(true);
+	m_pEditCopyOptionPreview->setContextMenuPolicy(Qt::DefaultContextMenu);
+
+	delete ui->editCopyOptionPreview;
+	ui->editCopyOptionPreview = NULL;
+	ui->verticalLayoutMain->addWidget(m_pEditCopyOptionPreview);
+
+	// ----------
+
 	setVerseCopyPreview();
-	QTextCursor aCursor(ui->editCopyOptionPreview->textCursor());
+	QTextCursor aCursor(m_pEditCopyOptionPreview->textCursor());
 	aCursor.movePosition(QTextCursor::Start);
-	ui->editCopyOptionPreview->setTextCursor(aCursor);
+	m_pEditCopyOptionPreview->setTextCursor(aCursor);
 }
 
 void CConfigCopyOptions::saveSettings()
@@ -1028,11 +1049,6 @@ void CConfigCopyOptions::saveSettings()
 	// We've already saved settings in the change notification slots.  Just reset our
 	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
 	m_bIsDirty = false;
-}
-
-void CConfigCopyOptions::en_changedScriptureBrowserFont(const QFont &aFont)
-{
-	ui->editCopyOptionPreview->document()->setDefaultFont(aFont);
 }
 
 void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
@@ -1126,9 +1142,8 @@ void CConfigCopyOptions::setVerseCopyPreview()
 	strHtml += "<hr>\n";
 	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(65, 1, 25, 0), 3));
 	strHtml += doc.toHtml();
-	ui->editCopyOptionPreview->document()->setHtml(strHtml);
+	m_pEditCopyOptionPreview->document()->setHtml(strHtml);
 }
-
 
 // ============================================================================
 

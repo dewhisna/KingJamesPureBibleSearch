@@ -36,7 +36,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QMenu>
-#include <QContextMenuEvent>
+#include <QPoint>
 #include <QMimeData>
 #include <QColor>
 #include <QAction>
@@ -100,7 +100,6 @@ protected:
 	virtual bool event(QEvent *ev);
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	virtual void mouseDoubleClickEvent(QMouseEvent *ev);
-	virtual void contextMenuEvent(QContextMenuEvent *ev);
 	virtual QMimeData *createMimeDataFromSelection () const;
 
 protected:
@@ -111,6 +110,7 @@ protected:
 protected:
 	virtual void en_findDialog();
 
+	virtual void en_customContextMenuRequested(const QPoint &pos);
 	virtual void en_cursorPositionChanged();
 	virtual void en_selectionChanged();
 	virtual void clearHighlighting();
@@ -213,6 +213,7 @@ signals:
 protected slots:
 	virtual void en_findDialog() = 0;
 
+	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
 	virtual void en_cursorPositionChanged() = 0;
 	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;
@@ -259,6 +260,7 @@ signals:
 protected slots:
 	virtual void en_findDialog() = 0;
 
+	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
 	virtual void en_cursorPositionChanged() = 0;
 	virtual void en_selectionChanged() = 0;
 	virtual void clearHighlighting() = 0;

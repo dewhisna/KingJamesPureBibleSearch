@@ -40,6 +40,7 @@
 // Forward Declarations:
 class CSearchResultsTreeView;
 class CScriptureBrowser;
+class CScriptureEdit;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 class QListWidgetItem;
@@ -301,8 +302,6 @@ signals:
 	void dataChanged();
 
 private slots:
-	void en_changedScriptureBrowserFont(const QFont &aFont);
-
 	void en_changedReferenceDelimiterMode(int nIndex);
 	void en_changedReferencesUseAbbreviatedBookNames(bool bUseAbbrBookName);
 	void en_changedReferencesInBold(bool bInBold);
@@ -322,6 +321,7 @@ private:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	CScriptureEdit *m_pEditCopyOptionPreview;
 
 	Ui::CConfigCopyOptions *ui;
 };

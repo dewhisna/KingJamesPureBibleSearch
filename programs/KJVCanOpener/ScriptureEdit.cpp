@@ -183,6 +183,9 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 	}
 
+	T::setContextMenuPolicy(Qt::CustomContextMenu);
+	U::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
+
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
 	U::setToolTip(QString(T::tr("Press %1 to see Passage Details")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
@@ -431,13 +434,13 @@ void CScriptureText<T,U>::showPassageNavigator()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
+void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(ev->pos())).relIndex();
+	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(pos)).relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
@@ -481,7 +484,7 @@ void CScriptureText<T,U>::contextMenuEvent(QContextMenuEvent *ev)
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
-	menu.exec(ev->globalPos());
+	menu.exec(T::viewport()->mapToGlobal(pos));
 
 	end_popup();
 }
