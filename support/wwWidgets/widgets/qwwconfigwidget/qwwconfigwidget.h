@@ -44,6 +44,7 @@ public slots:
     void setCurrentGroup(QWidget *w);
     void setGroupIcon(int, const QIcon &);
     void setGroupLabel(int, const QString &);
+	void setGroupTitle(int, const QString &);
     void save();
     void apply();
     void discard();

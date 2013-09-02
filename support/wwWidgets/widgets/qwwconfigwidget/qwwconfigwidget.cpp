@@ -118,7 +118,7 @@ void QwwConfigWidget::insertGroup(int index, QWidget *group, const QIcon & icon,
         item->setText(group->windowTitle());
     } else {
         item->setText(label);
-        group->setWindowTitle(label);
+		if (group->windowTitle().isEmpty()) group->setWindowTitle(label);
     }
     if (icon.isNull()) {
         item->setIcon(group->windowIcon());
@@ -128,7 +128,7 @@ void QwwConfigWidget::insertGroup(int index, QWidget *group, const QIcon & icon,
     }
     ((QListWidget*)(d->view))->insertItem(index, item);
     if (d->stack->count()==1) {
-        d->titleLabel->setText(d->view->item(index)->text());
+		d->titleLabel->setText(group->windowTitle());
         setCurrentIndex(0);
     }
     group->installEventFilter(this);
@@ -156,7 +156,8 @@ void QwwConfigWidget::removeGroup(QWidget *group) {
  */
 QWidget * QwwConfigWidget::group(int index) const {
     Q_D(const QwwConfigWidget);
-    return d->stack->widget(index);
+	if (index<0 || index>=d->stack->count()) return NULL;
+	return d->stack->widget(index);
 }
 
 /*!
@@ -187,7 +188,7 @@ void QwwConfigWidget::setCurrentIndex(int index) {
     if (index<0 || index>=d->view->count()) return;
 	d->stack->setCurrentIndex(index);
 	if (index!=d->view->currentRow()) d->view->setCurrentRow(index);
-	d->titleLabel->setText(d->view->item(index)->text());
+	d->titleLabel->setText(group(index)->windowTitle());
 	emit currentIndexChanged(index);
 }
 
@@ -263,7 +264,8 @@ int QwwConfigWidget::count() const {
  */
 void QwwConfigWidget::setGroupIcon(int index, const QIcon &icon) {
     Q_D(QwwConfigWidget);
-    QWidget *w = group(index);
+	if (index<0 || index>=d->view->count()) return;
+	QWidget *w = group(index);
     w->setWindowIcon(icon);
     d->view->item(index)->setIcon(icon);
 }
@@ -273,12 +275,19 @@ void QwwConfigWidget::setGroupIcon(int index, const QIcon &icon) {
  */
 void QwwConfigWidget::setGroupLabel(int index, const QString &title) {
     Q_D(QwwConfigWidget);
-    QWidget *w = group(index);
-    w->setWindowTitle(title);
+	if (index<0 || index>=d->view->count()) return;
     d->view->item(index)->setText(title);
-    if (index==currentIndex()) {
-        d->titleLabel->setText(title);
-    }
+}
+
+/*!
+ * \brief Sets \a title as the Window Title of a group specified by \a index.
+ */
+void QwwConfigWidget::setGroupTitle(int index, const QString &title) {
+	Q_D(QwwConfigWidget);
+	if (index<0 || index>=d->stack->count()) return;
+	group(index)->setWindowTitle(title);
+	if (index == currentIndex())
+		d->titleLabel->setText(title);
 }
 
 /*!
