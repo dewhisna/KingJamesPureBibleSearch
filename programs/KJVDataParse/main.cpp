@@ -355,7 +355,7 @@ static QString WordFromWordSet(const TAltWordSet &setAltWords)
 class COSISXmlHandler : public QXmlDefaultHandler
 {
 public:
-	COSISXmlHandler(const QString &strNamespace)
+	COSISXmlHandler(const QString &strNamespace, const QString &strUUID)
 		:	m_strNamespace(strNamespace),
 			m_bCaptureTitle(false),
 			m_bInVerse(false),
@@ -372,7 +372,7 @@ public:
 	{
 		g_setBooks();
 		g_setTstNames();
-		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString()));		// Note: We'll set the name and description later in the reading of the data
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString(), strUUID));		// Note: We'll set the name and description later in the reading of the data
 		for (unsigned int i=0; i<NUM_BK; ++i) {
 			m_lstOsisBookList.append(g_arrBooks[i].m_strOsisAbbr);
 		}
@@ -609,7 +609,19 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
 						m_pBibleDatabase->m_lstBooks[nBk].m_strBkAbbr = g_arrBooks[nBk].m_strOsisAbbr;
 						m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
-						m_pBibleDatabase->m_lstBooks[nBk].m_strCat = g_arrBooks[nBk].m_strCategory;
+
+						TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
+						while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
+							if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
+							++itrCat;
+						}
+						if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
+							m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
+							itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
+						}
+						itrCat->m_setBooksNum.insert(nBk+1);
+						m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
+
 						m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
 						m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
 					}
@@ -1077,20 +1089,59 @@ int main(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 	const char *pstrFilename = NULL;
 
-	if (argc < 3) {
-		std::cerr << QString("Usage: %1 <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
+	if (argc < 4) {
+		std::cerr << QString("Usage: %1 <UUID-Index> <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
 		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
+		std::cerr << QString("UUID-Index:\n").toUtf8().data();
+		std::cerr << QString("    0 = Special Test Value\n").toUtf8().data();
+		std::cerr << QString("    1 = KJV\n").toUtf8().data();
+		std::cerr << QString("    2 = RVG2010\n").toUtf8().data();
+		std::cerr << QString("    3 = KJF\n").toUtf8().data();
+		std::cerr << "\n";
 		return -1;
 	}
 
-	QDir dirOutput(argv[2]);
+	QString strDBName;
+	QString strDBDesc;
+	QString strUUID;
+	switch (QString(argv[1]).toInt()) {
+		case 0:
+			// Special Test Value:
+			strDBName = "Special Test";
+			strDBDesc = "Special Test Bible Database";
+			strUUID = "00000000-0000-11E3-8FFD-0800200C9A66";
+			break;
+		case 1:
+			// KJV:
+			strDBName = "King James";
+			strDBDesc = "King James Version (1769)";
+			strUUID = "85D8A6B0-E670-11E2-A28F-0800200C9A66";
+			break;
+		case 2:
+			// RVG2010:
+			strDBName = "Reina-Valera Gómez";
+			strDBDesc = "Reina-Valera Gómez Version (2010)";
+			strUUID = "9233CB60-141A-11E3-8FFD-0800200C9A66";
+			break;
+		case 3:
+			// KJF:
+			strDBName = "King James Française";
+			strDBDesc = "la Bible King James Française, édition 2006";
+			strUUID = "31FC2ED0-141B-11E3-8FFD-0800200C9A66";
+			break;
+		default:
+			std::cerr << "Unknown UUID-Index\n";
+			return -1;
+	}
+
+	QDir dirOutput(argv[3]);
 	if (!dirOutput.exists()) {
 		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.canonicalPath()).toUtf8().data();
 		return -2;
 	}
 
-	pstrFilename = argv[1];
+	pstrFilename = argv[2];
 
 	QFile fileOSIS;
 
@@ -1102,7 +1153,7 @@ int main(int argc, char *argv[])
 
 	QXmlInputSource xmlInput(&fileOSIS);
 	QXmlSimpleReader xmlReader;
-	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace");
+	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace", strUUID);
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
@@ -1196,7 +1247,7 @@ int main(int argc, char *argv[])
 						.arg(pBook->m_nNumChp)				// 7
 						.arg(pBook->m_nNumVrs)				// 8
 						.arg(pBook->m_nNumWrd)				// 9
-						.arg(pBook->m_strCat)				// 10
+						.arg(pBibleDatabase->bookCategoryEntry(pBook->m_nCatNdx)->m_strCategoryName)				// 10
 						.arg(pBook->m_strDesc)				// 11
 						.toUtf8());
 
@@ -1482,7 +1533,7 @@ int main(int argc, char *argv[])
 		unsigned int arrBookWordCounts[NUM_BK];
 		memset(arrBookWordCounts, 0, sizeof(arrBookWordCounts));
 
-		for (TIndexList::const_iterator itr = wordEntryDb.m_ndxNormalizedMapping.begin(); itr != wordEntryDb.m_ndxNormalizedMapping.end(); ++itr) {
+		for (TNormalizedIndexList::const_iterator itr = wordEntryDb.m_ndxNormalizedMapping.begin(); itr != wordEntryDb.m_ndxNormalizedMapping.end(); ++itr) {
 			CRelIndex ndx(pBibleDatabase->DenormalizeIndex(*itr));
 			assert(ndx.isSet());
 			assert(ndx.book() != 0);

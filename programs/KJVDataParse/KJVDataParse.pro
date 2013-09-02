@@ -12,6 +12,9 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+include(../qtiocompressor/src/qtiocompressor.pri)
+include(../grantlee/textdocument/textdocument.pri)
+
 CODECFORSRC = UTF-8
 CODECFORTR  = UTF-8
 
@@ -30,7 +33,10 @@ SOURCES += main.cpp \
 	../KJVCanOpener/ToolTipEdit.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
 	../KJVCanOpener/VerseRichifier.cpp \
-	../KJVCanOpener/SearchCompleter.cpp
+	../KJVCanOpener/SearchCompleter.cpp \
+	../KJVCanOpener/ScriptureDocument.cpp \
+	../KJVCanOpener/UserNotesDatabase.cpp \
+	../KJVCanOpener/PersistentSettings.cpp
 
 HEADERS += \
 	../KJVCanOpener/dbstruct.h \
@@ -43,7 +49,10 @@ HEADERS += \
 	../KJVCanOpener/ToolTipEdit.h \
 	../KJVCanOpener/ParseSymbols.h \
 	../KJVCanOpener/VerseRichifier.h \
-	../KJVCanOpener/SearchCompleter.h
+	../KJVCanOpener/SearchCompleter.h \
+	../KJVCanOpener/ScriptureDocument.h \
+	../KJVCanOpener/UserNotesDatabase.h \
+	../KJVCanOpener/PersistentSettings.h
 
 
 QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS
