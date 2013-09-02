@@ -182,12 +182,13 @@ int QwwConfigWidget::currentIndex() const {
  */
 void QwwConfigWidget::setCurrentIndex(int index) {
     Q_D(QwwConfigWidget);
-    if (index==currentIndex()) return;
+	if ((index==d->view->currentRow()) &&
+		(index==d->stack->currentIndex())) return;
     if (index<0 || index>=d->view->count()) return;
-    d->stack->setCurrentIndex(index);
-    d->view->setCurrentRow(index);
-    d->titleLabel->setText(d->view->item(index)->text());
-    emit currentIndexChanged(index);
+	d->stack->setCurrentIndex(index);
+	if (index!=d->view->currentRow()) d->view->setCurrentRow(index);
+	d->titleLabel->setText(d->view->item(index)->text());
+	emit currentIndexChanged(index);
 }
 
 /*!
