@@ -411,6 +411,7 @@ public slots:
 
 private slots:
 	void en_configurationIndexChanged(int index);
+	void en_setToLastIndex();
 
 private:
 	int m_nLastIndex;						// Last Configuration Index active

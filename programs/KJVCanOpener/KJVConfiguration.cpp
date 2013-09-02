@@ -54,6 +54,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QTimer>
 
 // ============================================================================
 
@@ -1481,6 +1482,13 @@ void CKJVConfigurationDialog::accept()
 
 void CKJVConfigurationDialog::reject()
 {
+	if (m_pConfiguration->isDirty()) {
+		int nResult = QMessageBox::information(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
+																	   "Click 'OK' to discard the changes and close this configuration window.\n"
+																	   "Click 'Cancel' to stay here in the configuration window."),
+																  (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
+		if (nResult == QMessageBox::Cancel) return;
+	}
 	restore(false);
 	QDialog::reject();
 }
@@ -1534,16 +1542,33 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 	m_bHandlingPageSwap = true;
 
 	int nResult = QMessageBox::information(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
-																   "Click 'Yes' to apply the setting changes.\n"
-																   "Click 'no' to discard those setting changes."),
-															  (QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
+																   "Click 'Yes' to apply the setting changes and continue.\n"
+																   "Click 'No' to discard those setting changes and continue.\n"
+																   "Click 'Cancel' to stay on this settings page."),
+															  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 	if (nResult == QMessageBox::Yes) {
 		apply();
-	} else {
+	} else if (nResult == QMessageBox::No) {
 		restore(true);
+	} else {
+		// It doesn't work right to call setCurrentIndex() here to set us back
+		//		to the last index, because the listWidgetView still hasn't updated
+		//		at the time of this call.  However, we can work around it by setting
+		//		an event to happen when the event loop runs again, which will trigger
+		//		after this current setting process has completed:
+		QTimer::singleShot(0, this, SLOT(en_setToLastIndex()));
+		return;
 	}
 	m_nLastIndex = index;
 
+	m_bHandlingPageSwap = false;
+}
+
+void CKJVConfigurationDialog::en_setToLastIndex()
+{
+	assert(m_bHandlingPageSwap);
+	assert(m_nLastIndex != -1);
+	m_pConfiguration->setCurrentIndex(m_nLastIndex);
 	m_bHandlingPageSwap = false;
 }
 
