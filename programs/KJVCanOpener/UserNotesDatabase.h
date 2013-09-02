@@ -52,7 +52,7 @@ public:
 	bool isValid() const { return m_color.isValid(); }
 
 	inline bool operator==(const TUserDefinedColor &other) const {
-		return ((m_color == other.m_color) && (m_bEnabled == m_bEnabled));
+		return ((m_color == other.m_color) && (m_bEnabled == other.m_bEnabled));
 	}
 	inline bool operator!=(const TUserDefinedColor &other) const {
 		return (!operator==(other));
@@ -297,7 +297,7 @@ public:
 	bool highlighterEnabled(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()).m_bEnabled; }
 	bool existsHighlighter(const QString &strUserDefinedHighlighterName) const { return (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.find(strUserDefinedHighlighterName) != m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constEnd()); }
 	const TUserDefinedColor highlighterDefinition(const QString &strUserDefinedHighlighterName) const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strUserDefinedHighlighterName, TUserDefinedColor()); }
-	inline const TUserDefinedColorMap &highlighterDefinitionsMap() const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions; }
+	const TUserDefinedColorMap highlighterDefinitionsMap() const { return m_pUserNotesDatabaseData->m_mapHighlighterDefinitions; }
 	bool renameHighlighter(const QString &strOldUserDefinedHighlighterName, const QString &strNewUserDefinedHighlighterName);
 
 	void toggleUserNotesDatabaseData(bool bCopy);

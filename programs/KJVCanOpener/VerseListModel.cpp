@@ -1092,7 +1092,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 
 	if (ndxHighlighter == -1) {
 		m_vlmrListHighlighters.clear();
-		const TUserDefinedColorMap &mapHighlighters = m_private.m_pUserNotesDatabase->highlighterDefinitionsMap();
+		const TUserDefinedColorMap mapHighlighters = m_private.m_pUserNotesDatabase->highlighterDefinitionsMap();
 		ndxHighlighter = 0;
 		for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 			// Must add it to our list before calling buildHighlighterResults(ndx):

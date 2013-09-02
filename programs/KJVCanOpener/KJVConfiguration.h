@@ -90,6 +90,7 @@ public:
 	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);						// Database for the preview
 	~CKJVTextFormatConfig();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -141,6 +142,7 @@ private:
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 	CScriptureBrowser *m_pScriptureBrowser;
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 
 	static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
 	Ui::CKJVTextFormatConfig *ui;
@@ -160,6 +162,7 @@ public:
 	explicit CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVBibleDatabaseConfig();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -174,6 +177,7 @@ private:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 
 	Ui::CKJVBibleDatabaseConfig *ui;
 };
@@ -192,6 +196,7 @@ public:
 	explicit CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
 	~CKJVUserNotesDatabaseConfig();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -206,6 +211,7 @@ private:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 
 	Ui::CKJVUserNotesDatabaseConfig *ui;
 };
@@ -224,6 +230,7 @@ public:
 	explicit CConfigSearchOptions(QWidget *parent = 0);
 	~CConfigSearchOptions();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -242,6 +249,7 @@ private:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 
 	Ui::CConfigSearchOptions *ui;
 };
@@ -260,6 +268,7 @@ public:
 	explicit CConfigBrowserOptions(QWidget *parent = 0);
 	~CConfigBrowserOptions();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -274,6 +283,7 @@ private slots:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 
 	Ui::CConfigBrowserOptions *ui;
 };
@@ -294,6 +304,7 @@ public:
 
 	void initialize(CBibleDatabasePtr pBibleDatabase);						// Database for the preview
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const { return m_bIsDirty; }
@@ -321,6 +332,7 @@ private:
 // UI Private:
 private:
 	bool m_bIsDirty;
+	bool m_bLoadingData;
 	CScriptureEdit *m_pEditCopyOptionPreview;
 
 	Ui::CConfigCopyOptions *ui;
@@ -340,6 +352,7 @@ public:
 	explicit CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVGeneralSettingsConfig();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 
 	bool isDirty() const;
@@ -365,6 +378,7 @@ public:
 	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent = NULL);
 	virtual ~CKJVConfiguration();
 
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
 	bool isDirty() const;
 
@@ -393,8 +407,14 @@ public slots:
 	virtual void accept();
 	virtual void reject();
 	virtual void apply();
+	virtual void restore(bool bRecopy);		// Restores setting changes (converse of apply).  If bRecopy=true, a fresh copy of the settings are made to continue edit.  If false, they are switched back to the original and left
+
+private slots:
+	void en_configurationIndexChanged(int index);
 
 private:
+	int m_nLastIndex;						// Last Configuration Index active
+	bool m_bHandlingPageSwap;				// Set to true while we are handling a page swap, used as a safe-guard in case we need to switch pages back
 	CKJVConfiguration *m_pConfiguration;
 	QDialogButtonBox *m_pButtonBox;
 };

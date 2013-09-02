@@ -419,7 +419,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	m_lstActionGroups[ndx]->setExclusive(true);
 
 	assert(m_lstButtons[ndx]->menu() != NULL);
-	const TUserDefinedColorMap &mapHighlighters(g_pUserNotesDatabase->highlighterDefinitionsMap());
+	const TUserDefinedColorMap mapHighlighters(g_pUserNotesDatabase->highlighterDefinitionsMap());
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 		if ((!itrHighlighters->isValid()) || (!itrHighlighters->m_bEnabled)) continue;
 		QAction *pAction = new QAction(itrHighlighters.key(), m_lstActionGroups[ndx]);

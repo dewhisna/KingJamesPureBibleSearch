@@ -789,7 +789,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	} else {
 		// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
 		if (g_pUserNotesDatabase->filePathName().isEmpty()) {
-			const TUserDefinedColorMap &mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+			const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 			int ndxColor = 0;
 			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
 							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < CHighlighterButtons::instance()->count()));
