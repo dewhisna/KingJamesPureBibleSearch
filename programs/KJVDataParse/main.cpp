@@ -727,7 +727,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		}
 
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
-		if (verse.m_strText.isEmpty()) {
+		QString strTempText = verse.m_strText;
+		strTempText.remove(g_chrParseTag);		// To check for text for delayed pilcrow, remove any parseTag markers as we may have encountered some text modifier tags, but not the actual text yet
+		if (strTempText.isEmpty()) {
 			verse.m_nPilcrow = nPilcrow;
 		} else {
 			m_nDelayedPilcrow = nPilcrow;
