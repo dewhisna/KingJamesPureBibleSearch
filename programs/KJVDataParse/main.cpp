@@ -367,8 +367,10 @@ class COSISXmlHandler : public QXmlDefaultHandler
 public:
 	COSISXmlHandler(const QString &strNamespace, const QString &strUUID)
 		:	m_strNamespace(strNamespace),
+			m_bInHeader(false),
 			m_bCaptureTitle(false),
 			m_bInVerse(false),
+			m_bOpenEndedVerse(false),
 			m_bInLemma(false),
 			m_bInTransChangeAdded(false),
 			m_bInNotes(false),
@@ -448,8 +450,10 @@ private:
 	CRelIndex m_ndxCurrent;
 	CRelIndex m_ndxColophon;
 	CRelIndex m_ndxSubtitle;
+	bool m_bInHeader;
 	bool m_bCaptureTitle;
 	bool m_bInVerse;
+	bool m_bOpenEndedVerse;
 	bool m_bInLemma;
 	bool m_bInTransChangeAdded;
 	bool m_bInNotes;
@@ -517,16 +521,86 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				std::cerr << " (NO Translations Found!)\n";
 			}
 		}
+	} else if (localName.compare("header", Qt::CaseInsensitive) == 0) {
+		m_bInHeader = true;
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		if (!m_ndxCurrent.isSet()) {
-			m_bCaptureTitle = true;
+			if (m_bInHeader) m_bCaptureTitle = true;
 		} else {
-			// Should we check these here??: canonical="true" subType="x-preverse" type="section"
-			m_bInSubtitle = true;
-			m_ndxSubtitle = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0);		// Subtitles are for the chapter, not the first verse in it, even thought that's were this tag exists
+			// Older format (embedded in closed-form verse tag): canonical="true" subType="x-preverse" type="section":
+			//		<chapter osisID="Ps.3">
+			//		<verse osisID="Ps.3.1"><title canonical="true" subType="x-preverse" type="section">A Psalm of David, when he fled from Absalom his son.</title>
+			// Newer format (using OpenEnded markers, but preceding the verse-tags):
+			//		<chapter osisID="Job.42" chapterTitle="CHAPTER 42.">
+			//		<title type="chapter">CHAPTER 42.</title>
+			//
+			//		<chapter osisID="Ps.3" chapterTitle="PSALM 3.">
+			//		<title type="chapter">PSALM 3.</title>
+			//		<title type="psalm" canonical="true">A Psalm of David, when he fled from Absalom his son.</title>
+			//
+			//		<verse osisID="Ps.119.1" sID="Ps.119.1"/><title type="acrostic" canonical="true"><foreign n="א">ALEPH.</foreign></title>
+			ndx = findAttribute(atts, "type");
+			if ((ndx != -1) &&
+				((atts.value(ndx).compare("section", Qt::CaseInsensitive) == 0) ||
+				 (atts.value(ndx).compare("psalm", Qt::CaseInsensitive) == 0))) {
+				m_bInSubtitle = true;
+				m_ndxSubtitle = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0);		// Subtitles are for the chapter, not the first verse in it, even thought that's were this tag exists (in the old closed-form format)
+			} else if ((ndx != -1) &&
+					   ((atts.value(ndx).compare("chapter", Qt::CaseInsensitive) == 0) ||
+						(atts.value(ndx).compare("acrostic", Qt::CaseInsensitive) == 0))) {
+				// Ignore Chapter titles (as it just has things like "Chapter 1", etc), and is somewhat useless...
+				// Ignore verse acrostics on new-format OSIS files (old formats get ignored via foreign language tags below)
+			} else {
+				std::cerr << QString("\n*** Encountered unknown Title tag inside chapter and/or verse body : %1\n").arg(m_ndxCurrent.index()).toUtf8().data();
+			}
 		}
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
-		m_bInForeignText = true;
+		m_bInForeignText = true;				// Old format way of handling acrostics
+	} else if ((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) {
+		// Note: This must come here as colophon's may (old form) or may not (new form) have m_ndxCurrent set depending on placement relative to books, chapters, and verses:
+		ndx = findAttribute(atts, "osisID");
+		if (ndx != -1) {
+			QStringList lstOsisID = atts.value(ndx).split('.');
+			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
+				m_ndxColophon = CRelIndex();
+			} else {
+				bool bOK = true;
+				unsigned int nChp = 0;
+				unsigned int nVrs = 0;
+				m_ndxColophon = CRelIndex(nBk+1, 0, 0, 0);
+				if ((lstOsisID.size() >= 2) && ((nChp = lstOsisID.at(1).toUInt(&bOK)) != 0) && (bOK)) {
+					m_ndxColophon.setChapter(nChp);
+					if ((lstOsisID.size() >= 3) && ((nVrs = lstOsisID.at(2).toUInt(&bOK)) != 0) && (bOK)) {
+						m_ndxColophon.setVerse(nVrs);
+					}
+				}
+			}
+		} else {
+			m_ndxColophon = CRelIndex();
+		}
+		if (findAttribute(atts, "sID") != -1) {
+			// Start of open-ended colophon:
+			if (m_bInColophon) {
+				std::cerr << "\n*** Start of open-ended colophon before end of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = true;
+			m_bInColophon = true;
+		} else if (findAttribute(atts, "eID") != -1) {
+			// End of open-ended colophon:
+			if (!m_bInColophon) {
+				std::cerr << "\n*** End of open-ended colophon before start of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = false;
+			m_bInColophon = false;
+		} else {
+			// Standard Closed-Form Colophon:
+			if (m_bOpenEndedColophon) {
+				std::cerr << "\n*** Mixing open-ended and closed form colophons : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = false;
+			m_bInColophon = true;
+		}
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "type");
 		if ((ndx != -1) && (atts.value(ndx).compare("x-testament", Qt::CaseInsensitive) == 0)) {
@@ -562,50 +636,6 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					}
 				}
 			}
-		}
-	} else if ((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) {
-		ndx = findAttribute(atts, "osisID");
-		if (ndx != -1) {
-			QStringList lstOsisID = atts.value(ndx).split('.');
-			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
-				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
-				m_ndxColophon = CRelIndex();
-			} else {
-				bool bOK = true;
-				unsigned int nChp = 0;
-				unsigned int nVrs = 0;
-				m_ndxColophon = CRelIndex(nBk+1, 0, 0, 0);
-				if ((lstOsisID.size() >= 2) && ((nChp = lstOsisID.at(1).toUInt(&bOK)) != 0) && (bOK)) {
-					m_ndxColophon.setChapter(nChp);
-					if ((lstOsisID.size() >= 3) && ((nVrs = lstOsisID.at(2).toUInt(&bOK)) != 0) && (bOK)) {
-						m_ndxColophon.setVerse(nVrs);
-					}
-				}
-			}
-		} else{
-			m_ndxColophon = CRelIndex();
-		}
-		if (findAttribute(atts, "sID") != -1) {
-			// Start of open-ended colophon:
-			if (m_bInColophon) {
-				std::cerr << "\n*** Start of open-ended colophon before end of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
-			}
-			m_bOpenEndedColophon = true;
-			m_bInColophon = true;
-		} else if (findAttribute(atts, "eID") != -1) {
-			// End of open-ended colophon:
-			if (!m_bInColophon) {
-				std::cerr << "\n*** End of open-ended colophon before start of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
-			}
-			m_bOpenEndedColophon = false;
-			m_bInColophon = false;
-		} else {
-			// Standard Closed-Form Colophon:
-			if (m_bOpenEndedColophon) {
-				std::cerr << "\n*** Mixing open-ended and closed form colophons : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
-			}
-			m_bOpenEndedColophon = false;
-			m_bInColophon = true;
 		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "sID");			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
@@ -669,65 +699,103 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			}
 		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
-		ndx = findAttribute(atts, "osisID");
-		if (ndx != -1) {
-			QStringList lstOsisID = atts.value(ndx).split('.');
-			if ((lstOsisID.size() != 3) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
-				m_ndxCurrent.setVerse(0);
-				m_ndxCurrent.setWord(0);
-				std::cerr << "\n*** Unknown Verse osisID : " << atts.value(ndx).toUtf8().data() << "\n";
-			} else if ((m_ndxCurrent.book() != static_cast<unsigned int>(nBk+1)) || (m_ndxCurrent.chapter() != lstOsisID.at(1).toUInt())) {
-				m_ndxCurrent.setVerse(0);
-				m_ndxCurrent.setWord(0);
-				std::cerr << "\n*** Verse osisID doesn't match Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
-			} else {
-				m_ndxCurrent.setVerse(lstOsisID.at(2).toUInt());
-				m_ndxCurrent.setWord(0);
-				if ((m_ndxCurrent.verse() % 5) == 0) {
-					std::cerr << QString("%1").arg(m_ndxCurrent.verse() / 5).toUtf8().data();
-				} else {
-					std::cerr << ".";
-				}
-				m_bInVerse = true;
-				assert(m_bInLemma == false);
-				if (m_bInLemma) std::cerr << "\n*** Error: Missing end of Lemma\n";
-				m_bInLemma = false;
-				assert(m_bInTransChangeAdded == false);
-				if (m_bInTransChangeAdded) std::cerr << "\n*** Error: Missing end of TransChange Added\n";
-				m_bInTransChangeAdded = false;
-				assert(m_bInNotes == false);
-				if (m_bInNotes) std::cerr << "\n*** Error: Missing end of Notes\n";
-				m_bInNotes = false;
-				assert(m_bInColophon == false);
-				if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
-				m_bInColophon = false;
-				m_bOpenEndedColophon = false;
-				assert(m_bInSubtitle == false);
-				if (m_bInSubtitle) std::cerr << "\n*** Error: Missing end of Subtitle\n";
-				m_bInSubtitle = false;
-				assert(m_bInForeignText == false);
-				if (m_bInForeignText) std::cerr << "\n*** Error: Missing end of Foreign text\n";
-				m_bInForeignText = false;
-				assert(m_bInWordsOfJesus == false);
-				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
-				m_bInWordsOfJesus = false;
-				assert(m_bInDivineName == false);
-				if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
-				m_bInDivineName = false;
-				m_pBibleDatabase->m_EntireBible.m_nNumVrs++;
-				assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
-				m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs++;
-				assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
-				m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
-				m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
+		if (findAttribute(atts, "eID") != -1) {
+			// End of open-ended verse:
+			if (!m_bInVerse) {
+				std::cerr << "\n*** End of open-ended verse before start of verse : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedVerse = false;
+			// We can have nested Words of Jesus with open form:
+			if ((m_bInWordsOfJesus) && (m_bInVerse)) {
 				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
-				if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
-					verse.m_nPilcrow = m_nDelayedPilcrow;
-					m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
-				}
-				if ((m_ndxCurrent.book() == PSALMS_BOOK_NUM) && (m_ndxCurrent.chapter() == 119) && (((m_ndxCurrent.verse()-1)%8) == 0)) {
-					verse.m_strText += g_chrParseTag;
-					verse.m_lstParseStack.push_back("M:");
+				verse.m_strText += g_chrParseTag;
+				verse.m_lstParseStack.push_back("j:");
+			}
+			// At the end of closed-form, leave m_bInVerse set and process closing in the endElement for this end-tag.  But don't start new verse here
+		} else {
+			ndx = findAttribute(atts, "osisID");
+			if (ndx != -1) {
+				QStringList lstOsisID = atts.value(ndx).split('.');
+				if ((lstOsisID.size() != 3) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+					m_ndxCurrent.setVerse(0);
+					m_ndxCurrent.setWord(0);
+					std::cerr << "\n*** Unknown Verse osisID : " << atts.value(ndx).toUtf8().data() << "\n";
+				} else if ((m_ndxCurrent.book() != static_cast<unsigned int>(nBk+1)) || (m_ndxCurrent.chapter() != lstOsisID.at(1).toUInt())) {
+					m_ndxCurrent.setVerse(0);
+					m_ndxCurrent.setWord(0);
+					std::cerr << "\n*** Verse osisID doesn't match Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
+				} else {
+					if (findAttribute(atts, "sID") != -1) {
+						// Start of open-ended verse:
+						if (m_bInVerse) {
+							std::cerr << "\n*** Start of open-ended verse before end of verse : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+						}
+						m_bOpenEndedVerse = true;
+					} else {
+						// Standard Closed-Form verse:
+						if (m_bOpenEndedVerse) {
+							std::cerr << "\n*** Mixing open-ended and closed form verses : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+						}
+						m_bOpenEndedVerse = false;
+					}
+
+					m_ndxCurrent.setVerse(lstOsisID.at(2).toUInt());
+					m_ndxCurrent.setWord(0);
+					if ((m_ndxCurrent.verse() % 5) == 0) {
+						std::cerr << QString("%1").arg(m_ndxCurrent.verse() / 5).toUtf8().data();
+					} else {
+						std::cerr << ".";
+					}
+					CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+
+					m_bInVerse = true;
+					assert(m_bInLemma == false);
+					if (m_bInLemma) std::cerr << "\n*** Error: Missing end of Lemma\n";
+					m_bInLemma = false;
+					assert(m_bInTransChangeAdded == false);
+					if (m_bInTransChangeAdded) std::cerr << "\n*** Error: Missing end of TransChange Added\n";
+					m_bInTransChangeAdded = false;
+					assert(m_bInNotes == false);
+					if (m_bInNotes) std::cerr << "\n*** Error: Missing end of Notes\n";
+					m_bInNotes = false;
+					assert(m_bInColophon == false);
+					if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
+					m_bInColophon = false;
+					m_bOpenEndedColophon = false;
+					assert(m_bInSubtitle == false);
+					if (m_bInSubtitle) std::cerr << "\n*** Error: Missing end of Subtitle\n";
+					m_bInSubtitle = false;
+					assert(m_bInForeignText == false);
+					if (m_bInForeignText) std::cerr << "\n*** Error: Missing end of Foreign text\n";
+					m_bInForeignText = false;
+					if (!m_bOpenEndedVerse) {
+						assert(m_bInWordsOfJesus == false);
+						if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+						m_bInWordsOfJesus = false;
+					} else {
+						if (m_bInWordsOfJesus) {
+							// We can have nested Words of Jesus with open form:
+							verse.m_strText += g_chrParseTag;
+							verse.m_lstParseStack.push_back("J:");
+						}
+					}
+					assert(m_bInDivineName == false);
+					if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
+					m_bInDivineName = false;
+					m_pBibleDatabase->m_EntireBible.m_nNumVrs++;
+					assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
+					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs++;
+					assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
+					m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
+					m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
+					if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
+						verse.m_nPilcrow = m_nDelayedPilcrow;
+						m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
+					}
+					if ((m_ndxCurrent.book() == PSALMS_BOOK_NUM) && (m_ndxCurrent.chapter() == 119) && (((m_ndxCurrent.verse()-1)%8) == 0)) {
+						verse.m_strText += g_chrParseTag;
+						verse.m_lstParseStack.push_back("M:");
+					}
 				}
 			}
 		}
@@ -828,7 +896,9 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 	Q_UNUSED(qName);
 
 
-	if (localName.compare("title", Qt::CaseInsensitive) == 0) {
+	if (localName.compare("header", Qt::CaseInsensitive) == 0) {
+		m_bInHeader = false;
+	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		m_bCaptureTitle = false;
 		m_bInSubtitle = false;
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
@@ -844,7 +914,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 //			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
 //			m_bInVerse = false;
 //		}
-	} else if ((m_bInVerse) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInVerse) && (!m_bOpenEndedVerse) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
 		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 
 		QString strTemp = verse.m_strText;
