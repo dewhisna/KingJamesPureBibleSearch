@@ -1324,7 +1324,7 @@ int main(int argc, char *argv[])
 						(const_cast<CChapterEntry*>(pChapter))->m_nNumVrs++;
 					}
 				}
-//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toUtf8().data();
+//				std::cout << QString("%1 : \"%2\"\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(pVerse->m_strTemplate).toUtf8().data();
 
 				(const_cast<CVerseEntry*>(pVerse))->m_nWrdAccum = nWordAccum;
 				nVerseWordAccum += pVerse->m_nNumWrd;
@@ -1343,7 +1343,7 @@ int main(int argc, char *argv[])
 //				QStringList lstTempPlain = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextPlainRichifierTags(), false).split('\"');
 //				QString strBuffPlain = lstTempPlain.join("\"\"");
 
-				QStringList lstTempTemplate = pVerse->m_strTemplate.split('\"');
+				QStringList lstTempTemplate = pVerse->m_strTemplate.trimmed().split('\"');
 				QString strBuffTemplate = lstTempTemplate.join("\"\"");
 
 				// ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText
