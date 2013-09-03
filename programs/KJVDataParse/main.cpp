@@ -201,7 +201,7 @@ static void g_setBooks()
 		{ QObject::tr("2 Timothy"), QObject::tr("2Tim;2Tm"), "2Tim", "TIM2", QObject::tr("Pauline Epistles"), QObject::tr("The Second Epistle of Paul the Apostle to Timothy") },
 		{ QObject::tr("Titus"), QObject::tr("Titus;Ti"), "Titus", "TITUS", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Titus") },
 		{ QObject::tr("Philemon"), QObject::tr("Phlm;Philem"), "Phlm", "PHLM", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul to Philemon") },
-		{ QObject::tr("Hebrews"), QObject::tr("Heb"), "Heb", "HEB", QObject::tr("General Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews") },
+		{ QObject::tr("Hebrews"), QObject::tr("Heb"), "Heb", "HEB", QObject::tr("Pauline Epistles"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews") },
 		{ QObject::tr("James"), QObject::tr("Jas"), "Jas", "JAS", QObject::tr("General Epistles"), QObject::tr("The General Epistle of James") },
 		{ QObject::tr("1 Peter"), QObject::tr("1Pet;1Pt"), "1Pet", "PET1", QObject::tr("General Epistles"), QObject::tr("The First General Epistle of Peter") },
 		{ QObject::tr("2 Peter"), QObject::tr("2Pet;2Pt"), "2Pet", "PET2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of Peter") },
