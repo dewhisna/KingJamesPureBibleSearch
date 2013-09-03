@@ -386,7 +386,10 @@ QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
 	uint32_t nBk = nRelIndex.book();
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
 	const CBookEntry &book = m_lstBooks[nBk-1];
-	return book.m_strBkAbbr;
+	if (book.m_lstBkAbbr.size() >= 2) return book.m_lstBkAbbr.at(1);		// Return preferred Common Abbreviation if it exists
+	if (book.m_lstBkAbbr.size() == 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation of there are no Common Abbreviations
+	assert(false);
+	return QString();
 }
 
 QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask, unsigned int nSelectionSize) const

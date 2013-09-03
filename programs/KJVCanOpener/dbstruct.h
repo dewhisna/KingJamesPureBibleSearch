@@ -287,7 +287,7 @@ public:
 	uint32_t m_nTstNdx;			// Testament Index (1=Old, 2=New, etc)
 	uint32_t m_nCatNdx;			// Category Index
 	QString m_strBkName;		// Name of book (display name)
-	QString m_strBkAbbr;		// Book Abbreviation
+	QStringList m_lstBkAbbr;	// Book Abbreviations (Always at LEAST two entries.  First entry is OSIS Abbreviation.  Second entry is Common Abbreviation used in all Abbreviated Book mode rendering.  Others are common abbreviations used for matching purposes)
 	QString m_strTblName;		// Name of Table for this book
 	unsigned int m_nNumChp;		// Number of chapters in this book
 	unsigned int m_nNumVrs;		// Number of verses in this book

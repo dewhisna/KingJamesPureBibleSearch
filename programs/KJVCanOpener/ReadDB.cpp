@@ -161,7 +161,7 @@ bool CReadDatabase::ReadBooksTable()
 		entryBook.m_nTstBkNdx = queryData.value(1).toUInt();
 		entryBook.m_nTstNdx = queryData.value(2).toUInt();
 		entryBook.m_strBkName = queryData.value(3).toString();
-		entryBook.m_strBkAbbr = queryData.value(4).toString();
+		entryBook.m_lstBkAbbr = queryData.value(4).toString().split(QChar(';'), QString::SkipEmptyParts);
 		entryBook.m_strTblName = queryData.value(5).toString();
 		entryBook.m_nNumChp = queryData.value(6).toUInt();
 		entryBook.m_nNumVrs = queryData.value(7).toUInt();
@@ -209,7 +209,7 @@ bool CReadDatabase::ReadBooksTable()
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
 		for (TBookList::const_iterator itr = m_pBibleDatabase->m_lstBooks.begin(); itr != m_pBibleDatabase->m_lstBooks.end(); ++itr) {
-			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_strBkAbbr)
+			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_lstBkAbbr.join(";"))
 									.arg(itr->m_strTblName).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(itr->m_strCat).arg(itr->m_strDesc);
 			ts << strTemp;
 		}
