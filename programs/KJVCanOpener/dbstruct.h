@@ -608,6 +608,7 @@ public:
 
 	QString bookName(const CRelIndex &nRelIndex) const;
 	QString bookNameAbbr(const CRelIndex &nRelIndex) const;
+	QString bookOSISAbbr(const CRelIndex &nRelIndex) const;
 
 	// CRelIndex Transformation Functions:
 #ifdef OSIS_PARSER_BUILD

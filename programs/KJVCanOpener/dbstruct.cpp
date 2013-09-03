@@ -392,6 +392,16 @@ QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
 	return QString();
 }
 
+QString CBibleDatabase::bookOSISAbbr(const CRelIndex &nRelIndex) const
+{
+	uint32_t nBk = nRelIndex.book();
+	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
+	const CBookEntry &book = m_lstBooks[nBk-1];
+	if (book.m_lstBkAbbr.size() >= 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation
+	assert(false);
+	return QString();
+}
+
 QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask, unsigned int nSelectionSize) const
 {
 	CRefCountCalc Bk(this, CRefCountCalc::RTE_BOOK, nRelIndex);
