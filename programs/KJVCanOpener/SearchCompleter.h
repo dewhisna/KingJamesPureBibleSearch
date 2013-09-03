@@ -61,6 +61,7 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	static QString decompose(const QString &strWord);			// Word decompose() function to breakdown and remove accents from words for searching purposes
+	static QString deApostrHyphen(const QString &strWord);		// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
 
 	inline const CBibleDatabase *bibleDatabase() const;
 

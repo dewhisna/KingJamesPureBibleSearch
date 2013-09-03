@@ -23,6 +23,7 @@
 
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
+#include "ParseSymbols.h"
 
 #include <QString>
 #include <QStringRef>
@@ -116,6 +117,8 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 	strDecomposed.replace(QChar(0x0152), "Oe");				// U+0152	&#338;		OE character
 	strDecomposed.replace(QChar(0x0153), "oe");				// U+0153	&#339;		oe character
 
+	strDecomposed = deApostrHyphen(strDecomposed);
+
 	// There are two possible ways to remove accent marks:
 	//
 	//		1) strDecomposed.remove(QRegExp("[^a-zA-Z\\s]"));
@@ -128,6 +131,19 @@ QString CSearchStringListModel::decompose(const QString &strWord)
 	for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
 		if (strDecomposed.at(nPos).isMark()) strDecomposed.remove(nPos, 1);
 	}
+
+	return strDecomposed;
+}
+
+QString CSearchStringListModel::deApostrHyphen(const QString &strWord)
+{
+	static const QString strApostropheRegExp = QChar('[') + QRegExp::escape(g_strApostrophes) + QChar(']');
+	static const QString strHyphenRegExp = QChar('[') + QRegExp::escape(g_strHyphens) + QChar(']');
+
+	QString strDecomposed = strWord;
+
+	strDecomposed.replace(QRegExp(strApostropheRegExp), "'");
+	strDecomposed.replace(QRegExp(strHyphenRegExp), "-");
 
 	return strDecomposed;
 }

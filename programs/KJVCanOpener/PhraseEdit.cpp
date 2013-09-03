@@ -347,7 +347,7 @@ void CParsedPhrase::FindWords()
 		if (m_lstWords.at(ndx).isEmpty()) continue;
 
 		QString strCurWordDecomp = CSearchStringListModel::decompose(m_lstWords.at(ndx));
-		QString strCurWord = (isAccentSensitive() ? m_lstWords.at(ndx) : strCurWordDecomp);
+		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(m_lstWords.at(ndx)) : strCurWordDecomp);
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
 		int nPreRegExp = strCurWordWildKey.indexOf(QRegExp("[\\[\\]\\*\\?]"));
@@ -395,7 +395,11 @@ void CParsedPhrase::FindWords()
 						unsigned int nCount = 0;
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
 							QString strAltWord = wordEntry.m_lstAltWords.at(ndxAltWord);
-							if (!isAccentSensitive()) strAltWord = CSearchStringListModel::decompose(strAltWord);
+							if (!isAccentSensitive()) {
+								strAltWord = CSearchStringListModel::decompose(strAltWord);
+							} else{
+								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord);
+							}
 							if (expCurWord.exactMatch(strAltWord)) {
 								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
 															&wordEntry.m_ndxNormalizedMapping[nCount],
@@ -414,7 +418,7 @@ void CParsedPhrase::FindWords()
 				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
 					if ((m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
 					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(m_lstMatchMapping.at(ndxWord)+1)
-																: m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1));
+																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1)));
 					if (expCurWord.exactMatch(strNextWord)) {
 						lstNextMapping.push_back(m_lstMatchMapping.at(ndxWord)+1);
 					}
