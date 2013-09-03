@@ -370,6 +370,7 @@ public:
 			m_bInTransChangeAdded(false),
 			m_bInNotes(false),
 			m_bInColophon(false),
+			m_bOpenEndedColophon(false),
 			m_bInSubtitle(false),
 			m_bInForeignText(false),
 			m_bInWordsOfJesus(false),
@@ -450,6 +451,7 @@ private:
 	bool m_bInTransChangeAdded;
 	bool m_bInNotes;
 	bool m_bInColophon;
+	bool m_bOpenEndedColophon;				// Open-ended colophons use sID/eID attributes in <div /> tags to start stop them rather than enclosing the whole colophon in a single specific <div></div> section
 	bool m_bInSubtitle;
 	bool m_bInForeignText;
 	bool m_bInWordsOfJesus;
@@ -580,7 +582,28 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else{
 			m_ndxColophon = CRelIndex();
 		}
-		m_bInColophon = true;
+		if (findAttribute(atts, "sID") != -1) {
+			// Start of open-ended colophon:
+			if (m_bInColophon) {
+				std::cerr << "\n*** Start of open-ended colophon before end of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = true;
+			m_bInColophon = true;
+		} else if (findAttribute(atts, "eID") != -1) {
+			// End of open-ended colophon:
+			if (!m_bInColophon) {
+				std::cerr << "\n*** End of open-ended colophon before start of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = false;
+			m_bInColophon = false;
+		} else {
+			// Standard Closed-Form Colophon:
+			if (m_bOpenEndedColophon) {
+				std::cerr << "\n*** Mixing open-ended and closed form colophons : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+			}
+			m_bOpenEndedColophon = false;
+			m_bInColophon = true;
+		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "sID");			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
 		if (ndx != -1) {
@@ -675,6 +698,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				assert(m_bInColophon == false);
 				if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
 				m_bInColophon = false;
+				m_bOpenEndedColophon = false;
 				assert(m_bInSubtitle == false);
 				if (m_bInSubtitle) std::cerr << "\n*** Error: Missing end of Subtitle\n";
 				m_bInSubtitle = false;
@@ -806,7 +830,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bInSubtitle = false;
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
 		m_bInForeignText = false;
-	} else if ((m_bInColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInColophon) && (!m_bOpenEndedColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		m_bInColophon = false;
 	} else if ((!m_bInVerse) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
 		m_ndxCurrent = CRelIndex();
