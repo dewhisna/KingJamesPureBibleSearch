@@ -66,7 +66,7 @@ private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	TPhraseTag m_tagPhrase;
-	QList<QString> m_lstBookSoundEx;			// Index of [nBk-1], List of Book SoundEx Values
+	QList<QStringList> m_lstBookSoundEx;			// Index of [nBk-1], List of Book SoundEx Value lists.  Each sublist has the SoundEx for the book name as well as all abbreviations
 
 // UI Private:
 private:

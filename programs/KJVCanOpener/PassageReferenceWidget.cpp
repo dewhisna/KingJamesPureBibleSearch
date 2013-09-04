@@ -267,20 +267,22 @@ void CPassageReferenceWidget::buildSoundExTables()
 
 	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(nBk);
-		QString strBookName = book.m_strBkName.toLower();
-		strBookName.replace(QRegExp("\\s"), QString());
-		QRegExp regexpPrefix("^(\\d*)?");
-		int nPosPrefix = regexpPrefix.indexIn(strBookName);
-		assert(nPosPrefix != -1);
-		assert(regexpPrefix.capturedTexts().size() == 2);
-		QString strPrefix = regexpPrefix.capturedTexts().at(1);
-		QString strSoundEx;
-		// TODO : Set the language of the following to the Bible Database's language once that has been implemented:
-		strSoundEx = strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
-																		CSoundExSearchCompleterFilter::SELE_ENGLISH,
-																		PASSAGE_SOUNDEX_LENGTH,
-																		PASSAGE_SOUNDEX_MODE);
-		m_lstBookSoundEx.append(strSoundEx);
+		QStringList lstSoundEx;
+		for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
+			QString strBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+			strBookName.replace(QRegExp("\\s"), QString());
+			QRegExp regexpPrefix("^(\\d*)?");
+			int nPosPrefix = regexpPrefix.indexIn(strBookName);
+			assert(nPosPrefix != -1);
+			assert(regexpPrefix.capturedTexts().size() == 2);
+			QString strPrefix = regexpPrefix.capturedTexts().at(1);
+			// TODO : Set the language of the following to the Bible Database's language once that has been implemented:
+			lstSoundEx.append(strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
+																			CSoundExSearchCompleterFilter::SELE_ENGLISH,
+																			PASSAGE_SOUNDEX_LENGTH,
+																			PASSAGE_SOUNDEX_MODE));
+		}
+		m_lstBookSoundEx.append(lstSoundEx);
 	}
 }
 
@@ -297,28 +299,37 @@ uint32_t CPassageReferenceWidget::resolveBook(const QString &strPreBook, const Q
 	QList<uint32_t> lstResolvedBooks;
 	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(nBk);
-		QString strBibleBookName = book.m_strBkName.toLower();
-		strBibleBookName.replace(QRegExp("\\s"), QString());
-		if ((strSoundEx.compare(m_lstBookSoundEx.at(nBk-1)) == 0) || (strBibleBookName.startsWith(strBookName))) {
-			lstResolvedBooks.append(nBk);
+		for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
+			QString strBibleBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+			strBibleBookName.replace(QRegExp("\\s"), QString());
+			if ((strSoundEx.compare(m_lstBookSoundEx.at(nBk-1).at(nAbbr)) == 0) || (strBibleBookName.startsWith(strBookName))) {
+				lstResolvedBooks.append(nBk);
+				break;			// Only need to add the book once
+			}
 		}
 	}
 	if (lstResolvedBooks.size() > 1) {
 		bool bIsUnique = true;
+		bool bExactMatch = false;
 		for (int ndx = 0; ndx < lstResolvedBooks.size(); ++ndx) {
 			const CBookEntry &book = *m_pBibleDatabase->bookEntry(lstResolvedBooks.at(ndx));
-			QString strBibleBookName = book.m_strBkName.toLower();
-			strBibleBookName.replace(QRegExp("\\s"), QString());
-			if (strBibleBookName.startsWith(strBookName)) {
-				if (nResolvedBook == 0) {
-					nResolvedBook = lstResolvedBooks.at(ndx);
-				} else {
-					bIsUnique = false;
-					break;
+			for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
+				QString strBibleBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+				strBibleBookName.replace(QRegExp("\\s"), QString());
+				if (strBibleBookName.startsWith(strBookName)) {
+					if ((nResolvedBook == 0) || (strBibleBookName.compare(strBookName) == 0)) {
+						nResolvedBook = lstResolvedBooks.at(ndx);
+						if (strBibleBookName.compare(strBookName) == 0) {
+							bExactMatch = true;
+							break;					// Stop if we get an exact match...
+						}
+					} else {
+						bIsUnique = false;
+					}
 				}
 			}
 		}
-		if (!bIsUnique) nResolvedBook = 0;
+		if ((!bIsUnique) && (!bExactMatch)) nResolvedBook = 0;
 	} else if (lstResolvedBooks.size() == 1) {
 		nResolvedBook = lstResolvedBooks.at(0);
 	}
