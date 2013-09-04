@@ -27,7 +27,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml
+QT       += core gui sql xml network
 
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
@@ -40,6 +40,7 @@ CONFIG += wwwidgets
 
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
+include(../singleapplication/singleapplication.pri)
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE

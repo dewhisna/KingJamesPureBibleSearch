@@ -39,6 +39,7 @@
 #include <QObject>
 #include <QProxyStyle>
 #include <QSharedPointer>
+#include <singleapplication.h>
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -257,6 +258,14 @@ int main(int argc, char *argv[])
 	bool bBuildDB = false;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
+
+	SingleApplication instance("KingJamesPureBibleSearch", &app);
+	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(signalSpyCaughtSignal(const QString &)));
+	if (instance.isRunning()) {
+		std::cerr << QString("%1 : Found another instance running\n").arg(app.applicationPid()).toUtf8().data();
+		QString strMessage = QString("Message from : %1").arg(app.applicationPid());
+		if (instance.sendMessage(strMessage, 2000)) return 0;
+	}
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash, Qt::WindowStaysOnTopHint);
