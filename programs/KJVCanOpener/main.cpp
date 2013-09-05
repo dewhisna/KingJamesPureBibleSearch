@@ -39,7 +39,9 @@
 #include <QObject>
 #include <QProxyStyle>
 #include <QSharedPointer>
+#ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
+#endif
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -65,6 +67,8 @@
 
 QMainWindow *g_pMainWindow = NULL;
 CMyApplication *g_pMyApplication = NULL;
+
+const QString g_constrApplicationID = "KingJamesPureBibleSearch";
 
 // ============================================================================
 
@@ -250,6 +254,12 @@ int main(int argc, char *argv[])
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);
 	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
+#ifdef USING_SINGLEAPPLICATION
+	SingleApplication instance(g_constrApplicationID, &app);
+#endif
+#ifdef USING_QT_SINGLEAPPLICATION
+	QtSingleApplication &instance = app;
+#endif
 
 	app.setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
 
@@ -259,12 +269,11 @@ int main(int argc, char *argv[])
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
-	SingleApplication instance("KingJamesPureBibleSearch", &app);
 	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(signalSpyCaughtSignal(const QString &)));
 	if (instance.isRunning()) {
 		std::cerr << QString("%1 : Found another instance running\n").arg(app.applicationPid()).toUtf8().data();
 		QString strMessage = QString("Message from : %1").arg(app.applicationPid());
-		if (instance.sendMessage(strMessage, 2000)) return 0;
+		if (instance.sendMessage(strMessage, 5000)) return 0;
 	}
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");

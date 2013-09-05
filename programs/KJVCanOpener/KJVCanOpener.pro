@@ -27,7 +27,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml network
+QT       += core gui sql xml
 
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
@@ -35,12 +35,27 @@ CONFIG += rtti
 
 CONFIG += wwwidgets
 
+# Select Desired Package:
+#	SingleApplication
+#	QtSingleApplication
+CONFIG += QtSingleApplication
+
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
-include(../singleapplication/singleapplication.pri)
+
+SingleApplication {
+	include(../singleapplication/singleapplication.pri)
+	DEFINES += USING_SINGLEAPPLICATION
+	QT += network
+}
+QtSingleApplication {
+	include(../qtsingleapplication/src/qtsingleapplication.pri)
+	DEFINES += USING_QT_SINGLEAPPLICATION
+	QT += network
+}
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE

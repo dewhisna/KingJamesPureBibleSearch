@@ -27,17 +27,32 @@
 #include <QApplication>
 #include <QEvent>
 #include <QFileOpenEvent>
+#include <QString>
+
+#ifdef USING_QT_SINGLEAPPLICATION
+#include <QtSingleApplication>
+#endif
 
 #ifdef SIGNAL_SPY_DEBUG
 #include "signalspy/Q4puGenericSignalSpy.h"
 #endif
 
+extern const QString g_constrApplicationID;
+
+#ifdef USING_QT_SINGLEAPPLICATION
+class CMyApplication : public QtSingleApplication
+#else
 class CMyApplication : public QApplication
+#endif
 {
 	Q_OBJECT
 public:
 	CMyApplication(int & argc, char ** argv)
+#ifdef USING_QT_SINGLEAPPLICATION
+		:	QtSingleApplication(g_constrApplicationID, argc, argv)
+#else
 		:	QApplication(argc, argv)
+#endif
 	{
 
 	}
