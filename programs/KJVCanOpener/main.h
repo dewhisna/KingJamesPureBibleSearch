@@ -24,10 +24,13 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "dbstruct.h"
+
 #include <QApplication>
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QString>
+#include <QList>
 
 #ifdef USING_QT_SINGLEAPPLICATION
 #include <QtSingleApplication>
@@ -38,6 +41,13 @@
 #endif
 
 extern const QString g_constrApplicationID;
+
+// ============================================================================
+
+// Forward Declarations:
+class CKJVCanOpener;
+
+// ============================================================================
 
 #ifdef USING_QT_SINGLEAPPLICATION
 class CMyApplication : public QtSingleApplication
@@ -66,6 +76,9 @@ public:
 
 	const QString &fileToLoad() const { return m_strFileToLoad; }
 
+	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
+	bool isLastCanOpener() const { return (m_lstKJVCanOpeners.size() <= 1); }
+
 signals:
 	void loadFile(const QString &strFilename);
 
@@ -78,9 +91,14 @@ public:
 	static Q4puGenericSignalSpy *createSpy(QObject *pOwner, QObject *pSpyOn = NULL);
 #endif
 
+private slots:
+	void removeKJVCanOpener(QObject *pKJVCanOpener);
+
 protected:
 	bool event(QEvent *event);
 	QString m_strFileToLoad;
+
+	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 };
 
 #endif // MAIN_H

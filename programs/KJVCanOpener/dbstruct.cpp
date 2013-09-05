@@ -49,7 +49,8 @@ TBibleDatabaseList g_lstBibleDatabases;
 
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;
-bool g_bUserPhrasesDirty = false;				// True if user has edited the phrase list
+bool g_bUserPhrasesDirty = false;			// True if user has edited the phrase list
+QString g_strUserDatabase;					// User Database filePathName used to save User-defined phrases
 
 // ============================================================================
 

@@ -147,10 +147,9 @@ namespace {
 
 // ============================================================================
 
-CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase, QWidget *parent) :
+CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersistentSettings, QWidget *parent) :
 	QMainWindow(parent),
 	m_pBibleDatabase(pBibleDatabase),
-	m_strUserDatabase(strUserDatabase),
 	m_bDoingUpdate(false),
 	// ----
 	m_pActionPassageBrowserEditMenu(NULL),
@@ -583,7 +582,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &st
 
 
 	// -------------------- Persistent Settings:
-	restorePersistentSettings();
+	if (bLoadPersistentSettings) restorePersistentSettings();
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -908,100 +907,106 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	int nResult;
 	bool bPromptFilename = false;
 
-	assert(g_pUserNotesDatabase != NULL);
-	if (g_pUserNotesDatabase->isDirty()) {
-		// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
-		if (g_pUserNotesDatabase->filePathName().isEmpty()) {
-			if (g_pUserNotesDatabase->errorFilePathName().isEmpty()) {
-				// If we don't have a filename at all, prompt for new setup:
-				nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
-																		 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost."),
-														(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-			} else {
-				// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
-				//		possible they don't want to attempt to overwrite the one that failed since we couldn't load it:
-				nResult = QMessageBox::warning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
-																	   "Do you wish to save the changes you've made?\n"
-																	   "Warning, if you save this file overtop of your original file, you will "
-																	   "lose all ability to recover the remaining data in your original file.  It's "
-																	   "recommended that you save it to a new file.\n\n"
-																	   "Click 'Yes' to enter a filename and save your new changes, or\n"
-																	   "Click 'No' to lose your changes and exit, or\n"
-																	   "Click 'Cancel' to return to King James Pure Bible Search..."),
-														(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
+
+	if (g_pMyApplication->isLastCanOpener()) {
+		assert(g_pUserNotesDatabase != NULL);
+		if (g_pUserNotesDatabase->isDirty()) {
+			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
+			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
+				if (g_pUserNotesDatabase->errorFilePathName().isEmpty()) {
+					// If we don't have a filename at all, prompt for new setup:
+					nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
+																			 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost."),
+															(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+				} else {
+					// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
+					//		possible they don't want to attempt to overwrite the one that failed since we couldn't load it:
+					nResult = QMessageBox::warning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
+																		   "Do you wish to save the changes you've made?\n"
+																		   "Warning, if you save this file overtop of your original file, you will "
+																		   "lose all ability to recover the remaining data in your original file.  It's "
+																		   "recommended that you save it to a new file.\n\n"
+																		   "Click 'Yes' to enter a filename and save your new changes, or\n"
+																		   "Click 'No' to lose your changes and exit, or\n"
+																		   "Click 'Cancel' to return to King James Pure Bible Search..."),
+															(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+				}
+				// If the user cancelled, return:
+				if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
+					event->ignore();
+					return;
+				}
+				// If they want to save, but don't have path yet, so we need to prompt them for a path:
+				if (nResult == QMessageBox::Yes) {
+					bPromptFilename = true;
+				}
 			}
-			// If the user cancelled, return:
+			// If the user has a file path already (or is wanting to create a new one), try to save it:
+			if ((!g_pUserNotesDatabase->filePathName().isEmpty()) || (bPromptFilename)) {
+				bool bDone = false;
+				do {
+					if (bPromptFilename) {
+						QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save King James Notes File"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), NULL, 0);
+						if (!strFilePathName.isEmpty()) {
+							g_pUserNotesDatabase->setFilePathName(strFilePathName);
+						} else {
+							// If the user aborted treating after the path after all:
+							event->ignore();
+							return;
+						}
+					}
+
+					if (!g_pUserNotesDatabase->save()) {
+						nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() +
+															tr("\n\nUnable to save the King James Notes File!\n\n"
+															   "Click 'Yes' to try again, or\n"
+															   "Click 'No' to lose your changes and exit, or\n"
+															   "Click 'Cancel' to return to King James Pure Bible Search..."),
+													   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+						// If the user cancelled, return back to the app:
+						if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
+							event->ignore();
+							return;
+						}
+						// If they want to lose their changes, break out of loop:
+						if (nResult == QMessageBox::No) {
+							bDone = true;
+						}
+						// Set our error file path in case we are prompting the user in the loop:
+						g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
+					} else {
+						// If the save was successful, break out of loop:
+						bDone = true;
+					}
+				} while (!bDone);
+			}
+			// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
+		}	//	(or we didn't have an updated file to save)...
+
+		if ((g_bUserPhrasesDirty) && (!g_strUserDatabase.isEmpty())) {
+			nResult = QMessageBox::warning(this, windowTitle(), tr("Do you wish to save the search phrase list changes you've made to the user database?"),
+																	(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 			if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
 				event->ignore();
 				return;
 			}
-			// If they want to save, but don't have path yet, so we need to prompt them for a path:
 			if (nResult == QMessageBox::Yes) {
-				bPromptFilename = true;
+				CBuildDatabase bdb(this);
+				if (!bdb.BuildUserDatabase(g_strUserDatabase)) {
+					QMessageBox::warning(this, windowTitle(), tr("Failed to save KJV User Database!\nCheck installation and settings!"));
+					event->ignore();
+					return;
+				}
 			}
 		}
-		// If the user has a file path already (or is wanting to create a new one), try to save it:
-		if ((!g_pUserNotesDatabase->filePathName().isEmpty()) || (bPromptFilename)) {
-			bool bDone = false;
-			do {
-				if (bPromptFilename) {
-					QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save King James Notes File"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), NULL, 0);
-					if (!strFilePathName.isEmpty()) {
-						g_pUserNotesDatabase->setFilePathName(strFilePathName);
-					} else {
-						// If the user aborted treating after the path after all:
-						event->ignore();
-						return;
-					}
-				}
 
-				if (!g_pUserNotesDatabase->save()) {
-					nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() +
-														tr("\n\nUnable to save the King James Notes File!\n\n"
-														   "Click 'Yes' to try again, or\n"
-														   "Click 'No' to lose your changes and exit, or\n"
-														   "Click 'Cancel' to return to King James Pure Bible Search..."),
-												   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-					// If the user cancelled, return back to the app:
-					if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
-						event->ignore();
-						return;
-					}
-					// If they want to lose their changes, break out of loop:
-					if (nResult == QMessageBox::No) {
-						bDone = true;
-					}
-					// Set our error file path in case we are prompting the user in the loop:
-					g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
-				} else {
-					// If the save was successful, break out of loop:
-					bDone = true;
-				}
-			} while (!bDone);
-		}
-		// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
-	}	//	(or we didn't have an updated file to save)...
-
-	if ((g_bUserPhrasesDirty) && haveUserDatabase()) {
-		nResult = QMessageBox::warning(this, windowTitle(), tr("Do you wish to save the search phrase list changes you've made to the user database?"),
-																(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-		if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
-			event->ignore();
-			return;
-		}
-		if (nResult == QMessageBox::Yes) {
-			CBuildDatabase bdb(this);
-			if (!bdb.BuildUserDatabase(m_strUserDatabase)) {
-				QMessageBox::warning(this, windowTitle(), tr("Failed to save KJV User Database!\nCheck installation and settings!"));
-				event->ignore();
-				return;
-			}
-		}
+		savePersistentSettings();
 	}
 
-	savePersistentSettings();
-
-	return QMainWindow::closeEvent(event);
+//	QMainWindow::closeEvent(event);
+	deleteLater();
 }
 
 // ------------------------------------------------------------------

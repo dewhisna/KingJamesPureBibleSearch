@@ -60,7 +60,7 @@ class CKJVCanOpener : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, const QString &strUserDatabase = QString(), QWidget *parent = 0);
+	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersistentSettings = false, QWidget *parent = 0);
 	~CKJVCanOpener();
 
 	void initialize();
@@ -77,7 +77,6 @@ protected:
 	void savePersistentSettings();
 	void restorePersistentSettings();
 	virtual void closeEvent(QCloseEvent * event);
-	bool haveUserDatabase() const { return !m_strUserDatabase.isEmpty(); }
 
 signals:
 	void changedSearchResults();
@@ -141,7 +140,6 @@ protected slots:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	QString m_strUserDatabase;
 
 // UI Private:
 private:

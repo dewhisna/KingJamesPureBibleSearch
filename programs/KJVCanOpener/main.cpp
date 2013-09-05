@@ -246,6 +246,24 @@ void CMyApplication::signalSpyCaughtSlot(const QString &strMessage) const
 
 // ============================================================================
 
+CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDatabase)
+{
+	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase, (m_lstKJVCanOpeners.size() == 0));
+	m_lstKJVCanOpeners.append(pCanOpener);
+	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
+	return pCanOpener;
+}
+
+void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
+{
+	CKJVCanOpener *pCanOpener = static_cast<CKJVCanOpener*>(pKJVCanOpener);
+	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pCanOpener);
+	assert(ndxCanOpener != -1);
+	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
+}
+
+// ============================================================================
+
 int main(int argc, char *argv[])
 {
 	CMyApplication app(argc, argv);
@@ -456,19 +474,20 @@ int main(int argc, char *argv[])
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
+	g_strUserDatabase = strUserDatabaseFilename;
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener wMain(g_pMainBibleDatabase, strUserDatabaseFilename);
-	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
-	g_pMainWindow = &wMain;
-	wMain.show();
-	splash->finish(&wMain);
+	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
+//	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
+	g_pMainWindow = pMain;
+	splash->finish(pMain);
+	pMain->show();
 	delete splash;
 
-	wMain.initialize();
+	pMain->initialize();
 
-	if (!strKJSFile.isEmpty()) wMain.openKJVSearchFile(strKJSFile);
+	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
 
 	int nRetVal = app.exec();
 
