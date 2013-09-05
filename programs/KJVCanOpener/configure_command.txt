@@ -107,6 +107,17 @@ Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
 ../4.8.5-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.5-cocoa-static-run
 
 
+----------------------------------------------------
+
+Windows (native)
+-------
+- Built in-place rather than as shadow-build:
+For MinGW, download the mingw-builds-install.exe and use: x32-4.8.1-posix-dwarf-rev5
+Install MinGW to the Program Files (x86) folder, as default, and add C:\MinGW junction to locate it, so it can co-exist with other builds.
+Configure Qt like so:
+configure -platform win32-g++ -opensource -debug-and-release -qt-style-plastique -qt-style-windows -qt-style-windowsxp -qt-style-windowsvista -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -nomake tools -nomake examples -nomake demos -confirm-license 
+
+
 ===============================================================================
 ===============================================================================
 
