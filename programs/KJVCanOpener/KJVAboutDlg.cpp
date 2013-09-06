@@ -81,6 +81,10 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 
 	if (ui->graphicsView->verticalScrollBar())
 		ui->graphicsView->verticalScrollBar()->setValue(ui->graphicsView->verticalScrollBar()->maximum());
+
+	// --------------------------------------------------------------
+
+	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
 }
 
 CKJVAboutDlg::~CKJVAboutDlg()

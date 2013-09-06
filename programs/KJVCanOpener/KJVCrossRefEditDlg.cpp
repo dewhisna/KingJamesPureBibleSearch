@@ -167,6 +167,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 	// --------------------------------------------------------------
 
+	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
 }
 
 CKJVCrossRefEditDlg::~CKJVCrossRefEditDlg()

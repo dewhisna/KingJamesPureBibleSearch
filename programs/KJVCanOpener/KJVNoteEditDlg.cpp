@@ -179,6 +179,10 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	connect(ui->buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
 
 	m_pRichTextEdit->setFocus();
+
+	// --------------------------------------------------------------
+
+	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
 }
 
 CKJVNoteEditDlg::~CKJVNoteEditDlg()

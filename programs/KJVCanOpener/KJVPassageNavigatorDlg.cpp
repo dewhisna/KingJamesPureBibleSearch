@@ -89,6 +89,10 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	connect(m_pNavigator, SIGNAL(modeChanged(bool)), this, SLOT(en_modeChanged(bool)));
 	connect(m_pNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
+
+	// --------------------------------------------------------------
+
+	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
 }
 
 CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
