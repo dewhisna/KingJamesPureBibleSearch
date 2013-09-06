@@ -1437,6 +1437,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 
 void CKJVCanOpener::en_userNoteEditorTriggered()
 {
+	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pUserNoteEditorDlg != NULL);
@@ -1461,6 +1462,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 void CKJVCanOpener::en_crossRefsEditorTriggered()
 {
+	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pCrossRefsEditorDlg != NULL);
