@@ -63,6 +63,7 @@ QAction *CKJVNoteEditDlg::m_pActionUserNoteEditor = NULL;
 QAction *CKJVNoteEditDlg::actionUserNoteEditor()
 {
 	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
 
 	if (m_pActionUserNoteEditor == NULL) {
 		m_pActionUserNoteEditor = new QAction(QIcon(":/res/App-edit-icon-128.png"), tr("Add/Edit/Remove Note..."), g_pMyApplication);

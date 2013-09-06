@@ -61,6 +61,7 @@ QAction *CKJVCrossRefEditDlg::m_pActionCrossRefsEditor = NULL;
 QAction *CKJVCrossRefEditDlg::actionCrossRefsEditor()
 {
 	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
 
 	if (m_pActionCrossRefsEditor == NULL) {
 		m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."), g_pMyApplication);

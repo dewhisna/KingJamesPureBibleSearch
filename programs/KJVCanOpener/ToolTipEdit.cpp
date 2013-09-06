@@ -22,6 +22,8 @@
 ****************************************************************************/
 
 #include "ToolTipEdit.h"
+#include "main.h"
+#include "KJVCanOpener.h"
 
 #ifndef NO_PERSISTENT_SETTINGS
 #include "PersistentSettings.h"
@@ -189,11 +191,14 @@ void CTipEdit::adjustToolTipSize()
 
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
-	extern QMainWindow *g_pMainWindow;
+
+	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
+	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	if (widget) {
 		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
-	} else if (g_pMainWindow) {
-		resize (QSize(qMin(g_pMainWindow->width()/2, docSize.width()), qMin(g_pMainWindow->height(), docSize.height())) + extra);
+	} else if (pCanOpener) {
+		resize (QSize(qMin(pCanOpener->width()/2, docSize.width()), qMin(pCanOpener->height(), docSize.height())) + extra);
 	} else {
 		resize(docSize + extra);
 	}
@@ -446,9 +451,13 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	// the whole screen for displaying the tooltip. However when not in
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
-	extern QMainWindow *g_pMainWindow;
+
+	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
+	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
+
 	QRect screen;
-	if ((g_pMainWindow != NULL) && (g_pMainWindow->isFullScreen()))
+	if ((pCanOpener != NULL) && (pCanOpener->isFullScreen()))
 		screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
 	else
 		screen = QApplication::desktop()->availableGeometry(getTipScreen(pos, w));

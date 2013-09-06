@@ -39,6 +39,7 @@
 #include <QObject>
 #include <QProxyStyle>
 #include <QSharedPointer>
+#include <QPointer>
 #ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
 #endif
@@ -65,8 +66,7 @@
 
 //Q_IMPORT_PLUGIN(qsqlite)
 
-QMainWindow *g_pMainWindow = NULL;
-CMyApplication *g_pMyApplication = NULL;
+QPointer<CMyApplication> g_pMyApplication = NULL;
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
 
@@ -261,6 +261,27 @@ void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
 	assert(ndxCanOpener != -1);
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
 }
+
+CKJVCanOpener *CMyApplication::activeCanOpener() const
+{
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		if (m_lstKJVCanOpeners.at(ndx)->isActiveWindow()) return m_lstKJVCanOpeners.at(ndx);
+	}
+	return NULL;
+}
+
+template<class T>
+CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T &aChild) const
+{
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		T *pFoundChild = m_lstKJVCanOpeners.at(ndx)->findChild<T *>(aChild.objectName());
+		if (pFoundChild) return m_lstKJVCanOpeners.at(ndx);
+	}
+	return NULL;
+}
+
+class CSearchResultsTreeView;
+template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<CSearchResultsTreeView>(const CSearchResultsTreeView &) const;
 
 // ============================================================================
 
@@ -480,7 +501,6 @@ int main(int argc, char *argv[])
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
 //	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
-	g_pMainWindow = pMain;
 	splash->finish(pMain);
 	pMain->show();
 	delete splash;
@@ -488,6 +508,18 @@ int main(int argc, char *argv[])
 	pMain->initialize();
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
+
+
+// TODO : CLEAN:
+	pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
+	pMain->show();
+	pMain->initialize();
+
+
+
+
+
+
 
 	int nRetVal = app.exec();
 

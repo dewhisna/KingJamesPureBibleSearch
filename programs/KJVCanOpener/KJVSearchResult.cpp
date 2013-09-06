@@ -35,9 +35,7 @@
 #include "KJVCrossRefEditDlg.h"
 #include "SearchCompleter.h"
 
-#ifdef SIGNAL_SPY_DEBUG
 #include "main.h"
-#endif
 
 #include <assert.h>
 
@@ -624,10 +622,11 @@ bool CSearchResultsTreeView::haveDetails() const
 
 bool CSearchResultsTreeView::isActive() const
 {
-	extern QMainWindow *g_pMainWindow;
-	CKJVCanOpener *pMainWindow = qobject_cast<CKJVCanOpener *>(g_pMainWindow);
-	assert(pMainWindow != NULL);
-	return ((hasFocus()) || ((pMainWindow != NULL) && (pMainWindow->isSearchResultsActive())));
+	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
+	CKJVCanOpener *pCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(*this);
+	assert(pCanOpener != NULL);
+	return ((hasFocus()) || ((pCanOpener != NULL) && (pCanOpener->isSearchResultsActive())));
 }
 
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)

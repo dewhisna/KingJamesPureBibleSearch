@@ -79,6 +79,10 @@ public:
 	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
 	bool isLastCanOpener() const { return (m_lstKJVCanOpeners.size() <= 1); }
 
+	CKJVCanOpener *activeCanOpener() const;
+	template<class T>
+	CKJVCanOpener *findCanOpenerFromChild(const T &aChild) const;
+
 signals:
 	void loadFile(const QString &strFilename);
 
