@@ -249,7 +249,7 @@ void CMyApplication::signalSpyCaughtSlot(const QString &strMessage) const
 
 CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDatabase)
 {
-	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase, (m_lstKJVCanOpeners.size() == 0));
+	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase);
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
 	return pCanOpener;

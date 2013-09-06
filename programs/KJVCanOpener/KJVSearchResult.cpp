@@ -566,9 +566,11 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	if (hasFocus()) {
 		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditableNode);
 		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditableNode);
-		const QList<QAction *> lstHighlightActions = CHighlighterButtons::instance()->actions();
-		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
-			lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+		if (parentCanOpener()) {
+			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
+			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+			}
 		}
 	}
 

@@ -77,11 +77,13 @@ public:
 	const QString &fileToLoad() const { return m_strFileToLoad; }
 
 	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
+	bool isFirstCanOpener() const { return (m_lstKJVCanOpeners.size() == 0); }
 	bool isLastCanOpener() const { return (m_lstKJVCanOpeners.size() <= 1); }
 
 	CKJVCanOpener *activeCanOpener() const;
 	template<class T>
 	CKJVCanOpener *findCanOpenerFromChild(const T *pChild) const;
+	const QList<CKJVCanOpener *> &canOpeners() const { return m_lstKJVCanOpeners; }
 
 signals:
 	void loadFile(const QString &strFilename);

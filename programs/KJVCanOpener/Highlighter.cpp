@@ -26,9 +26,6 @@
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
-#ifndef OSIS_PARSER_BUILD
-#include "main.h"
-#endif
 
 #include <QVariant>
 #include <QBrush>
@@ -298,17 +295,12 @@ void CUserDefinedHighlighter::clearPhraseTags()
 
 #ifndef OSIS_PARSER_BUILD
 
-CHighlighterButtons *CHighlighterButtons::g_pHighlighterButtons = NULL;
-
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),
 		m_pActionGroupHighlighterTools(NULL)
 {
-	assert(g_pHighlighterButtons == NULL);
 	assert(pParent != NULL);
 	assert(g_pUserNotesDatabase != NULL);
-
-	g_pHighlighterButtons = this;
 
 	m_pActionGroupHighlighterTools = new QActionGroup(pParent);
 	m_pActionGroupHighlighterTools->setExclusive(false);
@@ -374,26 +366,15 @@ CHighlighterButtons::~CHighlighterButtons()
 void CHighlighterButtons::addHighlighterButtonsToToolBar(QToolBar *pToolBar)
 {
 	assert(pToolBar != NULL);
-	for (int ndx = 0; ndx < CHighlighterButtons::instance()->m_lstButtons.size(); ++ndx) {
+	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
 		// Originally had this addWidget call.  However, addWidget creates a new QWidgetAction
 		//		which takes ownership of the specified widget, which is undesirable since we
 		//		are sharing it across multiple toolbars and handling the parenting and object
 		//		cleanup.  Therefore, we will use our own derived QWidgetAction, parent that to
 		//		our application, and use addAction here instead:
-		//	pToolBar->addWidget(CHighlighterButtons::instance()->m_lstButtons.at(ndx).data());
-		pToolBar->addAction(CHighlighterButtons::instance()->m_lstButtons.at(ndx));
+		//	pToolBar->addWidget(m_lstButtons.at(ndx).data());
+		pToolBar->addAction(m_lstButtons.at(ndx));
 	}
-}
-
-CHighlighterButtons *CHighlighterButtons::instance()
-{
-	extern CMyApplication *g_pMyApplication;
-
-	if (g_pHighlighterButtons == NULL) {
-		g_pHighlighterButtons = new CHighlighterButtons(g_pMyApplication);
-	}
-
-	return g_pHighlighterButtons;
 }
 
 void CHighlighterButtons::enterConfigurationMode()

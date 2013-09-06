@@ -48,6 +48,7 @@
 // Forward Declares:
 class CKJVNoteEditDlg;
 class CKJVCrossRefEditDlg;
+class CHighlighterButtons;
 class CTipEdit;
 
 // ============================================================================
@@ -61,7 +62,7 @@ class CKJVCanOpener : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersistentSettings = false, QWidget *parent = 0);
+	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVCanOpener();
 
 	void initialize();
@@ -73,6 +74,8 @@ public:
 	bool isBrowserFocusedOrActive() const;
 	bool isSearchResultsFocusedOrActive() const;
 	bool isPhraseEditorFocusedOrActive() const;
+
+	CHighlighterButtons *highlighterButtons() const { return m_pHighlighterButtons; }
 
 protected:
 	void savePersistentSettings();
@@ -190,6 +193,7 @@ private:
 	CKJVBrowser *m_pBrowserWidget;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
+	CHighlighterButtons *m_pHighlighterButtons;
 	CTipEdit *m_pTipEdit;
 	bool m_bTipEditIsPinned;
 	Ui::CKJVCanOpener *ui;

@@ -279,14 +279,11 @@ class CHighlighterButtons : public QObject
 {
 	Q_OBJECT
 
-private:
-	CHighlighterButtons(QObject *pParent);			// Creatable only by itself
-
 public:
+	CHighlighterButtons(QObject *pParent);
 	virtual ~CHighlighterButtons();
 
-	static void addHighlighterButtonsToToolBar(QToolBar *pToolBar);
-	static CHighlighterButtons *instance();
+	void addHighlighterButtonsToToolBar(QToolBar *pToolBar);
 
 	int count() const { return m_lstButtons.size(); }
 	QList<CHighlighterWidgetAction *> widgetActions() const
@@ -327,7 +324,6 @@ private:
 	QList<TToolButtonPtr> m_lstButtons;					// List of highlighter buttons
 	QActionGroup *m_pActionGroupHighlighterTools;		// Group of highlighter tool actions
 	QList<QActionGroup *> m_lstActionGroups;			// Groups of "actions" that is the list of available highlighters in each button
-	static CHighlighterButtons *g_pHighlighterButtons;	// Our single global instance
 };
 
 #endif

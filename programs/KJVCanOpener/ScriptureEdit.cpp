@@ -33,6 +33,7 @@
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
 #include "main.h"
+#include "KJVCanOpener.h"
 
 #include <assert.h>
 
@@ -91,6 +92,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionHideAllNotes(NULL),
 		m_pStatusAction(NULL),
 		m_pParentCanOpener(NULL),
+		m_pHighlighterInsertionPoint(NULL),
 		m_dlyDetailUpdate(-1, 500)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -168,13 +170,12 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser"));
 	m_pActionFindPrev->setEnabled(T::useFindDialog());
 
-	if (qobject_cast<QTextBrowser *>(this) != NULL) {
-		m_pEditMenu->addSeparator();
-		m_pEditMenu->addActions(CHighlighterButtons::instance()->actions());
-		T::connect(CHighlighterButtons::instance(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 
 		m_pEditMenu->addSeparator();
+		// Save insertion point.  We'll add our highlighters when we have discovered our CKJVCanOpener parent:
+		m_pHighlighterInsertionPoint = m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 		m_pActionShowAllNotes = m_pEditMenu->addAction(T::tr("Show All Notes"), this, SLOT(en_showAllNotes()));
 		m_pActionShowAllNotes->setStatusTip(T::tr("Expand all notes in the Scripture Browser, making them visible"));
@@ -214,6 +215,10 @@ CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 		//		the construction process before the parent actually exists.  In that case, we'll
 		//		return NULL (callers will have to deal with that) and lock in our parent in a future
 		//		call when it becomes available...
+		if ((m_pParentCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
+				m_pEditMenu->insertActions(m_pHighlighterInsertionPoint, m_pParentCanOpener->highlighterButtons()->actions());
+				T::connect(m_pParentCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+		}
 	}
 	return m_pParentCanOpener;
 }
@@ -307,15 +312,17 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
 		bool bEditEnable = false;
-		if (qobject_cast<QTextBrowser *>(this) != NULL) {
+		if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 			bEditEnable = true;
 		}
 
 		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditEnable);
 		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditEnable);
-		const QList<QAction *> lstHighlightActions = CHighlighterButtons::instance()->actions();
-		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
-			lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
+		if (parentCanOpener() != NULL) {
+			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
+			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+				lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
+			}
 		}
 	}
 
@@ -391,8 +398,6 @@ bool CScriptureText<T,U>::haveDetails() const
 template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
-qDebug("%d", parentCanOpener());
-
 	U::ensureCursorVisible();
 	if (m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag()))
 		m_HighlightTimer.stop();
@@ -485,9 +490,11 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 		menu.addAction(m_pActionFindNext);
 		menu.addAction(m_pActionFindPrev);
 	}
-	if (qobject_cast<QTextBrowser *>(this) != NULL) {
-		menu.addSeparator();
-		menu.addActions(CHighlighterButtons::instance()->actions());
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		if (parentCanOpener()) {
+			menu.addSeparator();
+			menu.addActions(parentCanOpener()->highlighterButtons()->actions());
+		}
 		menu.addSeparator();
 		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 		menu.addAction(m_pActionShowAllNotes);
@@ -728,6 +735,7 @@ template<class T, class U>
 void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 {
 	if (!U::hasFocus()) return;
+	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
 	assert(pAction != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
@@ -745,7 +753,7 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
 	}
 
-	QString strHighlighterName = CHighlighterButtons::instance()->highlighter(pAction->data().toInt());
+	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(pAction->data().toInt());
 	if (strHighlighterName.isEmpty()) return;
 
 	CBusyCursor iAmBusy(NULL);
