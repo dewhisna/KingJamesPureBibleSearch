@@ -26,6 +26,7 @@
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#include "main.h"
 
 #include <QVariant>
 #include <QBrush>
@@ -33,7 +34,6 @@
 #include <QPixmap>
 #include <QBitmap>
 #include <QPainter>
-#include <QMenu>
 
 // ============================================================================
 
@@ -296,8 +296,9 @@ void CUserDefinedHighlighter::clearPhraseTags()
 
 CHighlighterButtons *CHighlighterButtons::g_pHighlighterButtons = NULL;
 
-CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
-	:	m_pActionGroupHighlighterTools(NULL)
+CHighlighterButtons::CHighlighterButtons(QObject *pParent)
+	:	QObject(pParent),
+		m_pActionGroupHighlighterTools(NULL)
 {
 	assert(g_pHighlighterButtons == NULL);
 	assert(pParent != NULL);
@@ -311,16 +312,10 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 	m_lstButtons.clear();
 	m_lstActionGroups.clear();
 	for (int ndx = 0; ndx < NUM_HIGHLIGHTER_TOOLBAR_BUTTONS; ++ndx) {
-		QMenu *pHighlighterMenu = new QMenu(pParent);
-		QToolButton *pButtonHighlighter = new QToolButton(pParent);
+		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1").arg(ndx+1));
+		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
 		m_lstButtons.append(pButtonHighlighter);
 		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
-		pButtonHighlighter->setMenu(pHighlighterMenu);
-//		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-//		pButtonHighlighter->setText(tr("#%1").arg(ndx+1));
-		pButtonHighlighter->setToolButtonStyle(Qt::ToolButtonIconOnly);
-		pButtonHighlighter->setPopupMode(QToolButton::MenuButtonPopup);
-		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1").arg(ndx+1));
 		pActionToolButton->setToolTip(tr("Highlighter Tool #%1").arg(ndx+1));
 		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1").arg(ndx+1));
 #ifndef Q_OS_MAC
@@ -359,10 +354,8 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 		}
 #endif
 		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
-		pButtonHighlighter->setDefaultAction(pActionToolButton);
 
 		setHighlighterList(ndx);
-		pParent->addWidget(pButtonHighlighter);
 	}
 
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
@@ -372,6 +365,31 @@ CHighlighterButtons::CHighlighterButtons(QToolBar *pParent)
 CHighlighterButtons::~CHighlighterButtons()
 {
 
+}
+
+void CHighlighterButtons::addHighlighterButtonsToToolBar(QToolBar *pToolBar)
+{
+	assert(pToolBar != NULL);
+	for (int ndx = 0; ndx < CHighlighterButtons::instance()->m_lstButtons.size(); ++ndx) {
+		// Originally had this addWidget call.  However, addWidget creates a new QWidgetAction
+		//		which takes ownership of the specified widget, which is undesirable since we
+		//		are sharing it across multiple toolbars and handling the parenting and object
+		//		cleanup.  Therefore, we will use our own derived QWidgetAction, parent that to
+		//		our application, and use addAction here instead:
+		//	pToolBar->addWidget(CHighlighterButtons::instance()->m_lstButtons.at(ndx).data());
+		pToolBar->addAction(CHighlighterButtons::instance()->m_lstButtons.at(ndx));
+	}
+}
+
+CHighlighterButtons *CHighlighterButtons::instance()
+{
+	extern CMyApplication *g_pMyApplication;
+
+	if (g_pHighlighterButtons == NULL) {
+		g_pHighlighterButtons = new CHighlighterButtons(g_pMyApplication);
+	}
+
+	return g_pHighlighterButtons;
 }
 
 void CHighlighterButtons::enterConfigurationMode()
@@ -403,6 +421,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 	assert(m_lstButtons.size() == m_lstActionGroups.size());
 	assert(m_lstButtons.at(ndx) != NULL);
+	if (m_lstButtons.at(ndx) == NULL) return;
 	QString strHighlighter = strUserDefinedHighlighterName;
 	if (m_lstActionGroups.at(ndx) == NULL) {
 		m_lstActionGroups[ndx] = new QActionGroup(this);

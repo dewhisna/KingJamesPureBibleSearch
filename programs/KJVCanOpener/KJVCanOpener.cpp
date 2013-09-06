@@ -208,7 +208,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersist
 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
-	new CHighlighterButtons(ui->usernotesToolBar);
+	CHighlighterButtons::addHighlighterButtonsToToolBar(ui->usernotesToolBar);
 
 	ui->usernotesToolBar->addSeparator();
 

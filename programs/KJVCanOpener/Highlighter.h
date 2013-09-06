@@ -33,7 +33,10 @@
 #include <QToolButton>
 #include <QAction>
 #include <QActionGroup>
+#include <QWidgetAction>
 #include <QIcon>
+#include <QPointer>
+#include <QMenu>
 
 // ============================================================================
 
@@ -244,29 +247,54 @@ private:
 
 #define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
 
+class CHighlighterWidgetAction : public QWidgetAction
+{
+public:
+	CHighlighterWidgetAction(QAction *pButtonAction, QObject *pParent = 0)
+		:	QWidgetAction(pParent),
+			m_pButtonAction(pButtonAction)
+	{
+		setMenu(new QMenu);					// The action will take ownership via setOverrideMenuAction()
+	}
+	virtual ~CHighlighterWidgetAction()
+	{ }
+
+	virtual QWidget *createWidget(QWidget *parent)
+	{
+		QToolButton *pToolButton = new QToolButton(parent);
+		pToolButton->setDefaultAction(m_pButtonAction);
+		pToolButton->setMenu(this->menu());
+		pToolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+		pToolButton->setPopupMode(QToolButton::MenuButtonPopup);
+		return pToolButton;
+	}
+
+private:
+	QAction *m_pButtonAction;
+};
+
 class CHighlighterButtons : public QObject
 {
 	Q_OBJECT
 
 private:
-	CHighlighterButtons(QToolBar *pParent);
-	friend class CKJVCanOpener;						// Creatable only by the main app
+	CHighlighterButtons(QObject *pParent);			// Creatable only by itself
 
 public:
 	virtual ~CHighlighterButtons();
 
-	static CHighlighterButtons *instance()
-	{
-		assert(g_pHighlighterButtons != NULL);
-		return g_pHighlighterButtons;
-	}
+	static void addHighlighterButtonsToToolBar(QToolBar *pToolBar);
+	static CHighlighterButtons *instance();
 
 	int count() const { return m_lstButtons.size(); }
-	QToolButton *button(int ndx) const
+	QList<CHighlighterWidgetAction *> widgetActions() const
 	{
-		assert((ndx >= 0) && (ndx < m_lstButtons.size()));
-		if ((ndx < 0) || (ndx >= m_lstButtons.size())) return NULL;
-		return m_lstButtons.at(ndx);
+		QList<CHighlighterWidgetAction *> lstWidgetActions;
+		for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
+			if (m_lstButtons.at(ndx) != NULL)
+				lstWidgetActions.append(m_lstButtons.at(ndx));
+		}
+		return lstWidgetActions;
 	}
 	QList<QAction *> actions() const
 	{
@@ -293,7 +321,8 @@ protected:
 	QIcon iconHighlighterPreview(const QString &strUserDefinedHighlighterName);
 
 private:
-	QList<QToolButton *> m_lstButtons;					// List of highlighter buttons
+	typedef QPointer<CHighlighterWidgetAction> TToolButtonPtr;
+	QList<TToolButtonPtr> m_lstButtons;					// List of highlighter buttons
 	QActionGroup *m_pActionGroupHighlighterTools;		// Group of highlighter tool actions
 	QList<QActionGroup *> m_lstActionGroups;			// Groups of "actions" that is the list of available highlighters in each button
 	static CHighlighterButtons *g_pHighlighterButtons;	// Our single global instance
