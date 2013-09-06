@@ -76,7 +76,7 @@ QAction *CKJVCrossRefEditDlg::actionCrossRefsEditor()
 // ============================================================================
 
 CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
-	:	QDialog(parent),
+	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
 		ui(new Ui::CKJVCrossRefEditDlg),
