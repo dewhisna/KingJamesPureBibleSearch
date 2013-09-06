@@ -74,7 +74,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pMenuInsertionPoint(NULL),
 		m_pActionNavigator(NULL),
 		m_pStatusAction(NULL),
-		m_pReflowDelegate(NULL)
+		m_pReflowDelegate(NULL),
+		m_pParentCanOpener(NULL)
 {
 	assert(pBibleDatabase != NULL);
 	assert(pUserNotesDatabase != NULL);
@@ -191,6 +192,22 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 CSearchResultsTreeView::~CSearchResultsTreeView()
 {
+}
+
+// ----------------------------------------------------------------------------
+
+CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
+{
+	if (m_pParentCanOpener == NULL) {
+		extern CMyApplication *g_pMyApplication;
+		assert(g_pMyApplication != NULL);
+		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(this);
+		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
+		//		the construction process before the parent actually exists.  In that case, we'll
+		//		return NULL (callers will have to deal with that) and lock in our parent in a future
+		//		call when it becomes available...
+	}
+	return m_pParentCanOpener;
 }
 
 // ----------------------------------------------------------------------------
@@ -579,7 +596,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
 
-	if (CTipEdit::bTipEditPushPin) showDetails();
+	if (CTipEdit::tipEditIsPinned(parentCanOpener())) showDetails();
 
 	emit selectionListChanged();
 }
@@ -603,9 +620,9 @@ void CSearchResultsTreeView::showDetails()
 
 //		QToolTip::showText(mapToGlobal(visualRect(QTreeView::currentIndex()).topRight()), varTooltip.toString(), this);
 		QToolTip::hideText();
-		CToolTipEdit::showText(mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
+		CToolTipEdit::showText(parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
 	} else {
-		if (CTipEdit::bTipEditPushPin) CToolTipEdit::hideText();
+		if (CTipEdit::tipEditIsPinned(parentCanOpener())) CToolTipEdit::hideText(parentCanOpener());
 	}
 }
 
@@ -622,11 +639,7 @@ bool CSearchResultsTreeView::haveDetails() const
 
 bool CSearchResultsTreeView::isActive() const
 {
-	extern CMyApplication *g_pMyApplication;
-	assert(g_pMyApplication != NULL);
-	CKJVCanOpener *pCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(*this);
-	assert(pCanOpener != NULL);
-	return ((hasFocus()) || ((pCanOpener != NULL) && (pCanOpener->isSearchResultsActive())));
+	return ((hasFocus()) || ((parentCanOpener() != NULL) && (parentCanOpener()->isSearchResultsActive())));
 }
 
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)

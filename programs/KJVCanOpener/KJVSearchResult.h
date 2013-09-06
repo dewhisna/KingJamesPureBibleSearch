@@ -84,6 +84,8 @@ public:
 
 	QModelIndexList getSelectedVerses() const;
 
+	CKJVCanOpener *parentCanOpener() const;
+
 protected slots:
 	void en_copyVerseText() const;
 	void en_copyRaw() const;
@@ -159,6 +161,8 @@ private:
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 	// ----
 	CReflowDelegate *m_pReflowDelegate;
+	// ----
+	mutable CKJVCanOpener *m_pParentCanOpener;	// Parent CanOpener once we locate it.  Set lazily on demand since parent doesn't exist yet during object creation
 };
 
 // ============================================================================

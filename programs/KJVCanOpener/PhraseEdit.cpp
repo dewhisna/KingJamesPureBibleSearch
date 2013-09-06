@@ -22,13 +22,16 @@
 ****************************************************************************/
 
 #include "PhraseEdit.h"
-#include "ToolTipEdit.h"
 #include "ParseSymbols.h"
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
+#ifndef OSIS_PARSER_BUILD
+#include "ToolTipEdit.h"
+#include "main.h"
+#endif
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -1815,7 +1818,9 @@ CSelectedPhrase CPhraseEditNavigator::getSelectedPhrase() const
 	return getSelectedPhrase(m_TextEditor.textCursor());
 }
 
-bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const
+#ifndef OSIS_PARSER_BUILD
+
+bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1827,7 +1832,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CCur
 		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(ndxReference, 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
-			CToolTipEdit::showText(pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
+			CToolTipEdit::showText(pCanOpener, pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
 		} else {
 			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 		}
@@ -1835,7 +1840,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CCur
 		highlightCursorFollowTag(aHighlighter);
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
-			CToolTipEdit::hideText();
+			CToolTipEdit::hideText(pCanOpener);
 		} else {
 			QToolTip::hideText();
 		}
@@ -1845,7 +1850,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(const QHelpEvent *pHelpEvent, CCur
 	return true;
 }
 
-bool CPhraseEditNavigator::handleToolTipEvent(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const
+bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1855,7 +1860,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CCursorFollowHighlighter &aHighlig
 		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection : TPhraseTag(tag.relIndex(), 1)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
-			CToolTipEdit::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
+			CToolTipEdit::showText(pCanOpener, m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
 		} else {
 			QToolTip::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip);
 		}
@@ -1863,7 +1868,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CCursorFollowHighlighter &aHighlig
 		highlightCursorFollowTag(aHighlighter);
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
-			CToolTipEdit::hideText();
+			CToolTipEdit::hideText(pCanOpener);
 		} else {
 			QToolTip::hideText();
 		}
@@ -1872,6 +1877,8 @@ bool CPhraseEditNavigator::handleToolTipEvent(CCursorFollowHighlighter &aHighlig
 
 	return true;
 }
+
+#endif
 
 void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag) const
 {

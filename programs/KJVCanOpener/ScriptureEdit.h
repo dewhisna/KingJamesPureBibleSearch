@@ -45,6 +45,11 @@
 
 // ============================================================================
 
+// Forward declarations:
+class CKJVCanOpener;
+
+// ============================================================================
+
 //
 // CScriptureText - Base template class functionality for CScriptureEdit and CScriptureBrowser
 //
@@ -89,6 +94,8 @@ public:
 	}
 
 	bool haveDetails() const;
+
+	CKJVCanOpener *parentCanOpener() const;
 
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
@@ -177,6 +184,8 @@ private:
 	QAction *m_pActionHideAllNotes;	// Edit menu Hide All Notes
 	// ----
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
+	// ----
+	mutable CKJVCanOpener *m_pParentCanOpener;	// Parent CanOpener once we locate it.  Set lazily on demand since parent doesn't exist yet during object creation
 
 	DelayedExecutionTimer m_dlyDetailUpdate;
 

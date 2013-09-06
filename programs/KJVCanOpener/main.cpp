@@ -40,6 +40,7 @@
 #include <QProxyStyle>
 #include <QSharedPointer>
 #include <QPointer>
+#include <QList>
 #ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
 #endif
@@ -271,17 +272,24 @@ CKJVCanOpener *CMyApplication::activeCanOpener() const
 }
 
 template<class T>
-CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T &aChild) const
+CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T *pChild) const
 {
+	assert(pChild != NULL);
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-		T *pFoundChild = m_lstKJVCanOpeners.at(ndx)->findChild<T *>(aChild.objectName());
-		if (pFoundChild) return m_lstKJVCanOpeners.at(ndx);
+		T *pFoundChild = m_lstKJVCanOpeners.at(ndx)->findChild<T *>(pChild->objectName());
+		if (pFoundChild == pChild) return m_lstKJVCanOpeners.at(ndx);
 	}
 	return NULL;
 }
 
 class CSearchResultsTreeView;
-template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<CSearchResultsTreeView>(const CSearchResultsTreeView &) const;
+template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<CSearchResultsTreeView>(const CSearchResultsTreeView *) const;
+
+class i_CScriptureBrowser;
+template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureBrowser>(const i_CScriptureBrowser *) const;
+
+class i_CScriptureEdit;
+template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>(const i_CScriptureEdit *) const;
 
 // ============================================================================
 

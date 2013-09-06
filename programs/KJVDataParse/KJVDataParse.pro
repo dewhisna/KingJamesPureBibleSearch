@@ -30,7 +30,6 @@ SOURCES += main.cpp \
 	../KJVCanOpener/PhraseEdit.cpp \
 	../KJVCanOpener/PhraseListModel.cpp \
 	../KJVCanOpener/Highlighter.cpp \
-	../KJVCanOpener/ToolTipEdit.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
 	../KJVCanOpener/VerseRichifier.cpp \
 	../KJVCanOpener/SearchCompleter.cpp \
@@ -46,7 +45,6 @@ HEADERS += \
 	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/Highlighter.h \
-	../KJVCanOpener/ToolTipEdit.h \
 	../KJVCanOpener/ParseSymbols.h \
 	../KJVCanOpener/VerseRichifier.h \
 	../KJVCanOpener/SearchCompleter.h \
@@ -55,6 +53,10 @@ HEADERS += \
 	../KJVCanOpener/PersistentSettings.h
 
 
-QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS
-QMAKE_CXXFLAGS += -DOSIS_PARSER_BUILD
+#QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS
+#QMAKE_CXXFLAGS += -DOSIS_PARSER_BUILD
+
+DEFINES += NO_PERSISTENT_SETTINGS
+DEFINES += OSIS_PARSER_BUILD
+
 

@@ -26,7 +26,9 @@
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#ifndef OSIS_PARSER_BUILD
 #include "main.h"
+#endif
 
 #include <QVariant>
 #include <QBrush>
@@ -294,6 +296,8 @@ void CUserDefinedHighlighter::clearPhraseTags()
 // ============================================================================
 // ============================================================================
 
+#ifndef OSIS_PARSER_BUILD
+
 CHighlighterButtons *CHighlighterButtons::g_pHighlighterButtons = NULL;
 
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
@@ -500,6 +504,8 @@ QString CHighlighterButtons::highlighter(int ndx) const
 
 	return pCurrentAction->text();
 }
+
+#endif
 
 // ============================================================================
 

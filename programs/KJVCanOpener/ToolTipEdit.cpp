@@ -65,21 +65,48 @@ namespace {
 
 // ============================================================================
 
-CTipEdit *CTipEdit::instance = 0;
-bool CTipEdit::bTipEditPushPin = false;
 QPalette g_tooltipedit_palette(QToolTip::palette());
 
 // ============================================================================
 
-CTipEdit::CTipEdit(QWidget *parent)
+CTipEdit *CTipEdit::instance(const CKJVCanOpener *pCanOpener)
+{
+	if (pCanOpener == NULL) return NULL;
+	return pCanOpener->tipEdit();
+}
+
+void CTipEdit::setInstance(CTipEdit *pTipEdit)
+{
+	assert(m_pParentCanOpener != NULL);
+	return m_pParentCanOpener->setTipEdit(pTipEdit);
+}
+
+bool CTipEdit::tipEditIsPinned(const CKJVCanOpener *pCanOpener)
+{
+	// Note: pCanOpener can be NULL during construction of CKJVCanOpener, for example,
+	//		and this function may get called by children being constructed
+	if (pCanOpener == NULL) return false;
+	return pCanOpener->tipEditIsPinned();
+}
+
+void CTipEdit::setTipEditIsPinned(bool bIsPinned)
+{
+	assert(m_pParentCanOpener != NULL);
+	return m_pParentCanOpener->setTipEditIsPinned(bIsPinned);
+}
+
+// ============================================================================
+
+CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	:	QTextEdit(parent),
 		styleSheetParent(0),
+		m_pParentCanOpener(pCanOpener),
 		widget(0),
 		m_bDoingContextMenu(false),
 		m_pPushButton(NULL)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
-	setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (bTipEditPushPin ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
+	setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
 	setWordWrapMode(QTextOption::NoWrap);
@@ -91,15 +118,17 @@ CTipEdit::CTipEdit(QWidget *parent)
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	setWindowTitle(tr("Details : King James Pure Bible Search"));
 
+	assert(m_pParentCanOpener != NULL);
+
 	m_pPushButton = new QPushButton(this);
 	m_pPushButton->setFlat(true);
-	m_pPushButton->setIcon(QIcon(bTipEditPushPin ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
 	m_pPushButton->setIconSize(QSize(32, 32));
 	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
 	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
 
-	if (instance) instance->deleteLater();
-	instance = this;
+	if (instance(m_pParentCanOpener)) instance(m_pParentCanOpener)->deleteLater();
+	setInstance(this);
 	setForegroundRole(QPalette::ToolTipText);
 	setBackgroundRole(QPalette::ToolTipBase);
 	QPalette pal;
@@ -119,7 +148,7 @@ CTipEdit::CTipEdit(QWidget *parent)
 CTipEdit::~CTipEdit()
 {
 	savePersistentSettings();
-	if (instance == this) instance = 0;
+	if (instance(m_pParentCanOpener) == this) setInstance(NULL);
 }
 
 void CTipEdit::savePersistentSettings()
@@ -164,7 +193,7 @@ void CTipEdit::reuseTip(const QString &text)
 {
 	if (styleSheetParent){
 		disconnect(styleSheetParent, SIGNAL(destroyed()),
-					CTipEdit::instance, SLOT(styleSheetParentDestroyed()));
+						this, SLOT(styleSheetParentDestroyed()));
 		styleSheetParent = 0;
 	}
 
@@ -243,13 +272,13 @@ void CTipEdit::setPushPinPosition()
 
 void CTipEdit::en_pushPinPressed()
 {
-	bTipEditPushPin = !bTipEditPushPin;
-	m_pPushButton->setIcon(QIcon(bTipEditPushPin ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
-	if (bTipEditPushPin) {
+	setTipEditIsPinned(!tipEditIsPinned(m_pParentCanOpener));
+	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	if (tipEditIsPinned(m_pParentCanOpener)) {
 		QPoint pntTip = pos();
 		pntTip.ry() += this->height()/2;
 		setWindowFlags(windowFlags() | Qt::WindowTitleHint);
-		CToolTipEdit::showText(pntTip, toHtml(), widget);
+		CToolTipEdit::showText(m_pParentCanOpener, pntTip, toHtml(), widget);
 	} else {
 		setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 	}
@@ -298,9 +327,9 @@ void CTipEdit::hideTip()
 
 void CTipEdit::hideTipImmediately()
 {
-	if (!bTipEditPushPin) {
+	if (!tipEditIsPinned(m_pParentCanOpener)) {
 		close(); // to trigger QEvent::Close which stops the animation
-		if (instance == this) instance = 0;
+		if (instance(m_pParentCanOpener) == this) setInstance(NULL);
 		deleteLater();
 	}
 }
@@ -386,7 +415,7 @@ bool CTipEdit::event(QEvent *e)
 		case QEvent::Leave:				// Leaving us, deactivating, or focusing us out hides us
 		case QEvent::WindowDeactivate:
 		case QEvent::FocusOut:
-			if ((!m_bDoingContextMenu) && (!bTipEditPushPin))
+			if ((!m_bDoingContextMenu) && (!tipEditIsPinned(m_pParentCanOpener)))
 				hideTip();
 			break;
 
@@ -434,15 +463,15 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 //	if (testAttribute(Qt::WA_StyleSheet) || (w && qobject_cast<QStyleSheetStyle *>(w->style()))) {
 	if (testAttribute(Qt::WA_StyleSheet) || (w && w->style() && w->style()->inherits("QStyleSheetStyle"))) {
 		//the stylesheet need to know the real parent
-		CTipEdit::instance->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
+		instance(m_pParentCanOpener)->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
 		//we force the style to be the QStyleSheetStyle, and force to clear the cache as well.
-//		CTipEdit::instance->setStyleSheet(QLatin1String(" "));
+//		instance(m_pParentCanOpener)->setStyleSheet(QLatin1String(" "));
 
 		// Set up for cleaning up this later...
-		CTipEdit::instance->styleSheetParent = w;
+		instance(m_pParentCanOpener)->styleSheetParent = w;
 		if (w) {
 			connect(w, SIGNAL(destroyed()),
-				CTipEdit::instance, SLOT(styleSheetParentDestroyed()));
+					instance(m_pParentCanOpener), SLOT(styleSheetParentDestroyed()));
 		}
 	}
 
@@ -494,7 +523,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 
 bool CTipEdit::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 {
-	if (CTipEdit::instance->toHtml() != text)
+	if (instance(m_pParentCanOpener)->toHtml() != text)
 		return true;
 
 	if (o != widget)
@@ -506,70 +535,72 @@ bool CTipEdit::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 	   return false;
 }
 
-void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
+// ============================================================================
+
+void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
 {
-	if (CTipEdit::instance && CTipEdit::instance->isVisible()){ // a tip does already exist
+	if (CTipEdit::instance(pCanOpener) && CTipEdit::instance(pCanOpener)->isVisible()){ // a tip does already exist
 		if (text.isEmpty()){ // empty text means hide current tip
-			if (!CTipEdit::bTipEditPushPin) {
-				CTipEdit::instance->hideTip();
+			if (!CTipEdit::tipEditIsPinned(pCanOpener)) {
+				CTipEdit::instance(pCanOpener)->hideTip();
 			} else {
-				CTipEdit::instance->setText(QString());
+				CTipEdit::instance(pCanOpener)->setText(QString());
 			}
 			return;
 		}
-		else if (!CTipEdit::instance->fadingOut){
-			if (!CTipEdit::bTipEditPushPin) {
+		else if (!CTipEdit::instance(pCanOpener)->fadingOut){
+			if (!CTipEdit::tipEditIsPinned(pCanOpener)) {
 				// If the tip has changed, reuse the one
 				// that is showing (removes flickering)
 				QPoint localPos = pos;
 				if (w)
 					localPos = w->mapFromGlobal(pos);
-				if (CTipEdit::instance->tipChanged(localPos, text, w)){
-					CTipEdit::instance->setTipRect(w, rect);
-					CTipEdit::instance->reuseTip(text);
-					CTipEdit::instance->placeTip(pos, w);
+				if (CTipEdit::instance(pCanOpener)->tipChanged(localPos, text, w)){
+					CTipEdit::instance(pCanOpener)->setTipRect(w, rect);
+					CTipEdit::instance(pCanOpener)->reuseTip(text);
+					CTipEdit::instance(pCanOpener)->placeTip(pos, w);
 				}
 			} else {
-				CTipEdit::instance->setText(text);
+				CTipEdit::instance(pCanOpener)->setText(text);
 			}
 			return;
 		}
 	}
 
-	if ((!text.isEmpty()) || CTipEdit::instance->bTipEditPushPin) { // no tip can be reused, create new tip:
+	if ((!text.isEmpty()) || CTipEdit::tipEditIsPinned(pCanOpener)) { // no tip can be reused, create new tip:
 #ifndef Q_WS_WIN
-		new CTipEdit(w); // sets CTipEdit::instance to itself
+		new CTipEdit(pCanOpener, w); // sets CTipEdit::instance() to itself
 #else
 //		// On windows, we can't use the widget as parent otherwise the window will be
 //		// raised when the tooltip will be shown
-//		new CTipEdit(QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
+//		new CTipEdit(pCanOpener, QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
 
 		// For normal tooptips, the above applies, but since we are a special popup
 		//	scroll widget, we need to or user can't activate us in a modal dialog!
-		new CTipEdit(w);
+		new CTipEdit(pCanOpener, w);
 #endif
-		CTipEdit::instance->setTipRect(w, rect);
-		CTipEdit::instance->reuseTip(text);
-		CTipEdit::instance->placeTip(pos, w);
-		CTipEdit::instance->setObjectName(QLatin1String("ctooltip_edit"));
-		CTipEdit::instance->show();
+		CTipEdit::instance(pCanOpener)->setTipRect(w, rect);
+		CTipEdit::instance(pCanOpener)->reuseTip(text);
+		CTipEdit::instance(pCanOpener)->placeTip(pos, w);
+		CTipEdit::instance(pCanOpener)->setObjectName(QLatin1String("ctooltip_edit"));
+		CTipEdit::instance(pCanOpener)->show();
 	}
 }
 
-void CToolTipEdit::showText(const QPoint &pos, const QString &text, QWidget *w)
+void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w)
 {
-	CToolTipEdit::showText(pos, text, w, QRect());
+	CToolTipEdit::showText(pCanOpener, pos, text, w, QRect());
 }
 
-bool CToolTipEdit::isVisible()
+bool CToolTipEdit::isVisible(CKJVCanOpener *pCanOpener)
 {
-	return (CTipEdit::instance != 0 && CTipEdit::instance->isVisible());
+	return (CTipEdit::instance(pCanOpener) != 0 && CTipEdit::instance(pCanOpener)->isVisible());
 }
 
-QString CToolTipEdit::text()
+QString CToolTipEdit::text(CKJVCanOpener *pCanOpener)
 {
-	if (CTipEdit::instance)
-		return CTipEdit::instance->toHtml();
+	if (CTipEdit::instance(pCanOpener))
+		return CTipEdit::instance(pCanOpener)->toHtml();
 	return QString();
 }
 
@@ -586,8 +617,6 @@ QFont CToolTipEdit::font()
 void CToolTipEdit::setPalette(const QPalette &palette)
 {
 	g_tooltipedit_palette = palette;
-	if (CTipEdit::instance)
-		CTipEdit::instance->setPalette(palette);
 }
 
 void CToolTipEdit::setFont(const QFont &font)

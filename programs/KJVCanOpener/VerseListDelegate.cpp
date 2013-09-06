@@ -29,6 +29,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
+#include "main.h"
 
 #include <QModelIndex>
 #include <QApplication>
@@ -353,7 +354,7 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
-			if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::bTipEditPushPin)) {
+			if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(pSearchResultsView->parentCanOpener()))) {
 //				QVariant tooltip = index.data(Qt::ToolTipRole);
 //				if (tooltip.canConvert<QString>()) {
 //	//					QToolTip::showText(event->globalPos(), tooltip.toString(), view);

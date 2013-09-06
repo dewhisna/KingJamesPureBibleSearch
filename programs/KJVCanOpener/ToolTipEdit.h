@@ -35,14 +35,17 @@
 
 // ============================================================================
 
+// Forward Declarations:
+class CKJVCanOpener;
+
 class CTipEdit : public QTextEdit
 {
 	Q_OBJECT
 public:
-	CTipEdit(QWidget *parent);
+	CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent);
 	virtual ~CTipEdit();
-	static CTipEdit *instance;
-	static bool bTipEditPushPin;					// Push Pin to convert to modeless dialog
+	static CTipEdit *instance(const CKJVCanOpener *pCanOpener);
+	static bool tipEditIsPinned(const CKJVCanOpener *pCanOpener);					// Push Pin to convert to modeless dialog
 
 	bool eventFilter(QObject *o, QEvent *e);
 
@@ -85,7 +88,12 @@ protected slots:
 	void en_pushPinPressed();
 
 private:
+	void setInstance(CTipEdit *pTipEdit);
+	void setTipEditIsPinned(bool bIsPinned);
+
+private:
 	QWidget *styleSheetParent;
+	CKJVCanOpener *m_pParentCanOpener;		// Active CanOpener whent his tip was created (i.e. the CanOpener that it belongs to)
 
 private:
 	QWidget *widget;
@@ -100,12 +108,12 @@ class CToolTipEdit
 {
 	CToolTipEdit() { }
 public:
-	static void showText(const QPoint &pos, const QString &text, QWidget *w = 0);
-	static void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect);
-	static inline void hideText() { showText(QPoint(), QString()); }
+	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w = 0);
+	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w, const QRect &rect);
+	static inline void hideText(CKJVCanOpener *pCanOpener) { showText(pCanOpener, QPoint(), QString()); }
 
-	static bool isVisible();
-	static QString text();
+	static bool isVisible(CKJVCanOpener *pCanOpener);
+	static QString text(CKJVCanOpener *pCanOpener);
 
 	static QPalette palette();
 	static void setPalette(const QPalette &);

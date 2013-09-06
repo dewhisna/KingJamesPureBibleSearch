@@ -245,6 +245,8 @@ private:
 // ============================================================================
 // ============================================================================
 
+#ifndef OSIS_PARSER_BUILD
+
 #define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
 
 class CHighlighterWidgetAction : public QWidgetAction
@@ -328,5 +330,8 @@ private:
 	static CHighlighterButtons *g_pHighlighterButtons;	// Our single global instance
 };
 
+#endif
+
+// ============================================================================
 
 #endif // HIGHLIGHTER_H

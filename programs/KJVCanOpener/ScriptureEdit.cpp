@@ -32,6 +32,7 @@
 #include "KJVCrossRefEditDlg.h"
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
+#include "main.h"
 
 #include <assert.h>
 
@@ -89,6 +90,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionShowAllNotes(NULL),
 		m_pActionHideAllNotes(NULL),
 		m_pStatusAction(NULL),
+		m_pParentCanOpener(NULL),
 		m_dlyDetailUpdate(-1, 500)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -202,6 +204,23 @@ CScriptureText<T,U>::~CScriptureText()
 // ----------------------------------------------------------------------------
 
 template<class T, class U>
+CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
+{
+	if (m_pParentCanOpener == NULL) {
+		extern CMyApplication *g_pMyApplication;
+		assert(g_pMyApplication != NULL);
+		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<T>(this);
+		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
+		//		the construction process before the parent actually exists.  In that case, we'll
+		//		return NULL (callers will have to deal with that) and lock in our parent in a future
+		//		call when it becomes available...
+	}
+	return m_pParentCanOpener;
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
 void CScriptureText<T,U>::setFont(const QFont& aFont)
 {
 	U::document()->setDefaultFont(aFont);
@@ -303,13 +322,13 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::bTipEditPushPin)) {
+				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::tipEditIsPinned(parentCanOpener()))) {
 					ev->ignore();
 					return true;
 				}
 
 //				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-//				if (m_navigator.handleToolTipEvent(pHelpEvent, m_CursorFollowHighlighter, m_selectedPhrase.second)) {
+//				if (m_navigator.handleToolTipEvent(parentCanOpener(), pHelpEvent, m_CursorFollowHighlighter, m_selectedPhrase.second)) {
 //					m_HighlightTimer.stop();
 //				} else {
 //					pHelpEvent->ignore();
@@ -372,8 +391,10 @@ bool CScriptureText<T,U>::haveDetails() const
 template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
+qDebug("%d", parentCanOpener());
+
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag()))
+	if (m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag()))
 		m_HighlightTimer.stop();
 }
 
@@ -572,7 +593,7 @@ void CScriptureText<T,U>::updateSelection()
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
-	if ((CTipEdit::bTipEditPushPin) && (prevSelection.tag() != m_selectedPhrase.tag()))
+	if ((CTipEdit::tipEditIsPinned(parentCanOpener())) && (prevSelection.tag() != m_selectedPhrase.tag()))
 		m_dlyDetailUpdate.trigger();
 
 	m_bDoingSelectionChange = false;
@@ -581,7 +602,7 @@ void CScriptureText<T,U>::updateSelection()
 template<class T, class U>
 void CScriptureText<T,U>::en_detailUpdate()
 {
-	m_navigator.handleToolTipEvent(m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag());
+	m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag());
 }
 
 template<class T, class U>

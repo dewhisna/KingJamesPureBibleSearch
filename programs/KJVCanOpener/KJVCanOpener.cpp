@@ -186,6 +186,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersist
 	m_pBrowserWidget(NULL),
 	m_pUserNoteEditorDlg(NULL),
 	m_pCrossRefsEditorDlg(NULL),
+	m_pTipEdit(NULL),
+	m_bTipEditIsPinned(false),
 	ui(new Ui::CKJVCanOpener)
 {
 	assert(m_pBibleDatabase.data() != NULL);

@@ -48,6 +48,7 @@
 // Forward Declares:
 class CKJVNoteEditDlg;
 class CKJVCrossRefEditDlg;
+class CTipEdit;
 
 // ============================================================================
 
@@ -77,6 +78,13 @@ protected:
 	void savePersistentSettings();
 	void restorePersistentSettings();
 	virtual void closeEvent(QCloseEvent * event);
+
+	friend class CTipEdit;
+	CTipEdit *tipEdit() const { return m_pTipEdit; }
+	void setTipEdit(CTipEdit *pTipEdit) { m_pTipEdit = pTipEdit; }
+
+	bool tipEditIsPinned() const { return m_bTipEditIsPinned; }
+	void setTipEditIsPinned(bool bIsPinned) { m_bTipEditIsPinned = bIsPinned; }
 
 signals:
 	void changedSearchResults();
@@ -182,6 +190,8 @@ private:
 	CKJVBrowser *m_pBrowserWidget;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
+	CTipEdit *m_pTipEdit;
+	bool m_bTipEditIsPinned;
 	Ui::CKJVCanOpener *ui;
 };
 

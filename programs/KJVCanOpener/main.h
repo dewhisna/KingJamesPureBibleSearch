@@ -81,7 +81,7 @@ public:
 
 	CKJVCanOpener *activeCanOpener() const;
 	template<class T>
-	CKJVCanOpener *findCanOpenerFromChild(const T &aChild) const;
+	CKJVCanOpener *findCanOpenerFromChild(const T *pChild) const;
 
 signals:
 	void loadFile(const QString &strFilename);
