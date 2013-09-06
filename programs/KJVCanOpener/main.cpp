@@ -275,9 +275,11 @@ template<class T>
 CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T *pChild) const
 {
 	assert(pChild != NULL);
-	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-		T *pFoundChild = m_lstKJVCanOpeners.at(ndx)->findChild<T *>(pChild->objectName());
-		if (pFoundChild == pChild) return m_lstKJVCanOpeners.at(ndx);
+	for (int ndxCanOpener = 0; ndxCanOpener < m_lstKJVCanOpeners.size(); ++ndxCanOpener) {
+		QList<T *>lstFoundChildren = m_lstKJVCanOpeners.at(ndxCanOpener)->findChildren<T *>(pChild->objectName());
+		for (int ndxChild = 0; ndxChild < lstFoundChildren.size(); ++ndxChild) {
+			if (lstFoundChildren.at(ndxChild) == pChild) return m_lstKJVCanOpeners.at(ndxCanOpener);
+		}
 	}
 	return NULL;
 }
