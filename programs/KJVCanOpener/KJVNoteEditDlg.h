@@ -58,10 +58,6 @@ public:
 
 	static QAction *actionUserNoteEditor();
 
-protected:
-	friend class CKJVCanOpener;			// Main App is Friend to create/set initial action
-	static void setActionUserNoteEditor(QAction *pAction);
-
 public slots:
 	virtual void accept();
 	virtual void reject();

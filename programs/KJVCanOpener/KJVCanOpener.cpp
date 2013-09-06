@@ -212,19 +212,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, bool bLoadPersist
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":/res/App-edit-icon-128.png"), tr("Add/Edit/Remove Note..."));
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
-	pAction->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
-	pAction->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
-	CKJVNoteEditDlg::setActionUserNoteEditor(pAction);
+	ui->usernotesToolBar->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 
 	ui->usernotesToolBar->addSeparator();
 
-	pAction = ui->usernotesToolBar->addAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."));
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
-	pAction->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
-	pAction->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
-	CKJVCrossRefEditDlg::setActionCrossRefsEditor(pAction);
+	ui->usernotesToolBar->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 
 	// -------------------- Setup the Three Panes:
 

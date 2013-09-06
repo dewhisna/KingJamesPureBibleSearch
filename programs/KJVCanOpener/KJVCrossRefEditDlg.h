@@ -60,10 +60,6 @@ public:
 
 	static QAction *actionCrossRefsEditor();
 
-protected:
-	friend class CKJVCanOpener;			// Main App is Friend to create/set initial action
-	static void setActionCrossRefsEditor(QAction *pAction);
-
 public slots:
 	virtual void accept();
 	virtual void reject();

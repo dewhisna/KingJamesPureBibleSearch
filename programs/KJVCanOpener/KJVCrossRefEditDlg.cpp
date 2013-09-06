@@ -24,6 +24,7 @@
 #include "KJVCrossRefEditDlg.h"
 #include "ui_KJVCrossRefEditDlg.h"
 
+#include "main.h"
 #include "PersistentSettings.h"
 
 #include "KJVSearchResult.h"
@@ -59,14 +60,16 @@ QAction *CKJVCrossRefEditDlg::m_pActionCrossRefsEditor = NULL;
 
 QAction *CKJVCrossRefEditDlg::actionCrossRefsEditor()
 {
-	assert(m_pActionCrossRefsEditor != NULL);
-	return m_pActionCrossRefsEditor;
-}
+	extern CMyApplication *g_pMyApplication;
 
-void CKJVCrossRefEditDlg::setActionCrossRefsEditor(QAction *pAction)
-{
-	assert(m_pActionCrossRefsEditor == NULL);
-	m_pActionCrossRefsEditor = pAction;
+	if (m_pActionCrossRefsEditor == NULL) {
+		m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."), g_pMyApplication);
+		m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+		m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+		m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+	}
+
+	return m_pActionCrossRefsEditor;
 }
 
 // ============================================================================

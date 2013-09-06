@@ -24,6 +24,7 @@
 #include "KJVNoteEditDlg.h"
 #include "ui_KJVNoteEditDlg.h"
 
+#include "main.h"
 #include "PersistentSettings.h"
 
 #include "KJVPassageNavigatorDlg.h"
@@ -61,14 +62,16 @@ QAction *CKJVNoteEditDlg::m_pActionUserNoteEditor = NULL;
 
 QAction *CKJVNoteEditDlg::actionUserNoteEditor()
 {
-	assert(m_pActionUserNoteEditor != NULL);
-	return m_pActionUserNoteEditor;
-}
+	extern CMyApplication *g_pMyApplication;
 
-void CKJVNoteEditDlg::setActionUserNoteEditor(QAction *pAction)
-{
-	assert(m_pActionUserNoteEditor == NULL);
-	m_pActionUserNoteEditor = pAction;
+	if (m_pActionUserNoteEditor == NULL) {
+		m_pActionUserNoteEditor = new QAction(QIcon(":/res/App-edit-icon-128.png"), tr("Add/Edit/Remove Note..."), g_pMyApplication);
+		m_pActionUserNoteEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+		m_pActionUserNoteEditor->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
+		m_pActionUserNoteEditor->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
+	}
+
+	return m_pActionUserNoteEditor;
 }
 
 // ============================================================================
