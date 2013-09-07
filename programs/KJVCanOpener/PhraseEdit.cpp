@@ -698,28 +698,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	//		We'll find a verse before and a verse after the main chapter being
 	//		displayed (i.e. the actual scripture browser display window).  We
 	//		will precalculate our current index before the main loop:
-	TPhraseTag tagCurrentDisplay;
-	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
-		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1);
-		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
-		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
-		assert(pChapter != NULL);
-		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
-		CRelIndex ndxVerseBefore = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent - 1);
-		if (ndxVerseBefore.isSet()) {
-			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
-			assert(pVerseBefore != NULL);
-			nNumWordsDisplayed += pVerseBefore->m_nNumWrd;
-			ndxDisplay = CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1);
-		}
-		CRelIndex ndxVerseAfter = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent + pChapter->m_nNumWrd);
-		if (ndxVerseAfter.isSet()) {
-			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
-			assert(pVerseAfter != NULL);
-			nNumWordsDisplayed += pVerseAfter->m_nNumWrd;
-		}
-		tagCurrentDisplay = TPhraseTag(ndxDisplay, nNumWordsDisplayed);
-	}
+	TPhraseTag tagCurrentDisplay = currentChapterDisplayPhraseTag(ndxCurrent);
 
 	CHighlighterPhraseTagFwdItr itrHighlighter = aHighlighter.getForwardIterator();
 	while (!itrHighlighter.isEnd()) {
@@ -800,6 +779,35 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	}
 
 	myCursor.endEditBlock();
+}
+
+TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndxCurrent) const
+{
+	TPhraseTag tagCurrentDisplay;
+
+	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
+		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1);
+		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
+		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
+		assert(pChapter != NULL);
+		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
+		CRelIndex ndxVerseBefore = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent - 1);
+		if (ndxVerseBefore.isSet()) {
+			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
+			assert(pVerseBefore != NULL);
+			nNumWordsDisplayed += pVerseBefore->m_nNumWrd;
+			ndxDisplay = CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1);
+		}
+		CRelIndex ndxVerseAfter = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent + pChapter->m_nNumWrd);
+		if (ndxVerseAfter.isSet()) {
+			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
+			assert(pVerseAfter != NULL);
+			nNumWordsDisplayed += pVerseAfter->m_nNumWrd;
+		}
+		tagCurrentDisplay = TPhraseTag(ndxDisplay, nNumWordsDisplayed);
+	}
+
+	return tagCurrentDisplay;
 }
 
 void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)

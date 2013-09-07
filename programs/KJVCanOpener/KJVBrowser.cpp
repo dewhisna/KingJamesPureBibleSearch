@@ -120,6 +120,16 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(aboutToChangeHighlighters()), this, SLOT(en_highlightersAboutToChange()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_highlightersChanged()));
+
+	// User Notes changing:
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
+
+	// Cross Refs changing:
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(const CRelIndex &, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(const CRelIndex &, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_allCrossRefsChanged()));
 }
 
 CKJVBrowser::~CKJVBrowser()
@@ -361,6 +371,45 @@ void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
 	// Simply redo the highlighting again to change the highlight color:
 	Q_UNUSED(color);
 	doHighlighting();
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
+{
+	if (!selection().isSet()) return;
+	CRelIndex ndxNote = ndx;
+	ndxNote.setWord(1);			// All incoming note references will be by verse instead of word and normalize only deals with words
+	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
+	if ((!ndx.isSet()) ||
+		(!tagCurrentDisplay.isSet()) ||
+		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxNote)))) {
+		gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+	}
+}
+
+void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+{
+	if (!selection().isSet()) return;
+	CRelIndex ndxCrossRefFirst = ndxFirst;
+	CRelIndex ndxCrossRefSecond = ndxSecond;
+	ndxCrossRefFirst.setWord(1);			// All incoming cross-ref references will be by verse instead of word and normalize only deals with words
+	ndxCrossRefSecond.setWord(1);
+	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
+	if ((!ndxFirst.isSet()) ||
+		(!ndxSecond.isSet()) ||
+		(!tagCurrentDisplay.isSet()) ||
+		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefFirst))) ||
+		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefSecond)))) {
+		gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+	}
+
+}
+
+void CKJVBrowser::en_allCrossRefsChanged()
+{
+	if (!selection().isSet()) return;
+	gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
 }
 
 // ----------------------------------------------------------------------------

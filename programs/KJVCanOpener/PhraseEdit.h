@@ -254,6 +254,11 @@ public:
 	//		color.
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
 
+	// Calculate a phrase tag (reference and word count) that represents the current
+	//		display of our browser text having been set via setDocumentToChapter.  Used
+	//		to calculate intersections with other tags for optimzing highlighting, etc:
+	TPhraseTag currentChapterDisplayPhraseTag(const CRelIndex &ndxCurrent) const;
+
 	// Text Fill Functions:
 #define defaultDocumentToBookInfoFlags	(CPhraseNavigator::TRO_Subtitles | \
 										 CPhraseNavigator::TRO_Category)

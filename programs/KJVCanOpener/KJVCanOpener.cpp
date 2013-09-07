@@ -1485,10 +1485,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 	if (!indexNote.isSet()) return;
 	m_pUserNoteEditorDlg->setLocationIndex(indexNote);
-	if (m_pUserNoteEditorDlg->exec() == QDialog::Accepted) {
-		if (isBrowserFocusedOrActive())
-			m_pBrowserWidget->gotoIndex(m_pBrowserWidget->selection());		// Re-render text (note: The Note may be deleted as well as changed)
-	}
+	m_pUserNoteEditorDlg->exec();
 }
 
 void CKJVCanOpener::en_crossRefsEditorTriggered()
@@ -1511,10 +1508,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 
 	if (!tagCrossRef.isSet()) return;
 	m_pCrossRefsEditorDlg->setSourcePassage(tagCrossRef);
-	if (m_pCrossRefsEditorDlg->exec() == QDialog::Accepted) {
-		if (isBrowserFocusedOrActive())
-			m_pBrowserWidget->gotoIndex(m_pBrowserWidget->selection());		// Re-render text (note: The Cross-Ref may be deleted as well as changed)
-	}
+	m_pCrossRefsEditorDlg->exec();
 }
 
 void CKJVCanOpener::en_viewDetails()

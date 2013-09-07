@@ -97,6 +97,9 @@ public slots:
 	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_highlightersAboutToChange();
 	void en_highlightersChanged();
+	void en_userNoteEvent(const CRelIndex &ndx);		// Triggered on User Note Added/Changed/Remove
+	void en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Triggered on Cross-Ref Added/Remove
+	void en_allCrossRefsChanged();						// Triggered if entire Cross-Refs changed
 
 	// Navigation Shortcut Processing:
 	void en_Bible_Beginning();
