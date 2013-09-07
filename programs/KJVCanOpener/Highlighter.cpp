@@ -445,6 +445,7 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
 		m_lstButtons[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
+		m_pActionGroupHighlighterTools->actions()[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
 	} else {
 		QIcon iconHighlighter(iconHighlighterPreview(strUserDefinedHighlighterName));
 		m_lstButtons[ndx]->setIcon(QIcon(iconHighlighter));
@@ -454,7 +455,7 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 
 QIcon CHighlighterButtons::iconHighlighterPreview(const QString &strUserDefinedHighlighterName)
 {
-	QPixmap pixHighlighter(":res/highlighter_white_01-256.png");
+	QPixmap pixHighlighter(":/res/highlighter_white_01-256.png");
 	QBitmap bmHighlighterMask = pixHighlighter.createMaskFromColor(QColor(255, 255, 255), Qt::MaskOutColor);		// Mask white panel
 	QPainter paintHighlighter(&pixHighlighter);
 	paintHighlighter.setPen(g_pUserNotesDatabase->highlighterColor(strUserDefinedHighlighterName));
