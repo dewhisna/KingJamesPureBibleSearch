@@ -150,6 +150,8 @@ protected slots:
 
 	void en_Configure();
 
+	void en_NewCanOpener();
+
 	void setTextBrightness(bool bInvert, int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 

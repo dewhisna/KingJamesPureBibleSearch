@@ -136,7 +136,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyRaw->setStatusTip(T::tr("Copy selected passage browser text as raw phrase words to the clipboard"));
 	m_pActionCopyRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Text (No punctuation)"), this, SLOT(en_copyVeryRaw()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Text (No punctuation)"), this, SLOT(en_copyVeryRaw()));
 	m_pActionCopyVeryRaw->setStatusTip(T::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));

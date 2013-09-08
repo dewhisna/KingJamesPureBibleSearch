@@ -55,6 +55,8 @@
 #include <QDesktopServices>
 #include <QDir>
 
+extern CMyApplication *g_pMyApplication;
+
 // ============================================================================
 
 #define KJS_FILE_VERSION 1				// Current KJS File Version (King James Search file)
@@ -199,7 +201,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// --------------------
 
-	extern CMyApplication *g_pMyApplication;
 	m_strAppStartupStyleSheet = g_pMyApplication->styleSheet();
 
 	// Setup Default Font and TextBrightness:
@@ -292,7 +293,15 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	pFileMenu->addSeparator();
 
-	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+	pAction = pFileMenu->addAction(tr("N&ew Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_E));
+	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
+	pAction->setToolTip(tr("Create New Search Window"));
+
+	pAction = pFileMenu->addAction(tr("Close this Search &Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
+	pAction->setToolTip(tr("Close this Search Window"));
+
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit"), g_pMyApplication, SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip(tr("Exit the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Exit Application"));
 	pAction->setMenuRole(QAction::QuitRole);
@@ -704,7 +713,6 @@ void CKJVCanOpener::savePersistentSettings()
 
 void CKJVCanOpener::restorePersistentSettings()
 {
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 
 	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener();
@@ -932,7 +940,6 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	int nResult;
 	bool bPromptFilename = false;
 
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 
 	if (g_pMyApplication->isLastCanOpener()) {
@@ -1599,7 +1606,6 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure()
 {
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
@@ -1616,9 +1622,17 @@ void CKJVCanOpener::en_Configure()
 	}
 }
 
+void CKJVCanOpener::en_NewCanOpener()
+{
+	assert(g_pMyApplication != NULL);
+
+	CKJVCanOpener *pNewCanOpener = g_pMyApplication->createKJVCanOpener(m_pBibleDatabase);
+	assert(pNewCanOpener != NULL);
+}
+
 void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)
 {
-	extern CMyApplication *g_pMyApplication;
+	assert(g_pMyApplication != NULL);
 
 	// Note: This code needs to cooperate with the setStyleSheet in the constructor
 	//			that works around QTBUG-13768...

@@ -65,7 +65,7 @@ QAction *CKJVCrossRefEditDlg::actionCrossRefsEditor()
 
 	if (m_pActionCrossRefsEditor == NULL) {
 		m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."), g_pMyApplication);
-		m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+		m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
 		m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 		m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	}

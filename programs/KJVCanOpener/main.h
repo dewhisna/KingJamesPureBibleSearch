@@ -96,7 +96,6 @@ public:
 	const QList<CKJVCanOpener *> &canOpeners() const { return m_lstKJVCanOpeners; }
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
-	void activateAllCanOpeners() const;
 
 	// Message Format:
 	//		<command>;<args>
@@ -117,6 +116,8 @@ public:
 
 public slots:
 	void receivedKJPBSMessage(const QString &strMessage);
+	void activateAllCanOpeners() const;
+	void closeAllCanOpeners() const;
 
 signals:
 	void loadFile(const QString &strFilename);

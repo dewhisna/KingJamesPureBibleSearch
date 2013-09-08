@@ -288,9 +288,6 @@
               <iconset resource="KJVCanOpener.qrc">
                <normaloff>:/res/Close.png</normaloff>:/res/Close.png</iconset>
              </property>
-             <property name="shortcut">
-              <string>Ctrl+W</string>
-             </property>
              <property name="flat">
               <bool>true</bool>
              </property>

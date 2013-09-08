@@ -304,6 +304,8 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
+	pCanOpener->show();
+	pCanOpener->initialize();
 	return pCanOpener;
 }
 
@@ -380,6 +382,14 @@ void CMyApplication::activateAllCanOpeners() const
 {
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 		activateCanOpener(ndx);
+	}
+}
+
+void CMyApplication::closeAllCanOpeners() const
+{
+	// Close in reverse order:
+	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= 0; --ndx) {
+		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
 }
 
@@ -480,8 +490,6 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 				if (pBibleDatabase == NULL) pBibleDatabase = g_pMainBibleDatabase;
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
 				assert(pCanOpener != NULL);
-				pCanOpener->show();
-				pCanOpener->initialize();
 			} else {
 				pCanOpener = m_lstKJVCanOpeners.at(0);
 			}
@@ -735,10 +743,7 @@ int main(int argc, char *argv[])
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
 	splash->finish(pMain);
-	pMain->show();
 	delete splash;
-
-	pMain->initialize();
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
 
