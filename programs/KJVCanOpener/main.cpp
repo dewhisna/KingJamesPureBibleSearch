@@ -304,8 +304,8 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
-	pCanOpener->show();
 	pCanOpener->initialize();
+	pCanOpener->show();
 	return pCanOpener;
 }
 
