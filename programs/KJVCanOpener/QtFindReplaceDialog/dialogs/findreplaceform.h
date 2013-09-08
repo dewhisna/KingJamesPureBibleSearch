@@ -11,9 +11,7 @@
 
 #include "findreplace_global.h"
 
-namespace Ui {
-	class FindReplaceForm;
-}
+#include "ui_findreplaceform.h"
 
 class QTextEdit;
 class QSettings;
@@ -135,7 +133,7 @@ protected slots:
 	void regexpSelected(bool sel);
 
 protected:
-	Ui::FindReplaceForm *ui;
+	Ui::FindReplaceForm ui;
 
 	/// for searching into the text
 	QTextCursor textCursor;

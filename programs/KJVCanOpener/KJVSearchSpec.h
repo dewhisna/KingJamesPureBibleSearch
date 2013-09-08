@@ -53,9 +53,7 @@ public:
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVSearchSpec;
-}
+#include "ui_KJVSearchSpec.h"
 
 class CKJVSearchSpec : public QWidget
 {
@@ -119,7 +117,7 @@ private:
 	bool m_bDoneActivation;							// Set to True when we've triggered activation
 	bool m_bCloseAllSearchPhrasesInProgress;		// Set to True when the closeAllSearchPhrases() has been triggered and is processing, so the we don't emit extra phraseChanged() notifications
 
-	Ui::CKJVSearchSpec *ui;
+	Ui::CKJVSearchSpec ui;
 };
 
 #endif // KJVSEARCHSPEC_H

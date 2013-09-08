@@ -78,9 +78,7 @@ private:
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVTextFormatConfig;
-}
+#include "ui_KJVTextFormatConfig.h"
 
 class CKJVTextFormatConfig : public QWidget
 {
@@ -145,14 +143,12 @@ private:
 	bool m_bLoadingData;
 
 	static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
-	Ui::CKJVTextFormatConfig *ui;
+	Ui::CKJVTextFormatConfig ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVBibleDatabaseConfig;
-}
+#include "ui_KJVBibleDatabaseConfig.h"
 
 class CKJVBibleDatabaseConfig : public QWidget
 {
@@ -179,14 +175,12 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVBibleDatabaseConfig *ui;
+	Ui::CKJVBibleDatabaseConfig ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVUserNotesDatabaseConfig;
-}
+#include "ui_KJVUserNotesDatabaseConfig.h"
 
 class CKJVUserNotesDatabaseConfig : public QWidget
 {
@@ -213,14 +207,12 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVUserNotesDatabaseConfig *ui;
+	Ui::CKJVUserNotesDatabaseConfig ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CConfigSearchOptions;
-}
+#include "ui_ConfigSearchOptions.h"
 
 class CConfigSearchOptions : public QWidget
 {
@@ -251,14 +243,12 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CConfigSearchOptions *ui;
+	Ui::CConfigSearchOptions ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CConfigBrowserOptions;
-}
+#include "ui_ConfigBrowserOptions.h"
 
 class CConfigBrowserOptions : public QWidget
 {
@@ -285,14 +275,12 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CConfigBrowserOptions *ui;
+	Ui::CConfigBrowserOptions ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CConfigCopyOptions;
-}
+#include "ui_ConfigCopyOptions.h"
 
 class CConfigCopyOptions : public QWidget
 {
@@ -335,14 +323,12 @@ private:
 	bool m_bLoadingData;
 	CScriptureEdit *m_pEditCopyOptionPreview;
 
-	Ui::CConfigCopyOptions *ui;
+	Ui::CConfigCopyOptions ui;
 };
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVGeneralSettingsConfig;
-}
+#include "ui_KJVGeneralSettingsConfig.h"
 
 class CKJVGeneralSettingsConfig : public QWidget
 {
@@ -365,7 +351,7 @@ private:
 
 // UI Private:
 private:
-	Ui::CKJVGeneralSettingsConfig *ui;
+	Ui::CKJVGeneralSettingsConfig ui;
 };
 
 // ============================================================================

@@ -144,20 +144,43 @@ private:
 
 // ============================================================================
 
-namespace Ui {
-	class CNoteKeywordWidget;
-}
+enum KEYWORD_WIDGET_MODE_ENUM {
+	KWME_EDITOR = 0,						// Widget works as a Keyword Editor
+	KWME_SELECTOR = 1						// Widget works as a Keyword Selector (i.e. Read-only model)
+};
+
+class CKeywordComboBox : public CComboBox
+{
+	Q_OBJECT
+
+public:
+	CKeywordComboBox(QWidget *pParent = NULL)
+		:	CComboBox(pParent)
+	{ }
+	virtual ~CKeywordComboBox() { }
+
+	KEYWORD_WIDGET_MODE_ENUM mode() const { return m_nMode; }
+	void setMode(KEYWORD_WIDGET_MODE_ENUM nMode) { m_nMode = nMode; }
+
+	virtual void wheelEvent(QWheelEvent *pEvent);
+	virtual void mousePressEvent(QMouseEvent *pEvent);
+	virtual void mouseReleaseEvent(QMouseEvent *pEvent);
+	virtual void keyPressEvent(QKeyEvent *pEvent);
+	virtual void keyReleaseEvent(QKeyEvent *pEvent);
+
+private:
+	KEYWORD_WIDGET_MODE_ENUM m_nMode;
+};
+
+// ============================================================================
+
+#include "ui_NoteKeywordWidget.h"
 
 class CNoteKeywordWidget : public QWidget
 {
 	Q_OBJECT
 	
 public:
-	enum KEYWORD_WIDGET_MODE_ENUM {
-		KWME_EDITOR = 0,						// Widget works as a Keyword Editor
-		KWME_SELECTOR = 1						// Widget works as a Keyword Selector (i.e. Read-only model)
-	};
-
 	explicit CNoteKeywordWidget(QWidget *parent = 0);
 	~CNoteKeywordWidget();
 
@@ -191,34 +214,9 @@ private:
 
 // UI Private:
 private:
-	Ui::CNoteKeywordWidget *ui;
+	Ui::CNoteKeywordWidget ui;
 	bool m_bDoingUpdate;
 	KEYWORD_WIDGET_MODE_ENUM m_nMode;
-};
-
-// ============================================================================
-
-class CKeywordComboBox : public CComboBox
-{
-	Q_OBJECT
-
-public:
-	CKeywordComboBox(QWidget *pParent = NULL)
-		:	CComboBox(pParent)
-	{ }
-	virtual ~CKeywordComboBox() { }
-
-	CNoteKeywordWidget::KEYWORD_WIDGET_MODE_ENUM mode() const { return m_nMode; }
-	void setMode(CNoteKeywordWidget::KEYWORD_WIDGET_MODE_ENUM nMode) { m_nMode = nMode; }
-
-	virtual void wheelEvent(QWheelEvent *pEvent);
-	virtual void mousePressEvent(QMouseEvent *pEvent);
-	virtual void mouseReleaseEvent(QMouseEvent *pEvent);
-	virtual void keyPressEvent(QKeyEvent *pEvent);
-	virtual void keyReleaseEvent(QKeyEvent *pEvent);
-
-private:
-	CNoteKeywordWidget::KEYWORD_WIDGET_MODE_ENUM m_nMode;
 };
 
 // ============================================================================

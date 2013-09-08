@@ -119,9 +119,7 @@ private:
 
 // ============================================================================
 
-namespace Ui {
-class CKJVSearchCriteriaWidget;
-}
+#include "ui_KJVSearchCriteria.h"
 
 class CKJVSearchCriteriaWidget : public QWidget
 {
@@ -171,7 +169,7 @@ private:
 #define end_update()							\
 			m_bDoingUpdate = bUpdateSave;
 
-	Ui::CKJVSearchCriteriaWidget *ui;
+	Ui::CKJVSearchCriteriaWidget ui;
 };
 
 // ============================================================================

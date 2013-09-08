@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVBrowser.h"
-#include "ui_KJVBrowser.h"
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
@@ -51,13 +50,12 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_Highlighter(pModel),
 	m_bDoingUpdate(false),
 	m_bDoingPassageReference(false),
-	m_pScriptureBrowser(NULL),
-	ui(new Ui::CKJVBrowser)
+	m_pScriptureBrowser(NULL)
 {
 	assert(m_pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	initialize();
 
@@ -77,19 +75,19 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
 
-	connect(ui->comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
-	connect(ui->comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
-	connect(ui->comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstBkComboIndexChanged(int)));
-	connect(ui->comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstChpComboIndexChanged(int)));
-	connect(ui->comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
-	connect(ui->comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
+	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
+	connect(ui.comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
+	connect(ui.comboTstBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstBkComboIndexChanged(int)));
+	connect(ui.comboTstChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayTstChpComboIndexChanged(int)));
+	connect(ui.comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
+	connect(ui.comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
 
-	connect(ui->widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(delayPassageReference(const TPhraseTag &)));
-	connect(ui->widgetPassageReference, SIGNAL(enterPressed()), this, SLOT(PassageReferenceEnterPressed()));
+	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(delayPassageReference(const TPhraseTag &)));
+	connect(ui.widgetPassageReference, SIGNAL(enterPressed()), this, SLOT(PassageReferenceEnterPressed()));
 
-	connect(ui->scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
-	connect(ui->scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
-	connect(ui->scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
+	connect(ui.scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
+	connect(ui.scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
+	connect(ui.scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
 
 	connect(&m_dlyBkCombo, SIGNAL(triggered(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(&m_dlyBkChpCombo, SIGNAL(triggered(int)), this, SLOT(BkChpComboIndexChanged(int)));
@@ -134,16 +132,16 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 CKJVBrowser::~CKJVBrowser()
 {
-	delete ui;
+
 }
 
 // ----------------------------------------------------------------------------
 
 bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 {
-	if ((obj == ui->scrollbarChapter) &&
+	if ((obj == ui.scrollbarChapter) &&
 		(ev->type() == QEvent::MouseMove) &&
-		(ui->scrollbarChapter->isSliderDown())) {
+		(ui.scrollbarChapter->isSliderDown())) {
 		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(ev);
 		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
 	}
@@ -174,21 +172,21 @@ void CKJVBrowser::initialize()
 {
 	// --------------------------------------------------------------
 
-	ui->widgetPassageReference->initialize(m_pBibleDatabase);
+	ui.widgetPassageReference->initialize(m_pBibleDatabase);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the widgetKJVPassageNavigator from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui->gridLayout->indexOf(ui->textBrowserMainText);
+	int ndx = ui.gridLayout->indexOf(ui.textBrowserMainText);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;
 	int nColSpan;
-	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
@@ -199,41 +197,41 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 	m_pScriptureBrowser->setOpenLinks(false);
 
-	delete ui->textBrowserMainText;
-	ui->textBrowserMainText = NULL;
-	ui->gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
+	delete ui.textBrowserMainText;
+	ui.textBrowserMainText = NULL;
+	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
 
 	// Reinsert it in the correct TabOrder:
-	QWidget::setTabOrder(ui->comboBkChp, m_pScriptureBrowser);
-	QWidget::setTabOrder(m_pScriptureBrowser, ui->comboTstBk);
+	QWidget::setTabOrder(ui.comboBkChp, m_pScriptureBrowser);
+	QWidget::setTabOrder(m_pScriptureBrowser, ui.comboTstBk);
 
 	// --------------------------------------------------------------
 
 	begin_update();
 
 	unsigned int nBibleChp = 0;
-	ui->comboBk->clear();
-	ui->comboBibleBk->clear();
+	ui.comboBk->clear();
+	ui.comboBibleBk->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
 		assert(pBook != NULL);
-		ui->comboBk->addItem(pBook->m_strBkName, ndxBk);
-		ui->comboBibleBk->addItem(QString("%1").arg(ndxBk), ndxBk);
+		ui.comboBk->addItem(pBook->m_strBkName, ndxBk);
+		ui.comboBibleBk->addItem(QString("%1").arg(ndxBk), ndxBk);
 		nBibleChp += pBook->m_nNumChp;
 	}
-	ui->comboBibleChp->clear();
+	ui.comboBibleChp->clear();
 	for (unsigned int ndxBibleChp=1; ndxBibleChp<=nBibleChp; ++ndxBibleChp) {
-		ui->comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
+		ui.comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
 	}
 
 	// Setup the Chapter Scroller:
-	ui->scrollbarChapter->setStyle(&m_PlastiqueStyle);
-	ui->scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
-	ui->scrollbarChapter->setTracking(true);
-	ui->scrollbarChapter->setMouseTracking(true);
-	ui->scrollbarChapter->installEventFilter(this);
-	ui->scrollbarChapter->setSingleStep(1);
-	ui->scrollbarChapter->setPageStep(3);
+	ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
+	ui.scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
+	ui.scrollbarChapter->setTracking(true);
+	ui.scrollbarChapter->setMouseTracking(true);
+	ui.scrollbarChapter->installEventFilter(this);
+	ui.scrollbarChapter->setSingleStep(1);
+	ui.scrollbarChapter->setPageStep(3);
 
 	end_update();
 }
@@ -245,7 +243,7 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 
 	begin_update();
 
-	if (!m_bDoingPassageReference) ui->widgetPassageReference->clear();
+	if (!m_bDoingPassageReference) ui.widgetPassageReference->clear();
 
 	// If branching to a "book only", goto chapter 1 of that book:
 	if ((tagActual.relIndex().book() != 0) &&
@@ -510,24 +508,24 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
 
-	ui->comboBk->setCurrentIndex(ui->comboBk->findData(m_ndxCurrent.book()));
-	ui->comboBibleBk->setCurrentIndex(ui->comboBibleBk->findData(m_ndxCurrent.book()));
+	ui.comboBk->setCurrentIndex(ui.comboBk->findData(m_ndxCurrent.book()));
+	ui.comboBibleBk->setCurrentIndex(ui.comboBibleBk->findData(m_ndxCurrent.book()));
 
 	unsigned int nTst = book.m_nTstNdx;
-	ui->lblTestament->setText(m_pBibleDatabase->testamentEntry(nTst)->m_strTstName + ":");
-	ui->comboTstBk->clear();
+	ui.lblTestament->setText(m_pBibleDatabase->testamentEntry(nTst)->m_strTstName + ":");
+	ui.comboTstBk->clear();
 	for (unsigned int ndxTstBk=1; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
-		ui->comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
+		ui.comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
 	}
-	ui->comboTstBk->setCurrentIndex(ui->comboTstBk->findData(book.m_nTstBkNdx));
+	ui.comboTstBk->setCurrentIndex(ui.comboTstBk->findData(book.m_nTstBkNdx));
 
-	ui->comboBkChp->clear();
+	ui.comboBkChp->clear();
 	for (unsigned int ndxBkChp=1; ndxBkChp<=book.m_nNumChp; ++ndxBkChp) {
-		ui->comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
+		ui.comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
 	}
-	ui->comboTstChp->clear();
+	ui.comboTstChp->clear();
 	for (unsigned int ndxTstChp=1; ndxTstChp<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumChp; ++ndxTstChp) {
-		ui->comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
+		ui.comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
 	}
 
 	end_update();
@@ -549,7 +547,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);
 
-	ui->comboBkChp->setCurrentIndex(ui->comboBkChp->findData(ndx.chapter()));
+	ui.comboBkChp->setCurrentIndex(ui.comboBkChp->findData(ndx.chapter()));
 
 	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) {
 		m_pScriptureBrowser->clear();
@@ -575,12 +573,12 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	nTstChp += m_ndxCurrent.chapter();
 	nBibleChp += m_ndxCurrent.chapter();
 
-	ui->comboTstChp->setCurrentIndex(ui->comboTstChp->findData(nTstChp));
-	ui->comboBibleChp->setCurrentIndex(ui->comboBibleChp->findData(nBibleChp));
+	ui.comboTstChp->setCurrentIndex(ui.comboTstChp->findData(nTstChp));
+	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(nBibleChp));
 
 	// Set the chapter scroller to the chapter of the Bible:
-	ui->scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
-//	ui->scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
+	ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
+//	ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
 
 	end_update();
 
@@ -608,7 +606,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 
 	CRelIndex ndxTarget;
 	if (index != -1) {
-		ndxTarget.setBook(ui->comboBk->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
 	gotoIndex(TPhraseTag(ndxTarget));
@@ -623,7 +621,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	CRelIndex ndxTarget;
 	ndxTarget.setBook(m_ndxCurrent.book());
 	if (index != -1) {
-		ndxTarget.setChapter(ui->comboBkChp->itemData(index).toUInt());
+		ndxTarget.setChapter(ui.comboBkChp->itemData(index).toUInt());
 	}
 	gotoIndex(TPhraseTag(ndxTarget));
 }
@@ -638,7 +636,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get BookEntry for current book so we know what testament we're currently in:
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
-		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, 0, ui->comboTstBk->itemData(index).toUInt(), book.m_nTstNdx);
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, 0, ui.comboTstBk->itemData(index).toUInt(), book.m_nTstNdx);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
@@ -655,7 +653,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 	if ((index != -1) && (m_ndxCurrent.book() > 0)) {
 		// Get BookEntry for current book so we know what testament we're currently in:
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
-		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui->comboTstChp->itemData(index).toUInt(), 0, book.m_nTstNdx);
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui.comboTstChp->itemData(index).toUInt(), 0, book.m_nTstNdx);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
@@ -670,7 +668,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 
 	CRelIndex ndxTarget;
 	if (index != -1) {
-		ndxTarget.setBook(ui->comboBibleBk->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBibleBk->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 	}
 	gotoIndex(TPhraseTag(ndxTarget));
@@ -684,7 +682,7 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 
 	CRelIndex ndxTarget;
 	if (index != -1) {
-		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui->comboBibleChp->itemData(index).toUInt(), 0, 0);
+		ndxTarget = m_pBibleDatabase->calcRelIndex(0, 0, ui.comboBibleChp->itemData(index).toUInt(), 0, 0);
 		ndxTarget.setVerse(0);
 		ndxTarget.setWord(0);
 	}
@@ -703,7 +701,7 @@ void CKJVBrowser::PassageReferenceEnterPressed()
 {
 	if (m_bDoingUpdate) return;
 	m_dlyPassageReference.untrigger();
-	gotoIndex(ui->widgetPassageReference->phraseTag());
+	gotoIndex(ui.widgetPassageReference->phraseTag());
 	setFocusBrowser();
 }
 
@@ -716,24 +714,24 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 	CRelIndex ndxTarget(m_pBibleDatabase->calcRelIndex(0, 0, index, 0, 0));
 	ndxTarget.setVerse(0);
 	ndxTarget.setWord(0);
-	ui->scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(ndxTarget));
+	ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(ndxTarget));
 	if (!m_ptChapterScrollerMousePos.isNull()) {
-		QToolTip::showText(m_ptChapterScrollerMousePos, ui->scrollbarChapter->toolTip());
+		QToolTip::showText(m_ptChapterScrollerMousePos, ui.scrollbarChapter->toolTip());
 	} else {
-//		QToolTip::showText(ui->scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), ui->scrollbarChapter->toolTip());
+//		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), ui.scrollbarChapter->toolTip());
 		QStyleOptionSlider opt;
-		opt.initFrom(ui->scrollbarChapter);
-		QRect rcSlider = ui->scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui->scrollbarChapter);
-		QToolTip::showText(ui->scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), ui->scrollbarChapter->toolTip());
+		opt.initFrom(ui.scrollbarChapter);
+		QRect rcSlider = ui.scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui.scrollbarChapter);
+		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), ui.scrollbarChapter->toolTip());
 	}
 
-	if (ui->scrollbarChapter->isSliderDown()) return;		// Just set ToolTip and exit
+	if (ui.scrollbarChapter->isSliderDown()) return;		// Just set ToolTip and exit
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::ChapterSliderValueChanged()
 {
-	ChapterSliderMoved(ui->scrollbarChapter->value());
+	ChapterSliderMoved(ui.scrollbarChapter->value());
 	m_ptChapterScrollerMousePos = QPoint();
 }
 

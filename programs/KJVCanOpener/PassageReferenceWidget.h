@@ -30,9 +30,9 @@
 #include <QList>
 #include <QString>
 
-namespace Ui {
-	class CPassageReferenceWidget;
-}
+// ============================================================================
+
+#include "ui_PassageReferenceWidget.h"
 
 class CPassageReferenceWidget : public QWidget
 {
@@ -70,7 +70,9 @@ private:
 
 // UI Private:
 private:
-	Ui::CPassageReferenceWidget *ui;
+	Ui::CPassageReferenceWidget ui;
 };
+
+// ============================================================================
 
 #endif // PASSAGEREFERENCEWIDGET_H

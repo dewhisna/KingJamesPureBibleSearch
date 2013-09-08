@@ -22,28 +22,27 @@
 ****************************************************************************/
 
 #include "RenameHighlighterDlg.h"
-#include "ui_RenameHighlighterDlg.h"
 
 // ============================================================================
 
 CRenameHighlighterDlg::CRenameHighlighterDlg(const QString &strOldName, QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::CRenameHighlighterDlg)
+	QDialog(parent)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	ui->editOldName->setText(strOldName);
+	ui.editOldName->setText(strOldName);
 }
 
 CRenameHighlighterDlg::~CRenameHighlighterDlg()
 {
-	delete ui;
+
 }
 
 // ============================================================================
 
 QString CRenameHighlighterDlg::newName() const
 {
-	return ui->editNewName->text().trimmed();
+	return ui.editNewName->text().trimmed();
 }
 
+// ============================================================================

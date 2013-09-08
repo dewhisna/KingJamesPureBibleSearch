@@ -9,7 +9,7 @@
 FindDialog::FindDialog(QWidget *parent) :
     FindReplaceDialog(parent)
 {
-    ui->findReplaceForm->hideReplaceWidgets();
+	ui.findReplaceForm->hideReplaceWidgets();
     setWindowTitle(tr("Find"));
 }
 

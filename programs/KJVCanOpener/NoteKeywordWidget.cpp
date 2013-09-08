@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "NoteKeywordWidget.h"
-#include "ui_NoteKeywordWidget.h"
 
 #include "SearchCompleter.h"
 
@@ -298,34 +297,33 @@ void CNoteKeywordModel::updateContextMenu()
 CNoteKeywordWidget::CNoteKeywordWidget(QWidget *parent)
 	:	QWidget(parent),
 		m_pKeywordModel(NULL),
-		ui(new Ui::CNoteKeywordWidget),
 		m_bDoingUpdate(false)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	CNoteKeywordModelListView *pKeywordView = new CNoteKeywordModelListView(ui->comboKeywords);
+	CNoteKeywordModelListView *pKeywordView = new CNoteKeywordModelListView(ui.comboKeywords);
 	pKeywordView->setSelectionMode(QAbstractItemView::SingleSelection);
 	pKeywordView->setContextMenuPolicy(Qt::CustomContextMenu);
-	ui->comboKeywords->setView(pKeywordView);
+	ui.comboKeywords->setView(pKeywordView);
 	connect(pKeywordView, SIGNAL(currentKeywordChanged(const QString &)), this, SLOT(en_keywordCurrentIndexChanged(const QString &)));
-//	connect(ui->comboKeywords, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_keywordCurrentIndexChanged(const QString &)));
-	connect(ui->comboKeywords, SIGNAL(enterPressed()), this, SLOT(en_keywordEntered()));
+//	connect(ui.comboKeywords, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_keywordCurrentIndexChanged(const QString &)));
+	connect(ui.comboKeywords, SIGNAL(enterPressed()), this, SLOT(en_keywordEntered()));
 
 	// Setup Keywords:
-	m_pKeywordModel = new CNoteKeywordModel(ui->comboKeywords);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
-	ui->comboKeywords->setInsertPolicy(QComboBox::NoInsert);		// No auto-insert as we need to parse and decide how to insert it
-	ui->comboKeywords->setModel(m_pKeywordModel);
+	m_pKeywordModel = new CNoteKeywordModel(ui.comboKeywords);		// Parent it to the comboBox so that it will get auto-deleted when we set a new model
+	ui.comboKeywords->setInsertPolicy(QComboBox::NoInsert);			// No auto-insert as we need to parse and decide how to insert it
+	ui.comboKeywords->setModel(m_pKeywordModel);
 	setMode(KWME_EDITOR);
 	setKeywordListPreview();
 
 	connect(m_pKeywordModel, SIGNAL(changedNoteKeywords()), this, SLOT(en_keywordListChanged()));
-	connect(ui->comboKeywords, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
+	connect(ui.comboKeywords, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
 	connect(pKeywordView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequestedView(const QPoint &)));
 }
 
 CNoteKeywordWidget::~CNoteKeywordWidget()
 {
-	delete ui;
+
 }
 
 // ----------------------------------------------------------------------------
@@ -364,33 +362,33 @@ void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 	m_bDoingUpdate = true;
 
 	m_nMode = nMode;
-	ui->comboKeywords->setMode(nMode);
+	ui.comboKeywords->setMode(nMode);
 	switch (nMode) {
 		case KWME_EDITOR:
 		{
-			ui->comboKeywords->setEditable(true);
-		//	ui->comboKeywords->setFrame(true);
-			QLineEdit *pLineEdit = new QLineEdit(ui->comboKeywords);
-			ui->comboKeywords->setLineEdit(pLineEdit);
-			ui->comboKeywords->setEditText(QString());
-			ui->comboKeywords->setToolTip(tr("Enter new keywords here"));
-			ui->comboKeywords->setStatusTip(tr("Enter new keywords here for this note."));
-			ui->comboKeywords->setContextMenuPolicy(Qt::DefaultContextMenu);
+			ui.comboKeywords->setEditable(true);
+		//	ui.comboKeywords->setFrame(true);
+			QLineEdit *pLineEdit = new QLineEdit(ui.comboKeywords);
+			ui.comboKeywords->setLineEdit(pLineEdit);
+			ui.comboKeywords->setEditText(QString());
+			ui.comboKeywords->setToolTip(tr("Enter new keywords here"));
+			ui.comboKeywords->setStatusTip(tr("Enter new keywords here for this note."));
+			ui.comboKeywords->setContextMenuPolicy(Qt::DefaultContextMenu);
 			break;
 		}
 		case KWME_SELECTOR:
 		{
-			ui->comboKeywords->setEditable(false);
-		//	ui->comboKeywords->setFrame(false);
-			QLineEdit *pLineEdit = new QLineEdit(ui->comboKeywords);
+			ui.comboKeywords->setEditable(false);
+		//	ui.comboKeywords->setFrame(false);
+			QLineEdit *pLineEdit = new QLineEdit(ui.comboKeywords);
 			pLineEdit->setReadOnly(true);
 			pLineEdit->setFrame(false);
 			pLineEdit->setAttribute(Qt::WA_TransparentForMouseEvents);
-			ui->comboKeywords->setLineEdit(pLineEdit);
-			ui->comboKeywords->setEditText(tr("<Select Keywords to Filter>"));
-			ui->comboKeywords->setToolTip(tr("Select Keywords to Filter"));
-			ui->comboKeywords->setStatusTip(tr("Select the keywords for notes to display"));
-			ui->comboKeywords->setContextMenuPolicy(Qt::CustomContextMenu);
+			ui.comboKeywords->setLineEdit(pLineEdit);
+			ui.comboKeywords->setEditText(tr("<Select Keywords to Filter>"));
+			ui.comboKeywords->setToolTip(tr("Select Keywords to Filter"));
+			ui.comboKeywords->setStatusTip(tr("Select the keywords for notes to display"));
+			ui.comboKeywords->setContextMenuPolicy(Qt::CustomContextMenu);
 			break;
 		}
 	}
@@ -405,7 +403,7 @@ bool CNoteKeywordWidget::haveUnenteredKeywords() const
 	assert(m_nMode == KWME_EDITOR);
 
 	bool bHaveUnenteredKeywords = false;
-	QStringList lstNewKeywords = ui->comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
+	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
 	for (int ndx = 0; ndx < lstNewKeywords.size(); ++ndx) {
 		QString strNewKeyword = lstNewKeywords.at(ndx).trimmed();
 
@@ -433,7 +431,7 @@ void CNoteKeywordWidget::en_keywordEntered()
 	m_bDoingUpdate = true;
 
 	bool bDataChanged = false;
-	QStringList lstNewKeywords = ui->comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
+	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
 	for (int ndx = 0; ndx < lstNewKeywords.size(); ++ndx) {
 		QString strNewKeyword = lstNewKeywords.at(ndx).trimmed();
 
@@ -464,7 +462,7 @@ void CNoteKeywordWidget::en_keywordEntered()
 		emit keywordListChanged();
 	}
 
-	ui->comboKeywords->setEditText(QString());
+	ui.comboKeywords->setEditText(QString());
 
 	m_bDoingUpdate = false;
 }
@@ -500,40 +498,40 @@ void CNoteKeywordWidget::setKeywordListPreview()
 		strKeywordList += lstKeywords.join(", ");
 	}
 
-	ui->lblKeywordsPreview->setText(strKeywordList);
+	ui.lblKeywordsPreview->setText(strKeywordList);
 	// Have to do this here because model reset clears our lineEdit:
 	if (m_nMode == KWME_SELECTOR)
-		ui->comboKeywords->lineEdit()->setText(tr("<Select Keywords to Filter>"));
+		ui.comboKeywords->lineEdit()->setText(tr("<Select Keywords to Filter>"));
 }
 
 void CNoteKeywordWidget::en_keywordCurrentIndexChanged(const QString &text)
 {
-	ui->comboKeywords->setEditText(text);
-	ui->comboKeywords->hidePopup();
+	ui.comboKeywords->setEditText(text);
+	ui.comboKeywords->hidePopup();
 }
 
 // ----------------------------------------------------------------------------
 
 void CNoteKeywordWidget::en_customContextMenuRequested(const QPoint &pos)
 {
-	m_pKeywordModel->contextMenu()->exec(ui->comboKeywords->mapToGlobal(pos));
+	m_pKeywordModel->contextMenu()->exec(ui.comboKeywords->mapToGlobal(pos));
 }
 
 void CNoteKeywordWidget::en_customContextMenuRequestedView(const QPoint &pos)
 {
-	m_pKeywordModel->contextMenu()->exec(ui->comboKeywords->view()->mapToGlobal(pos));
+	m_pKeywordModel->contextMenu()->exec(ui.comboKeywords->view()->mapToGlobal(pos));
 }
 
 // ============================================================================
 
 void CKeywordComboBox::wheelEvent(QWheelEvent *pEvent)
 {
-	if (m_nMode == CNoteKeywordWidget::KWME_EDITOR) CComboBox::wheelEvent(pEvent);
+	if (m_nMode == KWME_EDITOR) CComboBox::wheelEvent(pEvent);
 }
 
 void CKeywordComboBox::mousePressEvent(QMouseEvent *pEvent)
 {
-	if (m_nMode == CNoteKeywordWidget::KWME_EDITOR) {
+	if (m_nMode == KWME_EDITOR) {
 		CComboBox::mousePressEvent(pEvent);
 	} else {
 		QStyleOptionComboBox opt;
@@ -557,7 +555,7 @@ void CKeywordComboBox::mouseReleaseEvent(QMouseEvent *pEvent)
 
 void CKeywordComboBox::keyPressEvent(QKeyEvent *pEvent)
 {
-	if (m_nMode == CNoteKeywordWidget::KWME_EDITOR) {
+	if (m_nMode == KWME_EDITOR) {
 		CComboBox::keyPressEvent(pEvent);
 	} else {
 		if (pEvent->key() == Qt::Key_Down) {
@@ -570,7 +568,7 @@ void CKeywordComboBox::keyPressEvent(QKeyEvent *pEvent)
 
 void CKeywordComboBox::keyReleaseEvent(QKeyEvent *pEvent)
 {
-	if (m_nMode == CNoteKeywordWidget::KWME_EDITOR) {
+	if (m_nMode == KWME_EDITOR) {
 		CComboBox::keyReleaseEvent(pEvent);
 	}
 }

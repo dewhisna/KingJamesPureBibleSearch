@@ -449,11 +449,11 @@ void CScriptureText<T,U>::showPassageNavigator()
 
 	m_CursorFollowHighlighter.setEnabled(true);
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
-	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, T::parentWidget());
-//	dlg.navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
-	dlg.navigator().startAbsoluteMode(tagSel);
-	if (dlg.exec() == QDialog::Accepted) {
-		emit T::gotoIndex(dlg.passage());
+	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
+//	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
+	pDlg->navigator().startAbsoluteMode(tagSel);
+	if (pDlg->exec() == QDialog::Accepted) {
+		if (pDlg != NULL) emit T::gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 
 	end_popup();

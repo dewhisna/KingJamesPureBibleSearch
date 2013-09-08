@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVAboutDlg.h"
-#include "ui_KJVAboutDlg.h"
 
 #include "version.h"
 
@@ -34,15 +33,16 @@
 #include <QScrollBar>
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
-CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
-	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-	ui(new Ui::CKJVAboutDlg)
-{
-	ui->setupUi(this);
+// ============================================================================
 
-	QPushButton *pLicenseButton = ui->buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
+CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
+	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+{
+	ui.setupUi(this);
+
+	QPushButton *pLicenseButton = ui.buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
 	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(en_licenseDisplay()));
-	QPushButton *pCloseButton = ui->buttonBox->button(QDialogButtonBox::Close);
+	QPushButton *pCloseButton = ui.buttonBox->button(QDialogButtonBox::Close);
 	if (pCloseButton) pCloseButton->setDefault(true);
 
 	QGraphicsScene *scene = new QGraphicsScene(this);
@@ -76,11 +76,11 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	}
 	m_pBroughtToYouBy->setPos(nXCenterLine - (m_pBroughtToYouBy->boundingRect().width() / 2), nYPos);
 	nYPos += m_pBroughtToYouBy->boundingRect().height();
-	ui->graphicsView->setScene(scene);
+	ui.graphicsView->setScene(scene);
 	adjustSize();
 
-	if (ui->graphicsView->verticalScrollBar())
-		ui->graphicsView->verticalScrollBar()->setValue(ui->graphicsView->verticalScrollBar()->maximum());
+	if (ui.graphicsView->verticalScrollBar())
+		ui.graphicsView->verticalScrollBar()->setValue(ui.graphicsView->verticalScrollBar()->maximum());
 
 	// --------------------------------------------------------------
 
@@ -89,7 +89,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 
 CKJVAboutDlg::~CKJVAboutDlg()
 {
-	delete ui;
+
 }
 
 void CKJVAboutDlg::en_licenseDisplay()
@@ -107,3 +107,5 @@ void CKJVAboutDlg::en_licenseDisplay()
 						"Contact: http://www.dewtronics.com/\n"
 						"Written and Developed for Bethel Church, Festus, MO."));
 }
+
+// ============================================================================

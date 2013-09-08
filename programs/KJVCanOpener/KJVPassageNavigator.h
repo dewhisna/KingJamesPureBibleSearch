@@ -30,9 +30,9 @@
 #include <QFlags>
 #include <QWidget>
 
-namespace Ui {
-class CKJVPassageNavigator;
-}
+// ============================================================================
+
+#include "ui_KJVPassageNavigator.h"
 
 class CKJVPassageNavigator : public QWidget
 {
@@ -126,10 +126,11 @@ private:
 			m_bDoingUpdate = bUpdateSave;
 
 	CScriptureEdit *m_pEditVersePreview;
-	Ui::CKJVPassageNavigator *ui;
+	Ui::CKJVPassageNavigator ui;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CKJVPassageNavigator::NavigatorRefTypeOptionFlags)
 
+// ============================================================================
 
 #endif // KJVPASSAGENAVIGATOR_H

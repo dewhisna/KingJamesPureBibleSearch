@@ -22,13 +22,6 @@
 ****************************************************************************/
 
 #include "KJVConfiguration.h"
-#include "ui_KJVTextFormatConfig.h"
-#include "ui_KJVBibleDatabaseConfig.h"
-#include "ui_KJVUserNotesDatabaseConfig.h"
-#include "ui_KJVGeneralSettingsConfig.h"
-#include "ui_ConfigSearchOptions.h"
-#include "ui_ConfigBrowserOptions.h"
-#include "ui_ConfigCopyOptions.h"
 
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
@@ -252,20 +245,19 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	m_pSearchResultsTreeView(NULL),
 	m_pScriptureBrowser(NULL),
 	m_bIsDirty(false),
-	m_bLoadingData(false),
-	ui(new Ui::CKJVTextFormatConfig)
+	m_bLoadingData(false)
 {
 	assert(pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the treeViewSearchResultsPreview from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui->splitter->indexOf(ui->treeViewSearchResultsPreview);
+	int ndx = ui.splitter->indexOf(ui.treeViewSearchResultsPreview);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
@@ -279,16 +271,16 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	m_pSearchResultsTreeView->setContextMenuPolicy(Qt::NoContextMenu);
 	m_pSearchResultsTreeView->setToolTip(tr("Search Results Preview"));
 
-	delete ui->treeViewSearchResultsPreview;
-	ui->treeViewSearchResultsPreview = NULL;
-	ui->splitter->insertWidget(ndx, m_pSearchResultsTreeView);
+	delete ui.treeViewSearchResultsPreview;
+	ui.treeViewSearchResultsPreview = NULL;
+	ui.splitter->insertWidget(ndx, m_pSearchResultsTreeView);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the textScriptureBrowserPreview from the layout with
 	//		one that we can set the database on:
 
-	ndx = ui->splitter->indexOf(ui->textScriptureBrowserPreview);
+	ndx = ui.splitter->indexOf(ui.textScriptureBrowserPreview);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
@@ -308,66 +300,66 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	m_pScriptureBrowser->setContextMenuPolicy(Qt::DefaultContextMenu);
 	m_pScriptureBrowser->setToolTip(tr("Scripture Browser Preview"));			// Note:  Also disables the "Press Ctrl-D" tooltip, since that mode isn't enable in the configurator
 
-	delete ui->textScriptureBrowserPreview;
-	ui->textScriptureBrowserPreview = NULL;
-	ui->splitter->insertWidget(ndx, m_pScriptureBrowser);
+	delete ui.textScriptureBrowserPreview;
+	ui.textScriptureBrowserPreview = NULL;
+	ui.splitter->insertWidget(ndx, m_pScriptureBrowser);
 
 	// --------------------------------------------------------------
 
-	delete ui->buttonWordsOfJesusColor;
-	delete ui->buttonSearchResultsColor;
-	delete ui->buttonCursorFollowColor;
+	delete ui.buttonWordsOfJesusColor;
+	delete ui.buttonSearchResultsColor;
+	delete ui.buttonCursorFollowColor;
 
-	ui->buttonWordsOfJesusColor = new QwwColorButton(this);
-	ui->buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
-	toQwwColorButton(ui->buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
-	ui->buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
-	ui->buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	ui->vertLayoutColorOptions->addWidget(ui->buttonWordsOfJesusColor);
+	ui.buttonWordsOfJesusColor = new QwwColorButton(this);
+	ui.buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
+	toQwwColorButton(ui.buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
+	ui.buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
+	ui.buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	ui.vertLayoutColorOptions->addWidget(ui.buttonWordsOfJesusColor);
 
-	ui->buttonSearchResultsColor = new QwwColorButton(this);
-	ui->buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
-	toQwwColorButton(ui->buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
-	ui->buttonSearchResultsColor->setText(tr("Search Results"));
-	ui->buttonSearchResultsColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	ui->vertLayoutColorOptions->addWidget(ui->buttonSearchResultsColor);
+	ui.buttonSearchResultsColor = new QwwColorButton(this);
+	ui.buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
+	toQwwColorButton(ui.buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
+	ui.buttonSearchResultsColor->setText(tr("Search Results"));
+	ui.buttonSearchResultsColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	ui.vertLayoutColorOptions->addWidget(ui.buttonSearchResultsColor);
 
-	ui->buttonCursorFollowColor = new QwwColorButton(this);
-	ui->buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
-	toQwwColorButton(ui->buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
-	ui->buttonCursorFollowColor->setText(tr("Cursor Tracker"));
-	ui->buttonCursorFollowColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	ui->vertLayoutColorOptions->addWidget(ui->buttonCursorFollowColor);
+	ui.buttonCursorFollowColor = new QwwColorButton(this);
+	ui.buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
+	toQwwColorButton(ui.buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
+	ui.buttonCursorFollowColor->setText(tr("Cursor Tracker"));
+	ui.buttonCursorFollowColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	ui.vertLayoutColorOptions->addWidget(ui.buttonCursorFollowColor);
 
-	connect(toQwwColorButton(ui->buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
-	connect(toQwwColorButton(ui->buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
-	connect(toQwwColorButton(ui->buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
-	ui->listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
-	ui->listWidgetHighlighterColors->setSortingEnabled(true);
+	ui.listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
+	ui.listWidgetHighlighterColors->setSortingEnabled(true);
 
-	ui->comboBoxHighlighters->lineEdit()->setMaxLength(MAX_HIGHLIGHTER_NAME_SIZE);
-	ui->toolButtonAddHighlighter->setEnabled(false);
-	ui->toolButtonRemoveHighlighter->setEnabled(false);
-	ui->toolButtonRenameHighlighter->setEnabled(false);
+	ui.comboBoxHighlighters->lineEdit()->setMaxLength(MAX_HIGHLIGHTER_NAME_SIZE);
+	ui.toolButtonAddHighlighter->setEnabled(false);
+	ui.toolButtonRemoveHighlighter->setEnabled(false);
+	ui.toolButtonRenameHighlighter->setEnabled(false);
 
-	connect(ui->comboBoxHighlighters, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
-	connect(ui->comboBoxHighlighters, SIGNAL(editTextChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
-	connect(ui->comboBoxHighlighters, SIGNAL(enterPressed()), ui->toolButtonAddHighlighter, SLOT(click()));
+	connect(ui.comboBoxHighlighters, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
+	connect(ui.comboBoxHighlighters, SIGNAL(editTextChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
+	connect(ui.comboBoxHighlighters, SIGNAL(enterPressed()), ui.toolButtonAddHighlighter, SLOT(click()));
 
-	connect(ui->toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
-	connect(ui->toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
-	connect(ui->toolButtonRenameHighlighter, SIGNAL(clicked()), this, SLOT(en_renameHighlighterClicked()));
+	connect(ui.toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
+	connect(ui.toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
+	connect(ui.toolButtonRenameHighlighter, SIGNAL(clicked()), this, SLOT(en_renameHighlighterClicked()));
 
-	connect(ui->listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
+	connect(ui.listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
 
 	// --------------------------------------------------------------
 
 	// Reinsert them in the correct TabOrder:
-	QWidget::setTabOrder(ui->toolButtonRenameHighlighter, ui->buttonWordsOfJesusColor);
-	QWidget::setTabOrder(ui->buttonWordsOfJesusColor, ui->buttonSearchResultsColor);
-	QWidget::setTabOrder(ui->buttonSearchResultsColor, ui->buttonCursorFollowColor);
-	QWidget::setTabOrder(ui->buttonCursorFollowColor, m_pSearchResultsTreeView);
+	QWidget::setTabOrder(ui.toolButtonRenameHighlighter, ui.buttonWordsOfJesusColor);
+	QWidget::setTabOrder(ui.buttonWordsOfJesusColor, ui.buttonSearchResultsColor);
+	QWidget::setTabOrder(ui.buttonSearchResultsColor, ui.buttonCursorFollowColor);
+	QWidget::setTabOrder(ui.buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
 
 	// --------------------------------------------------------------
@@ -379,19 +371,19 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
 		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
 	}
-	ui->dblSpinBoxScriptureBrowserFontSize->setRange(nFontMin, nFontMax);
-	ui->dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
+	ui.dblSpinBoxScriptureBrowserFontSize->setRange(nFontMin, nFontMax);
+	ui.dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
 
-	connect(ui->fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
-	connect(ui->fontComboBoxSearchResults, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_SearchResultsFontChanged(const QFont &)));
-	connect(ui->dblSpinBoxScriptureBrowserFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ScriptureBrowserFontSizeChanged(double)));
-	connect(ui->dblSpinBoxSearchResultsFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_SearchResultsFontSizeChanged(double)));
+	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
+	connect(ui.fontComboBoxSearchResults, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_SearchResultsFontChanged(const QFont &)));
+	connect(ui.dblSpinBoxScriptureBrowserFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ScriptureBrowserFontSizeChanged(double)));
+	connect(ui.dblSpinBoxSearchResultsFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_SearchResultsFontSizeChanged(double)));
 
 	// --------------------------------------------------------------
 
-	connect(ui->checkBoxInvertTextBrightness, SIGNAL(clicked(bool)), this, SLOT(en_InvertTextBrightnessChanged(bool)));
-	connect(ui->horzSliderTextBrigtness, SIGNAL(valueChanged(int)), this, SLOT(en_TextBrightnessChanged(int)));
-	connect(ui->checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
+	connect(ui.checkBoxInvertTextBrightness, SIGNAL(clicked(bool)), this, SLOT(en_InvertTextBrightnessChanged(bool)));
+	connect(ui.horzSliderTextBrigtness, SIGNAL(valueChanged(int)), this, SLOT(en_TextBrightnessChanged(int)));
+	connect(ui.checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
 
 	// --------------------------------------------------------------
 
@@ -400,7 +392,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 CKJVTextFormatConfig::~CKJVTextFormatConfig()
 {
-	delete ui;
+
 }
 
 void CKJVTextFormatConfig::loadSettings()
@@ -409,36 +401,36 @@ void CKJVTextFormatConfig::loadSettings()
 
 	// --------------------------------------------------------------
 
-	toQwwColorButton(ui->buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	toQwwColorButton(ui->buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
-	toQwwColorButton(ui->buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
+	toQwwColorButton(ui.buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	toQwwColorButton(ui.buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
+	toQwwColorButton(ui.buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
 
 	// --------------------------------------------------------------
 
-	ui->listWidgetHighlighterColors->clear();
-	ui->comboBoxHighlighters->clear();
+	ui.listWidgetHighlighterColors->clear();
+	ui.comboBoxHighlighters->clear();
 
 	const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
-		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, itrHighlighters.key());
-		ui->comboBoxHighlighters->addItem(itrHighlighters.key());
+		new CHighlighterColorButton(this, ui.listWidgetHighlighterColors, itrHighlighters.key());
+		ui.comboBoxHighlighters->addItem(itrHighlighters.key());
 	}
 	recalcColorListWidth();
 
-	ui->comboBoxHighlighters->clearEditText();
+	ui.comboBoxHighlighters->clearEditText();
 
 	// --------------------------------------------------------------
 
 	m_fntScriptureBrowser = CPersistentSettings::instance()->fontScriptureBrowser();
 	m_fntSearchResults = CPersistentSettings::instance()->fontSearchResults();
 
-	ui->fontComboBoxScriptureBrowser->setCurrentFont(m_fntScriptureBrowser);
-	ui->fontComboBoxSearchResults->setCurrentFont(m_fntSearchResults);
+	ui.fontComboBoxScriptureBrowser->setCurrentFont(m_fntScriptureBrowser);
+	ui.fontComboBoxSearchResults->setCurrentFont(m_fntSearchResults);
 
 	// --------------------------------------------------------------
 
-	ui->dblSpinBoxScriptureBrowserFontSize->setValue(m_fntScriptureBrowser.pointSizeF());
-	ui->dblSpinBoxSearchResultsFontSize->setValue(m_fntSearchResults.pointSizeF());
+	ui.dblSpinBoxScriptureBrowserFontSize->setValue(m_fntScriptureBrowser.pointSizeF());
+	ui.dblSpinBoxSearchResultsFontSize->setValue(m_fntSearchResults.pointSizeF());
 
 	// --------------------------------------------------------------
 
@@ -446,9 +438,9 @@ void CKJVTextFormatConfig::loadSettings()
 	m_nTextBrightness = CPersistentSettings::instance()->textBrightness();
 	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
 
-	ui->checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
-	ui->horzSliderTextBrigtness->setValue(m_nTextBrightness);
-	ui->checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
+	ui.checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
+	ui.horzSliderTextBrigtness->setValue(m_nTextBrightness);
+	ui.checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
 
 	// --------------------------------------------------------------
 
@@ -589,7 +581,7 @@ void CKJVTextFormatConfig::en_HighlighterColorClicked(const QString &strUserDefi
 {
 	if (m_bLoadingData) return;
 
-	ui->comboBoxHighlighters->setEditText(strUserDefinedHighlighterName);
+	ui.comboBoxHighlighters->setEditText(strUserDefinedHighlighterName);
 }
 
 void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled)
@@ -608,10 +600,10 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
 	assert(g_pUserNotesDatabase != NULL);
-	ui->toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
+	ui.toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
-	ui->toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
-	ui->toolButtonRenameHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+	ui.toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+	ui.toolButtonRenameHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 }
 
 void CKJVTextFormatConfig::en_addHighlighterClicked()
@@ -619,16 +611,16 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 	if (m_bLoadingData) return;
 
 	assert(g_pUserNotesDatabase != NULL);
-	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
+	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 	if (strUserDefinedHighlighterName.size() > MAX_HIGHLIGHTER_NAME_SIZE) return;
 
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, QColor());
-	new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, strUserDefinedHighlighterName);
-	ui->comboBoxHighlighters->addItem(strUserDefinedHighlighterName);
+	new CHighlighterColorButton(this, ui.listWidgetHighlighterColors, strUserDefinedHighlighterName);
+	ui.comboBoxHighlighters->addItem(strUserDefinedHighlighterName);
 	// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
-	en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
+	en_comboBoxHighlightersTextChanged(ui.comboBoxHighlighters->currentText());		// Update add/remove controls
 
 	recalcColorListWidth();
 
@@ -642,7 +634,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	if (m_bLoadingData) return;
 
 	assert(g_pUserNotesDatabase != NULL);
-	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
+	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
@@ -651,18 +643,18 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	if (!bCantRemove) {
 		g_pUserNotesDatabase->removeHighlighter(strUserDefinedHighlighterName);
 		assert(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
-		int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
+		int nComboIndex = ui.comboBoxHighlighters->findText(strUserDefinedHighlighterName);
 		assert(nComboIndex != -1);
 		if (nComboIndex != -1) {
-			ui->comboBoxHighlighters->removeItem(nComboIndex);
+			ui.comboBoxHighlighters->removeItem(nComboIndex);
 		}
 		// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
-		en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
+		en_comboBoxHighlightersTextChanged(ui.comboBoxHighlighters->currentText());		// Update add/remove controls
 	}
 
 	int nListWidgetIndex = -1;
-	for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
-		if (static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx))->highlighterName().compare(strUserDefinedHighlighterName) == 0) {
+	for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
+		if (static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(ndx))->highlighterName().compare(strUserDefinedHighlighterName) == 0) {
 			nListWidgetIndex = ndx;
 			break;
 		}
@@ -670,10 +662,10 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	assert(nListWidgetIndex != -1);
 	if (nListWidgetIndex != -1) {
 		if (!bCantRemove) {
-			QListWidgetItem *pItem = ui->listWidgetHighlighterColors->takeItem(nListWidgetIndex);
+			QListWidgetItem *pItem = ui.listWidgetHighlighterColors->takeItem(nListWidgetIndex);
 			delete pItem;
 		} else {
-			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(nListWidgetIndex));
+			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(nListWidgetIndex));
 			if (pButtonItem->enabled()) {
 				int nResult = QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
 																				"use the Notes File Settings to edit your King James Notes file and remove all text highlighted with this "
@@ -703,7 +695,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 	if (m_bLoadingData) return;
 
 	assert(g_pUserNotesDatabase != NULL);
-	QString strUserDefinedHighlighterName = ui->comboBoxHighlighters->currentText().trimmed();
+	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
@@ -721,15 +713,15 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 		}
 
 		int nListWidgetIndex = -1;
-		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
-			if (static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx))->highlighterName().compare(strUserDefinedHighlighterName) == 0) {
+		for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
+			if (static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(ndx))->highlighterName().compare(strUserDefinedHighlighterName) == 0) {
 				nListWidgetIndex = ndx;
 				break;
 			}
 		}
 		assert(nListWidgetIndex != -1);
 		if (nListWidgetIndex != -1) {
-			QListWidgetItem *pItem = ui->listWidgetHighlighterColors->takeItem(nListWidgetIndex);
+			QListWidgetItem *pItem = ui.listWidgetHighlighterColors->takeItem(nListWidgetIndex);
 			delete pItem;
 		}
 		if (!g_pUserNotesDatabase->renameHighlighter(strUserDefinedHighlighterName, dlgRename.newName())) {
@@ -737,16 +729,16 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 			return;
 		}
 
-		new CHighlighterColorButton(this, ui->listWidgetHighlighterColors, dlgRename.newName());
+		new CHighlighterColorButton(this, ui.listWidgetHighlighterColors, dlgRename.newName());
 
-		int nComboIndex = ui->comboBoxHighlighters->findText(strUserDefinedHighlighterName);
+		int nComboIndex = ui.comboBoxHighlighters->findText(strUserDefinedHighlighterName);
 		assert(nComboIndex != -1);
 		if (nComboIndex != -1) {
-			ui->comboBoxHighlighters->setItemText(nComboIndex, dlgRename.newName());
+			ui.comboBoxHighlighters->setItemText(nComboIndex, dlgRename.newName());
 		}
-		ui->comboBoxHighlighters->setCurrentIndex(nComboIndex);
+		ui.comboBoxHighlighters->setCurrentIndex(nComboIndex);
 		// Note: ComboBox text might change above, so use currentText() here, not strUserDefinedHighlighterName:
-		en_comboBoxHighlightersTextChanged(ui->comboBoxHighlighters->currentText());		// Update add/remove controls
+		en_comboBoxHighlightersTextChanged(ui.comboBoxHighlighters->currentText());		// Update add/remove controls
 
 		recalcColorListWidth();
 
@@ -773,17 +765,17 @@ void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *p
 
 void CKJVTextFormatConfig::recalcColorListWidth()
 {
-	ui->listWidgetHighlighterColors->setMinimumWidth(0);
-	ui->listWidgetHighlighterColors->updateGeometry();
+	ui.listWidgetHighlighterColors->setMinimumWidth(0);
+	ui.listWidgetHighlighterColors->updateGeometry();
 	int nWidth = 0;
-	for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
-		QWidget *pButton = ui->listWidgetHighlighterColors->itemWidget(ui->listWidgetHighlighterColors->item(ndx));
+	for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
+		QWidget *pButton = ui.listWidgetHighlighterColors->itemWidget(ui.listWidgetHighlighterColors->item(ndx));
 		pButton->updateGeometry();
 		pButton->setMinimumWidth(pButton->sizeHint().width());
-		ui->listWidgetHighlighterColors->item(ndx)->setSizeHint(pButton->sizeHint());
+		ui.listWidgetHighlighterColors->item(ndx)->setSizeHint(pButton->sizeHint());
 		nWidth = qMax(nWidth, pButton->sizeHint().width());
 	}
-	ui->listWidgetHighlighterColors->setMinimumWidth(nWidth + ui->listWidgetHighlighterColors->verticalScrollBar()->sizeHint().width() + ui->listWidgetHighlighterColors->spacing()*2 );
+	ui.listWidgetHighlighterColors->setMinimumWidth(nWidth + ui.listWidgetHighlighterColors->verticalScrollBar()->sizeHint().width() + ui.listWidgetHighlighterColors->spacing()*2 );
 	updateGeometry();
 	adjustSize();
 }
@@ -803,8 +795,8 @@ void CKJVTextFormatConfig::navigateToDemoText()
 		// Originally I had a const_iterator over the g_pUserNotesDatabase->highlighterDefinitionsMap, but something
 		//		in the process of doHighlighting kept invalidating our iterator and causing an infinite loop.
 		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
-		for (int ndx = 0; ndx < ui->listWidgetHighlighterColors->count(); ++ndx) {
-			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui->listWidgetHighlighterColors->item(ndx));
+		for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
+			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(ndx));
 			assert(pColorButton != NULL);
 			if (pColorButton == NULL) continue;
 			if (!g_pUserNotesDatabase->highlighterDefinition(pColorButton->highlighterName()).isValid()) continue;
@@ -841,12 +833,11 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bIsDirty(false),
-		m_bLoadingData(false),
-		ui(new Ui::CKJVBibleDatabaseConfig)
+		m_bLoadingData(false)
 {
 	assert(pBibleDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	loadSettings();
 }
@@ -876,12 +867,11 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 	:	QWidget(parent),
 		m_pUserNotesDatabase(pUserNotesDatabase),
 		m_bIsDirty(false),
-		m_bLoadingData(false),
-		ui(new Ui::CKJVUserNotesDatabaseConfig)
+		m_bLoadingData(false)
 {
 	assert(pUserNotesDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	loadSettings();
 }
@@ -910,17 +900,16 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
-		m_bLoadingData(false),
-		ui(new Ui::CConfigSearchOptions)
+		m_bLoadingData(false)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	ui->comboSearchPhraseCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
-	ui->comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
-	ui->comboSearchPhraseCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
 
-	connect(ui->comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
-	connect(ui->spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
+	connect(ui.comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
+	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
 
 	loadSettings();
 }
@@ -934,14 +923,14 @@ void CConfigSearchOptions::loadSettings()
 {
 	m_bLoadingData = true;
 
-	int nIndex = ui->comboSearchPhraseCompleterMode->findData(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	int nIndex = ui.comboSearchPhraseCompleterMode->findData(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 	if (nIndex != -1) {
-		ui->comboSearchPhraseCompleterMode->setCurrentIndex(nIndex);
+		ui.comboSearchPhraseCompleterMode->setCurrentIndex(nIndex);
 	} else {
 		assert(false);
 	}
 
-	ui->spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
+	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -949,14 +938,14 @@ void CConfigSearchOptions::loadSettings()
 
 void CConfigSearchOptions::saveSettings()
 {
-	int nIndex = ui->comboSearchPhraseCompleterMode->currentIndex();
+	int nIndex = ui.comboSearchPhraseCompleterMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui->comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
 		assert(false);
 	}
-	CPersistentSettings::instance()->setSearchActivationDelay(ui->spinSearchPhraseActivationDelay->value());
+	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
@@ -982,13 +971,12 @@ void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
 CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
-		m_bLoadingData(false),
-		ui(new Ui::CConfigBrowserOptions)
+		m_bLoadingData(false)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	connect(ui->spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
-	connect(ui->spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
+	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
+	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
 
 	loadSettings();
 }
@@ -1002,8 +990,8 @@ void CConfigBrowserOptions::loadSettings()
 {
 	m_bLoadingData = true;
 
-	ui->spinBrowserNavigationActivationDelay->setValue(CPersistentSettings::instance()->navigationActivationDelay());
-	ui->spinBrowserPassageReferenceActivationDelay->setValue(CPersistentSettings::instance()->passageReferenceActivationDelay());
+	ui.spinBrowserNavigationActivationDelay->setValue(CPersistentSettings::instance()->navigationActivationDelay());
+	ui.spinBrowserPassageReferenceActivationDelay->setValue(CPersistentSettings::instance()->passageReferenceActivationDelay());
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -1011,8 +999,8 @@ void CConfigBrowserOptions::loadSettings()
 
 void CConfigBrowserOptions::saveSettings()
 {
-	CPersistentSettings::instance()->setNavigationActivationDelay(ui->spinBrowserNavigationActivationDelay->value());
-	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui->spinBrowserPassageReferenceActivationDelay->value());
+	CPersistentSettings::instance()->setNavigationActivationDelay(ui.spinBrowserNavigationActivationDelay->value());
+	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui.spinBrowserPassageReferenceActivationDelay->value());
 	m_bIsDirty = false;
 }
 
@@ -1040,58 +1028,57 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
 		m_bLoadingData(false),
-		m_pEditCopyOptionPreview(NULL),
-		ui(new Ui::CConfigCopyOptions)
+		m_pEditCopyOptionPreview(NULL)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	// ----------
 
-	ui->comboReferenceDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui->comboReferenceDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui->comboReferenceDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui->comboReferenceDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
+	ui.comboReferenceDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui.comboReferenceDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui.comboReferenceDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui.comboReferenceDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
 
-	connect(ui->comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
-
-	// ----------
-
-	connect(ui->checkBoxReferencesUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesUseAbbreviatedBookNames(bool)));
+	connect(ui.comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
 
 	// ----------
 
-	connect(ui->checkBoxReferencesInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesInBold(bool)));
+	connect(ui.checkBoxReferencesUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesUseAbbreviatedBookNames(bool)));
 
 	// ----------
 
-	ui->comboVerseNumberDelimiterMode->addItem(tr("No Numbers"), CPhraseNavigator::RDME_NO_NUMBER);
-	ui->comboVerseNumberDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui->comboVerseNumberDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui->comboVerseNumberDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui->comboVerseNumberDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
-	ui->comboVerseNumberDelimiterMode->addItem(tr("Superscript"), CPhraseNavigator::RDME_SUPERSCRIPT);
-
-	connect(ui->comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
+	connect(ui.checkBoxReferencesInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesInBold(bool)));
 
 	// ----------
 
-	connect(ui->checkBoxVerseNumbersUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersUseAbbreviatedBookNames(bool)));
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Numbers"), CPhraseNavigator::RDME_NO_NUMBER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript"), CPhraseNavigator::RDME_SUPERSCRIPT);
+
+	connect(ui.comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
 
 	// ----------
 
-	connect(ui->checkBoxVerseNumbersInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersInBold(bool)));
+	connect(ui.checkBoxVerseNumbersUseAbbreviatedBookNames, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersUseAbbreviatedBookNames(bool)));
 
 	// ----------
 
-	connect(ui->checkBoxAddQuotesAroundVerse, SIGNAL(clicked(bool)), this, SLOT(en_changedAddQuotesAroundVerse(bool)));
+	connect(ui.checkBoxVerseNumbersInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedVerseNumbersInBold(bool)));
 
 	// ----------
 
-	ui->comboTransChangeAddedMode->addItem(tr("No Marking"), CPhraseNavigator::TCAWME_NO_MARKING);
-	ui->comboTransChangeAddedMode->addItem(tr("Italics"), CPhraseNavigator::TCAWME_ITALICS);
-	ui->comboTransChangeAddedMode->addItem(tr("Brackets"), CPhraseNavigator::TCAWME_BRACKETS);
+	connect(ui.checkBoxAddQuotesAroundVerse, SIGNAL(clicked(bool)), this, SLOT(en_changedAddQuotesAroundVerse(bool)));
 
-	connect(ui->comboTransChangeAddedMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTransChangeAddWordMode(int)));
+	// ----------
+
+	ui.comboTransChangeAddedMode->addItem(tr("No Marking"), CPhraseNavigator::TCAWME_NO_MARKING);
+	ui.comboTransChangeAddedMode->addItem(tr("Italics"), CPhraseNavigator::TCAWME_ITALICS);
+	ui.comboTransChangeAddedMode->addItem(tr("Brackets"), CPhraseNavigator::TCAWME_BRACKETS);
+
+	connect(ui.comboTransChangeAddedMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTransChangeAddWordMode(int)));
 
 	// ----------
 
@@ -1124,9 +1111,9 @@ void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pEditCopyOptionPreview->setReadOnly(true);
 	m_pEditCopyOptionPreview->setContextMenuPolicy(Qt::DefaultContextMenu);
 
-	delete ui->editCopyOptionPreview;
-	ui->editCopyOptionPreview = NULL;
-	ui->verticalLayoutMain->addWidget(m_pEditCopyOptionPreview);
+	delete ui.editCopyOptionPreview;
+	ui.editCopyOptionPreview = NULL;
+	ui.verticalLayoutMain->addWidget(m_pEditCopyOptionPreview);
 
 	// ----------
 
@@ -1144,47 +1131,47 @@ void CConfigCopyOptions::loadSettings()
 
 	// ----------
 
-	nIndex = ui->comboReferenceDelimiterMode->findData(CPersistentSettings::instance()->referenceDelimiterMode());
+	nIndex = ui.comboReferenceDelimiterMode->findData(CPersistentSettings::instance()->referenceDelimiterMode());
 	if (nIndex != -1) {
-		ui->comboReferenceDelimiterMode->setCurrentIndex(nIndex);
+		ui.comboReferenceDelimiterMode->setCurrentIndex(nIndex);
 	} else {
 		assert(false);
 	}
 
 	// ----------
 
-	ui->checkBoxReferencesUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
+	ui.checkBoxReferencesUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
 
 	// ----------
 
-	ui->checkBoxReferencesInBold->setChecked(CPersistentSettings::instance()->referencesInBold());
+	ui.checkBoxReferencesInBold->setChecked(CPersistentSettings::instance()->referencesInBold());
 
 	// ----------
 
-	nIndex = ui->comboVerseNumberDelimiterMode->findData(CPersistentSettings::instance()->verseNumberDelimiterMode());
+	nIndex = ui.comboVerseNumberDelimiterMode->findData(CPersistentSettings::instance()->verseNumberDelimiterMode());
 	if (nIndex != -1) {
-		ui->comboVerseNumberDelimiterMode->setCurrentIndex(nIndex);
+		ui.comboVerseNumberDelimiterMode->setCurrentIndex(nIndex);
 	} else {
 		assert(false);
 	}
 
 	// ----------
 
-	ui->checkBoxVerseNumbersUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
+	ui.checkBoxVerseNumbersUseAbbreviatedBookNames->setChecked(CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
 
 	// ----------
 
-	ui->checkBoxVerseNumbersInBold->setChecked(CPersistentSettings::instance()->verseNumbersInBold());
+	ui.checkBoxVerseNumbersInBold->setChecked(CPersistentSettings::instance()->verseNumbersInBold());
 
 	// ----------
 
-	ui->checkBoxAddQuotesAroundVerse->setChecked(CPersistentSettings::instance()->addQuotesAroundVerse());
+	ui.checkBoxAddQuotesAroundVerse->setChecked(CPersistentSettings::instance()->addQuotesAroundVerse());
 
 	// ----------
 
-	nIndex = ui->comboTransChangeAddedMode->findData(CPersistentSettings::instance()->transChangeAddWordMode());
+	nIndex = ui.comboTransChangeAddedMode->findData(CPersistentSettings::instance()->transChangeAddWordMode());
 	if (nIndex != -1) {
-		ui->comboTransChangeAddedMode->setCurrentIndex(nIndex);
+		ui.comboTransChangeAddedMode->setCurrentIndex(nIndex);
 	} else {
 		assert(false);
 	}
@@ -1207,7 +1194,7 @@ void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}
@@ -1241,7 +1228,7 @@ void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui->comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}
@@ -1285,7 +1272,7 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui->comboTransChangeAddedMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}
@@ -1315,18 +1302,17 @@ void CConfigCopyOptions::setVerseCopyPreview()
 // ============================================================================
 
 CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
-	:	QWidget(parent),
-		ui(new Ui::CKJVGeneralSettingsConfig)
+	:	QWidget(parent)
 {
 	assert(pBibleDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	ui->widgetCopyOptions->initialize(pBibleDatabase);
+	ui.widgetCopyOptions->initialize(pBibleDatabase);
 
-	connect(ui->widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(ui->widgetBrowserOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(ui->widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui.widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui.widgetBrowserOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui.widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
 CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
@@ -1336,21 +1322,21 @@ CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
 
 void CKJVGeneralSettingsConfig::loadSettings()
 {
-	ui->widgetSearchOptions->loadSettings();
-	ui->widgetBrowserOptions->loadSettings();
-	ui->widgetCopyOptions->loadSettings();
+	ui.widgetSearchOptions->loadSettings();
+	ui.widgetBrowserOptions->loadSettings();
+	ui.widgetCopyOptions->loadSettings();
 }
 
 void CKJVGeneralSettingsConfig::saveSettings()
 {
-	ui->widgetSearchOptions->saveSettings();
-	ui->widgetBrowserOptions->saveSettings();
-	ui->widgetCopyOptions->saveSettings();
+	ui.widgetSearchOptions->saveSettings();
+	ui.widgetBrowserOptions->saveSettings();
+	ui.widgetCopyOptions->saveSettings();
 }
 
 bool CKJVGeneralSettingsConfig::isDirty() const
 {
-	return (ui->widgetSearchOptions->isDirty() || ui->widgetBrowserOptions->isDirty() || ui->widgetCopyOptions->isDirty());
+	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetCopyOptions->isDirty());
 }
 
 // ============================================================================

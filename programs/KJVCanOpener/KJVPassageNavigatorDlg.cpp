@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVPassageNavigatorDlg.h"
-#include "ui_KJVPassageNavigatorDlg.h"
 
 #include <QGridLayout>
 
@@ -40,49 +39,48 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 		m_pResetButton(NULL),
 		m_pOKButton(NULL),
 		m_pCancelButton(NULL),
-		m_pNavigator(NULL),
-		ui(new Ui::CKJVPassageNavigatorDlg)
+		m_pNavigator(NULL)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the widgetKJVPassageNavigator from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui->gridLayout->indexOf(ui->widgetKJVPassageNavigator);
+	int ndx = ui.gridLayout->indexOf(ui.widgetKJVPassageNavigator);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;
 	int nColSpan;
-	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this, flagsRefTypes, nRefType);
 	m_pNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
-	delete ui->widgetKJVPassageNavigator;
-	ui->widgetKJVPassageNavigator = NULL;
-	ui->gridLayout->addWidget(m_pNavigator, nRow, nCol, nRowSpan, nColSpan);
+	delete ui.widgetKJVPassageNavigator;
+	ui.widgetKJVPassageNavigator = NULL;
+	ui.gridLayout->addWidget(m_pNavigator, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
 
 	assert(m_pNavigator != NULL);
 
-	m_pApplyButton = ui->buttonBox->addButton(tr("&Apply Resolved to From Location"), QDialogButtonBox::ApplyRole);
+	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));
 
-	m_pModeButton = ui->buttonBox->addButton(tr("&Switch Mode"), QDialogButtonBox::ActionRole);
+	m_pModeButton = ui.buttonBox->addButton(tr("&Switch Mode"), QDialogButtonBox::ActionRole);
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(en_ModeClicked()));
 
-	m_pResetButton = ui->buttonBox->addButton(tr("&Reset"), QDialogButtonBox::ResetRole);
+	m_pResetButton = ui.buttonBox->addButton(tr("&Reset"), QDialogButtonBox::ResetRole);
 	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
 
-	m_pOKButton = ui->buttonBox->addButton(tr("&Goto"), QDialogButtonBox::AcceptRole);
+	m_pOKButton = ui.buttonBox->addButton(tr("&Goto"), QDialogButtonBox::AcceptRole);
 
-	m_pCancelButton = ui->buttonBox->addButton(tr("&Cancel"), QDialogButtonBox::RejectRole);
+	m_pCancelButton = ui.buttonBox->addButton(tr("&Cancel"), QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
 	en_modeChanged(m_pNavigator->isRelative());
@@ -97,7 +95,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
 {
-	delete ui;
+
 }
 
 void CKJVPassageNavigatorDlg::setGotoButtonText(const QString &strText)

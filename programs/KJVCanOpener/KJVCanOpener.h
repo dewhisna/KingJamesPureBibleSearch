@@ -54,9 +54,7 @@ class CTipEdit;
 
 // ============================================================================
 
-namespace Ui {
-class CKJVCanOpener;
-}
+#include "ui_KJVCanOpener.h"
 
 class CKJVCanOpener : public QMainWindow
 {
@@ -203,7 +201,7 @@ private:
 	CHighlighterButtons *m_pHighlighterButtons;
 	CTipEdit *m_pTipEdit;
 	bool m_bTipEditIsPinned;
-	Ui::CKJVCanOpener *ui;
+	Ui::CKJVCanOpener ui;
 };
 
 #endif // KJVCANOPENER_H

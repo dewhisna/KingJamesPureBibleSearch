@@ -45,9 +45,7 @@ class CVerseListModel;			// Forward declaration
 
 // ============================================================================
 
-namespace Ui {
-class CKJVBrowser;
-}
+#include "ui_KJVBrowser.h"
 
 class CKJVBrowser : public QWidget
 {
@@ -193,7 +191,7 @@ private:
 	DelayedExecutionTimer m_dlyBibleChpCombo;
 	DelayedExecutionTimer m_dlyPassageReference;
 	CScriptureBrowser *m_pScriptureBrowser;
-	Ui::CKJVBrowser *ui;
+	Ui::CKJVBrowser ui;
 };
 
 #endif // KJVBROWSER_H

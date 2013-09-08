@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVCrossRefEditDlg.h"
-#include "ui_KJVCrossRefEditDlg.h"
 
 #include "main.h"
 #include "PersistentSettings.h"
@@ -79,7 +78,6 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
-		ui(new Ui::CKJVCrossRefEditDlg),
 		m_pEditSourcePassage(NULL),
 		m_pCrossRefTreeView(NULL),
 		m_bIsDirty(false),
@@ -93,7 +91,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 //	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
 	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pUserNotesDatabase->crossRefsMap());
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	int ndx;
 
@@ -102,7 +100,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	//	Swapout the editSourcePassage from the layout with
 	//		one that we can set the database on:
 
-	ndx = ui->verticalLayoutSource->indexOf(ui->editSourcePassage);
+	ndx = ui.verticalLayoutSource->indexOf(ui.editSourcePassage);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
@@ -124,9 +122,9 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pEditSourcePassage->setContextMenuPolicy(Qt::DefaultContextMenu);
 	m_pEditSourcePassage->setToolTip(tr("Source Passage for Reference"));
 
-	delete ui->editSourcePassage;
-	ui->editSourcePassage = NULL;
-	ui->verticalLayoutSource->insertWidget(ndx, m_pEditSourcePassage);
+	delete ui.editSourcePassage;
+	ui.editSourcePassage = NULL;
+	ui.verticalLayoutSource->insertWidget(ndx, m_pEditSourcePassage);
 
 
 	// --------------------------------------------------------------
@@ -134,7 +132,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	//	Swapout the treeCrossRefs from the layout with
 	//		one that we can set the database on:
 
-	ndx = ui->verticalLayoutRefList->indexOf(ui->treeCrossRefs);
+	ndx = ui.verticalLayoutRefList->indexOf(ui.treeCrossRefs);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
@@ -150,9 +148,9 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pCrossRefTreeView->setViewMode(CVerseListModel::VVME_CROSSREFS);
 	m_pCrossRefTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 
-	delete ui->treeCrossRefs;
-	ui->treeCrossRefs = NULL;
-	ui->verticalLayoutRefList->insertWidget(ndx, m_pCrossRefTreeView);
+	delete ui.treeCrossRefs;
+	ui.treeCrossRefs = NULL;
+	ui.verticalLayoutRefList->insertWidget(ndx, m_pCrossRefTreeView);
 
 	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_crossRefTreeViewContextMenuRequested(const QPoint &)));
 	connect(m_pCrossRefTreeView, SIGNAL(currentItemChanged()), this, SLOT(en_crossRefTreeViewCurrentItemChanged()));
@@ -161,9 +159,9 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 	// --------------------------------------------------------------
 
-	connect(ui->buttonSelectSourceRef, SIGNAL(clicked()), this, SLOT(en_SelectSourceReferenceClicked()));
-	connect(ui->buttonAddRef, SIGNAL(clicked()), this, SLOT(en_AddReferenceClicked()));
-	connect(ui->buttonDeleteRef, SIGNAL(clicked()), this, SLOT(en_DelReferenceClicked()));
+	connect(ui.buttonSelectSourceRef, SIGNAL(clicked()), this, SLOT(en_SelectSourceReferenceClicked()));
+	connect(ui.buttonAddRef, SIGNAL(clicked()), this, SLOT(en_AddReferenceClicked()));
+	connect(ui.buttonDeleteRef, SIGNAL(clicked()), this, SLOT(en_DelReferenceClicked()));
 
 	// --------------------------------------------------------------
 
@@ -172,7 +170,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 CKJVCrossRefEditDlg::~CKJVCrossRefEditDlg()
 {
-	delete ui;
+
 }
 
 // ============================================================================
@@ -204,7 +202,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	ndxRel.setWord(0);			// Make sure we have only a book, chapter, or verse
 	m_tagSourcePassage = TPassageTag(ndxRel, tag.verseCount());
 
-	ui->editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
+	ui.editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
 
 	if (ndxRel.verse()) {
 		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
@@ -269,7 +267,7 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewCurrentItemChanged()
 void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 {
 	QModelIndexList lstSelectedItems = m_pCrossRefTreeView->selectionModel()->selectedRows();
-	ui->buttonDeleteRef->setEnabled(lstSelectedItems.size() != 0);
+	ui.buttonDeleteRef->setEnabled(lstSelectedItems.size() != 0);
 }
 
 void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
@@ -294,15 +292,18 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
 	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
 
-	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
-	dlg.setGotoButtonText(tr("&OK"));
+	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	pDlg->setGotoButtonText(tr("&OK"));
 	TPhraseTag tagNav(ndxStart);
-	dlg.navigator().startAbsoluteMode(tagNav);
-	if (dlg.exec() != QDialog::Accepted) return CRelIndex();
+	pDlg->navigator().startAbsoluteMode(tagNav);
+	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
 
-	CRelIndex ndxTarget = dlg.passage().relIndex();
-	ndxTarget.setWord(0);			// Whole verse references only
-	return ndxTarget;
+	if (pDlg != NULL) {			// Could get deleted during execution
+		CRelIndex ndxTarget = pDlg->passage().relIndex();
+		ndxTarget.setWord(0);			// Whole verse references only
+		return ndxTarget;
+	}
+	return CRelIndex();
 }
 
 // ============================================================================

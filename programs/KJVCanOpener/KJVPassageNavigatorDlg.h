@@ -30,10 +30,11 @@
 #include <QDialog>
 #include <QAbstractButton>
 #include <QPushButton>
+#include <QPointer>
 
-namespace Ui {
-class CKJVPassageNavigatorDlg;
-}
+// ============================================================================
+
+#include "ui_KJVPassageNavigatorDlg.h"
 
 class CKJVPassageNavigatorDlg : public QDialog
 {
@@ -70,7 +71,32 @@ private:
 	QPushButton *m_pOKButton;			// Goto passage button
 	QPushButton *m_pCancelButton;		// Abort
 	CKJVPassageNavigator *m_pNavigator;
-	Ui::CKJVPassageNavigatorDlg *ui;
+	Ui::CKJVPassageNavigatorDlg ui;
 };
+
+// ============================================================================
+
+// SmartPointer classes needed, particularly for stack instantiated dialogs, since
+//		this dialog is only WindowModal and the parent can get deleted during an
+//		app close event, causing an attempted double-free which leads to a crash:
+class CKJVPassageNavigatorDlgPtr : public QPointer<CKJVPassageNavigatorDlg>
+{
+public:
+	CKJVPassageNavigatorDlgPtr(CBibleDatabasePtr pBibleDatabase,
+								QWidget *parent = NULL,
+								CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
+								CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD)
+		:	QPointer<CKJVPassageNavigatorDlg>(new CKJVPassageNavigatorDlg(pBibleDatabase, parent, flagsRefTypes, nRefType))
+	{
+
+	}
+
+	virtual ~CKJVPassageNavigatorDlgPtr()
+	{
+		if (!isNull()) delete data();
+	}
+};
+
+// ============================================================================
 
 #endif // KJVPASSAGENAVIGATORDLG_H

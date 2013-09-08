@@ -216,19 +216,25 @@
   <customwidget>
    <class>CConfigSearchOptions</class>
    <extends>QWidget</extends>
-   <header>KJVConfiguration.h</header>
+<!--   <header>KJVConfiguration.h</header>-->
+<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
+causes circularly dependency warnings/errors in the win32 make process. -->
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CConfigCopyOptions</class>
    <extends>QWidget</extends>
-   <header>KJVConfiguration.h</header>
+<!--   <header>KJVConfiguration.h</header>-->
+<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
+causes circularly dependency warnings/errors in the win32 make process. -->
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CConfigBrowserOptions</class>
    <extends>QWidget</extends>
-   <header>KJVConfiguration.h</header>
+<!--   <header>KJVConfiguration.h</header>-->
+<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
+causes circularly dependency warnings/errors in the win32 make process. -->
    <container>1</container>
   </customwidget>
  </customwidgets>

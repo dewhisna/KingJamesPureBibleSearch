@@ -31,6 +31,7 @@
 #include <QPoint>
 #include <QAction>
 #include <QSettings>
+#include <QPointer>
 
 // ============================================================================
 
@@ -40,9 +41,7 @@ class CSearchResultsTreeView;
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVCrossRefEditDlg;
-}
+#include "ui_KJVCrossRefEditDlg.h"
 
 class CKJVCrossRefEditDlg : public QDialog
 {
@@ -89,13 +88,33 @@ private:
 private:
 	static QAction *m_pActionCrossRefsEditor;
 	// ----
-	Ui::CKJVCrossRefEditDlg *ui;
-	// ----
 	CScriptureEdit *m_pEditSourcePassage;
 	CSearchResultsTreeView *m_pCrossRefTreeView;			// Tree View holding our Cross-References List
 	// ----
 	bool m_bIsDirty;
 	bool m_bHaveGeometry;
+	// ----
+	Ui::CKJVCrossRefEditDlg ui;
+};
+
+// ============================================================================
+
+// SmartPointer classes needed, particularly for stack instantiated dialogs, since
+//		this dialog is only WindowModal and the parent can get deleted during an
+//		app close event, causing an attempted double-free which leads to a crash:
+class CKJVCrossRefEditDlgPtr : public QPointer<CKJVCrossRefEditDlg>
+{
+public:
+	CKJVCrossRefEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = NULL)
+		:	QPointer<CKJVCrossRefEditDlg>(new CKJVCrossRefEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
+	{
+
+	}
+
+	virtual ~CKJVCrossRefEditDlgPtr()
+	{
+		if (!isNull()) delete data();
+	}
 };
 
 // ============================================================================

@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVSearchPhraseEdit.h"
-#include "ui_KJVSearchPhraseEdit.h"
 
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
@@ -556,12 +555,11 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_pBibleDatabase(pBibleDatabase),
 	m_bHaveUserDatabase(bHaveUserDatabase),
 	m_bLastPhraseChangeHadResults(false),
-	m_bUpdateInProgress(false),
-	ui(new Ui::CKJVSearchPhraseEdit)
+	m_bUpdateInProgress(false)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 #ifdef SIGNAL_SPY_DEBUG
 #ifdef SEARCH_PHRASE_SPY
@@ -574,68 +572,68 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	//	Swapout the editPhrase from the layout with one that we
 	//		can set the database on:
 
-	int ndx = ui->gridLayout->indexOf(ui->editPhrase);
+	int ndx = ui.gridLayout->indexOf(ui.editPhrase);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
 	int nCol;
 	int nRowSpan;
 	int nColSpan;
-	ui->gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	CPhraseLineEdit *pEditPhrase = new CPhraseLineEdit(pBibleDatabase, this);
 	pEditPhrase->setObjectName(QString::fromUtf8("editPhrase"));
-	delete ui->editPhrase;
-	ui->editPhrase = pEditPhrase;
-	ui->gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
-	setTabOrder(ui->editPhrase, ui->chkCaseSensitive);
-	setTabOrder(ui->chkCaseSensitive, ui->chkAccentSensitive);
-	setTabOrder(ui->chkAccentSensitive, ui->chkDisable);
-	setTabOrder(ui->chkDisable, ui->editPhrase->getDropListButton());
-	setTabOrder(ui->editPhrase->getDropListButton(), ui->buttonRemove);
+	delete ui.editPhrase;
+	ui.editPhrase = pEditPhrase;
+	ui.gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
+	setTabOrder(ui.editPhrase, ui.chkCaseSensitive);
+	setTabOrder(ui.chkCaseSensitive, ui.chkAccentSensitive);
+	setTabOrder(ui.chkAccentSensitive, ui.chkDisable);
+	setTabOrder(ui.chkDisable, ui.editPhrase->getDropListButton());
+	setTabOrder(ui.editPhrase->getDropListButton(), ui.buttonRemove);
 
 	// --------------------------------------------------------------
 
-	ui->chkCaseSensitive->setChecked(ui->editPhrase->isCaseSensitive());
-	ui->chkAccentSensitive->setChecked(ui->editPhrase->isAccentSensitive());
-	ui->chkDisable->setChecked(parsedPhrase()->isDisabled());
-	ui->buttonAddPhrase->setEnabled(false);
-	ui->buttonAddPhrase->setToolTip(tr("Add Phrase to User Database"));
-	ui->buttonAddPhrase->setStatusTip(tr("Add this Phrase to the User Database"));
-	ui->buttonDelPhrase->setEnabled(false);
-	ui->buttonDelPhrase->setToolTip(tr("Delete Phrase from User Database"));
-	ui->buttonDelPhrase->setStatusTip(tr("Delete this Phrase from the User Database"));
-	ui->buttonClear->setEnabled(false);
-	ui->buttonClear->setToolTip(tr("Clear Phrase Text"));
-	ui->buttonClear->setStatusTip(tr("Clear this Phrase Text"));
+	ui.chkCaseSensitive->setChecked(ui.editPhrase->isCaseSensitive());
+	ui.chkAccentSensitive->setChecked(ui.editPhrase->isAccentSensitive());
+	ui.chkDisable->setChecked(parsedPhrase()->isDisabled());
+	ui.buttonAddPhrase->setEnabled(false);
+	ui.buttonAddPhrase->setToolTip(tr("Add Phrase to User Database"));
+	ui.buttonAddPhrase->setStatusTip(tr("Add this Phrase to the User Database"));
+	ui.buttonDelPhrase->setEnabled(false);
+	ui.buttonDelPhrase->setToolTip(tr("Delete Phrase from User Database"));
+	ui.buttonDelPhrase->setStatusTip(tr("Delete this Phrase from the User Database"));
+	ui.buttonClear->setEnabled(false);
+	ui.buttonClear->setToolTip(tr("Clear Phrase Text"));
+	ui.buttonClear->setStatusTip(tr("Clear this Phrase Text"));
 
-	ui->editPhrase->setToolTip(tr("Enter Word or Phrase to Search"));
-	ui->editPhrase->setStatusTip(tr("Enter Word or Phrase to Search"));
+	ui.editPhrase->setToolTip(tr("Enter Word or Phrase to Search"));
+	ui.editPhrase->setStatusTip(tr("Enter Word or Phrase to Search"));
 
-	ui->buttonRemove->setToolTip(tr("Remove Phrase from Search Criteria"));
-	ui->buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
+	ui.buttonRemove->setToolTip(tr("Remove Phrase from Search Criteria"));
+	ui.buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
 
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
-	connect(ui->editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
+	connect(ui.editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchActivationDelay(int)));
 
-	connect(ui->chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
-	connect(ui->editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
-	connect(ui->chkAccentSensitive, SIGNAL(clicked(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
-	connect(ui->editPhrase, SIGNAL(changeAccentSensitive(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
-	connect(ui->chkDisable, SIGNAL(clicked(bool)), this, SLOT(setDisabled(bool)));
-	connect(ui->buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
-	connect(ui->buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
-	connect(ui->buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
-	connect(this, SIGNAL(phraseListChanged()), ui->editPhrase, SLOT(en_phraseListChanged()));
-	connect(ui->editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
-	connect(ui->buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
+	connect(ui.chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
+	connect(ui.editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
+	connect(ui.chkAccentSensitive, SIGNAL(clicked(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
+	connect(ui.editPhrase, SIGNAL(changeAccentSensitive(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
+	connect(ui.chkDisable, SIGNAL(clicked(bool)), this, SLOT(setDisabled(bool)));
+	connect(ui.buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
+	connect(ui.buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
+	connect(ui.buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
+	connect(this, SIGNAL(phraseListChanged()), ui.editPhrase, SLOT(en_phraseListChanged()));
+	connect(ui.editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(ui.buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 {
-	delete ui;
+
 }
 
 void CKJVSearchPhraseEdit::closeSearchPhrase()
@@ -646,28 +644,28 @@ void CKJVSearchPhraseEdit::closeSearchPhrase()
 
 void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
 {
-	ui->lineSeparator->setVisible(bShow);
+	ui.lineSeparator->setVisible(bShow);
 	adjustSize();
 }
 
 void CKJVSearchPhraseEdit::enableCloseButton(bool bEnable)
 {
-	ui->buttonRemove->setEnabled(bEnable);
+	ui.buttonRemove->setEnabled(bEnable);
 }
 
 void CKJVSearchPhraseEdit::focusEditor() const
 {
-	ui->editPhrase->setFocus();
+	ui.editPhrase->setFocus();
 }
 
 const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
 {
-	return ui->editPhrase;
+	return ui.editPhrase;
 }
 
 CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 {
-	return ui->editPhrase;
+	return ui.editPhrase;
 }
 
 void CKJVSearchPhraseEdit::en_phraseChanged()
@@ -712,15 +710,15 @@ void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 	} else {
 		strTemp += QString("%1/%2/%3").arg(!parsedPhrase()->isDisabled() ? parsedPhrase()->GetContributingNumberOfMatches() : 0).arg(parsedPhrase()->GetNumberOfMatchesWithin()).arg(parsedPhrase()->GetNumberOfMatches());
 	}
-	ui->lblOccurrenceCount->setText(strTemp);
+	ui.lblOccurrenceCount->setText(strTemp);
 }
 
 void CKJVSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
-	ui->chkCaseSensitive->setChecked(bCaseSensitive);		// Set the checkbox in case the phrase editor is setting us
-	ui->editPhrase->setCaseSensitive(bCaseSensitive);		// Set the phrase editor in case the checkbox is setting us
+	ui.chkCaseSensitive->setChecked(bCaseSensitive);		// Set the checkbox in case the phrase editor is setting us
+	ui.editPhrase->setCaseSensitive(bCaseSensitive);		// Set the phrase editor in case the checkbox is setting us
 	m_bUpdateInProgress = false;
 }
 
@@ -728,8 +726,8 @@ void CKJVSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
-	ui->chkAccentSensitive->setChecked(bAccentSensitive);	// Set the checkbox in case the phrase editor is setting us
-	ui->editPhrase->setAccentSensitive(bAccentSensitive);	// Set the phrase editor in case the checkbox is setting us
+	ui.chkAccentSensitive->setChecked(bAccentSensitive);	// Set the checkbox in case the phrase editor is setting us
+	ui.editPhrase->setAccentSensitive(bAccentSensitive);	// Set the phrase editor in case the checkbox is setting us
 	m_bUpdateInProgress = false;
 }
 
@@ -737,12 +735,12 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
-	ui->chkDisable->setChecked(bDisabled);					// Set the checkbox in case the phrase editor is setting us
+	ui.chkDisable->setChecked(bDisabled);					// Set the checkbox in case the phrase editor is setting us
 	parsedPhrase()->setIsDisabled(bDisabled);				// Set the phrase editor in case the checkbox is setting us
-	ui->editPhrase->setEnabled(!bDisabled);					// Disable the editor things so user realized this phrase is disabled
-	ui->chkCaseSensitive->setEnabled(!bDisabled);
-	ui->chkAccentSensitive->setEnabled(!bDisabled);
-	ui->editPhrase->getDropListButton()->setEnabled(!bDisabled);
+	ui.editPhrase->setEnabled(!bDisabled);					// Disable the editor things so user realized this phrase is disabled
+	ui.chkCaseSensitive->setEnabled(!bDisabled);
+	ui.chkAccentSensitive->setEnabled(!bDisabled);
+	ui.editPhrase->getDropListButton()->setEnabled(!bDisabled);
 	setPhraseButtonEnables();
 	m_bUpdateInProgress = false;
 	en_phraseChanged();										// Unlike Case-Sensitive and Accent-Sensitive, CPhraseLineEdit doesn't have a signals handler for this to trigger a phraseChaged.  So we must do it here.
@@ -771,7 +769,7 @@ void CKJVSearchPhraseEdit::en_phraseDel()
 
 void CKJVSearchPhraseEdit::en_phraseClear()
 {
-	ui->editPhrase->clear();
+	ui.editPhrase->clear();
 	m_phraseEntry.clear();
 	// No need to call setPhraseButtonEnables because the textChanged event caused by the call above will do it for us
 }
@@ -781,7 +779,7 @@ void CKJVSearchPhraseEdit::setPhraseButtonEnables()
 	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
 	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
 	bool bHaveText = (!m_phraseEntry.text().isEmpty());
-	ui->buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
-	ui->buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
-	ui->buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui->editPhrase->toPlainText().isEmpty());
+	ui.buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
+	ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
+	ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
 }

@@ -165,9 +165,7 @@ private:
 
 // ============================================================================
 
-namespace Ui {
-class CKJVSearchPhraseEdit;
-}
+#include "ui_KJVSearchPhraseEdit.h"
 
 class CKJVSearchPhraseEdit : public QWidget
 {
@@ -219,7 +217,9 @@ private:
 // UI Private:
 private:
 	DelayedExecutionTimer m_dlyTextChanged;
-	Ui::CKJVSearchPhraseEdit *ui;
+	Ui::CKJVSearchPhraseEdit ui;
 };
+
+// ============================================================================
 
 #endif // KJVSEARCHPHRASEEDIT_H

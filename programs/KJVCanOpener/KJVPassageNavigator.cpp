@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVPassageNavigator.h"
-#include "ui_KJVPassageNavigator.h"
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
@@ -47,12 +46,11 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_nWord(0),
 		m_flagsRefTypes(flagsRefTypes),
 		m_nRefType(nRefType),
-		m_bDoingUpdate(false),
-		ui(new Ui::CKJVPassageNavigator)
+		m_bDoingUpdate(false)
 {
 	assert(m_pBibleDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	initialize();
 
@@ -63,31 +61,31 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), m_pEditVersePreview, SLOT(showDetails()));
 
-	connect(ui->comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(en_TestamentComboIndexChanged(int)));
-	connect(ui->spinWord, SIGNAL(valueChanged(int)), this, SLOT(en_WordChanged(int)));
-	connect(ui->spinVerse, SIGNAL(valueChanged(int)), this, SLOT(en_VerseChanged(int)));
-	connect(ui->spinChapter, SIGNAL(valueChanged(int)), this, SLOT(en_ChapterChanged(int)));
-	connect(ui->spinBook, SIGNAL(valueChanged(int)), this, SLOT(en_BookChanged(int)));
-	connect(ui->chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(en_ReverseChanged(bool)));
-	connect(ui->comboRefType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_RefTypeChanged(int)));
-	connect(ui->comboBookDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_BookDirectChanged(int)));
-	connect(ui->comboChapterDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_ChapterDirectChanged(int)));
-	connect(ui->comboVerseDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_VerseDirectChanged(int)));
-	connect(ui->comboWordDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_WordDirectChanged(int)));
-	connect(ui->widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(en_PassageReferenceChanged(const TPhraseTag &)));
+	connect(ui.comboTestament, SIGNAL(currentIndexChanged(int)), this, SLOT(en_TestamentComboIndexChanged(int)));
+	connect(ui.spinWord, SIGNAL(valueChanged(int)), this, SLOT(en_WordChanged(int)));
+	connect(ui.spinVerse, SIGNAL(valueChanged(int)), this, SLOT(en_VerseChanged(int)));
+	connect(ui.spinChapter, SIGNAL(valueChanged(int)), this, SLOT(en_ChapterChanged(int)));
+	connect(ui.spinBook, SIGNAL(valueChanged(int)), this, SLOT(en_BookChanged(int)));
+	connect(ui.chkboxReverse, SIGNAL(clicked(bool)), this, SLOT(en_ReverseChanged(bool)));
+	connect(ui.comboRefType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_RefTypeChanged(int)));
+	connect(ui.comboBookDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_BookDirectChanged(int)));
+	connect(ui.comboChapterDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_ChapterDirectChanged(int)));
+	connect(ui.comboVerseDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_VerseDirectChanged(int)));
+	connect(ui.comboWordDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_WordDirectChanged(int)));
+	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(en_PassageReferenceChanged(const TPhraseTag &)));
 	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
 CKJVPassageNavigator::~CKJVPassageNavigator()
 {
-	delete ui;
+
 }
 
 void CKJVPassageNavigator::initialize()
 {
 	// --------------------------------------------------------------
 
-	ui->widgetPassageReference->initialize(m_pBibleDatabase);
+	ui.widgetPassageReference->initialize(m_pBibleDatabase);
 
 	// --------------------------------------------------------------
 
@@ -103,25 +101,25 @@ void CKJVPassageNavigator::initialize()
 	m_pEditVersePreview->setUndoRedoEnabled(false);
 	m_pEditVersePreview->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-	delete ui->editVersePreview;
-	ui->editVersePreview = NULL;
-	ui->verticalLayoutMain->addWidget(m_pEditVersePreview);
+	delete ui.editVersePreview;
+	ui.editVersePreview = NULL;
+	ui.verticalLayoutMain->addWidget(m_pEditVersePreview);
 
 	// Updated Tab Ordering:
-	QWidget::setTabOrder(ui->widgetPassageReference, ui->spinWord);
-	QWidget::setTabOrder(ui->spinWord, ui->spinVerse);
-	QWidget::setTabOrder(ui->spinVerse, ui->spinChapter);
-	QWidget::setTabOrder(ui->spinChapter, ui->spinBook);
-	QWidget::setTabOrder(ui->spinBook, ui->comboTestament);
-	QWidget::setTabOrder(ui->comboTestament, ui->editStartRef);
-	QWidget::setTabOrder(ui->editStartRef, ui->editResolved);
-	QWidget::setTabOrder(ui->editResolved, ui->editVersePreview);
-	QWidget::setTabOrder(ui->editVersePreview, ui->comboBookDirect);
-	QWidget::setTabOrder(ui->comboBookDirect, ui->comboChapterDirect);
-	QWidget::setTabOrder(ui->comboChapterDirect, ui->comboVerseDirect);
-	QWidget::setTabOrder(ui->comboVerseDirect, ui->comboWordDirect);
-	QWidget::setTabOrder(ui->comboWordDirect, ui->comboRefType);
-	QWidget::setTabOrder(ui->comboRefType, ui->chkboxReverse);
+	QWidget::setTabOrder(ui.widgetPassageReference, ui.spinWord);
+	QWidget::setTabOrder(ui.spinWord, ui.spinVerse);
+	QWidget::setTabOrder(ui.spinVerse, ui.spinChapter);
+	QWidget::setTabOrder(ui.spinChapter, ui.spinBook);
+	QWidget::setTabOrder(ui.spinBook, ui.comboTestament);
+	QWidget::setTabOrder(ui.comboTestament, ui.editStartRef);
+	QWidget::setTabOrder(ui.editStartRef, ui.editResolved);
+	QWidget::setTabOrder(ui.editResolved, ui.editVersePreview);
+	QWidget::setTabOrder(ui.editVersePreview, ui.comboBookDirect);
+	QWidget::setTabOrder(ui.comboBookDirect, ui.comboChapterDirect);
+	QWidget::setTabOrder(ui.comboChapterDirect, ui.comboVerseDirect);
+	QWidget::setTabOrder(ui.comboVerseDirect, ui.comboWordDirect);
+	QWidget::setTabOrder(ui.comboWordDirect, ui.comboRefType);
+	QWidget::setTabOrder(ui.comboRefType, ui.chkboxReverse);
 
 	// --------------------------------------------------------------
 
@@ -135,12 +133,12 @@ void CKJVPassageNavigator::initialize()
 	int nVerses = 0;
 	int nWords = 0;
 
-	ui->comboTestament->clear();
+	ui.comboTestament->clear();
 	for (unsigned int ndx=0; ndx<=m_pBibleDatabase->bibleEntry().m_nNumTst; ++ndx){
 		if (ndx == 0) {
-			ui->comboTestament->addItem(tr("Entire Bible"), ndx);
+			ui.comboTestament->addItem(tr("Entire Bible"), ndx);
 		} else {
-			ui->comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
+			ui.comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
 			nBooks += m_pBibleDatabase->testamentEntry(ndx)->m_nNumBk;
 			nChapters += m_pBibleDatabase->testamentEntry(ndx)->m_nNumChp;
 			nVerses += m_pBibleDatabase->testamentEntry(ndx)->m_nNumVrs;
@@ -148,26 +146,26 @@ void CKJVPassageNavigator::initialize()
 		}
 	}
 
-	ui->spinBook->setRange(0, nBooks);
-	ui->spinChapter->setRange(0, nChapters);
-	ui->spinVerse->setRange(0, nVerses);
-	ui->spinWord->setRange(0, nWords);
+	ui.spinBook->setRange(0, nBooks);
+	ui.spinChapter->setRange(0, nChapters);
+	ui.spinVerse->setRange(0, nVerses);
+	ui.spinWord->setRange(0, nWords);
 
 	bool bAllTypes = (m_flagsRefTypes == NRTO_Default);
-	ui->comboRefType->clear();
-	if ((m_flagsRefTypes & NRTO_Word) || (bAllTypes)) ui->comboRefType->addItem(tr("Word"), static_cast<int>(NRTE_WORD));
-	if ((m_flagsRefTypes & NRTO_Verse) || (bAllTypes)) ui->comboRefType->addItem(tr("Verse"), static_cast<int>(NRTE_VERSE));
-	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui->comboRefType->addItem(tr("Chapter"), static_cast<int>(NRTE_CHAPTER));
-	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui->comboRefType->addItem(tr("Book"), static_cast<int>(NRTE_BOOK));
-	int nTypeIndex = ui->comboRefType->findData(static_cast<int>(m_nRefType));
+	ui.comboRefType->clear();
+	if ((m_flagsRefTypes & NRTO_Word) || (bAllTypes)) ui.comboRefType->addItem(tr("Word"), static_cast<int>(NRTE_WORD));
+	if ((m_flagsRefTypes & NRTO_Verse) || (bAllTypes)) ui.comboRefType->addItem(tr("Verse"), static_cast<int>(NRTE_VERSE));
+	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui.comboRefType->addItem(tr("Chapter"), static_cast<int>(NRTE_CHAPTER));
+	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui.comboRefType->addItem(tr("Book"), static_cast<int>(NRTE_BOOK));
+	int nTypeIndex = ui.comboRefType->findData(static_cast<int>(m_nRefType));
 	assert(nTypeIndex != -1);
-	ui->comboRefType->setCurrentIndex(nTypeIndex);
+	ui.comboRefType->setCurrentIndex(nTypeIndex);
 
-	ui->comboBookDirect->clear();
+	ui.comboBookDirect->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
 		assert(pBook != NULL);
-		ui->comboBookDirect->addItem(pBook->m_strBkName, ndxBk);
+		ui.comboBookDirect->addItem(pBook->m_strBkName, ndxBk);
 	}
 
 	end_update();
@@ -186,7 +184,7 @@ void CKJVPassageNavigator::reset()
 		setPassage(TPhraseTag(CRelIndex(), m_tagPassage.count()));
 	}
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 }
 
 // ============================================================================
@@ -195,9 +193,9 @@ void CKJVPassageNavigator::en_TestamentComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
-	m_nTestament = ui->comboTestament->itemData(index).toUInt();
+	m_nTestament = ui.comboTestament->itemData(index).toUInt();
 	CalcPassage();
 }
 
@@ -205,7 +203,7 @@ void CKJVPassageNavigator::en_BookChanged(int nBook)
 {
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
 	m_nBook = nBook;
 	CalcPassage();
@@ -215,7 +213,7 @@ void CKJVPassageNavigator::en_ChapterChanged(int nChapter)
 {
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
 	m_nChapter = nChapter;
 	CalcPassage();
@@ -225,7 +223,7 @@ void CKJVPassageNavigator::en_VerseChanged(int nVerse)
 {
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
 	m_nVerse = nVerse;
 	CalcPassage();
@@ -235,7 +233,7 @@ void CKJVPassageNavigator::en_WordChanged(int nWord)
 {
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
 	m_nWord = nWord;
 	CalcPassage();
@@ -243,10 +241,10 @@ void CKJVPassageNavigator::en_WordChanged(int nWord)
 
 void CKJVPassageNavigator::en_ReverseChanged(bool bReverse)
 {
-	ui->spinBook->setPrefix(bReverse ? "-" : "");
-	ui->spinChapter->setPrefix(bReverse ? "-" : "");
-	ui->spinVerse->setPrefix(bReverse ? "-" : "");
-	ui->spinWord->setPrefix(bReverse ? "-" : "");
+	ui.spinBook->setPrefix(bReverse ? "-" : "");
+	ui.spinChapter->setPrefix(bReverse ? "-" : "");
+	ui.spinVerse->setPrefix(bReverse ? "-" : "");
+	ui.spinWord->setPrefix(bReverse ? "-" : "");
 
 	if (m_bDoingUpdate) return;
 
@@ -257,7 +255,7 @@ void CKJVPassageNavigator::en_RefTypeChanged(int nType)
 {
 	if (m_bDoingUpdate) return;
 
-	m_nRefType = static_cast<NAVIGATOR_REF_TYPE_ENUM>(ui->comboRefType->itemData(nType).toInt());
+	m_nRefType = static_cast<NAVIGATOR_REF_TYPE_ENUM>(ui.comboRefType->itemData(nType).toInt());
 	CalcPassage();
 }
 
@@ -269,11 +267,11 @@ void CKJVPassageNavigator::en_BookDirectChanged(int index)
 
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
 	if (index != -1) {
 		CRelIndex ndxTarget;
-		ndxTarget.setBook(ui->comboBookDirect->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBookDirect->itemData(index).toUInt());
 		ndxTarget.setChapter(1);
 		ndxTarget.setVerse(1);
 		ndxTarget.setWord(1);
@@ -287,13 +285,13 @@ void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
-	if ((ui->comboChapterDirect->currentIndex() != -1) &&
+	if ((ui.comboChapterDirect->currentIndex() != -1) &&
 		(index != -1)) {
 		CRelIndex ndxTarget;
-		ndxTarget.setBook(ui->comboBookDirect->itemData(ui->comboBookDirect->currentIndex()).toUInt());
-		ndxTarget.setChapter(ui->comboChapterDirect->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBookDirect->itemData(ui.comboBookDirect->currentIndex()).toUInt());
+		ndxTarget.setChapter(ui.comboChapterDirect->itemData(index).toUInt());
 		ndxTarget.setVerse(1);
 		ndxTarget.setWord(1);
 		setPassage(TPhraseTag(ndxTarget));
@@ -306,15 +304,15 @@ void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
-	if ((ui->comboBookDirect->currentIndex() != -1) &&
-		(ui->comboChapterDirect->currentIndex() != -1) &&
+	if ((ui.comboBookDirect->currentIndex() != -1) &&
+		(ui.comboChapterDirect->currentIndex() != -1) &&
 		(index != -1)) {
 		CRelIndex ndxTarget;
-		ndxTarget.setBook(ui->comboBookDirect->itemData(ui->comboBookDirect->currentIndex()).toUInt());
-		ndxTarget.setChapter(ui->comboChapterDirect->itemData(ui->comboChapterDirect->currentIndex()).toUInt());
-		ndxTarget.setVerse(ui->comboVerseDirect->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBookDirect->itemData(ui.comboBookDirect->currentIndex()).toUInt());
+		ndxTarget.setChapter(ui.comboChapterDirect->itemData(ui.comboChapterDirect->currentIndex()).toUInt());
+		ndxTarget.setVerse(ui.comboVerseDirect->itemData(index).toUInt());
 		ndxTarget.setWord(1);
 		setPassage(TPhraseTag(ndxTarget));
 	}
@@ -326,17 +324,17 @@ void CKJVPassageNavigator::en_WordDirectChanged(int index)
 
 	if (m_bDoingUpdate) return;
 
-	ui->widgetPassageReference->clear();
+	ui.widgetPassageReference->clear();
 
-	if ((ui->comboBookDirect->currentIndex() != -1) &&
-		(ui->comboChapterDirect->currentIndex() != -1) &&
-		(ui->comboVerseDirect->currentIndex() != -1) &&
+	if ((ui.comboBookDirect->currentIndex() != -1) &&
+		(ui.comboChapterDirect->currentIndex() != -1) &&
+		(ui.comboVerseDirect->currentIndex() != -1) &&
 		(index != -1)) {
 		CRelIndex ndxTarget;
-		ndxTarget.setBook(ui->comboBookDirect->itemData(ui->comboBookDirect->currentIndex()).toUInt());
-		ndxTarget.setChapter(ui->comboChapterDirect->itemData(ui->comboChapterDirect->currentIndex()).toUInt());
-		ndxTarget.setVerse(ui->comboVerseDirect->itemData(ui->comboVerseDirect->currentIndex()).toUInt());
-		ndxTarget.setWord(ui->comboWordDirect->itemData(index).toUInt());
+		ndxTarget.setBook(ui.comboBookDirect->itemData(ui.comboBookDirect->currentIndex()).toUInt());
+		ndxTarget.setChapter(ui.comboChapterDirect->itemData(ui.comboChapterDirect->currentIndex()).toUInt());
+		ndxTarget.setVerse(ui.comboVerseDirect->itemData(ui.comboVerseDirect->currentIndex()).toUInt());
+		ndxTarget.setWord(ui.comboWordDirect->itemData(index).toUInt());
 		setPassage(TPhraseTag(ndxTarget));
 	}
 }
@@ -348,10 +346,10 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	// Special "not set" case:
 	if (!ndx.isSet()) {
 		begin_update();
-		ui->comboBookDirect->setCurrentIndex(-1);
-		ui->comboChapterDirect->clear();
-		ui->comboVerseDirect->clear();
-		ui->comboWordDirect->clear();
+		ui.comboBookDirect->setCurrentIndex(-1);
+		ui.comboChapterDirect->clear();
+		ui.comboVerseDirect->clear();
+		ui.comboWordDirect->clear();
 		end_update();
 		return;
 	}
@@ -371,13 +369,13 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
-	ui->comboBookDirect->setCurrentIndex(ui->comboBookDirect->findData(ndx.book()));
+	ui.comboBookDirect->setCurrentIndex(ui.comboBookDirect->findData(ndx.book()));
 
-	ui->comboChapterDirect->clear();
+	ui.comboChapterDirect->clear();
 	for (unsigned int ndxChp=1; ndxChp<=book.m_nNumChp; ++ndxChp) {
-		ui->comboChapterDirect->addItem(QString("%1").arg(ndxChp), ndxChp);
+		ui.comboChapterDirect->addItem(QString("%1").arg(ndxChp), ndxChp);
 	}
-	ui->comboChapterDirect->setCurrentIndex(ui->comboChapterDirect->findData(ndx.chapter()));
+	ui.comboChapterDirect->setCurrentIndex(ui.comboChapterDirect->findData(ndx.chapter()));
 
 	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
@@ -387,11 +385,11 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	const CChapterEntry &chapter = *m_pBibleDatabase->chapterEntry(ndx);
 
-	ui->comboVerseDirect->clear();
+	ui.comboVerseDirect->clear();
 	for (unsigned int ndxVrs=1; ndxVrs<=chapter.m_nNumVrs; ++ndxVrs) {
-		ui->comboVerseDirect->addItem(QString("%1").arg(ndxVrs), ndxVrs);
+		ui.comboVerseDirect->addItem(QString("%1").arg(ndxVrs), ndxVrs);
 	}
-	ui->comboVerseDirect->setCurrentIndex(ui->comboVerseDirect->findData(ndx.verse()));
+	ui.comboVerseDirect->setCurrentIndex(ui.comboVerseDirect->findData(ndx.verse()));
 
 	if (ndx.verse() > chapter.m_nNumVrs) {
 		assert(false);
@@ -401,11 +399,11 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	const CVerseEntry &verse = *m_pBibleDatabase->verseEntry(ndx);
 
-	ui->comboWordDirect->clear();
+	ui.comboWordDirect->clear();
 	for (unsigned int ndxWrd=1; ndxWrd<=verse.m_nNumWrd; ++ndxWrd) {
-		ui->comboWordDirect->addItem(QString("%1").arg(ndxWrd), ndxWrd);
+		ui.comboWordDirect->addItem(QString("%1").arg(ndxWrd), ndxWrd);
 	}
-	ui->comboWordDirect->setCurrentIndex(ui->comboWordDirect->findData(ndx.word()));
+	ui.comboWordDirect->setCurrentIndex(ui.comboWordDirect->findData(ndx.word()));
 
 	end_update();
 }
@@ -450,15 +448,15 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 	m_tagPassage = tag;
 
-	ui->comboTestament->setCurrentIndex(ui->comboTestament->findData(0));
+	ui.comboTestament->setCurrentIndex(ui.comboTestament->findData(0));
 	m_nTestament = 0;
-	ui->spinBook->setValue(tag.relIndex().book());
+	ui.spinBook->setValue(tag.relIndex().book());
 	m_nBook = tag.relIndex().book();
-	ui->spinChapter->setValue(tag.relIndex().chapter());
+	ui.spinChapter->setValue(tag.relIndex().chapter());
 	m_nChapter = tag.relIndex().chapter();
-	ui->spinVerse->setValue(tag.relIndex().verse());
+	ui.spinVerse->setValue(tag.relIndex().verse());
 	m_nVerse = tag.relIndex().verse();
-	ui->spinWord->setValue(tag.relIndex().word());
+	ui.spinWord->setValue(tag.relIndex().word());
 	m_nWord = tag.relIndex().word();
 	CalcPassage();
 
@@ -469,8 +467,8 @@ void CKJVPassageNavigator::CalcPassage()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui->chkboxReverse->isChecked()));
-	ui->editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
+	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui.chkboxReverse->isChecked()));
+	ui.editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
 	CPhraseEditNavigator navigator(m_pBibleDatabase, *m_pEditVersePreview);
 
 	setDirectReference(m_tagPassage.relIndex());
@@ -510,11 +508,11 @@ void CKJVPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
 {
 	begin_update();
 
-	int nTypeIndex = ui->comboRefType->findData(static_cast<int>(nRefType));
+	int nTypeIndex = ui.comboRefType->findData(static_cast<int>(nRefType));
 	assert(nTypeIndex != -1);
 	if (nTypeIndex != -1) {
 		m_nRefType = nRefType;
-		ui->comboRefType->setCurrentIndex(nTypeIndex);
+		ui.comboRefType->setCurrentIndex(nTypeIndex);
 		CalcPassage();
 	}
 
@@ -538,33 +536,33 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 		m_tagStartRef = TPhraseTag(CRelIndex(1,1,1,1), 1);
 	}
 
-	ui->lblTestament->hide();
-	ui->comboTestament->hide();
+	ui.lblTestament->hide();
+	ui.comboTestament->hide();
 
-	ui->lblStartRef->show();
-	ui->editStartRef->show();
-	ui->chkboxReverse->show();
+	ui.lblStartRef->show();
+	ui.editStartRef->show();
+	ui.chkboxReverse->show();
 
-	ui->editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.relIndex()));
-	ui->chkboxReverse->setChecked(bReverse);
+	ui.editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.relIndex()));
+	ui.chkboxReverse->setChecked(bReverse);
 
-	ui->lblBook->setText(tr("&Books:"));
-	ui->lblChapter->setText(tr("C&hapters:"));
-	ui->lblVerse->setText(tr("&Verses:"));
-	ui->lblWord->setText(tr("&Words:"));
+	ui.lblBook->setText(tr("&Books:"));
+	ui.lblChapter->setText(tr("C&hapters:"));
+	ui.lblVerse->setText(tr("&Verses:"));
+	ui.lblWord->setText(tr("&Words:"));
 
-	ui->lblBookDirect->setVisible(false);
-	ui->comboBookDirect->setVisible(false);
-	ui->lblChapterDirect->setVisible(false);
-	ui->comboChapterDirect->setVisible(false);
-	ui->lblVerseDirect->setVisible(false);
-	ui->comboVerseDirect->setVisible(false);
-	ui->lblWordDirect->setVisible(false);
-	ui->comboWordDirect->setVisible(false);
-	ui->widgetPassageReference->setVisible(false);
-	ui->lineDirectReference->setVisible(false);
-	ui->linePassageReference->setVisible(false);
-	ui->widgetPassageReference->clear();
+	ui.lblBookDirect->setVisible(false);
+	ui.comboBookDirect->setVisible(false);
+	ui.lblChapterDirect->setVisible(false);
+	ui.comboChapterDirect->setVisible(false);
+	ui.lblVerseDirect->setVisible(false);
+	ui.comboVerseDirect->setVisible(false);
+	ui.lblWordDirect->setVisible(false);
+	ui.comboWordDirect->setVisible(false);
+	ui.widgetPassageReference->setVisible(false);
+	ui.lineDirectReference->setVisible(false);
+	ui.linePassageReference->setVisible(false);
+	ui.widgetPassageReference->clear();
 
 	if (!tagPassage.relIndex().isSet()) {
 		// If we don't have an absolute starting passage, set the passage size (that we'll calculate from
@@ -586,37 +584,37 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 
 	m_tagStartRef = TPhraseTag(CRelIndex(), 1);		// Unset (but one word) to indicate absolute mode
 
-	ui->lblStartRef->hide();
-	ui->editStartRef->hide();
-	ui->chkboxReverse->setChecked(false);
-	ui->chkboxReverse->hide();
+	ui.lblStartRef->hide();
+	ui.editStartRef->hide();
+	ui.chkboxReverse->setChecked(false);
+	ui.chkboxReverse->hide();
 
-	ui->lblTestament->show();
-	ui->comboTestament->show();
+	ui.lblTestament->show();
+	ui.comboTestament->show();
 
-	ui->lblBook->setText(tr("&Book:"));
-	ui->lblChapter->setText(tr("C&hapter:"));
-	ui->lblVerse->setText(tr("&Verse:"));
-	ui->lblWord->setText(tr("&Word:"));
+	ui.lblBook->setText(tr("&Book:"));
+	ui.lblChapter->setText(tr("C&hapter:"));
+	ui.lblVerse->setText(tr("&Verse:"));
+	ui.lblWord->setText(tr("&Word:"));
 
-	ui->spinBook->setPrefix("");
-	ui->spinChapter->setPrefix("");
-	ui->spinVerse->setPrefix("");
-	ui->spinWord->setPrefix("");
+	ui.spinBook->setPrefix("");
+	ui.spinChapter->setPrefix("");
+	ui.spinVerse->setPrefix("");
+	ui.spinWord->setPrefix("");
 
-	ui->lblBookDirect->setVisible(true);
-	ui->comboBookDirect->setVisible(true);
-	ui->lblChapterDirect->setVisible(true);
-	ui->comboChapterDirect->setVisible(true);
-	ui->lblVerseDirect->setVisible(true);
-	ui->comboVerseDirect->setVisible(true);
-	ui->lblWordDirect->setVisible(true);
-	ui->comboWordDirect->setVisible(true);
-	ui->widgetPassageReference->setVisible(true);
-	ui->lineDirectReference->setVisible(true);
-	ui->linePassageReference->setVisible(true);
-	ui->widgetPassageReference->clear();
-	ui->widgetPassageReference->setFocus();
+	ui.lblBookDirect->setVisible(true);
+	ui.comboBookDirect->setVisible(true);
+	ui.lblChapterDirect->setVisible(true);
+	ui.comboChapterDirect->setVisible(true);
+	ui.lblVerseDirect->setVisible(true);
+	ui.comboVerseDirect->setVisible(true);
+	ui.lblWordDirect->setVisible(true);
+	ui.comboWordDirect->setVisible(true);
+	ui.widgetPassageReference->setVisible(true);
+	ui.lineDirectReference->setVisible(true);
+	ui.linePassageReference->setVisible(true);
+	ui.widgetPassageReference->clear();
+	ui.widgetPassageReference->setFocus();
 
 	if (tagPassage.relIndex().isSet()) {
 		setPassage(tagPassage);
@@ -638,7 +636,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 
 bool CKJVPassageNavigator::isReversed() const
 {
-	return ui->chkboxReverse->isChecked();
+	return ui.chkboxReverse->isChecked();
 }
 
 // ============================================================================

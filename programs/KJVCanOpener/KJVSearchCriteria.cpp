@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVSearchCriteria.h"
-#include "ui_KJVSearchCriteria.h"
 #include "PersistentSettings.h"
 #include "ModelRowForwardIterator.h"
 #include "ScriptureDocument.h"
@@ -336,29 +335,28 @@ void CSearchWithinModel::sort(int column, Qt::SortOrder order)
 CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	QWidget(parent),
 	m_pSearchWithinModel(NULL),
-	m_bDoingUpdate(false),
-	ui(new Ui::CKJVSearchCriteriaWidget)
+	m_bDoingUpdate(false)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	ui->buttonAdd->setToolTip(tr("Add Phrase to Search Criteria"));
-	ui->buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria"));
+	ui.buttonAdd->setToolTip(tr("Add Phrase to Search Criteria"));
+	ui.buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria"));
 
-	ui->comboSearchScope->addItem(tr("Anywhere in Selected Search Text"), CSearchCriteria::SSME_WHOLE_BIBLE);
-	ui->comboSearchScope->addItem(tr("Same Testament"), CSearchCriteria::SSME_TESTAMENT);
-	ui->comboSearchScope->addItem(tr("Same Category"), CSearchCriteria::SSME_CATEGORY);
-	ui->comboSearchScope->addItem(tr("Same Book"), CSearchCriteria::SSME_BOOK);
-	ui->comboSearchScope->addItem(tr("Same Chapter"), CSearchCriteria::SSME_CHAPTER);
-	ui->comboSearchScope->addItem(tr("Same Verse"), CSearchCriteria::SSME_VERSE);
-	ui->comboSearchScope->setToolTip(tr("Select Search Scope"));
-	ui->comboSearchScope->setStatusTip(tr("Set Search Scope Mode for phrase searches"));
+	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text"), CSearchCriteria::SSME_WHOLE_BIBLE);
+	ui.comboSearchScope->addItem(tr("Same Testament"), CSearchCriteria::SSME_TESTAMENT);
+	ui.comboSearchScope->addItem(tr("Same Category"), CSearchCriteria::SSME_CATEGORY);
+	ui.comboSearchScope->addItem(tr("Same Book"), CSearchCriteria::SSME_BOOK);
+	ui.comboSearchScope->addItem(tr("Same Chapter"), CSearchCriteria::SSME_CHAPTER);
+	ui.comboSearchScope->addItem(tr("Same Verse"), CSearchCriteria::SSME_VERSE);
+	ui.comboSearchScope->setToolTip(tr("Select Search Scope"));
+	ui.comboSearchScope->setStatusTip(tr("Set Search Scope Mode for phrase searches"));
 
 	// Set Initial Mode:
-	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));
+	ui.comboSearchScope->setCurrentIndex(ui.comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));
 
-	connect(ui->comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchScopeMode(int)));
-	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
-	connect(ui->buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
+	connect(ui.comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchScopeMode(int)));
+	connect(ui.buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
+	connect(ui.buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
 	// Setup Default TextBrightness:
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
@@ -368,7 +366,7 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 
 CKJVSearchCriteriaWidget::~CKJVSearchCriteriaWidget()
 {
-	delete ui;
+
 }
 
 void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
@@ -379,12 +377,12 @@ void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 	begin_update();
 
 	assert(m_pSearchWithinModel == NULL);		// Must be setting for the first time
-	QAbstractItemModel *pOldModel = ui->treeViewSearchWithin->model();
+	QAbstractItemModel *pOldModel = ui.treeViewSearchWithin->model();
 	m_pSearchWithinModel = new CSearchWithinModel(m_pBibleDatabase, m_SearchCriteria.searchWithin(), this);
-	ui->treeViewSearchWithin->setModel(m_pSearchWithinModel);
+	ui.treeViewSearchWithin->setModel(m_pSearchWithinModel);
 	if (pOldModel) delete pOldModel;
-	ui->treeViewSearchWithin->expandAll();
-	ui->treeViewSearchWithin->resizeColumnToContents(0);
+	ui.treeViewSearchWithin->expandAll();
+	ui.treeViewSearchWithin->resizeColumnToContents(0);
 
 	connect(m_pSearchWithinModel, SIGNAL(changedSearchWithin()), this, SLOT(en_changedSearchWithin()));
 
@@ -398,7 +396,7 @@ void CKJVSearchCriteriaWidget::en_changedSearchScopeMode(int ndx)
 	begin_update();
 
 	if (ndx == -1) return;
-	m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(ui->comboSearchScope->itemData(ndx).toInt()));
+	m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(ui.comboSearchScope->itemData(ndx).toInt()));
 	emit changedSearchCriteria();
 
 	end_update();
@@ -420,12 +418,12 @@ void CKJVSearchCriteriaWidget::en_changedSearchWithin()
 
 void CKJVSearchCriteriaWidget::enableCopySearchPhraseSummary(bool bEnable)
 {
-	ui->buttonCopySummary->setEnabled(bEnable);
+	ui.buttonCopySummary->setEnabled(bEnable);
 }
 
 void CKJVSearchCriteriaWidget::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)
 {
-	ui->comboSearchScope->setCurrentIndex(ui->comboSearchScope->findData(mode));
+	ui.comboSearchScope->setCurrentIndex(ui.comboSearchScope->findData(mode));
 }
 
 void CKJVSearchCriteriaWidget::setSearchWithin(const TRelativeIndexSet &aSetSearchWithin)

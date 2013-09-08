@@ -29,9 +29,7 @@
 
 // ============================================================================
 
-namespace Ui {
-	class CRenameHighlighterDlg;
-}
+#include "ui_RenameHighlighterDlg.h"
 
 class CRenameHighlighterDlg : public QDialog
 {
@@ -45,7 +43,7 @@ public:
 
 // UI Private:
 private:
-	Ui::CRenameHighlighterDlg *ui;
+	Ui::CRenameHighlighterDlg ui;
 };
 
 // ============================================================================

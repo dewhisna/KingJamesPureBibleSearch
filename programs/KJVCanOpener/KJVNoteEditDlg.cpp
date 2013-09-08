@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVNoteEditDlg.h"
-#include "ui_KJVNoteEditDlg.h"
 
 #include "main.h"
 #include "PersistentSettings.h"
@@ -79,7 +78,6 @@ QAction *CKJVNoteEditDlg::actionUserNoteEditor()
 
 CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-		ui(new Ui::CKJVNoteEditDlg),
 		m_pBackgroundColorButton(NULL),
 		m_pRichTextEdit(NULL),
 		m_pDeleteNoteButton(NULL),
@@ -92,7 +90,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	assert(pBibleDatabase != NULL);
 	assert(pUserNotesDatabase != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	// --------------------------------------------------------------
 
@@ -106,10 +104,10 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	//	Swapout the textEdit from the layout with a QwwRichTextEdit:
 
-	ndx = ui->gridLayoutMain->indexOf(ui->textEdit);
+	ndx = ui.gridLayoutMain->indexOf(ui.textEdit);
 	assert(ndx != -1);
 	if (ndx == -1) return;
-	ui->gridLayoutMain->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ui.gridLayoutMain->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pRichTextEdit = new QwwRichTextEdit(this);
 	m_pRichTextEdit->setObjectName(QString::fromUtf8("textEdit"));
@@ -119,22 +117,22 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pRichTextEdit->setTabChangesFocus(false);
 	m_pRichTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse|Qt::TextEditable);
 
-	delete ui->textEdit;
-	ui->textEdit = NULL;
-	ui->gridLayoutMain->addWidget(m_pRichTextEdit, nRow, nCol, nRowSpan, nColSpan);
+	delete ui.textEdit;
+	ui.textEdit = NULL;
+	ui.gridLayoutMain->addWidget(m_pRichTextEdit, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
 
 	//	Swapout the buttonBackgroundColor from the layout with a QwwColorButton:
 
-//	ndx = ui->horizontalLayout->indexOf(ui->buttonBackgroundColor);
+//	ndx = ui.horizontalLayout->indexOf(ui.buttonBackgroundColor);
 //	assert(ndx != -1);
 //	if (ndx == -1) return;
 
-	ndx = ui->gridLayoutControls->indexOf(ui->buttonBackgroundColor);
+	ndx = ui.gridLayoutControls->indexOf(ui.buttonBackgroundColor);
 	assert(ndx != -1);
 	if (ndx == -1) return;
-	ui->gridLayoutControls->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	ui.gridLayoutControls->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pBackgroundColorButton = new QwwColorButton(this);
 	m_pBackgroundColorButton->setObjectName(QString::fromUtf8("buttonBackgroundColor"));
@@ -142,41 +140,41 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pBackgroundColorButton->setText(tr("Note Background Color"));
 	m_pBackgroundColorButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-	delete ui->buttonBackgroundColor;
-	ui->buttonBackgroundColor = NULL;
-//	ui->horizontalLayout->insertWidget(ndx, m_pBackgroundColorButton);
-	ui->gridLayoutControls->addWidget(m_pBackgroundColorButton, nRow, nCol, nRowSpan, nColSpan);
+	delete ui.buttonBackgroundColor;
+	ui.buttonBackgroundColor = NULL;
+//	ui.horizontalLayout->insertWidget(ndx, m_pBackgroundColorButton);
+	ui.gridLayoutControls->addWidget(m_pBackgroundColorButton, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
 
 	// Reinsert it in the correct TabOrder:
-	QWidget::setTabOrder(m_pRichTextEdit, ui->buttonBox);
-	QWidget::setTabOrder(ui->buttonBox, ui->editNoteLocation);
-	QWidget::setTabOrder(ui->editNoteLocation, m_pBackgroundColorButton);
-	QWidget::setTabOrder(m_pBackgroundColorButton, ui->widgetNoteKeywords);
+	QWidget::setTabOrder(m_pRichTextEdit, ui.buttonBox);
+	QWidget::setTabOrder(ui.buttonBox, ui.editNoteLocation);
+	QWidget::setTabOrder(ui.editNoteLocation, m_pBackgroundColorButton);
+	QWidget::setTabOrder(m_pBackgroundColorButton, ui.widgetNoteKeywords);
 
 	// --------------------------------------------------------------
 
 	// Setup Dialog buttons:
 
-	assert(ui->buttonBox->button(QDialogButtonBox::Ok) != NULL);
-	ui->buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
-	assert(ui->buttonBox->button(QDialogButtonBox::Cancel) != NULL);
-	ui->buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
-	m_pDeleteNoteButton = ui->buttonBox->addButton(tr("Delete Note"), QDialogButtonBox::ActionRole);
+	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != NULL);
+	ui.buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
+	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != NULL);
+	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
+	m_pDeleteNoteButton = ui.buttonBox->addButton(tr("Delete Note"), QDialogButtonBox::ActionRole);
 	m_pDeleteNoteButton->setIcon(QIcon(":/res/deletered1-24.png"));
-	connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(en_ButtonClicked(QAbstractButton*)));
+	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(en_ButtonClicked(QAbstractButton*)));
 
 	// --------------------------------------------------------------
 
-	ui->widgetNoteKeywords->setMode(CNoteKeywordWidget::KWME_EDITOR);
+	ui.widgetNoteKeywords->setMode(KWME_EDITOR);
 
 	// --------------------------------------------------------------
 
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
-	connect(ui->widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
-	connect(ui->buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
+	connect(ui.widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
+	connect(ui.buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
 
 	m_pRichTextEdit->setFocus();
 
@@ -187,7 +185,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 CKJVNoteEditDlg::~CKJVNoteEditDlg()
 {
-	delete ui;
+
 }
 
 // ============================================================================
@@ -220,7 +218,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 
 	m_ndxLocation = ndxLocation;
 	m_ndxLocation.setWord(0);		// Work with whole verses only
-	ui->editNoteLocation->setText(m_pBibleDatabase->PassageReferenceText(m_ndxLocation));
+	ui.editNoteLocation->setText(m_pBibleDatabase->PassageReferenceText(m_ndxLocation));
 
 	m_UserNote = m_pUserNotesDatabase->noteFor(m_ndxLocation);
 
@@ -230,7 +228,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	setBackgroundColorPreview();
 
 	// Setup Keywords:
-	ui->widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), m_pUserNotesDatabase->compositeKeywordList());
+	ui.widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), m_pUserNotesDatabase->compositeKeywordList());
 
 	m_pRichTextEdit->setHtml(m_UserNote.text());
 	m_bIsDirty = false;
@@ -245,12 +243,12 @@ void CKJVNoteEditDlg::accept()
 	assert(m_pRichTextEdit != NULL);
 	assert(m_pUserNotesDatabase != NULL);
 
-	if (ui->widgetNoteKeywords->haveUnenteredKeywords()) {
+	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
 																   "haven't yet entered them to where they will take effect.\n\n"
 																   "Do you wish to set them as valid keywords for this note?"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
-		if (nResult == QMessageBox::Yes) ui->widgetNoteKeywords->enterKeywords();
+		if (nResult == QMessageBox::Yes) ui.widgetNoteKeywords->enterKeywords();
 	}
 
 	m_UserNote.setText(m_pRichTextEdit->toHtml());
@@ -325,7 +323,7 @@ void CKJVNoteEditDlg::en_keywordListChanged()
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
 
-	m_UserNote.setKeywordList(ui->widgetNoteKeywords->selectedKeywordList());
+	m_UserNote.setKeywordList(ui.widgetNoteKeywords->selectedKeywordList());
 	m_bIsDirty = true;
 
 	m_bDoingUpdate = false;
@@ -358,15 +356,18 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
 	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
 
-	CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
-	dlg.setGotoButtonText(tr("&OK"));
+	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	pDlg->setGotoButtonText(tr("&OK"));
 	TPhraseTag tagNav(ndxStart);
-	dlg.navigator().startAbsoluteMode(tagNav);
-	if (dlg.exec() != QDialog::Accepted) return CRelIndex();
+	pDlg->navigator().startAbsoluteMode(tagNav);
+	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
 
-	CRelIndex ndxTarget = dlg.passage().relIndex();
-	ndxTarget.setWord(0);			// Whole verse references only
-	return ndxTarget;
+	if (pDlg != NULL) {			// Could get deleted during execution
+		CRelIndex ndxTarget = pDlg->passage().relIndex();
+		ndxTarget.setWord(0);			// Whole verse references only
+		return ndxTarget;
+	}
+	return CRelIndex();
 }
 
 // ============================================================================

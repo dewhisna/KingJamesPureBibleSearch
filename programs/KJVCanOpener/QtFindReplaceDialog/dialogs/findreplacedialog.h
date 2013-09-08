@@ -10,9 +10,7 @@
 
 #include "findreplace_global.h"
 
-namespace Ui {
-	class FindReplaceDialog;
-}
+#include "ui_findreplacedialog.h"
 
 class QTextEdit;
 class QSettings;
@@ -72,7 +70,7 @@ public slots:
 protected:
 	void changeEvent(QEvent *e);
 
-	Ui::FindReplaceDialog *ui;
+	Ui::FindReplaceDialog ui;
 };
 
 #endif // FINDREPLACEDIALOG_H

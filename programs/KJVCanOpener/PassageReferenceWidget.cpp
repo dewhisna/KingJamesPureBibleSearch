@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "PassageReferenceWidget.h"
-#include "ui_PassageReferenceWidget.h"
 
 #include "SearchCompleter.h"
 
@@ -39,17 +38,16 @@
 // ============================================================================
 
 CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
-	:	QWidget(parent),
-		ui(new Ui::CPassageReferenceWidget)
+	:	QWidget(parent)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 
-	connect(ui->editPassageReference, SIGNAL(textEdited(const QString &)), this, SLOT(en_PassageReferenceChanged(const QString &)));
+	connect(ui.editPassageReference, SIGNAL(textEdited(const QString &)), this, SLOT(en_PassageReferenceChanged(const QString &)));
 }
 
 CPassageReferenceWidget::~CPassageReferenceWidget()
 {
-	delete ui;
+
 }
 
 void CPassageReferenceWidget::initialize(CBibleDatabasePtr pBibleDatabase)
@@ -62,13 +60,13 @@ void CPassageReferenceWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 void CPassageReferenceWidget::clear()
 {
 	m_tagPhrase = TPhraseTag();
-	ui->editPassageReference->clear();
+	ui.editPassageReference->clear();
 }
 
 void CPassageReferenceWidget::focusInEvent(QFocusEvent *event)
 {
 	QWidget::focusInEvent(event);
-	ui->editPassageReference->setFocus();
+	ui.editPassageReference->setFocus();
 }
 
 void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
@@ -248,10 +246,10 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 		}
 	}
 
-	if ((m_tagPhrase.relIndex().isSet()) || (ui->editPassageReference->text().trimmed().isEmpty())) {
-		ui->editPassageReference->setStyleSheet(QString());
+	if ((m_tagPhrase.relIndex().isSet()) || (ui.editPassageReference->text().trimmed().isEmpty())) {
+		ui.editPassageReference->setStyleSheet(QString());
 	} else {
-		ui->editPassageReference->setStyleSheet(QString("color:%1;").arg(QColor("red").name()));
+		ui.editPassageReference->setStyleSheet(QString("color:%1;").arg(QColor("red").name()));
 	}
 
 	emit passageReferenceChanged(m_tagPhrase);

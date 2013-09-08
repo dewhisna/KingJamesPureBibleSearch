@@ -487,13 +487,13 @@ void CSearchResultsTreeView::showPassageNavigator()
 	}
 
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-	CKJVPassageNavigatorDlg dlg(vlmodel()->bibleDatabase(), this);
+	CKJVPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
 
-//	dlg.navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
+//	pDlg->navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
 
-	dlg.navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
-	if (dlg.exec() == QDialog::Accepted) {
-		emit gotoIndex(dlg.passage());
+	pDlg->navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
+	if (pDlg->exec() == QDialog::Accepted) {
+		if (pDlg != NULL) emit gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 }
 
@@ -760,7 +760,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	m_pNoteKeywordWidget = new CNoteKeywordWidget(this);
 	m_pNoteKeywordWidget->setObjectName("keywordWidget");
-	m_pNoteKeywordWidget->setMode(CNoteKeywordWidget::KWME_SELECTOR);
+	m_pNoteKeywordWidget->setMode(KWME_SELECTOR);
 
 	pLayout->addWidget(m_pNoteKeywordWidget);
 

@@ -35,12 +35,11 @@
 #include <QAbstractButton>
 #include <QSettings>
 #include <QAction>
+#include <QPointer>
 
 // ============================================================================
 
-namespace Ui {
-	class CKJVNoteEditDlg;
-}
+#include "ui_KJVNoteEditDlg.h"
 
 class CKJVNoteEditDlg : public QDialog
 {
@@ -75,8 +74,6 @@ private:
 
 private:
 	static QAction *m_pActionUserNoteEditor;
-	// ----
-	Ui::CKJVNoteEditDlg *ui;
 	QwwColorButton *m_pBackgroundColorButton;
 	QwwRichTextEdit *m_pRichTextEdit;
 	QPushButton *m_pDeleteNoteButton;
@@ -90,6 +87,28 @@ private:
 	CRelIndex m_ndxLastRefLink;
 	CUserNoteEntry m_UserNote;
 	bool m_bHaveGeometry;
+	// ----
+	Ui::CKJVNoteEditDlg ui;
+};
+
+// ============================================================================
+
+// SmartPointer classes needed, particularly for stack instantiated dialogs, since
+//		this dialog is only WindowModal and the parent can get deleted during an
+//		app close event, causing an attempted double-free which leads to a crash:
+class CKJVNoteEditDlgPtr : public QPointer<CKJVNoteEditDlg>
+{
+public:
+	CKJVNoteEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = NULL)
+		:	QPointer<CKJVNoteEditDlg>(new CKJVNoteEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
+	{
+
+	}
+
+	virtual ~CKJVNoteEditDlgPtr()
+	{
+		if (!isNull()) delete data();
+	}
 };
 
 // ============================================================================

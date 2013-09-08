@@ -386,7 +386,7 @@
   <customwidget>
    <class>CFontComboBox</class>
    <extends>QFontComboBox</extends>
-   <header>KJVConfiguration.h</header>
+   <header>SubControls.h</header>
   </customwidget>
   <customwidget>
    <class>CComboBox</class>

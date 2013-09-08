@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "KJVCanOpener.h"
-#include "ui_KJVCanOpener.h"
 
 #include "main.h"
 #include "VerseListModel.h"
@@ -190,12 +189,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pCrossRefsEditorDlg(NULL),
 	m_pHighlighterButtons(NULL),
 	m_pTipEdit(NULL),
-	m_bTipEditIsPinned(false),
-	ui(new Ui::CKJVCanOpener)
+	m_bTipEditIsPinned(false)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	QAction *pAction;
 
@@ -213,24 +211,24 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
 	m_pHighlighterButtons = new CHighlighterButtons(this);
-	m_pHighlighterButtons->addHighlighterButtonsToToolBar(ui->usernotesToolBar);
+	m_pHighlighterButtons->addHighlighterButtonsToToolBar(ui.usernotesToolBar);
 
-	ui->usernotesToolBar->addSeparator();
+	ui.usernotesToolBar->addSeparator();
 
-	ui->usernotesToolBar->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+	ui.usernotesToolBar->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 
-	ui->usernotesToolBar->addSeparator();
+	ui.usernotesToolBar->addSeparator();
 
-	ui->usernotesToolBar->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+	ui.usernotesToolBar->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 
 	// -------------------- Setup the Three Panes:
 
-	m_pSearchSpecWidget = new CKJVSearchSpec(m_pBibleDatabase, ui->centralWidget);
+	m_pSearchSpecWidget = new CKJVSearchSpec(m_pBibleDatabase, ui.centralWidget);
 	m_pSearchSpecWidget->setObjectName(QString::fromUtf8("SearchSpecWidget"));
 
-	ui->horizontalLayout->addWidget(m_pSearchSpecWidget);
+	ui.horizontalLayout->addWidget(m_pSearchSpecWidget);
 
-	m_pSplitter = new QSplitter(ui->centralWidget);
+	m_pSplitter = new QSplitter(ui.centralWidget);
 	m_pSplitter->setObjectName(QString::fromUtf8("splitter"));
 	m_pSplitter->setOrientation(Qt::Horizontal);
 	m_pSplitter->setChildrenCollapsible(false);
@@ -248,7 +246,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBrowserWidget->setSizePolicy(aSizePolicy);
 	m_pSplitter->addWidget(m_pBrowserWidget);
 
-	ui->horizontalLayout->addWidget(m_pSplitter);
+	ui.horizontalLayout->addWidget(m_pSplitter);
 
 	// --------------------
 
@@ -274,22 +272,22 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --------------------
 
 	// --- File Menu
-	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File"));
+	QMenu *pFileMenu = ui.menuBar->addMenu(tr("&File"));
 
 	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_N));
 	pAction->setStatusTip(tr("Clear All Search Phrases and Begin New Search"));
 	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
-	ui->mainToolBar->addAction(pAction);
+	ui.mainToolBar->addAction(pAction);
 
 	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File"));
-	ui->mainToolBar->addAction(pAction);
+	ui.mainToolBar->addAction(pAction);
 
 	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File..."), this, SLOT(en_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	pAction->setStatusTip(tr("Save current Search Phrases to a King James Search File"));
 	pAction->setToolTip(tr("Save current Search Phrases to a King James Search File"));
-	ui->mainToolBar->addAction(pAction);
+	ui.mainToolBar->addAction(pAction);
 
 	pFileMenu->addSeparator();
 
@@ -312,15 +310,15 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	// --- View Menu
-	m_pViewMenu = ui->menuBar->addMenu(tr("&View"));
+	m_pViewMenu = ui.menuBar->addMenu(tr("&View"));
 
 	QMenu *pViewToolbarsMenu = m_pViewMenu->addMenu(tr("&Toolbars"));
-	pViewToolbarsMenu->addAction(ui->mainToolBar->toggleViewAction());
-	ui->mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
-	pViewToolbarsMenu->addAction(ui->browserNavigationToolBar->toggleViewAction());
-	ui->browserNavigationToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide the Scripture Browser Navigation Tool Bar"));
-	pViewToolbarsMenu->addAction(ui->usernotesToolBar->toggleViewAction());
-	ui->usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
+	pViewToolbarsMenu->addAction(ui.mainToolBar->toggleViewAction());
+	ui.mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
+	pViewToolbarsMenu->addAction(ui.browserNavigationToolBar->toggleViewAction());
+	ui.browserNavigationToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide the Scripture Browser Navigation Tool Bar"));
+	pViewToolbarsMenu->addAction(ui.usernotesToolBar->toggleViewAction());
+	ui.usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
@@ -450,7 +448,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewDetails);
 
 	// --- Navigate Menu
-	QMenu *pNavMenu = ui->menuBar->addMenu(tr("&Navigate"));
+	QMenu *pNavMenu = ui.menuBar->addMenu(tr("&Navigate"));
 
 	pAction = pNavMenu->addAction(tr("Beginning of Bible"), m_pBrowserWidget, SLOT(en_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
 	pAction->setStatusTip(tr("Goto the very Beginning of the Bible"));
@@ -477,7 +475,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), tr("History &Backward"), this);
 	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
 	m_pActionNavBackward->setStatusTip(tr("Go Backward in Navigation History"));
-	ui->browserNavigationToolBar->addAction(m_pActionNavBackward);
+	ui.browserNavigationToolBar->addAction(m_pActionNavBackward);
 	connect(m_pBrowserWidget, SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget, SIGNAL(backward()));
 	connect(m_pActionNavBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
@@ -487,7 +485,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), tr("History &Forward"), this);
 	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
 	m_pActionNavForward->setStatusTip(tr("Go Forward in Navigation History"));
-	ui->browserNavigationToolBar->addAction(m_pActionNavForward);
+	ui.browserNavigationToolBar->addAction(m_pActionNavForward);
 	connect(m_pBrowserWidget, SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
 	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget, SIGNAL(forward()));
 	connect(m_pActionNavForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
@@ -502,7 +500,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), tr("&Clear Navigation History"), this);
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip(tr("Clear All Passage Navigation History"));
-	ui->browserNavigationToolBar->addAction(m_pActionNavClear);
+	ui.browserNavigationToolBar->addAction(m_pActionNavClear);
 	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(en_clearBrowserHistory()));
 	m_pActionNavClear->setEnabled(m_pBrowserWidget->isBackwardAvailable() ||
 									m_pBrowserWidget->isForwardAvailable());
@@ -514,17 +512,17 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator"), this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	m_pActionJump->setStatusTip(tr("Display the Passage Navigator Widget"));
-	ui->browserNavigationToolBar->addAction(m_pActionJump);
+	ui.browserNavigationToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
 
 	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
 
-	ui->browserNavigationToolBar->addSeparator();
-	ui->browserNavigationToolBar->addAction(m_pActionViewDetails);
+	ui.browserNavigationToolBar->addSeparator();
+	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
 
 	// --- Settings Menu
-	QMenu *pSettingsMenu = ui->menuBar->addMenu(tr("Se&ttings"));
+	QMenu *pSettingsMenu = ui.menuBar->addMenu(tr("Se&ttings"));
 
 	pAction = pSettingsMenu->addAction(QIcon(":/res/Settings-icon2-128.png"), tr("Configure..."), this, SLOT(en_Configure()));
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
@@ -532,7 +530,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setMenuRole(QAction::PreferencesRole);
 
 	// --- Help Menu
-	QMenu *pHelpMenu = ui->menuBar->addMenu(tr("&Help"));
+	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help"));
 	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
 	pAction->setStatusTip(tr("Display the Users Manual"));
 
@@ -542,8 +540,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionAbout->setToolTip(tr("About the King James Pure Bible Search..."));
 	m_pActionAbout->setMenuRole(QAction::AboutRole);
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(en_HelpAbout()));
-	ui->mainToolBar->addSeparator();
-	ui->mainToolBar->addAction(m_pActionAbout);
+	ui.mainToolBar->addSeparator();
+	ui.mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
 
 	// -------------------- Quick Activate:
@@ -592,7 +590,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 CKJVCanOpener::~CKJVCanOpener()
 {
-	delete ui;
+
 }
 
 void CKJVCanOpener::initialize()
@@ -1224,15 +1222,15 @@ void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd)
 
 	if (bAdd) {
 		if (m_pActionPassageBrowserEditMenu == NULL) {
-			m_pActionPassageBrowserEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu());
+			m_pActionPassageBrowserEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu());
 			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
 		}
 	} else {
 		if (m_pActionPassageBrowserEditMenu) {
 			// The following 'if' is needed for insert race conditions to
 			//		keep us from crashing:
-			if (ui->menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
-				ui->menuBar->removeAction(m_pActionPassageBrowserEditMenu);
+			if (ui.menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
+				ui.menuBar->removeAction(m_pActionPassageBrowserEditMenu);
 			m_pActionPassageBrowserEditMenu = NULL;
 		}
 	}
@@ -1244,14 +1242,14 @@ void CKJVCanOpener::en_addSearchResultsEditMenu(bool bAdd)
 
 	if (bAdd) {
 		if (m_pActionSearchResultsEditMenu == NULL) {
-			m_pActionSearchResultsEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), m_pSearchResultWidget->getEditMenu());
+			m_pActionSearchResultsEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pSearchResultWidget->getEditMenu());
 		}
 	} else {
 		if (m_pActionSearchResultsEditMenu) {
 			// The following 'if' is needed for insert race conditions to
 			//		keep us from crashing:
-			if (ui->menuBar->actions().contains(m_pActionSearchResultsEditMenu))
-				ui->menuBar->removeAction(m_pActionSearchResultsEditMenu);
+			if (ui.menuBar->actions().contains(m_pActionSearchResultsEditMenu))
+				ui.menuBar->removeAction(m_pActionSearchResultsEditMenu);
 			m_pActionSearchResultsEditMenu = NULL;
 		}
 	}
@@ -1264,12 +1262,12 @@ void CKJVCanOpener::en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 	if (m_pActionSearchPhraseEditMenu) {
 		// The following 'if' is needed for insert race conditions to
 		//		keep us from crashing:
-		if (ui->menuBar->actions().contains(m_pActionSearchPhraseEditMenu))
-			ui->menuBar->removeAction(m_pActionSearchPhraseEditMenu);
+		if (ui.menuBar->actions().contains(m_pActionSearchPhraseEditMenu))
+			ui.menuBar->removeAction(m_pActionSearchPhraseEditMenu);
 		m_pActionSearchPhraseEditMenu = NULL;
 	}
 	if ((bAdd) && (pEditor != NULL)) {
-		m_pActionSearchPhraseEditMenu = ui->menuBar->insertMenu(m_pViewMenu->menuAction(), pEditor->getEditMenu());
+		m_pActionSearchPhraseEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), pEditor->getEditMenu());
 	}
 }
 
@@ -1472,11 +1470,13 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
-		CKJVPassageNavigatorDlg dlg(m_pBibleDatabase, this);
+		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
-		if (dlg.exec() == QDialog::Accepted) {
-			m_pBrowserWidget->gotoIndex(dlg.passage());
-			m_pBrowserWidget->setFocusBrowser();
+		if (pDlg->exec() == QDialog::Accepted) {
+			if (pDlg != NULL) {			// Could get deleted during execution
+				m_pBrowserWidget->gotoIndex(pDlg->passage());
+				m_pBrowserWidget->setFocusBrowser();
+			}
 		}
 	}
 }
@@ -1565,8 +1565,8 @@ void CKJVCanOpener::en_HelpManual()
 
 void CKJVCanOpener::en_HelpAbout()
 {
-	CKJVAboutDlg dlg(this);
-	dlg.exec();
+	CKJVAboutDlgPtr pDlg(this);
+	pDlg->exec();
 }
 
 void CKJVCanOpener::en_QuickActivate()
