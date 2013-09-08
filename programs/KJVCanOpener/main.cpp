@@ -79,6 +79,7 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
+	const int g_connInterAppSplasTimeMS = 2000;	// Splash Time for Inter-Application communications
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
@@ -175,7 +176,54 @@ namespace {
 	const QString constrFontNameKey("FontName");
 	const QString constrFontSizeKey("FontSize");
 
+
+	// Bible Database Descriptor Constants:
+	// ------------------------------------
+	typedef struct {
+		const QString m_strDBName;
+		const QString m_strDBDesc;
+		const QString m_strUUID;
+	} TBibleDescriptor;
+
+	const TBibleDescriptor constBibleDescriptors[] =
+	{
+		// Special Test Value:
+		{ "Special Test", QObject::tr("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66" },
+		// KJV:
+		{ "King James", QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66" },
+		// RVG2010:
+		{ "Reina-Valera Gómez", QObject::tr("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66" },
+		// KJF2006:
+		{ "King James Française 2006", QObject::tr("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66" }
+	};
+
+	enum BIBLE_DESCRIPTOR_ENUM {
+		BDE_SPECIAL_TEST = 0,
+		BDE_KJV = 1,
+		BDE_RVG2010 = 2,
+		BDE_KJF2006 = 3
+	};
+
 }	// namespace
+
+// ============================================================================
+
+CBibleDatabasePtr locateBibleDatabase(const QString &strUUID)
+{
+	QString strTargetUUID = strUUID;
+
+	if (strTargetUUID.isEmpty()) {
+		// Default database is KJV
+		strTargetUUID = constBibleDescriptors[BDE_KJV].m_strUUID;
+	}
+
+	for (int ndx = 0; ndx < g_lstBibleDatabases.size(); ++ndx) {
+		if (g_lstBibleDatabases.at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
+			return g_lstBibleDatabases.at(ndx);
+	}
+
+	return CBibleDatabasePtr();
+}
 
 // ============================================================================
 
@@ -211,6 +259,9 @@ bool CMyApplication::event(QEvent *event) {
 	if (event->type() == QEvent::FileOpen) {
 		m_strFileToLoad = static_cast<QFileOpenEvent *>(event)->file();
 		emit loadFile(m_strFileToLoad);
+		// Emulate receiving activate existing w/open KJS message:
+		QString strMessage = createKJPBSMessage(KAMCE_ACTIVATE_EXISTING_OPEN_KJS, QStringList(QString("KJS=%1").arg(m_strFileToLoad)));
+		receivedKJPBSMessage(strMessage);
 		return true;
 	}
 	return QApplication::event(event);
@@ -252,6 +303,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase);
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
+	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
 	return pCanOpener;
 }
 
@@ -260,7 +312,21 @@ void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
 	CKJVCanOpener *pCanOpener = static_cast<CKJVCanOpener*>(pKJVCanOpener);
 	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pCanOpener);
 	assert(ndxCanOpener != -1);
+	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
+}
+
+void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
+{
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		if (m_lstKJVCanOpeners.at(ndx) == pCanOpener) {
+			m_nLastActivateCanOpener = ndx;
+			return;
+		}
+	}
+
+	assert(false);
+	m_nLastActivateCanOpener = -1;
 }
 
 CKJVCanOpener *CMyApplication::activeCanOpener() const
@@ -293,6 +359,141 @@ template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureBrows
 class i_CScriptureEdit;
 template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>(const i_CScriptureEdit *) const;
 
+
+void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
+{
+	assert(pCanOpener != NULL);
+	pCanOpener->setWindowState(pCanOpener->windowState() & ~Qt::WindowMinimized);
+	pCanOpener->raise();
+	pCanOpener->activateWindow();
+}
+
+void CMyApplication::activateCanOpener(int ndx) const
+{
+	assert((ndx >= 0) && (ndx < m_lstKJVCanOpeners.size()));
+	if ((ndx < 0) || (ndx >= m_lstKJVCanOpeners.size())) return;
+
+	activateCanOpener(m_lstKJVCanOpeners.at(ndx));
+}
+
+void CMyApplication::activateAllCanOpeners() const
+{
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		activateCanOpener(ndx);
+	}
+}
+
+// ============================================================================
+
+QString CMyApplication::createKJPBSMessage(KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand, const QStringList &lstArgs) const
+{
+	QString strMessage;
+
+	switch (nCommand) {
+		case KAMCE_ACTIVATE_EXISTING:
+			strMessage += "ACTIVATE";
+			break;
+		case KAMCE_ACTIVATE_EXISTING_OPEN_KJS:
+			strMessage += "ACTIVATE_OPENKJS";
+			break;
+		case KAMCE_NEW_CANOPENER:
+			strMessage += "NEW_CANOPENER";
+			break;
+		case KAMCE_NEW_CANOPENER_OPEN_KJS:
+			strMessage += "NEW_CANOPENER_OPENKJS";
+			break;
+		default:
+			return QString();
+	}
+
+	strMessage += ";";
+	strMessage += lstArgs.join(";");
+	return strMessage;
+}
+
+void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
+{
+	if (strMessage.isEmpty()) {
+		activateAllCanOpeners();
+		return;
+	}
+
+	QStringList lstMsg = strMessage.split(";", QString::KeepEmptyParts);
+	assert(lstMsg.size() >= 1);
+	if (lstMsg.size() < 1) return;
+
+	QString strKJSFileName;
+	QString strBibleUUID;
+
+	KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand = KAMCE_UNKNOWN;
+	QString strCommand = lstMsg.at(0);
+	if (strCommand.compare("ACTIVATE", Qt::CaseInsensitive) == 0) {
+		nCommand = KAMCE_ACTIVATE_EXISTING;
+	} else if (strCommand.compare("ACTIVATE_OPENKJS", Qt::CaseInsensitive) == 0) {
+		nCommand = KAMCE_ACTIVATE_EXISTING_OPEN_KJS;
+	} else if (strCommand.compare("NEW_CANOPENER", Qt::CaseInsensitive) == 0) {
+		nCommand = KAMCE_NEW_CANOPENER;
+	} else if (strCommand.compare("NEW_CANOPENER_OPENKJS", Qt::CaseInsensitive) == 0) {
+		nCommand = KAMCE_NEW_CANOPENER_OPEN_KJS;
+	} else {
+		std::cerr << "*** KJPBS : Unrecognized inter-application command : " << strCommand.toUtf8().data() << std::endl;
+	}
+
+	for (int ndxArgs = 1; ndxArgs < lstMsg.size(); ++ndxArgs) {
+		if (lstMsg.at(ndxArgs).isEmpty()) continue;
+		QStringList lstArg = lstMsg.at(ndxArgs).split(QChar('='));
+		if (lstArg.size() != 2) {
+			std::cerr << "*** KJPBS : Malformed inter-application argument : " << lstMsg.at(ndxArgs).toUtf8().data() << std::endl;
+		} else {
+			if (lstArg.at(0).compare("KJS", Qt::CaseInsensitive) == 0) {
+				strKJSFileName = lstArg.at(1);
+			} else if (lstArg.at(1).compare("BibleUUID", Qt::CaseInsensitive) == 0) {
+				strBibleUUID = lstArg.at(1);
+			} else {
+				std::cerr << "*** KJPBS : Unrecognized inter-application argument : " << lstMsg.at(ndxArgs).toUtf8().data() << std::endl;
+			}
+		}
+	}
+
+	switch (nCommand) {
+		case KAMCE_ACTIVATE_EXISTING:
+		{
+			int nIndex = m_nLastActivateCanOpener;
+			if (nIndex == -1) {
+				if (m_lstKJVCanOpeners.size() > 1) nIndex = 0;
+			} else {
+				assert(false);
+				return;
+			}
+			activateCanOpener(nIndex);
+			break;
+		}
+		case KAMCE_ACTIVATE_EXISTING_OPEN_KJS:
+		case KAMCE_NEW_CANOPENER:
+		case KAMCE_NEW_CANOPENER_OPEN_KJS:
+		{
+			bool bForceOpen = ((nCommand == KAMCE_NEW_CANOPENER_OPEN_KJS) || (nCommand == KAMCE_NEW_CANOPENER));
+			CKJVCanOpener *pCanOpener = NULL;
+			if ((bForceOpen) || (m_lstKJVCanOpeners.size() != 1)) {
+				// If we have more than one, just open a new window and launch the file:
+				CBibleDatabasePtr pBibleDatabase = locateBibleDatabase(strBibleUUID);
+				if (pBibleDatabase == NULL) pBibleDatabase = g_pMainBibleDatabase;
+				pCanOpener = createKJVCanOpener(pBibleDatabase);
+				assert(pCanOpener != NULL);
+				pCanOpener->show();
+				pCanOpener->initialize();
+			} else {
+				pCanOpener = m_lstKJVCanOpeners.at(0);
+			}
+			activateCanOpener(pCanOpener);
+			if (!strKJSFileName.isEmpty()) pCanOpener->openKJVSearchFile(strKJSFileName);
+			break;
+		}
+		default:
+			break;
+	}
+}
+
 // ============================================================================
 
 int main(int argc, char *argv[])
@@ -318,12 +519,8 @@ int main(int argc, char *argv[])
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
-	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(signalSpyCaughtSignal(const QString &)));
-	if (instance.isRunning()) {
-		std::cerr << QString("%1 : Found another instance running\n").arg(app.applicationPid()).toUtf8().data();
-		QString strMessage = QString("Message from : %1").arg(app.applicationPid());
-		if (instance.sendMessage(strMessage, 5000)) return 0;
-	}
+	// Hook receiving messages from other KJPBS app launches:
+	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash, Qt::WindowStaysOnTopHint);
@@ -343,6 +540,46 @@ int main(int argc, char *argv[])
 
 	QTime splashTimer;
 	splashTimer.start();
+
+	// Parse the Commmand-line:
+	if (strKJSFile.isEmpty() && !app.fileToLoad().isEmpty()) strKJSFile = app.fileToLoad();
+
+	for (int ndx = 1; ndx < argc; ++ndx) {
+		QString strArg(argv[ndx]);
+		if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
+			bBuildDB = true;
+		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
+			strKJSFile = strArg;
+		} else {
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
+		}
+	}
+
+	// Check for existing KJPBS and have it handle this launch request:
+	if (instance.isRunning()) {
+		int nElapsed;
+		do {
+			nElapsed = splashTimer.elapsed();
+		} while ((nElapsed>=0) && (nElapsed<g_connInterAppSplasTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
+
+		QString strMessage;
+		if (!strKJSFile.isEmpty()) {
+			QFileInfo fiKJSFile(strKJSFile);
+			strMessage = app.createKJPBSMessage(CMyApplication::KAMCE_ACTIVATE_EXISTING_OPEN_KJS, QStringList(QString("KJS=%1").arg(fiKJSFile.absoluteFilePath())));
+		} else{
+			strMessage = app.createKJPBSMessage(CMyApplication::KAMCE_NEW_CANOPENER, QStringList());
+		}
+
+		if (instance.sendMessage(strMessage, 5000)) {
+			delete splash;
+			return 0;
+		} else {
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("There appears to be another copy of King James Pure Bible Search running, but it is not responding. "
+																			 "Please check the running copy to see if it's functioning and revive it and/or reboot."));
+			delete splash;
+			return -1;
+		}
+	}
 
 	// Setup our Fonts:
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
@@ -379,19 +616,6 @@ int main(int argc, char *argv[])
 //adb.BuildDatabase(fiDatabase.absoluteFilePath());
 //return 0;
 
-	if (strKJSFile.isEmpty() && !app.fileToLoad().isEmpty()) strKJSFile = app.fileToLoad();
-
-	for (int ndx = 1; ndx < argc; ++ndx) {
-		QString strArg(argv[ndx]);
-		if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
-			bBuildDB = true;
-		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
-			strKJSFile = strArg;
-		} else {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
-		}
-	}
-
 	// Read User Database if it exists:
 	QString strUserDatabaseFilename;
 
@@ -400,7 +624,7 @@ int main(int argc, char *argv[])
 		if (bBuildDB) {
 			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
-				return -1;
+				return -2;
 			}
 		}
 
@@ -408,7 +632,7 @@ int main(int argc, char *argv[])
 		CReadDatabase rdb(splash);
 		if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", true)) {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
-			return -2;
+			return -3;
 		}
 
 		if (!fiUserDatabase.exists()) {
@@ -443,7 +667,7 @@ int main(int argc, char *argv[])
 		} else {
 			if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
-				return -3;
+				return -4;
 			} else {
 				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
 			}
@@ -510,7 +734,6 @@ int main(int argc, char *argv[])
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
-//	wMain.connect(&app, SIGNAL(loadFile(const QString&)), &wMain, SLOT(openKJVSearchFile(const QString&)));
 	splash->finish(pMain);
 	pMain->show();
 	delete splash;
@@ -518,18 +741,6 @@ int main(int argc, char *argv[])
 	pMain->initialize();
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
-
-
-// TODO : CLEAN:
-	pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
-	pMain->show();
-	pMain->initialize();
-
-
-
-
-
-
 
 	int nRetVal = app.exec();
 

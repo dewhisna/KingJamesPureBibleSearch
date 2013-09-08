@@ -38,6 +38,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QString>
 #include <QSplitter>
 
@@ -77,10 +78,13 @@ public:
 
 	CHighlighterButtons *highlighterButtons() const { return m_pHighlighterButtons; }
 
-protected:
+protected slots:
 	void savePersistentSettings();
 	void restorePersistentSettings();
+
+protected:
 	virtual void closeEvent(QCloseEvent * event);
+	virtual bool event(QEvent *pEvent);
 
 	friend class CTipEdit;
 	CTipEdit *tipEdit() const { return m_pTipEdit; }
@@ -92,6 +96,7 @@ protected:
 signals:
 	void changedSearchResults();
 	void canShowDetails(bool bHaveDetails);
+	void windowActivated(CKJVCanOpener *pCanOpener);
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);

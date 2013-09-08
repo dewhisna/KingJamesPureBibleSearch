@@ -719,6 +719,7 @@ private:
 typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 
 typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
+extern CBibleDatabasePtr locateBibleDatabase(const QString &strUUID);
 
 // ============================================================================
 

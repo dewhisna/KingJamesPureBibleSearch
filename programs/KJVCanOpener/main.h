@@ -30,6 +30,7 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QString>
+#include <QStringList>
 #include <QList>
 
 #ifdef USING_QT_SINGLEAPPLICATION
@@ -57,12 +58,21 @@ class CMyApplication : public QApplication
 {
 	Q_OBJECT
 public:
+	enum KJPBS_APP_MESSAGE_COMMAND_ENUM {
+		KAMCE_UNKNOWN = -1,
+		KAMCE_ACTIVATE_EXISTING = 0,			// Activate application (another copy is launching and wants us to restore the window and bring it to the front without starting new pseudo-instance)
+		KAMCE_ACTIVATE_EXISTING_OPEN_KJS = 1,	// Activate application and Open a .KJS Search File
+		KAMCE_NEW_CANOPENER = 2,				// Launch a new CanOpener Search Window (another copy is launching and wants us to start a new search window)
+		KAMCE_NEW_CANOPENER_OPEN_KJS = 3		// Launch a new CanOpener Search Window and Open a .KJS Search File
+	};
+
 	CMyApplication(int & argc, char ** argv)
 #ifdef USING_QT_SINGLEAPPLICATION
-		:	QtSingleApplication(g_constrApplicationID, argc, argv)
+		:	QtSingleApplication(g_constrApplicationID, argc, argv),
 #else
-		:	QApplication(argc, argv)
+		:	QApplication(argc, argv),
 #endif
+			m_nLastActivateCanOpener(-1)
 	{
 
 	}
@@ -84,6 +94,29 @@ public:
 	template<class T>
 	CKJVCanOpener *findCanOpenerFromChild(const T *pChild) const;
 	const QList<CKJVCanOpener *> &canOpeners() const { return m_lstKJVCanOpeners; }
+	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
+	void activateCanOpener(int ndx) const;
+	void activateAllCanOpeners() const;
+
+	// Message Format:
+	//		<command>;<args>
+	//
+	//		<command> is one of:
+	//
+	//
+	//		<args> are Name=Value format separated by semi-colon:
+	//
+	// Valid arg names are:
+	//		BibleUUID - UUID for the Bible Database to load/use
+	//			example:	BibleUUID=85D8A6B0-E670-11E2-A28F-0800200C9A66
+	//		KJS - KJS FilePathName to load
+	//			example:	KJS=/home/username/Documents/MySearch.kjs
+	//
+
+	QString createKJPBSMessage(KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand, const QStringList &lstArgs) const;
+
+public slots:
+	void receivedKJPBSMessage(const QString &strMessage);
 
 signals:
 	void loadFile(const QString &strFilename);
@@ -99,12 +132,16 @@ public:
 
 private slots:
 	void removeKJVCanOpener(QObject *pKJVCanOpener);
+	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
 
 protected:
 	bool event(QEvent *event);
+
+protected:
 	QString m_strFileToLoad;
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
+	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
 };
 
 #endif // MAIN_H

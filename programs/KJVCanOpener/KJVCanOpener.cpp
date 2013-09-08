@@ -712,15 +712,17 @@ void CKJVCanOpener::restorePersistentSettings()
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	QString strFont;
 
-	QPoint ptPos = pos();		// Initial window creation place
-
 	// Main App and Toolbars RestoreState:
-	settings.beginGroup(constrMainAppRestoreStateGroup);
-	restoreGeometry(settings.value(constrGeometryKey).toByteArray());
-	restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
-	settings.endGroup();
-
-	if (!bIsFirstCanOpener) move(ptPos);
+	if (bIsFirstCanOpener) {
+		settings.beginGroup(constrMainAppRestoreStateGroup);
+		restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+		restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+		settings.endGroup();
+	} else {
+		CKJVCanOpener *pPrimaryCanOpener = g_pMyApplication->canOpeners().at(0);
+		restoreState(pPrimaryCanOpener->saveState(KJVAPP_REGISTRY_VERSION), KJVAPP_REGISTRY_VERSION);
+		resize(pPrimaryCanOpener->size());
+	}
 
 	// Main App General Settings:
 	if (bIsFirstCanOpener) {
@@ -1030,6 +1032,12 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 
 //	QMainWindow::closeEvent(event);
 	deleteLater();
+}
+
+bool CKJVCanOpener::event(QEvent *pEvent)
+{
+	if (pEvent->type() == QEvent::WindowActivate) emit windowActivated(this);
+	return QMainWindow::event(pEvent);
 }
 
 // ------------------------------------------------------------------
