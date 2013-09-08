@@ -360,6 +360,8 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	connect(ui->buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 	connect(ui->buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
+	// Setup Default TextBrightness:
+	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
 }
