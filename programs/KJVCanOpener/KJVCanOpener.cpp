@@ -293,11 +293,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	pFileMenu->addSeparator();
 
-	pAction = pFileMenu->addAction(tr("N&ew Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_E));
+	pAction = pFileMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("N&ew Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_E));
 	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Create New Search Window"));
 
-	pAction = pFileMenu->addAction(tr("Close this Search &Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction = pFileMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("Close this Search &Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Close this Search Window"));
 
