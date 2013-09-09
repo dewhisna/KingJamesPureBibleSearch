@@ -531,8 +531,9 @@ int main(int argc, char *argv[])
 	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
-	QSplashScreen *splash = new QSplashScreen(pixSplash, Qt::WindowStaysOnTopHint);
+	QSplashScreen *splash = new QSplashScreen(pixSplash);
 	splash->show();
+	splash->raise();
 	splash->showMessage(QString("<html><body><table height=425 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") +
 							QObject::tr("Please Wait...") +
 							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
