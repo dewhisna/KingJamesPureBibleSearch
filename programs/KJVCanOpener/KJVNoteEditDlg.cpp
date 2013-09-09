@@ -180,7 +180,9 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	// --------------------------------------------------------------
 
+#ifndef Q_OS_MAC
 	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
+#endif
 }
 
 CKJVNoteEditDlg::~CKJVNoteEditDlg()
