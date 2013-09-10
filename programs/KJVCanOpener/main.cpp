@@ -307,6 +307,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
 	pCanOpener->initialize();
 	pCanOpener->show();
+	updateSearchWindowList();
 	return pCanOpener;
 }
 
@@ -317,6 +318,7 @@ void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
 	assert(ndxCanOpener != -1);
 	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
+	updateSearchWindowList();
 }
 
 void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
@@ -395,6 +397,32 @@ void CMyApplication::closeAllCanOpeners() const
 	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= 0; --ndx) {
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
+	// Note: List update will happen automatically as the windows close...
+}
+
+void CMyApplication::updateSearchWindowList()
+{
+	assert(m_pActionSearchWindowList != NULL);
+	if (m_pActionSearchWindowList == NULL) return;
+	assert(m_pActionSearchWindowList->menu() != NULL);
+	if (m_pActionSearchWindowList->menu() == NULL) return;
+
+	if (m_pActionGroupSearchWindowLists != NULL) delete m_pActionGroupSearchWindowLists;
+	m_pActionGroupSearchWindowLists = new QActionGroup(this);
+
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		QAction *pAction = new QAction(m_lstKJVCanOpeners.at(ndx)->searchWindowDescription(), m_pActionGroupSearchWindowLists);
+		pAction->setData(ndx);
+		m_pActionSearchWindowList->menu()->addAction(pAction);
+	}
+	connect(m_pActionGroupSearchWindowLists.data(), SIGNAL(triggered(QAction*)), this, SLOT(en_triggeredKJVCanOpener(QAction*)));
+}
+
+void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
+{
+	assert(pAction != NULL);
+	int nIndex = pAction->data().toInt();
+	activateCanOpener(nIndex);
 }
 
 bool CMyApplication::canQuit() const

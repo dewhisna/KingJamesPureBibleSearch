@@ -177,6 +177,7 @@ public:
 
 	const CParsedPhrase *parsedPhrase() const;
 	CPhraseLineEdit *phraseEditor() const;
+	const CPhraseEntry &phraseEntry() const {return m_phraseEntry; }
 
 	int searchActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
 

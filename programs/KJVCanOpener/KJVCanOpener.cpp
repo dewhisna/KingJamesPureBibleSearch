@@ -285,7 +285,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --- File Menu
 	QMenu *pFileMenu = ui.menuBar->addMenu(tr("&File"));
 
-	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_E));
 	pAction->setStatusTip(tr("Clear All Search Phrases and Begin New Search"));
 	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
 	ui.mainToolBar->addAction(pAction);
@@ -301,14 +301,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.mainToolBar->addAction(pAction);
 
 	pFileMenu->addSeparator();
-
-	pAction = pFileMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("N&ew Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_E));
-	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
-	pAction->setToolTip(tr("Create New Search Window"));
-
-	pAction = pFileMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("Close this Search &Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
-	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
-	pAction->setToolTip(tr("Close this Search Window"));
 
 	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit"), g_pMyApplication, SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip(tr("Exit the King James Pure Bible Search Application"));
@@ -541,6 +533,21 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Configure King James Pure Bible Search"));
 	pAction->setMenuRole(QAction::PreferencesRole);
+
+	// --- Window Menu
+	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
+
+	pAction = pWindowMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
+	pAction->setToolTip(tr("Create New Search Window"));
+
+	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
+	pAction->setToolTip(tr("Close this Search Window"));
+
+	pWindowMenu->addSeparator();
+
+	pWindowMenu->addAction(g_pMyApplication->actionSearchWindowList());
 
 	// --- Help Menu
 	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help"));
@@ -1066,6 +1073,13 @@ bool CKJVCanOpener::event(QEvent *pEvent)
 
 // ------------------------------------------------------------------
 
+QString CKJVCanOpener::searchWindowDescription() const
+{
+	return m_pSearchSpecWidget->searchWindowDescription();
+}
+
+// ------------------------------------------------------------------
+
 void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	assert(m_pActionGroupViewMode != NULL);
@@ -1231,6 +1245,8 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria,
 	// Auto-switch to Search Results mode:
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
 		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);
+
+	g_pMyApplication->updateSearchWindowList();
 }
 
 // ------------------------------------------------------------------

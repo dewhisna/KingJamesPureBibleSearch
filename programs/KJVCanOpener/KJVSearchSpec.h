@@ -64,6 +64,7 @@ public:
 	virtual ~CKJVSearchSpec();
 
 	QString searchPhraseSummaryText() const;
+	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
 
 signals:
 	void changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);

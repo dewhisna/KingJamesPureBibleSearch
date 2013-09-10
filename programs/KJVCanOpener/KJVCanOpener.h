@@ -80,6 +80,7 @@ public:
 	QAction *actionCrossRefsEditor() const { return m_pActionCrossRefsEditor; }
 
 	bool canClose() const { return m_bCanClose; }
+	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
 
 	friend class CKJVCanOpenerCloseGuard;
 	class CKJVCanOpenerCloseGuard {

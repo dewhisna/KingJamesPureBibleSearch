@@ -105,6 +105,26 @@ CKJVSearchSpec::~CKJVSearchSpec()
 
 // ------------------------------------------------------------------
 
+QString CKJVSearchSpec::searchWindowDescription() const
+{
+	QString strDescription;
+
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		if (!strDescription.isEmpty()) strDescription += "; ";
+		strDescription += m_lstSearchPhraseEditors.at(ndx)->phraseEntry().textEncoded();		/* parsedPhrase()->phrase(); */
+	}
+
+	if (strDescription.isEmpty()) {
+		strDescription = tr("<Empty Search Window>");
+	} else {
+		strDescription = QString("\"%1\"").arg(strDescription);
+	}
+
+	return strDescription;
+}
+
+// ------------------------------------------------------------------
+
 void CKJVSearchSpec::enableCopySearchPhraseSummary(bool bEnable)
 {
 	ui.widgetSearchCriteria->enableCopySearchPhraseSummary(bEnable);

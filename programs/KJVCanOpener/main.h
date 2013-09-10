@@ -32,6 +32,10 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QAction>
+#include <QActionGroup>
+#include <QMenu>
+#include <QPointer>
 
 #ifdef USING_QT_SINGLEAPPLICATION
 #include <QtSingleApplication>
@@ -72,9 +76,14 @@ public:
 #else
 		:	QApplication(argc, argv),
 #endif
-			m_nLastActivateCanOpener(-1)
+			m_nLastActivateCanOpener(-1),
+			m_pActionSearchWindowList(NULL),
+			m_pActionGroupSearchWindowLists(NULL)
 	{
-
+		m_pActionSearchWindowList = new QAction(tr("&Open Search Windows"), this);
+		m_pActionSearchWindowList->setStatusTip(tr("List of Open Search Windows"));
+		m_pActionSearchWindowList->setToolTip(tr("Open Search Window List"));
+		m_pActionSearchWindowList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
 	}
 
 	virtual ~CMyApplication()
@@ -94,8 +103,8 @@ public:
 	template<class T>
 	CKJVCanOpener *findCanOpenerFromChild(const T *pChild) const;
 	const QList<CKJVCanOpener *> &canOpeners() const { return m_lstKJVCanOpeners; }
-	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
-	void activateCanOpener(int ndx) const;
+
+	QAction *actionSearchWindowList() const { return m_pActionSearchWindowList; }
 
 	bool canQuit() const;
 
@@ -118,8 +127,11 @@ public:
 
 public slots:
 	void receivedKJPBSMessage(const QString &strMessage);
+	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
+	void activateCanOpener(int ndx) const;
 	void activateAllCanOpeners() const;
 	void closeAllCanOpeners() const;
+	void updateSearchWindowList();
 
 signals:
 	void loadFile(const QString &strFilename);
@@ -137,6 +149,7 @@ public:
 private slots:
 	void removeKJVCanOpener(QObject *pKJVCanOpener);
 	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
+	void en_triggeredKJVCanOpener(QAction *pAction);
 
 	void en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 
@@ -148,6 +161,8 @@ protected:
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
+	QAction *m_pActionSearchWindowList;					// Action for Window list of KJVCanOpeners
+	QPointer<QActionGroup> m_pActionGroupSearchWindowLists;		// Actual Window List items for Search Window List
 };
 
 #endif // MAIN_H

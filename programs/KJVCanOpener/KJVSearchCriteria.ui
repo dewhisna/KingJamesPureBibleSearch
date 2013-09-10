@@ -28,16 +28,19 @@
    <string>SearchCriteriaForm</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>4</number>
+   </property>
+   <property name="verticalSpacing">
+    <number>2</number>
+   </property>
    <property name="margin">
     <number>0</number>
-   </property>
-   <property name="spacing">
-    <number>4</number>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="lblSearchWithin">
      <property name="text">
-      <string>Search &amp;Within:</string>
+      <string>Search W&amp;ithin:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
