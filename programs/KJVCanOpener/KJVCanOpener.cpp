@@ -181,6 +181,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_bPhraseEditorActive(false),
 	m_bSearchResultsActive(false),
 	m_bBrowserActive(false),
+	m_bCanClose(true),
 	m_pSearchSpecWidget(NULL),
 	m_pSplitter(NULL),
 	m_pSearchResultWidget(NULL),
@@ -188,6 +189,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pUserNoteEditorDlg(NULL),
 	m_pCrossRefsEditorDlg(NULL),
 	m_pHighlighterButtons(NULL),
+	m_pActionUserNoteEditor(NULL),
+	m_pActionCrossRefsEditor(NULL),
 	m_pTipEdit(NULL),
 	m_bTipEditIsPinned(false)
 {
@@ -215,11 +218,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	ui.usernotesToolBar->addSeparator();
 
-	ui.usernotesToolBar->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
+	m_pActionUserNoteEditor = new QAction(QIcon(":/res/App-edit-icon-128.png"), tr("Add/Edit/Remove Note..."), this);
+	m_pActionUserNoteEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+	m_pActionUserNoteEditor->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
+	m_pActionUserNoteEditor->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
+	ui.usernotesToolBar->addAction(m_pActionUserNoteEditor);
 
 	ui.usernotesToolBar->addSeparator();
 
-	ui.usernotesToolBar->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+	m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."), this);
+	m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+	m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+	m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+	ui.usernotesToolBar->addAction(m_pActionCrossRefsEditor);
 
 	// -------------------- Setup the Three Panes:
 
@@ -303,6 +314,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Exit the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Exit Application"));
 	pAction->setMenuRole(QAction::QuitRole);
+	pAction->setEnabled(g_pMyApplication->canQuit());
+	connect(g_pMyApplication, SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
 
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedBrowser()));
@@ -575,13 +588,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// -------------------- UserNoteEditor Dialog:
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
-	connect(CKJVNoteEditDlg::actionUserNoteEditor(), SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
+	connect(m_pActionUserNoteEditor, SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 
 
 	// -------------------- CrossRefsEditor Dialog:
 	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
-	connect(CKJVCrossRefEditDlg::actionCrossRefsEditor(), SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
+	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
 
 
 	// -------------------- Persistent Settings:
@@ -935,6 +948,12 @@ void CKJVCanOpener::restorePersistentSettings()
 
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
 {
+	assert(canClose());
+	if (!canClose()) {
+		event->ignore();
+		return;
+	}
+
 	int nResult;
 	bool bPromptFilename = false;
 
@@ -1296,8 +1315,8 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	en_addSearchPhraseEditMenu(true, pEditor);
 	setDetailsEnable();
 
-	CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(false);
-	CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(false);
+	m_pActionUserNoteEditor->setEnabled(false);
+	m_pActionCrossRefsEditor->setEnabled(false);
 	const QList<QAction *> lstHighlightActions = m_pHighlighterButtons->actions();
 	for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 		lstHighlightActions.at(ndxHighlight)->setEnabled(false);
@@ -1470,6 +1489,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
+		CKJVCanOpenerCloseGuard closeGuard(this);
 		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
 		if (pDlg->exec() == QDialog::Accepted) {
@@ -1500,6 +1520,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 	if (!indexNote.isSet()) return;
 	m_pUserNoteEditorDlg->setLocationIndex(indexNote);
+	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pUserNoteEditorDlg->exec();
 }
 
@@ -1523,6 +1544,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 
 	if (!tagCrossRef.isSet()) return;
 	m_pCrossRefsEditorDlg->setSourcePassage(tagCrossRef);
+	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pCrossRefsEditorDlg->exec();
 }
 
@@ -1565,6 +1587,7 @@ void CKJVCanOpener::en_HelpManual()
 
 void CKJVCanOpener::en_HelpAbout()
 {
+	CKJVCanOpenerCloseGuard closeGuard(this);
 	CKJVAboutDlgPtr pDlg(this);
 	pDlg->exec();
 }

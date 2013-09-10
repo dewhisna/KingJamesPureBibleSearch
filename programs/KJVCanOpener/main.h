@@ -97,6 +97,8 @@ public:
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
 
+	bool canQuit() const;
+
 	// Message Format:
 	//		<command>;<args>
 	//
@@ -121,6 +123,7 @@ public slots:
 
 signals:
 	void loadFile(const QString &strFilename);
+	void canQuitChanged(bool bCanQuit);
 
 #ifdef SIGNAL_SPY_DEBUG
 public slots:
@@ -134,6 +137,8 @@ public:
 private slots:
 	void removeKJVCanOpener(QObject *pKJVCanOpener);
 	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
+
+	void en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 
 protected:
 	bool event(QEvent *event);

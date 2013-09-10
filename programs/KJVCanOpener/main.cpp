@@ -304,6 +304,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
+	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
 	pCanOpener->initialize();
 	pCanOpener->show();
 	return pCanOpener;
@@ -387,10 +388,32 @@ void CMyApplication::activateAllCanOpeners() const
 
 void CMyApplication::closeAllCanOpeners() const
 {
+	assert(canQuit());
+	if (!canQuit()) return;
+
 	// Close in reverse order:
 	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= 0; --ndx) {
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
+}
+
+bool CMyApplication::canQuit() const
+{
+	bool bCanQuit = true;
+	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+		if (!m_lstKJVCanOpeners.at(ndx)->canClose()) {
+			bCanQuit = false;
+			break;
+		}
+	}
+	return bCanQuit;
+}
+
+void CMyApplication::en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose)
+{
+	Q_UNUSED(pCanOpener);
+	Q_UNUSED(bCanClose);
+	emit canQuitChanged(canQuit());
 }
 
 // ============================================================================

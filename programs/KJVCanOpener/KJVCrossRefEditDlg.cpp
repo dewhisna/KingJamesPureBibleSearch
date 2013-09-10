@@ -55,25 +55,6 @@ namespace {
 
 // ============================================================================
 
-QAction *CKJVCrossRefEditDlg::m_pActionCrossRefsEditor = NULL;
-
-QAction *CKJVCrossRefEditDlg::actionCrossRefsEditor()
-{
-	extern CMyApplication *g_pMyApplication;
-	assert(g_pMyApplication != NULL);
-
-	if (m_pActionCrossRefsEditor == NULL) {
-		m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference..."), g_pMyApplication);
-		m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
-		m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
-		m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
-	}
-
-	return m_pActionCrossRefsEditor;
-}
-
-// ============================================================================
-
 CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
@@ -165,9 +146,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 
 	// --------------------------------------------------------------
 
-#ifndef Q_OS_MAC
 	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
-#endif
 }
 
 CKJVCrossRefEditDlg::~CKJVCrossRefEditDlg()

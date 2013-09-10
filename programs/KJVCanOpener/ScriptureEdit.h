@@ -115,6 +115,7 @@ protected:
 
 //private slots:
 protected:
+	virtual void en_findParentCanOpener();
 	virtual void en_findDialog();
 
 	virtual void en_customContextMenuRequested(const QPoint &pos);
@@ -186,7 +187,6 @@ private:
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 	// ----
 	mutable CKJVCanOpener *m_pParentCanOpener;	// Parent CanOpener once we locate it.  Set lazily on demand since parent doesn't exist yet during object creation
-	QAction *m_pHighlighterInsertionPoint;		// editMenu highlighter insertion point.  Used to add our highlighters just as soon as we have discovered our parent
 
 	DelayedExecutionTimer m_dlyDetailUpdate;
 
@@ -221,6 +221,7 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
+	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
@@ -268,6 +269,7 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
+	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;

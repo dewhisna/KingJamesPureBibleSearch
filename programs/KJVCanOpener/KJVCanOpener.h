@@ -41,6 +41,7 @@
 #include <QEvent>
 #include <QString>
 #include <QSplitter>
+#include <QPointer>
 
 #include <assert.h>
 
@@ -75,10 +76,42 @@ public:
 	bool isPhraseEditorFocusedOrActive() const;
 
 	CHighlighterButtons *highlighterButtons() const { return m_pHighlighterButtons; }
+	QAction *actionUserNoteEditor() const { return m_pActionUserNoteEditor; }
+	QAction *actionCrossRefsEditor() const { return m_pActionCrossRefsEditor; }
+
+	bool canClose() const { return m_bCanClose; }
+
+	friend class CKJVCanOpenerCloseGuard;
+	class CKJVCanOpenerCloseGuard {
+	public:
+		CKJVCanOpenerCloseGuard(CKJVCanOpener *pCanOpener)
+			:	m_pCanOpener(pCanOpener)
+		{
+			assert(m_pCanOpener != NULL);
+			m_bPreviousCanClose = m_pCanOpener->canClose();
+			m_pCanOpener->setCanClose(false);
+		}
+
+		~CKJVCanOpenerCloseGuard()
+		{
+			assert(m_pCanOpener != NULL);
+			if (m_pCanOpener != NULL) m_pCanOpener->setCanClose(m_bPreviousCanClose);
+		}
+
+	private:
+		QPointer<CKJVCanOpener> m_pCanOpener;
+		bool m_bPreviousCanClose;
+	};
 
 protected slots:
 	void savePersistentSettings();
 	void restorePersistentSettings();
+
+	void setCanClose(bool bCanClose)
+	{
+		m_bCanClose = bCanClose;
+		emit canCloseChanged(this, m_bCanClose);
+	}
 
 protected:
 	virtual void closeEvent(QCloseEvent * event);
@@ -95,6 +128,7 @@ signals:
 	void changedSearchResults();
 	void canShowDetails(bool bHaveDetails);
 	void windowActivated(CKJVCanOpener *pCanOpener);
+	void canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
@@ -191,6 +225,8 @@ private:
 	bool m_bSearchResultsActive;
 	bool m_bBrowserActive;
 
+	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
+
 	QString m_strAppStartupStyleSheet;			// Copy of the original StyleSheet from QApp, which will be the user's StyleSheet if they used the "-stylesheet" option
 	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
@@ -199,6 +235,8 @@ private:
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
 	CHighlighterButtons *m_pHighlighterButtons;
+	QAction *m_pActionUserNoteEditor;
+	QAction *m_pActionCrossRefsEditor;
 	CTipEdit *m_pTipEdit;
 	bool m_bTipEditIsPinned;
 	Ui::CKJVCanOpener ui;

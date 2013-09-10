@@ -72,6 +72,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pActionSelectAll(NULL),
 		m_pActionClearSelection(NULL),
 		m_pMenuInsertionPoint(NULL),
+		m_pMenuUserNotesInsertionPoint(NULL),
 		m_pActionNavigator(NULL),
 		m_pStatusAction(NULL),
 		m_pReflowDelegate(NULL),
@@ -167,16 +168,12 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 	// ----
 	m_pEditMenu->addSeparator();
-	m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	m_pMenuInsertionPoint = m_pEditMenuLocal->addSeparator();
-	m_pEditMenuLocal->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
 	// ----
-	m_pEditMenu->addSeparator();
-	m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
-	m_pEditMenuLocal->addSeparator();
-	m_pEditMenuLocal->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+	// << User Notes menu stuff is inserted in the en_findParentCanOpener() delayed:
+	QTimer::singleShot(1, this, SLOT(en_findParentCanOpener()));
 	// ----
-	m_pEditMenuLocal->addSeparator();
+	m_pMenuUserNotesInsertionPoint = m_pEditMenuLocal->addSeparator();
 	m_pActionNavigator = m_pEditMenuLocal->addAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator..."));
 	m_pActionNavigator->setEnabled(false);
 	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
@@ -208,6 +205,23 @@ CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 		//		call when it becomes available...
 	}
 	return m_pParentCanOpener;
+}
+
+void CSearchResultsTreeView::en_findParentCanOpener()
+{
+	CKJVCanOpener *pCanOpener = parentCanOpener();
+	assert(pCanOpener != NULL);
+
+	if (pCanOpener != NULL) {
+		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
+		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionUserNoteEditor());
+		// ----
+		m_pEditMenu->addSeparator();
+		m_pEditMenuLocal->insertSeparator(m_pMenuUserNotesInsertionPoint);
+		// ----
+		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
+		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionCrossRefsEditor());
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -487,6 +501,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 	}
 
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
 
 //	pDlg->navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
@@ -564,9 +579,9 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pActionNavigator->setEnabled(bEditableNode);
 
 	if (hasFocus()) {
-		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditableNode);
-		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditableNode);
 		if (parentCanOpener()) {
+			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditableNode);
+			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditableNode);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 				lstHighlightActions.at(ndxHighlight)->setEnabled(false);

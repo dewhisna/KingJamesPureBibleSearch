@@ -92,7 +92,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionHideAllNotes(NULL),
 		m_pStatusAction(NULL),
 		m_pParentCanOpener(NULL),
-		m_pHighlighterInsertionPoint(NULL),
 		m_dlyDetailUpdate(-1, 500)
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -173,17 +172,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 
-		m_pEditMenu->addSeparator();
-		// Save insertion point.  We'll add our highlighters when we have discovered our CKJVCanOpener parent:
-		m_pHighlighterInsertionPoint = m_pEditMenu->addSeparator();
-		m_pEditMenu->addAction(CKJVNoteEditDlg::actionUserNoteEditor());
-		m_pActionShowAllNotes = m_pEditMenu->addAction(T::tr("Show All Notes"), this, SLOT(en_showAllNotes()));
-		m_pActionShowAllNotes->setStatusTip(T::tr("Expand all notes in the Scripture Browser, making them visible"));
-		m_pActionHideAllNotes = m_pEditMenu->addAction(T::tr("Hide All Notes"), this, SLOT(en_hideAllNotes()));
-		m_pActionHideAllNotes->setStatusTip(T::tr("Collapse all notes in the Scripture Browser, making them hidden"));
-
-		m_pEditMenu->addSeparator();
-		m_pEditMenu->addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
+		// Trigger adding our higlighters and things are we've discovered our CKJVCanOpener parent:
+		QTimer::singleShot(1, this, SLOT(en_findParentCanOpener()));
 	}
 
 	T::setContextMenuPolicy(Qt::CustomContextMenu);
@@ -215,12 +205,30 @@ CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 		//		the construction process before the parent actually exists.  In that case, we'll
 		//		return NULL (callers will have to deal with that) and lock in our parent in a future
 		//		call when it becomes available...
-		if ((m_pParentCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
-				m_pEditMenu->insertActions(m_pHighlighterInsertionPoint, m_pParentCanOpener->highlighterButtons()->actions());
-				T::connect(m_pParentCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
-		}
 	}
 	return m_pParentCanOpener;
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_findParentCanOpener()
+{
+	CKJVCanOpener *pCanOpener = parentCanOpener();
+	assert(pCanOpener != NULL);
+
+	if ((pCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
+		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
+		m_pActionShowAllNotes = m_pEditMenu->addAction(T::tr("Show All Notes"), this, SLOT(en_showAllNotes()));
+		m_pActionShowAllNotes->setStatusTip(T::tr("Expand all notes in the Scripture Browser, making them visible"));
+		m_pActionHideAllNotes = m_pEditMenu->addAction(T::tr("Hide All Notes"), this, SLOT(en_hideAllNotes()));
+		m_pActionHideAllNotes->setStatusTip(T::tr("Collapse all notes in the Scripture Browser, making them hidden"));
+
+		m_pEditMenu->addSeparator();
+		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -316,9 +324,9 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			bEditEnable = true;
 		}
 
-		CKJVNoteEditDlg::actionUserNoteEditor()->setEnabled(bEditEnable);
-		CKJVCrossRefEditDlg::actionCrossRefsEditor()->setEnabled(bEditEnable);
 		if (parentCanOpener() != NULL) {
+			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditEnable);
+			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditEnable);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 				lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
@@ -449,6 +457,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 
 	m_CursorFollowHighlighter.setEnabled(true);
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
+	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
 //	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	pDlg->navigator().startAbsoluteMode(tagSel);
@@ -494,13 +503,13 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 		if (parentCanOpener()) {
 			menu.addSeparator();
 			menu.addActions(parentCanOpener()->highlighterButtons()->actions());
+			menu.addSeparator();
+			menu.addAction(parentCanOpener()->actionUserNoteEditor());
+			if (m_pActionShowAllNotes) menu.addAction(m_pActionShowAllNotes);
+			if (m_pActionHideAllNotes) menu.addAction(m_pActionHideAllNotes);
+			menu.addSeparator();
+			menu.addAction(parentCanOpener()->actionCrossRefsEditor());
 		}
-		menu.addSeparator();
-		menu.addAction(CKJVNoteEditDlg::actionUserNoteEditor());
-		menu.addAction(m_pActionShowAllNotes);
-		menu.addAction(m_pActionHideAllNotes);
-		menu.addSeparator();
-		menu.addAction(CKJVCrossRefEditDlg::actionCrossRefsEditor());
 		menu.addSeparator();
 		QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));

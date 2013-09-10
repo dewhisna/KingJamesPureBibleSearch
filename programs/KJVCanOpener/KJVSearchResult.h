@@ -87,6 +87,8 @@ public:
 	CKJVCanOpener *parentCanOpener() const;
 
 protected slots:
+	void en_findParentCanOpener();
+
 	void en_copyVerseText() const;
 	void en_copyRaw() const;
 	void en_copyVeryRaw() const;
@@ -154,7 +156,8 @@ private:
 	QAction *m_pActionSelectAll;	// Edit menu select all
 	QAction *m_pActionClearSelection;	// Edit menu clear selection
 	// ----
-	QAction *m_pMenuInsertionPoint;	// Point in the menu for the main KJVCanOpener to insert the view menu
+	QAction *m_pMenuInsertionPoint;				// Point in the local menu for the main KJVCanOpener to insert the view menu
+	QAction *m_pMenuUserNotesInsertionPoint;	// Point in the local menu for us to insert the user notes items once the parent CKJVCanOpener is discovered
 	// ----
 	QAction *m_pActionNavigator;	// Launch Passage Navigator for Search Result
 	// ----

@@ -34,7 +34,6 @@
 #include <QPushButton>
 #include <QAbstractButton>
 #include <QSettings>
-#include <QAction>
 #include <QPointer>
 
 // ============================================================================
@@ -55,8 +54,6 @@ public:
 	CRelIndex locationIndex() const { return m_ndxLocation; }
 	void setLocationIndex(const CRelIndex &ndxLocation);
 
-	static QAction *actionUserNoteEditor();
-
 public slots:
 	virtual void accept();
 	virtual void reject();
@@ -73,7 +70,6 @@ private:
 	CRelIndex navigateCrossRef(const CRelIndex &ndxStart);		// Bring up navigator at specified starting location for entering a ref-link and return selected ref.  If user cancels, returns CRelIndex()
 
 private:
-	static QAction *m_pActionUserNoteEditor;
 	QwwColorButton *m_pBackgroundColorButton;
 	QwwRichTextEdit *m_pRichTextEdit;
 	QPushButton *m_pDeleteNoteButton;

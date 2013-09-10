@@ -29,7 +29,6 @@
 
 #include <QDialog>
 #include <QPoint>
-#include <QAction>
 #include <QSettings>
 #include <QPointer>
 
@@ -56,8 +55,6 @@ public:
 
 	TPassageTag sourcePassage() const { return m_tagSourcePassage; }
 	void setSourcePassage(const TPassageTag &tag);
-
-	static QAction *actionCrossRefsEditor();
 
 public slots:
 	virtual void accept();
@@ -86,8 +83,6 @@ private:
 
 // UI Private:
 private:
-	static QAction *m_pActionCrossRefsEditor;
-	// ----
 	CScriptureEdit *m_pEditSourcePassage;
 	CSearchResultsTreeView *m_pCrossRefTreeView;			// Tree View holding our Cross-References List
 	// ----
