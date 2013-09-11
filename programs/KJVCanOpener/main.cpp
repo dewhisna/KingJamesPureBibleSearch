@@ -44,6 +44,8 @@
 #ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
 #endif
+#include <QMdiArea>
+#include <QMdiSubWindow>
 
 #include "main.h"
 #include "KJVCanOpener.h"
@@ -68,6 +70,7 @@
 //Q_IMPORT_PLUGIN(qsqlite)
 
 QPointer<CMyApplication> g_pMyApplication = NULL;
+QPointer<QMdiArea> g_pMdiArea = NULL;
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
 
@@ -305,6 +308,26 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
+
+	if (g_pMdiArea != NULL) {
+		QMdiSubWindow *pSubWindow = new QMdiSubWindow;
+		pSubWindow->setWidget(pCanOpener);
+		pSubWindow->setAttribute(Qt::WA_DeleteOnClose);
+		QMenu *pSysMenu = pSubWindow->systemMenu();
+		if (pSysMenu) {
+			QList<QAction *> lstActions = pSysMenu->actions();
+			for (int ndxAction = 0; ndxAction < lstActions.size(); ++ndxAction) {
+				if (lstActions.at(ndxAction)->shortcut() == QKeySequence(QKeySequence::Close)) {
+					pSysMenu->removeAction(lstActions.at(ndxAction));
+					delete lstActions.at(ndxAction);
+					break;
+				}
+			}
+		}
+		g_pMdiArea->addSubWindow(pSubWindow);
+		connect(pSubWindow, SIGNAL(aboutToActivate()), pCanOpener, SLOT(setFocus()));
+	}
+
 	pCanOpener->initialize();
 	pCanOpener->show();
 	updateSearchWindowList();
@@ -318,6 +341,19 @@ void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
 	assert(ndxCanOpener != -1);
 	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
+	if (g_pMdiArea != NULL) {
+		if (m_lstKJVCanOpeners.size() == 0) {
+			g_pMdiArea->deleteLater();
+		} else {
+			QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
+			for (int ndxSubWindows = 0; ndxSubWindows < lstSubWindows.size(); ++ndxSubWindows) {
+				if (lstSubWindows.at(ndxSubWindows)->widget() == NULL) {
+					lstSubWindows.at(ndxSubWindows)->close();
+					break;
+				}
+			}
+		}
+	}
 	updateSearchWindowList();
 }
 
@@ -368,6 +404,15 @@ template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>
 void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 {
 	assert(pCanOpener != NULL);
+	if (g_pMdiArea != NULL) {
+		QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
+		for (int ndx = 0; ndx < lstSubWindows.size(); ++ndx) {
+			if (lstSubWindows.at(ndx)->widget() == static_cast<QWidget *>(pCanOpener)) {
+				lstSubWindows.at(ndx)->setWindowState(lstSubWindows.at(ndx)->windowState() & ~Qt::WindowMinimized);
+				g_pMdiArea->setActiveSubWindow(lstSubWindows.at(ndx));
+			}
+		}
+	}
 	pCanOpener->setWindowState(pCanOpener->windowState() & ~Qt::WindowMinimized);
 	pCanOpener->raise();
 	pCanOpener->activateWindow();
@@ -791,10 +836,20 @@ int main(int argc, char *argv[])
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
 	g_strUserDatabase = strUserDatabaseFilename;
 
+#ifdef USE_MDI_MAIN_WINDOW
+	g_pMdiArea = new QMdiArea();
+	g_pMdiArea->show();
+#ifdef Q_WS_WIN
+	g_pMdiArea->setWindowIcon(QIcon(":/res/bible.ico"));
+#else
+	g_pMdiArea->setWindowIcon(QIcon(":/res/bible_48.png"));
+#endif
+#endif
+
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
-	splash->finish(pMain);
+	splash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
 	delete splash;
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
