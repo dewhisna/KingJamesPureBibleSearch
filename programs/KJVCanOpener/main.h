@@ -154,8 +154,6 @@ protected:
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
-	QAction *m_pActionSearchWindowList;					// Action for Window list of KJVCanOpeners
-	QPointer<QActionGroup> m_pActionGroupSearchWindowLists;		// Actual Window List items for Search Window List
 };
 
 #endif // MAIN_H

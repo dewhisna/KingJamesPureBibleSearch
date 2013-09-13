@@ -176,7 +176,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
 	// ----
-	m_pWindowMenu(NULL),
 	m_pActionSearchWindowList(NULL),
 	// ----
 	m_pActionAbout(NULL),
@@ -538,23 +537,23 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setMenuRole(QAction::PreferencesRole);
 
 	// --- Window Menu
-	m_pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
+	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
 
-	pAction = m_pWindowMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction = pWindowMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_N));
 	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Create New Search Window"));
 
-	pAction = m_pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Close this Search Window"));
 
-	m_pWindowMenu->addSeparator();
+	pWindowMenu->addSeparator();
 
 	m_pActionSearchWindowList = new QAction(tr("&Open Search Windows"), this);
 	m_pActionSearchWindowList->setStatusTip(tr("List of Open Search Windows"));
 	m_pActionSearchWindowList->setToolTip(tr("Open Search Window List"));
 	m_pActionSearchWindowList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
-	m_pWindowMenu->addAction(m_pActionSearchWindowList);
+	pWindowMenu->addAction(m_pActionSearchWindowList);
 	// Note: This action's menu will be automatically updated by our application object
 
 	// --- Help Menu
