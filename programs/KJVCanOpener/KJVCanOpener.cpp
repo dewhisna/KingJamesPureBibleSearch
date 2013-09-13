@@ -176,6 +176,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
 	// ----
+	m_pWindowMenu(NULL),
+	m_pActionSearchWindowList(NULL),
+	// ----
 	m_pActionAbout(NULL),
 	// ----
 	m_bPhraseEditorActive(false),
@@ -535,19 +538,24 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setMenuRole(QAction::PreferencesRole);
 
 	// --- Window Menu
-	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
+	m_pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
 
-	pAction = pWindowMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_N));
+	pAction = m_pWindowMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this, SLOT(en_NewCanOpener()), QKeySequence(Qt::CTRL + Qt::Key_N));
 	pAction->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Create New Search Window"));
 
-	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction = m_pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
 	pAction->setToolTip(tr("Close this Search Window"));
 
-	pWindowMenu->addSeparator();
+	m_pWindowMenu->addSeparator();
 
-	pWindowMenu->addAction(g_pMyApplication->actionSearchWindowList());
+	m_pActionSearchWindowList = new QAction(tr("&Open Search Windows"), this);
+	m_pActionSearchWindowList->setStatusTip(tr("List of Open Search Windows"));
+	m_pActionSearchWindowList->setToolTip(tr("Open Search Window List"));
+	m_pActionSearchWindowList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
+	m_pWindowMenu->addAction(m_pActionSearchWindowList);
+	// Note: This action's menu will be automatically updated by our application object
 
 	// --- Help Menu
 	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help"));
@@ -1246,7 +1254,24 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria,
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
 		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);
 
-	g_pMyApplication->updateSearchWindowList();
+	g_pMyApplication->updateSearchWindowList();				// Updates this and all other KJVCanOpener lists -- it needs to be there so it can also update KJVCanOpeners created or destroyed also
+}
+
+void CKJVCanOpener::en_updateSearchWindowList()
+{
+	assert(m_pActionSearchWindowList != NULL);
+	assert(m_pActionSearchWindowList->menu() != NULL);
+
+	if (m_pActionGroupSearchWindowLists != NULL) delete m_pActionGroupSearchWindowLists;
+	m_pActionGroupSearchWindowLists = new QActionGroup(this);
+
+	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
+	for (int ndx = 0; ndx < lstCanOpeners.size(); ++ndx) {
+		QAction *pAction = new QAction(lstCanOpeners.at(ndx)->searchWindowDescription(), m_pActionGroupSearchWindowLists);
+		pAction->setData(ndx);
+		m_pActionSearchWindowList->menu()->addAction(pAction);
+	}
+	connect(m_pActionGroupSearchWindowLists.data(), SIGNAL(triggered(QAction*)), g_pMyApplication, SLOT(en_triggeredKJVCanOpener(QAction*)));
 }
 
 // ------------------------------------------------------------------

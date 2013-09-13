@@ -76,14 +76,9 @@ public:
 #else
 		:	QApplication(argc, argv),
 #endif
-			m_nLastActivateCanOpener(-1),
-			m_pActionSearchWindowList(NULL),
-			m_pActionGroupSearchWindowLists(NULL)
+			m_nLastActivateCanOpener(-1)
 	{
-		m_pActionSearchWindowList = new QAction(tr("&Open Search Windows"), this);
-		m_pActionSearchWindowList->setStatusTip(tr("List of Open Search Windows"));
-		m_pActionSearchWindowList->setToolTip(tr("Open Search Window List"));
-		m_pActionSearchWindowList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
+
 	}
 
 	virtual ~CMyApplication()
@@ -103,8 +98,6 @@ public:
 	template<class T>
 	CKJVCanOpener *findCanOpenerFromChild(const T *pChild) const;
 	const QList<CKJVCanOpener *> &canOpeners() const { return m_lstKJVCanOpeners; }
-
-	QAction *actionSearchWindowList() const { return m_pActionSearchWindowList; }
 
 	bool canQuit() const;
 

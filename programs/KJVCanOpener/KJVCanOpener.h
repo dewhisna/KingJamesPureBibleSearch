@@ -140,6 +140,8 @@ public slots:
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
 
+	void en_updateSearchWindowList();
+
 protected slots:
 	void en_NewSearch();
 	void en_OpenSearch();
@@ -218,6 +220,10 @@ private:
 	QAction *m_pActionNavHome;		// Browser Navigate to History Home
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
+	// ----
+	QMenu *m_pWindowMenu;
+	QAction *m_pActionSearchWindowList;		// Action for Window list of KJVCanOpeners
+	QPointer<QActionGroup> m_pActionGroupSearchWindowLists;		// Actual Window List items for Search Window List
 	// ----
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)

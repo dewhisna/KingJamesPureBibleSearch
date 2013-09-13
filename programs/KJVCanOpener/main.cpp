@@ -366,6 +366,11 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 		}
 	}
 
+	// The following is needed on Mac to make sure the menu of the
+	//      new KJVCanOpen gets set:
+	if (activeWindow() != static_cast<QWidget *>(pCanOpener))
+			setActiveWindow(pCanOpener);
+
 	assert(false);
 	m_nLastActivateCanOpener = -1;
 }
@@ -447,20 +452,9 @@ void CMyApplication::closeAllCanOpeners() const
 
 void CMyApplication::updateSearchWindowList()
 {
-	assert(m_pActionSearchWindowList != NULL);
-	if (m_pActionSearchWindowList == NULL) return;
-	assert(m_pActionSearchWindowList->menu() != NULL);
-	if (m_pActionSearchWindowList->menu() == NULL) return;
-
-	if (m_pActionGroupSearchWindowLists != NULL) delete m_pActionGroupSearchWindowLists;
-	m_pActionGroupSearchWindowLists = new QActionGroup(this);
-
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-		QAction *pAction = new QAction(m_lstKJVCanOpeners.at(ndx)->searchWindowDescription(), m_pActionGroupSearchWindowLists);
-		pAction->setData(ndx);
-		m_pActionSearchWindowList->menu()->addAction(pAction);
+		m_lstKJVCanOpeners.at(ndx)->en_updateSearchWindowList();
 	}
-	connect(m_pActionGroupSearchWindowLists.data(), SIGNAL(triggered(QAction*)), this, SLOT(en_triggeredKJVCanOpener(QAction*)));
 }
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)

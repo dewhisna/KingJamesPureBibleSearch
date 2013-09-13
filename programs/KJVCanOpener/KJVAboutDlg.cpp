@@ -84,7 +84,9 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 
 	// --------------------------------------------------------------
 
+#ifndef Q_OS_MAC
 	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
+#endif
 }
 
 CKJVAboutDlg::~CKJVAboutDlg()
