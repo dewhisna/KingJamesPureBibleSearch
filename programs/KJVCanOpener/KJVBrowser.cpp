@@ -377,7 +377,11 @@ void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
 {
 	if (!selection().isSet()) return;
 	CRelIndex ndxNote = ndx;
-	ndxNote.setWord(1);			// All incoming note references will be by verse instead of word and normalize only deals with words
+	// All incoming note references will be by book, chapter, or verse instead of word and
+	//		normalize only deals with words, so default 0 to 1 for chapter, verse, and word:
+	if (ndxNote.chapter() == 0) ndxNote.setChapter(1);
+	if (ndxNote.verse() == 0) ndxNote.setVerse(1);
+	if (ndxNote.word() == 0) ndxNote.setWord(1);
 	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
 	if ((!ndx.isSet()) ||
 		(!tagCurrentDisplay.isSet()) ||
@@ -391,8 +395,14 @@ void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &
 	if (!selection().isSet()) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
 	CRelIndex ndxCrossRefSecond = ndxSecond;
-	ndxCrossRefFirst.setWord(1);			// All incoming cross-ref references will be by verse instead of word and normalize only deals with words
-	ndxCrossRefSecond.setWord(1);
+	// All incoming cross-ref references will be by book, chapter, or verse instead of
+	//		word and normalize only deals with words:
+	if (ndxCrossRefFirst.chapter() == 0) ndxCrossRefFirst.setChapter(1);
+	if (ndxCrossRefFirst.verse() == 0) ndxCrossRefFirst.setVerse(1);
+	if (ndxCrossRefFirst.word() == 0) ndxCrossRefFirst.setWord(1);
+	if (ndxCrossRefSecond.chapter() == 0) ndxCrossRefSecond.setChapter(1);
+	if (ndxCrossRefSecond.verse() == 0) ndxCrossRefSecond.setVerse(1);
+	if (ndxCrossRefSecond.word() == 0) ndxCrossRefSecond.setWord(1);
 	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
 	if ((!ndxFirst.isSet()) ||
 		(!ndxSecond.isSet()) ||
