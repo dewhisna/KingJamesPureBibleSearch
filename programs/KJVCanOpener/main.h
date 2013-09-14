@@ -91,7 +91,14 @@ public:
 	const QString &fileToLoad() const { return m_strFileToLoad; }
 
 	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
-	bool isFirstCanOpener() const { return (m_lstKJVCanOpeners.size() == 0); }
+	bool isFirstCanOpener(bool bInCanOpenerConstructor = false) const
+	{
+		if (bInCanOpenerConstructor) {
+			return (m_lstKJVCanOpeners.size() == 0);
+		} else {
+			return (m_lstKJVCanOpeners.size() <= 1);
+		}
+	}
 	bool isLastCanOpener() const { return (m_lstKJVCanOpeners.size() <= 1); }
 
 	CKJVCanOpener *activeCanOpener() const;

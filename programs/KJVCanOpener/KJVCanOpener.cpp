@@ -612,7 +612,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 
 	// -------------------- Persistent Settings:
-	restorePersistentSettings();
+	// Do this as a singleShot to delay it until after we get out of the constructor.
+	//		This is necessary because that function can cause modal message boxes, etc,
+	//		to be displayed (such as missing/broken notes file).  And we will assert
+	//		in either the Search Results Tree or the Scripture Browser trying to call
+	//		findParentCanOpener() when the parent pointers haven't been set yet:
+	QTimer::singleShot(0, this, SLOT(restorePersistentSettings()));
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -740,7 +745,7 @@ void CKJVCanOpener::restorePersistentSettings()
 {
 	assert(g_pMyApplication != NULL);
 
-	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener();
+	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	QString strFont;
@@ -800,6 +805,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	if (bIsFirstCanOpener) {
 		if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 			if (!g_pUserNotesDatabase->load()) {
+				show();
 				QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
 				// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 				//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
@@ -808,11 +814,13 @@ void CKJVCanOpener::restorePersistentSettings()
 				g_pUserNotesDatabase->setFilePathName(QString());
 			} else {
 				if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
+					show();
 					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
 												"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
 												"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
 												"manually save a copy of your file now BEFORE you exit King James Pure Bible Search.\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
 				} else if (g_pUserNotesDatabase->version() > KJS_FILE_VERSION) {
+					show();
 					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
 												"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
 												"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
@@ -958,6 +966,8 @@ void CKJVCanOpener::restorePersistentSettings()
 	} else if (bFocusBrowser) {
 		QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
 	}
+
+	show();			// Now that we've restored our settings and geometry, show our window...
 }
 
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
