@@ -849,15 +849,22 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 
 	// Print Heading for this Book:
 	scriptureHTML.beginDiv("book");
-	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
+	scriptureHTML.appendLiteralText(book.m_strBkName);
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling.  But put it
+	//		at the end of the book name so people adding notes/cross-refs for the book
+	//		aren't confused by it being at the beginning of the name.  But then switch
+	//		back to a book reference so that book category/descriptions are properly
+	//		labeled:
 	if (!(flagsTRO & TRO_NoAnchors)) {
 		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
 		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 		scriptureHTML.endAnchor();
+		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBook.asAnchor()));
+		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+		scriptureHTML.endAnchor();
 	}
-	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
-	scriptureHTML.appendLiteralText(book.m_strBkName);
-	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 
 	// Print Book Descriptions:
@@ -989,15 +996,22 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 
 	// Print Heading for this Book:
 	scriptureHTML.beginDiv("book");
-	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
+	scriptureHTML.appendLiteralText(book.m_strBkName);
+	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+	// Put tiny Book/Chapter anchor at top for a hit-target for scrolling.  But put it
+	//		at the end of the book name so people adding notes/cross-refs for the book
+	//		aren't confused by it being at the beginning of the name.  But then switch
+	//		back to a book reference so that book category/descriptions are properly
+	//		labeled:
 	if (!(flagsTRO & TRO_NoAnchors)) {
 		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChap.asAnchor()));
 		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 		scriptureHTML.endAnchor();
+		scriptureHTML.beginAnchorID(QString("%1").arg(ndxBook.asAnchor()));
+		scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+		scriptureHTML.endAnchor();
 	}
-	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
-	scriptureHTML.appendLiteralText(book.m_strBkName);
-	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If this is the first chapter of the book:
 	if (ndx.chapter() == 1) {
@@ -1143,15 +1157,22 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		if (relNext.book() != ndx.book()) {
 			// Print Heading for this Book:
 			scriptureHTML.beginDiv("book");
-			// Put tiny Book/Chapter anchor at top for a hit-target for scrolling:
+			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
+			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
+			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+			// Put tiny Book/Chapter anchor at top for a hit-target for scrolling.  But put it
+			//		at the end of the book name so people adding notes/cross-refs for the book
+			//		aren't confused by it being at the beginning of the name.  But then switch
+			//		back to a book reference so that book category/descriptions are properly
+			//		labeled:
 			if (!(flagsTRO & TRO_NoAnchors)) {
 				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookChapNext.asAnchor()));
 				scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
 				scriptureHTML.endAnchor();
+				scriptureHTML.beginAnchorID(QString("%1").arg(ndxBookNext.asAnchor()));
+				scriptureHTML.appendRawText(QChar(0x200B));		// Use zero-space space as it doesn't count as space in positioning so selection works correctly!  Ugh!
+				scriptureHTML.endAnchor();
 			}
-			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
-			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
-			if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 			scriptureHTML.endDiv();
 			// Print Book Descriptions for first chapter of book:
 			if ((flagsTRO & TRO_Subtitles) && (!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {

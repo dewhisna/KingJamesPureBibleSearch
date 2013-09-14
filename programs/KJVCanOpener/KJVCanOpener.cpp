@@ -958,6 +958,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		settings.endGroup();
 	}
 
+	show();			// Now that we've restored our settings and geometry, show our window...
+
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
 	//	the phrase editor focus:
@@ -966,8 +968,6 @@ void CKJVCanOpener::restorePersistentSettings()
 	} else if (bFocusBrowser) {
 		QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
 	}
-
-	show();			// Now that we've restored our settings and geometry, show our window...
 }
 
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
