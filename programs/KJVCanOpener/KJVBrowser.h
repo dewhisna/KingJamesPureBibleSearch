@@ -190,6 +190,7 @@ private:
 	DelayedExecutionTimer m_dlyBibleBkCombo;
 	DelayedExecutionTimer m_dlyBibleChpCombo;
 	DelayedExecutionTimer m_dlyPassageReference;
+	DelayedExecutionTimer m_dlyGotoIndex;
 	CScriptureBrowser *m_pScriptureBrowser;
 	Ui::CKJVBrowser ui;
 };

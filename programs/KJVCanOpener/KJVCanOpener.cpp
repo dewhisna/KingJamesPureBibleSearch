@@ -639,6 +639,14 @@ void CKJVCanOpener::initialize()
 	tag.count() = settings.value(constrLastSelectionSizeKey, 0).toUInt();
 	settings.endGroup();
 
+	// If there is no selection to highlight, default to the first sub-entity
+	//		of the index specified:
+	if (tag.count() == 0) {
+		if (tag.relIndex().chapter() == 0) tag.relIndex().setChapter(1);
+		if (tag.relIndex().verse() == 0) tag.relIndex().setVerse(1);
+		if (tag.relIndex().word() == 0) tag.relIndex().setWord(1);
+	}
+
 	m_pBrowserWidget->gotoIndex(tag);
 }
 
@@ -959,6 +967,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	}
 
 	show();			// Now that we've restored our settings and geometry, show our window...
+	initialize();	// Navigate to our restored location, now that we've finished showing our window (must be done after show so ScriptureBrowser textSelect works)
 
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave

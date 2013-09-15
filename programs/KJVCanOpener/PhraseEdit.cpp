@@ -1829,6 +1829,10 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 			if ((nEndPos != -1) && (tag.count() > 0)) {
 				myCursor.setPosition(nEndPos, QTextCursor::KeepAnchor);
 				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
+			} else {
+				// Special-case for Book/Chapter tag so that it works (specially looks correctly) with the new
+				//		special U+0x200B anchor tags now used in Book-Info and Chapter rendered text in CPhraseNavigator:
+				if ((ndxRel.verse() == 0) && (ndxRel.word() == 0)) myCursor.movePosition(QTextCursor::StartOfLine);
 			}
 			myCursor.endEditBlock();
 			m_TextEditor.setTextCursor(myCursor);

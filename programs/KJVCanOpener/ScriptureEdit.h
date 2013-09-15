@@ -97,6 +97,8 @@ public:
 
 	CKJVCanOpener *parentCanOpener() const;
 
+	void rerender();
+
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
@@ -145,6 +147,8 @@ public:
 	virtual void en_showAllNotes();
 	virtual void en_hideAllNotes();
 
+	virtual void en_gotoIndex(const TPhraseTag &tag);
+
 private:
 	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
 
@@ -156,6 +160,7 @@ private:
 	CPhraseEditNavigator m_navigator;
 	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;
+	CRelIndex m_ndxCurrent;			// Current Displayed index as captured on received en_gotoIndex()
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
 	TPhraseTag m_tagLastActive;		// Last active position -- i.e. m_tagLast for a verse and/or word (as opposed to book/chapter
 	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference
@@ -249,6 +254,8 @@ public slots:
 	virtual void en_anchorClicked(const QUrl &link) = 0;
 	virtual void en_showAllNotes() = 0;
 	virtual void en_hideAllNotes() = 0;
+
+	virtual void en_gotoIndex(const TPhraseTag &tag) = 0;
 };
 
 class i_CScriptureBrowser : public QTextBrowser
@@ -297,6 +304,8 @@ public slots:
 	virtual void en_anchorClicked(const QUrl &link) = 0;
 	virtual void en_showAllNotes() = 0;
 	virtual void en_hideAllNotes() = 0;
+
+	virtual void en_gotoIndex(const TPhraseTag &tag) = 0;
 };
 
 // ============================================================================

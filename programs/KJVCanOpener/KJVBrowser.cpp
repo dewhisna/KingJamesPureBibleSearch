@@ -72,7 +72,9 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(pModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
 
 // UI Connections:
-	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), &m_dlyGotoIndex, SLOT(trigger(const TPhraseTag &)));
+	connect(&m_dlyGotoIndex, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(this, SIGNAL(en_gotoIndex(const TPhraseTag &)), m_pScriptureBrowser, SLOT(en_gotoIndex(const TPhraseTag &)));
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
 
 	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
@@ -159,6 +161,8 @@ void CKJVBrowser::setNavigationActivationDelay(int nDelay)
 	m_dlyTstChpCombo.setMinimumDelay(nDelay);
 	m_dlyBibleBkCombo.setMinimumDelay(nDelay);
 	m_dlyBibleChpCombo.setMinimumDelay(nDelay);
+
+	m_dlyGotoIndex.setMinimumDelay(nDelay);
 }
 
 void CKJVBrowser::setPassageReferenceActivationDelay(int nDelay)
@@ -361,7 +365,7 @@ void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)
 	//		after we change the richifier tags (which is done by the navigator's
 	//		signal/slot connection to the persistent settings:
 	Q_UNUSED(color);
-	if (m_ndxCurrent.isSet()) gotoIndex(TPhraseTag(m_ndxCurrent));
+	m_pScriptureBrowser->rerender();
 }
 
 void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
@@ -377,16 +381,13 @@ void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
 {
 	if (!selection().isSet()) return;
 	CRelIndex ndxNote = ndx;
-	// All incoming note references will be by book, chapter, or verse instead of word and
-	//		normalize only deals with words, so default 0 to 1 for chapter, verse, and word:
-	if (ndxNote.chapter() == 0) ndxNote.setChapter(1);
-	if (ndxNote.verse() == 0) ndxNote.setVerse(1);
-	if (ndxNote.word() == 0) ndxNote.setWord(1);
 	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
 	if ((!ndx.isSet()) ||
 		(!tagCurrentDisplay.isSet()) ||
-		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxNote)))) {
-		gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxNote))) ||
+		((ndx.chapter() == 0) && (ndx.book() == m_ndxCurrent.book())) ||			// This compare is needed for book notes rendered at the end of the book when we aren't displaying chapter 1
+		((ndx.chapter() == 0) && (ndx.book() == (m_ndxCurrent.book()-1)))) {		// This compare is needed for book notes rendered at the end of the book when we are displaying the first chapter of the next book
+		m_pScriptureBrowser->rerender();
 	}
 }
 
@@ -395,29 +396,20 @@ void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &
 	if (!selection().isSet()) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
 	CRelIndex ndxCrossRefSecond = ndxSecond;
-	// All incoming cross-ref references will be by book, chapter, or verse instead of
-	//		word and normalize only deals with words:
-	if (ndxCrossRefFirst.chapter() == 0) ndxCrossRefFirst.setChapter(1);
-	if (ndxCrossRefFirst.verse() == 0) ndxCrossRefFirst.setVerse(1);
-	if (ndxCrossRefFirst.word() == 0) ndxCrossRefFirst.setWord(1);
-	if (ndxCrossRefSecond.chapter() == 0) ndxCrossRefSecond.setChapter(1);
-	if (ndxCrossRefSecond.verse() == 0) ndxCrossRefSecond.setVerse(1);
-	if (ndxCrossRefSecond.word() == 0) ndxCrossRefSecond.setWord(1);
 	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
 	if ((!ndxFirst.isSet()) ||
 		(!ndxSecond.isSet()) ||
 		(!tagCurrentDisplay.isSet()) ||
 		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefFirst))) ||
 		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefSecond)))) {
-		gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+		m_pScriptureBrowser->rerender();
 	}
 
 }
 
 void CKJVBrowser::en_allCrossRefsChanged()
 {
-	if (!selection().isSet()) return;
-	gotoIndex(selection());			// Re-render text (note: The Note may be deleted as well as changed)
+	m_pScriptureBrowser->rerender();			// Re-render text (note: The Note may be deleted as well as changed)
 }
 
 // ----------------------------------------------------------------------------

@@ -328,9 +328,8 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 		connect(pSubWindow, SIGNAL(aboutToActivate()), pCanOpener, SLOT(setFocus()));
 	}
 
-	pCanOpener->initialize();
-	// Note: no call to show() here.  We'll do it inside KJVCanOpener in the delayed
-	//	restorePersistentSettings() function
+	// Note: no call to initialize() or show() here for the CanOpner.  We'll do it inside
+	//	KJVCanOpener in the delayed restorePersistentSettings() function
 	updateSearchWindowList();
 	return pCanOpener;
 }

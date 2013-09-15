@@ -209,22 +209,25 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 	if (nRelIndex == 0) return 0;
 
 	// Add the number of words for all books prior to the target book:
-	if (nBk < 1) return 0;
+	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
 	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
 		nNormalIndex += m_lstBooks[ndxBk-1].m_nNumWrd;
 	}
 	// Add the number of words for all chapters in this book prior to the target chapter:
+	if (nChp == 0) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
 		nNormalIndex += m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
 	}
 	// Add the number of words for all verses in this book prior to the target verse:
+	if (nVrs == 0) nVrs = 0;
 	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
 		nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,ndxVrs,0)).m_nNumWrd;
 	}
 	// Add the target word:
+	if (nWrd == 0) nWrd = 0;
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 	nNormalIndex += nWrd;
 
@@ -278,13 +281,13 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 
 	if (nRelIndex == 0) return 0;
 
-	if ((nBk < 1) ||
-		(nChp < 1) ||
-		(nVrs < 1) ||
-		(nWrd < 1)) return 0;
+	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
+	if (nChp == 0) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if (nVrs == 0) nVrs = 1;
 	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+	if (nWrd == 0) nWrd = 1;
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
 
 	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum + nWrd);

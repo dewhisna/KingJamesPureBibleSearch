@@ -627,7 +627,42 @@ void CScriptureText<T,U>::setLastActiveTag()
 	if (m_tagLast.isSet()) {
 		// Note: Special case chapter != 0, verse == 0 for special top-of-book/chapter scroll
 		if ((m_tagLast.relIndex().verse() != 0) || (m_tagLast.relIndex().word() != 0) ||
-			((m_tagLast.relIndex().chapter() != 0) && (m_tagLast.relIndex().verse() == 0))) m_tagLastActive = m_tagLast;
+			((m_tagLast.relIndex().chapter() != 0) && (m_tagLast.relIndex().verse() == 0))) {
+			m_tagLastActive = m_tagLast;
+			if (m_tagLastActive.relIndex().verse() == 0) m_tagLastActive.relIndex().setVerse(1);
+			if (m_tagLastActive.relIndex().word() == 0) m_tagLastActive.relIndex().setWord(1);
+		} else if (m_tagLast.relIndex().chapter() == 0) {
+			if ((m_tagLast.relIndex().book() != m_ndxCurrent.book()) &&
+				(m_ndxCurrent.chapter() == 1)) {
+				m_tagLastActive = m_tagLast;
+				m_tagLastActive.relIndex().setChapter(m_pBibleDatabase->bookEntry(m_tagLastActive.relIndex().book())->m_nNumChp);
+				m_tagLastActive.relIndex().setVerse(m_pBibleDatabase->chapterEntry(m_tagLastActive.relIndex())->m_nNumVrs);
+				m_tagLastActive.relIndex().setWord(m_pBibleDatabase->verseEntry(m_tagLastActive.relIndex())->m_nNumWrd);
+			} else if ((m_tagLast.relIndex().book() == m_ndxCurrent.book()) &&
+					   (m_ndxCurrent.chapter() == 1)) {
+				m_tagLastActive = TPhraseTag(CRelIndex(m_ndxCurrent.book(), 1, 0, 0));
+			}
+		}
+	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_gotoIndex(const TPhraseTag &tag)
+{
+	m_ndxCurrent = tag.relIndex();
+	m_tagLastActive = tag;
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::rerender()
+{
+	if (selection().relIndex().chapter() == 0) {
+		// Special case if it's an entire book, use our last active tag:
+		if (m_tagLastActive.isSet()) emit T::gotoIndex(m_tagLastActive);
+	} else if (selection().isSet()) {
+		emit T::gotoIndex(selection());
+	} else {
+		emit T::gotoIndex(TPhraseTag(m_ndxCurrent));
 	}
 }
 
@@ -795,17 +830,23 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 		assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
 		if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
 
+		if ((ndxLink.chapter() == 0) &&
+			(ndxLink.book() == m_ndxCurrent.book())) {
+			if (m_ndxCurrent.chapter() == 1) {
+				m_tagLastActive = TPhraseTag(CRelIndex(ndxLink.book(), 1, 0, 0));
+			} else if (m_ndxCurrent.chapter() == m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp) {
+				m_tagLastActive = TPhraseTag(ndxLink);
+				m_tagLastActive.relIndex().setChapter(m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp);
+				m_tagLastActive.relIndex().setVerse(m_pBibleDatabase->chapterEntry(m_tagLastActive.relIndex())->m_nNumVrs);
+				m_tagLastActive.relIndex().setWord(m_pBibleDatabase->verseEntry(m_tagLastActive.relIndex())->m_nNumWrd);
+			}
+		}
+
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
 		userNote.setIsVisible(!userNote.isVisible());
 		g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
 
-		// Re-render text:
-		if (selection().relIndex().chapter() == 0) {
-			// Special case if it's an entire book, use our last active tag:
-			emit T::gotoIndex(m_tagLastActive);
-		} else {
-			emit T::gotoIndex(selection());
-		}
+		// Note: The Note change above will automatically trigger a rerender()
 	} else if (strAnchor.startsWith(QChar('R'))) {
 		CRelIndex ndxLink(strAnchor.mid(1));
 		assert(ndxLink.isSet());
@@ -821,52 +862,32 @@ template<class T, class U>
 void CScriptureText<T,U>::en_showAllNotes()
 {
 	assert(g_pUserNotesDatabase != NULL);
-	bool bChanged = false;
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (!itrNotes->second.isVisible()) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
 			userNote.setIsVisible(true);
 			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
-			bChanged = true;
 		}
 	}
 
-	if (bChanged) {
-		// Re-render text:
-		if (selection().relIndex().chapter() == 0) {
-			// Special case if it's an entire book, use our last active tag:
-			emit T::gotoIndex(m_tagLastActive);
-		} else {
-			emit T::gotoIndex(selection());
-		}
-	}
+	// Note: The changes above automatically triggers a rerender
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::en_hideAllNotes()
 {
 	assert(g_pUserNotesDatabase != NULL);
-	bool bChanged = false;
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (itrNotes->second.isVisible()) {
 			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
 			userNote.setIsVisible(false);
 			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
-			bChanged = true;
 		}
 	}
 
-	if (bChanged) {
-		// Re-render text:
-		if (selection().relIndex().chapter() == 0) {
-			// Special case if it's an entire book, use our last active tag:
-			emit T::gotoIndex(m_tagLastActive);
-		} else {
-			emit T::gotoIndex(selection());
-		}
-	}
+	// Note: The changes above automatically triggers a rerender
 }
 
 // ============================================================================
