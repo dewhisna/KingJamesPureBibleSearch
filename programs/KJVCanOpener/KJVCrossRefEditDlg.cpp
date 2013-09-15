@@ -190,7 +190,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	if (ndxRel.verse()) {
 		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible);
 	} else if (ndxRel.chapter()) {
-		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters);
+		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, (defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters) & ~CPhraseNavigator::TRO_UserNoteExpandAnchors);
 		QTextCursor txtCursor;
 		txtCursor = m_pEditSourcePassage->textCursor();
 		txtCursor.movePosition(QTextCursor::Start);
