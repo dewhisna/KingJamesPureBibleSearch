@@ -40,6 +40,7 @@
 #include <QDataStream>
 #include <QSharedPointer>
 #include <QObject>
+#include <QSqlDatabase>
 
 #include <assert.h>
 
@@ -587,6 +588,7 @@ public:
 
 	QString name() const { return m_strName; }
 	QString description() const { return m_strDescription; }
+	QString info() const { return m_strInfo; }
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
 
 	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
@@ -704,6 +706,7 @@ private:
 // Local Data:
 	QString m_strName;						// Name for this database
 	QString m_strDescription;				// Database description
+	QString m_strInfo;						// Information about this database (copyright details, etc)
 	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
 
 	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
@@ -720,6 +723,95 @@ typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 
 typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
 extern CBibleDatabasePtr locateBibleDatabase(const QString &strUUID);
+
+// ============================================================================
+
+// Dictionary Word Entry -- Mapping of words and their Definitions:
+//
+
+class CDictionaryWordEntry
+{
+public:
+	CDictionaryWordEntry();
+	CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex = 0);
+
+	CDictionaryWordEntry & operator=(const CDictionaryWordEntry &src)
+	{
+		m_strWord = src.m_strWord;
+		m_strDecomposedWord = src.m_strDecomposedWord;
+		m_strDefinition = src.m_strDefinition;
+		m_nIndex = src.m_nIndex;
+		return *this;
+	}
+
+	QString word() const { return m_strWord; }
+	QString decomposedWord() const { return m_strDecomposedWord; }
+	QString definition() const { return m_strDefinition; }
+	inline int index() const { return m_nIndex; }
+
+	bool operator==(const CDictionaryWordEntry &src) const
+	{
+		return (m_strDecomposedWord.compare(src.m_strDecomposedWord) == 0);
+	}
+	bool operator!=(const CDictionaryWordEntry &src) const
+	{
+		return (m_strDecomposedWord.compare(src.m_strDecomposedWord) != 0);
+	}
+
+private:
+	QString m_strWord;						// Composed Word (as in the actual text)
+	QString m_strDecomposedWord;			// Lowercase Decomposed Word (used for matching)
+	QString m_strDefinition;				// Rich-Text Definition of the Word
+	int m_nIndex;							// Database index -- used for live database lookup
+};
+
+typedef std::map<QString, CDictionaryWordEntry> TDictionaryWordListMap;		// Indexed by lower-case decomposed words from word-list
+
+// ============================================================================
+
+// CDictionaryDatabase - Class to define a Dictionary Database file
+class CDictionaryDatabase
+{
+private:
+	CDictionaryDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID);		// Creatable by CReadDatabase
+public:
+	~CDictionaryDatabase();
+
+	QString name() const { return m_strName; }
+	QString description() const { return m_strDescription; }
+	QString info() const { return m_strInfo; }
+	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
+	bool isLiveDatabase() const { return m_myDatabase.isOpen(); }
+
+	QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
+
+	QString definition(const QString &strWord) const;		// Lookup and return definition for word
+
+	inline const TDictionaryWordListMap &mapWordList() const { return m_mapWordDefinitions; }
+
+private:
+	// CReadDatabase needed to load the database.  After that everything
+	//	is read-only.
+	//
+	friend class CReadDatabase;
+
+// Main Database Data:
+	TDictionaryWordListMap m_mapWordDefinitions;
+	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_mapWordDefinitions) to SoundEx equivalent, used to minimize calculations
+
+// Local Data:
+	QString m_strName;						// Name for this database
+	QString m_strDescription;				// Database description
+	QString m_strInfo;						// Information about this database (copyright details, etc)
+	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
+	QSqlDatabase m_myDatabase;				// Open SQL for this dictionary
+};
+
+
+typedef QSharedPointer<CDictionaryDatabase> CDictionaryDatabasePtr;
+
+typedef QList<CDictionaryDatabasePtr> TDictionaryDatabaseList;
+extern CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID);
 
 // ============================================================================
 
@@ -935,6 +1027,9 @@ struct TPassageTagListSortPredicate {
 
 extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
 extern TBibleDatabaseList g_lstBibleDatabases;
+
+extern CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
+extern TDictionaryDatabaseList g_lstDictionaryDatabases;
 
 // ============================================================================
 

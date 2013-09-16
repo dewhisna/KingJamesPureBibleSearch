@@ -29,6 +29,7 @@
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
 #include "ScriptureDocument.h"
+#include "ReadDB.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -46,6 +47,10 @@
 // Our Bible Databases:
 CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
 TBibleDatabaseList g_lstBibleDatabases;
+
+// Our Dictionary Databases:
+CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
+TDictionaryDatabaseList g_lstDictionaryDatabases;
 
 // User-defined phrases read from optional user database:
 CPhraseList g_lstUserPhrases;
@@ -1068,6 +1073,72 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
 	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord);			// TODO : Pass Language ID to soundEx
+}
+
+// ============================================================================
+
+CDictionaryWordEntry::CDictionaryWordEntry()
+	:	m_nIndex(0)
+{
+
+}
+
+CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex)
+	:	m_strWord(strWord),
+		m_strDecomposedWord(CSearchStringListModel::decompose(strWord).toLower()),
+		m_strDefinition(strDefinition),
+		m_nIndex(nIndex)
+{
+
+}
+
+// ============================================================================
+
+CDictionaryDatabase::CDictionaryDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID)
+	:	m_strName(strName),
+		m_strDescription(strDescription),
+		m_strCompatibilityUUID(strCompatUUID)
+{
+
+}
+
+CDictionaryDatabase::~CDictionaryDatabase()
+{
+	if (isLiveDatabase()) {
+		assert(m_myDatabase.contains(m_strCompatibilityUUID));
+		m_myDatabase.close();
+		m_myDatabase = QSqlDatabase();
+		QSqlDatabase::removeDatabase(m_strCompatibilityUUID);
+	} else {
+		assert(!m_myDatabase.contains(m_strCompatibilityUUID));
+	}
+}
+
+QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord, bool bCache) const
+{
+	if (bCache) {
+		QString &strSoundEx = m_mapSoundEx[strDecomposedDictionaryWord];
+		// TODO : Assert if language not set
+		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord);			// TODO : Pass Language ID to soundEx
+		return strSoundEx;
+	}
+
+	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedDictionaryWord);
+	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
+	return CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord);			// TODO : Pass Language ID to soundEx
+}
+
+QString CDictionaryDatabase::definition(const QString &strWord) const
+{
+	QString strDecomposedWord = CSearchStringListModel::decompose(strWord).toLower();
+	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
+	if (itrWord == m_mapWordDefinitions.end()) return QString();
+
+	// If we have loaded the whole database in memory, just return it:
+	if (!isLiveDatabase()) return (itrWord->second).definition();
+
+	// Otherwise, do SQL Query:
+	return CReadDatabase::dictionaryDefinition(this, itrWord->second);
 }
 
 // ============================================================================

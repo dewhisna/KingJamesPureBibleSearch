@@ -49,6 +49,8 @@
 #include <QTextStream>
 #endif
 
+// ============================================================================
+
 QSqlDatabase g_sqldbReadMain;
 QSqlDatabase g_sqldbReadUser;
 
@@ -87,12 +89,11 @@ CReadDatabase::~CReadDatabase()
 	}
 }
 
-
 // ============================================================================
 
 bool CReadDatabase::ReadTestamentTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Testament Table
 
@@ -128,7 +129,7 @@ bool CReadDatabase::ReadTestamentTable()
 
 bool CReadDatabase::ReadBooksTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Books Table
 
@@ -222,7 +223,7 @@ bool CReadDatabase::ReadBooksTable()
 
 bool CReadDatabase::ReadChaptersTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Chapters (LAYOUT) table:
 
@@ -283,7 +284,7 @@ bool CReadDatabase::ReadChaptersTable()
 
 bool CReadDatabase::ReadVerseTables()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Book Verses tables:
 
@@ -384,7 +385,7 @@ static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 
 bool CReadDatabase::ReadWordsTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Words table:
 
@@ -600,7 +601,7 @@ bool CReadDatabase::ReadWordsTable()
 
 bool CReadDatabase::ReadFOOTNOTESTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Footnotes table:
 
@@ -643,7 +644,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	// Read the Phrases table:
 
@@ -690,7 +691,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 bool CReadDatabase::ValidateData()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pBibleDatabase != NULL);
 
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
 	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
@@ -812,7 +813,100 @@ bool CReadDatabase::ValidateData()
 
 // ============================================================================
 
-bool CReadDatabase::ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain)
+bool CReadDatabase::ReadDictionaryDBInfo()
+{
+	assert(m_pDictionaryDatabase != NULL);
+
+	// Read the Dictionary Info table:
+
+	QSqlQuery queryTable(m_pDictionaryDatabase->m_myDatabase);
+
+	// Check to see if the table exists:
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='title'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"title\" Failed!\n%1").arg(queryTable.lastError().text()));
+		return false;
+	}
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"title\" Table in database!"));
+		queryTable.finish();
+		return false;
+	}
+	queryTable.finish();
+
+	QSqlQuery queryData(m_pDictionaryDatabase->m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT abbr,desc,info FROM title");
+	if (queryData.next()) {
+		m_pDictionaryDatabase->m_strInfo = queryData.value(2).toString();
+	} else {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find Dictionary information record!"));
+		queryData.finish();
+		return false;
+	}
+	queryData.finish();
+
+	return true;
+}
+
+bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
+{
+	assert(m_pDictionaryDatabase != NULL);
+
+	// Read the Dictionary Defintions table:
+
+	QSqlQuery queryTable(m_pDictionaryDatabase->m_myDatabase);
+
+	// Check to see if the table exists:
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='dictionary'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"dictioanry\" Failed!\n%1").arg(queryTable.lastError().text()));
+		return false;
+	}
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"dictionary\" Table in database!"));
+		return false;
+	}
+	queryTable.finish();
+
+	m_pDictionaryDatabase->m_mapWordDefinitions.clear();
+
+	QSqlQuery queryData(m_pDictionaryDatabase->m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT id,topic,definition FROM dictionary");
+	while (queryData.next()) {
+		int nIndex = queryData.value(0).toInt();
+		QString strWord = queryData.value(1).toString();
+		QString strDefinition = (bLiveDB ? QString() : queryData.value(2).toString());
+		CDictionaryWordEntry wordEntry(strWord, strDefinition, nIndex);
+		assert(m_pDictionaryDatabase->m_mapWordDefinitions.find(wordEntry.decomposedWord()) == m_pDictionaryDatabase->m_mapWordDefinitions.end());
+		m_pDictionaryDatabase->m_mapWordDefinitions[wordEntry.decomposedWord()] = wordEntry;
+	}
+	queryData.finish();
+
+	return true;
+}
+
+QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictionaryDatabase, const CDictionaryWordEntry &wordEntry)
+{
+	assert(pDictionaryDatabase != NULL);
+	assert(pDictionaryDatabase->isLiveDatabase());
+
+	QString strDefinition;
+	QSqlQuery queryData(pDictionaryDatabase->m_myDatabase);
+	queryData.setForwardOnly(true);
+	if ((queryData.exec(QString("SELECT definition FROM dictionary WHERE id=%1").arg(wordEntry.index()))) &&
+		(queryData.next())) {
+		strDefinition = queryData.value(0).toString();
+	}
+	queryData.finish();
+
+	return strDefinition;
+}
+
+// ============================================================================
+
+bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain)
 {
 	m_myDatabase = g_sqldbReadMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
@@ -875,4 +969,45 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bH
 
 	return bSuccess;
 }
+
+bool CReadDatabase::ReadDictionaryDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB, bool bSetAsMain)
+{
+	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(strName, strDescription, strCompatUUID));
+	assert(m_pDictionaryDatabase.data() != NULL);
+
+	if (!m_pDictionaryDatabase->m_myDatabase.contains(strCompatUUID)) {
+		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, strCompatUUID);
+	}
+
+	m_pDictionaryDatabase->m_myDatabase.setDatabaseName(strDatabaseFilename);
+	m_pDictionaryDatabase->m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
+
+//	QMessageBox::information(m_pParent, g_constrReadDatabase, m_pDictionaryDatabase->m_myDatabase.databaseName());
+
+	if (!m_pDictionaryDatabase->m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
+		return false;
+	}
+
+	bool bSuccess = true;
+
+	if ((!ReadDictionaryDBInfo()) ||
+		(!ReadDictionaryWords(bLiveDB))) bSuccess = false;
+
+	if (!bLiveDB) {
+		assert(m_pDictionaryDatabase->m_myDatabase.contains(strCompatUUID));
+		m_pDictionaryDatabase->m_myDatabase.close();
+		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
+		QSqlDatabase::removeDatabase(strCompatUUID);
+	}
+
+	if (bSuccess) {
+		g_lstDictionaryDatabases.push_back(m_pDictionaryDatabase);
+		if (bSetAsMain) g_pMainDictionaryDatabase = m_pDictionaryDatabase;
+	}
+
+	return bSuccess;
+}
+
+// ============================================================================
 

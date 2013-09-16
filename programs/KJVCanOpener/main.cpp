@@ -88,12 +88,14 @@ namespace {
 
 #ifndef Q_OS_MAC
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-	const char *g_constrDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
+	const char *g_constrWeb1828DatabaseFilename = "../../KJVCanOpener/db/dct-web1828.s3db";
 #else
 	const char *g_constrPluginsPath = "../Frameworks/";
-	const char *g_constrDatabaseFilename = "../Resources/db/kjvtext.s3db";
+	const char *g_constrKJVDatabaseFilename = "../Resources/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
+	const char *g_constrWeb1828DatabaseFilename = "../Resources/db/dct-web1828.s3db";
 #endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
@@ -207,6 +209,27 @@ namespace {
 		BDE_KJF2006 = 3
 	};
 
+	// Dictionary Database Descriptor Constants:
+	// -----------------------------------------
+	typedef struct {
+		const QString m_strDBName;
+		const QString m_strDBDesc;
+		const QString m_strUUID;
+	} TDictionaryDescriptor;
+
+	const TDictionaryDescriptor constDictionaryDescriptors[] =
+	{
+		// Special Test Value:
+		{ "Special Test", QObject::tr("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66" },
+		// Webster 1828:
+		{ "Webster 1828", QObject::tr("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66" }
+	};
+
+	enum DICTIONARY_DESCRIPTOR_ENUM {
+		DDE_SPECIAL_TEST = 0,
+		DDE_WEB1828 = 1
+	};
+
 }	// namespace
 
 // ============================================================================
@@ -228,6 +251,22 @@ CBibleDatabasePtr locateBibleDatabase(const QString &strUUID)
 	return CBibleDatabasePtr();
 }
 
+CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID)
+{
+	QString strTargetUUID = strUUID;
+
+	if (strTargetUUID.isEmpty()) {
+		// Default database is Web1828
+		strTargetUUID = constDictionaryDescriptors[DDE_WEB1828].m_strUUID;
+	}
+	for (int ndx = 0; ndx < g_lstDictionaryDatabases.size(); ++ndx) {
+		if (g_lstDictionaryDatabases.at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
+			return g_lstDictionaryDatabases.at(ndx);
+	}
+
+	return CDictionaryDatabasePtr();
+}
+
 // ============================================================================
 
 class MyProxyStyle : public QProxyStyle
@@ -241,6 +280,21 @@ public:
 		return QProxyStyle::styleHint(hint, option, widget, returnData);
 	}
 };
+
+// ============================================================================
+
+CMyApplication::~CMyApplication()
+{
+	// We must clean up our databases and things before exiting or else
+	//		the destructor tear-down order might cause us to crash, particularly
+	//		with SQL Database things:
+	g_lstBibleDatabases.clear();
+	g_pMainBibleDatabase.clear();
+	g_lstDictionaryDatabases.clear();
+	g_pMainDictionaryDatabase.clear();
+	g_pUserNotesDatabase.clear();
+	g_lstUserPhrases.clear();
+}
 
 // ============================================================================
 
@@ -701,8 +755,9 @@ int main(int argc, char *argv[])
 	app.addLibraryPath(fiPlugins.absolutePath());
 
 	// Database Paths:
-	QFileInfo fiDatabase(app.applicationDirPath(), g_constrDatabaseFilename);
+	QFileInfo fiKJVDatabase(app.applicationDirPath(), g_constrKJVDatabaseFilename);
 	QFileInfo fiUserDatabaseTemplate(app.applicationDirPath(), g_constrUserDatabaseTemplateFilename);
+	QFileInfo fiWeb1828DictDatabase(app.applicationDirPath(), g_constrWeb1828DatabaseFilename);
 	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 	QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
 	QDir dirDataFolder;
@@ -712,7 +767,7 @@ int main(int argc, char *argv[])
 
 
 //CBuildDatabase adb(splash);
-//adb.BuildDatabase(fiDatabase.absoluteFilePath());
+//adb.BuildDatabase(fiKJVDatabase.absoluteFilePath());
 //return 0;
 
 	// Read User Database if it exists:
@@ -721,7 +776,7 @@ int main(int argc, char *argv[])
 	{
 		CBuildDatabase bdb(splash);
 		if (bBuildDB) {
-			if (!bdb.BuildDatabase(fiDatabase.absoluteFilePath())) {
+			if (!bdb.BuildDatabase(fiKJVDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
 				return -2;
 			}
@@ -729,11 +784,13 @@ int main(int argc, char *argv[])
 
 		// Read Main Database
 		CReadDatabase rdb(splash);
-		if (!rdb.ReadDatabase(fiDatabase.absoluteFilePath(), QObject::tr("King James"), QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", true)) {
+		TBibleDescriptor descKJV(constBibleDescriptors[BDE_KJV]);
+		if (!rdb.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), descKJV.m_strDBName, descKJV.m_strDBDesc, descKJV.m_strUUID, true)) {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
 			return -3;
 		}
 
+		// Read User Database:
 		if (!fiUserDatabase.exists()) {
 			// If the user's database doesn't exist, see if the template one
 			//		does.  And if so, see if we can copy from it to the user's:
@@ -769,6 +826,15 @@ int main(int argc, char *argv[])
 				return -4;
 			} else {
 				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+			}
+		}
+
+		// Read Dictionary Database
+		if (fiWeb1828DictDatabase.exists()) {
+			TDictionaryDescriptor descWeb1828(constDictionaryDescriptors[DDE_WEB1828]);
+			if (!rdb.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
+				return -5;
 			}
 		}
 	}

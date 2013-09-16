@@ -81,10 +81,7 @@ public:
 
 	}
 
-	virtual ~CMyApplication()
-	{
-
-	}
+	virtual ~CMyApplication();
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 

@@ -30,16 +30,25 @@
 #include <QString>
 #include "dbstruct.h"
 
+// ============================================================================
+
 class CReadDatabase
 {
 public:
 	CReadDatabase(QWidget *pParent = NULL);
 	~CReadDatabase();
 
-	bool ReadDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain = false);
+	bool ReadBibleDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain = false);
 	bool ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
+	bool ReadDictionaryDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB = true, bool bSetAsMain = false);
 
 	static bool IndexBlobToIndexList(const QByteArray &baBlob, TNormalizedIndexList &anIndexList);
+
+	// ------------------------------------------------------------------------
+
+	static QString dictionaryDefinition(const CDictionaryDatabase *pDictionaryDatabase, const CDictionaryWordEntry &wordEntry);
+
+	// ------------------------------------------------------------------------
 
 protected:
 	bool ReadTestamentTable();
@@ -51,10 +60,20 @@ protected:
 	bool ReadPHRASESTable(bool bUserPhrases = false);
 	bool ValidateData();
 
+	// ------------------------------------------------------------------------
+
+	bool ReadDictionaryDBInfo();
+	bool ReadDictionaryWords(bool bLiveDB);
+
+	// ------------------------------------------------------------------------
+
 private:
 	QWidget *m_pParent;
 	QSqlDatabase m_myDatabase;
-	CBibleDatabasePtr m_pBibleDatabase;		// Pointer to the main database currently being read -- created in ReadDatabase, used by reader functions
+	CBibleDatabasePtr m_pBibleDatabase;				// Pointer to the Bible Database currently being read -- created in ReadBibleDatabase, used by reader functions
+	CDictionaryDatabasePtr m_pDictionaryDatabase;	// Pointer to the Dictionary Database currently being read -- created in ReadDictionaryDatabase, used by reader functions
 };
+
+// ============================================================================
 
 #endif // READDB_H
