@@ -37,6 +37,7 @@
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #include "SearchCompleter.h"
+#include "DictionaryWidget.h"
 
 #include <assert.h>
 
@@ -186,8 +187,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_bCanClose(true),
 	m_pSearchSpecWidget(NULL),
 	m_pSplitter(NULL),
+	m_pSplitterDictionary(NULL),
 	m_pSearchResultWidget(NULL),
 	m_pBrowserWidget(NULL),
+	m_pDictionaryWidget(NULL),
 	m_pUserNoteEditorDlg(NULL),
 	m_pCrossRefsEditorDlg(NULL),
 	m_pHighlighterButtons(NULL),
@@ -246,18 +249,34 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSplitter->setOrientation(Qt::Horizontal);
 	m_pSplitter->setChildrenCollapsible(false);
 
+	m_pSplitterDictionary = new QSplitter(m_pSplitter);
+	m_pSplitterDictionary->setObjectName(QString::fromUtf8("splitterDictionary"));
+	m_pSplitterDictionary->setOrientation(Qt::Vertical);
+	m_pSplitter->setChildrenCollapsible(true);
+
 	m_pSearchResultWidget = new CKJVSearchResult(m_pBibleDatabase, m_pSplitter);
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
 	m_pSplitter->addWidget(m_pSearchResultWidget);
 
-	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitter);
+	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitterDictionary);
 	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
 	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	aSizePolicy.setHorizontalStretch(20);
-	aSizePolicy.setVerticalStretch(0);
+	aSizePolicy.setVerticalStretch(20);
 	aSizePolicy.setHeightForWidth(m_pBrowserWidget->sizePolicy().hasHeightForWidth());
 	m_pBrowserWidget->setSizePolicy(aSizePolicy);
-	m_pSplitter->addWidget(m_pBrowserWidget);
+	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
+
+	m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
+	m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
+	QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	aSizePolicyDictionary.setHorizontalStretch(20);
+	aSizePolicyDictionary.setVerticalStretch(0);
+	aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
+	m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
+	m_pSplitterDictionary->addWidget(m_pDictionaryWidget);
+
+	m_pSplitter->addWidget(m_pSplitterDictionary);
 
 	ui.horizontalLayout->addWidget(m_pSplitter);
 
@@ -274,6 +293,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 // The following is supposed to be another workaround for QTBUG-13768
 //	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
 	m_pSplitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
+	m_pSplitterDictionary->handle(1)->setAttribute(Qt::WA_Hover);
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
 

@@ -52,6 +52,7 @@ class CKJVNoteEditDlg;
 class CKJVCrossRefEditDlg;
 class CHighlighterButtons;
 class CTipEdit;
+class CDictionaryWidget;
 
 // ============================================================================
 
@@ -236,8 +237,10 @@ private:
 	QString m_strAppStartupStyleSheet;			// Copy of the original StyleSheet from QApp, which will be the user's StyleSheet if they used the "-stylesheet" option
 	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
+	QSplitter *m_pSplitterDictionary;
 	CKJVSearchResult *m_pSearchResultWidget;
 	CKJVBrowser *m_pBrowserWidget;
+	CDictionaryWidget *m_pDictionaryWidget;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
 	CHighlighterButtons *m_pHighlighterButtons;

@@ -233,7 +233,7 @@
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>20</height>
+               <height>24</height>
               </size>
              </property>
              <property name="verticalScrollBarPolicy">
@@ -301,6 +301,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QCheckBox" name="chkCaseSensitive">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Case Sensitive</string>
            </property>
@@ -308,6 +314,12 @@
          </item>
          <item>
           <widget class="QCheckBox" name="chkAccentSensitive">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Accent Sensitive</string>
            </property>
@@ -328,6 +340,12 @@
          </item>
          <item>
           <widget class="QCheckBox" name="chkDisable">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Disable</string>
            </property>

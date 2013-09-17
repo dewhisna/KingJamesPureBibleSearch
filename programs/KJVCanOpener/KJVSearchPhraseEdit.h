@@ -27,14 +27,11 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "DelayedExecutionTimer.h"
-#include "SearchCompleter.h"
+#include "SubControls.h"
 
 #include <QWidget>
 #include <QIcon>
-#include <QWheelEvent>
 #include <QFocusEvent>
-#include <QKeyEvent>
-#include <QInputMethodEvent>
 #include <QResizeEvent>
 #include <QContextMenuEvent>
 #include <QPushButton>
@@ -52,36 +49,7 @@
 
 // ============================================================================
 
-#if QT_VERSION < 0x050000
-
-// CComposingCompleter -- Needed to fix a bug in Qt 4.8.x QCompleter whereby
-//		inputMethod events get redirected to the popup, but don't come back
-//		to the editor because inputContext()->setFocusWidget() never gets
-//		called again for the editor:
-class CComposingCompleter : public CSearchCompleter
-{
-	Q_OBJECT
-
-public:
-	CComposingCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
-		:	CSearchCompleter(parsedPhrase, parentWidget)
-	{
-
-	}
-
-	~CComposingCompleter()
-	{
-
-	}
-
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
-};
-
-#endif
-
-// ============================================================================
-
-class CPhraseLineEdit : public QTextEdit, public CParsedPhrase
+class CPhraseLineEdit : public CSingleLineTextEdit, public CParsedPhrase
 {
 	Q_OBJECT
 
@@ -101,8 +69,6 @@ public:
 
 	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
-
-	virtual QSize sizeHint();
 
 public slots:
 	void en_phraseListChanged();
@@ -132,23 +98,15 @@ protected:
 	virtual void ParsePhrase(const QTextCursor &curInsert);
 
 protected:
-	virtual void wheelEvent(QWheelEvent *event);
 	virtual void focusInEvent(QFocusEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
-	virtual void inputMethodEvent(QInputMethodEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
-	QString textUnderCursor() const;
-	void setupCompleter(const QString &strText, bool bForce = false);
+	virtual void setupCompleter(const QString &strText, bool bForce = false);
 
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-#if QT_VERSION < 0x050000
-	CComposingCompleter *m_pCompleter;			// Word completer
-#else
-	CSearchCompleter *m_pCompleter;				// Word completer
-#endif
+	SearchCompleter_t *m_pCompleter;			// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
 	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)

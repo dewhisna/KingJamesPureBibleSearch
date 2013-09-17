@@ -23,6 +23,16 @@
 
 #include "SubControls.h"
 
+#include <QFontMetrics>
+#include <QStyle>
+#include <QApplication>
+#include <QTextDocumentFragment>
+#include <QAbstractItemView>
+
+#if QT_VERSION < 0x050000
+#include <QInputContext>
+#endif
+
 // ============================================================================
 
 CComboBox::CComboBox(QWidget *pParent)
@@ -121,6 +131,152 @@ void CDoubleSpinBox::keyPressEvent(QKeyEvent *pEvent)
 		pEvent->accept();
 		emit enterPressed();
 	}
+}
+
+// ============================================================================
+
+#if QT_VERSION < 0x050000
+
+bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
+{
+	// The act of popping our completer, will cause the inputContext to
+	//		shift focus from the editor to the popup and after dismissing the
+	//		popup, it doesn't go back to the editor.  So, since we are eating
+	//		FocusOut events in the popup, push the inputContext focus back to
+	//		the editor when we "focus out".  It's our focusProxy anyway:
+	if ((ev->type() == QEvent::FocusOut) && (obj == widget())) {
+		if ((popup()) && (popup()->isVisible())) {
+			QInputContext *pInputContext = popup()->inputContext();
+			if (pInputContext) pInputContext->setFocusWidget(popup());
+		}
+	}
+
+	return QCompleter::eventFilter(obj, ev);
+}
+
+#endif
+
+// ============================================================================
+
+CSingleLineTextEdit::CSingleLineTextEdit(int nMinHeight, QWidget *pParent)
+	:	QTextEdit(pParent),
+		m_nMinHeight(nMinHeight)
+{
+
+}
+
+CSingleLineTextEdit::~CSingleLineTextEdit()
+{
+
+}
+
+QSize CSingleLineTextEdit::sizeHint()
+{
+	QFontMetrics fm(font());
+	int h = qMax(fm.height(), 14) + 4;
+	int w = fm.width(QLatin1Char('x')) * 17 + 4;
+	QStyleOptionFrameV2 opt;
+	opt.initFrom(this);
+	QSize szHint = style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
+											 expandedTo(QApplication::globalStrut()), this);
+	return (QSize(szHint.width(), ((m_nMinHeight != -1) ? qMax(szHint.height(), m_nMinHeight) : szHint.height())));
+}
+
+void CSingleLineTextEdit::insertFromMimeData(const QMimeData * source)
+{
+	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
+
+	// For reference if we ever re-enable rich text:  (don't forget to change acceptRichText setting in constructor)
+	//	if (source->hasFormat(QLatin1String("application/x-qrichtext")) && acceptRichText()) {
+	//		// x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
+	//		QString richtext = QString::fromUtf8(source->data(QLatin1String("application/x-qrichtext")));
+	//		richtext.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
+	//		fragment = QTextDocumentFragment::fromHtml(richtext, document());
+	//		bHasData = true;
+	//	} else if (source->hasHtml() && acceptRichText()) {
+	//		fragment = QTextDocumentFragment::fromHtml(source->html(), document());
+	//		bHasData = true;
+	//	} else {
+
+
+	if (source->hasText()) {
+		bool bHasData = false;
+		QTextDocumentFragment fragment;
+		QString text = source->text();
+		// Change all newlines to spaces, since we are simulating a single-line editor:
+		if (!text.isNull()) {
+			text.replace("\r","");
+			text.replace("\n"," ");
+			if (!text.isEmpty()) {
+				fragment = QTextDocumentFragment::fromPlainText(text);
+				bHasData = true;
+			}
+		}
+		if (bHasData) textCursor().insertFragment(fragment);
+	}
+
+	ensureCursorVisible();
+}
+
+bool CSingleLineTextEdit::canInsertFromMimeData(const QMimeData *source) const
+{
+	return QTextEdit::canInsertFromMimeData(source);
+}
+
+void CSingleLineTextEdit::wheelEvent(QWheelEvent *event)
+{
+	event->ignore();
+}
+
+void CSingleLineTextEdit::focusInEvent(QFocusEvent *event)
+{
+	QTextEdit::focusInEvent(event);
+
+#if QT_VERSION < 0x050000
+	// The following is needed to fix the QCompleter bug
+	//	where the inputContext doesn't shift correctly
+	//	from the QCompleter->popup back to the editor:
+	//	(Only applies to Qt 4.8.x and seems to be fixed in Qt5)
+	QInputContext *pInputContext = inputContext();
+	if (pInputContext) pInputContext->setFocusWidget(this);
+#endif
+}
+
+void CSingleLineTextEdit::keyPressEvent(QKeyEvent *event)
+{
+	bool bForceCompleter = false;
+
+	switch (event->key()) {
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+		case Qt::Key_Escape:
+		case Qt::Key_Tab:
+		case Qt::Key_Control:			// Control is needed here to keep Ctrl-Home/Ctrl-End used in the QCompleter from trigger redoing the QCompleter in setupCompleter()
+			event->ignore();
+			return;
+
+		case Qt::Key_Down:
+			bForceCompleter = true;
+			break;
+	}
+
+	QTextEdit::keyPressEvent(event);
+
+	setupCompleter(event->text(), bForceCompleter);
+}
+
+void CSingleLineTextEdit::inputMethodEvent(QInputMethodEvent *event)
+{
+	// Call parent:
+	QTextEdit::inputMethodEvent(event);
+	setupCompleter(QString(), true);
+}
+
+QString CSingleLineTextEdit::textUnderCursor() const
+{
+	QTextCursor cursor = textCursor();
+	cursor.select(QTextCursor::WordUnderCursor);
+	return cursor.selectedText();
 }
 
 // ============================================================================

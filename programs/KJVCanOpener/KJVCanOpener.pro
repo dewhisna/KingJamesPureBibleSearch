@@ -140,7 +140,8 @@ SOURCES += main.cpp \
 	NoteKeywordWidget.cpp \
 	KJVCrossRefEditDlg.cpp \
 	RenameHighlighterDlg.cpp \
-	PassageReferenceWidget.cpp
+	PassageReferenceWidget.cpp \
+	DictionaryWidget.cpp
 
 HEADERS  += main.h \
 	KJVCanOpener.h \
@@ -189,7 +190,8 @@ HEADERS  += main.h \
 	NoteKeywordWidget.h \
 	KJVCrossRefEditDlg.h \
 	RenameHighlighterDlg.h \
-	PassageReferenceWidget.h
+	PassageReferenceWidget.h \
+	DictionaryWidget.h
 
 FORMS    += KJVCanOpener.ui \
 	KJVBrowser.ui \
@@ -212,7 +214,8 @@ FORMS    += KJVCanOpener.ui \
 	ConfigBrowserOptions.ui \
 	ConfigCopyOptions.ui \
 	RenameHighlighterDlg.ui \
-	PassageReferenceWidget.ui
+	PassageReferenceWidget.ui \
+	DictionaryWidget.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

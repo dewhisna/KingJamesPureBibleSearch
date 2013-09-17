@@ -884,6 +884,13 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 	}
 	queryData.finish();
 
+	m_pDictionaryDatabase->m_lstWordList.clear();
+	m_pDictionaryDatabase->m_lstWordList.reserve(m_pDictionaryDatabase->m_mapWordDefinitions.size());
+	for (TDictionaryWordListMap::const_iterator itrWordList = m_pDictionaryDatabase->m_mapWordDefinitions.begin(); itrWordList != m_pDictionaryDatabase->m_mapWordDefinitions.end(); ++itrWordList) {
+		m_pDictionaryDatabase->m_lstWordList.append(itrWordList->first);
+	}
+	qSort(m_pDictionaryDatabase->m_lstWordList.begin(), m_pDictionaryDatabase->m_lstWordList.end());
+
 	return true;
 }
 

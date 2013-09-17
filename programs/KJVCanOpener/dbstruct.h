@@ -788,6 +788,7 @@ public:
 	QString definition(const QString &strWord) const;		// Lookup and return definition for word
 
 	inline const TDictionaryWordListMap &mapWordList() const { return m_mapWordDefinitions; }
+	inline const QStringList &lstWordList() const { return m_lstWordList; }
 
 private:
 	// CReadDatabase needed to load the database.  After that everything
@@ -797,6 +798,7 @@ private:
 
 // Main Database Data:
 	TDictionaryWordListMap m_mapWordDefinitions;
+	QStringList m_lstWordList;				// List of decomposed lower-case keywords from map, stored in list for quick enumeration
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_mapWordDefinitions) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:

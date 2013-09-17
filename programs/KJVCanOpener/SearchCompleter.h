@@ -35,6 +35,7 @@
 #include <QList>
 #include <QMap>
 #include <QStringList>
+#include <QTextEdit>
 
 // ============================================================================
 
@@ -52,29 +53,90 @@ public:
 		SOUNDEX_ENTRY_ROLE = Qt::UserRole + 0				// SoundEx completion
 	};
 
-	CSearchStringListModel(const CParsedPhrase &parsedPhrase, QObject *parent = NULL);
-	virtual ~CSearchStringListModel();
+	CSearchStringListModel(QObject *parent = NULL)
+		:	QAbstractListModel(parent)
+	{
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	}
 
-	QVariant data(const QModelIndex &index, int role) const;
-	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual ~CSearchStringListModel()
+	{
+
+	}
+
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
+
+	virtual QVariant data(const QModelIndex &index, int role) const = 0;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) = 0;
+
+	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const = 0;		// Return and/or calculate soundEx for the specified Word
+	virtual QString cursorWord() const = 0;
 
 	static QString decompose(const QString &strWord);			// Word decompose() function to breakdown and remove accents from words for searching purposes
 	static QString deApostrHyphen(const QString &strWord);		// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
-
-	inline const CBibleDatabase *bibleDatabase() const;
 
 signals:
 	void modelChanged();
 
 public slots:
-	void setWordsFromPhrase();
+	virtual void setWordsFromPhrase() = 0;
 
 private:
 	Q_DISABLE_COPY(CSearchStringListModel)
+};
+
+// ============================================================================
+
+class CSearchParsedPhraseListModel : public CSearchStringListModel
+{
+	Q_OBJECT
+
+public:
+	CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent = NULL);
+	virtual ~CSearchParsedPhraseListModel();
+
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
+	virtual QString cursorWord() const;
+
+public slots:
+	virtual void setWordsFromPhrase();
+
+private:
+	Q_DISABLE_COPY(CSearchParsedPhraseListModel)
 	const CParsedPhrase &m_parsedPhrase;
 	int m_nCursorWord;						// Last word index of phrase cursor was on
+};
+
+// ============================================================================
+
+class CSearchDictionaryListModel : public CSearchStringListModel
+{
+	Q_OBJECT
+
+public:
+	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = NULL);
+	virtual ~CSearchDictionaryListModel();
+
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
+	virtual QString cursorWord() const;
+
+public slots:
+	virtual void setWordsFromPhrase();
+
+private:
+	Q_DISABLE_COPY(CSearchDictionaryListModel)
+	CDictionaryDatabasePtr m_pDictionaryDatabase;
+	const QTextEdit &m_editorWord;
 };
 
 // ============================================================================
@@ -161,6 +223,7 @@ public:
 	};
 
 	CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget);
+	CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
 	virtual ~CSearchCompleter();
 
 	virtual CSearchStringListModel *searchStringListModel() { return m_pSearchStringListModel; }
@@ -178,7 +241,6 @@ public slots:
 	virtual void setWordsFromPhrase();
 
 private:
-	const CParsedPhrase &m_parsedPhrase;
 	SEARCH_COMPLETION_FILTER_MODE_ENUM m_nCompletionFilterMode;
 	CSearchStringListModel *m_pSearchStringListModel;
 	CSoundExSearchCompleterFilter *m_pSoundExFilterModel;

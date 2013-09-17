@@ -34,78 +34,6 @@
 
 // ============================================================================
 
-
-CSearchStringListModel::CSearchStringListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
-	:	QAbstractListModel(parent),
-		m_parsedPhrase(parsedPhrase),
-		m_nCursorWord(-1)			// Force initial update
-{
-
-}
-
-CSearchStringListModel::~CSearchStringListModel()
-{
-
-}
-
-int CSearchStringListModel::rowCount(const QModelIndex &parent) const
-{
-	if (parent.isValid())
-		return 0;
-
-	return m_parsedPhrase.nextWordsList().size();
-}
-
-QVariant CSearchStringListModel::data(const QModelIndex &index, int role) const
-{
-	if ((index.row() < 0) || (index.row() >= m_parsedPhrase.nextWordsList().size()))
-		return QVariant();
-
-	if (role == Qt::DisplayRole)
-		return m_parsedPhrase.nextWordsList().at(index.row()).word();
-
-	if (role == Qt::EditRole)
-		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();
-
-	if (role == SOUNDEX_ENTRY_ROLE)
-		return m_parsedPhrase.bibleDatabase()->soundEx(m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord());
-
-	return QVariant();
-}
-
-bool CSearchStringListModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-	Q_UNUSED(index);
-	Q_UNUSED(value);
-	Q_UNUSED(role);
-
-	return false;
-}
-
-inline const CBibleDatabase *CSearchStringListModel::bibleDatabase() const
-{
-	return m_parsedPhrase.bibleDatabase();
-}
-
-void CSearchStringListModel::setWordsFromPhrase()
-{
-#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
-	qDebug("SearchStringListModel::setWordsFromPhrase : %d", m_parsedPhrase.GetCursorWordPos());
-#endif
-
-	if (m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) {
-		m_nCursorWord = m_parsedPhrase.GetCursorWordPos();
-
-		emit beginResetModel();
-
-//		m_ParsedPhrase.nextWordsList();
-
-		emit endResetModel();
-
-		emit modelChanged();
-	}
-}
-
 QString CSearchStringListModel::decompose(const QString &strWord)
 {
 	QString strDecomposed = strWord.normalized(QString::NormalizationForm_KD);
@@ -150,14 +78,173 @@ QString CSearchStringListModel::deApostrHyphen(const QString &strWord)
 
 // ============================================================================
 
+CSearchParsedPhraseListModel::CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
+	:	CSearchStringListModel(parent),
+		m_parsedPhrase(parsedPhrase),
+		m_nCursorWord(-1)			// Force initial update
+{
+
+}
+
+CSearchParsedPhraseListModel::~CSearchParsedPhraseListModel()
+{
+
+}
+
+int CSearchParsedPhraseListModel::rowCount(const QModelIndex &parent) const
+{
+	if (parent.isValid())
+		return 0;
+
+	return m_parsedPhrase.nextWordsList().size();
+}
+
+QVariant CSearchParsedPhraseListModel::data(const QModelIndex &index, int role) const
+{
+	if ((index.row() < 0) || (index.row() >= m_parsedPhrase.nextWordsList().size()))
+		return QVariant();
+
+	if (role == Qt::DisplayRole)
+		return m_parsedPhrase.nextWordsList().at(index.row()).word();
+
+	if (role == Qt::EditRole)
+		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();
+
+	if (role == SOUNDEX_ENTRY_ROLE)
+		return m_parsedPhrase.bibleDatabase()->soundEx(m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord());
+
+	return QVariant();
+}
+
+bool CSearchParsedPhraseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+	Q_UNUSED(index);
+	Q_UNUSED(value);
+	Q_UNUSED(role);
+
+	return false;
+}
+
+QString CSearchParsedPhraseListModel::soundEx(const QString &strDecomposedWord, bool bCache) const
+{
+	return m_parsedPhrase.bibleDatabase()->soundEx(strDecomposedWord, bCache);
+}
+
+QString CSearchParsedPhraseListModel::cursorWord() const
+{
+	return m_parsedPhrase.GetCursorWord();
+}
+
+void CSearchParsedPhraseListModel::setWordsFromPhrase()
+{
+#ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
+	qDebug("SearchStringListModel::setWordsFromPhrase : %d", m_parsedPhrase.GetCursorWordPos());
+#endif
+
+	if (m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) {
+		m_nCursorWord = m_parsedPhrase.GetCursorWordPos();
+
+		emit beginResetModel();
+
+//		m_ParsedPhrase.nextWordsList();
+
+		emit endResetModel();
+
+		emit modelChanged();
+	}
+}
+
+// ============================================================================
+
+CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
+	:	CSearchStringListModel(parent),
+		m_pDictionaryDatabase(pDictionary),
+		m_editorWord(editorWord)
+{
+	assert(pDictionary != NULL);
+}
+
+CSearchDictionaryListModel::~CSearchDictionaryListModel()
+{
+
+}
+
+int CSearchDictionaryListModel::rowCount(const QModelIndex &parent) const
+{
+	if (parent.isValid())
+		return 0;
+
+	return m_pDictionaryDatabase->lstWordList().size();
+}
+
+QVariant CSearchDictionaryListModel::data(const QModelIndex &index, int role) const
+{
+	if ((index.row() < 0) || (index.row() >= m_pDictionaryDatabase->lstWordList().size()))
+		return QVariant();
+
+	if (role == Qt::DisplayRole)
+		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).word();
+
+	if (role == Qt::EditRole)
+		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).decomposedWord();
+
+	if (role == SOUNDEX_ENTRY_ROLE)
+		return m_pDictionaryDatabase->soundEx(m_pDictionaryDatabase->lstWordList().at(index.row()));
+
+	return QVariant();
+}
+
+bool CSearchDictionaryListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+	Q_UNUSED(index);
+	Q_UNUSED(value);
+	Q_UNUSED(role);
+
+	return false;
+}
+
+QString CSearchDictionaryListModel::soundEx(const QString &strDecomposedWord, bool bCache) const
+{
+	return m_pDictionaryDatabase->soundEx(strDecomposedWord, bCache);
+}
+
+QString CSearchDictionaryListModel::cursorWord() const
+{
+	return m_editorWord.toPlainText();
+}
+
+void CSearchDictionaryListModel::setWordsFromPhrase()
+{
+//	emit beginResetModel();
+//	emit endResetModel();
+//	emit modelChanged();
+}
+
+// ============================================================================
+
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
-		m_parsedPhrase(parsedPhrase),
 		m_nCompletionFilterMode(SCFME_NORMAL),
 		m_pSearchStringListModel(NULL),
 		m_pSoundExFilterModel(NULL)
 {
-	m_pSearchStringListModel = new CSearchStringListModel(parsedPhrase, this);
+	m_pSearchStringListModel = new CSearchParsedPhraseListModel(parsedPhrase, this);
+	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
+
+	setWidget(parentWidget);
+	setCaseSensitivity(Qt::CaseInsensitive);
+	// Note: CompletionMode, CompletionRole, and ModelSorting properties are set in setCompletionFilterMode(), as they depend on the mode:
+	setCompletionFilterMode(m_nCompletionFilterMode);
+	setModel(m_pSoundExFilterModel);
+}
+
+CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
+	:	QCompleter(parentWidget),
+		m_nCompletionFilterMode(SCFME_NORMAL),
+		m_pSearchStringListModel(NULL),
+		m_pSoundExFilterModel(NULL)
+{
+	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, editorWord, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
 
 	setWidget(parentWidget);
@@ -202,7 +289,7 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 
 void CSearchCompleter::setFilterMatchString()
 {
-	QString strPrefix = m_parsedPhrase.GetCursorWord();
+	QString strPrefix = m_pSearchStringListModel->cursorWord();
 	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
 	QString strPrefixDecomposed = CSearchStringListModel::decompose(strPrefix);
@@ -219,7 +306,7 @@ void CSearchCompleter::setFilterMatchString()
 void CSearchCompleter::selectFirstMatchString()
 {
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
-	qDebug("SelectFirstMatch: CursorWord: \"%s\"  CurrentCompletion: \"%s\"", m_parsedPhrase.GetCursorWord().toUtf8().data(), currentCompletion().toUtf8().data());
+	qDebug("SelectFirstMatch: CursorWord: \"%s\"  CurrentCompletion: \"%s\"", m_pSearchStringListModel->cursorWord().toUtf8().data(), currentCompletion().toUtf8().data());
 	qDebug("Completion Model Size: %d", completionModel()->rowCount());
 #endif
 
@@ -439,7 +526,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 		QRegExp expPrefix(strDecomposedFilterString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
 
 		if (m_bSoundExEnabled) {
-			QString strSoundEx = m_pSearchStringListModel->bibleDatabase()->soundEx(strDecomposedFilterString, false);
+			QString strSoundEx = m_pSearchStringListModel->soundEx(strDecomposedFilterString, false);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("SoundEx: \"%s\" => %s", m_strFilterFixedString.toUtf8().data(), strSoundEx.toUtf8().data());
