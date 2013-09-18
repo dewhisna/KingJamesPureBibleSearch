@@ -73,12 +73,13 @@ public:
 public slots:
 	void en_phraseListChanged();
 
+protected slots:
+	virtual void en_textChanged();
+
 private slots:
 	void insertCompletion(const QString &completion);
 	void insertCompletion(const QModelIndex &index);
 	void insertCommonPhraseCompletion(const QString &completion);
-	void en_textChanged();
-	void en_cursorPositionChanged();
 	void en_dropCommonPhrasesClicked();
 	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 
@@ -92,8 +93,6 @@ protected:
 	virtual void insertFromMimeData(const QMimeData * source);
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 
-	void UpdateCompleter();
-
 	// TODO : Remove this and set parent to non-virtual after done debugging!
 	virtual void ParsePhrase(const QTextCursor &curInsert);
 
@@ -102,6 +101,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 	virtual void setupCompleter(const QString &strText, bool bForce = false);
+	virtual void UpdateCompleter();
 
 // Data Private:
 private:
@@ -109,7 +109,6 @@ private:
 	SearchCompleter_t *m_pCompleter;			// Word completer
 	QCompleter *m_pCommonPhrasesCompleter;		// Common phrases completer
 	int m_nLastCursorWord;		// Used to dismiss and redisplay the popup for resizing
-	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)
 
 // UI Private:
 private:

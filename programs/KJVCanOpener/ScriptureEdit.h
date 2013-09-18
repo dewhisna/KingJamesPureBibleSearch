@@ -115,7 +115,7 @@ protected:
 	virtual void updateSelection();
 	virtual void copyVersesCommon(bool bPlainOnly);
 
-//private slots:
+//protected slots:
 protected:
 	virtual void en_findParentCanOpener();
 	virtual void en_findDialog();

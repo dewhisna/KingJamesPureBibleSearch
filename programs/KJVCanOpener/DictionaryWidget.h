@@ -43,17 +43,23 @@ public:
 
 	void initialize(CDictionaryDatabasePtr pDictionary);
 
+public slots:
+	void insertCompletion(const QString &strWord);
+
 protected slots:
-	void en_textChanged();
 	void insertCompletion(const QModelIndex &index);
+
+	virtual void en_cursorPositionChanged();
 
 protected:
 	virtual void setupCompleter(const QString &strText, bool bForce = false);
+	virtual void UpdateCompleter();
 
 // Data Private:
 private:
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
 	SearchCompleter_t *m_pCompleter;			// Word completer
+	bool m_bUpdateInProgress;
 };
 
 // ============================================================================
@@ -67,6 +73,13 @@ class CDictionaryWidget : public QWidget
 public:
 	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);
 	~CDictionaryWidget();
+
+public slots:
+	void setWord(const QString &strWord);
+
+protected slots:
+	void en_wordChanged();
+	void setTextBrightness(bool bInvert, int nBrightness);
 
 // Data Private:
 private:

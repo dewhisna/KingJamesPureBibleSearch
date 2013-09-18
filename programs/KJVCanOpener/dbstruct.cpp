@@ -1141,6 +1141,13 @@ QString CDictionaryDatabase::definition(const QString &strWord) const
 	return CReadDatabase::dictionaryDefinition(this, itrWord->second);
 }
 
+bool CDictionaryDatabase::wordExists(const QString &strWord) const
+{
+	QString strDecomposedWord = CSearchStringListModel::decompose(strWord).toLower();
+	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
+	return (itrWord != m_mapWordDefinitions.end());
+}
+
 // ============================================================================
 
 void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage)

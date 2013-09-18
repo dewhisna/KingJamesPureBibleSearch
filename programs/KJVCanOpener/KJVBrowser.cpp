@@ -76,6 +76,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(&m_dlyGotoIndex, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(this, SIGNAL(en_gotoIndex(const TPhraseTag &)), m_pScriptureBrowser, SLOT(en_gotoIndex(const TPhraseTag &)));
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
+	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 
 	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
 	connect(ui.comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
@@ -273,6 +274,15 @@ void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 	doHighlighting();
 
 	emit en_gotoIndex(tagActual);
+}
+
+void CKJVBrowser::en_selectionChanged()
+{
+	TPhraseTag tagSelection = m_pScriptureBrowser->selection();
+
+	if ((tagSelection.isSet()) && (tagSelection.count() < 2)) {
+		emit wordUnderCursorChanged(m_pBibleDatabase->wordAtIndex(m_pBibleDatabase->NormalizeIndex(tagSelection.relIndex())));
+	}
 }
 
 void CKJVBrowser::en_sourceChanged(const QUrl &src)

@@ -278,6 +278,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	m_pSplitter->addWidget(m_pSplitterDictionary);
 
+	m_pSplitterDictionary->setStretchFactor(0, 10);
+	m_pSplitterDictionary->setStretchFactor(1, 1);
+
 	ui.horizontalLayout->addWidget(m_pSplitter);
 
 	// --------------------
@@ -618,6 +621,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Scripture Browser:
 
+	connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
 
 	// -------------------- UserNoteEditor Dialog:
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);

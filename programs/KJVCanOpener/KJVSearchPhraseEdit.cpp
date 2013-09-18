@@ -50,7 +50,6 @@ CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 		m_pCompleter(NULL),
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
-		m_bUpdateInProgress(false),
 		m_bDoingPopup(false),
 		m_icoDroplist(":/res/droplist.png"),
 		m_pButtonDroplist(NULL),
@@ -68,7 +67,6 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 		m_pCompleter(NULL),
 		m_pCommonPhrasesCompleter(NULL),
 		m_nLastCursorWord(-1),
-		m_bUpdateInProgress(false),
 		m_bDoingPopup(false),
 		m_icoDroplist(":/res/droplist.png"),
 		m_pButtonDroplist(NULL),
@@ -138,9 +136,6 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
-	connect(this, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
-	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
-
 	m_pCompleter = new SearchCompleter_t(*this, this);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
@@ -186,7 +181,7 @@ void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 	CParsedPhrase::setCaseSensitive(bCaseSensitive);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-	if (!m_bUpdateInProgress) {
+	if (!updateInProgress()) {
 		UpdateCompleter();
 		emit phraseChanged();
 		emit changeCaseSensitive(bCaseSensitive);
@@ -198,7 +193,7 @@ void CPhraseLineEdit::setAccentSensitive(bool bAccentSensitive)
 	CParsedPhrase::setAccentSensitive(bAccentSensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
 
-	if (!m_bUpdateInProgress) {
+	if (!updateInProgress()) {
 		UpdateCompleter();
 		emit phraseChanged();
 		emit changeAccentSensitive(bAccentSensitive);
@@ -238,14 +233,15 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	CPhraseCursor cursor(textCursor());
 	cursor.clearSelection();
 	cursor.select(QTextCursor::LineUnderCursor);
-	bool bUpdateSave = m_bUpdateInProgress;
-	m_bUpdateInProgress = true;									// Hold-over to update everything at once
-	CPhraseEntry phrase(completion);
-	cursor.insertText(phrase.text());
-	setCaseSensitive(phrase.caseSensitive());
-	setAccentSensitive(phrase.accentSensitive());
-	m_bUpdateInProgress = bUpdateSave;
-	if (!m_bUpdateInProgress) {
+	{
+		CDoUpdate doUpdate(this);				// Hold-over to update everything at once
+		CPhraseEntry phrase(completion);
+		cursor.insertText(phrase.text());
+		setCaseSensitive(phrase.caseSensitive());
+		setAccentSensitive(phrase.accentSensitive());
+		// Release update here
+	}
+	if (!updateInProgress()) {
 		UpdateCompleter();
 		emit phraseChanged();
 		emit changeCaseSensitive(isCaseSensitive());
@@ -255,8 +251,8 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 
 void CPhraseLineEdit::en_textChanged()
 {
-	if (!m_bUpdateInProgress) {
-		UpdateCompleter();
+	if (!updateInProgress()) {
+		CSingleLineTextEdit::en_textChanged();
 
 		emit phraseChanged();
 	}
@@ -264,17 +260,12 @@ void CPhraseLineEdit::en_textChanged()
 	m_pActionSelectAll->setEnabled(!document()->isEmpty());
 }
 
-void CPhraseLineEdit::en_cursorPositionChanged()
-{
-	if (!m_bUpdateInProgress) UpdateCompleter();
-}
-
 void CPhraseLineEdit::UpdateCompleter()
 {
 	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
 
-	if (m_bUpdateInProgress) return;
-	m_bUpdateInProgress = true;
+	if (updateInProgress()) return;
+	CDoUpdate doUpdate(this);
 
 	QTextCursor saveCursor = textCursor();
 	saveCursor.clearSelection();
@@ -307,8 +298,6 @@ void CPhraseLineEdit::UpdateCompleter()
 
 		nWord++;
 	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
-
-	m_bUpdateInProgress = false;
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)

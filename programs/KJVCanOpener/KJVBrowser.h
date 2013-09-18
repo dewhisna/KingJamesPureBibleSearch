@@ -110,6 +110,8 @@ public slots:
 signals:
 	void en_gotoIndex(const TPhraseTag &tag);
 
+	void wordUnderCursorChanged(const QString &strWord);
+
 signals:			// Outgoing Pass-Through:
 	void activatedScriptureText();
 	void backwardAvailable(bool available);
@@ -126,6 +128,8 @@ private:
 	void initialize();
 
 private slots:
+	void en_selectionChanged();
+
 	void en_sourceChanged(const QUrl &src);
 
 	void BkComboIndexChanged(int index);

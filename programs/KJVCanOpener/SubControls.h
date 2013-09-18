@@ -163,16 +163,46 @@ protected:
 	virtual void insertFromMimeData(const QMimeData * source);
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 
+	bool updateInProgress() const { return m_bUpdateInProgress; }
+	class CDoUpdate {
+	public:
+		CDoUpdate(CSingleLineTextEdit *pLineEdit)
+			:	m_pLineEdit(pLineEdit)
+		{
+			assert(m_pLineEdit != NULL);
+			m_bUpdateSave = m_pLineEdit->m_bUpdateInProgress;
+			m_pLineEdit->m_bUpdateInProgress = true;
+		}
+
+		~CDoUpdate()
+		{
+			m_pLineEdit->m_bUpdateInProgress = m_bUpdateSave;
+		}
+
+	private:
+		bool m_bUpdateSave;
+		CSingleLineTextEdit *m_pLineEdit;
+	};
+	friend class CDoUpdate;
+
+protected slots:
+	virtual void en_textChanged();
+	virtual void en_cursorPositionChanged();
+
 protected:
 	virtual void wheelEvent(QWheelEvent *event);
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void inputMethodEvent(QInputMethodEvent *event);
+
 	virtual QString textUnderCursor() const;
+
 	virtual void setupCompleter(const QString &strText, bool bForce = false) = 0;
+	virtual void UpdateCompleter() = 0;
 
 private:
 	int m_nMinHeight;
+	bool m_bUpdateInProgress;	// Completer/Case-Sensivitity update in progress (to guard against re-entrance)
 };
 
 // ============================================================================

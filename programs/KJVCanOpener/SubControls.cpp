@@ -160,9 +160,11 @@ bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
 
 CSingleLineTextEdit::CSingleLineTextEdit(int nMinHeight, QWidget *pParent)
 	:	QTextEdit(pParent),
-		m_nMinHeight(nMinHeight)
+		m_nMinHeight(nMinHeight),
+		m_bUpdateInProgress(false)
 {
-
+	connect(this, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
+	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 }
 
 CSingleLineTextEdit::~CSingleLineTextEdit()
@@ -277,6 +279,16 @@ QString CSingleLineTextEdit::textUnderCursor() const
 	QTextCursor cursor = textCursor();
 	cursor.select(QTextCursor::WordUnderCursor);
 	return cursor.selectedText();
+}
+
+void CSingleLineTextEdit::en_textChanged()
+{
+	if (!updateInProgress()) UpdateCompleter();
+}
+
+void CSingleLineTextEdit::en_cursorPositionChanged()
+{
+	if (!updateInProgress()) UpdateCompleter();
 }
 
 // ============================================================================

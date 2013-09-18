@@ -786,6 +786,7 @@ public:
 	QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
 
 	QString definition(const QString &strWord) const;		// Lookup and return definition for word
+	bool wordExists(const QString &strWord) const;			// Lookup word and return true/false on its existence
 
 	inline const TDictionaryWordListMap &mapWordList() const { return m_mapWordDefinitions; }
 	inline const QStringList &lstWordList() const { return m_lstWordList; }
