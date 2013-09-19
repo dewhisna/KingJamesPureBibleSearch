@@ -47,6 +47,7 @@ public:
 
 	const QFont &fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
 	const QFont &fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
+	const QFont &fontDictionary() const { return m_pPersistentSettingData->m_fntDictionary; }
 
 	bool invertTextBrightness() const { return m_pPersistentSettingData->m_bInvertTextBrightness; }
 	int textBrightness() const { return m_pPersistentSettingData->m_nTextBrightness; }
@@ -82,6 +83,7 @@ public:
 signals:
 	void fontChangedScriptureBrowser(const QFont &aFont);
 	void fontChangedSearchResults(const QFont &aFont);
+	void fontChangedDictionary(const QFont &aFont);
 
 	void invertTextBrightnessChanged(bool bInvert);
 	void textBrightnessChanged(int nBrightness);
@@ -104,6 +106,7 @@ signals:
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
 	void setFontSearchResults(const QFont &aFont);
+	void setFontDictionary(const QFont &aFont);
 
 	void setInvertTextBrightness(bool bInvert);
 	void setTextBrightness(int nBrightness);
@@ -145,6 +148,7 @@ private:
 
 		QFont m_fntScriptureBrowser;
 		QFont m_fntSearchResults;
+		QFont m_fntDictionary;
 		bool m_bInvertTextBrightness;
 		int m_nTextBrightness;
 		bool m_bAdjustDialogElementBrightness;

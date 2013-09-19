@@ -62,6 +62,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Fonts:
 		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),
+		m_fntDictionary("Times New Roman", 12),
 		// Default Text Brightness Options:
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
@@ -126,6 +127,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 	if (!bCopy) {
 		if (pSource->m_fntScriptureBrowser != pTarget->m_fntScriptureBrowser) emit fontChangedScriptureBrowser(pTarget->m_fntScriptureBrowser);
 		if (pSource->m_fntSearchResults != pTarget->m_fntSearchResults) emit fontChangedSearchResults(pTarget->m_fntSearchResults);
+		if (pSource->m_fntDictionary != pTarget->m_fntDictionary) emit fontChangedDictionary(pTarget->m_fntDictionary);
 
 		if (pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) emit invertTextBrightnessChanged(pTarget->m_bInvertTextBrightness);
 		if (pSource->m_nTextBrightness != pTarget->m_nTextBrightness) emit textBrightnessChanged(pTarget->m_nTextBrightness);
@@ -166,6 +168,12 @@ void CPersistentSettings::setFontSearchResults(const QFont &aFont)
 {
 	m_pPersistentSettingData->m_fntSearchResults = aFont;
 	emit fontChangedSearchResults(aFont);
+}
+
+void CPersistentSettings::setFontDictionary(const QFont &aFont)
+{
+	m_pPersistentSettingData->m_fntDictionary = aFont;
+	emit fontChangedDictionary(aFont);
 }
 
 void CPersistentSettings::setInvertTextBrightness(bool bInvert)

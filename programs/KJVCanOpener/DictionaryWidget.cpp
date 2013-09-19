@@ -150,7 +150,10 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 
 	connect(ui.editDictionaryWord, SIGNAL(textChanged()), this, SLOT(en_wordChanged()));
 
+	setFont(CPersistentSettings::instance()->fontDictionary());
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedDictionary(const QFont &)), this, SLOT(setFont(const QFont &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 }
 
@@ -167,6 +170,11 @@ void CDictionaryWidget::setWord(const QString &strWord)
 void CDictionaryWidget::en_wordChanged()
 {
 	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(ui.editDictionaryWord->toPlainText().trimmed()));
+}
+
+void CDictionaryWidget::setFont(const QFont& aFont)
+{
+	ui.definitionBrowser->document()->setDefaultFont(aFont);
 }
 
 void CDictionaryWidget::setTextBrightness(bool bInvert, int nBrightness)

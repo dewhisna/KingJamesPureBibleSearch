@@ -79,6 +79,8 @@ public slots:
 
 protected slots:
 	void en_wordChanged();
+
+	void setFont(const QFont& aFont);
 	void setTextBrightness(bool bInvert, int nBrightness);
 
 // Data Private:

@@ -129,6 +129,10 @@ namespace {
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
 	const QString constrPassageReferenceActivationDelayKey("PassageReferenceActivationDelay");
 
+	// Dictionary Widget:
+	const QString constrDictionaryGroup("Dictionary");
+	//const QString constrFontKey("Font");
+
 	// Copy Options:
 	const QString constrCopyOptionsGroup("CopyOptions");
 	const QString constrReferenceDelimiterModeKey("ReferenceDelimiterMode");
@@ -760,6 +764,11 @@ void CKJVCanOpener::savePersistentSettings()
 	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
 
+	// Dictionary Widget Settings:
+	settings.beginGroup(constrDictionaryGroup);
+	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontDictionary().toString());
+	settings.endGroup();
+
 	// Copy Options:
 	settings.beginGroup(constrCopyOptionsGroup);
 	settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
@@ -975,6 +984,24 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
 	m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
+
+	// Dictionary Widget Settings:
+	if (bIsFirstCanOpener) {
+		settings.beginGroup(constrDictionaryGroup);
+		strFont = settings.value(constrFontKey).toString();
+		if (!strFont.isEmpty()) {
+			QFont aFont;
+			aFont.fromString(strFont);
+			// Just use face-name and point size from the stored font.  This is to work around the
+			//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+			//		or something:
+			QFont aFont2;
+			aFont2.setFamily(aFont.family());
+			aFont2.setPointSizeF(aFont.pointSizeF());
+			CPersistentSettings::instance()->setFontDictionary(aFont2);
+		}
+		settings.endGroup();
+	}
 
 	// Copy Options:
 	if (bIsFirstCanOpener) {
