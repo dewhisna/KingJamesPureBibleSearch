@@ -77,11 +77,11 @@ public:
 public slots:
 	void setWord(const QString &strWord);
 
-protected slots:
-	void en_wordChanged();
-
 	void setFont(const QFont& aFont);
 	void setTextBrightness(bool bInvert, int nBrightness);
+
+protected slots:
+	void en_wordChanged();
 
 // Data Private:
 private:

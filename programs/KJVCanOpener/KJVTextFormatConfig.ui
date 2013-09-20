@@ -28,7 +28,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>730</width>
+    <width>732</width>
     <height>640</height>
    </rect>
   </property>
@@ -41,6 +41,40 @@
    </property>
    <item row="0" column="1">
     <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="1">
+      <widget class="CFontComboBox" name="fontComboBoxSearchResults">
+       <property name="toolTip">
+        <string>Set to Desired Font Name for the Search Results List</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="CDoubleSpinBox" name="dblSpinBoxSearchResultsFontSize">
+       <property name="toolTip">
+        <string>Set to Desired Font Point Size for the Search Results List</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="CDoubleSpinBox" name="dblSpinBoxScriptureBrowserFontSize">
+       <property name="toolTip">
+        <string>Set to Desired Font Point Size for the Scripture Browser</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelSearchResultsFont">
+       <property name="text">
+        <string>Search &amp;Results Font:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>fontComboBoxSearchResults</cstring>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="labelScriptureBrowserFont">
        <property name="text">
@@ -61,37 +95,30 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="CDoubleSpinBox" name="dblSpinBoxScriptureBrowserFontSize">
-       <property name="toolTip">
-        <string>Set to Desire Font Point Size for the Scripture Browser</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelSearchResultsFont">
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelDictionaryFont">
        <property name="text">
-        <string>Search &amp;Results Font:</string>
+        <string>D&amp;ictionary Window Font:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buddy">
-        <cstring>fontComboBoxSearchResults</cstring>
+        <cstring>fontComboBoxDictionary</cstring>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="CFontComboBox" name="fontComboBoxSearchResults">
+     <item row="2" column="1">
+      <widget class="QFontComboBox" name="fontComboBoxDictionary">
        <property name="toolTip">
-        <string>Set to Desired Font Name for the Search Results List</string>
+        <string>Set to Desired Font Name for the Dictionary Window</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="CDoubleSpinBox" name="dblSpinBoxSearchResultsFontSize">
+     <item row="2" column="2">
+      <widget class="QDoubleSpinBox" name="dblSpinBoxDictionaryFontSize">
        <property name="toolTip">
-        <string>Set to Desire Font Point Size for the Search Results List</string>
+        <string>Set to Desired Font Point Size for the Dictionary Window</string>
        </property>
       </widget>
      </item>
@@ -307,19 +334,38 @@
          </size>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="textScriptureBrowserPreview">
+       <widget class="QSplitter" name="splitterDictionary">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-          <horstretch>20</horstretch>
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>320</height>
-         </size>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
+        <widget class="QTextBrowser" name="textScriptureBrowserPreview">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>20</horstretch>
+           <verstretch>10</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+		   <height>140</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QWidget" name="widgetDictionary" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+           <horstretch>20</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </widget>
       </widget>
      </item>
@@ -404,6 +450,8 @@
   <tabstop>dblSpinBoxScriptureBrowserFontSize</tabstop>
   <tabstop>fontComboBoxSearchResults</tabstop>
   <tabstop>dblSpinBoxSearchResultsFontSize</tabstop>
+  <tabstop>fontComboBoxDictionary</tabstop>
+  <tabstop>dblSpinBoxDictionaryFontSize</tabstop>
   <tabstop>checkBoxInvertTextBrightness</tabstop>
   <tabstop>horzSliderTextBrigtness</tabstop>
   <tabstop>checkBoxAdjustDialogElementBrightness</tabstop>
@@ -417,6 +465,7 @@
   <tabstop>buttonCursorFollowColor</tabstop>
   <tabstop>treeViewSearchResultsPreview</tabstop>
   <tabstop>textScriptureBrowserPreview</tabstop>
+  <tabstop>widgetDictionary</tabstop>
  </tabstops>
  <resources>
   <include location="KJVCanOpener.qrc"/>

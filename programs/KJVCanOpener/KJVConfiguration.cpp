@@ -26,6 +26,7 @@
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
+#include "DictionaryWidget.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
 #include "SearchCompleter.h"
@@ -238,16 +239,19 @@ void CHighlighterColorButton::setBrightness(bool bAdjust, bool bInvert, int nBri
 
 // ============================================================================
 
-CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
+CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent) :
 	QWidget(parent),
 	//	m_pBibleDatabase(pBibleDatabase),
+	//	m_pDictionaryDatabase(pDictionary),
 	m_previewSearchPhrase(pBibleDatabase),
 	m_pSearchResultsTreeView(NULL),
 	m_pScriptureBrowser(NULL),
+	m_pDictionaryWidget(NULL),
 	m_bIsDirty(false),
 	m_bLoadingData(false)
 {
 	assert(pBibleDatabase != NULL);
+	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	ui.setupUi(this);
@@ -264,7 +268,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	m_pSearchResultsTreeView = new CSearchResultsTreeView(pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pSearchResultsTreeView->setObjectName(QString::fromUtf8("treeViewSearchResultsPreview"));
 	QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	sizePolicy1.setHorizontalStretch(5);
+	sizePolicy1.setHorizontalStretch(10);
 	sizePolicy1.setVerticalStretch(0);
 	sizePolicy1.setHeightForWidth(m_pSearchResultsTreeView->sizePolicy().hasHeightForWidth());
 	m_pSearchResultsTreeView->setSizePolicy(sizePolicy1);
@@ -280,15 +284,15 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	//	Swapout the textScriptureBrowserPreview from the layout with
 	//		one that we can set the database on:
 
-	ndx = ui.splitter->indexOf(ui.textScriptureBrowserPreview);
+	ndx = ui.splitterDictionary->indexOf(ui.textScriptureBrowserPreview);
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pScriptureBrowser = new CScriptureBrowser(pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textScriptureBrowserPreview"));
 	QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	sizePolicy2.setHorizontalStretch(10);
-	sizePolicy2.setVerticalStretch(0);
+	sizePolicy2.setHorizontalStretch(20);
+	sizePolicy2.setVerticalStretch(10);
 	sizePolicy2.setHeightForWidth(m_pScriptureBrowser->sizePolicy().hasHeightForWidth());
 	m_pScriptureBrowser->setSizePolicy(sizePolicy2);
 	m_pScriptureBrowser->setMouseTracking(true);
@@ -302,7 +306,36 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 
 	delete ui.textScriptureBrowserPreview;
 	ui.textScriptureBrowserPreview = NULL;
-	ui.splitter->insertWidget(ndx, m_pScriptureBrowser);
+	ui.splitterDictionary->insertWidget(ndx, m_pScriptureBrowser);
+
+	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChangedBrowser()));
+
+	// --------------------------------------------------------------
+
+	//	Swapout the widgetDictionary from the layout with
+	//		one that we can set the database on:
+
+	ndx = ui.splitterDictionary->indexOf(ui.widgetDictionary);
+	assert(ndx != -1);
+	if (ndx == -1) return;
+
+	m_pDictionaryWidget = new CDictionaryWidget(pDictionary, this);
+	m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
+	QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	aSizePolicyDictionary.setHorizontalStretch(20);
+	aSizePolicyDictionary.setVerticalStretch(0);
+	aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
+	m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
+	m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview"));
+
+	delete ui.widgetDictionary;
+	ui.widgetDictionary = NULL;
+	ui.splitterDictionary->insertWidget(ndx, m_pDictionaryWidget);
+
+	// --------------------------------------------------------------
+
+	ui.splitterDictionary->setStretchFactor(0, 10);
+	ui.splitterDictionary->setStretchFactor(1, 1);
 
 	// --------------------------------------------------------------
 
@@ -361,6 +394,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	QWidget::setTabOrder(ui.buttonSearchResultsColor, ui.buttonCursorFollowColor);
 	QWidget::setTabOrder(ui.buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
+	QWidget::setTabOrder(m_pScriptureBrowser, m_pDictionaryWidget);
 
 	// --------------------------------------------------------------
 
@@ -373,11 +407,14 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWi
 	}
 	ui.dblSpinBoxScriptureBrowserFontSize->setRange(nFontMin, nFontMax);
 	ui.dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
+	ui.dblSpinBoxDictionaryFontSize->setRange(nFontMin, nFontMax);
 
 	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
 	connect(ui.fontComboBoxSearchResults, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_SearchResultsFontChanged(const QFont &)));
+	connect(ui.fontComboBoxDictionary, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_DictionaryFontChanged(const QFont &)));
 	connect(ui.dblSpinBoxScriptureBrowserFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ScriptureBrowserFontSizeChanged(double)));
 	connect(ui.dblSpinBoxSearchResultsFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_SearchResultsFontSizeChanged(double)));
+	connect(ui.dblSpinBoxDictionaryFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_DictionaryFontSizeChanged(double)));
 
 	// --------------------------------------------------------------
 
@@ -423,14 +460,15 @@ void CKJVTextFormatConfig::loadSettings()
 
 	m_fntScriptureBrowser = CPersistentSettings::instance()->fontScriptureBrowser();
 	m_fntSearchResults = CPersistentSettings::instance()->fontSearchResults();
+	m_fntDictionary = CPersistentSettings::instance()->fontDictionary();
 
 	ui.fontComboBoxScriptureBrowser->setCurrentFont(m_fntScriptureBrowser);
 	ui.fontComboBoxSearchResults->setCurrentFont(m_fntSearchResults);
-
-	// --------------------------------------------------------------
+	ui.fontComboBoxDictionary->setCurrentFont(m_fntDictionary);
 
 	ui.dblSpinBoxScriptureBrowserFontSize->setValue(m_fntScriptureBrowser.pointSizeF());
 	ui.dblSpinBoxSearchResultsFontSize->setValue(m_fntSearchResults.pointSizeF());
+	ui.dblSpinBoxDictionaryFontSize->setValue(m_fntDictionary.pointSizeF());
 
 	// --------------------------------------------------------------
 
@@ -457,6 +495,7 @@ void CKJVTextFormatConfig::saveSettings()
 {
 	CPersistentSettings::instance()->setFontScriptureBrowser(m_fntScriptureBrowser);
 	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);
+	CPersistentSettings::instance()->setFontDictionary(m_fntDictionary);
 	CPersistentSettings::instance()->setInvertTextBrightness(m_bInvertTextBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_nTextBrightness);
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
@@ -483,6 +522,16 @@ void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
 	emit dataChanged();
 }
 
+void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
+{
+	if (m_bLoadingData) return;
+
+	m_fntDictionary.setFamily(font.family());
+	m_pDictionaryWidget->setFont(m_fntDictionary);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
 void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
@@ -499,6 +548,16 @@ void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
 
 	m_fntSearchResults.setPointSizeF(nFontSize);
 	m_pSearchResultsTreeView->setFontSearchResults(m_fntSearchResults);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
+{
+	if (m_bLoadingData) return;
+
+	m_fntDictionary.setPointSizeF(nFontSize);
+	m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -824,6 +883,15 @@ void CKJVTextFormatConfig::setPreview()
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 
 	m_pScriptureBrowser->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+}
+
+void CKJVTextFormatConfig::en_selectionChangedBrowser()
+{
+	TPhraseTag tagSelection = m_pScriptureBrowser->selection();
+
+	if ((tagSelection.isSet()) && (tagSelection.count() < 2)) {
+		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex())));
+	}
 }
 
 // ============================================================================
@@ -1342,7 +1410,7 @@ bool CKJVGeneralSettingsConfig::isDirty() const
 // ============================================================================
 // ============================================================================
 
-CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(NULL),
 		m_pTextFormatConfig(NULL),
@@ -1350,10 +1418,11 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *
 		m_pBibleDatabaseConfig(NULL)
 {
 	assert(pBibleDatabase != NULL);
+	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
-	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, this);
+	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
@@ -1400,7 +1469,7 @@ bool CKJVConfiguration::isDirty() const
 
 // ============================================================================
 
-CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent)
 	:	QDialog(parent),
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
@@ -1408,6 +1477,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_pButtonBox(NULL)
 {
 	assert(pBibleDatabase != NULL);
+	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	// --------------------------------------------------------------
@@ -1421,7 +1491,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-	m_pConfiguration = new CKJVConfiguration(pBibleDatabase, this);
+	m_pConfiguration = new CKJVConfiguration(pBibleDatabase, pDictionary, this);
 	m_pConfiguration->setObjectName(QString::fromUtf8("configurationWidget"));
 	pLayout->addWidget(m_pConfiguration);
 

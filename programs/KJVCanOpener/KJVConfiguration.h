@@ -41,6 +41,7 @@
 class CSearchResultsTreeView;
 class CScriptureBrowser;
 class CScriptureEdit;
+class CDictionaryWidget;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 class QListWidgetItem;
@@ -85,7 +86,7 @@ class CKJVTextFormatConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);						// Database for the preview
+	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);						// Databases for the preview
 	~CKJVTextFormatConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -99,8 +100,10 @@ signals:
 public slots:
 	void en_ScriptureBrowserFontChanged(const QFont &font);
 	void en_SearchResultsFontChanged(const QFont &font);
+	void en_DictionaryFontChanged(const QFont &font);
 	void en_ScriptureBrowserFontSizeChanged(double nFontSize);
 	void en_SearchResultsFontSizeChanged(double nFontSize);
+	void en_DictionaryFontSizeChanged(double nFontSize);
 
 	void en_InvertTextBrightnessChanged(bool bInvert);
 	void en_TextBrightnessChanged(int nBrightness);
@@ -122,15 +125,19 @@ public slots:
 	void navigateToDemoText();
 	void setPreview();
 
+	void en_selectionChangedBrowser();
+
 private:
 	void recalcColorListWidth();
 
 // Private Data:
 private:
 //	CBibleDatabasePtr m_pBibleDatabase;
+//	CDictionaryDatabasePtr m_pDictionaryDatabase;
 	CParsedPhrase m_previewSearchPhrase;		// Phrase for searching for preview
 	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
+	QFont m_fntDictionary;
 	bool m_bInvertTextBrightness;
 	int m_nTextBrightness;
 	bool m_bAdjustDialogElementBrightness;
@@ -139,6 +146,7 @@ private:
 private:
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 	CScriptureBrowser *m_pScriptureBrowser;
+	CDictionaryWidget *m_pDictionaryWidget;
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
@@ -361,7 +369,7 @@ class CKJVConfiguration : public QwwConfigWidget
 	Q_OBJECT
 
 public:
-	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, QWidget *parent = NULL);
+	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL);
 	virtual ~CKJVConfiguration();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -385,7 +393,7 @@ class CKJVConfigurationDialog : public QDialog
 	Q_OBJECT
 
 public:
-	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, QWidget *parent = NULL);
+	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL);
 	virtual ~CKJVConfigurationDialog();
 
 public slots:

@@ -1747,7 +1747,7 @@ void CKJVCanOpener::en_Configure()
 		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->enterConfigurationMode();
 	}
 
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, this);
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, g_pMainDictionaryDatabase, this);
 	dlgConfigure.exec();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
