@@ -1544,7 +1544,7 @@ bool CKJVConfiguration::isDirty() const
 // ============================================================================
 
 CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent)
-	:	QDialog(parent),
+	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
 		m_pConfiguration(NULL),
