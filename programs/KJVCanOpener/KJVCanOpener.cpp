@@ -94,6 +94,7 @@ namespace {
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
 	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
+	const QString constrSplitterDictionaryRestoreStateGroup("RestoreState/SplitterDictionary");
 	const QString constrGeometryKey("Geometry");
 	const QString constrWindowStateKey("WindowState");
 
@@ -709,6 +710,11 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
 	settings.endGroup();
 
+	// Splitter Dictionary:
+	settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+	settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
+	settings.endGroup();
+
 	// User Notes Database:
 	assert(g_pUserNotesDatabase != NULL);
 	settings.beginGroup(constrUserNotesDatabaseGroup);
@@ -832,6 +838,11 @@ void CKJVCanOpener::restorePersistentSettings()
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
 	m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+	settings.endGroup();
+
+	// Splitter Dictionary:
+	settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+	m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
 	settings.endGroup();
 
 	// User Notes Database:
