@@ -64,10 +64,15 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
 
-	m_pCompleter->setCompletionFilterMode(CSearchCompleter::SCFME_SOUNDEX);		// CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
-//	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+}
+
+void CDictionaryLineEdit::en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+{
+	m_pCompleter->setCompletionFilterMode(nMode);
 }
 
 void CDictionaryLineEdit::en_cursorPositionChanged()
@@ -156,7 +161,10 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 
 	ui.editDictionaryWord->initialize(m_pDictionaryDatabase);
 
-	connect(ui.editDictionaryWord, SIGNAL(textChanged()), this, SLOT(en_wordChanged()));
+	setDictionaryActivationDelay(CPersistentSettings::instance()->dictionaryActivationDelay());
+	connect(ui.editDictionaryWord, SIGNAL(textChanged()), &m_dlyTextChanged, SLOT(trigger()));
+	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_wordChanged()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryActivationDelay(int)), this, SLOT(setDictionaryActivationDelay(int)));
 
 	setFont(CPersistentSettings::instance()->fontDictionary());
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());

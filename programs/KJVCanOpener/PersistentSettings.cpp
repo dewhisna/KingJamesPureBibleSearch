@@ -77,6 +77,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Browser Options:
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 		m_nPassageReferenceActivationDelay(2000),
+		// Default Dictionary Options:
+		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
 		// Default Copy Options:
 		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
 		m_bReferencesUseAbbreviatedBookNames(false),
@@ -144,6 +147,9 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
 		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
+
+		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
+		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
 
 		if ((pSource->m_nReferenceDelimiterMode != pTarget->m_nReferenceDelimiterMode) ||
 			(pSource->m_bReferencesUseAbbreviatedBookNames != pTarget->m_bReferencesUseAbbreviatedBookNames) ||
@@ -263,6 +269,18 @@ void CPersistentSettings::setPassageReferenceActivationDelay(int nDelay)
 {
 	m_pPersistentSettingData->m_nPassageReferenceActivationDelay = nDelay;
 	emit changedPassageReferenceActivationDelay(m_pPersistentSettingData->m_nPassageReferenceActivationDelay);
+}
+
+void CPersistentSettings::setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+{
+	m_pPersistentSettingData->m_nDictionaryCompleterFilterMode = nMode;
+	emit changedDictionaryCompleterFilterMode(m_pPersistentSettingData->m_nDictionaryCompleterFilterMode);
+}
+
+void CPersistentSettings::setDictionaryActivationDelay(int nDelay)
+{
+	m_pPersistentSettingData->m_nDictionaryActivationDelay = nDelay;
+	emit changedDictionaryActivationDelay(m_pPersistentSettingData->m_nDictionaryActivationDelay);
 }
 
 void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)

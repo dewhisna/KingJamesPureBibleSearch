@@ -190,8 +190,10 @@ public:
 	static SOUNDEX_LANGUAGES_ENUM languageValue(const QString &strLanguage);
 	static QString soundEx(const QString &strWordIn, SOUNDEX_LANGUAGES_ENUM nLanguage = SELE_ENGLISH, int nLength = 4, SOUNDEX_OPTION_MODE_ENUM nOption = SEOME_ENHANCED);
 
-protected slots:
+public slots:
 	void en_modelChanged();
+
+protected slots:
 	void en_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 protected:

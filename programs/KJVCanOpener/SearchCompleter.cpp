@@ -285,6 +285,7 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 	}
 
 	m_nCompletionFilterMode = nCompletionFilterMode;
+	m_pSoundExFilterModel->en_modelChanged();						// Force an update for models that don't do auto per-word updates
 }
 
 void CSearchCompleter::setFilterMatchString()
@@ -380,8 +381,6 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 		m_nFirstDecomposedMatchStringIndex(-1),
 		m_pSearchStringListModel(pSearchStringListModel)
 {
-	en_modelChanged();
-
 	assert(m_pSearchStringListModel != NULL);
 	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()));
 

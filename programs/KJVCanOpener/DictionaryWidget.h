@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 
+#include "DelayedExecutionTimer.h"
 #include "SubControls.h"
 
 #include <QWidget>
@@ -51,6 +52,9 @@ protected slots:
 
 	virtual void en_cursorPositionChanged();
 
+private slots:
+	void en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+
 protected:
 	virtual void setupCompleter(const QString &strText, bool bForce = false);
 	virtual void UpdateCompleter();
@@ -74,11 +78,15 @@ public:
 	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);
 	~CDictionaryWidget();
 
+	int dictionaryActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
+
 public slots:
 	void setWord(const QString &strWord);
 
 	void setFont(const QFont& aFont);
 	void setTextBrightness(bool bInvert, int nBrightness);
+
+	void setDictionaryActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
 
 protected slots:
 	void en_wordChanged();
@@ -93,6 +101,7 @@ private:
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
 	bool m_bDoingUpdate;
+	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CDictionaryWidget ui;
 };
 

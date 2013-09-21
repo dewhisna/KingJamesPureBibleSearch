@@ -69,6 +69,9 @@ public:
 	int navigationActivationDelay() const { return m_pPersistentSettingData->m_nNavigationActivationDelay; }
 	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
 
+	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
+	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
+
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
 	bool referencesUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames; }
 	bool referencesInBold() const { return m_pPersistentSettingData->m_bReferencesInBold; }
@@ -101,6 +104,9 @@ signals:
 	void changedNavigationActivationDelay(int nDelay);
 	void changedPassageReferenceActivationDelay(int nDelay);
 
+	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
+	void changedDictionaryActivationDelay(int nDelay);
+
 	void changedCopyOptions();
 
 public slots:
@@ -121,6 +127,9 @@ public slots:
 
 	void setNavigationActivationDelay(int nDelay);
 	void setPassageReferenceActivationDelay(int nDelay);
+
+	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void setDictionaryActivationDelay(int nDelay);
 
 	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames);
@@ -161,6 +170,9 @@ private:
 		// ----
 		int m_nNavigationActivationDelay;				// Navigation Delay to set on Scripture Browser controls
 		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls
+		// ----
+		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
+		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation
 		// ----
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
 		bool m_bReferencesUseAbbreviatedBookNames;

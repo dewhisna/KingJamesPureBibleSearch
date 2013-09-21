@@ -132,6 +132,8 @@ namespace {
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
 	//const QString constrFontKey("Font");
+	const QString constrDictionaryCompleterFilterModeKey("DictionaryCompleterFilterMode");
+	const QString constrDictionaryActivationDelayKey("DictionaryActivationDelay");
 
 	// Copy Options:
 	const QString constrCopyOptionsGroup("CopyOptions");
@@ -767,6 +769,8 @@ void CKJVCanOpener::savePersistentSettings()
 	// Dictionary Widget Settings:
 	settings.beginGroup(constrDictionaryGroup);
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontDictionary().toString());
+	settings.setValue(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay());
+	settings.setValue(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 	settings.endGroup();
 
 	// Copy Options:
@@ -1000,6 +1004,8 @@ void CKJVCanOpener::restorePersistentSettings()
 			aFont2.setPointSizeF(aFont.pointSizeF());
 			CPersistentSettings::instance()->setFontDictionary(aFont2);
 		}
+		CPersistentSettings::instance()->setDictionaryActivationDelay(settings.value(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay()).toInt());
+		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
 		settings.endGroup();
 	}
 
