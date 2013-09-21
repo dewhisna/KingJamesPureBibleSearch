@@ -82,6 +82,7 @@ public slots:
 
 protected slots:
 	void en_wordChanged();
+	void en_sourceChanged(const QUrl &src);
 	void en_anchorClicked(const QUrl &link);
 
 // Data Private:
@@ -91,6 +92,7 @@ private:
 // UI Private:
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
+	bool m_bDoingUpdate;
 	Ui::CDictionaryWidget ui;
 };
 

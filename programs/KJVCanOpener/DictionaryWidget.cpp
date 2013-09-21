@@ -147,7 +147,8 @@ void CDictionaryLineEdit::insertCompletion(const QString &strWord)
 CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent)
 	:	QWidget(parent),
 		m_pDictionaryDatabase(pDictionary),
-		m_bDoingPopup(false)
+		m_bDoingPopup(false),
+		m_bDoingUpdate(false)
 {
 	assert(m_pDictionaryDatabase != NULL);
 
@@ -164,6 +165,11 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 	connect(ui.definitionBrowser, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
+	connect(ui.buttonHistoryBack, SIGNAL(clicked()), ui.definitionBrowser, SLOT(backward()));
+	connect(ui.definitionBrowser, SIGNAL(backwardAvailable(bool)), ui.buttonHistoryBack, SLOT(setEnabled(bool)));
+	connect(ui.buttonHistoryForward, SIGNAL(clicked()), ui.definitionBrowser, SLOT(forward()));
+	connect(ui.definitionBrowser, SIGNAL(forwardAvailable(bool)), ui.buttonHistoryForward, SLOT(setEnabled(bool)));
+	connect(ui.definitionBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
 }
 
 CDictionaryWidget::~CDictionaryWidget()
@@ -178,7 +184,22 @@ void CDictionaryWidget::setWord(const QString &strWord)
 
 void CDictionaryWidget::en_wordChanged()
 {
-	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(ui.editDictionaryWord->toPlainText().trimmed()));
+	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
+	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
+	if (m_pDictionaryDatabase->wordExists(strWord)) {
+		m_bDoingUpdate = true;
+		ui.definitionBrowser->setSource(QUrl(QString("#%1").arg(strWord)));
+		m_bDoingUpdate = false;
+	}
+}
+
+void CDictionaryWidget::en_sourceChanged(const QUrl &src)
+{
+	if (m_bDoingUpdate) return;
+
+	QString strURL = src.toString();		// Internal URLs are in the form of "#nnnnnnnn" as anchors
+	int nPos = strURL.indexOf('#');
+	if (nPos > -1) setWord(strURL.mid(nPos+1));
 }
 
 void CDictionaryWidget::en_anchorClicked(const QUrl &link)
