@@ -162,6 +162,8 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 
 	connect(CPersistentSettings::instance(), SIGNAL(fontChangedDictionary(const QFont &)), this, SLOT(setFont(const QFont &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+
+	connect(ui.definitionBrowser, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 }
 
 CDictionaryWidget::~CDictionaryWidget()
@@ -177,6 +179,28 @@ void CDictionaryWidget::setWord(const QString &strWord)
 void CDictionaryWidget::en_wordChanged()
 {
 	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(ui.editDictionaryWord->toPlainText().trimmed()));
+}
+
+void CDictionaryWidget::en_anchorClicked(const QUrl &link)
+{
+	// Incoming URL Format:  dict/Web-1828://Word
+
+	QString strAnchor = link.toString();
+
+	// Convert to:  dict://Word
+	int ndxColon = strAnchor.indexOf(':');
+	if (ndxColon == -1) return;
+	int ndxSlash = strAnchor.left(ndxColon).indexOf('/');
+	if (ndxSlash != -1) strAnchor.remove(ndxSlash, ndxColon-ndxSlash);
+
+	QUrl urlResolved(strAnchor);
+
+	// Scheme = "dict"
+	// Host = Word
+
+	if (urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) {
+		setWord(urlResolved.host());
+	}
 }
 
 void CDictionaryWidget::setFont(const QFont& aFont)

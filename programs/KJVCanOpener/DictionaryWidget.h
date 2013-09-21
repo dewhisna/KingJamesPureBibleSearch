@@ -82,6 +82,7 @@ public slots:
 
 protected slots:
 	void en_wordChanged();
+	void en_anchorClicked(const QUrl &link);
 
 // Data Private:
 private:
