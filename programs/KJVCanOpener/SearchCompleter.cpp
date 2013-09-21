@@ -380,6 +380,8 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 		m_nFirstDecomposedMatchStringIndex(-1),
 		m_pSearchStringListModel(pSearchStringListModel)
 {
+	en_modelChanged();
+
 	assert(m_pSearchStringListModel != NULL);
 	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()));
 

@@ -271,7 +271,7 @@ void CSingleLineTextEdit::inputMethodEvent(QInputMethodEvent *event)
 {
 	// Call parent:
 	QTextEdit::inputMethodEvent(event);
-	setupCompleter(QString(), true);
+	setupCompleter(event->commitString(), false);
 }
 
 QString CSingleLineTextEdit::textUnderCursor() const

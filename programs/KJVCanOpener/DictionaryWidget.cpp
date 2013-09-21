@@ -24,6 +24,7 @@
 #include "DictionaryWidget.h"
 
 #include "PersistentSettings.h"
+#include "BusyCursor.h"
 
 #include <QTextCursor>
 #include <QTextCharFormat>
@@ -63,7 +64,7 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
 
-	m_pCompleter->setCompletionFilterMode(CSearchCompleter::SCFME_NORMAL);		// CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	m_pCompleter->setCompletionFilterMode(CSearchCompleter::SCFME_SOUNDEX);		// CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
 //	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
@@ -80,16 +81,22 @@ void CDictionaryLineEdit::setupCompleter(const QString &strText, bool bForce)
 	QString strWord = toPlainText();
 
 	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
-	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen)) {
+	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen && (strWord.length() > 2) && (textCursor().atEnd()))) {
 		m_pCompleter->setFilterMatchString();
 		UpdateCompleter();
 		m_pCompleter->popup()->close();
-		if ((bCompleterOpen) && (strWord.length() > 2)) bForce = true;				// Reshow completer if it was open already and we're changing words
+		if ((bCompleterOpen) && (strWord.length() > 2) && (textCursor().atEnd())) bForce = true;				// Reshow completer if it was open already and we're changing words
 		m_pCompleter->selectFirstMatchString();
 	}
 
-	if (bForce || (!strText.isEmpty() && (strWord.length() > 2)))
-		m_pCompleter->complete();
+	if (bForce || (!strText.isEmpty() && (strWord.length() > 2))) {
+		if (strWord.length() < 2) {
+			CBusyCursor iAmBusy(NULL);
+			m_pCompleter->complete();
+		} else {
+			m_pCompleter->complete();
+		}
+	}
 }
 
 void CDictionaryLineEdit::UpdateCompleter()
