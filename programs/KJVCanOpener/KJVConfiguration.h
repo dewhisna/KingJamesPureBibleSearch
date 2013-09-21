@@ -288,6 +288,42 @@ private:
 
 // ============================================================================
 
+#include "ui_ConfigDictionaryOptions.h"
+
+class CConfigDictionaryOptions : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CConfigDictionaryOptions(QWidget *parent = 0);
+	~CConfigDictionaryOptions();
+
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged();
+
+private slots:
+	void en_changedDictionaryCompleterFilterMode(int nIndex);
+	void en_changedDictionaryActivationDelay(int nValue);
+
+// Data Private:
+private:
+
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+	bool m_bLoadingData;
+
+	Ui::CConfigDictionaryOptions ui;
+};
+
+// ============================================================================
+
 #include "ui_ConfigCopyOptions.h"
 
 class CConfigCopyOptions : public QWidget

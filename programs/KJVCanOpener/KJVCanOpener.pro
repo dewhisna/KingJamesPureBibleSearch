@@ -212,6 +212,7 @@ FORMS    += KJVCanOpener.ui \
 	KJVGeneralSettingsConfig.ui \
 	ConfigSearchOptions.ui \
 	ConfigBrowserOptions.ui \
+	ConfigDictionaryOptions.ui \
 	ConfigCopyOptions.ui \
 	RenameHighlighterDlg.ui \
 	PassageReferenceWidget.ui \

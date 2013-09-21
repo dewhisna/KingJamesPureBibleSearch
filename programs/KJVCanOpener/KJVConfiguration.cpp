@@ -1092,6 +1092,77 @@ void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue
 
 // ============================================================================
 
+CConfigDictionaryOptions::CConfigDictionaryOptions(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		m_bLoadingData(false)
+{
+	ui.setupUi(this);
+
+	ui.comboDictionaryCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
+	ui.comboDictionaryCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
+	ui.comboDictionaryCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
+
+	connect(ui.comboDictionaryCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedDictionaryCompleterFilterMode(int)));
+	connect(ui.spinDictionaryActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedDictionaryActivationDelay(int)));
+
+	loadSettings();
+}
+
+CConfigDictionaryOptions::~CConfigDictionaryOptions()
+{
+
+}
+
+void CConfigDictionaryOptions::loadSettings()
+{
+	m_bLoadingData = true;
+
+	int nIndex = ui.comboDictionaryCompleterMode->findData(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
+	if (nIndex != -1) {
+		ui.comboDictionaryCompleterMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	ui.spinDictionaryActivationDelay->setValue(CPersistentSettings::instance()->dictionaryActivationDelay());
+
+	m_bLoadingData = false;
+	m_bIsDirty = false;
+}
+
+void CConfigDictionaryOptions::saveSettings()
+{
+	int nIndex = ui.comboDictionaryCompleterMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboDictionaryCompleterMode->itemData(nIndex).toUInt()));
+		m_bIsDirty = false;
+	} else {
+		assert(false);
+	}
+	CPersistentSettings::instance()->setDictionaryActivationDelay(ui.spinDictionaryActivationDelay->value());
+}
+
+void CConfigDictionaryOptions::en_changedDictionaryCompleterFilterMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigDictionaryOptions::en_changedDictionaryActivationDelay(int nValue)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+// ============================================================================
+
 CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
@@ -1380,6 +1451,7 @@ CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDat
 
 	connect(ui.widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(ui.widgetBrowserOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui.widgetDictionaryOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(ui.widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
@@ -1392,6 +1464,7 @@ void CKJVGeneralSettingsConfig::loadSettings()
 {
 	ui.widgetSearchOptions->loadSettings();
 	ui.widgetBrowserOptions->loadSettings();
+	ui.widgetDictionaryOptions->loadSettings();
 	ui.widgetCopyOptions->loadSettings();
 }
 
@@ -1399,12 +1472,13 @@ void CKJVGeneralSettingsConfig::saveSettings()
 {
 	ui.widgetSearchOptions->saveSettings();
 	ui.widgetBrowserOptions->saveSettings();
+	ui.widgetDictionaryOptions->saveSettings();
 	ui.widgetCopyOptions->saveSettings();
 }
 
 bool CKJVGeneralSettingsConfig::isDirty() const
 {
-	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetCopyOptions->isDirty());
+	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetDictionaryOptions->isDirty() || ui.widgetCopyOptions->isDirty());
 }
 
 // ============================================================================

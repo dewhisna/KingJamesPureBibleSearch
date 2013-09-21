@@ -27,7 +27,7 @@
   <property name="windowTitle">
    <string>General Settings</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
+  <layout class="QGridLayout" name="gridLayout_5">
    <property name="bottomMargin">
     <number>0</number>
    </property>
@@ -181,6 +181,54 @@
         </layout>
        </item>
        <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lblDictionaryOptions">
+           <property name="text">
+            <string>Dictionary Options:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="frameDictionaryOptions">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="CConfigDictionaryOptions" name="widgetDictionaryOptions" native="true"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -215,26 +263,20 @@
  <customwidgets>
   <customwidget>
    <class>CConfigSearchOptions</class>
-   <extends>QWidget</extends>
-<!--   <header>KJVConfiguration.h</header>-->
-<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
-causes circularly dependency warnings/errors in the win32 make process. -->
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CConfigCopyOptions</class>
-   <extends>QWidget</extends>
-<!--   <header>KJVConfiguration.h</header>-->
-<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
-causes circularly dependency warnings/errors in the win32 make process. -->
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CConfigBrowserOptions</class>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CConfigDictionaryOptions</class>
    <extends>QWidget</extends>
-<!--   <header>KJVConfiguration.h</header>-->
-<!--Omitted because KJVGeneralSettingsConfig is in the same KJVConfiguration.h header.  Including it
-causes circularly dependency warnings/errors in the win32 make process. -->
+   <header>KJVConfiguration.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

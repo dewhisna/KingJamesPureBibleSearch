@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>****************************************************************************
+**
+** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************</comment>
+ <class>CConfigDictionaryOptions</class>
+ <widget class="QWidget" name="CConfigDictionaryOptions">
+  <property name="windowTitle">
+   <string>Dictionary Options</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+	  <widget class="QLabel" name="lblDictionaryCompleterMode">
+       <property name="text">
+		<string>Dictionary &amp;Completer Mode:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+		<cstring>comboDictionaryCompleterMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+	  <widget class="QComboBox" name="comboDictionaryCompleterMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+	  <widget class="QLabel" name="lblDictionaryActivationDelay">
+       <property name="text">
+		<string>Dictionary Activation &amp;Delay (ms):</string>
+       </property>
+       <property name="buddy">
+		<cstring>spinDictionaryActivationDelay</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+	  <widget class="CSpinBox" name="spinDictionaryActivationDelay">
+       <property name="minimum">
+        <number>50</number>
+       </property>
+       <property name="maximum">
+        <number>2000</number>
+       </property>
+       <property name="singleStep">
+        <number>50</number>
+       </property>
+       <property name="value">
+        <number>500</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
