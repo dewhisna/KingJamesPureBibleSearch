@@ -1441,13 +1441,6 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(true, pEditor);
 	setDetailsEnable();
-
-	m_pActionUserNoteEditor->setEnabled(false);
-	m_pActionCrossRefsEditor->setEnabled(false);
-	const QList<QAction *> lstHighlightActions = m_pHighlighterButtons->actions();
-	for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
-		lstHighlightActions.at(ndxHighlight)->setEnabled(false);
-	}
 }
 
 bool CKJVCanOpener::isBrowserFocusedOrActive() const

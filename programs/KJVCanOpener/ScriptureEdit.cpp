@@ -332,6 +332,18 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
 			}
 		}
+	} else if (ev->type() == QEvent::FocusOut) {
+		QFocusEvent *pFocusEvent = static_cast<QFocusEvent *>(ev);
+		if ((parentCanOpener() != NULL) &&
+			(pFocusEvent->reason() != Qt::MenuBarFocusReason) &&
+			(pFocusEvent->reason() != Qt::PopupFocusReason)) {
+			parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
+			parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
+			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
+			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+			}
+		}
 	}
 
 	switch (ev->type()) {

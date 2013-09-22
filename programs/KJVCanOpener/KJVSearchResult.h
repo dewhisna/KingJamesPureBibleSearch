@@ -122,6 +122,7 @@ signals:
 
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
+	virtual void focusOutEvent(QFocusEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
 	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 	virtual void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);

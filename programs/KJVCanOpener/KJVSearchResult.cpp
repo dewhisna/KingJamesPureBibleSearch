@@ -519,6 +519,22 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 	handle_selectionChanged();
 }
 
+void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
+{
+	QTreeView::focusOutEvent(event);
+
+	if ((parentCanOpener() != NULL) &&
+		(event->reason() != Qt::MenuBarFocusReason) &&
+		(event->reason() != Qt::PopupFocusReason)) {
+		parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
+		parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
+		const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
+		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
+			lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+		}
+	}
+}
+
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 {
 	m_bDoingPopup = true;
@@ -579,7 +595,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pActionNavigator->setEnabled(bEditableNode);
 
 	if (hasFocus()) {
-		if (parentCanOpener()) {
+		if (parentCanOpener() != NULL) {
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditableNode);
 			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditableNode);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
