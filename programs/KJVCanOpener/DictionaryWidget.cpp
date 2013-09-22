@@ -28,6 +28,8 @@
 
 #include <QTextCursor>
 #include <QTextCharFormat>
+#include <QMenu>
+#include <QAction>
 
 // ============================================================================
 
@@ -161,6 +163,9 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 
 	ui.editDictionaryWord->initialize(m_pDictionaryDatabase);
 
+	ui.definitionBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.definitionBrowser, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_definitionBrowserContextMenuRequested(const QPoint &)));
+
 	setDictionaryActivationDelay(CPersistentSettings::instance()->dictionaryActivationDelay());
 	connect(ui.editDictionaryWord, SIGNAL(textChanged()), &m_dlyTextChanged, SLOT(trigger()));
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_wordChanged()));
@@ -230,6 +235,24 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 	if (urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) {
 		setWord(urlResolved.host());
 	}
+}
+
+void CDictionaryWidget::en_definitionBrowserContextMenuRequested(const QPoint &pos)
+{
+	bool bPopupSave = m_bDoingPopup;
+	m_bDoingPopup = true;
+
+	QMenu menu;
+	QAction *pAction;
+
+	pAction = menu.addAction(tr("&Copy"), ui.definitionBrowser, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	pAction->setEnabled(ui.definitionBrowser->textCursor().hasSelection());
+	menu.addSeparator();
+	pAction = menu.addAction(tr("Select All"), ui.definitionBrowser, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	pAction->setEnabled(!ui.definitionBrowser->document()->isEmpty());
+	menu.exec(ui.definitionBrowser->viewport()->mapToGlobal(pos));
+
+	m_bDoingPopup = bPopupSave;
 }
 
 void CDictionaryWidget::setFont(const QFont& aFont)

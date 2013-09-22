@@ -31,6 +31,7 @@
 
 #include <QWidget>
 #include <QModelIndex>
+#include <QPoint>
 
 // ============================================================================
 
@@ -92,6 +93,9 @@ protected slots:
 	void en_wordChanged();
 	void en_sourceChanged(const QUrl &src);
 	void en_anchorClicked(const QUrl &link);
+
+	void en_definitionBrowserContextMenuRequested(const QPoint &pos);
+
 
 // Data Private:
 private:
