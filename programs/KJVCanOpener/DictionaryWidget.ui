@@ -52,7 +52,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>240</width>
+         <width>160</width>
          <height>24</height>
         </size>
        </property>
@@ -73,6 +73,20 @@
        </property>
        <property name="lineWrapMode">
         <enum>QTextEdit::NoWrap</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="buttonClearWord">
+       <property name="toolTip">
+        <string>Clear Word</string>
+       </property>
+       <property name="statusTip">
+        <string>Clear Word</string>
+       </property>
+       <property name="icon">
+        <iconset resource="KJVCanOpener.qrc">
+         <normaloff>:/res/clear_left.png</normaloff>:/res/clear_left.png</iconset>
        </property>
       </widget>
      </item>
@@ -140,6 +154,13 @@
    <header>DictionaryWidget.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>editDictionaryWord</tabstop>
+  <tabstop>definitionBrowser</tabstop>
+  <tabstop>buttonClearWord</tabstop>
+  <tabstop>buttonHistoryBack</tabstop>
+  <tabstop>buttonHistoryForward</tabstop>
+ </tabstops>
  <resources>
   <include location="KJVCanOpener.qrc"/>
  </resources>
