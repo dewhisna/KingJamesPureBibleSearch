@@ -192,6 +192,7 @@ public:
 	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
 	bool moveCursorCharRight(MoveMode mode = MoveAnchor);
 	inline QChar charUnderCursor();
+	inline bool charUnderCursorIsSeparator();				// True if charUnderCursor isSpace() or is a '|' character (as used for our 'OR' operator)
 
 	bool moveCursorWordLeft(MoveMode mode = MoveAnchor);
 	bool moveCursorWordRight(MoveMode mode = MoveAnchor);

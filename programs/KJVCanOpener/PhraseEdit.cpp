@@ -527,20 +527,26 @@ inline QChar CPhraseCursor::charUnderCursor()
 	return document()->characterAt(position());
 }
 
+inline bool CPhraseCursor::charUnderCursorIsSeparator()
+{
+	QChar chrValue = charUnderCursor();
+	return (chrValue.isSpace() || (chrValue == QChar('|')));
+}
+
 bool CPhraseCursor::moveCursorWordLeft(MoveMode mode)
 {
 	// Try going left one in case we are at the end of the current word
 	moveCursorCharLeft(mode);
 	// If we are inside the "current word under the cursor", move left past it:
-	while (!charUnderCursor().isSpace()) {
+	while (!charUnderCursorIsSeparator()) {
 		if (!moveCursorCharLeft(mode)) return false;
 	}
 	// We should now be between words, move left until we hit previous word:
-	while (charUnderCursor().isSpace()) {
+	while (charUnderCursorIsSeparator()) {
 		if (!moveCursorCharLeft(mode)) return false;
 	}
 	// While in previous word, keep moving:
-	while (!charUnderCursor().isSpace()) {
+	while (!charUnderCursorIsSeparator()) {
 		if (!moveCursorCharLeft(mode)) return true;		// If we hit the left edge, we have the final left word
 	}
 	// Here, we went one character too far.  So move back one:
@@ -553,15 +559,15 @@ bool CPhraseCursor::moveCursorWordRight(MoveMode mode)
 	// Try going left one in case we are at the end of the current word
 	moveCursorCharLeft(mode);
 	// If we are in the space between words, move right past it:
-	while (charUnderCursor().isSpace()) {
+	while (charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return false;
 	}
 	// If we are inside the "current word under the cursor", move right past it:
-	while (!charUnderCursor().isSpace()) {
+	while (!charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return false;
 	}
 	// We should now be between word, move right until we hit next word:
-	while (charUnderCursor().isSpace()) {
+	while (charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return false;
 	}
 	return true;
@@ -573,11 +579,11 @@ bool CPhraseCursor::moveCursorWordStart(MoveMode mode)
 	moveCursorCharLeft(mode);
 	// If we're between words, move right until we get to the start of the word.
 	//		Otherwise we're already somewhere inside the current word:
-	while (charUnderCursor().isSpace()) {
+	while (charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return false;	// Yes, move to right as current word is the one on the righthand side
 	}
 	// We should now be inside the current word, move left until we find the left side:
-	while (!charUnderCursor().isSpace()) {
+	while (!charUnderCursorIsSeparator()) {
 		if (!moveCursorCharLeft(mode)) return true;		// If we hit the left edge, we are at start of word already
 	}
 	// Here, we went one character too far.  So move back one:
@@ -592,11 +598,11 @@ bool CPhraseCursor::moveCursorWordEnd(MoveMode mode)
 	// If we're between words, the current word is to the right.  So move through
 	//	the space until we find the word.  Otherwise, we should already be in
 	//	the current word:
-	while (charUnderCursor().isSpace()) {
+	while (charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return false;	// Move right here (not opposite of WordStart above), as current word is the one on the righthand side
 	}
 	// We're now inside the current word, move right until we hit the end:
-	while (!charUnderCursor().isSpace()) {
+	while (!charUnderCursorIsSeparator()) {
 		if (!moveCursorCharRight(mode)) return true;	// If we hit the right edge, we are at the end of the word
 	}
 	return true;
@@ -1642,7 +1648,7 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 
 	// Find last word anchor:
 	myCursor.setPosition(nPosLast);
-	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
+	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursorIsSeparator())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
 	myCursor.moveCursorWordEnd();
 	while ((myCursor.position() >= nPosFirstWordStart) && (!nIndexLast.isSet())) {
 		strAnchorName = myCursor.charFormat().anchorName();
@@ -1658,7 +1664,7 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 #ifdef DEBUG_CURSOR_SELECTION
 	if (nIndexLast.isSet()) {
 		myCursor.moveCursorWordRight();
-		while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursor().isSpace())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
+		while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursorIsSeparator())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
 		nPosCursorEnd = myCursor.position() + 1;			// +1 -> One for the extra moveCursorCharLeft
 	}
 #endif
