@@ -284,8 +284,8 @@ void CPhraseLineEdit::UpdateCompleter()
 	do {
 		cursor.selectWordUnderCursor();
 		if (/* (GetCursorWordPos() != nWord) && */
-			(static_cast<int>(GetMatchLevel()) <= nWord) &&
-			(static_cast<int>(GetCursorMatchLevel()) <= nWord) &&
+			(GetMatchLevel() <= nWord) &&
+			(GetCursorMatchLevel() <= nWord) &&
 			((nWord != GetCursorWordPos()) ||
 			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
 			 )

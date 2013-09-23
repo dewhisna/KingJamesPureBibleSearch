@@ -127,12 +127,12 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	return m_cache_lstPhraseTagResults;
 }
 
-uint32_t CParsedPhrase::GetMatchLevel() const
+int CParsedPhrase::GetMatchLevel() const
 {
 	return m_nLevel;
 }
 
-uint32_t CParsedPhrase::GetCursorMatchLevel() const
+int CParsedPhrase::GetCursorMatchLevel() const
 {
 	return m_nCursorLevel;
 }
@@ -157,12 +157,12 @@ QString CParsedPhrase::phraseRaw() const
 	return phraseWordsRaw().join(" ");
 }
 
-unsigned int CParsedPhrase::phraseSize() const
+int CParsedPhrase::phraseSize() const
 {
 	return phraseWords().size();
 }
 
-unsigned int CParsedPhrase::phraseRawSize() const
+int CParsedPhrase::phraseRawSize() const
 {
 	return phraseWordsRaw().size();
 }
@@ -321,6 +321,10 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	m_strCursorWord.clear();
 	m_lstRightWords.clear();
 	m_nCursorWord = m_lstWords.size();
+
+	// Make sure our cursor is within the index range of the list.  If we're adding
+	//	things to the end of the list, we're at an empty string:
+	m_lstWords.push_back(QString());
 }
 
 void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
@@ -332,6 +336,10 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_strCursorWord.clear();
 	m_lstRightWords.clear();
 	m_nCursorWord = m_lstWords.size();
+
+	// Make sure our cursor is within the index range of the list.  If we're adding
+	//	things to the end of the list, we're at an empty string:
+	m_lstWords.push_back(QString());
 }
 
 void CParsedPhrase::FindWords()

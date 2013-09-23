@@ -79,14 +79,14 @@ public:
 	const TNormalizedIndexList &GetNormalizedSearchResults() const;		// Returned as reference so we don't have to keep copying
 #endif
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
-	uint32_t GetMatchLevel() const;
-	uint32_t GetCursorMatchLevel() const;
+	int GetMatchLevel() const;
+	int GetCursorMatchLevel() const;
 	QString GetCursorWord() const;
 	int GetCursorWordPos() const;
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
-	unsigned int phraseSize() const;			// Return number of words in reconstituted phrase
-	unsigned int phraseRawSize() const;			// Return number of words in reconstituted raw phrase
+	int phraseSize() const;						// Return number of words in reconstituted phrase
+	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
 	const QStringList &phraseWords() const;		// Return reconstituted phrase words
 	const QStringList &phraseWordsRaw() const;	// Return reconstituted raw phrase words
 	static QString makeRawPhrase(const QString &strPhrase);
@@ -147,9 +147,9 @@ protected:
 	// -------
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
-	uint32_t m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
+	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
-	uint32_t m_nCursorLevel;	// Matching level at cursor
+	int m_nCursorLevel;		// Matching level at cursor
 	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
 	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
