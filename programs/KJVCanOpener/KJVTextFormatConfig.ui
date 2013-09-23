@@ -24,14 +24,6 @@
 ****************************************************************************</comment>
  <class>CKJVTextFormatConfig</class>
  <widget class="QWidget" name="CKJVTextFormatConfig">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>732</width>
-    <height>640</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Text Color and Font Configuration</string>
   </property>
@@ -98,7 +90,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="labelDictionaryFont">
        <property name="text">
-        <string>D&amp;ictionary Window Font:</string>
+        <string>Di&amp;ctionary Window Font:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -330,7 +322,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>320</height>
+          <height>260</height>
          </size>
         </property>
        </widget>
@@ -354,7 +346,7 @@
          <property name="minimumSize">
           <size>
            <width>0</width>
-		   <height>140</height>
+           <height>140</height>
           </size>
          </property>
         </widget>
