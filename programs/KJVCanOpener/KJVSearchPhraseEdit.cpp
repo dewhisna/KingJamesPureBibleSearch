@@ -279,25 +279,25 @@ void CPhraseLineEdit::UpdateCompleter()
 	cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
 	cursor.setCharFormat(fmt);
 
-	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-	int nWord = 0;
-	do {
-		cursor.selectWordUnderCursor();
-		if (/* (GetCursorWordPos() != nWord) && */
-			(GetMatchLevel() <= nWord) &&
-			(GetCursorMatchLevel() <= nWord) &&
-			((nWord != GetCursorWordPos()) ||
-			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
-			 )
-			) {
-			fmt.setFontStrikeOut(true);
-			fmt.setUnderlineColor(QColor(255,0,0));
-			fmt.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-			cursor.setCharFormat(fmt);
-		}
-
-		nWord++;
-	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
+//	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+//	int nWord = 0;
+//	do {
+//		cursor.selectWordUnderCursor();
+//		if (/* (GetCursorWordPos() != nWord) && */
+//			(GetMatchLevel() <= nWord) &&
+//			(GetCursorMatchLevel() <= nWord) &&
+//			((nWord != GetCursorWordPos()) ||
+//			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
+//			 )
+//			) {
+//			fmt.setFontStrikeOut(true);
+//			fmt.setUnderlineColor(QColor(255,0,0));
+//			fmt.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+//			cursor.setCharFormat(fmt);
+//		}
+//
+//		nWord++;
+//	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
@@ -371,7 +371,6 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 
 	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
 	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen)) {
-		m_pCompleter->setFilterMatchString();
 		UpdateCompleter();
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
@@ -382,9 +381,9 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	}
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
-	qDebug("CursorWord: \"%s\",  AtEnd: %s", GetCursorWord().toUtf8().data(), textCursor().atEnd() ? "yes" : "no");
+	qDebug("CursorWord: \"%s\",  AtEnd: %s", GetCursorWord().toUtf8().data(), atEndOfSubPhrase() ? "yes" : "no");
 #endif
-	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (textCursor().atEnd()))))
+	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase()))))
 		m_pCompleter->complete();
 }
 

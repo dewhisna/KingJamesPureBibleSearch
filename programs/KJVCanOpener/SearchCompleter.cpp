@@ -138,7 +138,7 @@ QString CSearchParsedPhraseListModel::cursorWord() const
 void CSearchParsedPhraseListModel::setWordsFromPhrase()
 {
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
-	qDebug("SearchStringListModel::setWordsFromPhrase : %d", m_parsedPhrase.GetCursorWordPos());
+	qDebug("SearchStringListModel::setWordsFromPhrase : %d  OldCursorPos: %d", m_parsedPhrase.GetCursorWordPos(), m_nCursorWord);
 #endif
 
 	if (m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) {
@@ -296,7 +296,7 @@ void CSearchCompleter::setFilterMatchString()
 	QString strPrefixDecomposed = CSearchStringListModel::decompose(strPrefix);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
-	qDebug("SearchCompleter::setFilterMatchString : %s", prefix.toUtf8().data());
+	qDebug("SearchCompleter::setFilterMatchString : %s", strPrefix.toUtf8().data());
 #endif
 
 	m_strFilterMatchString = strPrefix;

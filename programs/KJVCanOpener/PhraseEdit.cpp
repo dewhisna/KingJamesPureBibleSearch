@@ -48,18 +48,187 @@
 
 // ============================================================================
 
+static QString makeRawPhrase(const QString &strPhrase)
+{
+	QString strRawPhrase;
+	QString strTemp = strPhrase;
+	QChar chrNext;
+	bool bNeedSpace = false;
+
+	while (!strTemp.isEmpty()) {
+		chrNext = strTemp.at(0);
+		bool bIsHyphen = g_strHyphens.contains(chrNext);
+		bool bIsApostrophe = g_strApostrophes.contains(chrNext);
+
+		if ((chrNext.unicode() < 128) ||
+			(g_strNonAsciiNonWordChars.contains(chrNext)) ||
+			(bIsHyphen) ||
+			(bIsApostrophe)) {
+			if ((g_strAsciiWordChars.contains(chrNext)) ||
+				(bIsHyphen) ||
+				(bIsApostrophe) ||
+				(chrNext == ' ')) {
+				if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
+				bNeedSpace = false;
+				if (bIsHyphen) {
+					strRawPhrase += '-';
+				} else if (bIsApostrophe) {
+					strRawPhrase += '\'';
+				} else strRawPhrase += chrNext;
+			} else {
+				// Ignore NonAsciiNonWordChars and codes <128 that aren't in AsciiWordChars.
+				//		But, make sure we have a space before a word character, or else our
+				//		word counts won't be correct:
+				bNeedSpace = true;
+			}
+		} else {
+			if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
+			bNeedSpace = false;
+
+//			if (chrNext == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
+//				strRawPhrase += "Ae";
+//			} else if (chrNext == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
+//				strRawPhrase += "ae";
+//			} else if (chrNext == QChar(0x0132)) {		// U+0132	&#306;		IJ character
+//				strRawPhrase += "IJ";
+//			} else if (chrNext == QChar(0x0133)) {		// U+0133	&#307;		ij character
+//				strRawPhrase += "ij";
+//			} else if (chrNext == QChar(0x0152)) {		// U+0152	&#338;		OE character
+//				strRawPhrase += "Oe";
+//			} else if (chrNext == QChar(0x0153)) {		// U+0153	&#339;		oe character
+//				strRawPhrase += "oe";
+//			}											// All other UTF-8 leave untranslated
+			strRawPhrase += chrNext;
+		}
+
+		strTemp = strTemp.right(strTemp.size()-1);
+	}
+
+	return strRawPhrase;
+}
+
+// ============================================================================
+
+CSubPhrase::CSubPhrase()
+	:	m_nLevel(0),
+		m_nCursorLevel(0),
+		m_nCursorWord(-1)
+{
+
+}
+
+CSubPhrase::~CSubPhrase()
+{
+
+}
+
+int CSubPhrase::GetMatchLevel() const
+{
+	return m_nLevel;
+}
+
+int CSubPhrase::GetCursorMatchLevel() const
+{
+	return m_nCursorLevel;
+}
+
+QString CSubPhrase::GetCursorWord() const
+{
+	return m_strCursorWord;
+}
+
+int CSubPhrase::GetCursorWordPos() const
+{
+	return m_nCursorWord;
+}
+
+QString CSubPhrase::phrase() const
+{
+	return phraseWords().join(" ");
+}
+
+QString CSubPhrase::phraseRaw() const
+{
+	return phraseWordsRaw().join(" ");
+}
+
+int CSubPhrase::phraseSize() const
+{
+	return phraseWords().size();
+}
+
+int CSubPhrase::phraseRawSize() const
+{
+	return phraseWordsRaw().size();
+}
+
+QStringList CSubPhrase::phraseWords() const
+{
+	QStringList strPhraseWords;
+	strPhraseWords.reserve(m_lstWords.size());
+
+	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
+		if (!m_lstWords.at(ndx).isEmpty()) strPhraseWords.append(m_lstWords.at(ndx));
+	}
+	return strPhraseWords;
+}
+
+QStringList CSubPhrase::phraseWordsRaw() const
+{
+	QStringList strPhraseWords = phraseWords();
+	for (int ndx = (strPhraseWords.size()-1); ndx >= 0; --ndx) {
+		QString strTemp = makeRawPhrase(strPhraseWords.at(ndx));
+		if (strTemp.isEmpty()) {
+			strPhraseWords.removeAt(ndx);
+		} else {
+			strPhraseWords[ndx] = strTemp;
+		}
+	}
+	return strPhraseWords;
+}
+
+bool CSubPhrase::isCompleteMatch() const
+{
+	return (GetMatchLevel() == phraseSize());
+}
+
+unsigned int CSubPhrase::GetNumberOfMatches() const
+{
+	return m_lstMatchMapping.size();
+}
+
+void CSubPhrase::ParsePhrase(const QString &strPhrase)
+{
+	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_strCursorWord.clear();
+	m_nCursorWord = m_lstWords.size();
+}
+
+void CSubPhrase::ParsePhrase(const QStringList &lstPhrase)
+{
+	m_lstWords = lstPhrase;
+	m_strCursorWord.clear();
+	m_nCursorWord = m_lstWords.size();
+}
+
+// ============================================================================
+
 CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive, bool bAccentSensitive)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bIsDuplicate(false),
 		m_bIsDisabled(false),
 		m_bCaseSensitive(bCaseSensitive),
 		m_bAccentSensitive(bAccentSensitive),
-		m_nLevel(0),
-		m_nCursorLevel(0),
-		m_nCursorWord(-1)
+		m_nActiveSubPhrase(-1)
+// TODO : CLEAN
+//		m_nLevel(0),
+//		m_nCursorLevel(0),
+//		m_nCursorWord(-1)
 {
-	if (pBibleDatabase)
-		m_lstNextWords = pBibleDatabase->concordanceWordList();
+//	CSubPhrase aSubPhrase;
+//	if (pBibleDatabase)
+//		aSubPhrase.m_lstNextWords = pBibleDatabase->concordanceWordList();
+//	m_lstSubPhrases.append(aSubPhrase);
 }
 
 CParsedPhrase::~CParsedPhrase()
@@ -80,11 +249,48 @@ bool CPhraseEntry::operator!=(const CParsedPhrase &src) const
 	return (!(operator==(src)));
 }
 
-unsigned int CParsedPhrase::GetNumberOfMatches() const
+// ============================================================================
+
+const TConcordanceList &CParsedPhrase::nextWordsList() const
 {
-	return m_lstMatchMapping.size();
+	static const TConcordanceList lstEmptyConcordance;		// Fallback
+
+	if ((m_nActiveSubPhrase >= 0) && (m_nActiveSubPhrase < m_lstSubPhrases.size())) {
+		return m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstNextWords;
+	}
+
+	if (m_pBibleDatabase != NULL)
+		return m_pBibleDatabase->concordanceWordList();
+
+	return lstEmptyConcordance;
 }
 
+bool CParsedPhrase::atEndOfSubPhrase() const
+{
+	if (m_nActiveSubPhrase < 0) return true;
+
+	assert((m_nActiveSubPhrase >=0) && (m_nActiveSubPhrase < m_lstSubPhrases.size()));
+	return (m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWordPos() == m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstWords.size());
+}
+
+// ============================================================================
+
+bool CParsedPhrase::isCompleteMatch() const
+{
+	bool bRetVal = false;
+	for (int ndx = 0; ndx < m_lstSubPhrases.size(); ++ndx) {
+		bRetVal = bRetVal || m_lstSubPhrases.at(ndx)->isCompleteMatch();
+	}
+
+	return bRetVal;
+}
+
+unsigned int CParsedPhrase::GetNumberOfMatches() const
+{
+	return GetPhraseTagSearchResults().size();
+}
+
+/*
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 const TNormalizedIndexList &CParsedPhrase::GetNormalizedSearchResults() const
 {
@@ -126,6 +332,63 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 
 	return m_cache_lstPhraseTagResults;
 }
+*/
+
+
+
+
+
+const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
+	if (m_lstSubPhrases.size() == 0) return m_cache_lstPhraseTagResults;
+
+	// Find the overall largest reserve size to calculate and find the index of
+	//		the subphrase with the largest number of results.  We'll start with
+	//		the largest result and intersect insert the other results into it.
+	//		(that should be fastest)
+	int nMaxSize = -1;
+	int ndxMax = 0;
+	int nReserveSize = 0;
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
+		int nSize = m_lstSubPhrases.at(ndxSubPhrase)->m_lstMatchMapping.size();
+		nReserveSize += nSize;
+		if (nSize > nMaxSize) {
+			nMaxSize = nSize;
+			ndxMax = ndxSubPhrase;
+		}
+	}
+
+	// Insert our Max list (or only list for single subphrases) first:
+	m_cache_lstPhraseTagResults.reserve(nReserveSize);
+	const CSubPhrase *subPhrase = m_lstSubPhrases.at(ndxMax).data();
+	for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
+		uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
+		if (ndxNormal > 0)
+			m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
+	}
+
+	// Intersecting insert the other subphrases:
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
+		if (ndxSubPhrase == ndxMax) continue;
+		subPhrase = m_lstSubPhrases.at(ndxSubPhrase).data();
+		for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
+			uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
+			if (ndxNormal > 0)
+				m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase, TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
+		}
+	}
+
+	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+
+	return m_cache_lstPhraseTagResults;
+}
+
+
+
+/*
 
 int CParsedPhrase::GetMatchLevel() const
 {
@@ -194,63 +457,55 @@ const QStringList &CParsedPhrase::phraseWordsRaw() const
 	return m_cache_lstPhraseWordsRaw;
 }
 
-QString CParsedPhrase::makeRawPhrase(const QString &strPhrase)
+*/
+
+
+QString CParsedPhrase::GetCursorWord() const
 {
-	QString strRawPhrase;
-	QString strTemp = strPhrase;
-	QChar chrNext;
-	bool bNeedSpace = false;
+	if (m_nActiveSubPhrase < 0) return QString();
+	assert(m_nActiveSubPhrase < m_lstSubPhrases.size());
 
-	while (!strTemp.isEmpty()) {
-		chrNext = strTemp.at(0);
-		bool bIsHyphen = g_strHyphens.contains(chrNext);
-		bool bIsApostrophe = g_strApostrophes.contains(chrNext);
+	return m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWord();
+}
 
-		if ((chrNext.unicode() < 128) ||
-			(g_strNonAsciiNonWordChars.contains(chrNext)) ||
-			(bIsHyphen) ||
-			(bIsApostrophe)) {
-			if ((g_strAsciiWordChars.contains(chrNext)) ||
-				(bIsHyphen) ||
-				(bIsApostrophe) ||
-				(chrNext == ' ')) {
-				if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
-				bNeedSpace = false;
-				if (bIsHyphen) {
-					strRawPhrase += '-';
-				} else if (bIsApostrophe) {
-					strRawPhrase += '\'';
-				} else strRawPhrase += chrNext;
-			} else {
-				// Ignore NonAsciiNonWordChars and codes <128 that aren't in AsciiWordChars.
-				//		But, make sure we have a space before a word character, or else our
-				//		word counts won't be correct:
-				bNeedSpace = true;
-			}
-		} else {
-			if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
-			bNeedSpace = false;
+int CParsedPhrase::GetCursorWordPos() const
+{
+	if (m_nActiveSubPhrase < 0) return -1;
+	assert(m_nActiveSubPhrase < m_lstSubPhrases.size());
 
-//			if (chrNext == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
-//				strRawPhrase += "Ae";
-//			} else if (chrNext == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
-//				strRawPhrase += "ae";
-//			} else if (chrNext == QChar(0x0132)) {		// U+0132	&#306;		IJ character
-//				strRawPhrase += "IJ";
-//			} else if (chrNext == QChar(0x0133)) {		// U+0133	&#307;		ij character
-//				strRawPhrase += "ij";
-//			} else if (chrNext == QChar(0x0152)) {		// U+0152	&#338;		OE character
-//				strRawPhrase += "Oe";
-//			} else if (chrNext == QChar(0x0153)) {		// U+0153	&#339;		oe character
-//				strRawPhrase += "oe";
-//			}											// All other UTF-8 leave untranslated
-			strRawPhrase += chrNext;
-		}
+	int posWord = 0;
+	for (int ndxSubPhrase=0; ndxSubPhrase<m_nActiveSubPhrase; ++ndxSubPhrase) {
+		posWord += m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1;		// +1 for "word between phrases"
+	}
+	posWord += m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWordPos();
 
-		strTemp = strTemp.right(strTemp.size()-1);
+qDebug("ActivePhrase: %d  CurWord: %d", m_nActiveSubPhrase, posWord);
+
+	return posWord;
+}
+
+QString CParsedPhrase::phrase() const
+{
+	QStringList lstPhrases;
+
+	lstPhrases.reserve(m_lstSubPhrases.size());
+	for (int ndx = 0; ndx < m_lstSubPhrases.size(); ++ndx) {
+		lstPhrases.append(m_lstSubPhrases.at(ndx)->phrase());
 	}
 
-	return strRawPhrase;
+	return lstPhrases.join(" | ");
+}
+
+QString CParsedPhrase::phraseRaw() const
+{
+	QStringList lstPhrases;
+
+	lstPhrases.reserve(m_lstSubPhrases.size());
+	for (int ndx = 0; ndx < m_lstSubPhrases.size(); ++ndx) {
+		lstPhrases.append(m_lstSubPhrases.at(ndx)->phraseRaw());
+	}
+
+	return lstPhrases.join(" | ");
 }
 
 void CParsedPhrase::clearCache() const
@@ -267,6 +522,7 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchComplet
 {
 	ParsePhrase(curInsert);
 	FindWords();
+	aCompleter.setFilterMatchString();
 	aCompleter.setWordsFromPhrase();
 }
 
@@ -275,8 +531,15 @@ QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const 
 	CPhraseCursor myCursor(curInsert);
 	myCursor.beginEditBlock();
 	myCursor.clearSelection();
-	myCursor.selectWordUnderCursor();							// Select word under the cursor
-	myCursor.insertText(completion);							// Replace with completed word
+	if (!atEndOfSubPhrase()) {
+		myCursor.selectWordUnderCursor();							// Select word under the cursor
+		myCursor.insertText(completion);							// Replace with completed word
+	} else {
+		// If at the end of the phrase, just insert it and add
+		//		a space if the subphrase isn't the last subphrase
+		//		(i.e. we are just before the "|"):
+		myCursor.insertText(completion + ((m_nActiveSubPhrase != (m_lstSubPhrases.size()-1)) ? QString(" ") : QString()));
+	}
 	myCursor.endEditBlock();
 
 	return myCursor;
@@ -284,87 +547,298 @@ QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const 
 
 void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 {
-	clearCache();
+	// Note: clearCache() called in secondary ParsePhrase() call below
+	//		once we've parsed the cursor into a string
 
-	m_lstLeftWords.clear();
-	m_lstRightWords.clear();
-	m_strCursorWord.clear();
+	CPhraseCursor myCursor(curInsert);
+	int nCursorPos = myCursor.position();
+
+	myCursor.setPosition(0);
+	myCursor.selectCursorToLineEnd();
+	QString strComplete = myCursor.selectedText();
+
+	assert(nCursorPos <= strComplete.size());
+
+	QString strLeftText = strComplete.left(nCursorPos);
+	QString strRightText = strComplete.mid(nCursorPos);
+
+	QChar chrL = (strLeftText.size() ? strLeftText.at(strLeftText.size()-1) : QChar());
+	bool bLIsSpace = chrL.isSpace();
+	bool bLIsOR = (chrL == QChar('|'));
+	bool bLIsSeparator = (bLIsSpace || bLIsOR);
+
+	if (chrL.isNull() || bLIsSeparator) strRightText = strRightText.mid(strRightText.indexOf(QRegExp("\\S")));
+
+	QChar chrR = (strRightText.size() ? strRightText.at(0) : QChar());
+	bool bRIsSpace = chrR.isSpace();
+	bool bRIsOR = (chrR == QChar('|'));
+	bool bRIsSeparator = (bRIsSpace || bRIsOR);
+
+	if (!bRIsSeparator) {
+		int nPosRSpace = strRightText.indexOf(QRegExp("\\s+"));
+		strLeftText += strRightText.left(nPosRSpace);
+		if (nPosRSpace != -1) {
+			strRightText = strRightText.mid(nPosRSpace);
+		} else {
+			strRightText.clear();
+		}
+	}
+
+	ParsePhrase(strComplete);
+	assert(m_lstSubPhrases.size() > 0);
+
+	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+	strLeftText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+	QStringList lstLeftWords = strLeftText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+	strRightText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+	assert(lstCompleteWords.size() == (lstLeftWords.size() + lstRightWords.size()));
+
+	int nCursorWord = (lstLeftWords.size() ? lstLeftWords.size()-1 : 0);
+	QString strCursorWord = (lstLeftWords.size() ? lstLeftWords.last() : QString());
+	if (((bLIsSpace) && ((bRIsSeparator) || chrR.isNull())) ||
+		(strCursorWord.contains(QChar('|')))) {
+		strCursorWord.clear();
+		nCursorWord++;
+	}
+
+
+qDebug("LeftWords: %s  CursorWord: %s  CursorIndex: %d", lstLeftWords.join(",").toUtf8().data(), strCursorWord.toUtf8().data(), nCursorWord);
+qDebug("strComplete: %s", strComplete.toUtf8().data());
+
+
+	m_nActiveSubPhrase = -1;
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
+qDebug("%d : %s : CurWord: %d", ndxSubPhrase, m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.join(",").toUtf8().data(), nCursorWord);
+		if (nCursorWord <= m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
+			m_lstSubPhrases[ndxSubPhrase]->m_nCursorWord = nCursorWord;
+			if (nCursorWord < m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
+				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.at(nCursorWord);
+			} else {
+				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = QString();
+			}
+			m_nActiveSubPhrase = ndxSubPhrase;
+			break;
+		} else {
+			nCursorWord -= (m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1);	// +1 for "word between subprases"
+		}
+	}
+	assert(m_nActiveSubPhrase != -1);
+	if (m_nActiveSubPhrase == -1) m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+
+
+/*
+
+	QStringList lstLeftWords;
+	QString strCursorWord;
+//	QStringList lstRightWords;
+
+	int nCursorWord = 0;
 
 	CPhraseCursor curLeft(curInsert);
 	while (curLeft.moveCursorWordLeft()) {
-		m_lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_C));
+		lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_C));
+		nCursorWord++;
+
+		int nPosSave = curLeft.position();
+		do {
+			if (!curLeft.moveCursorCharLeft()) break;
+			if (curLeft.charUnderCursor() == QChar('|')) {
+				lstLeftWords.push_front("|");
+				nCursorWord++;
+			}
+		} while (curLeft.charUnderCursorIsSeparator());
+		curLeft.setPosition(nPosSave);
 	}
 
-	CPhraseCursor curRight(curInsert);
-	m_strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_C);
-	while (curRight.moveCursorWordRight()) {
-		m_lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_C));
+	CPhraseCursor curCurrent(curInsert);
+	int nPosCurrent = curCurrent.position();
+	curCurrent.moveCursorCharLeft();
+	if (!curCurrent.charUnderCursorIsSeparator()) {
+		curCurrent.moveCursorWordStart();
+	} else {
+		curCurrent.moveCursorCharRight();
+		curCurrent.moveCursorWordLeft();
+	}
+	curCurrent.moveCursorWordEnd();
+	bool bFoundSep = false;
+	while (curCurrent.position() < nPosCurrent) {
+		if (curCurrent.charUnderCursor() == QChar('|')) {
+			lstLeftWords.push_back("|");
+			nCursorWord++;
+			bFoundSep = true;
+		}
+		if (!curCurrent.moveCursorCharRight()) break;
 	}
 
-	m_lstWords.clear();
-	m_lstWords.append(m_lstLeftWords);
-	m_nCursorWord = m_lstWords.size();
-	m_lstWords.append(m_strCursorWord);
-	m_lstWords.append(m_lstRightWords);
+	strCursorWord.clear();
+	if (!bFoundSep) {
+		curCurrent.moveCursorCharLeft();
+	}
+	bFoundSep = false;
+	while (curCurrent.charUnderCursorIsSeparator()) {
+		if (curCurrent.charUnderCursor() == QChar('|')) {
+			bFoundSep = true;
+		}
+		if (!curCurrent.moveCursorCharRight()) break;
+	}
+	if (!bFoundSep) {
+		strCursorWord = curCurrent.wordUnderCursor().normalized(QString::NormalizationForm_C);
+	}
 
-	// Make sure our cursor is within the index range of the list.  If we're adding
-	//	things to the end of the list, we're at an empty string:
-	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
+
+//	CPhraseCursor curRight(curInsert);
+//	strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_C);
+//	while (curRight.moveCursorWordRight()) {
+//		lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_C));
+//	}
+
+
+//	int nCursorWord = lstLeftWords.size();
+
+
+
+	CPhraseCursor curComplete(curInsert);
+	curComplete.setPosition(0);
+	curComplete.selectCursorToLineEnd();
+	QString strComplete = curComplete.selectedText();
+
+
+	ParsePhrase(strComplete);
+	assert(m_lstSubPhrases.size() > 0);
+
+//	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+//
+//	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+//	assert(lstLeftWords.size() <= lstCompleteWords.size());
+//
+//	int nCursorWord = 0;
+//	int ndxComplete = 0;
+//	for (int ndxLeftWords = 0; ndxLeftWords < lstLeftWords.size(); ++ndxLeftWords) {
+//		if (lstCompleteWords.at(ndxComplete).compare(lstLeftWords.at(ndxLeftWords)) != 0) {
+//			// If they don't match, then this must be an "OR" operator...
+//			++ndxComplete;
+//			++nCursorWord;
+//		}
+//		++ndxComplete;
+//		++nCursorWord;
+//	}
+//	while ((ndxComplete < lstCompleteWords.size()) && (lstCompleteWords.at(ndxComplete).contains(QString("|")))) {
+//		++ndxComplete;
+//		++nCursorWord;
+//	}
+
+
+qDebug("LeftWords: %s  CursorWord: %s  CursorIndex: %d", lstLeftWords.join(",").toUtf8().data(), strCursorWord.toUtf8().data(), nCursorWord);
+qDebug("strComplete: %s", strComplete.toUtf8().data());
+
+
+	m_nActiveSubPhrase = -1;
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
+qDebug("%d : %s : CurWord: %d", ndxSubPhrase, m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.join(",").toUtf8().data(), nCursorWord);
+		if (nCursorWord <= m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
+			m_lstSubPhrases[ndxSubPhrase]->m_nCursorWord = nCursorWord;
+			if (nCursorWord < m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
+				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.at(nCursorWord);
+			} else {
+				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = QString();
+			}
+			m_nActiveSubPhrase = ndxSubPhrase;
+			break;
+		} else {
+			nCursorWord -= (m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1);	// +1 for "word between subprases"
+		}
+	}
+	if (m_nActiveSubPhrase == -1) m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+
+
+//	// Make sure our cursor is within the index range of the list.  If we're adding
+//	//	things to the end of the list, we're at an empty string:
+//	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
+
+*/
+
 }
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 {
 	clearCache();
 
-	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
-	m_lstLeftWords = m_lstWords;
-	m_strCursorWord.clear();
-	m_lstRightWords.clear();
-	m_nCursorWord = m_lstWords.size();
+	QStringList lstPhrases = strPhrase.split(QChar('|'));
+	assert(lstPhrases.size() >= 1);
 
-	// Make sure our cursor is within the index range of the list.  If we're adding
-	//	things to the end of the list, we're at an empty string:
-	m_lstWords.push_back(QString());
+	m_lstSubPhrases.clear();
+	m_lstSubPhrases.reserve(lstPhrases.size());
+	for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
+		QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
+		if (m_pBibleDatabase != NULL) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		subPhrase->ParsePhrase(lstPhrases.at(ndx));
+		m_lstSubPhrases.append(subPhrase);
+	}
+
+	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 }
 
 void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 {
 	clearCache();
 
-	m_lstWords = lstPhrase;
-	m_lstLeftWords = m_lstWords;
-	m_strCursorWord.clear();
-	m_lstRightWords.clear();
-	m_nCursorWord = m_lstWords.size();
+	m_lstSubPhrases.clear();
 
-	// Make sure our cursor is within the index range of the list.  If we're adding
-	//	things to the end of the list, we're at an empty string:
-	m_lstWords.push_back(QString());
+	int ndxFrom = 0;
+	while (ndxFrom != -1) {
+		int ndxFirst = ndxFrom;
+		ndxFrom = lstPhrase.indexOf(QString("|"), ndxFrom);
+		int ndxLast = ((ndxFrom != -1) ? ndxFrom : lstPhrase.size());
+		QStringList lstSubPhrase;
+		for (int ndxWord = ndxFirst; ndxWord < ndxLast; ++ndxWord) {
+			lstSubPhrase.append(lstPhrase.at(ndxWord));
+		}
+		if (!lstSubPhrase.isEmpty()) {
+			QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
+			if (m_pBibleDatabase != NULL) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+			subPhrase->ParsePhrase(lstSubPhrase);
+			m_lstSubPhrases.append(subPhrase);
+		}
+		if (ndxFrom != -1) ++ndxFrom;			// Skip the 'OR'
+	}
+
+	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 }
 
 void CParsedPhrase::FindWords()
 {
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase)
+		FindWords(*m_lstSubPhrases[ndxSubPhrase]);
+}
+
+void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
+{
 	assert(m_pBibleDatabase.data() != NULL);
 
-	int nCursorWord = m_nCursorWord;
-	assert((nCursorWord >= 0) && (nCursorWord <= m_lstWords.size()));
+	int nCursorWord = subPhrase.m_nCursorWord;
+	assert((nCursorWord >= 0) && (nCursorWord <= subPhrase.m_lstWords.size()));
 
-	m_lstMatchMapping.clear();
+	subPhrase.m_lstMatchMapping.clear();
 	bool bComputedNextWords = false;
-	m_nLevel = 0;
-	m_nCursorLevel = 0;
+	subPhrase.m_nLevel = 0;
+	subPhrase.m_nCursorLevel = 0;
 	bool bInFirstWordStar = false;
-	for (int ndx=0; ndx<m_lstWords.size(); ++ndx) {
-		if (m_lstWords.at(ndx).isEmpty()) continue;
+	for (int ndx=0; ndx<subPhrase.m_lstWords.size(); ++ndx) {
+		if (subPhrase.m_lstWords.at(ndx).isEmpty()) continue;
 
-		QString strCurWordDecomp = CSearchStringListModel::decompose(m_lstWords.at(ndx));
-		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(m_lstWords.at(ndx)) : strCurWordDecomp);
+		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx));
+		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx)) : strCurWordDecomp);
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
 		int nPreRegExp = strCurWordWildKey.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 
 		if (nPreRegExp == -1) {
-			if ((ndx == (m_lstWords.size()-1)) &&
+			if ((ndx == (subPhrase.m_lstWords.size()-1)) &&
 				(m_pBibleDatabase->mapWordList().find(strCurWordKey) == m_pBibleDatabase->mapWordList().end())) {
 				strCurWordWildKey += "*";			// If we're on the word currently being typed and it's not an exact match, simulate a "*" trailing wildcard to match all strings with this prefix
 			}
@@ -379,7 +853,7 @@ void CParsedPhrase::FindWords()
 			if (nFirstWord == -1) {
 				if (nCursorWord > ndx) {
 					// If we've stopped matching before the cursor, we have no "next words":
-					m_lstNextWords.clear();
+					subPhrase.m_lstNextWords.clear();
 					bComputedNextWords = true;
 				}
 				break;			// If we've stopped matching, we're done
@@ -401,7 +875,7 @@ void CParsedPhrase::FindWords()
 					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
 
 					if ((!isCaseSensitive()) && (!isAccentSensitive())) {
-						m_lstMatchMapping.insert(m_lstMatchMapping.end(), wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end());
+						subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(), wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end());
 					} else {
 						unsigned int nCount = 0;
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
@@ -412,9 +886,9 @@ void CParsedPhrase::FindWords()
 								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord);
 							}
 							if (expCurWord.exactMatch(strAltWord)) {
-								m_lstMatchMapping.insert(m_lstMatchMapping.end(),
-															&wordEntry.m_ndxNormalizedMapping[nCount],
-															&wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
+								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
+																	&wordEntry.m_ndxNormalizedMapping[nCount],
+																	&wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
 							}
 							nCount += wordEntry.m_lstAltWordCount.at(ndxAltWord);
 						}
@@ -426,32 +900,32 @@ void CParsedPhrase::FindWords()
 			//		a list of remaining mappings:
 			if (strCurWordWildKey.compare("*") != 0) {
 				TNormalizedIndexList lstNextMapping;
-				for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-					if ((m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
-					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(m_lstMatchMapping.at(ndxWord)+1)
-																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1)));
+				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
+					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
+					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1)
+																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1)));
 					if (expCurWord.exactMatch(strNextWord)) {
-						lstNextMapping.push_back(m_lstMatchMapping.at(ndxWord)+1);
+						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}
 				}
-				m_lstMatchMapping = lstNextMapping;
+				subPhrase.m_lstMatchMapping = lstNextMapping;
 			} else {
 				// An "*" matches everything from the word before it, except for the "next index":
-				for (TNormalizedIndexList::iterator itrWord = m_lstMatchMapping.begin(); itrWord != m_lstMatchMapping.end(); /* increment is inside loop */) {
+				for (TNormalizedIndexList::iterator itrWord = subPhrase.m_lstMatchMapping.begin(); itrWord != subPhrase.m_lstMatchMapping.end(); /* increment is inside loop */) {
 					if (((*itrWord) + 1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 						++(*itrWord);
 						++itrWord;
 					} else {
-						itrWord = m_lstMatchMapping.erase(itrWord);
+						itrWord = subPhrase.m_lstMatchMapping.erase(itrWord);
 					}
 				}
 			}
 		}
 
-		if ((m_lstMatchMapping.size() != 0) || (bInFirstWordStar)) m_nLevel++;
+		if ((subPhrase.m_lstMatchMapping.size() != 0) || (bInFirstWordStar)) subPhrase.m_nLevel++;
 
 		if (ndx < nCursorWord) {
-			m_nCursorLevel = m_nLevel;
+			subPhrase.m_nCursorLevel = subPhrase.m_nLevel;
 
 			if ((ndx+1) == nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
 				if (!bInFirstWordStar) {
@@ -459,36 +933,36 @@ void CParsedPhrase::FindWords()
 					//		faster than using !TConcordanceList.contains() to just not add them
 					//		with initially and directly into m_lstNextWords.  Strange...
 					//		This will use a little more memory, but...
-					m_lstNextWords.clear();
+					subPhrase.m_lstNextWords.clear();
 					QStringList lstNextWords;
-					for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-						if ((m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-							lstNextWords.append(m_pBibleDatabase->wordAtIndex(m_lstMatchMapping.at(ndxWord)+1));
+					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
+						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
+							lstNextWords.append(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1));
 						}
 					}
 					lstNextWords.removeDuplicates();
 
-					m_lstNextWords.reserve(lstNextWords.size());
+					subPhrase.m_lstNextWords.reserve(lstNextWords.size());
 					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
 						const CConcordanceEntry &nextWordEntry(lstNextWords.at(ndxWord));
-						m_lstNextWords.append(nextWordEntry);
+						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 
-					qSort(m_lstNextWords.begin(), m_lstNextWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
+					qSort(subPhrase.m_lstNextWords.begin(), subPhrase.m_lstNextWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 					bComputedNextWords = true;
 				} else {
-					m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+					subPhrase.m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 					bComputedNextWords = true;
 				}
 			}
 		}
 
-		if ((m_lstMatchMapping.size() == 0) && (!bInFirstWordStar)) break;
+		if ((subPhrase.m_lstMatchMapping.size() == 0) && (!bInFirstWordStar)) break;
 	}
 
 	// Copy our complete word list, but only if we didn't compute a wordList above:
 	if (!bComputedNextWords)
-		m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		subPhrase.m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 }
 
 // ============================================================================

@@ -37,6 +37,9 @@
 #include <QColor>
 #include <QHelpEvent>
 #include <QList>
+#include <QSharedPointer>
+
+#include <assert.h>
 
 // ============================================================================
 
@@ -45,6 +48,46 @@ class CSearchCompleter;
 #ifndef OSIS_PARSER_BUILD
 class CKJVCanOpener;
 #endif
+class CParsedPhrase;
+
+// ============================================================================
+
+class CSubPhrase {
+public:
+	CSubPhrase();
+	~CSubPhrase();
+
+	int GetMatchLevel() const;
+	int GetCursorMatchLevel() const;
+	QString GetCursorWord() const;
+	int GetCursorWordPos() const;
+	QString phrase() const;						// Return reconstituted phrase
+	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
+	int phraseSize() const;						// Return number of words in reconstituted phrase
+	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
+	QStringList phraseWords() const;			// Return reconstituted phrase words
+	QStringList phraseWordsRaw() const;			// Return reconstituted raw phrase words
+
+	bool isCompleteMatch() const;
+	unsigned int GetNumberOfMatches() const;
+
+	void ParsePhrase(const QString &strPhrase);
+	void ParsePhrase(const QStringList &lstPhrase);
+
+private:
+	friend class CParsedPhrase;
+
+	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
+	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
+	int m_nCursorLevel;		// Matching level at cursor
+	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
+
+	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
+	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
+	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
+};
+
+typedef QList< QSharedPointer<CSubPhrase> > TSubPhraseList;
 
 // ============================================================================
 
@@ -55,7 +98,8 @@ public:
 	virtual ~CParsedPhrase();
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
-	inline const TConcordanceList &nextWordsList() const { return m_lstNextWords; }
+	const TConcordanceList &nextWordsList() const;
+	bool atEndOfSubPhrase() const;						// True if the cursor is at the end of the active subPhrase
 
 	// ------- Helpers functions for data maintained by controlling CKJVCanOpener class to
 	//			use for maintaining statistics about this phrase in context with others and
@@ -73,23 +117,39 @@ public:
 	inline TPhraseTagList &GetWithinPhraseTagSearchResultsNonConst() const { return m_lstWithinPhraseTagResults; }			// Non-const version used by VerseListModel for setting
 	inline void ClearWithinPhraseTagSearchResults() const { m_lstWithinPhraseTagResults.clear(); }
 	// -------
-	bool isCompleteMatch() const { return (GetMatchLevel() == phraseSize()); }
+	bool isCompleteMatch() const;
 	unsigned int GetNumberOfMatches() const;
+
 #ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
 	const TNormalizedIndexList &GetNormalizedSearchResults() const;		// Returned as reference so we don't have to keep copying
 #endif
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
-	int GetMatchLevel() const;
-	int GetCursorMatchLevel() const;
+
+//	int GetMatchLevel() const;
+//	int GetCursorMatchLevel() const;
+//	QString GetCursorWord() const;
+//	int GetCursorWordPos() const;
+//	QString phrase() const;						// Return reconstituted phrase
+//	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
+//	int phraseSize() const;						// Return number of words in reconstituted phrase
+//	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
+//	const QStringList &phraseWords() const;		// Return reconstituted phrase words
+//	const QStringList &phraseWordsRaw() const;	// Return reconstituted raw phrase words
+//	static QString makeRawPhrase(const QString &strPhrase);
+
+
 	QString GetCursorWord() const;
 	int GetCursorWordPos() const;
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
-	int phraseSize() const;						// Return number of words in reconstituted phrase
-	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
-	const QStringList &phraseWords() const;		// Return reconstituted phrase words
-	const QStringList &phraseWordsRaw() const;	// Return reconstituted raw phrase words
-	static QString makeRawPhrase(const QString &strPhrase);
+
+	int subPhraseCount() const { return m_lstSubPhrases.size(); }
+	int currentSubPhrase() const { return m_nActiveSubPhrase; }
+	const CSubPhrase *subPhrase(int nIndex) const
+	{
+		assert((nIndex >= 0) && (nIndex < m_lstSubPhrases.size()));
+		return m_lstSubPhrases.at(nIndex).data();
+	}
 
 	virtual void ParsePhrase(const QTextCursor &curInsert);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord
 	virtual void ParsePhrase(const QString &strPhrase);			// Parses a fixed phrase
@@ -127,7 +187,8 @@ public:
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 
-	void FindWords();			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
+	void FindWords();								// Calls FindWords(subPhrase) with the ActiveSubPhrase
+	void FindWords(CSubPhrase &subPhrase);			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
 
 	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
@@ -147,17 +208,24 @@ protected:
 	// -------
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
-	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
-	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
-	int m_nCursorLevel;		// Matching level at cursor
-	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
-	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
-	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
 
-	QStringList m_lstLeftWords;		// Raw Left-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
-	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
-	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
+//	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
+//	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
+//	int m_nCursorLevel;		// Matching level at cursor
+//	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
+//
+//	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
+//	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
+//
+//	QStringList m_lstLeftWords;		// Raw Left-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
+//	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
+//	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
+
+	int m_nActiveSubPhrase;
+
+	TSubPhraseList m_lstSubPhrases;
+
 };
 
 typedef QList <const CParsedPhrase *> TParsedPhrasesList;
