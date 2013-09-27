@@ -82,6 +82,7 @@ private slots:
 	void insertCommonPhraseCompletion(const QString &completion);
 	void en_dropCommonPhrasesClicked();
 	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void delayed_UpdatedCompleter();
 
 signals:
 	void phraseChanged();
@@ -118,6 +119,7 @@ private:
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QAction *m_pActionSelectAll;	// Edit menu select all function (needed to enable/disable based on text available)
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
+	DelayedExecutionTimer m_dlyUpdateCompleter;		// Activation delay for completer update to avoid extra updates
 };
 
 // ============================================================================

@@ -136,11 +136,15 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));
 
+	m_dlyUpdateCompleter.setMinimumDelay(10);				// Arbitrary time, but I think it must be less than our textChanged delay or we may have issues
+	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
+
 	m_pCompleter = new SearchCompleter_t(*this, this);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
 
 	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	m_pCompleter->selectFirstMatchString();					// Speed up the first popup a little by calculating our first match (of "") early
 
 	m_pButtonDroplist = new QPushButton(m_icoDroplist, QString(), this);
 	m_pButtonDroplist->setFlat(true);
@@ -262,6 +266,12 @@ void CPhraseLineEdit::en_textChanged()
 
 void CPhraseLineEdit::UpdateCompleter()
 {
+	m_dlyUpdateCompleter.trigger();
+}
+
+void CPhraseLineEdit::delayed_UpdatedCompleter()
+{
+	m_dlyUpdateCompleter.untrigger();
 	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
 
 	if (updateInProgress()) return;
@@ -375,7 +385,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 
 	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
 	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen)) {
-		UpdateCompleter();
+		delayed_UpdatedCompleter();			// Do an immediate update of the completer so we have values below (it speeds up the initial completer calculations!)
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
 			m_nLastCursorWord = GetCursorWordPos();
@@ -387,8 +397,10 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("CursorWord: \"%s\",  AtEnd: %s", GetCursorWord().toUtf8().data(), atEndOfSubPhrase() ? "yes" : "no");
 #endif
-	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase()))))
+	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
 		m_pCompleter->complete();
+		UpdateCompleter();			// Do a delayed update to intentionally remove focus from our updater, which keeps from accidentally selecting a completion when doing wildcards, etc.
+	}
 }
 
 void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)
