@@ -62,6 +62,12 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Dictionary Word to Search</string>
+       </property>
+       <property name="statusTip">
+        <string>Enter word to search in the Dictionary</string>
+       </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -127,6 +133,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Word Definition Browser</string>
      </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOn</enum>
