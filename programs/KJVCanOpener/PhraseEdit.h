@@ -77,9 +77,9 @@ public:
 private:
 	friend class CParsedPhrase;
 
-	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
+	int m_nLevel;				// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
 	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
-	int m_nCursorLevel;		// Matching level at cursor
+	int m_nCursorLevel;			// Matching level at cursor
 	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
 
 	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
@@ -120,28 +120,14 @@ public:
 	bool isCompleteMatch() const;
 	unsigned int GetNumberOfMatches() const;
 
-#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	const TNormalizedIndexList &GetNormalizedSearchResults() const;		// Returned as reference so we don't have to keep copying
-#endif
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
 
-//	int GetMatchLevel() const;
-//	int GetCursorMatchLevel() const;
-//	QString GetCursorWord() const;
-//	int GetCursorWordPos() const;
-//	QString phrase() const;						// Return reconstituted phrase
-//	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
-//	int phraseSize() const;						// Return number of words in reconstituted phrase
-//	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
-//	const QStringList &phraseWords() const;		// Return reconstituted phrase words
-//	const QStringList &phraseWordsRaw() const;	// Return reconstituted raw phrase words
-//	static QString makeRawPhrase(const QString &strPhrase);
-
-
-	QString GetCursorWord() const;
-	int GetCursorWordPos() const;
+	QString GetCursorWord() const;				// CursorWord for entire composite of all subPhrases
+	int GetCursorWordPos() const;				// CursorWordPos for entire composite of all subPhrases -- includes tail insertion point for each subPhrase at each '|'
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
+	const QStringList phraseWords() const;		// Return reconstituted phrase words
+	const QStringList phraseWordsRaw() const;	// Return reconstituted raw phrase words
 
 	int subPhraseCount() const { return m_lstSubPhrases.size(); }
 	int currentSubPhrase() const { return m_nActiveSubPhrase; }
@@ -194,12 +180,7 @@ public:
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
-	mutable QStringList m_cache_lstPhraseWords;				// Cached Phrase Words (Set on call to phraseWords, cleared on ClearCache)
-	mutable QStringList m_cache_lstPhraseWordsRaw;			// Cached Raw Phrase Words (Set on call to phraseWordsRaw, cleared on ClearCache)
-#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	mutable TNormalizedIndexList m_cache_lstNormalizedSearchResults;	// Cached Normalized Search Results (Set on call to GetNormalizedSearchResults, cleared on ClearCache)
-#endif
-	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache, uses GetNormalizedSearchResults internally)
+	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache)
 	// -------
 	mutable bool m_bIsDuplicate;							// Indicates this phrase is exact duplicate of another phrase.  Set/Cleared by parent phraseChanged logic.
 	mutable bool m_bIsDisabled;								// Indicates this phrase is disabled.  Set/Cleared by parent phraseChanged logic
@@ -208,19 +189,6 @@ protected:
 	// -------
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
-
-
-//	int m_nLevel;			// Level of the search (Number of words matched).  This is the offset value for entries in m_lstMatchMapping (at 0 mapping is ALL words) (Set by FindWords())
-//	TNormalizedIndexList m_lstMatchMapping;	// Mapping for entire search -- This is the search result, but with each entry offset by the search level (Set by FindWords())
-//	int m_nCursorLevel;		// Matching level at cursor
-//	TConcordanceList m_lstNextWords;	// List of words mapping next for this phrase (Set by FindWords()) (Stored as decomposed-normalized strings to help sorting order in auto-completer)
-//
-//	QStringList m_lstWords;		// Fully Parsed Word list.  Blank entries only at first or last entry to indicate an insertion point. (Filled by ParsePhrase())
-//	int m_nCursorWord;			// Index in m_lstWords where the cursor is at -- If insertion point is in the middle of two words, Cursor will be at the left word (Set by ParsePhrase())
-//
-//	QStringList m_lstLeftWords;		// Raw Left-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
-//	QStringList m_lstRightWords;	// Raw Right-hand Words list from extraction.  Punctionation appears clustered in separate entities (Set by ParsePhrase())
-//	QString m_strCursorWord;	// Word at the cursor point between the left and right hand halves (Set by ParsePhrase())
 
 	int m_nActiveSubPhrase;
 

@@ -514,9 +514,6 @@ public:
 	inline QVariant extraInfo() const { return m_varExtraInfo; }
 	inline void setExtraInfo(const QVariant &varExtraInfo) { m_varExtraInfo = varExtraInfo; }
 
-// TODO : CLEAN
-//	inline int wordCount() const { return m_nNumWrd; }
-
 	inline bool operator==(const CPhraseEntry &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
@@ -541,8 +538,6 @@ private:
 	bool m_bAccentSensitive;
 	bool m_bDisabled;
 	QString m_strPhrase;
-// TODO : CLEAN
-//	unsigned int m_nNumWrd;		// Number of words in phrase
 	QVariant m_varExtraInfo;	// Extra user info for specific uses of this structure
 };
 

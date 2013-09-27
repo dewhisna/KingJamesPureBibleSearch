@@ -279,25 +279,29 @@ void CPhraseLineEdit::UpdateCompleter()
 	cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
 	cursor.setCharFormat(fmt);
 
-//	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-//	int nWord = 0;
-//	do {
-//		cursor.selectWordUnderCursor();
-//		if (/* (GetCursorWordPos() != nWord) && */
-//			(GetMatchLevel() <= nWord) &&
-//			(GetCursorMatchLevel() <= nWord) &&
-//			((nWord != GetCursorWordPos()) ||
-//			 ((!GetCursorWord().isEmpty()) && (nWord == GetCursorWordPos()))
-//			 )
-//			) {
-//			fmt.setFontStrikeOut(true);
-//			fmt.setUnderlineColor(QColor(255,0,0));
-//			fmt.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-//			cursor.setCharFormat(fmt);
-//		}
-//
-//		nWord++;
-//	} while (cursor.moveCursorWordRight(QTextCursor::MoveAnchor));
+	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+	for (int nSubPhrase = 0; nSubPhrase < subPhraseCount(); ++nSubPhrase) {
+		const CSubPhrase *pSubPhrase = subPhrase(nSubPhrase);
+
+		int nPhraseSize = pSubPhrase->phraseSize();
+		for (int nWord = 0; nWord < nPhraseSize; ++nWord) {
+			cursor.selectWordUnderCursor();
+			if (/* (pSubPhrase->GetCursorWordPos() != nWord) && */
+				(pSubPhrase->GetMatchLevel() <= nWord) &&
+				(pSubPhrase->GetCursorMatchLevel() <= nWord) &&
+				((nWord != pSubPhrase->GetCursorWordPos()) ||
+				 ((!pSubPhrase->GetCursorWord().isEmpty()) && (nWord == pSubPhrase->GetCursorWordPos()))
+				)
+				) {
+				fmt.setFontStrikeOut(true);
+				fmt.setUnderlineColor(QColor(255,0,0));
+				fmt.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+				cursor.setCharFormat(fmt);
+			}
+
+			cursor.moveCursorWordRight(QTextCursor::MoveAnchor);
+		}
+	}
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)

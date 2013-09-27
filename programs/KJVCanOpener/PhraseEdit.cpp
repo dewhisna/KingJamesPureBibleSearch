@@ -220,15 +220,8 @@ CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensiti
 		m_bCaseSensitive(bCaseSensitive),
 		m_bAccentSensitive(bAccentSensitive),
 		m_nActiveSubPhrase(-1)
-// TODO : CLEAN
-//		m_nLevel(0),
-//		m_nCursorLevel(0),
-//		m_nCursorWord(-1)
 {
-//	CSubPhrase aSubPhrase;
-//	if (pBibleDatabase)
-//		aSubPhrase.m_lstNextWords = pBibleDatabase->concordanceWordList();
-//	m_lstSubPhrases.append(aSubPhrase);
+
 }
 
 CParsedPhrase::~CParsedPhrase()
@@ -290,54 +283,6 @@ unsigned int CParsedPhrase::GetNumberOfMatches() const
 	return GetPhraseTagSearchResults().size();
 }
 
-/*
-#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-const TNormalizedIndexList &CParsedPhrase::GetNormalizedSearchResults() const
-{
-	if (m_cache_lstNormalizedSearchResults.size()) return m_cache_lstNormalizedSearchResults;
-
-	m_cache_lstNormalizedSearchResults.resize(m_lstMatchMapping.size());
-	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		if ((m_lstMatchMapping.at(ndxWord) - m_nLevel + 1) > 0)
-			m_cache_lstNormalizedSearchResults[ndxWord] = m_lstMatchMapping.at(ndxWord) - m_nLevel + 1;
-	}
-	sort(m_cache_lstNormalizedSearchResults.begin(), m_cache_lstNormalizedSearchResults.end());
-
-	return m_cache_lstNormalizedSearchResults;
-}
-#endif
-
-const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
-
-#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	const TNormalizedIndexList &lstPhraseResults(GetNormalizedSearchResults());
-
-	unsigned int nNumResults = lstPhraseResults.size();
-	m_cache_lstPhraseTagResults.reserve(nNumResults);
-	for (unsigned int ndxResults=0; ndxResults<nNumResults; ++ndxResults) {
-		m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(lstPhraseResults.at(ndxResults))), phraseSize()));
-	}
-#else
-	m_cache_lstPhraseTagResults.reserve(m_lstMatchMapping.size());
-	for (unsigned int ndxWord=0; ndxWord<m_lstMatchMapping.size(); ++ndxWord) {
-		if ((m_lstMatchMapping.at(ndxWord) - m_nLevel + 1) > 0)
-			m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_lstMatchMapping.at(ndxWord) - m_nLevel + 1)), phraseSize()));
-	}
-	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
-#endif
-
-	return m_cache_lstPhraseTagResults;
-}
-*/
-
-
-
-
-
 const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -386,80 +331,6 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	return m_cache_lstPhraseTagResults;
 }
 
-
-
-/*
-
-int CParsedPhrase::GetMatchLevel() const
-{
-	return m_nLevel;
-}
-
-int CParsedPhrase::GetCursorMatchLevel() const
-{
-	return m_nCursorLevel;
-}
-
-QString CParsedPhrase::GetCursorWord() const
-{
-	return m_strCursorWord;
-}
-
-int CParsedPhrase::GetCursorWordPos() const
-{
-	return m_nCursorWord;
-}
-
-QString CParsedPhrase::phrase() const
-{
-	return phraseWords().join(" ");
-}
-
-QString CParsedPhrase::phraseRaw() const
-{
-	return phraseWordsRaw().join(" ");
-}
-
-int CParsedPhrase::phraseSize() const
-{
-	return phraseWords().size();
-}
-
-int CParsedPhrase::phraseRawSize() const
-{
-	return phraseWordsRaw().size();
-}
-
-const QStringList &CParsedPhrase::phraseWords() const
-{
-	if (m_cache_lstPhraseWords.size()) return m_cache_lstPhraseWords;
-
-	m_cache_lstPhraseWords = m_lstWords;
-	for (int ndx = (m_cache_lstPhraseWords.size()-1); ndx >= 0; --ndx) {
-		if (m_cache_lstPhraseWords.at(ndx).isEmpty()) m_cache_lstPhraseWords.removeAt(ndx);
-	}
-	return m_cache_lstPhraseWords;
-}
-
-const QStringList &CParsedPhrase::phraseWordsRaw() const
-{
-	if (m_cache_lstPhraseWordsRaw.size()) return m_cache_lstPhraseWordsRaw;
-
-	m_cache_lstPhraseWordsRaw = phraseWords();
-	for (int ndx = (m_cache_lstPhraseWordsRaw.size()-1); ndx >= 0; --ndx) {
-		QString strTemp = makeRawPhrase(m_cache_lstPhraseWordsRaw.at(ndx));
-		if (strTemp.isEmpty()) {
-			m_cache_lstPhraseWordsRaw.removeAt(ndx);
-		} else {
-			m_cache_lstPhraseWordsRaw[ndx] = strTemp;
-		}
-	}
-	return m_cache_lstPhraseWordsRaw;
-}
-
-*/
-
-
 QString CParsedPhrase::GetCursorWord() const
 {
 	if (m_nActiveSubPhrase < 0) return QString();
@@ -478,8 +349,6 @@ int CParsedPhrase::GetCursorWordPos() const
 		posWord += m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1;		// +1 for "word between phrases"
 	}
 	posWord += m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWordPos();
-
-qDebug("ActivePhrase: %d  CurWord: %d", m_nActiveSubPhrase, posWord);
 
 	return posWord;
 }
@@ -508,13 +377,18 @@ QString CParsedPhrase::phraseRaw() const
 	return lstPhrases.join(" | ");
 }
 
+const QStringList CParsedPhrase::phraseWords() const
+{
+	return phrase().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+}
+
+const QStringList CParsedPhrase::phraseWordsRaw() const
+{
+	return phraseRaw().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+}
+
 void CParsedPhrase::clearCache() const
 {
-	m_cache_lstPhraseWords = QStringList();
-	m_cache_lstPhraseWordsRaw = QStringList();
-#ifdef NORMALIZED_SEARCH_PHRASE_RESULTS_CACHE
-	m_cache_lstNormalizedSearchResults = TNormalizedIndexList();
-#endif
 	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
 
@@ -606,14 +480,8 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 		nCursorWord++;
 	}
 
-
-qDebug("LeftWords: %s  CursorWord: %s  CursorIndex: %d", lstLeftWords.join(",").toUtf8().data(), strCursorWord.toUtf8().data(), nCursorWord);
-qDebug("strComplete: %s", strComplete.toUtf8().data());
-
-
 	m_nActiveSubPhrase = -1;
 	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
-qDebug("%d : %s : CurWord: %d", ndxSubPhrase, m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.join(",").toUtf8().data(), nCursorWord);
 		if (nCursorWord <= m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
 			m_lstSubPhrases[ndxSubPhrase]->m_nCursorWord = nCursorWord;
 			if (nCursorWord < m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
@@ -629,139 +497,6 @@ qDebug("%d : %s : CurWord: %d", ndxSubPhrase, m_lstSubPhrases.at(ndxSubPhrase)->
 	}
 	assert(m_nActiveSubPhrase != -1);
 	if (m_nActiveSubPhrase == -1) m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
-
-
-/*
-
-	QStringList lstLeftWords;
-	QString strCursorWord;
-//	QStringList lstRightWords;
-
-	int nCursorWord = 0;
-
-	CPhraseCursor curLeft(curInsert);
-	while (curLeft.moveCursorWordLeft()) {
-		lstLeftWords.push_front(curLeft.wordUnderCursor().normalized(QString::NormalizationForm_C));
-		nCursorWord++;
-
-		int nPosSave = curLeft.position();
-		do {
-			if (!curLeft.moveCursorCharLeft()) break;
-			if (curLeft.charUnderCursor() == QChar('|')) {
-				lstLeftWords.push_front("|");
-				nCursorWord++;
-			}
-		} while (curLeft.charUnderCursorIsSeparator());
-		curLeft.setPosition(nPosSave);
-	}
-
-	CPhraseCursor curCurrent(curInsert);
-	int nPosCurrent = curCurrent.position();
-	curCurrent.moveCursorCharLeft();
-	if (!curCurrent.charUnderCursorIsSeparator()) {
-		curCurrent.moveCursorWordStart();
-	} else {
-		curCurrent.moveCursorCharRight();
-		curCurrent.moveCursorWordLeft();
-	}
-	curCurrent.moveCursorWordEnd();
-	bool bFoundSep = false;
-	while (curCurrent.position() < nPosCurrent) {
-		if (curCurrent.charUnderCursor() == QChar('|')) {
-			lstLeftWords.push_back("|");
-			nCursorWord++;
-			bFoundSep = true;
-		}
-		if (!curCurrent.moveCursorCharRight()) break;
-	}
-
-	strCursorWord.clear();
-	if (!bFoundSep) {
-		curCurrent.moveCursorCharLeft();
-	}
-	bFoundSep = false;
-	while (curCurrent.charUnderCursorIsSeparator()) {
-		if (curCurrent.charUnderCursor() == QChar('|')) {
-			bFoundSep = true;
-		}
-		if (!curCurrent.moveCursorCharRight()) break;
-	}
-	if (!bFoundSep) {
-		strCursorWord = curCurrent.wordUnderCursor().normalized(QString::NormalizationForm_C);
-	}
-
-
-//	CPhraseCursor curRight(curInsert);
-//	strCursorWord = curRight.wordUnderCursor().normalized(QString::NormalizationForm_C);
-//	while (curRight.moveCursorWordRight()) {
-//		lstRightWords.push_back(curRight.wordUnderCursor().normalized(QString::NormalizationForm_C));
-//	}
-
-
-//	int nCursorWord = lstLeftWords.size();
-
-
-
-	CPhraseCursor curComplete(curInsert);
-	curComplete.setPosition(0);
-	curComplete.selectCursorToLineEnd();
-	QString strComplete = curComplete.selectedText();
-
-
-	ParsePhrase(strComplete);
-	assert(m_lstSubPhrases.size() > 0);
-
-//	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
-//
-//	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
-//	assert(lstLeftWords.size() <= lstCompleteWords.size());
-//
-//	int nCursorWord = 0;
-//	int ndxComplete = 0;
-//	for (int ndxLeftWords = 0; ndxLeftWords < lstLeftWords.size(); ++ndxLeftWords) {
-//		if (lstCompleteWords.at(ndxComplete).compare(lstLeftWords.at(ndxLeftWords)) != 0) {
-//			// If they don't match, then this must be an "OR" operator...
-//			++ndxComplete;
-//			++nCursorWord;
-//		}
-//		++ndxComplete;
-//		++nCursorWord;
-//	}
-//	while ((ndxComplete < lstCompleteWords.size()) && (lstCompleteWords.at(ndxComplete).contains(QString("|")))) {
-//		++ndxComplete;
-//		++nCursorWord;
-//	}
-
-
-qDebug("LeftWords: %s  CursorWord: %s  CursorIndex: %d", lstLeftWords.join(",").toUtf8().data(), strCursorWord.toUtf8().data(), nCursorWord);
-qDebug("strComplete: %s", strComplete.toUtf8().data());
-
-
-	m_nActiveSubPhrase = -1;
-	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
-qDebug("%d : %s : CurWord: %d", ndxSubPhrase, m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.join(",").toUtf8().data(), nCursorWord);
-		if (nCursorWord <= m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
-			m_lstSubPhrases[ndxSubPhrase]->m_nCursorWord = nCursorWord;
-			if (nCursorWord < m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size()) {
-				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.at(nCursorWord);
-			} else {
-				m_lstSubPhrases[ndxSubPhrase]->m_strCursorWord = QString();
-			}
-			m_nActiveSubPhrase = ndxSubPhrase;
-			break;
-		} else {
-			nCursorWord -= (m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1);	// +1 for "word between subprases"
-		}
-	}
-	if (m_nActiveSubPhrase == -1) m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
-
-
-//	// Make sure our cursor is within the index range of the list.  If we're adding
-//	//	things to the end of the list, we're at an empty string:
-//	if (m_nCursorWord == m_lstWords.size()) m_lstWords.push_back(QString());
-
-*/
-
 }
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)

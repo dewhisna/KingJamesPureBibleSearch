@@ -63,8 +63,6 @@ CPhraseEntry::CPhraseEntry(const QString &strEncodedText, const QVariant &varExt
 	:	m_bCaseSensitive(false),
 		m_bAccentSensitive(false),
 		m_bDisabled(false),
-// TODO : CLEAN
-//		m_nNumWrd(0),
 		m_varExtraInfo(varExtraInfo)
 {
 	setTextEncoded(strEncodedText);
@@ -78,8 +76,6 @@ CPhraseEntry::~CPhraseEntry()
 void CPhraseEntry::clear()
 {
 	m_strPhrase.clear();
-// TODO : CLEAN
-//	m_nNumWrd = 0;
 	m_bCaseSensitive = false;
 	m_bAccentSensitive = false;
 	m_bDisabled = false;
@@ -116,8 +112,6 @@ void CPhraseEntry::setText(const QString &strText)
 {
 	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive());			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
 	parsedPhrase.ParsePhrase(strText);
-// TODO : CLEAN
-//	m_nNumWrd = parsedPhrase.phraseSize();
 	m_strPhrase = strText;
 }
 
