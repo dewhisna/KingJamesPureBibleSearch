@@ -881,8 +881,8 @@ void CKJVTextFormatConfig::navigateToDemoText()
 void CKJVTextFormatConfig::setPreview()
 {
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
-
 	m_pScriptureBrowser->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 }
 
 void CKJVTextFormatConfig::en_selectionChangedBrowser()
