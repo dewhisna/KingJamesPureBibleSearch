@@ -31,10 +31,12 @@
 #include <QMenu>
 #include <QAction>
 
+#define DICTIONARY_COMPLETER_BUTTON_SIZE_Y 24
+
 // ============================================================================
 
 CDictionaryLineEdit::CDictionaryLineEdit(QWidget *pParent)
-	:	CSingleLineTextEdit(-1, pParent),
+	:	CSingleLineTextEdit(DICTIONARY_COMPLETER_BUTTON_SIZE_Y, pParent),
 		m_pCompleter(NULL),
 		m_bUpdateInProgress(false)
 {
@@ -104,9 +106,19 @@ void CDictionaryLineEdit::setupCompleter(const QString &strText, bool bForce)
 	}
 }
 
+void CDictionaryLineEdit::processPendingUpdateCompleter()
+{
+	if (m_dlyUpdateCompleter.isTriggered()) delayed_UpdatedCompleter();
+}
+
 void CDictionaryLineEdit::UpdateCompleter()
 {
-	m_dlyUpdateCompleter.trigger();
+	if (CPersistentSettings::instance()->dictionaryActivationDelay() == -1) {
+		// Immediate activation if the dictionary activation delay is disabled:
+		delayed_UpdatedCompleter();
+	} else {
+		m_dlyUpdateCompleter.trigger();
+	}
 }
 
 void CDictionaryLineEdit::delayed_UpdatedCompleter()
@@ -119,9 +131,9 @@ void CDictionaryLineEdit::delayed_UpdatedCompleter()
 	if (updateInProgress()) return;
 	CDoUpdate doUpdate(this);
 
-	QTextCursor saveCursor = textCursor();
-
 	QTextCursor cursor(textCursor());
+	cursor.beginEditBlock();
+
 	QTextCharFormat fmt = cursor.charFormat();
 	fmt.setFontStrikeOut(false);
 	fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
@@ -137,7 +149,7 @@ void CDictionaryLineEdit::delayed_UpdatedCompleter()
 		cursor.setCharFormat(fmt);
 	}
 
-	setTextCursor(saveCursor);
+	cursor.endEditBlock();
 }
 
 void CDictionaryLineEdit::insertCompletion(const QModelIndex &index)
@@ -200,6 +212,7 @@ CDictionaryWidget::~CDictionaryWidget()
 
 void CDictionaryWidget::setWord(const QString &strWord)
 {
+	ui.editDictionaryWord->processPendingUpdateCompleter();
 	ui.editDictionaryWord->insertCompletion(strWord);
 }
 

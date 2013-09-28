@@ -45,6 +45,8 @@ public:
 
 	void initialize(CDictionaryDatabasePtr pDictionary);
 
+	void processPendingUpdateCompleter();
+
 public slots:
 	void insertCompletion(const QString &strWord);
 
