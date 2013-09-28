@@ -173,6 +173,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 			kjsFile.setArrayIndex(ndx);
 			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
 			pPhraseEditor->phraseEditor()->setAccentSensitive(kjsFile.value("AccentSensitive", false).toBool());
+			pPhraseEditor->phraseEditor()->setExclude(kjsFile.value("Exclude", false).toBool());
 			pPhraseEditor->phraseEditor()->setPlainText(kjsFile.value("Phrase").toString());
 			pPhraseEditor->setDisabled(kjsFile.value("Disabled", false).toBool());			// Set this one on the CKJVSearchPhraseEdit to update things (as the parsed phrase doesn't signal)
 		}
@@ -206,6 +207,7 @@ void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSu
 		kjsFile.setValue("Phrase", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->phrase());
 		kjsFile.setValue("CaseSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isCaseSensitive());
 		kjsFile.setValue("AccentSensitive", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isAccentSensitive());
+		kjsFile.setValue("Exclude", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isExcluded());
 		kjsFile.setValue("Disabled", m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled());
 		ndxCurrent++;
 	}
@@ -335,9 +337,10 @@ void CKJVSearchSpec::en_changedSearchCriteria()
 }
 
 typedef struct {
-	unsigned int m_nNumMatches;
-	unsigned int m_nNumMatchesWithin;
-	unsigned int m_nNumContributingMatches;
+	unsigned int m_nNumMatches;					// Num Matches in Whole Bible
+	unsigned int m_nNumMatchesWithin;			// Num Matches within Selected Search Text
+	unsigned int m_nNumContributingMatches;		// Num Contributing Matches
+	bool m_bExclude;							// True if Num Contributing Matches are number of matches removed
 } TPhraseOccurrenceInfo;
 Q_DECLARE_METATYPE(TPhraseOccurrenceInfo)
 
@@ -346,6 +349,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	int nNumPhrases = 0;
 	bool bCaseSensitive = false;
 	bool bAccentSensitive = false;
+	bool bExclude = false;
 
 	CPhraseList phrases;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
@@ -361,10 +365,12 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
 			poiUsage.m_nNumMatchesWithin = pPhrase->GetNumberOfMatchesWithin();
 			poiUsage.m_nNumContributingMatches = pPhrase->GetContributingNumberOfMatches();
+			poiUsage.m_bExclude = pPhrase->isExcluded();
 			entry.setExtraInfo(QVariant::fromValue(poiUsage));
 			phrases.append(entry);
 			if (entry.caseSensitive()) bCaseSensitive = true;
 			if (entry.accentSensitive()) bAccentSensitive = true;
+			if (entry.isExcluded()) bExclude = true;
 		}
 	}
 
@@ -393,26 +399,38 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	for (int ndx=0; ndx<mdlPhrases.rowCount(); ++ndx) {
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
 		if (nNumPhrases > 1) {
-			if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
-				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
-									.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
+			if (!aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_bExclude) {
+				if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
+					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+									tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
+										.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
+				} else {
+					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+									tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
+					assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+				}
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-								tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
-				assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+								"(" +
+								tr("Found %n Time(s) in the Selected Search Text", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) +
+								", " +
+								tr("Removed %n matching exclusion(s) from Scope", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) +
+								")\n";
 			}
 		} else {
 			strSummary += QString("\"%1\"\n").arg(mdlPhrases.index(ndx).data().toString());
 		}
 	}
-	if (bCaseSensitive || bAccentSensitive) {
+	if (bCaseSensitive || bAccentSensitive || bExclude) {
 		if (nNumPhrases > 1) strSummary += "\n";
 		if (bCaseSensitive) {
 			strSummary += "    " + tr("(%1 = Case Sensitive)").arg(CPhraseEntry::encCharCaseSensitive()) + "\n";
 		}
 		if (bAccentSensitive) {
 			strSummary += "    " + tr("(%1 = Accent Sensitive)").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
+		}
+		if (bExclude) {
+			strSummary += "    " + tr("(%1 = Excluding Results From)").arg(CPhraseEntry::encCharExclude()) + "\n";
 		}
 
 	}

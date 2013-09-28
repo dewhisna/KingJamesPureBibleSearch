@@ -94,7 +94,7 @@ typedef QList< QSharedPointer<CSubPhrase> > TSubPhraseList;
 class CParsedPhrase
 {
 public:
-	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false, bool bAccentSensitive = false);
+	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false, bool bAccentSensitive = false, bool bExclude = false);
 	virtual ~CParsedPhrase();
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
@@ -147,10 +147,14 @@ public:
 	virtual bool isAccentSensitive() const { return m_bAccentSensitive; }
 	virtual void setAccentSensitive(bool bAccentSensitive) { m_bAccentSensitive = bAccentSensitive; }
 
+	virtual bool isExcluded() const { return m_bExclude; }
+	virtual void setExclude(bool bExclude) { m_bExclude = bExclude; }
+
 	bool operator==(const CParsedPhrase &src) const
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
 				(m_bAccentSensitive == src.m_bAccentSensitive) &&
+				(m_bExclude == src.m_bExclude) &&
 				(phrase().compare(src.phrase(), Qt::CaseSensitive) == 0));
 	}
 	bool operator!=(const CParsedPhrase &src) const
@@ -162,6 +166,7 @@ public:
 	{
 		return ((m_bCaseSensitive == src.caseSensitive()) &&
 				(m_bAccentSensitive == src.accentSensitive()) &&
+				(m_bExclude == src.isExcluded()) &&
 				(phrase().compare(src.text(), Qt::CaseSensitive) == 0));
 	}
 	bool operator!=(const CPhraseEntry &src) const
@@ -189,6 +194,7 @@ protected:
 	// -------
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
+	bool m_bExclude;
 
 	int m_nActiveSubPhrase;
 
@@ -201,8 +207,8 @@ typedef QList <const CParsedPhrase *> TParsedPhrasesList;
 class CSelectedPhrase
 {
 public:
-	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false, bool bAccentSensitive = false)
-		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive)
+	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false, bool bAccentSensitive = false, bool bExclude = false)
+		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive, bExclude)
 	{ }
 
 	inline const CParsedPhrase &phrase() const { return m_ParsedPhrase; }

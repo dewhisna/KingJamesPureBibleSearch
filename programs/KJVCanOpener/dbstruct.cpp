@@ -62,6 +62,7 @@ QString g_strUserDatabase;					// User Database filePathName used to save User-d
 CPhraseEntry::CPhraseEntry(const QString &strEncodedText, const QVariant &varExtraInfo)
 	:	m_bCaseSensitive(false),
 		m_bAccentSensitive(false),
+		m_bExclude(false),
 		m_bDisabled(false),
 		m_varExtraInfo(varExtraInfo)
 {
@@ -78,6 +79,7 @@ void CPhraseEntry::clear()
 	m_strPhrase.clear();
 	m_bCaseSensitive = false;
 	m_bAccentSensitive = false;
+	m_bExclude = false;
 	m_bDisabled = false;
 	m_varExtraInfo.clear();
 }
@@ -91,6 +93,7 @@ void CPhraseEntry::setFromPhrase(const CParsedPhrase *pPhrase)
 	m_strPhrase = pPhrase->phrase();
 	m_bCaseSensitive = pPhrase->isCaseSensitive();
 	m_bAccentSensitive = pPhrase->isAccentSensitive();
+	m_bExclude = pPhrase->isExcluded();
 	m_bDisabled = pPhrase->isDisabled();
 }
 
@@ -101,6 +104,7 @@ QString CPhraseEntry::textEncoded() const
 	// The order here matters as we will always read/write the special flags in order
 	//		so we don't need a complete parser to allow any arbitrary order:
 	if (isDisabled()) strText += encCharDisabled();
+	if (isExcluded()) strText += encCharExclude();
 	if (accentSensitive()) strText += encCharAccentSensitive();
 	if (caseSensitive()) strText += encCharCaseSensitive();
 	strText += m_strPhrase;
@@ -110,7 +114,7 @@ QString CPhraseEntry::textEncoded() const
 
 void CPhraseEntry::setText(const QString &strText)
 {
-	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive());			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
+	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive(), isExcluded());			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
 	parsedPhrase.ParsePhrase(strText);
 	m_strPhrase = strText;
 }
@@ -127,6 +131,13 @@ void CPhraseEntry::setTextEncoded(const QString &strText)
 		setDisabled(true);
 	} else {
 		setDisabled(false);
+	}
+
+	if (strTextToSet.startsWith(encCharExclude())) {
+		strTextToSet = strTextToSet.mid(1);
+		setExclude(true);
+	} else {
+		setExclude(false);
 	}
 
 	if (strTextToSet.startsWith(encCharAccentSensitive())) {

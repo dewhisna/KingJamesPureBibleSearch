@@ -791,11 +791,12 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 			QStringList slHeaders;
 			csv >> slHeaders;              // Read Headers (verify and discard)
 
-			if ((slHeaders.size()!=4) ||
+			if ((slHeaders.size()!=5) ||
 				(slHeaders.at(0).compare("Ndx") != 0) ||
 				(slHeaders.at(1).compare("Phrase") != 0) ||
 				(slHeaders.at(2).compare("CaseSensitive") != 0) ||
-				(slHeaders.at(3).compare("AccentSensitive") != 0)) {
+				(slHeaders.at(3).compare("AccentSensitive") != 0) ||
+				(slHeaders.at(4).compare("Exclude") != 0)) {
 				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for PHRASES data file!"),
 									QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 					filePhrases.close();
@@ -807,13 +808,14 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 				QStringList sl;
 				csv >> sl;
 
-				assert(sl.count() == 4);
-				if (sl.count() < 4) continue;
+				assert(sl.count() == 5);
+				if (sl.count() < 5) continue;
 
 				CPhraseEntry phrase;
 				phrase.setText(sl.at(1));
 				phrase.setCaseSensitive((sl.at(2).toInt() != 0) ? true : false);
 				phrase.setAccentSensitive((sl.at(3).toInt() != 0) ? true : false);
+				phrase.setExclude((sl.at(4).toInt() != 0) ? true: false);
 				if (!phrase.text().isEmpty()) {
 					phrases.push_back(phrase);
 				}
@@ -824,7 +826,7 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 
 		// Create the table in the database:
 		strCmd = QString("create table PHRASES "
-						"(Ndx INTEGER PRIMARY KEY, Phrase TEXT, CaseSensitive NUMERIC, AccentSensitive NUMERIC)");
+						"(Ndx INTEGER PRIMARY KEY, Phrase TEXT, CaseSensitive NUMERIC, AccentSensitive NUMERIC, Exclude NUMERIC)");
 		if (!queryCreate.exec(strCmd)) {
 			QMessageBox::warning(m_pParent, g_constrBuildDatabase,
 					QObject::tr("Failed to create table for PHRASES\n%1").arg(queryCreate.lastError().text()),
@@ -844,19 +846,21 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 		queryInsert.exec("BEGIN TRANSACTION");
 		for (int ndx=0; ndx<phrases.size(); ++ndx) {
 			strCmd = QString("INSERT INTO PHRASES "
-									"(Ndx, Phrase, CaseSensitive, AccentSensitive) "
-									"VALUES (:Ndx, :Phrase, :CaseSensitive, :AccentSensitive)");
+									"(Ndx, Phrase, CaseSensitive, AccentSensitive, Exclude) "
+									"VALUES (:Ndx, :Phrase, :CaseSensitive, :AccentSensitive, :Exclude)");
 			queryInsert.prepare(strCmd);
 			queryInsert.bindValue(":Ndx", ndx+1);
 			queryInsert.bindValue(":Phrase", phrases.at(ndx).text());
 			queryInsert.bindValue(":CaseSensitive", (phrases.at(ndx).caseSensitive() ? 1 : 0));
 			queryInsert.bindValue(":AccentSensitive", (phrases.at(ndx).accentSensitive() ? 1 : 0));
+			queryInsert.bindValue(":Exclude", (phrases.at(ndx).isExcluded() ? 1 : 0));
 			if (!queryInsert.exec()) {
-				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for PHRASES!\n%1\n  %2  (%3)  (%4)")
+				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for PHRASES!\n%1\n  %2  (%3)  (%4)  (%5)")
 																				.arg(queryInsert.lastError().text())
 																				.arg(phrases.at(ndx).text())
 																				.arg(phrases.at(ndx).caseSensitive() ? QObject::tr("Case") : QObject::tr("NoCase"))
-																				.arg(phrases.at(ndx).accentSensitive() ? QObject::tr("Accent") : QObject::tr("NoAccent")),
+																				.arg(phrases.at(ndx).accentSensitive() ? QObject::tr("Accent") : QObject::tr("NoAccent"))
+																				.arg(phrases.at(ndx).isExcluded() ? QObject::tr("Exclude") : QObject::tr("Include")),
 										QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) break;
 			}
 		}

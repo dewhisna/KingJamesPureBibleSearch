@@ -508,6 +508,9 @@ public:
 	inline bool accentSensitive() const { return m_bAccentSensitive; }
 	inline void setAccentSensitive(bool bAccentSensitive) { m_bAccentSensitive = bAccentSensitive; }
 
+	inline bool isExcluded() const { return m_bExclude; }
+	inline void setExclude(bool bExclude) { m_bExclude = bExclude; }
+
 	inline bool isDisabled() const { return m_bDisabled; }
 	inline void setDisabled(bool bDisabled) { m_bDisabled = bDisabled; }
 
@@ -518,6 +521,7 @@ public:
 	{
 		return ((m_bCaseSensitive == src.m_bCaseSensitive) &&
 				(m_bAccentSensitive == src.m_bAccentSensitive) &&
+				(m_bExclude == src.m_bExclude) &&
 				// Don't compare m_bDisabled because that doesn't affect "equality"
 				(m_strPhrase.compare(src.m_strPhrase, Qt::CaseSensitive) == 0));
 	}
@@ -531,11 +535,13 @@ public:
 
 	static const QChar encCharCaseSensitive() { return QChar(0xA7); } 			// Section Sign = Case-Sensitive
 	static const QChar encCharAccentSensitive() { return QChar(0xA4); }			// Current Sign = Accent-Sensitive
-	static const QChar encCharDisabled() { return QChar(0xAC); }					// Not Sign = Disable flag
+	static const QChar encCharExclude() { return QChar(0x2209); }				// Not an Element of = Exclude
+	static const QChar encCharDisabled() { return QChar(0xAC); }				// Not Sign = Disable flag
 
 private:
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
+	bool m_bExclude;
 	bool m_bDisabled;
 	QString m_strPhrase;
 	QVariant m_varExtraInfo;	// Extra user info for specific uses of this structure
@@ -556,8 +562,8 @@ public:
 
 inline uint qHash(const CPhraseEntry &key)
 {
-	// Note: Aren't hasing "disable" because it doesn't affect the main key value equality
-	uint nHash = (qHash(key.text()) << 2) + (key.caseSensitive() ? 2 : 0) + (key.accentSensitive() ? 1 : 0);
+	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
+	uint nHash = (qHash(key.text()) << 3) + (key.caseSensitive() ? 4 : 0) + (key.accentSensitive() ? 2 : 0) + (key.isExcluded() ? 1 : 0);
 	return nHash;
 }
 

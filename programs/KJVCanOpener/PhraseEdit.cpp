@@ -213,12 +213,13 @@ void CSubPhrase::ParsePhrase(const QStringList &lstPhrase)
 
 // ============================================================================
 
-CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive, bool bAccentSensitive)
+CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive, bool bAccentSensitive, bool bExclude)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bIsDuplicate(false),
 		m_bIsDisabled(false),
 		m_bCaseSensitive(bCaseSensitive),
 		m_bAccentSensitive(bAccentSensitive),
+		m_bExclude(bExclude),
 		m_nActiveSubPhrase(-1)
 {
 
@@ -235,6 +236,7 @@ bool CPhraseEntry::operator==(const CParsedPhrase &src) const
 {
 	return ((m_bCaseSensitive == src.isCaseSensitive()) &&
 			(m_bAccentSensitive == src.isAccentSensitive()) &&
+			(m_bExclude == src.isExcluded()) &&
 			(m_strPhrase.compare(src.phrase(), Qt::CaseSensitive) == 0));
 }
 bool CPhraseEntry::operator!=(const CParsedPhrase &src) const

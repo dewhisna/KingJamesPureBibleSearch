@@ -676,6 +676,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		phrase.setText(queryData.value(1).toString());
 		phrase.setCaseSensitive((queryData.value(2).toInt() != 0) ? true : false);
 		phrase.setAccentSensitive((queryData.value(3).toInt() != 0) ? true : false);
+		phrase.setExclude((queryData.value(4).toInt() != 0) ? true : false);
 		if (!phrase.text().isEmpty()) {
 			if (bUserPhrases) {
 				g_lstUserPhrases.push_back(phrase);

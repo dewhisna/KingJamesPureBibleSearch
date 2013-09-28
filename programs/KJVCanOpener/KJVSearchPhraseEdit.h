@@ -67,6 +67,9 @@ public:
 	virtual bool isAccentSensitive() const { return CParsedPhrase::isAccentSensitive(); }
 	virtual void setAccentSensitive(bool bAccentSensitive);
 
+	virtual bool isExcluded() const { return CParsedPhrase::isExcluded(); }
+	virtual void setExclude(bool bExclude);
+
 	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
@@ -90,6 +93,7 @@ signals:
 	void phraseChanged();
 	void changeCaseSensitive(bool bCaseSensitive);
 	void changeAccentSensitive(bool bAccentSensitive);
+	void changeExclude(bool bExclude);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 protected:
@@ -161,6 +165,7 @@ protected slots:
 	void en_phraseChanged();
 	void en_CaseSensitiveChanged(bool bCaseSensitive);
 	void en_AccentSensitiveChanged(bool bAccentSensitive);
+	void en_ExcludeChanged(bool bExclude);
 	void en_phraseAdd();
 	void en_phraseDel();
 	void en_phraseClear();

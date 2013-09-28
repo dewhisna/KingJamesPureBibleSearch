@@ -204,6 +204,17 @@ void CPhraseLineEdit::setAccentSensitive(bool bAccentSensitive)
 	}
 }
 
+void CPhraseLineEdit::setExclude(bool bExclude)
+{
+	CParsedPhrase::setExclude(bExclude);
+
+	if (!updateInProgress()) {
+		// No need to trigger UpdateCompleter() here as exclude has no bearing on completion
+		emit phraseChanged();				// But, we need to recalculate our search results
+		emit changeExclude(bExclude);
+	}
+}
+
 void CPhraseLineEdit::en_phraseListChanged()
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -237,19 +248,24 @@ void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 	CPhraseCursor cursor(textCursor());
 	cursor.clearSelection();
 	cursor.select(QTextCursor::LineUnderCursor);
+	bool bOldCaseSensitive = isCaseSensitive();
+	bool bOldAccentSensitive = isAccentSensitive();
+	bool bOldExclude = isExcluded();
 	{
 		CDoUpdate doUpdate(this);				// Hold-over to update everything at once
 		CPhraseEntry phrase(completion);
 		cursor.insertText(phrase.text());
 		setCaseSensitive(phrase.caseSensitive());
 		setAccentSensitive(phrase.accentSensitive());
+		setExclude(phrase.isExcluded());
 		// Release update here
 	}
 	if (!updateInProgress()) {
 		UpdateCompleter();
 		emit phraseChanged();
-		emit changeCaseSensitive(isCaseSensitive());
-		emit changeAccentSensitive(isAccentSensitive());
+		if (bOldCaseSensitive != isCaseSensitive()) emit changeCaseSensitive(isCaseSensitive());
+		if (bOldAccentSensitive != isAccentSensitive()) emit changeAccentSensitive(isAccentSensitive());
+		if (bOldExclude != isExcluded()) emit changeExclude(isExcluded());
 	}
 }
 
@@ -481,7 +497,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
 	setTabOrder(ui.editPhrase, ui.chkCaseSensitive);
 	setTabOrder(ui.chkCaseSensitive, ui.chkAccentSensitive);
-	setTabOrder(ui.chkAccentSensitive, ui.chkDisable);
+	setTabOrder(ui.chkAccentSensitive, ui.chkExclude);
+	setTabOrder(ui.chkExclude, ui.chkDisable);
 	setTabOrder(ui.chkDisable, ui.editPhrase->getDropListButton());
 	setTabOrder(ui.editPhrase->getDropListButton(), ui.buttonRemove);
 
@@ -489,6 +506,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 
 	ui.chkCaseSensitive->setChecked(ui.editPhrase->isCaseSensitive());
 	ui.chkAccentSensitive->setChecked(ui.editPhrase->isAccentSensitive());
+	ui.chkExclude->setChecked(ui.editPhrase->isExcluded());
 	ui.chkDisable->setChecked(parsedPhrase()->isDisabled());
 	ui.buttonAddPhrase->setEnabled(false);
 	ui.buttonDelPhrase->setEnabled(false);
@@ -503,6 +521,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(ui.editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui.chkAccentSensitive, SIGNAL(clicked(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
 	connect(ui.editPhrase, SIGNAL(changeAccentSensitive(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
+	connect(ui.chkExclude, SIGNAL(clicked(bool)), this, SLOT(en_ExcludeChanged(bool)));
+	connect(ui.editPhrase, SIGNAL(changeExclude(bool)), this, SLOT(en_ExcludeChanged(bool)));
 	connect(ui.chkDisable, SIGNAL(clicked(bool)), this, SLOT(setDisabled(bool)));
 	connect(ui.buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
 	connect(ui.buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
@@ -615,6 +635,15 @@ void CKJVSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
 	m_bUpdateInProgress = false;
 }
 
+void CKJVSearchPhraseEdit::en_ExcludeChanged(bool bExclude)
+{
+	if (m_bUpdateInProgress) return;
+	m_bUpdateInProgress = true;
+	ui.chkExclude->setChecked(bExclude);					// Set the checkbox in case the phrase editor is setting us
+	ui.editPhrase->setExclude(bExclude);					// Set the phrase editor in case the checkbox is setting us
+	m_bUpdateInProgress = false;
+}
+
 void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 {
 	if (m_bUpdateInProgress) return;
@@ -624,6 +653,7 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 	ui.editPhrase->setEnabled(!bDisabled);					// Disable the editor things so user realized this phrase is disabled
 	ui.chkCaseSensitive->setEnabled(!bDisabled);
 	ui.chkAccentSensitive->setEnabled(!bDisabled);
+	ui.chkExclude->setEnabled(!bDisabled);
 	ui.editPhrase->getDropListButton()->setEnabled(!bDisabled);
 	setPhraseButtonEnables();
 	m_bUpdateInProgress = false;
