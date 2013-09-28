@@ -458,10 +458,14 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	int nColSpan;
 	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
+	QString strEditPhraseToolTip = ui.editPhrase->toolTip();
+	QString strEditPhraseStatusTip = ui.editPhrase->statusTip();
 	CPhraseLineEdit *pEditPhrase = new CPhraseLineEdit(pBibleDatabase, this);
 	pEditPhrase->setObjectName(QString::fromUtf8("editPhrase"));
 	delete ui.editPhrase;
 	ui.editPhrase = pEditPhrase;
+	ui.editPhrase->setToolTip(strEditPhraseToolTip);
+	ui.editPhrase->setStatusTip(strEditPhraseStatusTip);
 	ui.gridLayout->addWidget(pEditPhrase, nRow, nCol, nRowSpan, nColSpan);
 	setTabOrder(ui.editPhrase, ui.chkCaseSensitive);
 	setTabOrder(ui.chkCaseSensitive, ui.chkAccentSensitive);
@@ -475,20 +479,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.chkAccentSensitive->setChecked(ui.editPhrase->isAccentSensitive());
 	ui.chkDisable->setChecked(parsedPhrase()->isDisabled());
 	ui.buttonAddPhrase->setEnabled(false);
-	ui.buttonAddPhrase->setToolTip(tr("Add Phrase to User Database"));
-	ui.buttonAddPhrase->setStatusTip(tr("Add this Phrase to the User Database"));
 	ui.buttonDelPhrase->setEnabled(false);
-	ui.buttonDelPhrase->setToolTip(tr("Delete Phrase from User Database"));
-	ui.buttonDelPhrase->setStatusTip(tr("Delete this Phrase from the User Database"));
 	ui.buttonClear->setEnabled(false);
-	ui.buttonClear->setToolTip(tr("Clear Phrase Text"));
-	ui.buttonClear->setStatusTip(tr("Clear this Phrase Text"));
-
-	ui.editPhrase->setToolTip(tr("Enter Word or Phrase to Search"));
-	ui.editPhrase->setStatusTip(tr("Enter Word or Phrase to Search"));
-
-	ui.buttonRemove->setToolTip(tr("Remove Phrase from Search Criteria"));
-	ui.buttonRemove->setStatusTip(tr("Remove this Phrase from the current Search Criteria"));
 
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(ui.editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));

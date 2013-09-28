@@ -94,6 +94,9 @@
            </property>
            <item row="0" column="0">
             <widget class="QLabel" name="lblOccurrenceCount">
+             <property name="toolTip">
+              <string>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</string>
+             </property>
              <property name="text">
               <string>Number of Occurrences: 00000/00000/00000</string>
              </property>
@@ -134,6 +137,9 @@
                <property name="toolTip">
                 <string>Add Phrase to User Database</string>
                </property>
+               <property name="statusTip">
+                <string>Add this Phrase to the User Database</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -161,7 +167,10 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Remove Phrase from User Database</string>
+                <string>Delete Phrase from User Database</string>
+               </property>
+               <property name="statusTip">
+                <string>Delete this Phrase from the User Database</string>
                </property>
                <property name="text">
                 <string/>
@@ -190,7 +199,10 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Clear Phrase</string>
+                <string>Clear Phrase Text</string>
+               </property>
+               <property name="statusTip">
+                <string>Clear this Phrase Text</string>
                </property>
                <property name="text">
                 <string/>
@@ -235,6 +247,12 @@
                <width>16777215</width>
                <height>24</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; width=&quot;240&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Enter Search Phrase to find. &lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Use: &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;| for OR operator &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td width=&quot;50&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td width=&quot;240&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: James | John&lt;br/&gt;(matches either &amp;quot;James&amp;quot; or &amp;quot;John&amp;quot;)&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;[] to specify character set &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba[dk]e&lt;br/&gt;(matches &amp;quot;bade&amp;quot; or &amp;quot;bake&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;* to find any of zero or more characters &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: baptiz*&lt;br/&gt;(matches words starting with &amp;quot;baptiz&amp;quot;) &lt;/p&gt;&lt;p&gt;example: *ology&lt;br/&gt;(matches words ending with &amp;quot;ology&amp;quot;) &lt;/p&gt;&lt;p&gt;example: an*er&lt;br/&gt;(matches words starting with &amp;quot;an&amp;quot;,&lt;br/&gt;and ending with &amp;quot;er&amp;quot;) &lt;/p&gt;&lt;p&gt;example: fruit of * doings&lt;br/&gt;(matches any word in that position,&lt;br/&gt;such as: &amp;quot;fruit of their doings&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;? to find any of exactly one character &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba?e&lt;br/&gt;(matches any character for the 3rd&lt;br/&gt;character, such as babe. bade, bake,&lt;br/&gt;bare, etc, but will &lt;span style=&quot; text-decoration: underline;&quot;&gt;not&lt;/span&gt; match: bathe) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="statusTip">
+              <string>Enter Word or Phrase to Search</string>
              </property>
              <property name="verticalScrollBarPolicy">
               <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -281,6 +299,12 @@
                <height>24</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Remove this Search Phrase</string>
+             </property>
+             <property name="statusTip">
+              <string>Remove this Search Phrase from the Search Criteria</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -307,6 +331,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Enable Case Sensitivity on Matching</string>
+           </property>
+           <property name="statusTip">
+            <string>Enable Case Sensitivity when Matching this Search Phrase</string>
+           </property>
            <property name="text">
             <string>Case Sensitive</string>
            </property>
@@ -320,8 +350,27 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Enable Accent Matching on Foreign Language Text</string>
+           </property>
+           <property name="statusTip">
+            <string>Enable Accent Matching Sensitivity when using Foreign Language Bible Databases</string>
+           </property>
            <property name="text">
             <string>Accent Sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkExclude">
+           <property name="toolTip">
+            <string>Exclude Occurrences of this Phrase</string>
+           </property>
+           <property name="statusTip">
+            <string>Exclude the results of this Phrase when they match other Phrases</string>
+           </property>
+           <property name="text">
+            <string>Exclude</string>
            </property>
           </widget>
          </item>
@@ -332,7 +381,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>20</width>
+             <width>0</width>
              <height>13</height>
             </size>
            </property>
@@ -345,6 +394,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Disable this Search Phrase</string>
+           </property>
+           <property name="statusTip">
+            <string>Disable the Results of this Search Phrase</string>
            </property>
            <property name="text">
             <string>Disable</string>
@@ -370,6 +425,7 @@
   <tabstop>editPhrase</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
   <tabstop>chkAccentSensitive</tabstop>
+  <tabstop>chkExclude</tabstop>
   <tabstop>chkDisable</tabstop>
   <tabstop>buttonAddPhrase</tabstop>
   <tabstop>buttonDelPhrase</tabstop>
