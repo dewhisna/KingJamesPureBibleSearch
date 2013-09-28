@@ -70,6 +70,8 @@ public:
 	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
+	void processPendingUpdateCompleter();
+
 public slots:
 	void en_phraseListChanged();
 

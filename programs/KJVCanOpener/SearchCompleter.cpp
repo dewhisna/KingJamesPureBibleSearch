@@ -24,11 +24,13 @@
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
 #include "ParseSymbols.h"
+#include "BusyCursor.h"
 
 #include <QString>
 #include <QStringRef>
 #include <QRegExp>
 #include <QAbstractItemView>
+#include <QTimer>
 
 #include <assert.h>
 
@@ -285,7 +287,7 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 	}
 
 	m_nCompletionFilterMode = nCompletionFilterMode;
-	m_pSoundExFilterModel->en_modelChanged();						// Force an update for models that don't do auto per-word updates
+	QTimer::singleShot(1, m_pSoundExFilterModel, SLOT(en_modelChanged()));		// Force a delayed update for models that don't do auto per-word updates
 }
 
 void CSearchCompleter::setFilterMatchString()
@@ -494,6 +496,8 @@ void CSoundExSearchCompleterFilter::en_modelChanged()
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SoundExSearchCompleter::modelChanged");
 #endif
+
+	CBusyCursor iAmBusy(NULL);
 
 	int nCount = m_pSearchStringListModel->rowCount();
 	m_lstComposedWords.clear();

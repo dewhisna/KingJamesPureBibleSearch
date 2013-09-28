@@ -77,6 +77,8 @@ public:
 	  */
 	void setStringPrefix(const QString& prefix) {m_prefix = prefix;}
 
+	bool isTriggered() const;
+
 signals:
 	void triggered();
 	void triggered(const QString &string);

@@ -58,6 +58,11 @@ void DelayedExecutionTimer::untrigger()
 	m_maximumTimer->stop();
 }
 
+bool DelayedExecutionTimer::isTriggered() const
+{
+	return (m_minimumTimer->isActive() || m_maximumTimer->isActive());
+}
+
 void DelayedExecutionTimer::trigger()
 {
 	if ((m_maximumDelay > 0) && (!m_maximumTimer->isActive())) {

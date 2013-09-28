@@ -264,9 +264,20 @@ void CPhraseLineEdit::en_textChanged()
 	m_pActionSelectAll->setEnabled(!document()->isEmpty());
 }
 
+void CPhraseLineEdit::processPendingUpdateCompleter()
+{
+	if (m_dlyUpdateCompleter.isTriggered()) delayed_UpdatedCompleter();
+}
+
 void CPhraseLineEdit::UpdateCompleter()
 {
-	m_dlyUpdateCompleter.trigger();
+	if (CPersistentSettings::instance()->searchActivationDelay() == -1) {
+		// Immediate activation if the search activation delay is disabled,
+		//		such as for restoring of the last search:
+		delayed_UpdatedCompleter();
+	} else {
+		m_dlyUpdateCompleter.trigger();
+	}
 }
 
 void CPhraseLineEdit::delayed_UpdatedCompleter()
@@ -277,10 +288,9 @@ void CPhraseLineEdit::delayed_UpdatedCompleter()
 	if (updateInProgress()) return;
 	CDoUpdate doUpdate(this);
 
-	QTextCursor saveCursor = textCursor();
-	saveCursor.clearSelection();
-
 	CPhraseCursor cursor(textCursor());
+	cursor.beginEditBlock();
+
 	QTextCharFormat fmt = cursor.charFormat();
 	fmt.setFontStrikeOut(false);
 	fmt.setUnderlineStyle(QTextCharFormat::NoUnderline);
@@ -312,6 +322,8 @@ void CPhraseLineEdit::delayed_UpdatedCompleter()
 			cursor.moveCursorWordRight(QTextCursor::MoveAnchor);
 		}
 	}
+
+	cursor.endEditBlock();
 }
 
 void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
@@ -543,6 +555,9 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 
 	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
+
+	// Make sure any pending updates are complete:
+	phraseEditor()->processPendingUpdateCompleter();
 
 	m_phraseEntry.setFromPhrase(pPhrase);
 	setPhraseButtonEnables();

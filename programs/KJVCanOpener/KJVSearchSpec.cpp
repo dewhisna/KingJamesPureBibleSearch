@@ -173,7 +173,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 			kjsFile.setArrayIndex(ndx);
 			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
 			pPhraseEditor->phraseEditor()->setAccentSensitive(kjsFile.value("AccentSensitive", false).toBool());
-			pPhraseEditor->phraseEditor()->setText(kjsFile.value("Phrase").toString());
+			pPhraseEditor->phraseEditor()->setPlainText(kjsFile.value("Phrase").toString());
 			pPhraseEditor->setDisabled(kjsFile.value("Disabled", false).toBool());			// Set this one on the CKJVSearchPhraseEdit to update things (as the parsed phrase doesn't signal)
 		}
 	} else {
