@@ -62,6 +62,9 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 	setFixedHeight(sizeHint().height());
 	setLineWrapMode(QTextEdit::NoWrap);
 
+	m_dlyUpdateCompleter.setMinimumDelay(10);				// Arbitrary time, but I think it must be less than our textChanged delay or we may have issues
+	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
+
 	m_pCompleter = new SearchCompleter_t(m_pDictionaryDatabase, *this, this);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
@@ -89,25 +92,28 @@ void CDictionaryLineEdit::setupCompleter(const QString &strText, bool bForce)
 
 	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
 	if ((bForce) || (!strText.isEmpty()) || (bCompleterOpen && (strWord.length() > 2) && (textCursor().atEnd()))) {
-		m_pCompleter->setFilterMatchString();
-		UpdateCompleter();
+		delayed_UpdatedCompleter();			// Do an immediate update of the completer so we have values below (it speeds up the initial completer calculations!)
 		m_pCompleter->popup()->close();
 		if ((bCompleterOpen) && (strWord.length() > 2) && (textCursor().atEnd())) bForce = true;				// Reshow completer if it was open already and we're changing words
 		m_pCompleter->selectFirstMatchString();
 	}
 
 	if (bForce || (!strText.isEmpty() && (strWord.length() > 2))) {
-		if (strWord.length() < 2) {
-			CBusyCursor iAmBusy(NULL);
-			m_pCompleter->complete();
-		} else {
-			m_pCompleter->complete();
-		}
+		CBusyCursor iAmBusy(NULL);
+		m_pCompleter->complete();
 	}
 }
 
 void CDictionaryLineEdit::UpdateCompleter()
 {
+	m_dlyUpdateCompleter.trigger();
+}
+
+void CDictionaryLineEdit::delayed_UpdatedCompleter()
+{
+	m_dlyUpdateCompleter.untrigger();
+
+	m_pCompleter->setFilterMatchString();
 	m_pCompleter->setWordsFromPhrase();
 
 	if (updateInProgress()) return;

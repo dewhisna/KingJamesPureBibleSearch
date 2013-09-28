@@ -55,6 +55,7 @@ protected slots:
 
 private slots:
 	void en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void delayed_UpdatedCompleter();
 
 protected:
 	virtual void setupCompleter(const QString &strText, bool bForce = false);
@@ -65,6 +66,7 @@ private:
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
 	SearchCompleter_t *m_pCompleter;			// Word completer
 	bool m_bUpdateInProgress;
+	DelayedExecutionTimer m_dlyUpdateCompleter;		// Activation delay for completer update to avoid extra updates
 };
 
 // ============================================================================
