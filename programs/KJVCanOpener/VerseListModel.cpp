@@ -1803,7 +1803,10 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	QList<TPhraseTagList::const_iterator> lstItrEnd;
 	QList<CRelIndex> lstScopedRefs;
 	QList<bool> lstNeedScope;
-	int nNumPhrases = zResults.m_lstParsedPhrases.size();
+	QList<int> lstPhraseIndex;				// ParsedPhrases list index for phrases that aren't excluded (i.e. the ones we are processing)
+	QList<int> lstExcludedPhraseIndex;
+	int nNumPhrases = 0;
+	int nNumExcludedPhrases = 0;
 
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
 		emit verseListAboutToChange();
@@ -1817,8 +1820,16 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 
 	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 	//		setting the phrase size details:
-	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+	for (int ndx=0; ndx<zResults.m_lstParsedPhrases.size(); ++ndx) {
+		// Note: We'll still build the "within" results even for excluded phrases:
 		buildWithinResultsInParsedPhrase(zResults.m_SearchCriteria, zResults.m_lstParsedPhrases.at(ndx));
+		if (zResults.m_lstParsedPhrases.at(ndx)->isExcluded()) {
+			lstExcludedPhraseIndex.append(ndx);
+			nNumExcludedPhrases++;
+			continue;		// Ignore phrases that are excluded when building our search results
+		}
+		lstPhraseIndex.append(ndx);
+		nNumPhrases++;
 		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults();
 		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
 		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
@@ -1836,7 +1847,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	while (!bDone) {
 		uint32_t nMaxScope = 0;
 		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
+			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(lstPhraseIndex.at(ndx));
 			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
 			if (!lstNeedScope[ndx]) {
 				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
@@ -1874,16 +1885,28 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		if (bMatch) {
 			// We got a match, so push results to output and flag for new scopes:
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
+				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(lstPhraseIndex.at(ndx))->GetScopedPhraseTagSearchResultsNonConst();
 				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
-					lstScopedPhraseTags.append(*itr);
-					CRelIndex ndxNextRelative = itr->relIndex();
-					ndxNextRelative.setWord(0);
-					if (zResults.m_mapVerses.contains(ndxNextRelative)) {
-						zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
-					} else {
-						zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itr));
+					bool bIsExcluded = false;
+					for (int ndxExcluded=0; ndxExcluded<nNumExcludedPhrases; ++ndxExcluded) {
+						const CParsedPhrase *excludedPhrase = zResults.m_lstParsedPhrases.at(lstExcludedPhraseIndex.at(ndxExcluded));
+						const TPhraseTagList &lstExcludedSearchResultsPhraseTags = excludedPhrase->GetWithinPhraseTagSearchResults();
+						if (lstExcludedSearchResultsPhraseTags.completelyContains(m_private.m_pBibleDatabase, *itr)) {
+							excludedPhrase->GetScopedPhraseTagSearchResultsNonConst().append(*itr);
+							bIsExcluded = true;
+						}
+					}
+
+					if (!bIsExcluded) {
+						lstScopedPhraseTags.append(*itr);
+						CRelIndex ndxNextRelative = itr->relIndex();
+						ndxNextRelative.setWord(0);
+						if (zResults.m_mapVerses.contains(ndxNextRelative)) {
+							zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
+						} else {
+							zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itr));
+						}
 					}
 				}
 				lstNeedScope[ndx] = true;

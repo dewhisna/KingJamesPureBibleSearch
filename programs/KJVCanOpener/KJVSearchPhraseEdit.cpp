@@ -612,7 +612,7 @@ void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 	if (parsedPhrase()->isDuplicate()) {
 		strTemp += tr("(Duplicate)");
 	} else {
-		strTemp += QString("%1/%2/%3").arg(!parsedPhrase()->isDisabled() ? parsedPhrase()->GetContributingNumberOfMatches() : 0).arg(parsedPhrase()->GetNumberOfMatchesWithin()).arg(parsedPhrase()->GetNumberOfMatches());
+		strTemp += QString("%1/%2/%3").arg(!parsedPhrase()->isDisabled() ? (parsedPhrase()->isExcluded() ? -parsedPhrase()->GetContributingNumberOfMatches() : parsedPhrase()->GetContributingNumberOfMatches()) : 0).arg(parsedPhrase()->GetNumberOfMatchesWithin()).arg(parsedPhrase()->GetNumberOfMatches());
 	}
 	ui.lblOccurrenceCount->setText(strTemp);
 }

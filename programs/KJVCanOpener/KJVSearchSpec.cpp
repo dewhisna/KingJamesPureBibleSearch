@@ -400,14 +400,20 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 		const CPhraseEntry &aPhrase = mdlPhrases.index(ndx).data(CPhraseListModel::PHRASE_ENTRY_ROLE).value<CPhraseEntry>();
 		if (nNumPhrases > 1) {
 			if (!aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_bExclude) {
-				if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
-					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-									tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
-										.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
+				if (!bExclude) {
+					if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
+						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+										tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
+											.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
+					} else {
+						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
+										tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
+						assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+					}
 				} else {
 					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-									tr("(Found %n Time(s) in the Selected Search Text)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
-					assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+									tr("(Found %n Time(s) in the Selected Search Text, %1 in Scope and not removed by exclusions)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
+										.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 				}
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
