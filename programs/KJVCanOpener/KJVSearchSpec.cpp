@@ -445,11 +445,23 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	return strSummary;
 }
 
+void CKJVSearchSpec::processAllPendingUpdateCompleter()
+{
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		CPhraseLineEdit *pPhraseEditor = m_lstSearchPhraseEditors.at(ndx)->phraseEditor();
+		assert(pPhraseEditor != NULL);
+		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled()) continue;
+		pPhraseEditor->processPendingUpdateCompleter();
+	}
+}
+
 void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
 	CBusyCursor iAmBusy(NULL);
+
+	processAllPendingUpdateCompleter();
 
 	TParsedPhrasesList lstPhrases;
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {

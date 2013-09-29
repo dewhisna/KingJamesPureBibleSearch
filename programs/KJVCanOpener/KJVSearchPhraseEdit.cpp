@@ -282,7 +282,15 @@ void CPhraseLineEdit::en_textChanged()
 
 void CPhraseLineEdit::processPendingUpdateCompleter()
 {
-	if (m_dlyUpdateCompleter.isTriggered()) delayed_UpdatedCompleter();
+	// For some reason, this checking of a triggered updateCompleter()
+	//		isn't sufficient.  We still get periodically get
+	//		phrases that have no results.  So for now, I've
+	//		changed it to just always do an update.  It's
+	//		not totally the fact we have a delayed updateCompleter()
+	//		either, because disabling our delayed trigger entirely
+	//		still has the issue.  Strange...
+//	if (m_dlyUpdateCompleter.isTriggered()) delayed_UpdatedCompleter();
+	delayed_UpdatedCompleter();
 }
 
 void CPhraseLineEdit::UpdateCompleter()

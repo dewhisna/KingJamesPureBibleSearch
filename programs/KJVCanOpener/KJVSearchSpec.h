@@ -86,6 +86,7 @@ public slots:
 public slots:			// Incoming Pass-Through:
 	void enableCopySearchPhraseSummary(bool bEnable);
 	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
+	void processAllPendingUpdateCompleter();
 
 protected slots:
 	void closeAllSearchPhrases();
