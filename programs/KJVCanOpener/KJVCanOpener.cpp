@@ -371,6 +371,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
+	pAction = m_pActionGroupViewMode->addAction(tr("View E&xcluded Search Results"));
+	m_pViewMenu->addAction(pAction);
+	pAction->setData(CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
+	pAction->setStatusTip(tr("View Excluded Search Results from Search Phrases"));
+	pAction->setCheckable(true);
+	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
+	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
+
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters"));
 	m_pViewMenu->addAction(pAction);
 	pAction->setData(CVerseListModel::VVME_HIGHLIGHTERS);
@@ -1040,7 +1048,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	// If the Search Result was focused last time, focus it again, else if
 	//	the browser was focus last time, focus it again.  Otherwise, leave
 	//	the phrase editor focus:
-	if ((bFocusSearchResults) && (m_pSearchResultWidget->haveResults())) {
+	if (bFocusSearchResults) {
 		QTimer::singleShot(1, m_pSearchResultWidget, SLOT(setFocusSearchResult()));
 	} else if (bFocusBrowser) {
 		QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
@@ -1335,7 +1343,7 @@ void CKJVCanOpener::en_copySearchPhraseSummary()
 void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
-	m_pSearchSpecWidget->enableCopySearchPhraseSummary(m_pSearchResultWidget->haveResults());
+	m_pSearchSpecWidget->enableCopySearchPhraseSummary(true);
 	// Auto-switch to Search Results mode:
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
 		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);

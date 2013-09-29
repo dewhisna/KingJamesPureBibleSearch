@@ -56,7 +56,8 @@ enum VERSE_LIST_MODEL_RESULTS_TYPE_ENUM {
 	VLMRTE_SEARCH_RESULTS = 0,						// Search Results Display Index
 	VLMRTE_HIGHLIGHTERS = 1,						// Highlighter Display Index
 	VLMRTE_USER_NOTES = 2,							// User Notes Display Index
-	VLMRTE_CROSS_REFS = 3							// Cross References Index
+	VLMRTE_CROSS_REFS = 3,							// Cross References Index
+	VLMRTE_SEARCH_RESULTS_EXCLUDED = 4				// Excluded Search Results Display Index
 };
 
 // Verse List Model Node Type Enum:
@@ -154,7 +155,8 @@ public:
 	inline QString getHeading() const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
-		bool bSearchRefs = (verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS);		// For Search Results, show word positions too
+		bool bSearchRefs = ((verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS) ||
+							(verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS_EXCLUDED));		// For Search Results, show word positions too
 		QString strHeading;
 		if ((m_lstTags.size() > 0) &&
 			(verseIndex()->resultsType() != VLMRTE_USER_NOTES) &&
@@ -361,6 +363,9 @@ class CVerseListModel : public QAbstractItemModel
 	Q_OBJECT
 public:
 
+	// Note: Don't change the order of these enums.  Doing so will break
+	//			preserved settings save/restore, etc, making them incompatible:
+
 	enum VERSE_DISPLAY_MODE_ENUM {
 		VDME_HEADING = 0,
 		VDME_VERYPLAIN = 1,
@@ -375,10 +380,11 @@ public:
 	};
 
 	enum VERSE_VIEW_MODE_ENUM {
-		VVME_SEARCH_RESULTS = 0,		// Display Search Results in the Tree View
-		VVME_HIGHLIGHTERS = 1,			// Display Tree of Highlighter Tags
-		VVME_USERNOTES = 2,				// Display Tree of User Notes
-		VVME_CROSSREFS = 3				// Display Tree of User Cross References
+		VVME_SEARCH_RESULTS = 0,			// Display Search Results in the Tree View
+		VVME_HIGHLIGHTERS = 1,				// Display Tree of Highlighter Tags
+		VVME_USERNOTES = 2,					// Display Tree of User Notes
+		VVME_CROSSREFS = 3,					// Display Tree of User Cross References
+		VVME_SEARCH_RESULTS_EXCLUDED = 4	// Display Excluded Search Results in the Tree View
 	};
 	static VERSE_LIST_MODEL_RESULTS_TYPE_ENUM VVME_to_VLMRTE(VERSE_VIEW_MODE_ENUM nViewMode)
 	{
@@ -386,6 +392,7 @@ public:
 	}
 	static VERSE_VIEW_MODE_ENUM VLMRTE_to_VVME(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType)
 	{
+		assert(nResultsType != VLMRTE_UNDEFINED);
 		return static_cast<VERSE_VIEW_MODE_ENUM>(nResultsType);
 	}
 
@@ -513,10 +520,12 @@ public:
 	protected:
 		friend class CVerseListModel;
 
-		TVerseListModelSearchResults(TVerseListModelPrivate *priv)
-			:	TVerseListModelResults(priv, tr("Search Results"), VLMRTE_SEARCH_RESULTS)
+		TVerseListModelSearchResults(TVerseListModelPrivate *priv, bool bExcluded)
+			:	TVerseListModelResults(priv, (!bExcluded ? tr("Search Results") : tr("Excluded Search Results")), (!bExcluded ? VLMRTE_SEARCH_RESULTS : VLMRTE_SEARCH_RESULTS_EXCLUDED))
 		{ }
 
+		// For SearchResults, this list will be the Included phrases.  For
+		//		ExcludedSearchResults, this list will be the Excluded phrases:
 		TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
 		CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
 
@@ -587,7 +596,6 @@ public:
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)
 
-	TParsedPhrasesList parsedPhrases() const;
 	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_private.m_nDisplayMode; }
@@ -603,6 +611,8 @@ public:
 				return m_undefinedResults;
 			case VLMRTE_SEARCH_RESULTS:
 				return m_searchResults;
+			case VLMRTE_SEARCH_RESULTS_EXCLUDED:
+				return m_searchResultsExcluded;
 			case VLMRTE_USER_NOTES:
 				return m_userNotesResults;
 			case VLMRTE_HIGHLIGHTERS:
@@ -629,7 +639,11 @@ public:
 
 		return results(*toVerseIndex(index));
 	}
-	const TVerseListModelSearchResults &searchResults() const { return m_searchResults; }
+	const TVerseListModelSearchResults &searchResults(bool bExcluded) const
+	{
+		if (bExcluded) return m_searchResultsExcluded;
+		return m_searchResults;
+	}
 
 	inline const QFont &font() const { return m_private.m_font; }
 
@@ -671,7 +685,7 @@ private:
 	void clearAllExtraVerseIndexes();
 
 	void buildScopedResultsFromParsedPhrases();
-	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase);
+	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase) const;
 	CRelIndex ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria);
 
 	void buildHighlighterResults(int ndxHighlighter = -1);								// Note: index of -1 = All Highlighters
@@ -688,6 +702,7 @@ private:
 	THighlighterVLMRList m_vlmrListHighlighters;		// Per-Highlighter VerseListModelResults
 	TVerseListModelResults m_undefinedResults;			// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
 	TVerseListModelSearchResults m_searchResults;		// VerseListModelResults for Search Results
+	TVerseListModelSearchResults m_searchResultsExcluded;	// VerseListModelResults for Excluded Search Results
 	TVerseListModelNotesResults m_userNotesResults;		// VerseListModelResults for User Notes
 	TVerseListModelCrossRefsResults m_crossRefsResults;	// VerseListModelResults for Cross References
 	QStringList m_lstUserNoteKeywordFilter;				// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry

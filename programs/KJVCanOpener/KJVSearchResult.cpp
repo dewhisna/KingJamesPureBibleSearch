@@ -104,7 +104,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setModel(pModel);
 	assert(pModel == vlmodel());
 	if (pOldModel) delete pOldModel;
-	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
+						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
 
@@ -267,7 +268,8 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex());
-		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
 		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
@@ -386,7 +388,8 @@ void CSearchResultsTreeView::en_copyComplete() const
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
 		navigator.setDocumentToVerse(item.getIndex());
-		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags());
 			navigator.doHighlighting(highlighter);
 		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
@@ -398,7 +401,8 @@ void CSearchResultsTreeView::en_copyComplete() const
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 
-		if (viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 			cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
 			if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
 		} else {
@@ -442,7 +446,8 @@ bool CSearchResultsTreeView::editableNodeSelected() const
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
-	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS);
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
+						((nViewMode != CVerseListModel::VVME_SEARCH_RESULTS) && (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((nViewMode == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
 	vlmodel()->setViewMode(nViewMode);
@@ -457,7 +462,8 @@ void CSearchResultsTreeView::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_
 void CSearchResultsTreeView::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
-	bool bDecorateRoot = (nTreeMode != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	bool bDecorateRoot = (nTreeMode != CVerseListModel::VTME_LIST) ||
+						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
 	vlmodel()->setTreeMode(nTreeMode);
@@ -471,7 +477,8 @@ void CSearchResultsTreeView::setShowMissingLeafs(bool bShowMissing)
 void CSearchResultsTreeView::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
-	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) || (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS);
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
+						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (ndx.isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
 	vlmodel()->setSingleCrossRefSourceIndex(ndx);
@@ -610,6 +617,9 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	switch (viewMode()) {
 		case CVerseListModel::VVME_SEARCH_RESULTS:
 			strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
+			break;
+		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
+			strStatusText = tr("%n Excluded Search Result(s) Selected", NULL, nNumResultsSelected);
 			break;
 		case CVerseListModel::VVME_HIGHLIGHTERS:
 			strStatusText = tr("%n Highlighted Verse(s) Selected", NULL, nNumResultsSelected);
@@ -754,15 +764,24 @@ QStyleOptionViewItem CSearchResultsTreeView::viewOptions () const
 CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
+	// ----
 	m_nLastSearchOccurrences(0),
 	m_nLastSearchVerses(0),
 	m_nLastSearchChapters(0),
 	m_nLastSearchBooks(0),
+	// ----
+	m_nLastExcludedSearchOccurrences(0),
+	m_nLastExcludedSearchVerses(0),
+	m_nLastExcludedSearchChapters(0),
+	m_nLastExcludedSearchBooks(0),
+	// ----
 	m_bLastCalcSuccess(true),
+	// ----
 	m_nLastSearchNumPhrases(0),
 	m_bDoingUpdate(false),
 	m_pSearchResultsType(NULL),
 	m_pSearchResultsCount(NULL),
+	m_pExcludedSearchResultsCount(NULL),
 	m_pNoteKeywordWidget(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
@@ -786,6 +805,12 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsCount->setText(tr("Found 0 Occurrences") + "\n"
 									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
 	pLayout->addWidget(m_pSearchResultsCount);
+	m_pExcludedSearchResultsCount = new QLabel(this);
+	m_pExcludedSearchResultsCount->setObjectName(QString::fromUtf8("ExcludedSearchResultsCount"));
+	m_pExcludedSearchResultsCount->setWordWrap(true);
+	m_pExcludedSearchResultsCount->setText(tr("Excluded 0 Occurrences") + "\n"
+											  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
+	pLayout->addWidget(m_pExcludedSearchResultsCount);
 
 	// --------------------------------
 
@@ -893,6 +918,7 @@ bool CKJVSearchResult::editableNodeSelected() const
 void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
+	m_pExcludedSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
 	m_pNoteKeywordWidget->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 	setSearchResultsType();
@@ -905,6 +931,9 @@ void CKJVSearchResult::setSearchResultsType()
 	switch (m_pSearchResultsTreeView->viewMode()) {
 		case CVerseListModel::VVME_SEARCH_RESULTS:
 			strResultsType = tr("Search Results");
+			break;
+		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
+			strResultsType = tr("Excluded Search Results");
 			break;
 		case CVerseListModel::VVME_HIGHLIGHTERS:
 			strResultsType = tr("Highlighters");
@@ -949,17 +978,35 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, phrases);
 	m_nLastSearchNumPhrases = phrases.size();
 
+	QString strResults;
+
+	// ------------------------------------------------------------------------
+
 	int nVerses = 0;		// Results counts in Verses
 	int nChapters = 0;		// Results counts in Chapters
 	int nBooks = 0;			// Results counts in Books
 	int nResults = 0;		// Total number of Results in Scope
 
-	nVerses = vlmodel()->searchResults().GetVerseIndexAndCount().second;
-	nChapters = vlmodel()->searchResults().GetChapterIndexAndCount().second;
-	nBooks = vlmodel()->searchResults().GetBookIndexAndCount().second;
-	nResults = vlmodel()->searchResults().GetResultsCount();
+	nVerses = vlmodel()->searchResults(false).GetVerseIndexAndCount().second;
+	nChapters = vlmodel()->searchResults(false).GetChapterIndexAndCount().second;
+	nBooks = vlmodel()->searchResults(false).GetBookIndexAndCount().second;
+	nResults = vlmodel()->searchResults(false).GetResultsCount();
 
-	QString strResults;
+	// ------------------------------------------------------------------------
+
+	int nExcludedVerses = 0;	// Excluded Results counts in Verses
+	int nExcludedChapters = 0;	// Excluded Results counts in Chapters
+	int nExcludedBooks = 0;		// Excluded Results counts in Books
+	int nExcludedResults = 0;	// Total number of Excluded Results in Scope
+
+	nExcludedVerses = vlmodel()->searchResults(true).GetVerseIndexAndCount().second;
+	nExcludedChapters = vlmodel()->searchResults(true).GetChapterIndexAndCount().second;
+	nExcludedBooks = vlmodel()->searchResults(true).GetBookIndexAndCount().second;
+	nExcludedResults = vlmodel()->searchResults(true).GetResultsCount();
+
+	// ------------------------------------------------------------------------
+
+	strResults.clear();
 
 	strResults += tr("Found %n Occurrence(s)", NULL, nResults) + "\n";
 	strResults += "    " + tr("in %n Verse(s)", NULL, nVerses) +
@@ -981,11 +1028,36 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 
 	m_pSearchResultsCount->setText(strResults);
 
+	// ------------------------------------------------------------------------
+
+	strResults.clear();
+
+	strResults += tr("Excluded %n Occurrence(s)", NULL, nExcludedResults) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", NULL, nExcludedVerses) +
+					" " + tr("in %n Chapter(s)", NULL, nExcludedChapters) +
+					" " + tr("in %n Book(s)", NULL, nExcludedBooks);
+	if (!aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+		if (!strSearchWithinDescription.isEmpty()) {
+			strResults += " " + tr("within") + " " + strSearchWithinDescription;
+		}
+	}
+
+	m_pExcludedSearchResultsCount->setText(strResults);
+
+	// ------------------------------------------------------------------------
+
 	m_bLastCalcSuccess = true;
+	// ----
 	m_nLastSearchOccurrences = nResults;
 	m_nLastSearchVerses = nVerses;
 	m_nLastSearchChapters = nChapters;
 	m_nLastSearchBooks = nBooks;
+	// ----
+	m_nLastExcludedSearchOccurrences = nExcludedResults;
+	m_nLastExcludedSearchVerses = nExcludedVerses;
+	m_nLastExcludedSearchChapters = nExcludedChapters;
+	m_nLastExcludedSearchBooks = nExcludedBooks;
 }
 
 QString CKJVSearchResult::searchResultsSummaryText() const
@@ -1005,7 +1077,20 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		} else {
 			QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 			if (!strSearchWithinDescription.isEmpty()) {
-				strSummary += "    " + tr("within") + " " + strSearchWithinDescription;
+				strSummary += "    " + tr("within") + " " + strSearchWithinDescription + "\n";
+			}
+		}
+		if (m_nLastExcludedSearchOccurrences > 0) {
+			strSummary += "\n";
+			strSummary += tr("Excluded %n %1Occurrence(s)", NULL, m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "") + "\n";
+			strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastExcludedSearchVerses) + "\n";
+			strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastExcludedSearchChapters) + "\n";
+			strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastExcludedSearchBooks) + "\n";
+			if (!m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+				QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+				if (!strSearchWithinDescription.isEmpty()) {
+					strSummary += "    " + tr("within") + " " + strSearchWithinDescription + "\n";
+				}
 			}
 		}
 	} else {

@@ -34,19 +34,33 @@
 #include <QBitmap>
 #include <QPainter>
 
+// Nasty intermediate class type defintion for CVerseListModel::TVerseListModelResults, but avoids very nasty header interdependency:
+class i_TVerseListModelResults
+{
+public:
+	i_TVerseListModelResults(const CVerseListModel::TVerseListModelResults &aData)
+		:	data(aData)
+	{
+
+	}
+
+	const CVerseListModel::TVerseListModelResults &data;
+};
+
+
 // ============================================================================
 
 #define NUM_HIGHLIGHTER_TOOLBAR_BUTTONS 4
 
 // ============================================================================
 
-CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const CVerseListModel *pVerseListModel)
-	:	m_pVerseListModel(pVerseListModel),
+CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const i_TVerseListModelResults *pvlmResults)
+	:	m_pvlmResults(pvlmResults),
 		m_lstPhraseTags(m_lstDummyPhraseTags)
 {
-	assert(m_pVerseListModel != NULL);
-	m_itrVerses = m_pVerseListModel->searchResults().verseMap().constBegin();
-	while (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
+	assert(pvlmResults != NULL);
+	m_itrVerses = m_pvlmResults->data.verseMap().constBegin();
+	while (m_itrVerses != m_pvlmResults->data.verseMap().constEnd()) {
 		m_itrTags = m_itrVerses->phraseTags().constBegin();
 		if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
 		++m_itrVerses;
@@ -54,23 +68,31 @@ CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const CVerseListModel *
 }
 
 CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const TPhraseTagList &lstTags)
-	:	m_pVerseListModel(NULL),
+	:	m_pvlmResults(NULL),
 		m_lstPhraseTags(lstTags)
 {
 	m_itrTags = m_lstPhraseTags.constBegin();
+}
+
+CHighlighterPhraseTagFwdItr::~CHighlighterPhraseTagFwdItr()
+{
+	if (m_pvlmResults) {
+		delete m_pvlmResults;
+		m_pvlmResults = NULL;
+	}
 }
 
 TPhraseTag CHighlighterPhraseTagFwdItr::nextTag()
 {
 	TPhraseTag nRetVal = (!isEnd() ? *m_itrTags : TPhraseTag());
 
-	if (m_pVerseListModel) {
-		if (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
+	if (m_pvlmResults) {
+		if (m_itrVerses != m_pvlmResults->data.verseMap().constEnd()) {
 			++m_itrTags;
 			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) return nRetVal;
 		}
 		++m_itrVerses;
-		while (m_itrVerses != m_pVerseListModel->searchResults().verseMap().constEnd()) {
+		while (m_itrVerses != m_pvlmResults->data.verseMap().constEnd()) {
 			m_itrTags = m_itrVerses->phraseTags().constBegin();
 			if (m_itrTags != m_itrVerses->phraseTags().constEnd()) break;
 			++m_itrVerses;
@@ -84,8 +106,8 @@ TPhraseTag CHighlighterPhraseTagFwdItr::nextTag()
 
 bool CHighlighterPhraseTagFwdItr::isEnd() const
 {
-	if (m_pVerseListModel) {
-		return (m_itrVerses == m_pVerseListModel->searchResults().verseMap().constEnd());
+	if (m_pvlmResults) {
+		return (m_itrVerses == m_pvlmResults->data.verseMap().constEnd());
 	} else {
 		return (m_itrTags == m_lstPhraseTags.constEnd());
 	}
@@ -170,7 +192,7 @@ void CSearchResultHighlighter::verseListModelDestroyed()
 CHighlighterPhraseTagFwdItr CSearchResultHighlighter::getForwardIterator() const
 {
 	if (m_pVerseListModel) {
-		return CHighlighterPhraseTagFwdItr(m_pVerseListModel);
+		return CHighlighterPhraseTagFwdItr(new i_TVerseListModelResults(m_pVerseListModel->searchResults(false)));		// Note: CHighlighterPhraseTagFwdItr takes ownership of i_TVerseListModelResults
 	} else {
 		return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
 	}
@@ -179,7 +201,7 @@ CHighlighterPhraseTagFwdItr CSearchResultHighlighter::getForwardIterator() const
 bool CSearchResultHighlighter::isEmpty() const
 {
 	if (m_pVerseListModel) {
-		return (m_pVerseListModel->searchResults().verseMap().isEmpty());		// Our highlighter PhraseTags could technically be empty and not trigger this, but for the purposes of this function this highlighter "isn't empty" if we have verses
+		return (m_pVerseListModel->searchResults(false).verseMap().isEmpty());		// Our highlighter PhraseTags could technically be empty and not trigger this, but for the purposes of this function this highlighter "isn't empty" if we have verses
 	} else {
 		return m_myPhraseTags.phraseTags().isEmpty();
 	}

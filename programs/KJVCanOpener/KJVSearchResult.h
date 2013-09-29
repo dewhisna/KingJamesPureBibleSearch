@@ -197,7 +197,7 @@ public:
 	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
-	inline bool haveResults() const { return (vlmodel()->searchResults().GetResultsCount() > 0); }
+	inline bool haveResults() const { return ((vlmodel()->searchResults(false).GetResultsCount() > 0) || (vlmodel()->searchResults(true).GetResultsCount() > 0)); }
 
 	QString searchResultsSummaryText() const;
 
@@ -243,11 +243,19 @@ private slots:
 // Private Data:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+	// ----
 	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
 	int m_nLastSearchVerses;
 	int m_nLastSearchChapters;
 	int m_nLastSearchBooks;
+	// ----
+	int m_nLastExcludedSearchOccurrences;
+	int m_nLastExcludedSearchVerses;
+	int m_nLastExcludedSearchChapters;
+	int m_nLastExcludedSearchBooks;
+	// ----
 	bool m_bLastCalcSuccess;
+	// ----
 	int m_nLastSearchNumPhrases;
 	CSearchCriteria m_LastSearchCriteria;
 
@@ -256,6 +264,7 @@ private:
 	bool m_bDoingUpdate;
 	QLabel *m_pSearchResultsType;
 	QLabel *m_pSearchResultsCount;
+	QLabel *m_pExcludedSearchResultsCount;
 	CNoteKeywordWidget *m_pNoteKeywordWidget;
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };

@@ -41,6 +41,7 @@
 // ============================================================================
 
 // Forward Declarations:
+class i_TVerseListModelResults;									// Nasty intermediate class type defintion for CVerseListModel::TVerseListModelResults, but avoids very nasty header interdependency
 class CVerseListModel;
 class CVerseListItem;
 typedef QMap<CRelIndex, CVerseListItem> CVerseMap;				// Redundant with definition in VerseListModel.h, but avoids very nasty header interdependency
@@ -50,15 +51,18 @@ typedef QMap<CRelIndex, CVerseListItem> CVerseMap;				// Redundant with definiti
 class CHighlighterPhraseTagFwdItr
 {
 protected:
-	CHighlighterPhraseTagFwdItr(const CVerseListModel *pVerseListModel);
+	CHighlighterPhraseTagFwdItr(const i_TVerseListModelResults *pvlmResults);			// Takes ownership of i_TVerseListModelResults object
 	CHighlighterPhraseTagFwdItr(const TPhraseTagList &lstTags);
+
+public:
+	~CHighlighterPhraseTagFwdItr();
 
 public:
 	TPhraseTag nextTag();
 	bool isEnd() const;
 
 private:
-	const CVerseListModel *m_pVerseListModel;
+	const i_TVerseListModelResults *m_pvlmResults;
 	const TPhraseTagList &m_lstPhraseTags;
 	TPhraseTagList m_lstDummyPhraseTags;				// Dummy list used for m_lstPhraseTags when iterating verses
 

@@ -80,7 +80,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	:	QAbstractItemModel(pParent),
 		m_private(pBibleDatabase, pUserNotesDatabase),
 		m_undefinedResults(&m_private, tr("Undefined"), VLMRTE_UNDEFINED),
-		m_searchResults(&m_private),
+		m_searchResults(&m_private, false),
+		m_searchResultsExcluded(&m_private, true),
 		m_userNotesResults(&m_private),
 		m_crossRefsResults(&m_private)
 {
@@ -544,6 +545,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
+					case VVME_SEARCH_RESULTS_EXCLUDED:
 					case VVME_HIGHLIGHTERS:
 					case VVME_CROSSREFS:
 						return m_private.m_pBibleDatabase->bookName(ndxRel);
@@ -576,6 +578,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
+					case VVME_SEARCH_RESULTS_EXCLUDED:
 					case VVME_HIGHLIGHTERS:
 					case VVME_CROSSREFS:
 						return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
@@ -636,6 +639,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 			switch (m_private.m_nViewMode) {
 				case VVME_SEARCH_RESULTS:
+				case VVME_SEARCH_RESULTS_EXCLUDED:
 				case VVME_HIGHLIGHTERS:
 				case VVME_CROSSREFS:
 					return strVerseText;
@@ -666,52 +670,55 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			}
 		}
 
-		if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 			if ((role == TOOLTIP_ROLE) ||
 				(role == TOOLTIP_PLAINTEXT_ROLE) ||
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 
+				const TVerseListModelSearchResults &zSearchResults = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : m_searchResultsExcluded);
+
 				// Switch to Search Results as our incoming index may not have been for Search Results,
 				//		even though we are now in Search Results View Mode:
-				itrVerse = m_searchResults.m_mapVerses.find(ndxVerse);
-				if (itrVerse == m_searchResults.m_mapVerses.constEnd()) return QVariant();
+				itrVerse = zSearchResults.m_mapVerses.find(ndxVerse);
+				if (itrVerse == zSearchResults.m_mapVerses.constEnd()) return QVariant();
 
 				bool bHeading = ((role != TOOLTIP_NOHEADING_ROLE) && (role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE));
 				QString strToolTip;
 				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "<qt><pre>";
 				if (bHeading) strToolTip += itrVerse->getHeading() + "\n";
-				QPair<int, int> nResultsIndexes = m_searchResults.GetResultsIndexes(itrVerse);
+				QPair<int, int> nResultsIndexes = zSearchResults.GetResultsIndexes(itrVerse);
 				if (nResultsIndexes.first != nResultsIndexes.second) {
 					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
 								tr("Search Results %1-%2 of %3 phrase occurrences")
 											.arg(nResultsIndexes.first)
 											.arg(nResultsIndexes.second)
-											.arg(m_searchResults.GetResultsCount()) + "\n";
+											.arg(zSearchResults.GetResultsCount()) + "\n";
 				} else {
 					assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
 					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
 								tr("Search Result %1 of %2 phrase occurrences")
 											.arg(nResultsIndexes.first)
-											.arg(m_searchResults.GetResultsCount()) + "\n";
+											.arg(zSearchResults.GetResultsCount()) + "\n";
 				}
-				QPair<int, int> nVerseResult = m_searchResults.GetVerseIndexAndCount(itrVerse);
+				QPair<int, int> nVerseResult = zSearchResults.GetVerseIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
-				QPair<int, int> nChapterResult = m_searchResults.GetChapterIndexAndCount(itrVerse);
+				QPair<int, int> nChapterResult = zSearchResults.GetChapterIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
-				QPair<int, int> nBookResult = m_searchResults.GetBookIndexAndCount(itrVerse);
+				QPair<int, int> nBookResult = zSearchResults.GetBookIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-				QString strSearchScopeDescription = m_searchResults.m_SearchCriteria.searchScopeDescription();
+				QString strSearchScopeDescription = zSearchResults.m_SearchCriteria.searchScopeDescription();
 				if (!strSearchScopeDescription.isEmpty()) {
-					QString strSearchWithinDescription = m_searchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+					QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 					if (!strSearchWithinDescription.isEmpty()) {
 						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
 					} else {
 						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
 					}
 				}
-				strToolTip += itrVerse->getToolTip(m_searchResults.m_SearchCriteria, m_searchResults.m_lstParsedPhrases);
+				strToolTip += itrVerse->getToolTip(zSearchResults.m_SearchCriteria, zSearchResults.m_lstParsedPhrases);
 				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 				return strToolTip;
@@ -1017,11 +1024,12 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 
 TVerseIndex CVerseListModel::resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType) const
 {
-	VERSE_VIEW_MODE_ENUM nViewMode = VLMRTE_to_VVME(nResultsType);
-	if (nResultsType == VLMRTE_UNDEFINED) nViewMode = m_private.m_nViewMode;
+	VERSE_VIEW_MODE_ENUM nViewMode = ((nResultsType != VLMRTE_UNDEFINED) ? VLMRTE_to_VVME(nResultsType) : m_private.m_nViewMode);
 	switch (nViewMode) {
 		case VVME_SEARCH_RESULTS:
 			return TVerseIndex(ndxRel, VLMRTE_SEARCH_RESULTS);
+		case VVME_SEARCH_RESULTS_EXCLUDED:
+			return TVerseIndex(ndxRel, VLMRTE_SEARCH_RESULTS_EXCLUDED);
 		case VVME_HIGHLIGHTERS:
 			if (!strResultsName.isEmpty()) {
 				for (int ndxHighlighter = 0; ndxHighlighter < m_vlmrListHighlighters.size(); ++ndxHighlighter) {
@@ -1043,11 +1051,6 @@ TVerseIndex CVerseListModel::resolveVerseIndex(const CRelIndex &ndxRel, const QS
 
 // ----------------------------------------------------------------------------
 
-TParsedPhrasesList CVerseListModel::parsedPhrases() const
-{
-	return m_searchResults.m_lstParsedPhrases;
-}
-
 void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
 {
 	// Note: Basic setting of this list doesn't change the model, as the phrases
@@ -1057,8 +1060,17 @@ void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, c
 	//		will build and set the VerseList, which will change the model.
 	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
 	//		but down in buildScopedResultsFromParsedPhrases():
-	m_searchResults.m_lstParsedPhrases = phrases;
+	m_searchResults.m_lstParsedPhrases.clear();
+	m_searchResultsExcluded.m_lstParsedPhrases.clear();
+	for (int ndx=0; ndx<phrases.size(); ++ndx) {
+		if (!phrases.at(ndx)->isExcluded()) {
+			m_searchResults.m_lstParsedPhrases.append(phrases.at(ndx));
+		} else {
+			m_searchResultsExcluded.m_lstParsedPhrases.append(phrases.at(ndx));
+		}
+	}
 	m_searchResults.m_SearchCriteria = aSearchCriteria;
+	m_searchResultsExcluded.m_SearchCriteria = aSearchCriteria;
 	buildScopedResultsFromParsedPhrases();
 }
 
@@ -1746,6 +1758,7 @@ int CVerseListModel::TVerseListModelResults::GetResultsCount(unsigned int nBk, u
 int CVerseListModel::GetVerseCount(int nBk, int nChp) const
 {
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetVerseCount(nBk, nChp);
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED) return m_searchResultsExcluded.GetVerseCount(nBk, nChp);
 	if (m_private.m_nViewMode == VVME_USERNOTES) return m_userNotesResults.GetVerseCount(nBk, nChp);
 
 	int nCount = 0;
@@ -1759,6 +1772,7 @@ int CVerseListModel::GetVerseCount(int nBk, int nChp) const
 int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
 {
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetResultsCount(nBk, nChp);
+	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED) return m_searchResultsExcluded.GetResultsCount(nBk, nChp);
 	if (m_private.m_nViewMode == VVME_USERNOTES) return m_userNotesResults.GetResultsCount(nBk, nChp);
 
 	int nCount = 0;
@@ -1798,17 +1812,17 @@ void CVerseListModel::clearAllExtraVerseIndexes()
 void CVerseListModel::buildScopedResultsFromParsedPhrases()
 {
 	TVerseListModelSearchResults &zResults = m_searchResults;
+	TVerseListModelSearchResults &zExcludedResults = m_searchResultsExcluded;
 
 	QList<TPhraseTagList::const_iterator> lstItrStart;
 	QList<TPhraseTagList::const_iterator> lstItrEnd;
 	QList<CRelIndex> lstScopedRefs;
 	QList<bool> lstNeedScope;
-	QList<int> lstPhraseIndex;				// ParsedPhrases list index for phrases that aren't excluded (i.e. the ones we are processing)
-	QList<int> lstExcludedPhraseIndex;
-	int nNumPhrases = 0;
-	int nNumExcludedPhrases = 0;
+	int nNumPhrases = zResults.m_lstParsedPhrases.size();
+	int nNumExcludedPhrases = zExcludedResults.m_lstParsedPhrases.size();
 
-	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 		emit verseListAboutToChange();
 		emit beginResetModel();
 	}
@@ -1818,23 +1832,30 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	zResults.m_mapExtraVerseIndexes.clear();
 	zResults.m_mapSizeHints.clear();
 
+	zExcludedResults.m_mapVerses.clear();
+	zExcludedResults.m_lstVerseIndexes.clear();
+	zExcludedResults.m_mapExtraVerseIndexes.clear();
+	zExcludedResults.m_mapSizeHints.clear();
+
 	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
 	//		setting the phrase size details:
-	for (int ndx=0; ndx<zResults.m_lstParsedPhrases.size(); ++ndx) {
-		// Note: We'll still build the "within" results even for excluded phrases:
+	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 		buildWithinResultsInParsedPhrase(zResults.m_SearchCriteria, zResults.m_lstParsedPhrases.at(ndx));
-		if (zResults.m_lstParsedPhrases.at(ndx)->isExcluded()) {
-			lstExcludedPhraseIndex.append(ndx);
-			nNumExcludedPhrases++;
-			continue;		// Ignore phrases that are excluded when building our search results
-		}
-		lstPhraseIndex.append(ndx);
-		nNumPhrases++;
 		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults();
 		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
 		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
 		lstScopedRefs.append(CRelIndex());
 		lstNeedScope.append(true);
+	}
+
+	// Note: We'll still build the "within" results even for excluded phrases:
+	int nExcludeReserveSize = 0;
+	for (int ndx=0; ndx<nNumExcludedPhrases; ++ndx) {
+		buildWithinResultsInParsedPhrase(zExcludedResults.m_SearchCriteria, zExcludedResults.m_lstParsedPhrases.at(ndx));
+		nExcludeReserveSize += zExcludedResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults().size();
+	}
+	for (int ndx=0; ndx<nNumExcludedPhrases; ++ndx) {
+		zExcludedResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst().reserve(nExcludeReserveSize);
 	}
 
 	// Now, we'll go through our lists and compress the results to the scope specified
@@ -1847,7 +1868,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	while (!bDone) {
 		uint32_t nMaxScope = 0;
 		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(lstPhraseIndex.at(ndx));
+			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
 			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
 			if (!lstNeedScope[ndx]) {
 				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
@@ -1885,12 +1906,12 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		if (bMatch) {
 			// We got a match, so push results to output and flag for new scopes:
 			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(lstPhraseIndex.at(ndx))->GetScopedPhraseTagSearchResultsNonConst();
+				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
 				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
 					bool bIsExcluded = false;
 					for (int ndxExcluded=0; ndxExcluded<nNumExcludedPhrases; ++ndxExcluded) {
-						const CParsedPhrase *excludedPhrase = zResults.m_lstParsedPhrases.at(lstExcludedPhraseIndex.at(ndxExcluded));
+						const CParsedPhrase *excludedPhrase = zExcludedResults.m_lstParsedPhrases.at(ndxExcluded);
 						const TPhraseTagList &lstExcludedSearchResultsPhraseTags = excludedPhrase->GetWithinPhraseTagSearchResults();
 						if (lstExcludedSearchResultsPhraseTags.completelyContains(m_private.m_pBibleDatabase, *itr)) {
 							excludedPhrase->GetScopedPhraseTagSearchResultsNonConst().append(*itr);
@@ -1898,14 +1919,22 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 						}
 					}
 
+					CRelIndex ndxNextRelative = itr->relIndex();
+					ndxNextRelative.setWord(0);
 					if (!bIsExcluded) {
 						lstScopedPhraseTags.append(*itr);
-						CRelIndex ndxNextRelative = itr->relIndex();
-						ndxNextRelative.setWord(0);
 						if (zResults.m_mapVerses.contains(ndxNextRelative)) {
 							zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
 						} else {
 							zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itr));
+						}
+					} else {
+						// Note: The tag has already been added to the ScopedPhraseTags above in the
+						//			check for intersection.
+						if (zExcludedResults.m_mapVerses.contains(ndxNextRelative)) {
+							zExcludedResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
+						} else {
+							zExcludedResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zExcludedResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itr));
 						}
 					}
 				}
@@ -1919,13 +1948,19 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 		zResults.m_lstVerseIndexes.append(itr.key());
 	}
 
-	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) {
+	zExcludedResults.m_lstVerseIndexes.reserve(zExcludedResults.m_mapVerses.size());
+	for (CVerseMap::const_iterator itr = zExcludedResults.m_mapVerses.constBegin(); (itr != zExcludedResults.m_mapVerses.constEnd()); ++itr) {
+		zExcludedResults.m_lstVerseIndexes.append(itr.key());
+	}
+
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 		emit endResetModel();
 		emit verseListChanged();
 	}
 }
 
-void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase)
+void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase) const
 {
 	const TPhraseTagList &lstPhraseTags = pParsedPhrase->GetPhraseTagSearchResults();
 	TPhraseTagList &lstWithinPhraseTags = pParsedPhrase->GetWithinPhraseTagSearchResultsNonConst();

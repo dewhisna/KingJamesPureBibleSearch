@@ -106,7 +106,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
 				if (!bDoingSizeHint) {
 					navigator.setDocumentToVerse(item.getIndex());
-					if (m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) {
+					if ((m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+						(m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 						CSearchResultHighlighter highlighter(item.phraseTags());
 						navigator.doHighlighting(highlighter);
 					} else {
