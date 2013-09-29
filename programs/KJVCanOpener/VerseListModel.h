@@ -685,6 +685,7 @@ private:
 	void clearAllExtraVerseIndexes();
 
 	void buildScopedResultsFromParsedPhrases();
+	bool checkExclusion(QList<TPhraseTagList::const_iterator> &lstItrExclNext, const TPhraseTag &tag, bool bPreserveLastItr = false);			// Finds next possible intersection of the specified tag in the m_searchResultsExcluded indexed with the list of iterators
 	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase) const;
 	CRelIndex ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria);
 
