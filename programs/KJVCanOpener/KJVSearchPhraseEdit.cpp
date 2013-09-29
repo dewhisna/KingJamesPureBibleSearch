@@ -427,7 +427,13 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 #endif
 	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
 		m_pCompleter->complete();
-		UpdateCompleter();			// Do a delayed update to intentionally remove focus from our updater, which keeps from accidentally selecting a completion when doing wildcards, etc.
+		// Intentionally remove focus from our updater, which keeps from accidentally
+		//		selecting a completion when doing wildcards, etc.  Note if the user
+		//		clicks a non-text generating key, like "shift" the completer will
+		//		automatically re-focus  and select the correct word (because of the
+		//		above selectFirstMatchString() call.  This seems to function well:
+		m_pCompleter->popup()->clearSelection();
+		m_pCompleter->popup()->setCurrentIndex(QModelIndex());
 	}
 }
 
