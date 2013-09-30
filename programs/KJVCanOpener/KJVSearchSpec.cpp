@@ -451,7 +451,9 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 		CPhraseLineEdit *pPhraseEditor = m_lstSearchPhraseEditors.at(ndx)->phraseEditor();
 		assert(pPhraseEditor != NULL);
 		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled()) continue;
-		pPhraseEditor->processPendingUpdateCompleter();
+		// No need to update the active one as it will handle itself:
+		if (pPhraseEditor != m_pLastEditorActive)
+			pPhraseEditor->processPendingUpdateCompleter();
 	}
 }
 

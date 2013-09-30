@@ -290,7 +290,12 @@ void CPhraseLineEdit::processPendingUpdateCompleter()
 	//		either, because disabling our delayed trigger entirely
 	//		still has the issue.  Strange...
 //	if (m_dlyUpdateCompleter.isTriggered()) delayed_UpdatedCompleter();
-	delayed_UpdatedCompleter();
+//	delayed_UpdatedCompleter();
+
+	m_dlyUpdateCompleter.untrigger();
+	ParsePhrase(textCursor());
+	FindWords();
+	if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
 }
 
 void CPhraseLineEdit::UpdateCompleter()
@@ -435,13 +440,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 #endif
 	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
 		m_pCompleter->complete();
-		// Intentionally remove focus from our updater, which keeps from accidentally
-		//		selecting a completion when doing wildcards, etc.  Note if the user
-		//		clicks a non-text generating key, like "shift" the completer will
-		//		automatically re-focus  and select the correct word (because of the
-		//		above selectFirstMatchString() call.  This seems to function well:
-		m_pCompleter->popup()->clearSelection();
-		m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+		if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
 	}
 }
 
