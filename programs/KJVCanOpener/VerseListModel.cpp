@@ -1428,14 +1428,13 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetBookIndexAndCo
 	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
 		nBooks++;			// Count the book we are on and skip the ones that are on the same book:
 		if (!bFlag) ndxBook++;
+		if (itr == itrVerse) bFlag = true;
 		uint32_t nCurrentBook = itr.key().book();
 		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
 			if (itr2.key().book() != nCurrentBook) break;			// Look ahead at next entry and see if it's the same book.  If not, move on to count it...
 			++itr;
 			if (itr == itrVerse) bFlag = true;
 		}
-
-		if (itr == itrVerse) bFlag = true;
 	}
 
 	return QPair<int, int>(ndxBook, nBooks);
@@ -1450,6 +1449,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAn
 	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
 		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
 		if (!bFlag) ndxChapter++;
+		if (itr == itrVerse) bFlag = true;
 		uint32_t nCurrentBook = itr.key().book();
 		uint32_t nCurrentChapter = itr.key().chapter();
 		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
@@ -1458,8 +1458,6 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAn
 			++itr;
 			if (itr == itrVerse) bFlag = true;
 		}
-
-		if (itr == itrVerse) bFlag = true;
 	}
 
 	return QPair<int, int>(ndxChapter, nChapters);
