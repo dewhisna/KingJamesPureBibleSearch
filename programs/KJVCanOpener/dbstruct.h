@@ -821,8 +821,44 @@ extern CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID);
 
 // ============================================================================
 
-// Forward declaration:
+// Forward declarations:
+class TPhraseTag;
 class TPassageTag;
+
+// Class to hold the Normalized Lo and Hi indexes covered by a tag
+//		with basic manipulations:
+class TTagBoundsPair
+{
+public:
+	TTagBoundsPair(uint32_t nNormalLo, uint32_t nNormalHi, bool bHadCount = true);
+	TTagBoundsPair(const TTagBoundsPair &tbpSrc);
+	TTagBoundsPair(const TPhraseTag &aTag, CBibleDatabasePtr pBibleDatabase);
+
+	TTagBoundsPair & operator=(const TTagBoundsPair &src)
+	{
+		m_pairNormals = src.m_pairNormals;
+		m_bHadCount = src.m_bHadCount;
+		return *this;
+	}
+
+	inline uint32_t lo() const { return m_pairNormals.first; }
+	void setLo(uint32_t nNormal) { m_pairNormals.first = nNormal; }
+	inline uint32_t hi() const { return m_pairNormals.second; }
+	void setHi(uint32_t nNormal) { m_pairNormals.second = nNormal; }
+	inline bool hadCount() const { return m_bHadCount; }
+	void setHadCount(bool bHadCount) { m_bHadCount = bHadCount; }
+
+	bool completelyContains(const TTagBoundsPair &tbpSrc) const;
+	bool intersects(const TTagBoundsPair &tbpSrc) const;
+	bool intersectingInsert(const TTagBoundsPair &tbpSrc);
+
+private:
+	typedef QPair<uint32_t, uint32_t> TNormalPair;
+	TNormalPair m_pairNormals;
+	bool m_bHadCount;							// True if the range had a count of words rather than being a reference to a location without any content
+};
+
+// ----------------------------------------------------------------------------
 
 // Relative Index and Word Count pair used for highlighting phrases:
 class TPhraseTag
@@ -832,6 +868,8 @@ public:
 		:	m_RelIndex(ndx),
 			m_nCount(nCount)
 	{ }
+
+	TPhraseTag(CBibleDatabasePtr pBibleDatabase, const TTagBoundsPair &tbpSrc);
 
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
 	inline CRelIndex &relIndex() { return m_RelIndex; }
@@ -875,6 +913,8 @@ public:
 				(m_nCount != otherTag.count()));
 	}
 
+	TTagBoundsPair bounds(CBibleDatabasePtr pBibleDatabase) const;			// Returns a pair containing the Normalized Lo and Hi indexes covered by this tag
+
 	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
@@ -896,6 +936,8 @@ Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
 
+// ----------------------------------------------------------------------------
+
 // List of tags used for highlighting found phrases, etc:
 class TPhraseTagList : public QList<TPhraseTag>
 {
@@ -905,6 +947,7 @@ public:
 
 	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!
 	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
 };
 

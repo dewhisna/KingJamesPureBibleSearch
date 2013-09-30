@@ -1985,13 +1985,13 @@ bool CVerseListModel::checkExclusion(QList<TPhraseTagList::const_iterator> &lstI
 	TVerseListModelSearchResults &zExcludedResults = m_searchResultsExcluded;
 	bool bExclude = false;
 
-	uint32_t ndxTagNormal = m_private.m_pBibleDatabase->NormalizeIndex(tag.relIndex());
+	TTagBoundsPair tbpTag(tag, m_private.m_pBibleDatabase);
 
 	for (int ndx=0; ndx<lstItrExclNext.size(); ++ndx) {
 		// If inclusion tag is less than exclusion target, it can't possibly be completely contained in exclusion:
 		while ((lstItrExclNext.at(ndx) != zExcludedResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults().constEnd()) &&
-			   (ndxTagNormal >= m_private.m_pBibleDatabase->NormalizeIndex(lstItrExclNext.at(ndx)->relIndex()))) {
-			if (lstItrExclNext.at(ndx)->completelyContains(m_private.m_pBibleDatabase, tag)) {
+			   (tbpTag.lo() >= m_private.m_pBibleDatabase->NormalizeIndex(lstItrExclNext.at(ndx)->relIndex()))) {
+			if (lstItrExclNext.at(ndx)->bounds(m_private.m_pBibleDatabase).completelyContains(tbpTag)) {
 				bExclude = true;
 				if (!bPreserveLastItr) {
 					zExcludedResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst().append(tag);
