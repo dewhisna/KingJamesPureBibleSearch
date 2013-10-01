@@ -947,7 +947,7 @@ public:
 
 	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
-	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!
+	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
 	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
 };
 

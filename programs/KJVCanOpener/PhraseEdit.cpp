@@ -316,19 +316,25 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 		if (ndxNormal > 0)
 			m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
 	}
+	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 	// Intersecting insert the other subphrases:
 	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
 		if (ndxSubPhrase == ndxMax) continue;
 		subPhrase = m_lstSubPhrases.at(ndxSubPhrase).data();
+
+		TPhraseTagList lstSubPhraseTags;
+		lstSubPhraseTags.reserve(subPhrase->m_lstMatchMapping.size());
 		for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
 			uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
-			if (ndxNormal > 0)
-				m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase, TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
+			if (ndxNormal > 0) lstSubPhraseTags.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
 		}
+		qSort(lstSubPhraseTags.begin(), lstSubPhraseTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+
+		m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase, lstSubPhraseTags);
 	}
 
-	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	// Note: Results of the intersectingInsert are already sorted
 
 	return m_cache_lstPhraseTagResults;
 }

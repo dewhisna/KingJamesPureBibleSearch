@@ -1187,10 +1187,10 @@ bool TTagBoundsPair::completelyContains(const TTagBoundsPair &tbpSrc) const
 
 bool TTagBoundsPair::intersects(const TTagBoundsPair &tbpSrc) const
 {
-	return (((tbpSrc.lo() >= lo()) && (tbpSrc.lo() <= hi())) ||
-			((tbpSrc.hi() >= lo()) && (tbpSrc.hi() <= hi())) ||
-			((lo() >= tbpSrc.lo()) && (lo() <= tbpSrc.hi())) ||
-			((hi() >= tbpSrc.lo()) && (hi() <= tbpSrc.hi())));
+	return (((tbpSrc.lo() >= lo()) && (tbpSrc.lo() <= hi())) ||			// Front end of Src starts somewhere in This range
+			((tbpSrc.hi() >= lo()) && (tbpSrc.hi() <= hi())) ||			// Tail end of Src ends somewhere in This range
+			((lo() >= tbpSrc.lo()) && (lo() <= tbpSrc.hi())) ||			// Front end of This starts somewhere in Src range
+			((hi() >= tbpSrc.lo()) && (hi() <= tbpSrc.hi())));			// Tail end of This ends somewhere in Src range
 }
 
 bool TTagBoundsPair::intersectingInsert(const TTagBoundsPair &tbpSrc)
@@ -1347,7 +1347,87 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 
 void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList)
 {
+	assert(pBibleDatabase != NULL);
+	if (aTagList.isEmpty()) return;
 
+	const_iterator itrNewTags = aTagList.constBegin();
+
+	for (iterator itrOrgTags = begin(); itrOrgTags != end(); /* iterator inside loop */) {
+		// Find next new tag that's set:
+		while ((itrNewTags != aTagList.constEnd()) && (!itrNewTags->isSet())) {
+			++itrNewTags;
+		}
+		if (itrNewTags == aTagList.constEnd()) break;				// When we've exhausted our input, we are done
+
+		// Find first org tag that's set:
+		if (!itrOrgTags->isSet()) {
+			++itrOrgTags;
+			continue;
+		}
+
+		TTagBoundsPair tbpOrg = itrOrgTags->bounds(pBibleDatabase);
+		TTagBoundsPair tbpNew = itrNewTags->bounds(pBibleDatabase);
+
+		// If this Org set is completely less than the next new tag, we
+		//		have no intersection, continue on and find the first that
+		//		does intersect or the end of the list:
+		if (tbpOrg.hi() < tbpNew.lo()) {
+			++itrOrgTags;
+			continue;
+		}
+
+		// While the new tag is completely lower than the current tag within this
+		//		Org set, then they don't intersect and should just be inserted:
+		while ((itrNewTags != aTagList.constEnd()) && (tbpNew.hi() < tbpOrg.lo())) {
+			itrOrgTags = insert(itrOrgTags, *itrNewTags);
+			++itrOrgTags;				// Returned iterator points to newly inserted item.  Go back to what is now the original location
+			++itrNewTags;
+			if (itrNewTags != aTagList.constEnd()) tbpNew = itrNewTags->bounds(pBibleDatabase);
+		}
+		if (itrNewTags == aTagList.constEnd()) break;			// If we've exhausted our input, we are done
+
+		// Recheck if our Org set is completely less than the next new tag, if
+		//		so, they just passed each other above and we just have regular insertions,
+		//		and not an intersection, to do next:
+		if (tbpOrg.hi() < tbpNew.lo()) {
+			++itrOrgTags;
+			continue;
+		}
+
+		// At this point, we should have an intersection because if our original tags
+		//		were completely less than our new ones, they didn't intersect and
+		//		we've already continued above.  If the new tags were completely below
+		//		the original tags, we've inserted them.
+		//		So handle the intersection:
+		bool bAtLeastOneIntersection = false;
+		while ((itrNewTags != aTagList.constEnd()) && (tbpOrg.intersectingInsert(tbpNew))) {
+			bAtLeastOneIntersection = true;
+			++itrNewTags;
+			if (itrNewTags != aTagList.constEnd()) tbpNew = itrNewTags->bounds(pBibleDatabase);
+		}
+		assert(bAtLeastOneIntersection);
+		// See if any remaining indexes spilled over into the new intersection and
+		//		if so, combine them:
+		iterator itrOrgNextTag = itrOrgTags + 1;
+		while ((itrOrgNextTag != end()) && (tbpOrg.intersectingInsert(itrOrgNextTag->bounds(pBibleDatabase)))) {
+			++itrOrgNextTag;
+		}
+		*itrOrgTags = TPhraseTag(pBibleDatabase, tbpOrg);		// Write-back the newly updated value
+		int nPosSave = std::distance(begin(), itrOrgTags);		// Save our position for when we nuke the iterator (One last than first position to nuke)
+		int nPosLast = std::distance(begin(), itrOrgNextTag-1);	// Last position to nuke
+		while (nPosLast > nPosSave) {
+			removeAt(nPosLast);
+			--nPosLast;
+		}
+		itrOrgTags = begin() + nPosSave;						// Restore our iterator
+		// Continue without incrementing itrOrgTags, as the newly combined tag could intersect the next incoming tag
+	}
+	// If we exhausting our original tags, but still have new incoming tags we haven't
+	//		exhausted, append them on the end:
+	while (itrNewTags != aTagList.constEnd()) {
+		append(*itrNewTags);
+		++itrNewTags;
+	}
 }
 
 bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
