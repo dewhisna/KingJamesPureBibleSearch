@@ -383,6 +383,15 @@ void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 	if (pOldModel) delete pOldModel;
 	ui.treeViewSearchWithin->expandAll();
 	ui.treeViewSearchWithin->resizeColumnToContents(0);
+	ui.treeViewSearchWithin->collapseAll();
+
+	for (int nRow = 0; nRow < m_pSearchWithinModel->rowCount(); ++nRow) {
+		QModelIndex index = m_pSearchWithinModel->index(nRow);
+		ui.treeViewSearchWithin->expand(index);
+		for (int nRow2 = 0; nRow2 < m_pSearchWithinModel->rowCount(index); ++nRow2) {
+			ui.treeViewSearchWithin->expand(m_pSearchWithinModel->index(nRow2, 0, index));
+		}
+	}
 
 	connect(m_pSearchWithinModel, SIGNAL(changedSearchWithin()), this, SLOT(en_changedSearchWithin()));
 

@@ -32,6 +32,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QList>
 #include <QMap>
 
@@ -284,6 +285,8 @@ public:
 		return reinterpret_cast<const CSearchWithinModelIndex *>(ndx.internalPointer());
 	}
 	static void *fromSearchWithinModelIndex(const CSearchWithinModelIndex *pIndex) { return reinterpret_cast<void *>(const_cast<CSearchWithinModelIndex *>(pIndex)); }
+
+	QModelIndexList getPersistentIndexList() const { return persistentIndexList(); }
 
 signals:
 	void changedSearchWithin();
