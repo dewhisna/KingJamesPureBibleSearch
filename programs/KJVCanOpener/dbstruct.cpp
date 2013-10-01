@@ -1422,7 +1422,7 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 		itrOrgTags = begin() + nPosSave;						// Restore our iterator
 		// Continue without incrementing itrOrgTags, as the newly combined tag could intersect the next incoming tag
 	}
-	// If we exhausting our original tags, but still have new incoming tags we haven't
+	// If we exhausted our original tags, but still have new incoming tags we haven't
 	//		exhausted, append them on the end:
 	while (itrNewTags != aTagList.constEnd()) {
 		append(*itrNewTags);
