@@ -359,7 +359,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 {
 	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase);
 	m_lstKJVCanOpeners.append(pCanOpener);
-	connect(pCanOpener, SIGNAL(destroyed(QObject*)), this, SLOT(removeKJVCanOpener(QObject*)));
+	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
 
@@ -388,10 +388,9 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	return pCanOpener;
 }
 
-void CMyApplication::removeKJVCanOpener(QObject *pKJVCanOpener)
+void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 {
-	CKJVCanOpener *pCanOpener = static_cast<CKJVCanOpener*>(pKJVCanOpener);
-	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pCanOpener);
+	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pKJVCanOpener);
 	assert(ndxCanOpener != -1);
 	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);

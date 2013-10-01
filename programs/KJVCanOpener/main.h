@@ -144,7 +144,7 @@ public:
 #endif
 
 private slots:
-	void removeKJVCanOpener(QObject *pKJVCanOpener);
+	void removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener);
 	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
 	void en_triggeredKJVCanOpener(QAction *pAction);
 

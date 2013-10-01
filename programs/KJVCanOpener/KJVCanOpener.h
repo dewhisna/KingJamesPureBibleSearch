@@ -131,6 +131,7 @@ signals:
 	void canShowDetails(bool bHaveDetails);
 	void windowActivated(CKJVCanOpener *pCanOpener);
 	void canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
+	void isClosing(CKJVCanOpener *pCanOpener);
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);

@@ -1168,6 +1168,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		savePersistentSettings();
 	}
 
+	emit isClosing(this);
 //	QMainWindow::closeEvent(event);
 	deleteLater();
 }
