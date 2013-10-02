@@ -949,6 +949,7 @@ public:
 	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
 	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
 	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+	int findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
 };
 
 typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases

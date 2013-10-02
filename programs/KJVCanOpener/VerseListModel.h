@@ -193,35 +193,54 @@ public:
 			}
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
-				QString strSearchWithinDescription = searchCriteria.searchWithinDescription(m_pBibleDatabase);
-				QString strSearchScopeDescription = searchCriteria.searchScopeDescription();
 				const CParsedPhrase *pPhrase = phrases.at(ndxPhrase);
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
-				if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
-										.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
-										.arg(pPhrase->GetPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase()) + "\n";
-				}
-				if ((!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
-					(!strSearchWithinDescription.isEmpty()) &&
-					(pPhrase->GetWithinPhraseTagSearchResults().contains(phraseTags().at(ndx)))) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4")
-										.arg(pPhrase->GetWithinPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
-										.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase())
-										.arg(strSearchWithinDescription) + "\n";
-				}
-				if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope");
-				if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
-					(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE) &&
-					(!strSearchScopeDescription.isEmpty())) {
-					strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4")
-										.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
-										.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
-										.arg(pPhrase->phrase())
-										.arg(strSearchScopeDescription) + "\n";
+				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
+					QString strSearchWithinDescription = searchCriteria.searchWithinDescription(m_pBibleDatabase);
+					QString strSearchScopeDescription = searchCriteria.searchScopeDescription();
+					if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
+											.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+											.arg(pPhrase->GetPhraseTagSearchResults().size())
+											.arg(pPhrase->phrase()) + "\n";
+					}
+					if ((!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
+						(!strSearchWithinDescription.isEmpty()) &&
+						(pPhrase->GetWithinPhraseTagSearchResults().contains(phraseTags().at(ndx)))) {
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4")
+											.arg(pPhrase->GetWithinPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+											.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
+											.arg(pPhrase->phrase())
+											.arg(strSearchWithinDescription) + "\n";
+					}
+					if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope");
+					if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
+						(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE) &&
+						(!strSearchScopeDescription.isEmpty())) {
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4")
+											.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
+											.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
+											.arg(pPhrase->phrase())
+											.arg(strSearchScopeDescription) + "\n";
+					}
+				} else {
+					int nResultsIndex = pPhrase->GetPhraseTagSearchResults().findIntersectingIndex(m_pBibleDatabase, phraseTags().at(ndx));
+					if (nResultsIndex != -1) {
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
+											.arg(nResultsIndex + 1)
+											.arg(pPhrase->GetPhraseTagSearchResults().size())
+											.arg(pPhrase->phrase()) + "\n";
+					}
+					if (!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+						int nResultsWithinIndex = pPhrase->GetWithinPhraseTagSearchResults().findIntersectingIndex(m_pBibleDatabase, phraseTags().at(ndx));
+						if (nResultsWithinIndex != -1) {
+							strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Selected Search Text")
+												.arg(nResultsWithinIndex + 1)
+												.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
+												.arg(pPhrase->phrase()) + "\n";
+						}
+					}
 				}
 			}
 		}
@@ -332,6 +351,11 @@ public:
 		if (pBibleDatabase == NULL) return QString();
 		if (!ndx.isSet()) return QString();
 		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
+	}
+
+	void sortPhraseTags()
+	{
+		qSort(m_lstTags.begin(), m_lstTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	}
 
 private:

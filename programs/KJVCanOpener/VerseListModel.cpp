@@ -710,12 +710,19 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				QPair<int, int> nBookResult = zSearchResults.GetBookIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
 				QString strSearchScopeDescription = zSearchResults.m_SearchCriteria.searchScopeDescription();
-				if (!strSearchScopeDescription.isEmpty()) {
+				if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
+					if (!strSearchScopeDescription.isEmpty()) {
+						QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+						if (!strSearchWithinDescription.isEmpty()) {
+							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
+						} else {
+							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
+						}
+					}
+				} else {
 					QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 					if (!strSearchWithinDescription.isEmpty()) {
-						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
-					} else {
-						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
+						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Selected Search Text is: %1").arg(strSearchWithinDescription) + "\n";
 					}
 				}
 				strToolTip += itrVerse->getToolTip(zSearchResults.m_SearchCriteria, zSearchResults.m_lstParsedPhrases);
@@ -1964,12 +1971,14 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	}
 
 	zResults.m_lstVerseIndexes.reserve(zResults.m_mapVerses.size());
-	for (CVerseMap::const_iterator itr = zResults.m_mapVerses.constBegin(); (itr != zResults.m_mapVerses.constEnd()); ++itr) {
+	for (CVerseMap::iterator itr = zResults.m_mapVerses.begin(); (itr != zResults.m_mapVerses.end()); ++itr) {
+		itr->sortPhraseTags();
 		zResults.m_lstVerseIndexes.append(itr.key());
 	}
 
 	zExcludedResults.m_lstVerseIndexes.reserve(zExcludedResults.m_mapVerses.size());
-	for (CVerseMap::const_iterator itr = zExcludedResults.m_mapVerses.constBegin(); (itr != zExcludedResults.m_mapVerses.constEnd()); ++itr) {
+	for (CVerseMap::iterator itr = zExcludedResults.m_mapVerses.begin(); (itr != zExcludedResults.m_mapVerses.end()); ++itr) {
+		itr->sortPhraseTags();
 		zExcludedResults.m_lstVerseIndexes.append(itr.key());
 	}
 

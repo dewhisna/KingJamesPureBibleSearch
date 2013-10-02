@@ -1493,6 +1493,20 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 	return bRemovedIntersection;
 }
 
+int TPhraseTagList::findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, int nStartIndex) const
+{
+	assert(pBibleDatabase != NULL);
+	if (nStartIndex < 0) return -1;
+	if (!aTag.isSet()) return -1;
+
+	TTagBoundsPair tbpTag = aTag.bounds(pBibleDatabase);
+	for (int ndx = nStartIndex; ndx < size(); ++ndx) {
+		if (at(ndx).bounds(pBibleDatabase).intersects(tbpTag)) return ndx;
+	}
+
+	return -1;
+}
+
 // ============================================================================
 
 void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase)
