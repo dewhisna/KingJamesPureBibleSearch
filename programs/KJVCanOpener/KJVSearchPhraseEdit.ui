@@ -323,6 +323,9 @@
        </item>
        <item row="1" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="spacing">
+          <number>6</number>
+         </property>
          <item>
           <widget class="QCheckBox" name="chkCaseSensitive">
            <property name="sizePolicy">
@@ -363,6 +366,12 @@
          </item>
          <item>
           <widget class="QCheckBox" name="chkExclude">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Exclude Occurrences of this Phrase</string>
            </property>

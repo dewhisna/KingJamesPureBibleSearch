@@ -24,20 +24,12 @@
 ****************************************************************************</comment>
  <class>CKJVSearchSpec</class>
  <widget class="QWidget" name="CKJVSearchSpec">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>76</width>
-    <height>92</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>KJVSearchSpecForm</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>6</number>
+    <number>2</number>
    </property>
    <property name="margin">
     <number>0</number>
@@ -73,8 +65,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>53</width>
-        <height>70</height>
+        <width>61</width>
+        <height>76</height>
        </rect>
       </property>
       <property name="sizePolicy">
