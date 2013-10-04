@@ -1909,14 +1909,15 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 			lstHitExclusion[ndx] = false;
 			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria);
 			for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
+				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
+				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
+
 				// Check for exclusion, but don't advance and count exclusions as we'll need to do
 				//		that when we come back through the loop via our start index:
 				if (checkExclusion(lstItrExclNext, *lstItrEnd[ndx], true)) {
 					lstHitExclusion[ndx] = true;
 					break;
 				}
-				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
-				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 			}
 			// Here lstItrEnd will be one more than the number of matching, either the next index
 			//		off the end of the array, an exclusion, or the first non-matching entry.  So the scoped
