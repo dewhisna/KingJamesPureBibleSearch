@@ -918,6 +918,7 @@ public:
 	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
 	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
+	TPhraseTag mask(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;		// Creates a new tag that's the content of this tag masked by the specified aTag.
 	friend class TPhraseTagList;
 
 private:
@@ -935,6 +936,7 @@ inline QDataStream& operator>>(QDataStream &in, TPhraseTag &ndx) {
 Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
+const QString g_constrHighlighterPhraseTagListMimeType("application/vnd.dewtronics.kjvcanopener.highlighter.phrasetaglist");
 
 // ----------------------------------------------------------------------------
 

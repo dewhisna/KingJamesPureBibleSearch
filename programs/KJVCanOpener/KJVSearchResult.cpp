@@ -53,6 +53,12 @@
 #include <QTextDocumentFragment>
 #include <QToolTip>
 #include <ToolTipEdit.h>
+#include <QDrag>
+#include <QPainter>
+#include <QStyle>
+#include <QStyleOptionViewItemV4>
+#include <QList>
+#include <QPair>
 
 // ============================================================================
 
@@ -89,8 +95,10 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 	setMouseTracking(true);
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
-	setProperty("showDropIndicator", QVariant(false));
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
+	setDragEnabled(true);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	// setRootIsDecorated(false);		// Set below based on vlmodel() type
 	setExpandsOnDoubleClick(false);
@@ -108,6 +116,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
+	setDragDropMode((vlmodel()->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
 
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
@@ -450,6 +459,7 @@ void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM n
 						((nViewMode != CVerseListModel::VVME_SEARCH_RESULTS) && (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((nViewMode == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
+	setDragDropMode((nViewMode) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
 	vlmodel()->setViewMode(nViewMode);
 }
 
@@ -754,6 +764,90 @@ QStyleOptionViewItem CSearchResultsTreeView::viewOptions () const
 	optionV4.palette.setColor(QPalette::All, QPalette::HighlightedText, clrForeground);
 
 	return optionV4;
+}
+
+// ----------------------------------------------------------------------------
+
+void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
+{
+	QModelIndexList lstIndexes = selectedIndexes();
+	for (int ndx = lstIndexes.count() - 1 ; ndx >= 0; --ndx) {
+		if (!(model()->flags(lstIndexes.at(ndx)) & Qt::ItemIsDragEnabled))
+			lstIndexes.removeAt(ndx);
+	}
+
+	if (lstIndexes.count() > 0) {
+		QMimeData *pMimeData = model()->mimeData(lstIndexes);
+		if (!pMimeData) return;
+		QRect rc;
+		QPixmap pixmap = renderToPixmap(lstIndexes, &rc);
+		rc.adjust(horizontalOffset(), verticalOffset(), 0, 0);
+		QDrag *pDrag = new QDrag(this);
+		pDrag->setPixmap(pixmap);
+		pDrag->setMimeData(pMimeData);
+//		pDrag->setHotSpot(d->pressedPosition - rc.topLeft());
+		QRect rcCurrentVisual = visualRect(currentIndex());
+		pDrag->setHotSpot(QPoint(rcCurrentVisual.left(), rcCurrentVisual.top() + rcCurrentVisual.height()/2) - rc.topLeft());
+		Qt::DropAction aDefaultDropAction = Qt::IgnoreAction;
+//		if (d->defaultDropAction != Qt::IgnoreAction && (supportedActions & d->defaultDropAction))
+		if ((defaultDropAction() != Qt::IgnoreAction) && (model()->supportedDropActions() & defaultDropAction()))
+			aDefaultDropAction = defaultDropAction();
+//		else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
+		else if ((model()->supportedDropActions() & Qt::CopyAction) && (dragDropMode() != QAbstractItemView::InternalMove))
+			aDefaultDropAction = Qt::CopyAction;
+		if (pDrag->exec(supportedActions, aDefaultDropAction) == Qt::MoveAction) {
+//			d->clearOrRemove();
+		}
+	}
+}
+
+CSearchResultsTreeView::CItemViewPaintPairs CSearchResultsTreeView::draggablePaintPairs(const QModelIndexList &lstIndexes, QRect *pRC) const
+{
+	assert(pRC != NULL);
+	QRect &rc = *pRC;
+	const QRect viewportRC = viewport()->rect();
+	CItemViewPaintPairs lstRet;
+	for (int i = 0; i < lstIndexes.count(); ++i) {
+		const QModelIndex &index = lstIndexes.at(i);
+		const QRect currentRC = visualRect(index);
+		if (currentRC.intersects(viewportRC)) {
+			lstRet += qMakePair(currentRC, index);
+			rc |= currentRC;
+		}
+	}
+	rc &= viewportRC;
+	return lstRet;
+}
+
+QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes, QRect *pRC) const
+{
+	assert(pRC != NULL);
+
+	CItemViewPaintPairs lstPaintPairs = draggablePaintPairs(lstIndexes, pRC);
+	if (lstPaintPairs.isEmpty()) return QPixmap();
+	QPixmap pixmap(pRC->size());
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setOpacity(0.5);
+
+	QStyleOptionViewItemV4 option = viewOptions();
+//    if (wrapItemText)
+//        option.features = QStyleOptionViewItemV2::WrapText;
+	option.locale = locale();
+	option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
+	option.widget = this;
+	option.state |= QStyle::State_Selected;
+	for (int j = 0; j < lstPaintPairs.count(); ++j) {
+		option.rect = lstPaintPairs.at(j).first.translated(-pRC->topLeft());
+		const QModelIndex &current = lstPaintPairs.at(j).second;
+//		adjustViewOptionsForIndex(&option, current);
+//		delegateForIndex(current)->paint(&painter, option, current);
+		itemDelegate(current)->paint(&painter, option, current);
+	}
+
+	painter.end();
+
+	return pixmap;
 }
 
 // ============================================================================

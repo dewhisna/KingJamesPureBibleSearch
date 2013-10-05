@@ -1267,6 +1267,22 @@ bool TPhraseTag::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhr
 	return false;
 }
 
+TPhraseTag TPhraseTag::mask(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+{
+	if (!isSet() || !aTag.isSet()) return TPhraseTag();
+
+	TTagBoundsPair tbpRef = bounds(pBibleDatabase);
+	TTagBoundsPair tbpTag = aTag.bounds(pBibleDatabase);
+
+	if (!tbpRef.intersects(tbpTag)) return TPhraseTag();
+
+	uint32_t ndxNormal = qMax(tbpRef.lo(), tbpTag.lo());
+	unsigned int nCount = qMin(tbpRef.hi(), tbpTag.hi()) - ndxNormal + 1;
+	if ((nCount == 1) && !tbpRef.hadCount() && !tbpTag.hadCount()) nCount = 0;
+
+	return TPhraseTag(pBibleDatabase->DenormalizeIndex(ndxNormal), nCount);
+}
+
 // ============================================================================
 
 TPhraseTagList::TPhraseTagList()

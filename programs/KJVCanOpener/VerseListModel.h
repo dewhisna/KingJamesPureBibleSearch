@@ -32,7 +32,9 @@
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QPersistentModelIndex>
+#include <QMimeData>
 #include <QList>
 #include <QMap>
 #include <QStringList>
@@ -43,6 +45,7 @@
 #include <QFont>
 #include <QSet>
 #include <QSharedPointer>
+#include <QMimeData>
 
 #include <assert.h>
 
@@ -616,6 +619,9 @@ public:
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 	virtual Qt::DropActions supportedDropActions() const;
+	virtual QStringList mimeTypes() const;
+	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &zParent);
 
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)

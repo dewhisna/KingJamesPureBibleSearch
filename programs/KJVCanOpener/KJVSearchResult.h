@@ -31,6 +31,7 @@
 
 #include <QWidget>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QMenu>
 #include <QAction>
 #include <QFocusEvent>
@@ -41,6 +42,8 @@
 #include <QTreeView>
 #include <QColor>
 #include <QStyleOptionViewItem>
+#include <QPixmap>
+#include <QRect>
 
 #include <assert.h>
 
@@ -133,6 +136,13 @@ protected:
 	virtual void resizeEvent(QResizeEvent *event);
 
 	virtual QStyleOptionViewItem viewOptions() const;
+
+	typedef QPair<QRect, QModelIndex> CItemViewPaintPair;
+	typedef QList<CItemViewPaintPair> CItemViewPaintPairs;
+
+	virtual void startDrag(Qt::DropActions supportedActions);
+	CItemViewPaintPairs draggablePaintPairs(const QModelIndexList &lstIndexes, QRect *pRC) const;
+	QPixmap renderToPixmap(const QModelIndexList &lstIndexes, QRect *pRC) const;
 
 // Private Data:
 private:

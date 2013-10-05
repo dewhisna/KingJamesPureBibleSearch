@@ -27,7 +27,8 @@
 #include "SearchCompleter.h"
 
 #include <QVector>
-#include <QModelIndexList>
+#include <QByteArray>
+#include <QDataStream>
 #include <iterator>
 #include <list>
 #include <QTextDocument>
@@ -868,15 +869,19 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	if (m_private.m_nViewMode != VVME_CROSSREFS) {
 		if ((ndxRel.isSet()) &&
 			((ndxRel.verse() != 0) ||
-			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel)))))
-			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))))) {
+			if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+		}
 	} else {
 		if ((pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE) ||
 			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE))
-			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */ | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 	}
 
-	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	if ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) &&
+		(pVerseIndex->nodeType() == VLMNTE_HIGHLIGHTER_NODE)) return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+	return Qt::ItemIsEnabled;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 bool CVerseListModel::insertRows(int row, int count, const QModelIndex &zParent)
@@ -977,10 +982,122 @@ void CVerseListModel::sort(int /* column */, Qt::SortOrder order)
 */
 }
 
+// ----------------------------------------------------------------------------
+
 Qt::DropActions CVerseListModel::supportedDropActions() const
 {
-	return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+		return Qt::MoveAction;
+	} else {
+		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+	}
 }
+
+QStringList CVerseListModel::mimeTypes() const
+{
+	QStringList lstTypes;
+	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+		lstTypes << g_constrHighlighterPhraseTagListMimeType;
+	}
+
+	return lstTypes;
+}
+
+QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
+{
+	if (indexes.isEmpty()) return NULL;
+	if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return NULL;
+
+	QMimeData *pMimeData = new QMimeData();
+	QByteArray baEncodedData;
+
+	QDataStream aStream(&baEncodedData, QIODevice::WriteOnly);
+
+	// Format is:  HighlighterName, VerseReference, Count, (TagRef, TagCount)[n]...
+	//	That way, we can move passages from any highlighter to any
+	//		other target highlighter without them getting mixed up,
+	//		and the highlighters will have already been masked by
+	//		the verse-span:
+
+	for (int ndx = 0; ndx < indexes.size(); ++ndx) {
+		if (indexes.at(ndx).isValid()) {
+			TVerseIndex *pVerseIndex = toVerseIndex(indexes.at(ndx));
+			assert(pVerseIndex != NULL);
+			if (pVerseIndex == NULL) continue;
+			assert(pVerseIndex->resultsType() == VLMRTE_HIGHLIGHTERS);
+			if (pVerseIndex->resultsType() != VLMRTE_HIGHLIGHTERS) continue;
+			assert(pVerseIndex->nodeType() == VLMNTE_UNDEFINED);
+			if (pVerseIndex->nodeType() != VLMNTE_UNDEFINED) continue;
+
+			const CVerseListModel::TVerseListModelResults &zResults = results(indexes.at(ndx));
+			aStream << zResults.resultsName();					// Highlighter name
+			aStream << pVerseIndex->relIndex().asAnchor();		// Verse location
+			assert(pVerseIndex->relIndex().word() == 0);
+		}
+	}
+
+	pMimeData->setData(g_constrHighlighterPhraseTagListMimeType, baEncodedData);
+	return pMimeData;
+}
+
+bool CVerseListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &zParent)
+{
+	if (action == Qt::IgnoreAction) return true;
+	if (action != Qt::MoveAction) return false;
+
+	assert(data != NULL);
+	if (data == NULL) return false;
+	if (!data->hasFormat(g_constrHighlighterPhraseTagListMimeType)) return false;
+
+	assert(zParent.isValid());
+	if (!zParent.isValid()) return false;
+
+	TVerseIndex *pVerseIndex = toVerseIndex(zParent);
+	assert(pVerseIndex != NULL);
+	if (pVerseIndex == NULL) return false;
+	assert(pVerseIndex->nodeType() == VLMNTE_HIGHLIGHTER_NODE);
+	const CVerseListModel::TVerseListModelResults &zResults = results(zParent);
+	assert(m_private.m_pUserNotesDatabase->existsHighlighter(zResults.resultsName()));
+	if (!m_private.m_pUserNotesDatabase->existsHighlighter(zResults.resultsName())) return false;
+	assert(zResults.resultsType() == VLMRTE_HIGHLIGHTERS);
+	if (zResults.resultsType() != VLMRTE_HIGHLIGHTERS) return false;
+
+	QByteArray baEncodedData = data->data(g_constrHighlighterPhraseTagListMimeType);
+	QDataStream stream(&baEncodedData, QIODevice::ReadOnly);
+	QList< QPair<QString, TPhraseTag> > lstHighlighterTagPairs;
+
+	while (!stream.atEnd()) {
+		QString strHighlighter;
+		QString strTagAnchor;
+		stream >> strHighlighter;
+		stream >> strTagAnchor;
+		CRelIndex ndxTagAnchor(strTagAnchor);
+		assert(ndxTagAnchor.isSet());
+		if (!ndxTagAnchor.isSet()) continue;
+		const CVerseEntry *pVerse = m_private.m_pBibleDatabase->verseEntry(ndxTagAnchor);
+		assert(pVerse != NULL);
+		if (pVerse == NULL) continue;
+		lstHighlighterTagPairs << QPair<QString, TPhraseTag>(strHighlighter, TPhraseTag(ndxTagAnchor, pVerse->m_nNumWrd));
+		if (!m_private.m_pUserNotesDatabase->existsHighlighter(strHighlighter)) return false;
+		const TPhraseTagList *plstHighlighterTags = m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, strHighlighter);
+		assert(plstHighlighterTags != NULL);
+		if (plstHighlighterTags == NULL) return false;
+	}
+
+
+	// TODO : The Highlighter "Search Result" has already been masked for their verses, here we just
+	//			need to do an intersecting insert into the new highlighter and removeIntersection from
+	//			the old...
+	//
+	// Consider adding:
+	// When we have two adjacent verses, Create tag of last word of one verse and first word of second verse and if both intersect then apply it as an intersectingInsert() to connect them
+
+	// Save view expand list to restore it.
+
+	return false;
+}
+
+// ----------------------------------------------------------------------------
 
 QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 {
@@ -1160,20 +1277,23 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 			assert(nWordCount != 0);			// Shouldn't have any highlighter tags with empty ranges
 			nWordCount += ((ndxNextRelative.word() != 0) ? (ndxNextRelative.word() - 1) : 0);					// Calculate back to start of verse to figure out how many verses this tag encompasses
 			ndxNextRelative.setWord(0);
+			uint32_t ndxNormalNext = m_private.m_pBibleDatabase->NormalizeIndex(ndxNextRelative);
 			while (nWordCount > 0) {
-				if (zResults.m_mapVerses.contains(ndxNextRelative)) {
-					zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itrTags);
-				} else {
-					zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itrTags));
-				}
+				// Mask the highlighter tags for this verse and just insert the tags corresponding to this verse:
 				unsigned int nNumWordsInVerse = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative)->m_nNumWrd;
+				TPhraseTag tagMasked = itrTags->mask(m_private.m_pBibleDatabase, TPhraseTag(ndxNextRelative, nNumWordsInVerse));
+				if (zResults.m_mapVerses.contains(ndxNextRelative)) {
+					zResults.m_mapVerses[ndxNextRelative].addPhraseTag(tagMasked);
+				} else {
+					zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, tagMasked));
+				}
 				if (nNumWordsInVerse >= nWordCount) {
 					nWordCount = 0;
 				} else {
 					nWordCount -= nNumWordsInVerse;
-					ndxNextRelative.setWord(1);
 					// Add number of words in verse to find start of next verse:
-					ndxNextRelative = CRelIndex(m_private.m_pBibleDatabase->DenormalizeIndex((m_private.m_pBibleDatabase->NormalizeIndex(ndxNextRelative) + nNumWordsInVerse)));
+					ndxNormalNext += nNumWordsInVerse;
+					ndxNextRelative = CRelIndex(m_private.m_pBibleDatabase->DenormalizeIndex(ndxNormalNext));
 					assert(ndxNextRelative.word() == 1);		// We better end up at the first word of the next verse, or something bad happened
 					ndxNextRelative.setWord(0);					// But, add as whole verse
 				}

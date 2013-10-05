@@ -727,16 +727,18 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(nListWidgetIndex));
 			if (pButtonItem->enabled()) {
 				int nResult = QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
-																				"use the Notes File Settings to edit your King James Notes file and remove all text highlighted with this "
-																				"highlighter and then you can remove it.  Or, open a new King James Notes file.\n\n"
+																			   "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
+																			   "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
+																			   "this highlighter.  Or, open a new King James Notes file.\n\n"
 																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??"),
 																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
 				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
 			} else {
 				QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
-																 "use the Notes File Settings to edit your King James Notes file and remove all text highlighted with this "
-																 "highlighter and then you can remove it.  Or, open a new King James Notes file.  The Highlighter is already "
-																 "disabled so no text highlighted with this Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
+																 "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
+																 "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
+																 "this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text "
+																 "highlighted with this Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
 			}
 			return;		// Note: the setEnabled() call above will take care of updating our demo text and marking us dirty, etc, and nothing should have changed size...
 		}
@@ -766,8 +768,9 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 		if (dlgRename.exec() != QDialog::Accepted) return;
 		if (g_pUserNotesDatabase->existsHighlighter(dlgRename.newName())) {
 			QMessageBox::warning(this, windowTitle(), tr("That highlighter name already exists and can't be used as a new name for this highlighter. "
-														 "To try again, click the rename button again. Or, to combine highlighter tags, use the Notes "
-														 "File Settings to edit your notes file."));
+														 "To try again, click the rename button again. Or, to combine highlighter tags, use the "
+														 "\"View Highlighters\" mode to display the highlighted passages, select the passages "
+														 "associated with the desired highlighters, and drag them to a different highlighter."));
 			return;
 		}
 
@@ -806,8 +809,9 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 		emit dataChanged();
 	} else {
 		QMessageBox::warning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
-													 "To rename it, use the Notes File Settings to edit your King James Notes file and move and/or "
-													 "remove all text highlighted with this highlighter and then you can rename it."));
+													 "To rename it, create a new highlighter with the desired name.  Then, use the \"View Highlighters\" "
+													 "mode to display the highlighted passages, select the passages associated with this highlighter, "
+													 "and drag them to the new highlighter.  And then you can return here and remove this highlighter."));
 	}
 }
 
