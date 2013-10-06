@@ -52,7 +52,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
 	if (!strSpecialVersion.isEmpty()) {
-		m_pAppSpecialVersion = scene->addText(strSpecialVersion, QFont("Times Neew Roman", 10));
+		m_pAppSpecialVersion = scene->addText(strSpecialVersion, QFont("Times New Roman", 10));
 		m_pAppSpecialVersion->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	} else {
 		m_pAppSpecialVersion = NULL;
