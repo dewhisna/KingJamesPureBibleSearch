@@ -49,6 +49,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QTimer>
+#include <QRegExp>
 
 // ============================================================================
 
@@ -945,6 +946,10 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 
 	ui.setupUi(this);
 
+	connect(ui.btnSetPrimaryUserNotesFilename, SIGNAL(clicked()), this, SLOT(en_clickedSetPrimaryUserNotesFilename()));
+	connect(ui.checkBoxKeepBackup, SIGNAL(clicked()), this, SLOT(en_changedKeepBackup()));
+	connect(ui.editBackupExtension, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedBackupExtension()));
+
 	loadSettings();
 }
 
@@ -957,13 +962,40 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 {
 	m_bLoadingData = true;
 
+	ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+	ui.editBackupExtension->setText(m_pUserNotesDatabase->backupFilenamePostfix().remove(QRegExp("^\\.*")));
+	ui.checkBoxKeepBackup->setChecked(m_pUserNotesDatabase->keepBackup());
+
 	m_bLoadingData = false;
 	m_bIsDirty = false;
 }
 
 void CKJVUserNotesDatabaseConfig::saveSettings()
 {
+	QString strExtension = ui.editBackupExtension->text().trimmed().remove(QRegExp("^\\.*")).trimmed();
+	strExtension = "." + strExtension;
+	m_pUserNotesDatabase->setKeepBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
+	m_pUserNotesDatabase->setBackupFilenamePostfix(strExtension);
+}
 
+void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
+{
+	if (m_bLoadingData) return;
+
+}
+
+void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
+{
+	if (m_bLoadingData) return;
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVUserNotesDatabaseConfig::en_changedBackupExtension()
+{
+	if (m_bLoadingData) return;
+	m_bIsDirty = true;
+	emit dataChanged();
 }
 
 // ============================================================================

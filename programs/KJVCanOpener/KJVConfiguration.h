@@ -206,6 +206,11 @@ public:
 signals:
 	void dataChanged();
 
+private slots:
+	void en_clickedSetPrimaryUserNotesFilename();
+	void en_changedKeepBackup();
+	void en_changedBackupExtension();
+
 // Data Private:
 private:
 	CUserNotesDatabasePtr m_pUserNotesDatabase;
