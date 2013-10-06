@@ -1534,18 +1534,18 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
-	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
+//	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
 	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
-	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
+//	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
 	setCurrentGroup(m_pGeneralSettingsConfig);
 
 	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+//	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 }
 
 CKJVConfiguration::~CKJVConfiguration()
@@ -1558,7 +1558,7 @@ void CKJVConfiguration::loadSettings()
 	m_pGeneralSettingsConfig->loadSettings();
 	m_pTextFormatConfig->loadSettings();
 	m_pUserNotesDatabaseConfig->loadSettings();
-	m_pBibleDatabaseConfig->loadSettings();
+//	m_pBibleDatabaseConfig->loadSettings();
 }
 
 void CKJVConfiguration::saveSettings()
@@ -1566,15 +1566,15 @@ void CKJVConfiguration::saveSettings()
 	m_pGeneralSettingsConfig->saveSettings();
 	m_pTextFormatConfig->saveSettings();
 	m_pUserNotesDatabaseConfig->saveSettings();
-	m_pBibleDatabaseConfig->saveSettings();
+//	m_pBibleDatabaseConfig->saveSettings();
 }
 
 bool CKJVConfiguration::isDirty() const
 {
 	return (m_pGeneralSettingsConfig->isDirty() ||
 			m_pTextFormatConfig->isDirty() ||
-			m_pUserNotesDatabaseConfig->isDirty() ||
-			m_pBibleDatabaseConfig->isDirty());
+			m_pUserNotesDatabaseConfig->isDirty());		// ||
+//			m_pBibleDatabaseConfig->isDirty());
 }
 
 // ============================================================================
