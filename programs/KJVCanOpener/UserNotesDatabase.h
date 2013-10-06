@@ -263,6 +263,7 @@ public:
 	void appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
 	void appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
 	void removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
+	void removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
 	void removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName = QString());
 	void removeAllHighlighterTags();
 

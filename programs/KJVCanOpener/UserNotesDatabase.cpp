@@ -917,6 +917,29 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	emit changedUserNotesDatabase();
 }
 
+void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+{
+	assert(pBibleDatabase != NULL);
+	const QString strUUID = pBibleDatabase->compatibilityUUID();
+
+	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
+	if (itrBibleDB == m_mapHighlighterTags.end()) return;
+	THighlighterTagMap::iterator itrTags = (itrBibleDB->second).find(strUserDefinedHighlighterName);
+	if (itrTags == (itrBibleDB->second).end()) return;
+	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
+	for (int ndx = 0; ndx < lstTags.size(); ++ndx) {
+		(itrTags->second).removeIntersection(pBibleDatabase, lstTags.at(ndx));
+		if ((itrTags->second).empty()) {
+			(itrBibleDB->second).erase(itrTags);
+			if ((itrBibleDB->second).empty()) m_mapHighlighterTags.erase(itrBibleDB);
+			break;
+		}
+	}
+	m_bIsDirty = true;
+	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
+	emit changedUserNotesDatabase();
+}
+
 void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
 	assert(pBibleDatabase != NULL);

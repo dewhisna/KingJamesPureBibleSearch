@@ -770,6 +770,8 @@ QStyleOptionViewItem CSearchResultsTreeView::viewOptions () const
 
 void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 {
+	if (viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) return;
+
 	QModelIndexList lstIndexes = selectedIndexes();
 	for (int ndx = lstIndexes.count() - 1 ; ndx >= 0; --ndx) {
 		if (!(model()->flags(lstIndexes.at(ndx)) & Qt::ItemIsDragEnabled))

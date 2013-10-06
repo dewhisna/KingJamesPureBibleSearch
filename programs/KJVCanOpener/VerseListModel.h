@@ -621,7 +621,7 @@ public:
 	virtual Qt::DropActions supportedDropActions() const;
 	virtual QStringList mimeTypes() const;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &zParent);
+	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);
 
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)
@@ -673,6 +673,14 @@ public:
 	{
 		if (bExcluded) return m_searchResultsExcluded;
 		return m_searchResults;
+	}
+
+	const TVerseListModelResults &highlighterResults(const QString &strHighlighterName) const
+	{
+		for (int ndx = 0; ndx < m_vlmrListHighlighters.size(); ++ndx) {
+			if (m_vlmrListHighlighters.at(ndx).resultsName().compare(strHighlighterName) == 0) return m_vlmrListHighlighters.at(ndx);
+		}
+		return m_undefinedResults;
 	}
 
 	inline const QFont &font() const { return m_private.m_font; }
