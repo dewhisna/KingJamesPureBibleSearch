@@ -90,6 +90,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QCheckBox" name="checkBoxKeepBackup">
+       <property name="toolTip">
+        <string>Enable to automatically create Notes Backup File</string>
+       </property>
+       <property name="statusTip">
+        <string>Enable to automatically create Notes Backup File</string>
+       </property>
        <property name="layoutDirection">
         <enum>Qt::RightToLeft</enum>
        </property>
@@ -134,6 +140,12 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Extension to add to Notes File Backups</string>
+       </property>
+       <property name="statusTip">
+        <string>Enter the Extension to add to Notes File Backups</string>
        </property>
       </widget>
      </item>

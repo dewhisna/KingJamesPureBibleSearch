@@ -355,15 +355,22 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
-			if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(pSearchResultsView->parentCanOpener()))) {
-//				QVariant tooltip = index.data(Qt::ToolTipRole);
-//				if (tooltip.canConvert<QString>()) {
-//	//					QToolTip::showText(event->globalPos(), tooltip.toString(), view);
-//					CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view, view->rect());
-//					return true;
-//				}
+			if ((pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+				(pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
+				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(pSearchResultsView->parentCanOpener()))) {
+//					QVariant tooltip = index.data(Qt::ToolTipRole);
+//					if (tooltip.canConvert<QString>()) {
+//	//						QToolTip::showText(event->globalPos(), tooltip.toString(), view);
+//						CToolTipEdit::showText(event->globalPos(), tooltip.toString(), view, view->rect());
+//						return true;
+//					}
 
-				QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
+					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
+					return true;
+				}
+			} else if (pSearchResultsView->viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
+				QToolTip::showText(event->globalPos(), tr("To Edit Highlighted Phrase Associations: Select verses to move,\n"
+														  "drag them to the desired highlighter, and drop them."), view);
 				return true;
 			}
 			break;
