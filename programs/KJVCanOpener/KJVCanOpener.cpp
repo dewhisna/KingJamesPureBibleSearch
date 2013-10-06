@@ -808,6 +808,7 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	QSettings &settings(CPersistentSettings::instance()->settings());
 	QString strFont;
+	bool bLaunchNotesSetupConfig = false;
 
 	// Main App and Toolbars RestoreState:
 	if (bIsFirstCanOpener) {
@@ -876,23 +877,23 @@ void CKJVCanOpener::restorePersistentSettings()
 				//		the time we exit.  But save a reference to it so we can get the user navigated back there:
 				g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
 				g_pUserNotesDatabase->setFilePathName(QString());
+				bLaunchNotesSetupConfig = true;
 			} else {
 				if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
 					show();
 					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
 												"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
 												"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
-												"manually save a copy of your file now BEFORE you exit King James Pure Bible Search.\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
-				} else if (g_pUserNotesDatabase->version() > KJS_FILE_VERSION) {
+												"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+				} else if (g_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
 					show();
 					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
 												"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
 												"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
 												"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
-												"risk losing any data from it, you must manually save a copy of your file now BEFORE you exit King James "
-																						"Pure Bible Search.\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+												"risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!"
+												"\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
 				}
-
 			}
 		}
 	}
@@ -1054,6 +1055,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		} else if (bFocusBrowser) {
 			QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
 		}
+
+		if (bLaunchNotesSetupConfig) QTimer::singleShot(10, this, SLOT(en_LaunchUserNoteConfig()));
 	} else {
 		// For secondary search windows, activate the search window:
 		if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();
@@ -1761,7 +1764,7 @@ void CKJVCanOpener::en_QuickActivate()
 	assert(bServiced);
 }
 
-void CKJVCanOpener::en_Configure()
+void CKJVCanOpener::en_Configure(int nInitialPage)
 {
 	assert(g_pMyApplication != NULL);
 
@@ -1771,12 +1774,17 @@ void CKJVCanOpener::en_Configure()
 		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->enterConfigurationMode();
 	}
 
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, g_pMainDictionaryDatabase, this);
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, g_pMainDictionaryDatabase, this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 	dlgConfigure.exec();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
 		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->leaveConfigurationMode();
 	}
+}
+
+void CKJVCanOpener::en_LaunchUserNoteConfig()
+{
+	en_Configure(CPSE_USER_NOTES_DATABASE);
 }
 
 void CKJVCanOpener::en_NewCanOpener()

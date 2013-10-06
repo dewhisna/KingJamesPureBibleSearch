@@ -185,7 +185,8 @@ protected slots:
 
 	void en_QuickActivate();
 
-	void en_Configure();
+	void en_Configure(int nInitialPage = -1);
+	void en_LaunchUserNoteConfig();
 
 	void en_NewCanOpener();
 

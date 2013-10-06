@@ -405,12 +405,20 @@ private:
 
 // ============================================================================
 
+enum CONFIGURATION_PAGE_SELECTION_ENUM {
+	CPSE_DEFAULT = -1,
+	CPSE_GENERAL_SETTINGS = 0,
+	CPSE_TEXT_FORMAT = 1,
+	CPSE_USER_NOTES_DATABASE = 2,
+	CPSE_BIBLE_DATABASE = 3
+};
+
 class CKJVConfiguration : public QwwConfigWidget
 {
 	Q_OBJECT
 
 public:
-	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL);
+	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
 	virtual ~CKJVConfiguration();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -434,7 +442,7 @@ class CKJVConfigurationDialog : public QDialog
 	Q_OBJECT
 
 public:
-	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL);
+	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
 	virtual ~CKJVConfigurationDialog();
 
 public slots:

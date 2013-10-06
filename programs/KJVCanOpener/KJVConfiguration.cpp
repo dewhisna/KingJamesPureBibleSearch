@@ -50,6 +50,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QRegExp>
+#include <QFileDialog>
 
 // ============================================================================
 
@@ -982,6 +983,118 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 {
 	if (m_bLoadingData) return;
 
+	int nResult;
+	bool bPromptFilename = false;
+	bool bDone = false;
+
+	if (m_pUserNotesDatabase->isDirty()) {
+		// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
+		if (m_pUserNotesDatabase->filePathName().isEmpty()) {
+			if (m_pUserNotesDatabase->errorFilePathName().isEmpty()) {
+				// If we don't have a filename at all, prompt for new setup:
+				nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
+																		 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost."),
+														(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+			} else {
+				// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
+				//		possible they don't want to attempt to overwrite the one that failed since we couldn't load it:
+				nResult = QMessageBox::warning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
+																	   "Do you wish to save the changes you've made?\n"
+																	   "Warning, if you save this file overtop of your original file, you will "
+																	   "lose all ability to recover the remaining data in your original file.  It's "
+																	   "recommended that you save it to a new file.\n\n"
+																	   "Click 'Yes' to enter a filename and save your new changes, or\n"
+																	   "Click 'No' to lose your changes and continue on to Select a Notes File to Load (recommended if you haven't really done any editing), or\n"
+																	   "Click 'Cancel' to return to King James Pure Bible Search..."),
+														(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+			}
+			// If the user cancelled, return:
+			if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
+				return;
+			}
+			// If they want to save, but don't have path yet, so we need to prompt them for a path:
+			if (nResult == QMessageBox::Yes) {
+				bPromptFilename = true;
+			}
+		}
+		// If the user has a file path already (or is wanting to create a new one), try to save it:
+		if ((!m_pUserNotesDatabase->filePathName().isEmpty()) || (bPromptFilename)) {
+			bDone = false;
+			do {
+				if (bPromptFilename) {
+					QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save King James Notes File"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), NULL, 0);
+					if (!strFilePathName.isEmpty()) {
+						m_pUserNotesDatabase->setFilePathName(strFilePathName);
+						ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+					} else {
+						// If the user aborted treating after the path after all:
+						return;
+					}
+				}
+
+				if (!m_pUserNotesDatabase->save()) {
+					nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError() +
+														tr("\n\nUnable to save the King James Notes File!\n\n"
+														   "Click 'Yes' to try again, or\n"
+														   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
+														   "Click 'Cancel' to return to King James Pure Bible Search..."),
+												   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+					// If the user cancelled, return back to the app:
+					if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
+						return;
+					}
+					// If they want to lose their changes, break out of loop:
+					if (nResult == QMessageBox::No) {
+						bDone = true;
+					}
+					// Set our error file path in case we are prompting the user in the loop:
+					m_pUserNotesDatabase->setErrorFilePathName(m_pUserNotesDatabase->filePathName());
+				} else {
+					// If the save was successful, break out of loop:
+					bDone = true;
+					if (bPromptFilename) return;			// If we prompted the user for the filename, we've already set it above and can exit, we're done...
+				}
+			} while (!bDone);
+		}
+		// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
+	}	//	(or we didn't have an updated file to save)...
+
+	bDone = false;
+	while (!bDone) {
+		QString strNewFilePathName = m_pUserNotesDatabase->errorFilePathName();
+		if (strNewFilePathName.isEmpty()) strNewFilePathName = m_pUserNotesDatabase->filePathName();
+		strNewFilePathName = QFileDialog::getOpenFileName(this, tr("Load King James Notes File"), strNewFilePathName, tr("King James Notes File (*.kjn)"), NULL, 0);
+		if (strNewFilePathName.isEmpty()) return;		// Empty if user cancels
+
+		m_pUserNotesDatabase->setFilePathName(strNewFilePathName);
+		ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+
+		if (!m_pUserNotesDatabase->load()) {
+			QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError());
+			// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
+			//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
+			//		the time we exit.  But save a reference to it so we can get the user navigated back there:
+			m_pUserNotesDatabase->setErrorFilePathName(m_pUserNotesDatabase->filePathName());
+			m_pUserNotesDatabase->setFilePathName(QString());
+			ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+			continue;
+		} else {
+			if (m_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
+				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
+											"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
+											"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
+											"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"").arg(m_pUserNotesDatabase->filePathName()));
+			} else if (m_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
+				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
+											"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
+											"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
+											"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
+											"risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!"
+											"\n\nFilename: \"%1\"").arg(m_pUserNotesDatabase->filePathName()));
+			}
+			bDone = true;
+		}
+	}
 }
 
 void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
@@ -1520,7 +1633,7 @@ bool CKJVGeneralSettingsConfig::isDirty() const
 // ============================================================================
 // ============================================================================
 
-CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent)
+CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(NULL),
 		m_pTextFormatConfig(NULL),
@@ -1540,7 +1653,30 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
 //	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
-	setCurrentGroup(m_pGeneralSettingsConfig);
+
+	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
+
+	switch (nInitialPage) {
+		case CPSE_GENERAL_SETTINGS:
+			pSelect = m_pGeneralSettingsConfig;
+			break;
+		case CPSE_TEXT_FORMAT:
+			pSelect = m_pTextFormatConfig;
+			break;
+		case CPSE_USER_NOTES_DATABASE:
+			pSelect = m_pUserNotesDatabaseConfig;
+			break;
+		case CPSE_BIBLE_DATABASE:
+//			pSelect = m_pBibleDatabaseConfig;
+//			break;
+		case CPSE_DEFAULT:
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	setCurrentGroup(pSelect);
 
 	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
@@ -1579,7 +1715,7 @@ bool CKJVConfiguration::isDirty() const
 
 // ============================================================================
 
-CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent)
+CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
@@ -1601,7 +1737,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-	m_pConfiguration = new CKJVConfiguration(pBibleDatabase, pDictionary, this);
+	m_pConfiguration = new CKJVConfiguration(pBibleDatabase, pDictionary, this, nInitialPage);
 	m_pConfiguration->setObjectName(QString::fromUtf8("configurationWidget"));
 	pLayout->addWidget(m_pConfiguration);
 
