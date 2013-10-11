@@ -112,6 +112,16 @@ Linux LOCAL BUILD (x64 release):
 ../4.8.5-src/configure -platform linux-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.5-64-local
 
 
+Linux LSB Build:
+----------------
+
+LSB x32:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-32
+../4.8.5-src-patched/configure -platform linux-lsb-g++-32 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-32-lsb
+
+LSB x64:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-64
+../4.8.5-src-patched/configure -platform linux-lsb-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-64-lsb
+
+
 ----------------------------------------------------
 
 Mac Cocoa
@@ -436,6 +446,28 @@ On the static libraries, stitch them together with:
 
 lipo -create <path-to-32-bit-libwwwidgets4.a> <path-to-64-bit-libwwwidgets4.a> -output libwwwidgets4.a
 After building, use "make install" and replace the <qt-path>/lib/libwwwidgets4.a with the new one
+
+
+-------------------------------
+wwWidgets with Qt 4.8.5 LSB 64:
+-------------------------------
+From wwWidgets checkout on our SourceForge version, do from ~/Qt:
+
+Release:
+--------
+mkdir -p build-wwwidgets4-Qt_4_8_5_64_lsb/Release
+cd build-wwwidgets4-Qt_4_8_5_64_lsb/Release
+/usr/local/Trolltech/Qt-4.8.5-64-lsb/bin/qmake ../../wwWidgets/wwwidgets4.pro -r -spec linux-lsb-g++-64
+make -w
+sudo make install
+
+Debug:
+------
+mkdir -p build-wwwidgets4-Qt_4_8_5_64_lsb/Debug
+cd build-wwwidgets4-Qt_4_8_5_64_lsb/Debug
+/usr/local/Trolltech/Qt-4.8.5-64-lsb/bin/qmake ../../wwWidgets/wwwidgets4.pro -r -spec linux-lsb-g++-64 CONFIG+=debug CONFIG+=declarative_debug
+make -w
+sudo make install
 
 
 Qt 5.1.0

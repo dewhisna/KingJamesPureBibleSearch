@@ -3,7 +3,7 @@
 
 #****************************************************************************
 #**
-#** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+#** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
 #** Contact: http://www.dewtronics.com/
 #**
 #** This file is part of the KJVCanOpener Application as originally written
@@ -44,7 +44,7 @@ PACKAGE		= kjvpurebiblesearch
 BASE		= ..
 
 # Shadow Build to use (relative to base):
-SHADOW		= ../KJVCanOpener-build-Desktop_Qt_4_8_4_64_lsb/Release
+SHADOW		= ../KJVCanOpener-build-Desktop_Qt_4_8_5_64_lsb/Release
 
 # RPMROOT -- base folder of temporary RPM image during build (is deleted/recreated by this makefile!)
 RPMROOT		= _rpmroot
@@ -97,6 +97,7 @@ makeit: clean
 	cp $(BASE)/examples/*.kjs $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples/
 	cp $(BASE)/db/kjvtext.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/db/kjvuser.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+	cp $(BASE)/db/dct-web1828.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/gpl-3.0.txt $(RPMPKGROOT)/$(INST)/KJVCanOpener/license/
 	cp $(BASE)/fonts/SCRIPTBL.TTF $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
 	cp $(BASE)/fonts/DejaVuSansCondensed-Bold.ttf $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/
