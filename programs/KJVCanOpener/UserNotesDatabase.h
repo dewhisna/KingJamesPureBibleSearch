@@ -86,17 +86,11 @@ class CUserNoteEntry
 {
 protected:
 	friend class CUserNotesDatabase;
-	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nVerseCount = 0)
-		:	m_PassageTag(ndxRel, nVerseCount),
-			m_clrBackground("#F0F0A0"),			// Default note background
-			m_bIsVisible(true)
-	{ }
+	CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nVerseCount = 0);
 
 public:
-	CUserNoteEntry()
-		:	m_clrBackground("#F0F0A0"),			// Default note background
-			m_bIsVisible(true)
-	{ }
+	CUserNoteEntry();
+
 	CUserNoteEntry(const CUserNoteEntry &other)
 		:	m_strText(other.m_strText),
 			m_lstKeywords(other.m_lstKeywords),

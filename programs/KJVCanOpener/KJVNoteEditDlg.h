@@ -61,6 +61,7 @@ public slots:
 private slots:
 	void en_textChanged();
 	void en_BackgroundColorPicked(const QColor &color);
+	void en_setDefaultNoteBackgroundColor();
 	void en_ButtonClicked(QAbstractButton *button);
 	void en_keywordListChanged();
 	void en_clickedInsertReferenceLink();

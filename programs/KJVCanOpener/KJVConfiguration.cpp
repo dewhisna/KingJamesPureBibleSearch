@@ -54,6 +54,10 @@
 
 // ============================================================================
 
+static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
+
+// ============================================================================
+
 CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, const QString &strUserDefinedHighlighterName)
 	:	QObject(NULL),
 		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
@@ -947,9 +951,24 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 
 	ui.setupUi(this);
 
+	int ndx = ui.horizontalLayoutNoteBackgroundColor->indexOf(ui.buttonDefaultNoteBackgroundColor);
+	assert(ndx != -1);
+
+	delete ui.buttonDefaultNoteBackgroundColor;
+
+	ui.buttonDefaultNoteBackgroundColor = new QwwColorButton(this);
+	ui.buttonDefaultNoteBackgroundColor->setObjectName(QString::fromUtf8("buttonDefaultNoteBackgroundColor"));
+	toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->setShowName(false);		// Must do this before setting our real text
+	ui.buttonDefaultNoteBackgroundColor->setText(tr("Default Note Background &Color"));
+	ui.buttonDefaultNoteBackgroundColor->setToolTip(tr("Set the Default Background Color for New Notes"));
+	ui.buttonDefaultNoteBackgroundColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	ui.horizontalLayoutNoteBackgroundColor->insertWidget(ndx, ui.buttonDefaultNoteBackgroundColor);
+
 	connect(ui.btnSetPrimaryUserNotesFilename, SIGNAL(clicked()), this, SLOT(en_clickedSetPrimaryUserNotesFilename()));
 	connect(ui.checkBoxKeepBackup, SIGNAL(clicked()), this, SLOT(en_changedKeepBackup()));
 	connect(ui.editBackupExtension, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedBackupExtension()));
+
+	connect(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_DefaultNoteBackgroundColorPicked(const QColor &)));
 
 	loadSettings();
 }
@@ -966,6 +985,8 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 	ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
 	ui.editBackupExtension->setText(m_pUserNotesDatabase->backupFilenamePostfix().remove(QRegExp("^\\.*")));
 	ui.checkBoxKeepBackup->setChecked(m_pUserNotesDatabase->keepBackup());
+
+	toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->setCurrentColor(CPersistentSettings::instance()->colorDefaultNoteBackground());
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -1107,6 +1128,15 @@ void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
 void CKJVUserNotesDatabaseConfig::en_changedBackupExtension()
 {
 	if (m_bLoadingData) return;
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QColor &color)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setColorDefaultNoteBackground(color);
 	m_bIsDirty = true;
 	emit dataChanged();
 }

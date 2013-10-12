@@ -103,6 +103,7 @@ namespace {
 	const QString constrFilePathNameKey("FilePathName");
 	const QString constrKeepBackupKey("KeepBackup");
 	const QString constrBackupFilenamePostfixKey("BackupFilenamePostfix");
+	const QString constrDefaultNoteBackgroundColorKey("DefaultNoteBackgroundColor");
 
 	// Search Phrases:
 	const QString constrLastSearchGroup("LastSearch");
@@ -738,6 +739,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
 	settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
 	settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
+	settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
 	settings.endGroup();
 
 	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
@@ -870,6 +872,9 @@ void CKJVCanOpener::restorePersistentSettings()
 		g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
 		g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
 		g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
+		QColor clrTemp;
+		clrTemp.setNamedColor(settings.value(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name()).toString());
+		CPersistentSettings::instance()->setColorDefaultNoteBackground(clrTemp);
 		settings.endGroup();
 	}
 

@@ -25,7 +25,7 @@
  <class>CKJVUserNotesDatabaseConfig</class>
  <widget class="QWidget" name="CKJVUserNotesDatabaseConfig">
   <property name="windowTitle">
-   <string>Notes File Settings</string>
+   <string>Notes, Highlighters, and Cross-References File Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="bottomMargin">
@@ -61,10 +61,10 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Primary User Notes Filename (Read/Write)</string>
+        <string>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</string>
        </property>
        <property name="statusTip">
-        <string>Primary User Notes File Selected (Read/Write)</string>
+        <string>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</string>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -74,10 +74,10 @@
      <item>
       <widget class="QPushButton" name="btnSetPrimaryUserNotesFilename">
        <property name="toolTip">
-        <string>Click to Browse and Select Primary User Notes File</string>
+        <string>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</string>
        </property>
        <property name="statusTip">
-        <string>Click to Browse and Select Primary User Notes File</string>
+        <string>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</string>
        </property>
        <property name="text">
         <string>&amp;Set Primary Notes File...</string>
@@ -151,6 +151,30 @@
      </item>
      <item>
       <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutNoteBackgroundColor">
+     <item>
+      <widget class="QPushButton" name="buttonDefaultNoteBackgroundColor">
+       <property name="text">
+        <string>Default Note Background &amp;Color</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>

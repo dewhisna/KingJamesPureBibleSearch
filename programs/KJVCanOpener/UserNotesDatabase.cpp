@@ -24,6 +24,8 @@
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 
+#include "PersistentSettings.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -98,6 +100,21 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 }
 
 // ============================================================================
+
+CUserNoteEntry::CUserNoteEntry(const CRelIndex &ndxRel, unsigned int nVerseCount)
+	:	m_PassageTag(ndxRel, nVerseCount),
+		m_clrBackground(CPersistentSettings::instance()->colorDefaultNoteBackground()),
+		m_bIsVisible(true)
+{
+
+}
+
+CUserNoteEntry::CUserNoteEntry()
+	:	m_clrBackground(CPersistentSettings::instance()->colorDefaultNoteBackground()),
+		m_bIsVisible(true)
+{
+
+}
 
 QString CUserNoteEntry::htmlText() const
 {

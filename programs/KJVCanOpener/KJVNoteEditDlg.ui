@@ -36,85 +36,194 @@
    <string>King James Pure Bible Search User Note Editor</string>
   </property>
   <layout class="QGridLayout" name="gridLayoutMain">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayoutControls">
-     <item row="0" column="2">
-      <widget class="QPushButton" name="buttonBackgroundColor">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Note Back&amp;ground Color</string>
-       </property>
-      </widget>
-     </item>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="spacing">
+      <number>4</number>
+     </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="lblNoteLocation">
-       <property name="text">
-        <string>Note &amp;Location:</string>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>editNoteLocation</cstring>
-       </property>
-      </widget>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="lblNoteLocation">
+           <property name="text">
+            <string>Note &amp;Location:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>editNoteLocation</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editNoteLocation">
+           <property name="minimumSize">
+            <size>
+             <width>180</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="Base">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>212</red>
+                 <green>208</green>
+                 <blue>201</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="Base">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>212</red>
+                 <green>208</green>
+                 <blue>201</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="Base">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>212</red>
+                 <green>208</green>
+                 <blue>200</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="editNoteLocation">
-       <property name="minimumSize">
-        <size>
-         <width>180</width>
-         <height>20</height>
-        </size>
+      <layout class="QVBoxLayout" name="verticalLayoutBackgroundButtons">
+       <property name="spacing">
+        <number>2</number>
        </property>
-       <property name="palette">
-        <palette>
-         <active>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>212</red>
-             <green>208</green>
-             <blue>201</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </active>
-         <inactive>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>212</red>
-             <green>208</green>
-             <blue>201</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </inactive>
-         <disabled>
-          <colorrole role="Base">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>212</red>
-             <green>208</green>
-             <blue>200</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </disabled>
-        </palette>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
+       <item>
+        <widget class="QPushButton" name="buttonBackgroundColor">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Note Back&amp;ground Color</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonSetAsDefaultBackgroundColor">
+         <property name="toolTip">
+          <string>Set this as the Default Background Color for New Notes</string>
+         </property>
+         <property name="statusTip">
+          <string>Set this background color as the Default Background Color for New Notes</string>
+         </property>
+         <property name="text">
+          <string>Set as &amp;Default Background</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
-     <item row="0" column="5" rowspan="2">
+     <item row="0" column="2">
+      <widget class="CNoteKeywordWidget" name="widgetNoteKeywords" native="true"/>
+     </item>
+     <item row="0" column="3">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="buttonInsertLink">
+         <property name="toolTip">
+          <string>Insert Reference Link</string>
+         </property>
+         <property name="statusTip">
+          <string>Insert Scripture Reference Link</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="KJVCanOpener.qrc">
+           <normaloff>:/res/Actions-insert-link-icon-48.png</normaloff>:/res/Actions-insert-link-icon-48.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="4">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -127,36 +236,17 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="3" rowspan="2">
-      <widget class="CNoteKeywordWidget" name="widgetNoteKeywords" native="true"/>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="buttonInsertLink">
-       <property name="toolTip">
-        <string>Insert Reference Link</string>
-       </property>
-       <property name="statusTip">
-        <string>Insert Scripture Reference Link</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="KJVCanOpener.qrc">
-         <normaloff>:/res/Actions-insert-link-icon-48.png</normaloff>:/res/Actions-insert-link-icon-48.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QTextEdit" name="textEdit"/>
+    <widget class="QTextEdit" name="textEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>20</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -182,6 +272,9 @@
   <tabstop>textEdit</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>editNoteLocation</tabstop>
+  <tabstop>buttonBackgroundColor</tabstop>
+  <tabstop>buttonSetAsDefaultBackgroundColor</tabstop>
+  <tabstop>buttonInsertLink</tabstop>
  </tabstops>
  <resources>
   <include location="KJVCanOpener.qrc"/>

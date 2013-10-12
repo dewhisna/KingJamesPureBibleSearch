@@ -37,6 +37,8 @@
 #include <QPair>
 #include <QTextDocument>
 #include <QTextCursor>
+#include <QToolTip>
+#include <QPoint>
 
 // ============================================================================
 
@@ -95,6 +97,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pRichTextEdit->setMouseTracking(true);
 //	m_pRichTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 //	m_pRichTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_pRichTextEdit->setSizePolicy(ui.textEdit->sizePolicy());
 	m_pRichTextEdit->setTabChangesFocus(false);
 	m_pRichTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse|Qt::TextEditable);
 
@@ -106,14 +109,9 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	//	Swapout the buttonBackgroundColor from the layout with a QwwColorButton:
 
-//	ndx = ui.horizontalLayout->indexOf(ui.buttonBackgroundColor);
-//	assert(ndx != -1);
-//	if (ndx == -1) return;
-
-	ndx = ui.gridLayoutControls->indexOf(ui.buttonBackgroundColor);
+	ndx = ui.verticalLayoutBackgroundButtons->indexOf(ui.buttonBackgroundColor);
 	assert(ndx != -1);
 	if (ndx == -1) return;
-	ui.gridLayoutControls->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
 	m_pBackgroundColorButton = new QwwColorButton(this);
 	m_pBackgroundColorButton->setObjectName(QString::fromUtf8("buttonBackgroundColor"));
@@ -123,8 +121,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	delete ui.buttonBackgroundColor;
 	ui.buttonBackgroundColor = NULL;
-//	ui.horizontalLayout->insertWidget(ndx, m_pBackgroundColorButton);
-	ui.gridLayoutControls->addWidget(m_pBackgroundColorButton, nRow, nCol, nRowSpan, nColSpan);
+	ui.verticalLayoutBackgroundButtons->insertWidget(ndx, m_pBackgroundColorButton);
 
 	// --------------------------------------------------------------
 
@@ -132,7 +129,9 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	QWidget::setTabOrder(m_pRichTextEdit, ui.buttonBox);
 	QWidget::setTabOrder(ui.buttonBox, ui.editNoteLocation);
 	QWidget::setTabOrder(ui.editNoteLocation, m_pBackgroundColorButton);
-	QWidget::setTabOrder(m_pBackgroundColorButton, ui.widgetNoteKeywords);
+	QWidget::setTabOrder(m_pBackgroundColorButton, ui.buttonSetAsDefaultBackgroundColor);
+	QWidget::setTabOrder(ui.buttonSetAsDefaultBackgroundColor, ui.widgetNoteKeywords);
+	QWidget::setTabOrder(ui.widgetNoteKeywords, ui.buttonInsertLink);
 
 	// --------------------------------------------------------------
 
@@ -154,6 +153,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
 	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
+	connect(ui.buttonSetAsDefaultBackgroundColor, SIGNAL(clicked()), this, SLOT(en_setDefaultNoteBackgroundColor()));
 	connect(ui.widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
 	connect(ui.buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
 
@@ -280,6 +280,15 @@ void CKJVNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
 	m_bIsDirty = true;
 
 	m_bDoingUpdate = false;
+}
+
+void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
+{
+	CPersistentSettings::instance()->setColorDefaultNoteBackground(m_UserNote.backgroundColor());
+	QPoint ptPos = pos();
+	ptPos.setX(ptPos.x() + (size().width() / 2));
+	ptPos.setY(ptPos.y() + (size().height() / 2));
+	QToolTip::showText(ptPos, tr("Default Note Background Color Has Been Set"), this);
 }
 
 // ============================================================================

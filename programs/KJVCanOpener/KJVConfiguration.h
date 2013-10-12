@@ -150,7 +150,6 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
 	Ui::CKJVTextFormatConfig ui;
 };
 
@@ -210,6 +209,7 @@ private slots:
 	void en_clickedSetPrimaryUserNotesFilename();
 	void en_changedKeepBackup();
 	void en_changedBackupExtension();
+	void en_DefaultNoteBackgroundColorPicked(const QColor &color);
 
 // Data Private:
 private:

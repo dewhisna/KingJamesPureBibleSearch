@@ -63,6 +63,8 @@ public:
 	QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
 	QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
 
+	QColor colorDefaultNoteBackground() const { return m_pPersistentSettingData->m_clrDefaultNoteBackground; }
+
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
 
@@ -98,6 +100,8 @@ signals:
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
 
+	void changedColorDefaultNoteBackground(const QColor &color);
+
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedSearchPhraseActivationDelay(int nDelay);
 
@@ -121,6 +125,8 @@ public slots:
 	void setColorWordsOfJesus(const QColor &color);
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
+
+	void setColorDefaultNoteBackground(const QColor &color);
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setSearchActivationDelay(int nDelay);
@@ -164,6 +170,8 @@ private:
 		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
+		// ----
+		QColor m_clrDefaultNoteBackground;				// Default Note Background Color (usually sticky-note yellow)
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases

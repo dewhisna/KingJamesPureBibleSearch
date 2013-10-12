@@ -71,6 +71,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrWordsOfJesus(QColor("red")),
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue")),
+		// Default Note Options:
+		m_clrDefaultNoteBackground("#F0F0A0"),			// Default note background (stick-note yellow)
 		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
@@ -141,6 +143,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedColorWordsOfJesus(pTarget->m_clrWordsOfJesus);
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
+
+		if (pSource->m_clrDefaultNoteBackground != pTarget->m_clrDefaultNoteBackground) emit changedColorDefaultNoteBackground(pTarget->m_clrDefaultNoteBackground);
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
@@ -245,6 +249,12 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 {
 	m_pPersistentSettingData->m_clrCursorFollow = color;
 	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
+}
+
+void CPersistentSettings::setColorDefaultNoteBackground(const QColor &color)
+{
+	m_pPersistentSettingData->m_clrDefaultNoteBackground = color;
+	emit changedColorDefaultNoteBackground(m_pPersistentSettingData->m_clrDefaultNoteBackground);
 }
 
 void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
