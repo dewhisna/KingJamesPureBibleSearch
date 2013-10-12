@@ -344,7 +344,8 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 {
 	QString strVerseHeadings;
 
-	if (vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) {
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
+		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
 		QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 
 		for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
@@ -602,9 +603,10 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	nNumResultsSelected = lstSelectedItems.size();
 
 	if (nNumResultsSelected) {
-		m_pActionCopyVerseText->setEnabled(true);
-		m_pActionCopyRaw->setEnabled(true);
-		m_pActionCopyVeryRaw->setEnabled(true);
+		bool bHaveVerses = (getSelectedVerses().size() > 0);
+		m_pActionCopyVerseText->setEnabled(bHaveVerses);
+		m_pActionCopyRaw->setEnabled(bHaveVerses);
+		m_pActionCopyVeryRaw->setEnabled(bHaveVerses);
 		m_pActionCopyVerseHeadings->setEnabled(true);
 		m_pActionCopyReferenceDetails->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 		m_pActionCopyComplete->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
