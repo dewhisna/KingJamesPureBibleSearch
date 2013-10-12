@@ -94,6 +94,9 @@ TEMPLATE = app
 #	LIBS_PRIVATE += -lpcre16
 #}
 
+CODECFORSRC = UTF-8
+CODECFORTR  = UTF-8
+
 RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 
 SOURCES += main.cpp \
