@@ -123,6 +123,7 @@ signals:			// Incoming Pass-Through:
 	void forward();
 	void home();
 	void reload();
+	void rerender();
 
 private:
 	void initialize();

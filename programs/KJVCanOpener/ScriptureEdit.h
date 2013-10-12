@@ -97,8 +97,6 @@ public:
 
 	CKJVCanOpener *parentCanOpener() const;
 
-	void rerender();
-
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
@@ -129,6 +127,7 @@ protected:
 
 //public slots:
 public:
+	virtual void rerender();
 	virtual void setFont(const QFont& aFont);
 	virtual void setTextBrightness(bool bInvert, int nBrightness);
 	virtual void showDetails();
@@ -237,6 +236,7 @@ protected slots:
 	virtual void en_detailUpdate() = 0;
 
 public slots:
+	virtual void rerender() = 0;
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
@@ -287,6 +287,7 @@ protected slots:
 	virtual void en_detailUpdate() = 0;
 
 public slots:
+	virtual void rerender() = 0;
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;

@@ -183,6 +183,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavHome(NULL),
 	m_pActionNavClear(NULL),
 	m_pActionJump(NULL),
+	m_pActionRefresh(NULL),
 	// ----
 	m_pActionSearchWindowList(NULL),
 	// ----
@@ -553,14 +554,22 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	connect(m_pBrowserWidget, SIGNAL(historyChanged()), this, SLOT(en_browserHistoryChanged()));
 
+	pNavMenu->addSeparator();
+	ui.browserNavigationToolBar->addSeparator();
+
+	m_pActionRefresh = new QAction(QIcon(":/res/refresh-128.png"), tr("&Refresh Scripture Browser"), this);
+	m_pActionRefresh->setShortcut(QKeySequence(Qt::Key_F5));
+	m_pActionRefresh->setStatusTip(tr("Refresh/Reload the Current Passage in the Scripture Browser"));
+	ui.browserNavigationToolBar->addAction(m_pActionRefresh);
+	connect(m_pActionRefresh, SIGNAL(triggered()), m_pBrowserWidget, SIGNAL(rerender()));
+	pNavMenu->addAction(m_pActionRefresh);
+
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), tr("Passage Navigator"), this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator"), this);
 	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	m_pActionJump->setStatusTip(tr("Display the Passage Navigator Widget"));
 	ui.browserNavigationToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
-
-	pNavMenu->addSeparator();
 	pNavMenu->addAction(m_pActionJump);
 
 	ui.browserNavigationToolBar->addSeparator();

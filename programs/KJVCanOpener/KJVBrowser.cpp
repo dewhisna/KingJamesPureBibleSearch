@@ -112,6 +112,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(this, SIGNAL(forward()), m_pScriptureBrowser, SLOT(forward()));
 	connect(this, SIGNAL(home()), m_pScriptureBrowser, SLOT(home()));
 	connect(this, SIGNAL(reload()), m_pScriptureBrowser, SLOT(reload()));
+	connect(this, SIGNAL(rerender()), m_pScriptureBrowser, SLOT(rerender()));
 
 	// Highlighting colors changing:
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
@@ -375,7 +376,7 @@ void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)
 	//		after we change the richifier tags (which is done by the navigator's
 	//		signal/slot connection to the persistent settings:
 	Q_UNUSED(color);
-	m_pScriptureBrowser->rerender();
+	emit rerender();
 }
 
 void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
@@ -397,7 +398,7 @@ void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
 		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxNote))) ||
 		((ndx.chapter() == 0) && (ndx.book() == m_ndxCurrent.book())) ||			// This compare is needed for book notes rendered at the end of the book when we aren't displaying chapter 1
 		((ndx.chapter() == 0) && (ndx.book() == (m_ndxCurrent.book()-1)))) {		// This compare is needed for book notes rendered at the end of the book when we are displaying the first chapter of the next book
-		m_pScriptureBrowser->rerender();
+		emit rerender();
 	}
 }
 
@@ -412,14 +413,14 @@ void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &
 		(!tagCurrentDisplay.isSet()) ||
 		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefFirst))) ||
 		(tagCurrentDisplay.intersects(m_pBibleDatabase, TPhraseTag(ndxCrossRefSecond)))) {
-		m_pScriptureBrowser->rerender();
+		emit rerender();
 	}
 
 }
 
 void CKJVBrowser::en_allCrossRefsChanged()
 {
-	m_pScriptureBrowser->rerender();			// Re-render text (note: The Note may be deleted as well as changed)
+	emit rerender();					// Re-render text (note: The Note may be deleted as well as changed)
 }
 
 // ----------------------------------------------------------------------------

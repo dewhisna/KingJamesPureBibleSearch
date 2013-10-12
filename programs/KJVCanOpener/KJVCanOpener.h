@@ -223,6 +223,7 @@ private:
 	QAction *m_pActionNavHome;		// Browser Navigate to History Home
 	QAction *m_pActionNavClear;		// Clear Navigation History
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
+	QAction *m_pActionRefresh;		// Refresh Scripture Browser
 	// ----
 	QAction *m_pActionSearchWindowList;		// Action for Window list of KJVCanOpeners
 	QPointer<QActionGroup> m_pActionGroupSearchWindowLists;		// Actual Window List items for Search Window List

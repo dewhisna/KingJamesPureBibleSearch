@@ -87,5 +87,6 @@
 		<file>res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png</file>
 		<file>res/window_app_list_close.png</file>
 		<file>res/gnome_window_new.png</file>
+		<file>res/refresh-128.png</file>
 	</qresource>
 </RCC>
