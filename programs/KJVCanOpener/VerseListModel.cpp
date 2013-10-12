@@ -695,17 +695,32 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				if (bHeading) strToolTip += itrVerse->getHeading() + "\n";
 				QPair<int, int> nResultsIndexes = zSearchResults.GetResultsIndexes(itrVerse);
 				if (nResultsIndexes.first != nResultsIndexes.second) {
-					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-								tr("Search Results %1-%2 of %3 phrase occurrences")
-											.arg(nResultsIndexes.first)
-											.arg(nResultsIndexes.second)
-											.arg(zSearchResults.GetResultsCount()) + "\n";
+					if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
+						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+									tr("Search Results %1-%2 of %3 phrase occurrences")
+												.arg(nResultsIndexes.first)
+												.arg(nResultsIndexes.second)
+												.arg(zSearchResults.GetResultsCount()) + "\n";
+					} else {
+						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+									tr("Excluded Search Results %1-%2 of %3 phrase occurrences")
+												.arg(nResultsIndexes.first)
+												.arg(nResultsIndexes.second)
+												.arg(zSearchResults.GetResultsCount()) + "\n";
+					}
 				} else {
 					assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
-					strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-								tr("Search Result %1 of %2 phrase occurrences")
-											.arg(nResultsIndexes.first)
-											.arg(zSearchResults.GetResultsCount()) + "\n";
+					if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
+						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+									tr("Search Result %1 of %2 phrase occurrences")
+												.arg(nResultsIndexes.first)
+												.arg(zSearchResults.GetResultsCount()) + "\n";
+					} else {
+						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
+									tr("Excluded Search Result %1 of %2 phrase occurrences")
+												.arg(nResultsIndexes.first)
+												.arg(zSearchResults.GetResultsCount()) + "\n";
+					}
 				}
 				QPair<int, int> nVerseResult = zSearchResults.GetVerseIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";

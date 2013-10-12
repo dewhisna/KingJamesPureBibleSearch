@@ -342,12 +342,24 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 
 void CSearchResultsTreeView::en_copyVerseHeadings() const
 {
-	QModelIndexList lstVerses = getSelectedVerses();
-
 	QString strVerseHeadings;
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		strVerseHeadings += item.getHeading() + "\n";
+
+	if (vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) {
+		QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
+
+		for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
+			if (lstSelectedItems.at(ndx).isValid()) {
+				CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+				if (ndxRel.isSet()) strVerseHeadings += vlmodel()->bibleDatabase()->PassageReferenceText(ndxRel) + "\n";
+			}
+		}
+	} else {
+		QModelIndexList lstVerses = getSelectedVerses();
+
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+			strVerseHeadings += item.getHeading() + "\n";
+		}
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -594,8 +606,8 @@ void CSearchResultsTreeView::handle_selectionChanged()
 		m_pActionCopyRaw->setEnabled(true);
 		m_pActionCopyVeryRaw->setEnabled(true);
 		m_pActionCopyVerseHeadings->setEnabled(true);
-		m_pActionCopyReferenceDetails->setEnabled(true);
-		m_pActionCopyComplete->setEnabled(true);
+		m_pActionCopyReferenceDetails->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
+		m_pActionCopyComplete->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 		m_pActionClearSelection->setEnabled(true);
 	} else {
 		m_pActionCopyVerseText->setEnabled(false);
