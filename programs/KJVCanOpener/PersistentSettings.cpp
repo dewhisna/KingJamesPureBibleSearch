@@ -79,6 +79,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Browser Options:
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 		m_nPassageReferenceActivationDelay(2000),
+		m_bShowExcludedSearchResultsInBrowser(true),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
@@ -151,6 +152,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
 		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
+		if (pSource->m_bShowExcludedSearchResultsInBrowser != pTarget->m_bShowExcludedSearchResultsInBrowser) emit changedShowExcludedSearchResultsInBrowser(pTarget->m_bShowExcludedSearchResultsInBrowser);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -279,6 +281,12 @@ void CPersistentSettings::setPassageReferenceActivationDelay(int nDelay)
 {
 	m_pPersistentSettingData->m_nPassageReferenceActivationDelay = nDelay;
 	emit changedPassageReferenceActivationDelay(m_pPersistentSettingData->m_nPassageReferenceActivationDelay);
+}
+
+void CPersistentSettings::setShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults)
+{
+	m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser = bShowExcludedSearchResults;
+	emit changedShowExcludedSearchResultsInBrowser(m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser);
 }
 
 void CPersistentSettings::setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)

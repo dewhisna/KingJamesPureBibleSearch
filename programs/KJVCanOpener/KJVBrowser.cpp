@@ -47,7 +47,9 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
-	m_Highlighter(pModel),
+	m_SearchResultsHighlighter(pModel, false),
+	m_ExcludedSearchResultsHighlighter(pModel, true),
+	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(NULL)
@@ -117,6 +119,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	// Highlighting colors changing:
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedShowExcludedSearchResultsInBrowser(bool)), this, SLOT(en_ShowExcludedSearchResultsChanged(bool)));
 
 	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
@@ -348,7 +351,9 @@ void CKJVBrowser::en_highlightersChanged()
 
 void CKJVBrowser::doHighlighting(bool bClear)
 {
-	m_pScriptureBrowser->navigator().doHighlighting(m_Highlighter, bClear, m_ndxCurrent);
+	m_pScriptureBrowser->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
+	if (m_bShowExcludedSearchResults)
+		m_pScriptureBrowser->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 
 	assert(g_pUserNotesDatabase != NULL);
 	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
@@ -384,6 +389,16 @@ void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
 	// Simply redo the highlighting again to change the highlight color:
 	Q_UNUSED(color);
 	doHighlighting();
+}
+
+void CKJVBrowser::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults)
+{
+	if (m_bShowExcludedSearchResults == bShowExcludedSearchResults) return;
+
+	// Clear with old setting, change to new setting, and re-highlight:
+	doHighlighting(true);
+	m_bShowExcludedSearchResults = bShowExcludedSearchResults;
+	doHighlighting(false);
 }
 
 // ----------------------------------------------------------------------------

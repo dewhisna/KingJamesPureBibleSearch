@@ -108,7 +108,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 					navigator.setDocumentToVerse(item.getIndex());
 					if ((m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 						(m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-						CSearchResultHighlighter highlighter(item.phraseTags());
+						CSearchResultHighlighter highlighter(item.phraseTags(), (m_model.viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
 						navigator.doHighlighting(highlighter);
 					} else {
 						CUserDefinedHighlighter highlighter(zResults.resultsName(), item.phraseTags());

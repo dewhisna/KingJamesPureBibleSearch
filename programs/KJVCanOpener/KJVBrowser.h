@@ -157,6 +157,7 @@ private slots:
 
 	void en_WordsOfJesusColorChanged(const QColor &color);
 	void en_SearchResultsColorChanged(const QColor &color);
+	void en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults);
 
 private:
 	void gotoIndex2(const TPhraseTag &tag);
@@ -172,7 +173,9 @@ private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CRelIndex m_ndxCurrent;
-	CSearchResultHighlighter m_Highlighter;
+	CSearchResultHighlighter m_SearchResultsHighlighter;
+	CSearchResultHighlighter m_ExcludedSearchResultsHighlighter;
+	bool m_bShowExcludedSearchResults;
 
 // UI Private:
 private:

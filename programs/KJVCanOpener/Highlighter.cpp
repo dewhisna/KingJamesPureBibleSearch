@@ -115,9 +115,10 @@ bool CHighlighterPhraseTagFwdItr::isEnd() const
 
 // ============================================================================
 
-CSearchResultHighlighter::CSearchResultHighlighter(CVerseListModel *pVerseListModel, QObject *parent)
+CSearchResultHighlighter::CSearchResultHighlighter(CVerseListModel *pVerseListModel, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
-		m_pVerseListModel(pVerseListModel)
+		m_pVerseListModel(pVerseListModel),
+		m_bExcludedResults(bExcludedResults)
 {
 	assert(pVerseListModel);
 
@@ -125,16 +126,18 @@ CSearchResultHighlighter::CSearchResultHighlighter(CVerseListModel *pVerseListMo
 	connect(pVerseListModel, SIGNAL(verseListChanged()), this, SLOT(verseListChanged()));
 }
 
-CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, QObject *parent)
+CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
-		  m_pVerseListModel(NULL)
+		  m_pVerseListModel(NULL),
+		  m_bExcludedResults(bExcludedResults)
 {
 	m_myPhraseTags.setPhraseTags(lstPhraseTags);
 }
 
-CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent)
+CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
-		m_pVerseListModel(NULL)
+		m_pVerseListModel(NULL),
+		m_bExcludedResults(bExcludedResults)
 {
 	TPhraseTagList lstTags;
 	lstTags.append(aTag);
@@ -158,9 +161,19 @@ QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &
 			fmtNew.setProperty(USERPROP_FOREGROUND_BRUSH, QVariant(aFormat.foreground()));
 		}
 		fmtNew.setForeground(QBrush(CPersistentSettings::instance()->colorSearchResults()));
+		if (m_bExcludedResults) {
+			if (!aFormat.hasProperty(USERPROP_FONT_STRIKE_OUT)) {
+				fmtNew.setProperty(USERPROP_FONT_STRIKE_OUT, QVariant(aFormat.fontStrikeOut()));
+			}
+			fmtNew.setFontStrikeOut(true);
+		}
 	} else {
 		if (aFormat.hasProperty(USERPROP_FOREGROUND_BRUSH))
 			fmtNew.setForeground(aFormat.property(USERPROP_FOREGROUND_BRUSH).value<QBrush>());
+		if (m_bExcludedResults) {
+			if (aFormat.hasProperty(USERPROP_FONT_STRIKE_OUT))
+				fmtNew.setFontStrikeOut(aFormat.property(USERPROP_FONT_STRIKE_OUT).value<bool>());
+		}
 	}
 
 	return fmtNew;
@@ -192,7 +205,7 @@ void CSearchResultHighlighter::verseListModelDestroyed()
 CHighlighterPhraseTagFwdItr CSearchResultHighlighter::getForwardIterator() const
 {
 	if (m_pVerseListModel) {
-		return CHighlighterPhraseTagFwdItr(new i_TVerseListModelResults(m_pVerseListModel->searchResults(false)));		// Note: CHighlighterPhraseTagFwdItr takes ownership of i_TVerseListModelResults
+		return CHighlighterPhraseTagFwdItr(new i_TVerseListModelResults(m_pVerseListModel->searchResults(m_bExcludedResults)));		// Note: CHighlighterPhraseTagFwdItr takes ownership of i_TVerseListModelResults
 	} else {
 		return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
 	}

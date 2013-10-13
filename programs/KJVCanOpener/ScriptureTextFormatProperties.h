@@ -35,9 +35,10 @@
 #define USERPROP_BACKGROUND_BRUSH		(QTextFormat::UserProperty + 1)			//		1		Background Brush
 #define USERPROP_UNDERLINE_COLOR		(QTextFormat::UserProperty + 2)			//		2		Underline Color
 #define USERPROP_UNDERLINE_STYLE		(QTextFormat::UserProperty + 3)			//		3		Underline Style
+#define USERPROP_FONT_STRIKE_OUT		(QTextFormat::UserProperty + 4)			//		4		Font Strike Out
 //
 // ScriptureDocument.cpp:
-#define USERPROP_RELINDEX				(QTextFormat::UserProperty + 4)			//		4		RelIndex
+#define USERPROP_RELINDEX				(QTextFormat::UserProperty + 16)		//		16		RelIndex
 
 //
 // UserObjects:

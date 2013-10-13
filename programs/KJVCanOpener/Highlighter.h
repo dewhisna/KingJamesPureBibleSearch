@@ -112,9 +112,9 @@ class CSearchResultHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultHighlighter(CVerseListModel *pVerseListModel, QObject *parent = NULL);
-	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, QObject *parent = NULL);
-	CSearchResultHighlighter(const TPhraseTag &aTag, QObject *parent = NULL);
+	explicit CSearchResultHighlighter(CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = NULL);
+	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = NULL);
+	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = NULL);
 	virtual ~CSearchResultHighlighter();
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
@@ -122,12 +122,15 @@ public:
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;
 
+	bool isExcludedResults() const { return m_bExcludedResults; }
+
 private slots:
 	void verseListChanged();
 	void verseListModelDestroyed();
 
 private:
 	CVerseListModel *m_pVerseListModel;
+	bool m_bExcludedResults;						// True if this highlighter is displaying excluded search results, false if displaying normal search results
 
 	// Guard class to keep me from accidentally accessing non-const functions and
 	//		causing unintentional copying, as that can be expensive in large searches:

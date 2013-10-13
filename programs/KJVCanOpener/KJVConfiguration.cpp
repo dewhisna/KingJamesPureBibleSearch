@@ -1224,6 +1224,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
+	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
 
 	loadSettings();
 }
@@ -1239,6 +1240,7 @@ void CConfigBrowserOptions::loadSettings()
 
 	ui.spinBrowserNavigationActivationDelay->setValue(CPersistentSettings::instance()->navigationActivationDelay());
 	ui.spinBrowserPassageReferenceActivationDelay->setValue(CPersistentSettings::instance()->passageReferenceActivationDelay());
+	ui.checkBoxShowExcludedSearchResults->setChecked(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -1248,6 +1250,7 @@ void CConfigBrowserOptions::saveSettings()
 {
 	CPersistentSettings::instance()->setNavigationActivationDelay(ui.spinBrowserNavigationActivationDelay->value());
 	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui.spinBrowserPassageReferenceActivationDelay->value());
+	CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(ui.checkBoxShowExcludedSearchResults->isChecked());
 	m_bIsDirty = false;
 }
 
@@ -1265,6 +1268,15 @@ void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigBrowserOptions::en_changedShowExcludedSearchResults(bool bShowExcludedSearchResults)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(bShowExcludedSearchResults);
 	m_bIsDirty = true;
 	emit dataChanged();
 }

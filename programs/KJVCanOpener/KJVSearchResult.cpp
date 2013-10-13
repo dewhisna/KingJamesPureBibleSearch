@@ -279,7 +279,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		navigator.setDocumentToVerse(item.getIndex());
 		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-			CSearchResultHighlighter highlighter(item.phraseTags());
+			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
 			navigator.doHighlighting(highlighter);
 		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
 			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
@@ -412,7 +412,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 		navigator.setDocumentToVerse(item.getIndex());
 		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-			CSearchResultHighlighter highlighter(item.phraseTags());
+			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
 			navigator.doHighlighting(highlighter);
 		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
 			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
