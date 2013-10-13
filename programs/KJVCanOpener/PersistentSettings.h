@@ -67,6 +67,7 @@ public:
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
+	bool autoExpandSearchResultsTree() const { return m_pPersistentSettingData->m_bAutoExpandSearchResultsTree; }
 
 	int navigationActivationDelay() const { return m_pPersistentSettingData->m_nNavigationActivationDelay; }
 	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
@@ -105,6 +106,7 @@ signals:
 
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedSearchPhraseActivationDelay(int nDelay);
+	void changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
 
 	void changedNavigationActivationDelay(int nDelay);
 	void changedPassageReferenceActivationDelay(int nDelay);
@@ -132,6 +134,7 @@ public slots:
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setSearchActivationDelay(int nDelay);
+	void setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
 
 	void setNavigationActivationDelay(int nDelay);
 	void setPassageReferenceActivationDelay(int nDelay);
@@ -178,6 +181,7 @@ private:
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
+		bool m_bAutoExpandSearchResultsTree;			// True to auto-expand Search Results Tree on Search
 		// ----
 		int m_nNavigationActivationDelay;				// Navigation Delay to set on Scripture Browser controls
 		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls

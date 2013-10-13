@@ -121,6 +121,7 @@ namespace {
 	const QString constrCurrentHighlighterKey("CurrentHighlighter");
 	const QString constrHasFocusKey("HasFocus");
 	const QString constrFontKey("Font");
+	const QString constrAutoExpandSearchResultsTreeViewKey("AutoExpandSearchResultsTreeView");
 
 	// Browser View:
 	const QString constrBrowserViewGroup("Browser");
@@ -767,6 +768,7 @@ void CKJVCanOpener::savePersistentSettings()
 													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentVerseIndex().specialIndex()).resultsName());
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
+	settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
 	settings.endGroup();
 
 	// Search Phrases Settings:
@@ -966,6 +968,10 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
+	if (bIsFirstCanOpener) {
+		// Restore auto-expand before we set the view mode so that it will update correctly:
+		CPersistentSettings::instance()->setAutoExpandSearchResultsTree(settings.value(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree()).toBool());
+	}
 	setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
 	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));
 	setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
@@ -1208,7 +1214,7 @@ QString CKJVCanOpener::searchWindowDescription() const
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode, bool bFocusTree)
 {
 	assert(m_pActionGroupViewMode != NULL);
 
@@ -1217,7 +1223,7 @@ void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 	for (int i = 0; i < lstActions.size(); ++i) {
 		if (static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(lstActions.at(i)->data().toUInt()) == nViewMode) {
 			lstActions.at(i)->setChecked(true);
-			en_viewModeChange(lstActions.at(i));
+			en_viewModeChange(lstActions.at(i), bFocusTree);
 			break;
 		}
 	}
@@ -1372,7 +1378,7 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria,
 	m_pSearchSpecWidget->enableCopySearchPhraseSummary(true);
 	// Auto-switch to Search Results mode:
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
-		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);
+		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS, false);
 
 	g_pMyApplication->updateSearchWindowList();				// Updates this and all other KJVCanOpener lists -- it needs to be there so it can also update KJVCanOpeners created or destroyed also
 }
@@ -1498,7 +1504,7 @@ bool CKJVCanOpener::isPhraseEditorFocusedOrActive() const
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::en_viewModeChange(QAction *pAction)
+void CKJVCanOpener::en_viewModeChange(QAction *pAction, bool bFocusTree)
 {
 	assert(pAction != NULL);
 
@@ -1511,7 +1517,7 @@ void CKJVCanOpener::en_viewModeChange(QAction *pAction)
 
 	m_bDoingUpdate = false;
 
-	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
+	m_pSearchResultWidget->setCurrentIndex(ndxCurrent, bFocusTree);
 }
 
 void CKJVCanOpener::en_displayModeChange(QAction *pAction)

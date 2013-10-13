@@ -1157,6 +1157,7 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 
 	connect(ui.comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
 	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
+	connect(ui.checkBoxAutoExpandSearchResultsTree, SIGNAL(clicked(bool)), this, SLOT(en_changedAutoExpandSearchResultsTree(bool)));
 
 	loadSettings();
 }
@@ -1176,8 +1177,8 @@ void CConfigSearchOptions::loadSettings()
 	} else {
 		assert(false);
 	}
-
 	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
+	ui.checkBoxAutoExpandSearchResultsTree->setChecked(CPersistentSettings::instance()->autoExpandSearchResultsTree());
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -1193,6 +1194,7 @@ void CConfigSearchOptions::saveSettings()
 		assert(false);
 	}
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
+	CPersistentSettings::instance()->setAutoExpandSearchResultsTree(ui.checkBoxAutoExpandSearchResultsTree->isChecked());
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
@@ -1209,6 +1211,15 @@ void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigSearchOptions::en_changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(bAutoExpandSearchResultsTree);
 	m_bIsDirty = true;
 	emit dataChanged();
 }

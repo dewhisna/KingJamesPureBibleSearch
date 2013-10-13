@@ -676,6 +676,11 @@ void CSearchResultsTreeView::en_listChanged()
 	emit canExpandAll((rootIsDecorated()) && (vlmodel()->hasChildren()));
 	emit canCollapseAll((rootIsDecorated()) && (vlmodel()->hasChildren()));
 
+	if ((CPersistentSettings::instance()->autoExpandSearchResultsTree()) &&
+		((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+		 (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)))
+		expandAll();
+
 	handle_selectionChanged();
 }
 

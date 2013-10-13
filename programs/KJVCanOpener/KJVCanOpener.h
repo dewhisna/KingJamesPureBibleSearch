@@ -137,7 +137,7 @@ public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
 	bool saveKJVSearchFile(const QString &strFilePathName) const;
 
-	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
+	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode, bool bFocusTree = true);
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
@@ -161,7 +161,7 @@ protected slots:
 	void en_activatedSearchResults();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
-	void en_viewModeChange(QAction *pAction);
+	void en_viewModeChange(QAction *pAction, bool bFocusTree = true);
 	void en_displayModeChange(QAction *pAction);
 	void en_treeModeChange(QAction *pAction);
 	void en_viewShowMissingsLeafs();
