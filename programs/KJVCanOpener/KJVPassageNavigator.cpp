@@ -121,6 +121,10 @@ void CKJVPassageNavigator::initialize()
 	QWidget::setTabOrder(ui.comboWordDirect, ui.comboRefType);
 	QWidget::setTabOrder(ui.comboRefType, ui.chkboxReverse);
 
+	// Add the ScriptureEdit's editMenu to this widget's actions so that the
+	//		keyboard shortcuts work correctly inside this widget:
+	addAction(m_pEditVersePreview->getEditMenu()->menuAction());
+
 	// --------------------------------------------------------------
 
 	begin_update();
