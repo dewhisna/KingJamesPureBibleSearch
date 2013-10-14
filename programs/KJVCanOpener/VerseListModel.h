@@ -444,6 +444,7 @@ public:
 		VERSE_TREE_MODE_ENUM m_nTreeMode;			// List, Tree by Books, Tree by Chapters, etc.
 		VERSE_VIEW_MODE_ENUM m_nViewMode;			// Search Results vs Highlighters, etc
 		bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
+		bool m_bShowHighlightersInSearchResults;	// True if VerseDelegate will paint highlighters in Search Results verses
 		CRelIndex m_ndxSingleCrossRefSource;		// If Set, will be in special Cross-Reference Display mode, which is limited to this single source reference (used for the Cross-Reference Editor)
 		CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the results in this list
 		QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
@@ -632,6 +633,7 @@ public:
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_private.m_nTreeMode; }
 	VERSE_VIEW_MODE_ENUM viewMode() const { return m_private.m_nViewMode; }
 	bool showMissingLeafs() const { return m_private.m_bShowMissingLeafs; }
+	bool showHighlightersInSearchResults() const { return m_private.m_bShowHighlightersInSearchResults; }
 	CRelIndex singleCrossRefSourceIndex() const { return m_private.m_ndxSingleCrossRefSource; }
 
 	const TVerseListModelResults &results(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType, int nSpecialIndex) const
@@ -695,6 +697,7 @@ public slots:
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode);
 	void setShowMissingLeafs(bool bShowMissing);
+	void setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults);
 	void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	virtual void setFont(const QFont& aFont);
 	void setUserNoteKeywordFilter(const QStringList &lstKeywordFilter);			// Note: An empty string is a special "show notes without keywords" entry.  This list should be DECOMPOSED words!

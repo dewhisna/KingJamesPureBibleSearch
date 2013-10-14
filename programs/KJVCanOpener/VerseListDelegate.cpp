@@ -108,11 +108,22 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 					navigator.setDocumentToVerse(item.getIndex());
 					if ((m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 						(m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-						CSearchResultHighlighter highlighter(item.phraseTags(), (m_model.viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
-						navigator.doHighlighting(highlighter);
+						CSearchResultHighlighter srHighlighter(item.phraseTags(), (m_model.viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
+						navigator.doHighlighting(srHighlighter);
+						if (m_model.showHighlightersInSearchResults()) {
+							const THighlighterTagMap *pmapHighlighterTags = m_model.userNotesDatabase()->highlighterTagsFor(m_model.bibleDatabase());
+							if (pmapHighlighterTags) {
+								// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
+								//			(the map is already sorted)
+								for (THighlighterTagMap::const_iterator itrHighlighters = pmapHighlighterTags->begin(); itrHighlighters != pmapHighlighterTags->end(); ++itrHighlighters) {
+									CUserDefinedHighlighter userHighlighter(itrHighlighters->first, itrHighlighters->second);
+									navigator.doHighlighting(userHighlighter);
+								}
+							}
+						}
 					} else {
-						CUserDefinedHighlighter highlighter(zResults.resultsName(), item.phraseTags());
-						navigator.doHighlighting(highlighter);
+						CUserDefinedHighlighter userHighlighter(zResults.resultsName(), item.phraseTags());
+						navigator.doHighlighting(userHighlighter);
 					}
 				} else {
 					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
@@ -181,8 +192,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 	} else {
 		// Highlighter Name:
 		assert(m_model.viewMode() == CVerseListModel::VVME_HIGHLIGHTERS);
-		assert(g_pUserNotesDatabase != NULL);
-		const TUserDefinedColor udcHighlighter = g_pUserNotesDatabase->highlighterDefinition(zResults.resultsName());
+		const TUserDefinedColor udcHighlighter = m_model.userNotesDatabase()->highlighterDefinition(zResults.resultsName());
 		if (udcHighlighter.isValid()) {
 			scriptureHTML.beginParagraph();
 			scriptureHTML.beginBold();

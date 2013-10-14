@@ -122,6 +122,7 @@ namespace {
 	const QString constrHasFocusKey("HasFocus");
 	const QString constrFontKey("Font");
 	const QString constrAutoExpandSearchResultsTreeViewKey("AutoExpandSearchResultsTreeView");
+	const QString constrShowHighlightersInSearchResultsKey("ShowHighlightingInSearchResults");
 
 	// Browser View:
 	const QString constrBrowserViewGroup("Browser");
@@ -769,6 +770,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
+	settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
 	settings.endGroup();
 
 	// Search Phrases Settings:
@@ -976,6 +978,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));
 	setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
 	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
+	m_pSearchResultWidget->setShowHighlightersInSearchResults(settings.value(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults()).toBool());
 	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
 	QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc

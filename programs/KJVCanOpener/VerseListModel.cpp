@@ -75,7 +75,8 @@ CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePt
 		m_nDisplayMode(VDME_HEADING),
 		m_nTreeMode(VTME_LIST),
 		m_nViewMode(VVME_SEARCH_RESULTS),
-		m_bShowMissingLeafs(false)
+		m_bShowMissingLeafs(false),
+		m_bShowHighlightersInSearchResults(false)
 {
 
 }
@@ -1163,6 +1164,7 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 		} else {
 			itrFirst = zResults.GetVerse(0, ndxRel.book(), ((m_private.m_nTreeMode == VTME_TREE_CHAPTERS ) ? ndxRel.chapter() : -1));
 		}
+		if (itrFirst == zResults.m_mapVerses.constEnd()) return QModelIndex();
 		itrTarget = zResults.FindVerseIndex(ndxRel);
 		if (itrTarget == zResults.m_mapVerses.constEnd()) return QModelIndex();
 		return createIndex(std::distance(itrFirst, itrTarget), 0, fromVerseIndex(itrTarget->verseIndex().data()));		// Use index from actual verse instead of ndxRel since word() isn't required to match
@@ -1552,6 +1554,15 @@ void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
 	if ((m_private.m_nTreeMode != VTME_LIST) || (m_private.m_nViewMode == VVME_HIGHLIGHTERS)) endResetModel();
 }
 
+void CVerseListModel::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
+{
+	if (m_private.m_bShowHighlightersInSearchResults == bShowHighlightersInSearchResults) return;
+
+	emit layoutAboutToBeChanged();
+	m_private.m_bShowHighlightersInSearchResults = bShowHighlightersInSearchResults;
+	emit layoutChanged();
+}
+
 void CVerseListModel::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 {
 	if (m_private.m_ndxSingleCrossRefSource == ndx) return;
@@ -1871,7 +1882,6 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 
 		++itrVerseMapBookChapterFirst;
 	}
-	assert(false);
 	return m_mapVerses.constEnd();			// Should have already returned a verse above, but end() if we're given an index beyond the list
 }
 

@@ -509,6 +509,11 @@ void CSearchResultsTreeView::setShowMissingLeafs(bool bShowMissing)
 	vlmodel()->setShowMissingLeafs(bShowMissing);
 }
 
+void CSearchResultsTreeView::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
+{
+	vlmodel()->setShowHighlightersInSearchResults(bShowHighlightersInSearchResults);
+}
+
 void CSearchResultsTreeView::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 {
 	// Set root decoration before switching mode so en_listChanged emits canExpandAll/canCollapseAll correctly
@@ -916,6 +921,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsType(NULL),
 	m_pSearchResultsCount(NULL),
 	m_pExcludedSearchResultsCount(NULL),
+	m_pShowHighlightersInSearchResults(NULL),
 	m_pNoteKeywordWidget(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
@@ -927,18 +933,23 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	pLayout->setContentsMargins(11, 11, 11, 11);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 	pLayout->setContentsMargins(0, 0, 0, 0);
+
 	m_pSearchResultsType = new QLabel(this);
 	m_pSearchResultsType->setObjectName(QString::fromUtf8("SearchResultsType"));
 	m_pSearchResultsType->setWordWrap(true);
 	m_pSearchResultsType->setAlignment(Qt::AlignHCenter);
 	m_pSearchResultsType->setTextFormat(Qt::RichText);
 	pLayout->addWidget(m_pSearchResultsType);
+
+	// --------------------------------
+
 	m_pSearchResultsCount = new QLabel(this);
 	m_pSearchResultsCount->setObjectName(QString::fromUtf8("SearchResultsCount"));
 	m_pSearchResultsCount->setWordWrap(true);
 	m_pSearchResultsCount->setText(tr("Found 0 Occurrences") + "\n"
 									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
 	pLayout->addWidget(m_pSearchResultsCount);
+
 	m_pExcludedSearchResultsCount = new QLabel(this);
 	m_pExcludedSearchResultsCount->setObjectName(QString::fromUtf8("ExcludedSearchResultsCount"));
 	m_pExcludedSearchResultsCount->setWordWrap(true);
@@ -948,10 +959,16 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
+	m_pShowHighlightersInSearchResults = new QCheckBox(this);
+	m_pShowHighlightersInSearchResults->setObjectName(QString::fromUtf8("checkBoxShowHighlightersInSearchResults"));
+	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results"));
+	pLayout->addWidget(m_pShowHighlightersInSearchResults);
+
+	// --------------------------------
+
 	m_pNoteKeywordWidget = new CNoteKeywordWidget(this);
 	m_pNoteKeywordWidget->setObjectName("keywordWidget");
 	m_pNoteKeywordWidget->setMode(KWME_SELECTOR);
-
 	pLayout->addWidget(m_pNoteKeywordWidget);
 
 	// --------------------------------
@@ -963,7 +980,6 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	aSizePolicy.setVerticalStretch(0);
 	aSizePolicy.setHeightForWidth(m_pSearchResultsTreeView->sizePolicy().hasHeightForWidth());
 	m_pSearchResultsTreeView->setSizePolicy(aSizePolicy);
-
 	pLayout->addWidget(m_pSearchResultsTreeView);
 
 #ifdef SIGNAL_SPY_DEBUG
@@ -971,6 +987,11 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	CMyApplication::createSpy(this);
 #endif
 #endif
+
+	// --------------------------------
+
+	m_pShowHighlightersInSearchResults->setChecked(m_pSearchResultsTreeView->vlmodel()->showHighlightersInSearchResults());
+	connect(m_pShowHighlightersInSearchResults, SIGNAL(clicked(bool)), m_pSearchResultsTreeView->vlmodel(), SLOT(setShowHighlightersInSearchResults(bool)));
 
 	// --------------------------------
 
@@ -1053,6 +1074,8 @@ void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMo
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pExcludedSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
+	m_pShowHighlightersInSearchResults->setVisible((nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
+												   (nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	m_pNoteKeywordWidget->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 	setSearchResultsType();
@@ -1099,6 +1122,12 @@ void CKJVSearchResult::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMo
 void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 {
 	m_pSearchResultsTreeView->setShowMissingLeafs(bShowMissing);
+}
+
+void CKJVSearchResult::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
+{
+	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(bShowHighlightersInSearchResults);
+	m_pShowHighlightersInSearchResults->setChecked(bShowHighlightersInSearchResults);
 }
 
 void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
