@@ -21,63 +21,29 @@
 **
 ****************************************************************************/
 
-#ifndef BUSY_CURSOR_H
-#define BUSY_CURSOR_H
+#include "BusyCursor.h"
 
-#include <QApplication>
-#include <QWidget>
-#include <QCursor>
-#include <QObject>
-#include <QPoint>
-#include <QString>
-#include <QWidget>
+#include <QTimer>
+#include <QToolTip>
 
 // ============================================================================
 
-class CBusyCursor
+CNotificationToolTip::CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget)
+	:	QObject()
 {
-public:
-	CBusyCursor(QWidget *pWidget)
-		:	m_pWidget(pWidget)
-	{
-		if (m_pWidget) {
-			m_originalCursor = m_pWidget->cursor();
-			m_pWidget->setCursor(Qt::WaitCursor);
-		} else {
-			QApplication::setOverrideCursor(Qt::WaitCursor);
-		}
-	}
+	QToolTip::showText(ptPos, strMessage, pWidget);
+	QTimer::singleShot(nDisplayTimeMS, this, SLOT(en_hideMessage()));
+}
 
-	~CBusyCursor()
-	{
-		if (m_pWidget) {
-			m_pWidget->setCursor(m_originalCursor);
-		} else {
-			QApplication::restoreOverrideCursor();
-		}
-	}
-
-private:
-	QCursor m_originalCursor;
-	QWidget *m_pWidget;
-};
-
-// ============================================================================
-
-class CNotificationToolTip : public QObject
+CNotificationToolTip::~CNotificationToolTip()
 {
-	Q_OBJECT
 
-public:
-	CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget = 0);
-	virtual ~CNotificationToolTip();
+}
 
-private slots:
-	void en_hideMessage();
-
-};
+void CNotificationToolTip::en_hideMessage()
+{
+	QToolTip::hideText();
+	deleteLater();
+}
 
 // ============================================================================
-
-#endif	// BUSY_CURSOR_H
-

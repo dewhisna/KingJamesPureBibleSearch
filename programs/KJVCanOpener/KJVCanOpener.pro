@@ -130,6 +130,7 @@ SOURCES += main.cpp \
 	ParseSymbols.cpp \
 	VerseRichifier.cpp \
 	DelayedExecutionTimer.cpp \
+	BusyCursor.cpp \
 	ModelRowForwardIterator.cpp \
 	ReflowDelegate.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp \

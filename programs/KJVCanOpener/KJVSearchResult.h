@@ -37,12 +37,14 @@
 #include <QFocusEvent>
 #include <QResizeEvent>
 #include <QContextMenuEvent>
+#include <QMouseEvent>
 #include <QString>
 #include <QLabel>
 #include <QTreeView>
 #include <QColor>
 #include <QStyleOptionViewItem>
 #include <QPixmap>
+#include <QPoint>
 #include <QRect>
 
 #include <assert.h>
@@ -124,6 +126,7 @@ signals:
 	void selectionListChanged();
 
 protected:
+	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void focusOutEvent(QFocusEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *event);
@@ -132,6 +135,7 @@ protected:
 
 	void copyRawCommon(bool bVeryRaw) const;
 	void handle_selectionChanged();
+	void displayCopyCompleteToolTip() const;
 
 	virtual void resizeEvent(QResizeEvent *event);
 
@@ -155,6 +159,7 @@ private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
+	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track position or Context Popup position for popups
 	// ----
 	QAction *m_pActionCopyVerseText;			// Edit menu copy text
 	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text

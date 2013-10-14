@@ -34,6 +34,7 @@
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #include "SearchCompleter.h"
+#include "BusyCursor.h"
 
 #include "main.h"
 
@@ -298,6 +299,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
 	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 void CSearchResultsTreeView::en_copyRaw() const
@@ -338,6 +340,7 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	QMimeData *mime = new QMimeData();
 	mime->setText(strText);
 	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 void CSearchResultsTreeView::en_copyVerseHeadings() const
@@ -367,6 +370,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 	QMimeData *mime = new QMimeData();
 	mime->setText(strVerseHeadings);
 	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 void CSearchResultsTreeView::en_copyReferenceDetails() const
@@ -389,6 +393,7 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 	mime->setText(strPlainText);
 	mime->setHtml(strRichText);
 	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 void CSearchResultsTreeView::en_copyComplete() const
@@ -437,6 +442,13 @@ void CSearchResultsTreeView::en_copyComplete() const
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
 	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::displayCopyCompleteToolTip() const
+{
+	QPoint ptPos = mapToGlobal(m_ptLastTrackPosition);
+	new CNotificationToolTip(1000, ptPos, tr("Text Copied to Clipboard"), viewport());
 }
 
 // ----------------------------------------------------------------------------
@@ -542,6 +554,12 @@ void CSearchResultsTreeView::showPassageNavigator()
 	}
 }
 
+void CSearchResultsTreeView::mouseMoveEvent(QMouseEvent *ev)
+{
+	m_ptLastTrackPosition = ev->pos();
+	QTreeView::mouseMoveEvent(ev);
+}
+
 void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
@@ -570,6 +588,7 @@ void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 	m_bDoingPopup = true;
 	m_pEditMenuLocal->exec(event->globalPos());
 	m_bDoingPopup = false;
+	m_ptLastTrackPosition = event->pos();
 }
 
 void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)

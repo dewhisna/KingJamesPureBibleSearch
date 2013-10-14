@@ -97,6 +97,8 @@ public:
 
 	CKJVCanOpener *parentCanOpener() const;
 
+	void displayCopyCompleteToolTip() const;
+
 //signals:
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
@@ -108,6 +110,7 @@ protected:
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 	virtual void mouseDoubleClickEvent(QMouseEvent *ev);
 	virtual QMimeData *createMimeDataFromSelection () const;
+	virtual void mouseMoveEvent(QMouseEvent *ev);
 
 protected:
 	virtual void updateSelection();
@@ -164,6 +167,7 @@ private:
 	TPhraseTag m_tagLastActive;		// Last active position -- i.e. m_tagLast for a verse and/or word (as opposed to book/chapter
 	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference
 	bool m_bDoPlainCopyOnly;		// Flag for the createMimeDataFromSelection function to use only plain text
+	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track position or Context Popup position for popups
 
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	// ----

@@ -48,7 +48,6 @@
 #include <QKeyEvent>
 #include <QColor>
 
-
 // ============================================================================
 
 namespace {
@@ -306,6 +305,7 @@ bool CScriptureText<T,U>::eventFilter(QObject *obj, QEvent *ev)
 			case QEvent::MouseButtonRelease:
 			case QEvent::MouseButtonDblClick:
 			case QEvent::Leave:
+			case QEvent::MouseMove:
 				return false;
 			default:
 				break;
@@ -447,6 +447,13 @@ void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QM
 }
 
 template<class T, class U>
+void CScriptureText<T,U>::mouseMoveEvent(QMouseEvent *ev)
+{
+	m_ptLastTrackPosition = ev->pos();
+	U::mouseMoveEvent(ev);
+}
+
+template<class T, class U>
 void CScriptureText<T,U>::showPassageNavigator()
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -536,6 +543,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
 	menu.exec(T::viewport()->mapToGlobal(pos));
+	m_ptLastTrackPosition = pos;
 
 	end_popup();
 }
@@ -690,6 +698,7 @@ void CScriptureText<T,U>::en_copy()
 	m_bDoingPopup = false;
 	clearHighlighting();
 	T::copy();
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -702,6 +711,7 @@ void CScriptureText<T,U>::en_copyPlain()
 	m_bDoPlainCopyOnly = true;		// Do plaintext only so user can paste into Word without changing its format, for example
 	T::copy();
 	m_bDoPlainCopyOnly = false;
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -712,6 +722,7 @@ void CScriptureText<T,U>::en_copyRaw()
 	mime->setText(m_selectedPhrase.phrase().phrase());
 	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -722,6 +733,7 @@ void CScriptureText<T,U>::en_copyVeryRaw()
 	mime->setText(m_selectedPhrase.phrase().phraseRaw());
 	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -744,6 +756,7 @@ void CScriptureText<T,U>::en_copyReferenceDetails()
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -754,6 +767,7 @@ void CScriptureText<T,U>::en_copyPassageStatistics()
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -764,6 +778,7 @@ void CScriptureText<T,U>::en_copyEntirePassageDetails()
 	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, false));
 	CMimeHelper::addPhraseTagToMimeData(mime, selection());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
 }
 
 template<class T, class U>
@@ -785,6 +800,14 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	mime->setText(docFormattedVerses.toPlainText());
 	if (!bPlainOnly) mime->setHtml(docFormattedVerses.toHtml());
 	QApplication::clipboard()->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::displayCopyCompleteToolTip() const
+{
+	QPoint ptPos = T::mapToGlobal(m_ptLastTrackPosition);
+	new CNotificationToolTip(1000, ptPos, T::tr("Text Copied to Clipboard"), T::viewport());
 }
 
 // ----------------------------------------------------------------------------
