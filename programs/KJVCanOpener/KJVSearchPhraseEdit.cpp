@@ -523,7 +523,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.chkDisable->setChecked(parsedPhrase()->isDisabled());
 	ui.buttonAddPhrase->setEnabled(false);
 	ui.buttonDelPhrase->setEnabled(false);
-	ui.buttonClear->setEnabled(false);
+	ui.buttonClear->setEnabled(true);
 
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(ui.editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
@@ -554,6 +554,11 @@ void CKJVSearchPhraseEdit::closeSearchPhrase()
 {
 	emit closingSearchPhrase(this);
 	delete this;
+}
+
+void CKJVSearchPhraseEdit::clearSearchPhrase()
+{
+	en_phraseClear();
 }
 
 void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
@@ -699,6 +704,10 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 	ui.editPhrase->clear();
 	m_phraseEntry.clear();
 	// No need to call setPhraseButtonEnables because the textChanged event caused by the call above will do it for us
+	en_CaseSensitiveChanged(false);
+	en_AccentSensitiveChanged(false);
+	en_ExcludeChanged(false);
+	setDisabled(false);
 }
 
 void CKJVSearchPhraseEdit::setPhraseButtonEnables()
@@ -708,5 +717,5 @@ void CKJVSearchPhraseEdit::setPhraseButtonEnables()
 	bool bHaveText = (!m_phraseEntry.text().isEmpty());
 	ui.buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
 	ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
-	ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
+//	ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
 }

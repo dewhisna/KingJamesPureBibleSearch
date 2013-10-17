@@ -77,6 +77,7 @@ signals:				// Outgoing Pass-Through:
 
 public slots:
 	void reset();
+	void clearAllSearchPhrases();
 	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
 	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
 

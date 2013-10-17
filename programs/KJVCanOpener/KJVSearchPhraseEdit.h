@@ -158,6 +158,7 @@ public slots:
 	void focusEditor() const;
 	void phraseStatisticsChanged() const;
 	void closeSearchPhrase();
+	void clearSearchPhrase();
 	void setDisabled(bool bDisabled);
 	void setSearchActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
 

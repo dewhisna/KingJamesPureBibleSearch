@@ -322,9 +322,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --- File Menu
 	QMenu *pFileMenu = ui.menuBar->addMenu(tr("&File"));
 
-	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()), QKeySequence(Qt::CTRL + Qt::Key_E));
-	pAction->setStatusTip(tr("Clear All Search Phrases and Begin New Search"));
-	pAction->setToolTip("Clear All Search Phrases and Begin New Search");
+	pAction = pFileMenu->addAction(QIcon(":/res/file-new-icon2.png"), tr("&New Search"), this, SLOT(en_NewSearch()));
+	pAction->setStatusTip(tr("Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search"));
+	pAction->setToolTip("Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search");
 	ui.mainToolBar->addAction(pAction);
 
 	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
@@ -335,6 +335,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File..."), this, SLOT(en_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
 	pAction->setStatusTip(tr("Save current Search Phrases to a King James Search File"));
 	pAction->setToolTip(tr("Save current Search Phrases to a King James Search File"));
+	ui.mainToolBar->addAction(pAction);
+
+	pFileMenu->addSeparator();
+	ui.mainToolBar->addSeparator();
+
+	pAction = pFileMenu->addAction(QIcon(":/res/edit_clear.png"), tr("Cl&ear Search Phrases"), this, SLOT(en_ClearSearchPhrases()), QKeySequence(Qt::CTRL + Qt::Key_E));
+	pAction->setStatusTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings"));
+	pAction->setToolTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings"));
 	ui.mainToolBar->addAction(pAction);
 
 	pFileMenu->addSeparator();
@@ -547,7 +555,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavHome->setEnabled(m_pBrowserWidget->isBackwardAvailable() ||
 									m_pBrowserWidget->isForwardAvailable());
 
-	m_pActionNavClear = new QAction(QIcon(":/res/edit_clear.png"), tr("&Clear Navigation History"), this);
+	m_pActionNavClear = new QAction(QIcon(":/res/Actions-edit-clear-icon-128.png"), tr("&Clear Navigation History"), this);
 	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip(tr("Clear All Passage Navigation History"));
 	ui.browserNavigationToolBar->addAction(m_pActionNavClear);
@@ -1290,6 +1298,12 @@ void CKJVCanOpener::en_SaveSearch()
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed"), tr("Failed to save the specified KJV Search File!"));
+}
+
+void CKJVCanOpener::en_ClearSearchPhrases()
+{
+	m_pSearchSpecWidget->clearAllSearchPhrases();
+	if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();
 }
 
 bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)

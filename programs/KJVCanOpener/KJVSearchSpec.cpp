@@ -145,6 +145,13 @@ void CKJVSearchSpec::reset()
 	ui.widgetSearchCriteria->setSearchWithin(QString());
 }
 
+void CKJVSearchSpec::clearAllSearchPhrases()
+{
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		m_lstSearchPhraseEditors.at(ndx)->clearSearchPhrase();
+	}
+}
+
 void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
 {
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;

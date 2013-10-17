@@ -148,6 +148,7 @@ protected slots:
 	void en_NewSearch();
 	void en_OpenSearch();
 	void en_SaveSearch();
+	void en_ClearSearchPhrases();
 
 	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
