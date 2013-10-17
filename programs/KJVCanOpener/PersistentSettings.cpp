@@ -76,6 +76,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
+		m_nInitialNumberOfSearchPhrases(1),
 		m_bAutoExpandSearchResultsTree(true),
 		// Default Browser Options:
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
@@ -150,6 +151,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
+		if (pSource->m_nInitialNumberOfSearchPhrases != pTarget->m_nInitialNumberOfSearchPhrases) emit changedInitialNumberOfSearchPhrases(pTarget->m_nInitialNumberOfSearchPhrases);
 		if (pSource->m_bAutoExpandSearchResultsTree != pTarget->m_bAutoExpandSearchResultsTree) emit changedAutoExpandSearchResultsTree(pTarget->m_bAutoExpandSearchResultsTree);
 
 		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
@@ -271,6 +273,12 @@ void CPersistentSettings::setSearchActivationDelay(int nDelay)
 {
 	m_pPersistentSettingData->m_nSearchActivationDelay = nDelay;
 	emit changedSearchPhraseActivationDelay(m_pPersistentSettingData->m_nSearchActivationDelay);
+}
+
+void CPersistentSettings::setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases)
+{
+	m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases = nInitialNumberOfSearchPhrases;
+	emit changedInitialNumberOfSearchPhrases(m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases);
 }
 
 void CPersistentSettings::setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree)

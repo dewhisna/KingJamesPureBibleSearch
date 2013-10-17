@@ -246,6 +246,7 @@ signals:
 private slots:
 	void en_changedSearchPhraseCompleterFilterMode(int nIndex);
 	void en_changedSearchPhraseActivationDelay(int nValue);
+	void en_changedInitialNumberOfSearchPhrases(int nValue);
 	void en_changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
 
 // Data Private:

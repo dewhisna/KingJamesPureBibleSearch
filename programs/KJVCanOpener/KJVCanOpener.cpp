@@ -110,6 +110,7 @@ namespace {
 	const QString constrSearchPhrasesGroup("SearchPhrases");
 	const QString constrSearchActivationDelayKey("SearchActivationDelay");
 	const QString constrSearchPhraseCompleterFilterModeKey("SearchPhraseCompleterFilterMode");
+	const QString constrInitialNumberOfSearchPhrasesKey("InitialNumberOfSearchPhrases");
 
 	// Search Results View:
 	const QString constrSearchResultsViewGroup("SearchResultsView");
@@ -785,6 +786,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.beginGroup(constrSearchPhrasesGroup);
 	settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
 	settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+	settings.setValue(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 	settings.endGroup();
 
 	// Last Search:
@@ -957,6 +959,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		settings.beginGroup(constrSearchPhrasesGroup);
 		CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
 		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
+		CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
 		settings.endGroup();
 
 		// Read Last Search before setting Search Results mode or else the last settings
@@ -1282,6 +1285,7 @@ void CKJVCanOpener::setShowMissingLeafs(bool bShowMissing)
 void CKJVCanOpener::en_NewSearch()
 {
 	m_pSearchSpecWidget->reset();
+	if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();
 }
 
 void CKJVCanOpener::en_OpenSearch()

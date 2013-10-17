@@ -140,7 +140,8 @@ void CKJVSearchSpec::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM 
 void CKJVSearchSpec::reset()
 {
 	closeAllSearchPhrases();
-	addSearchPhrase();
+	for (int nCount = 0; nCount < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++nCount)
+		addSearchPhrase();
 	ui.widgetSearchCriteria->setSearchScopeMode(CSearchCriteria::SSME_WHOLE_BIBLE);
 	ui.widgetSearchCriteria->setSearchWithin(QString());
 }
@@ -186,8 +187,10 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 		}
 	} else {
 		// If the search had no phrases (like default loading from registry), start
-		//		with a single empty search phrase:
+		//		with empty search phrase(s):
 		pFirstSearchPhraseEditor = addSearchPhrase();
+		for (int nCount = 1; nCount < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++nCount)
+			addSearchPhrase();
 	}
 	kjsFile.endArray();
 
