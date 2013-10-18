@@ -115,9 +115,10 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 							if (pmapHighlighterTags) {
 								// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
 								//			(the map is already sorted)
+								TPhraseTag tagVerse = item.getWholeVersePhraseTag();
 								for (THighlighterTagMap::const_iterator itrHighlighters = pmapHighlighterTags->begin(); itrHighlighters != pmapHighlighterTags->end(); ++itrHighlighters) {
 									CUserDefinedHighlighter userHighlighter(itrHighlighters->first, itrHighlighters->second);
-									navigator.doHighlighting(userHighlighter);
+									navigator.doHighlighting(userHighlighter, false, tagVerse);
 								}
 							}
 						}

@@ -295,7 +295,8 @@ public:
 	//		as an optimization to skip areas not within current chapter.  Use
 	//		empty index to ignore.  Highlighting is done in the specified
 	//		color.
-	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const CRelIndex &ndxCurrent = CRelIndex()) const;
+	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const CRelIndex &ndxCurrent) const;
+	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const TPhraseTag &tagCurrent = TPhraseTag()) const;
 
 	// Calculate a phrase tag (reference and word count) that represents the current
 	//		display of our browser text having been set via setDocumentToChapter.  Used

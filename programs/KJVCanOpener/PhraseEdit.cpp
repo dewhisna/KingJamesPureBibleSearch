@@ -919,17 +919,21 @@ int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 
 void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const CRelIndex &ndxCurrent) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
-
-	CPhraseCursor myCursor(&m_TextDocument);
-
-	myCursor.beginEditBlock();
-
 	// Save some time if the tag isn't anything close to what we are displaying.
 	//		We'll find a verse before and a verse after the main chapter being
 	//		displayed (i.e. the actual scripture browser display window).  We
 	//		will precalculate our current index before the main loop:
 	TPhraseTag tagCurrentDisplay = currentChapterDisplayPhraseTag(ndxCurrent);
+	doHighlighting(aHighlighter, bClear, tagCurrentDisplay);
+}
+
+void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const TPhraseTag &tagCurrent) const
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	CPhraseCursor myCursor(&m_TextDocument);
+
+	myCursor.beginEditBlock();
 
 	CHighlighterPhraseTagFwdItr itrHighlighter = aHighlighter.getForwardIterator();
 	while (!itrHighlighter.isEnd()) {
@@ -939,7 +943,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		Check for intersection of the highlight tag with our display:
-		if ((tagCurrentDisplay.isSet()) && (!tag.intersects(m_pBibleDatabase, tagCurrentDisplay))) continue;
+		if ((tagCurrent.isSet()) && (!tag.intersects(m_pBibleDatabase, tagCurrent))) continue;
 
 		unsigned int nTagCount = tag.count();
 		if (nTagCount) --nTagCount;					// Make nTagCount the number of positions to move, not number words

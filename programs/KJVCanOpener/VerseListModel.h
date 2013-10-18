@@ -265,6 +265,10 @@ public:
 	}
 	inline uint32_t getIndexDenormalized() const { return m_pVerseIndex->relIndex().index(); }
 	inline CRelIndex getIndex() const { return m_pVerseIndex->relIndex(); }
+	inline TPhraseTag getWholeVersePhraseTag() const
+	{
+		return TPhraseTag(m_pVerseIndex->relIndex(), m_pBibleDatabase->verseEntry(m_pVerseIndex->relIndex())->m_nNumWrd);
+	}
 	inline unsigned int getPhraseSize(int nTag) const {
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return 0;

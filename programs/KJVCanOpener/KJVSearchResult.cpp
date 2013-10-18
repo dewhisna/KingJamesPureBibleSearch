@@ -60,6 +60,7 @@
 #include <QStyleOptionViewItemV4>
 #include <QList>
 #include <QPair>
+#include <QMessageBox>
 
 // ============================================================================
 
@@ -224,6 +225,13 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if (pCanOpener != NULL) {
+		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
+		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
+		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightSearchResults(QAction *)));
+		// ----
+		m_pEditMenu->addSeparator();
+		m_pEditMenuLocal->insertSeparator(m_pMenuUserNotesInsertionPoint);
+		// ----
 		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
 		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionUserNoteEditor());
 		// ----
@@ -453,6 +461,53 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 
 // ----------------------------------------------------------------------------
 
+void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
+{
+	if (!hasFocus()) return;
+	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
+	assert(vlmodel()->userNotesDatabase() != NULL);
+
+	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(pAction->data().toInt());
+	if (strHighlighterName.isEmpty()) return;
+	const TPhraseTagList *plstHighlighterTags = vlmodel()->userNotesDatabase()->highlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName);
+
+	QModelIndexList lstVerses = getSelectedVerses();
+	if (lstVerses.isEmpty()) return;
+
+	bool bAllAlreadyHighlighted = (plstHighlighterTags != NULL);
+	if (plstHighlighterTags != NULL) {
+		for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
+			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase(), item.getWholeVersePhraseTag())) {
+				bAllAlreadyHighlighted = false;
+				break;
+			}
+		}
+	}
+
+	TPhraseTagList lstVerseTags;
+	lstVerseTags.reserve(lstVerses.size());
+	for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
+		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		lstVerseTags.append(item.getWholeVersePhraseTag());
+	}
+
+	if (bAllAlreadyHighlighted) {
+		int nResult = QMessageBox::information(this, windowTitle(), tr("All of the verses you have selected are already highlighted with that highlighter!\n\n"
+																	   "Do you wish to unhighlight all of them instead??"),
+																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+		if (nResult != QMessageBox::Yes) return;
+		CBusyCursor iAmBusy(NULL);
+		vlmodel()->userNotesDatabase()->removeHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
+		return;
+	}
+
+	CBusyCursor iAmBusy(NULL);
+	vlmodel()->userNotesDatabase()->appendHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
+}
+
+// ----------------------------------------------------------------------------
+
 TVerseIndex CSearchResultsTreeView::currentVerseIndex() const
 {
 	return (*CVerseListModel::toVerseIndex(currentIndex()));
@@ -625,15 +680,17 @@ void CSearchResultsTreeView::handle_selectionChanged()
 */
 
 	nNumResultsSelected = lstSelectedItems.size();
+	bool bHaveVerses = (getSelectedVerses().size() > 0);
+	bool bInSearchResultsMode = ((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
+								 (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 
 	if (nNumResultsSelected) {
-		bool bHaveVerses = (getSelectedVerses().size() > 0);
 		m_pActionCopyVerseText->setEnabled(bHaveVerses);
 		m_pActionCopyRaw->setEnabled(bHaveVerses);
 		m_pActionCopyVeryRaw->setEnabled(bHaveVerses);
 		m_pActionCopyVerseHeadings->setEnabled(true);
-		m_pActionCopyReferenceDetails->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
-		m_pActionCopyComplete->setEnabled((vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) || (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
+		m_pActionCopyReferenceDetails->setEnabled(bInSearchResultsMode);
+		m_pActionCopyComplete->setEnabled(bInSearchResultsMode);
 		m_pActionClearSelection->setEnabled(true);
 	} else {
 		m_pActionCopyVerseText->setEnabled(false);
@@ -655,7 +712,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditableNode);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
-				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
+				lstHighlightActions.at(ndxHighlight)->setEnabled(bInSearchResultsMode && vlmodel()->showHighlightersInSearchResults() && bHaveVerses);
 			}
 		}
 	}
