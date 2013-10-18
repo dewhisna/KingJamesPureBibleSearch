@@ -1272,6 +1272,8 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		emit verseListAboutToChange();
 		emit beginResetModel();
+	} else if ((m_private.m_bShowHighlightersInSearchResults) && ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) || (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED))) {
+		emit layoutAboutToBeChanged();
 	}
 
 	if (ndxHighlighter == -1) {
@@ -1305,6 +1307,8 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		emit endResetModel();
 		emit verseListChanged();
+	} else if ((m_private.m_bShowHighlightersInSearchResults) && ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) || (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED))) {
+		emit layoutChanged();
 	}
 }
 
