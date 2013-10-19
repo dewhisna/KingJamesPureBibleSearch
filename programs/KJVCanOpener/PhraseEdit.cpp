@@ -503,8 +503,27 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 			nCursorWord -= (m_lstSubPhrases.at(ndxSubPhrase)->m_lstWords.size() + 1);	// +1 for "word between subprases"
 		}
 	}
-	assert(m_nActiveSubPhrase != -1);
-	if (m_nActiveSubPhrase == -1) m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+	// Note: It's possible to have not hit an ActiveSubPhrase above if the user had
+	//		a single word or phrase, selects the whole phrase, and then presses space.
+	//		That causes us to have a cursor character and go through this parsing logic,
+	//		but we have only one subPhrase and no words.  It should only be true that
+	//		nCursorWord is 0 and that there is only one phrase (though I'm not explicitly
+	//		requiring that below) and that phrase should have no words in it.
+	//		Also, we know we have at least one SubPhrase in our list due to the assert
+	//		above after the call to ParsePhrase(strComplete), so there's no need to
+	//		recheck that:
+	if (m_nActiveSubPhrase == -1) {
+		assert(nCursorWord == 0);		// If we aren't at a non-existent word at the end of an empty phrase, then something went wrong above
+		m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+		if (nCursorWord < m_lstSubPhrases[m_nActiveSubPhrase]->m_lstWords.size()) {
+			// I don't think this case can ever happen, as we should have set the word in the loop above:
+			assert(false);
+			m_lstSubPhrases[m_nActiveSubPhrase]->m_strCursorWord = m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstWords.at(nCursorWord);
+		} else {
+			m_lstSubPhrases[m_nActiveSubPhrase]->m_strCursorWord = QString();
+		}
+		m_lstSubPhrases[m_nActiveSubPhrase]->m_nCursorWord = nCursorWord;
+	}
 }
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)
