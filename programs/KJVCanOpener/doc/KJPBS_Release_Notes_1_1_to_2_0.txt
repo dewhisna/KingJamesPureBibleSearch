@@ -1,0 +1,31 @@
+King James Pure Bible Search
+Change Notes
+1.1 to 2.0
+----------------------------
+- User Notes Files to support text highlighting, note taking, and passage
+	cross-references
+- Much much faster text searching and search results rendering
+- Multiple Search Window Support
+- Search Within capability to let user select specific parts of the Bible
+	to search
+- Search Phrase 'OR' operator and Phrase-Exclusions
+- Details Popup Window Push-Pin to tack the Details Window in place
+- SoundEx support for the auto-completion list to allow the user to enter
+	a word the way they think it sounds and still find it in the list
+- Improved passage entering support for entering a passage reference
+	textually as well as via drop lists
+- User Defined Text color controls and Text Brightness adjustment (useful
+	for people with light sensitivity and dry-eye conditions)
+- New database format that's about 2/3rds the size of the previous format,
+	but with improved rendering capabilities
+- Webster-1828 Dictionary with auto-word locate
+- User selectable copy options to control the format of the copied text
+- Additions to support foreign language Bible text database files -- note:
+	Foreign language translations will NOT be included in the 2.0
+	Release due to time constraints. It's planned for the 3.0 Release.
+- Memory usage optimizations
+- Rewrite of the main graphical elements to split it into subparts in
+	preparation for mobile release
+- Additional User Controls and User Settable Options
+
+
