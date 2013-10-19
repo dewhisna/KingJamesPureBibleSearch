@@ -441,6 +441,7 @@ void CKJVSearchCriteriaWidget::setSearchWithin(const TRelativeIndexSet &aSetSear
 
 	m_SearchCriteria.setSearchWithin(aSetSearchWithin);
 	m_pSearchWithinModel->setSearchWithin(m_SearchCriteria.searchWithin());
+	emit changedSearchCriteria();			// This is needed because the begin/end update will prevent us from firing it in the model en_changedSearchWithin callback
 
 	end_update();
 }
@@ -451,6 +452,7 @@ void CKJVSearchCriteriaWidget::setSearchWithin(const QString &strSearchWithin)
 
 	m_SearchCriteria.setSearchWithin(m_pBibleDatabase, strSearchWithin);
 	m_pSearchWithinModel->setSearchWithin(m_SearchCriteria.searchWithin());
+	emit changedSearchCriteria();			// This is needed because the begin/end update will prevent us from firing it in the model en_changedSearchWithin callback
 
 	end_update();
 }
