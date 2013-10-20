@@ -77,7 +77,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
 		m_nInitialNumberOfSearchPhrases(1),
-		m_bAutoExpandSearchResultsTree(true),
+		m_bAutoExpandSearchResultsTree(false),
 		// Default Browser Options:
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 		m_nPassageReferenceActivationDelay(2000),
