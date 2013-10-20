@@ -100,9 +100,6 @@ protected:
 	virtual void insertFromMimeData(const QMimeData * source);
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
 
-	// TODO : Remove this and set parent to non-virtual after done debugging!
-	virtual void ParsePhrase(const QTextCursor &curInsert);
-
 protected:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);

@@ -294,7 +294,6 @@ void CPhraseLineEdit::processPendingUpdateCompleter()
 
 	m_dlyUpdateCompleter.untrigger();
 	ParsePhrase(textCursor());
-	FindWords();
 	if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
 }
 
@@ -353,31 +352,6 @@ void CPhraseLineEdit::delayed_UpdatedCompleter()
 	}
 
 	cursor.endEditBlock();
-}
-
-void CPhraseLineEdit::ParsePhrase(const QTextCursor &curInsert)
-{
-	// TODO : Remove this function after done debugging!
-
-	CParsedPhrase::ParsePhrase(curInsert);
-
-/*
-	if (m_pStatusAction) {
-		QString strTemp;
-//		for (int n=0; n<m_lstWords.size(); ++n) {
-//			if (n==m_nCursorWord) strTemp += "(";
-//			strTemp += m_lstWords[n];
-//			if (n==m_nCursorWord) strTemp += ")";
-//			strTemp += " ";
-//		}
-//		strTemp += QString("  Cursor: %1  CursorLevel: %2  Level: %3  Words: %4").arg(m_nCursorWord).arg(m_nCursorLevel).arg(m_nLevel).arg(m_lstWords.size());
-		strTemp = QString("MatchLevel: %1  PhraseSize: %2").arg(GetMatchLevel()).arg(phraseSize());
-		setStatusTip(strTemp);
-		m_pStatusAction->setStatusTip(strTemp);
-		m_pStatusAction->showStatusText();
-	}
-*/
-
 }
 
 bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const

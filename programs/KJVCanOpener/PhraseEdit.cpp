@@ -427,7 +427,7 @@ QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const 
 	return myCursor;
 }
 
-void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
+void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 {
 	// Note: clearCache() called in secondary ParsePhrase() call below
 	//		once we've parsed the cursor into a string
@@ -524,6 +524,8 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert)
 		}
 		m_lstSubPhrases[m_nActiveSubPhrase]->m_nCursorWord = nCursorWord;
 	}
+
+	if (bFindWords) FindWords();
 }
 
 void CParsedPhrase::ParsePhrase(const QString &strPhrase)
