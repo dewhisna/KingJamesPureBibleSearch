@@ -59,7 +59,7 @@ extern CMyApplication *g_pMyApplication;
 
 // ============================================================================
 
-#define KJS_FILE_VERSION 1				// Current KJS File Version (King James Search file)
+#define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
 #define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
 
 #define NUM_QUICK_ACTIONS 10
