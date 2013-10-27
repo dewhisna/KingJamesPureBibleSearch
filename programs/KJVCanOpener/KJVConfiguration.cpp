@@ -1171,7 +1171,9 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 
 void CKJVUserNotesDatabaseConfig::en_changedPrimaryUserNotesFilename(const QString &strFilename)
 {
+	bool bHadFocus = ui.btnStartNewUserNotesFile->hasFocus();
 	ui.btnStartNewUserNotesFile->setEnabled(!strFilename.isEmpty());
+	if ((bHadFocus) && (strFilename.isEmpty())) ui.btnSetPrimaryUserNotesFilename->setFocus();		// If the Start New Button had focus (i.e. user clicked it), pass focus off to the Set/Load button
 }
 
 void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
