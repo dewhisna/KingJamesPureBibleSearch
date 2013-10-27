@@ -617,7 +617,7 @@ bool CUserNotesDatabase::load()
 
 bool CUserNotesDatabase::load(QIODevice *pIODevice)
 {
-	emit aboutToChangeHighlighters();
+	emit aboutToChangeHighlighters();		// Highlighter definitions (not tags) -- Guarantee this gets sent as the clear() only does it if we have definitions
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
 	emit removedUserNote(CRelIndex());
 	m_strLastError.clear();
@@ -1070,7 +1070,7 @@ void CUserNotesDatabase::setHighlighterColor(const QString &strUserDefinedHighli
 {
 	QColor colorOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color;
 	if (colorOriginal != color) {
-		emit aboutToChangeHighlighters();
+		emit aboutToChangeHighlighters();		// Highlighter definitions (not tags)
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_color = color;
 		emit changedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -1082,7 +1082,7 @@ void CUserNotesDatabase::setHighlighterEnabled(const QString &strUserDefinedHigh
 {
 	bool bEnabledOriginal = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled;
 	if (bEnabledOriginal != bEnabled) {
-		emit aboutToChangeHighlighters();
+		emit aboutToChangeHighlighters();		// Highlighter definitions (not tags)
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions[strUserDefinedHighlighterName].m_bEnabled = bEnabled;
 		emit changedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -1099,7 +1099,7 @@ bool CUserNotesDatabase::renameHighlighter(const QString &strOldUserDefinedHighl
 		if (highlighterTagsFor(itrDB->first, strOldUserDefinedHighlighterName)) return false;
 	}
 
-	emit aboutToChangeHighlighters();
+	emit aboutToChangeHighlighters();		// Highlighter definitions (not tags)
 	m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.insert(strNewUserDefinedHighlighterName, m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.value(strOldUserDefinedHighlighterName));
 	m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.remove(strOldUserDefinedHighlighterName);
 	emit changedHighlighter(strNewUserDefinedHighlighterName);
@@ -1113,7 +1113,7 @@ bool CUserNotesDatabase::renameHighlighter(const QString &strOldUserDefinedHighl
 void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighlighterName)
 {
 	if (existsHighlighter(strUserDefinedHighlighterName)) {
-		emit aboutToChangeHighlighters();
+		emit aboutToChangeHighlighters();		// Highlighter definitions (not tags)
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.remove(strUserDefinedHighlighterName);
 		emit removedHighlighter(strUserDefinedHighlighterName);
 		emit changedHighlighters();
@@ -1124,7 +1124,7 @@ void CUserNotesDatabase::removeHighlighter(const QString &strUserDefinedHighligh
 void CUserNotesDatabase::removeAllHighlighters()
 {
 	if (m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.size()) {
-		emit aboutToChangeHighlighters();
+		emit aboutToChangeHighlighters();		// Highlighter definitions (not tags)
 		m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.clear();
 		emit changedHighlighters();
 		m_pUserNotesDatabaseData->m_bIsDirty = true;
@@ -1149,4 +1149,23 @@ void CUserNotesDatabase::toggleUserNotesDatabaseData(bool bCopy)
 	if (!bCopy) {
 		if (pSource->m_mapHighlighterDefinitions != pTarget->m_mapHighlighterDefinitions) emit changedHighlighters();
 	}
+}
+
+void CUserNotesDatabase::initUserNotesDatabaseData()
+{
+	emit aboutToChangeHighlighters();		// Highlighter definitions (not tags) -- Guarantee this gets sent as the clear() only does it if we have definitions
+	clear();				// This will set "isDirty", which we'll leave set until we've finished clearing
+	*m_pUserNotesDatabaseData = TUserNotesDatabaseData();
+	emit changedHighlighters();
+
+	m_strLastError.clear();
+
+	// Mimic "Load" without the loading:
+	m_bIsDirty = false;
+	m_pUserNotesDatabaseData->m_bIsDirty = false;
+	emit changedUserNotesDatabase();
+	emit changedHighlighters();
+	emit addedUserNote(CRelIndex());
+	emit changedUserNotesKeywords();
+	emit changedAllCrossRefs();
 }

@@ -80,7 +80,20 @@
         <string>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</string>
        </property>
        <property name="text">
-        <string>&amp;Set Primary Notes File...</string>
+        <string>&amp;Set Primary Notes File (Load)...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnStartNewUserNotesFile">
+       <property name="toolTip">
+        <string>Close the Current Primary Notes File and Start with a New Empty Notes File</string>
+       </property>
+       <property name="statusTip">
+        <string>Close the Current Primary Notes File and Start with a New Empty Notes File</string>
+       </property>
+       <property name="text">
+        <string>Start New Notes File</string>
        </property>
       </widget>
      </item>
@@ -135,12 +148,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="editBackupExtension">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="toolTip">
         <string>Extension to add to Notes File Backups</string>
        </property>
@@ -206,8 +213,10 @@
  <tabstops>
   <tabstop>editPrimaryUserNotesFilename</tabstop>
   <tabstop>btnSetPrimaryUserNotesFilename</tabstop>
+  <tabstop>btnStartNewUserNotesFile</tabstop>
   <tabstop>checkBoxKeepBackup</tabstop>
   <tabstop>editBackupExtension</tabstop>
+  <tabstop>buttonDefaultNoteBackgroundColor</tabstop>
  </tabstops>
  <resources/>
  <connections/>

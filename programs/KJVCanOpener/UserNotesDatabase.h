@@ -296,6 +296,7 @@ public:
 	bool renameHighlighter(const QString &strOldUserDefinedHighlighterName, const QString &strNewUserDefinedHighlighterName);
 
 	void toggleUserNotesDatabaseData(bool bCopy);
+	void initUserNotesDatabaseData();								// Reinitializes the current working data set to the default constructed version (used in things like fail KJN load attempts)
 
 public slots:
 	void setHighlighterColor(const QString &strUserDefinedHighlighterName, const QColor &color);

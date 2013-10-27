@@ -965,12 +965,17 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 	ui.horizontalLayoutNoteBackgroundColor->insertWidget(ndx, ui.buttonDefaultNoteBackgroundColor);
 
 	connect(ui.btnSetPrimaryUserNotesFilename, SIGNAL(clicked()), this, SLOT(en_clickedSetPrimaryUserNotesFilename()));
+	connect(ui.btnStartNewUserNotesFile, SIGNAL(clicked()), this, SLOT(en_clickedStartNewUserNotesFile()));
+	connect(ui.editPrimaryUserNotesFilename, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedPrimaryUserNotesFilename(const QString &)));
 	connect(ui.checkBoxKeepBackup, SIGNAL(clicked()), this, SLOT(en_changedKeepBackup()));
 	connect(ui.editBackupExtension, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedBackupExtension()));
 
 	connect(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_DefaultNoteBackgroundColorPicked(const QColor &)));
 
 	loadSettings();
+	// If initial name was empty, we won't have gotten a change notification, so
+	//		handle it manually:
+	if (ui.editPrimaryUserNotesFilename->text().isEmpty()) en_changedPrimaryUserNotesFilename(QString());
 }
 
 CKJVUserNotesDatabaseConfig::~CKJVUserNotesDatabaseConfig()
@@ -1080,12 +1085,22 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 		// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
 	}	//	(or we didn't have an updated file to save)...
 
+	bool bLoadFailed = false;
 	bDone = false;
 	while (!bDone) {
 		QString strNewFilePathName = m_pUserNotesDatabase->errorFilePathName();
 		if (strNewFilePathName.isEmpty()) strNewFilePathName = m_pUserNotesDatabase->filePathName();
 		strNewFilePathName = QFileDialog::getOpenFileName(this, tr("Load King James Notes File"), strNewFilePathName, tr("King James Notes File (*.kjn)"), NULL, 0);
-		if (strNewFilePathName.isEmpty()) return;		// Empty if user cancels
+		if (strNewFilePathName.isEmpty()) {		// Empty if user cancels
+			if (bLoadFailed) {
+				// If our previous load failed, we now have an uninitalized notes file.  So,
+				//		let's just initialize like a new Notes File.  Note the edit box will
+				//		already show the empty filename from the path below:
+				m_pUserNotesDatabase->initUserNotesDatabaseData();				// Note, this will leave dirty as false until user actually edits the notes file (as it should be)
+				m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
+			}
+			return;
+		}
 
 		m_pUserNotesDatabase->setFilePathName(strNewFilePathName);
 		ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
@@ -1098,6 +1113,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			m_pUserNotesDatabase->setErrorFilePathName(m_pUserNotesDatabase->filePathName());
 			m_pUserNotesDatabase->setFilePathName(QString());
 			ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+			bLoadFailed = true;
 			continue;
 		} else {
 			if (m_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
@@ -1116,6 +1132,46 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			bDone = true;
 		}
 	}
+
+	m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
+}
+
+void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
+{
+	if ((m_pUserNotesDatabase->filePathName().isEmpty()) || (ui.editPrimaryUserNotesFilename->text().isEmpty())) return;
+
+	bool bDone = false;
+	while (!bDone) {
+		if ((m_pUserNotesDatabase->isDirty()) && (!m_pUserNotesDatabase->save())) {
+			int nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError() +
+													tr("\n\nUnable to save the current King James Notes File!\n\n"
+													   "Click 'Yes' to try again, or\n"
+													   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
+													   "Click 'Cancel' to return to King James Pure Bible Search..."),
+											   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+			// If the user cancelled, return back to the app:
+			if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
+				return;
+			}
+			// If they want to lose their changes, break out of loop:
+			if (nResult == QMessageBox::No) {
+				bDone = true;
+			}
+		} else {
+			bDone = true;
+		}
+	}
+
+	m_pUserNotesDatabase->setErrorFilePathName(QString());
+	m_pUserNotesDatabase->setFilePathName(QString());
+	ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+	m_pUserNotesDatabase->initUserNotesDatabaseData();				// Note, this will leave dirty as false until user actually edits the notes file (as it should be)
+	m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
+}
+
+void CKJVUserNotesDatabaseConfig::en_changedPrimaryUserNotesFilename(const QString &strFilename)
+{
+	ui.btnStartNewUserNotesFile->setEnabled(!strFilename.isEmpty());
 }
 
 void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()

@@ -207,6 +207,8 @@ signals:
 
 private slots:
 	void en_clickedSetPrimaryUserNotesFilename();
+	void en_clickedStartNewUserNotesFile();
+	void en_changedPrimaryUserNotesFilename(const QString &strFilename);
 	void en_changedKeepBackup();
 	void en_changedBackupExtension();
 	void en_DefaultNoteBackgroundColorPicked(const QColor &color);
