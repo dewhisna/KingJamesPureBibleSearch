@@ -257,7 +257,6 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_bLoadingData(false)
 {
 	assert(pBibleDatabase != NULL);
-	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	ui.setupUi(this);
@@ -325,23 +324,28 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
-	m_pDictionaryWidget = new CDictionaryWidget(pDictionary, this);
-	m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
-	QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	aSizePolicyDictionary.setHorizontalStretch(20);
-	aSizePolicyDictionary.setVerticalStretch(0);
-	aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
-	m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
-	m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview"));
+	if (pDictionary != NULL) {
+		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, this);
+		m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
+		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		aSizePolicyDictionary.setHorizontalStretch(20);
+		aSizePolicyDictionary.setVerticalStretch(0);
+		aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
+		m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
+		m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview"));
 
-	delete ui.widgetDictionary;
-	ui.widgetDictionary = NULL;
-	ui.splitterDictionary->insertWidget(ndx, m_pDictionaryWidget);
+		delete ui.widgetDictionary;
+		ui.widgetDictionary = NULL;
+		ui.splitterDictionary->insertWidget(ndx, m_pDictionaryWidget);
+	} else {
+		delete ui.widgetDictionary;
+		ui.widgetDictionary = NULL;
+	}
 
 	// --------------------------------------------------------------
 
 	ui.splitterDictionary->setStretchFactor(0, 10);
-	ui.splitterDictionary->setStretchFactor(1, 1);
+	if (ui.splitterDictionary->count() > 1) ui.splitterDictionary->setStretchFactor(1, 1);
 
 	// --------------------------------------------------------------
 
@@ -400,7 +404,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	QWidget::setTabOrder(ui.buttonSearchResultsColor, ui.buttonCursorFollowColor);
 	QWidget::setTabOrder(ui.buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
-	QWidget::setTabOrder(m_pScriptureBrowser, m_pDictionaryWidget);
+	if (m_pDictionaryWidget != NULL) QWidget::setTabOrder(m_pScriptureBrowser, m_pDictionaryWidget);
 
 	// --------------------------------------------------------------
 
@@ -533,7 +537,7 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 	if (m_bLoadingData) return;
 
 	m_fntDictionary.setFamily(font.family());
-	m_pDictionaryWidget->setFont(m_fntDictionary);
+	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -563,7 +567,7 @@ void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
 	if (m_bLoadingData) return;
 
 	m_fntDictionary.setPointSizeF(nFontSize);
-	m_pDictionaryWidget->setFont(m_fntDictionary);
+	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged();
 }
@@ -892,14 +896,14 @@ void CKJVTextFormatConfig::setPreview()
 {
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	m_pScriptureBrowser->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
-	m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 }
 
 void CKJVTextFormatConfig::en_selectionChangedBrowser()
 {
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection();
 
-	if ((tagSelection.isSet()) && (tagSelection.count() < 2)) {
+	if ((tagSelection.isSet()) && (tagSelection.count() < 2) && (m_pDictionaryWidget != NULL)) {
 		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex())));
 	}
 }
@@ -1764,7 +1768,6 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pBibleDatabaseConfig(NULL)
 {
 	assert(pBibleDatabase != NULL);
-	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
@@ -1846,7 +1849,6 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_pButtonBox(NULL)
 {
 	assert(pBibleDatabase != NULL);
-	assert(pDictionary != NULL);
 	assert(g_pUserNotesDatabase != NULL);
 
 	// --------------------------------------------------------------

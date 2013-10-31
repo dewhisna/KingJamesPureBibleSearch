@@ -280,19 +280,21 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBrowserWidget->setSizePolicy(aSizePolicy);
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
-	m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
-	m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
-	QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	aSizePolicyDictionary.setHorizontalStretch(20);
-	aSizePolicyDictionary.setVerticalStretch(0);
-	aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
-	m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
-	m_pSplitterDictionary->addWidget(m_pDictionaryWidget);
+	if (g_pMainDictionaryDatabase != NULL) {
+		m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
+		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
+		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		aSizePolicyDictionary.setHorizontalStretch(20);
+		aSizePolicyDictionary.setVerticalStretch(0);
+		aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
+		m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
+		m_pSplitterDictionary->addWidget(m_pDictionaryWidget);
+	}
 
 	m_pSplitter->addWidget(m_pSplitterDictionary);
 
 	m_pSplitterDictionary->setStretchFactor(0, 10);
-	m_pSplitterDictionary->setStretchFactor(1, 1);
+	if (m_pSplitterDictionary->count() > 1) m_pSplitterDictionary->setStretchFactor(1, 1);
 
 	ui.horizontalLayout->addWidget(m_pSplitter);
 
@@ -309,7 +311,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 // The following is supposed to be another workaround for QTBUG-13768
 //	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
 	m_pSplitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
-	m_pSplitterDictionary->handle(1)->setAttribute(Qt::WA_Hover);
+	if (m_pSplitterDictionary->count() > 1) m_pSplitterDictionary->handle(1)->setAttribute(Qt::WA_Hover);
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
 
@@ -658,7 +660,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Scripture Browser:
 
-	connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
+	if (m_pDictionaryWidget != NULL) {
+		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
+	}
 
 	// -------------------- UserNoteEditor Dialog:
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
