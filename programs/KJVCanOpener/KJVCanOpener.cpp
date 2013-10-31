@@ -373,8 +373,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pViewToolbarsMenu->addAction(ui.usernotesToolBar->toggleViewAction());
 	ui.usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
 
-	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
+	pAction = m_pViewMenu->addSeparator();
+	pAction->setText(tr("View Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F6).toString(QKeySequence::NativeText)));
+	pAction = m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
+	pAction->setText(tr("View Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F6).toString(QKeySequence::NativeText)));
 
 	m_pActionGroupViewMode = new QActionGroup(this);
 	m_pActionGroupViewMode->setExclusive(true);
@@ -419,10 +421,17 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_CROSSREFS);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
-	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
-
 	connect(m_pActionGroupViewMode, SIGNAL(triggered(QAction*)), this, SLOT(en_viewModeChange(QAction*)));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::Key_F6));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_nextViewMode()));
+
+	pAction = m_pViewMenu->addSeparator();
+	pAction->setText(tr("Tree Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F7).toString(QKeySequence::NativeText)));
+	pAction = m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
+	pAction->setText(tr("Tree Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F7).toString(QKeySequence::NativeText)));
 
 	m_pActionGroupTreeMode = new QActionGroup(this);
 	m_pActionGroupTreeMode->setExclusive(true);
@@ -453,10 +462,15 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	connect(m_pActionGroupTreeMode, SIGNAL(triggered(QAction*)), this, SLOT(en_treeModeChange(QAction*)));
 
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::Key_F7));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_nextTreeMode()));
+
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
 
-	m_pActionShowMissingLeafs = m_pViewMenu->addAction(tr("View &Missing Books/Chapters"), this, SLOT(en_viewShowMissingsLeafs()));
+	m_pActionShowMissingLeafs = m_pViewMenu->addAction(tr("View &Missing Books/Chapters"), this, SLOT(en_viewShowMissingsLeafs()), QKeySequence(Qt::Key_F4));
 	m_pActionShowMissingLeafs->setStatusTip(tr("Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)"));
 	m_pActionShowMissingLeafs->setCheckable(true);
 	m_pActionShowMissingLeafs->setChecked(bShowMissingLeafs);
@@ -475,8 +489,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchResultWidget, SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionCollapseAll);
 
-	m_pViewMenu->addSeparator();
-	m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
+	pAction = m_pViewMenu->addSeparator();
+	pAction->setText(tr("Display Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F8).toString(QKeySequence::NativeText)));
+	pAction = m_pSearchResultWidget->getLocalEditMenu()->insertSeparator(m_pSearchResultWidget->getLocalEditMenuInsertionPoint());
+	pAction->setText(tr("Display Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F8).toString(QKeySequence::NativeText)));
 
 	m_pActionGroupDisplayMode = new QActionGroup(this);
 	m_pActionGroupDisplayMode->setExclusive(true);
@@ -498,6 +514,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
 	connect(m_pActionGroupDisplayMode, SIGNAL(triggered(QAction*)), this, SLOT(en_displayModeChange(QAction*)));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::Key_F8));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_nextDisplayMode()));
 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();			// Put details at the end
@@ -1545,6 +1566,39 @@ void CKJVCanOpener::en_viewModeChange(QAction *pAction, bool bFocusTree)
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent, bFocusTree);
 }
 
+void CKJVCanOpener::en_nextViewMode()
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel::VERSE_VIEW_MODE_ENUM nNewMode = m_pSearchResultWidget->viewMode();
+
+	switch (m_pSearchResultWidget->viewMode()) {
+		case CVerseListModel::VVME_SEARCH_RESULTS:
+			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED;
+			break;
+		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
+			nNewMode = CVerseListModel::VVME_HIGHLIGHTERS;
+			break;
+		case CVerseListModel::VVME_HIGHLIGHTERS:
+			nNewMode = CVerseListModel::VVME_USERNOTES;
+			break;
+		case CVerseListModel::VVME_USERNOTES:
+			nNewMode = CVerseListModel::VVME_CROSSREFS;
+			break;
+		case CVerseListModel::VVME_CROSSREFS:
+			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS;
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_pSearchResultWidget->setViewMode(nNewMode);
+
+	m_bDoingUpdate = false;
+}
+
 void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 {
 	assert(pAction != NULL);
@@ -1559,6 +1613,30 @@ void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 	m_bDoingUpdate = false;
 
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
+}
+
+void CKJVCanOpener::en_nextDisplayMode()
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nNewMode = m_pSearchResultWidget->displayMode();
+
+	switch (m_pSearchResultWidget->displayMode()) {
+		case CVerseListModel::VDME_HEADING:
+			nNewMode = CVerseListModel::VDME_RICHTEXT;
+			break;
+		case CVerseListModel::VDME_RICHTEXT:
+			nNewMode = CVerseListModel::VDME_HEADING;
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_pSearchResultWidget->setDisplayMode(nNewMode);
+
+	m_bDoingUpdate = false;
 }
 
 void CKJVCanOpener::en_treeModeChange(QAction *pAction)
@@ -1576,6 +1654,34 @@ void CKJVCanOpener::en_treeModeChange(QAction *pAction)
 	m_bDoingUpdate = false;
 
 	m_pSearchResultWidget->setCurrentIndex(ndxCurrent);
+}
+
+void CKJVCanOpener::en_nextTreeMode()
+{
+	if (m_bDoingUpdate) return;
+	m_bDoingUpdate = true;
+
+
+	CVerseListModel::VERSE_TREE_MODE_ENUM nNewMode = m_pSearchResultWidget->treeMode();
+
+	switch (m_pSearchResultWidget->treeMode()) {
+		case CVerseListModel::VTME_LIST:
+			nNewMode = CVerseListModel::VTME_TREE_BOOKS;
+			break;
+		case CVerseListModel::VTME_TREE_BOOKS:
+			nNewMode = CVerseListModel::VTME_TREE_CHAPTERS;
+			break;
+		case CVerseListModel::VTME_TREE_CHAPTERS:
+			nNewMode = CVerseListModel::VTME_LIST;
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_pSearchResultWidget->setTreeMode(nNewMode);
+
+	m_bDoingUpdate = false;
 }
 
 void CKJVCanOpener::en_viewShowMissingsLeafs()

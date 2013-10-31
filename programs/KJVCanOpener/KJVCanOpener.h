@@ -163,8 +163,11 @@ protected slots:
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 	void en_viewModeChange(QAction *pAction, bool bFocusTree = true);
+	void en_nextViewMode();
 	void en_displayModeChange(QAction *pAction);
+	void en_nextDisplayMode();
 	void en_treeModeChange(QAction *pAction);
+	void en_nextTreeMode();
 	void en_viewShowMissingsLeafs();
 
 	void en_gotoIndex(const TPhraseTag &tag);
