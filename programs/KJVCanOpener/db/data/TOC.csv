@@ -1,67 +1,67 @@
-BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
-1,1,1,Genesis,Gen,GEN,50,1533,38262,Law,The First Book of Moses
-2,2,1,Exodus,Exod,EXOD,40,1213,32685,Law,The Second Book of Moses
-3,3,1,Leviticus,Lev,LEV,27,859,24541,Law,The Third Book of Moses
-4,4,1,Numbers,Num,NUM,36,1288,32896,Law,The Fourth Book of Moses
-5,5,1,Deuteronomy,Deut,DEUT,34,959,28352,Law,The Fifth Book of Moses
-6,6,1,Joshua,Josh,JOSH,24,658,18854,OT Narative,
-7,7,1,Judges,Judg,JUDG,21,618,18966,OT Narative,
-8,8,1,Ruth,Ruth,RUTH,4,85,2574,OT Narative,
-9,9,1,1 Samuel,1Sam,SAM1,31,810,25048,OT Narative,"The First Book of Samuel Otherwise Called, The First Book of the Kings"
-10,10,1,2 Samuel,2Sam,SAM2,24,695,20600,OT Narative,"The Second Book of Samuel Otherwise Called, The Second Book of the Kings"
-11,11,1,1 Kings,1Kgs,KGS1,22,816,24513,OT Narative,"The First Book of the Kings Commonly Called, The Third Book of the Kings"
-12,12,1,2 Kings,2Kgs,KGS2,25,719,23517,OT Narative,"The Second Book of the Kings Commonly Called, The Fourth Book of the Kings"
-13,13,1,1 Chronicles,1Chr,CHR1,29,942,20365,OT Narative,The First Book of the Chronicles
-14,14,1,2 Chronicles,2Chr,CHR2,36,822,26069,OT Narative,The Second Book of the Chronicles
-15,15,1,Ezra,Ezra,EZRA,10,280,7440,OT Narative,
-16,16,1,Nehemiah,Neh,NEH,13,406,10480,OT Narative,
-17,17,1,Esther,Esth,ESTH,10,167,5633,OT Narative,
-18,18,1,Job,Job,JOB,42,1070,18098,Wisdom,
-19,19,1,Psalms,Ps,PS,150,2461,42682,Wisdom,
-20,20,1,Proverbs,Prov,PROV,31,915,15038,Wisdom,
-21,21,1,Ecclesiastes,Eccl,ECCL,12,222,5579,Wisdom,"Ecclesiastes; Or, The Preacher"
-22,22,1,Song Of Solomon,Song,SONG,8,117,2658,Wisdom,
-23,23,1,Isaiah,Isa,ISA,66,1292,37036,Major Prophets,The Book of the Prophet Isaiah
-24,24,1,Jeremiah,Jer,JER,52,1364,42654,Major Prophets,The Book of the Prophet Jeremiah
-25,25,1,Lamentations,Lam,LAM,5,154,3411,Major Prophets,The Lamentations of Jeremiah
-26,26,1,Ezekiel,Ezek,EZEK,48,1273,39401,Major Prophets,The Book of the Prophet Ezekiel
-27,27,1,Daniel,Dan,DAN,12,357,11602,Major Prophets,The Book of <i>the Prophet</i> Daniel
-28,28,1,Hosea,Hos,HOS,14,197,5174,Minor Prophets,
-29,29,1,Joel,Joel,JOEL,3,73,2033,Minor Prophets,
-30,30,1,Amos,Amos,AMOS,9,146,4216,Minor Prophets,
-31,31,1,Obadiah,Obad,OBAD,1,21,669,Minor Prophets,
-32,32,1,Jonah,Jonah,JONAH,4,48,1320,Minor Prophets,
-33,33,1,Micah,Mic,MIC,7,105,3152,Minor Prophets,
-34,34,1,Nahum,Nah,NAH,3,47,1284,Minor Prophets,
-35,35,1,Habakkuk,Hab,HAB,3,56,1475,Minor Prophets,
-36,36,1,Zephaniah,Zeph,ZEPH,3,53,1616,Minor Prophets,
-37,37,1,Haggai,Hag,HAG,2,38,1130,Minor Prophets,
-38,38,1,Zechariah,Zech,ZECH,14,211,6443,Minor Prophets,
-39,39,1,Malachi,Mal,MAL,4,55,1781,Minor Prophets,
-40,1,2,Matthew,Matt,MATT,28,1071,23684,NT Narative,The Gospel According to Saint Matthew
-41,2,2,Mark,Mark,MARK,16,678,15166,NT Narative,The Gospel According to Saint Mark
-42,3,2,Luke,Luke,LUKE,24,1151,25939,NT Narative,The Gospel According to Saint Luke
-43,4,2,John,John,JOHN,21,879,19094,NT Narative,The Gospel According to Saint John
-44,5,2,Acts,Acts,ACTS,28,1007,24245,NT Narative,The Acts of the Apostles
-45,6,2,Romans,Rom,ROM,16,433,9422,Pauline Epistles,The Epistle of Paul the Apostle to the Romans
-46,7,2,1 Corinthians,1Cor,COR1,16,437,9462,Pauline Epistles,The First Epistle of Paul the Apostle to the Corinthians
-47,8,2,2 Corinthians,2Cor,COR2,13,257,6065,Pauline Epistles,The Second Epistle of Paul the Apostle to the Corinthians
-48,9,2,Galatians,Gal,GAL,6,149,3084,Pauline Epistles,The Epistle of Paul the Apostle to the Galatians
-49,10,2,Ephesians,Eph,EPH,6,155,3022,Pauline Epistles,The Epistle of Paul the Apostle to the Ephesians
-50,11,2,Philippians,Phil,PHIL,4,104,2183,Pauline Epistles,The Epistle of Paul the Apostle to the Philippians
-51,12,2,Colossians,Col,COL,4,95,1979,Pauline Epistles,The Epistle of Paul the Apostle to the Colossians
-52,13,2,1 Thessalonians,1Thess,THESS1,5,89,1837,Pauline Epistles,The First Epistle of Paul the Apostle to the Thessalonians
-53,14,2,2 Thessalonians,2Thess,THESS2,3,47,1022,Pauline Epistles,The Second Epistle of Paul the Apostle to the Thessalonains
-54,15,2,1 Timothy,1Tim,TIM1,6,113,2244,Pauline Epistles,The First Epistle of Paul the Apostle to Timothy
-55,16,2,2 Timothy,2Tim,TIM2,4,83,1666,Pauline Epistles,The Second Epistle of Paul the Apostle to Timothy
-56,17,2,Titus,Titus,TITUS,3,46,896,Pauline Epistles,The Epistle of Paul to Titus
-57,18,2,Philemon,Phlm,PHLM,1,25,430,Pauline Epistles,The Epistle of Paul to Philemon
-58,19,2,Hebrews,Heb,HEB,13,303,6897,General Epistles,The Epistle of Paul the Apostle to the Hebrews
-59,20,2,James,Jas,JAS,5,108,2304,General Epistles,The General Epistle of James
-60,21,2,1 Peter,1Pet,PET1,5,105,2476,General Epistles,The First General Epistle of Peter
-61,22,2,2 Peter,2Pet,PET2,3,61,1553,General Epistles,The Second General Epistle of Peter
-62,23,2,1 John,1John,JOHN1,5,105,2517,General Epistles,The First General Epistle of John
-63,24,2,2 John,2John,JOHN2,1,13,298,General Epistles,The Second General Epistle of John
-64,25,2,3 John,3John,JOHN3,1,14,294,General Epistles,The Third General Epistle of John
-65,26,2,Jude,Jude,JUDE,1,25,608,General Epistles,The General Epistle of Jude
-66,27,2,Revelation,Rev,REV,22,404,11995,Apocalyptic Epistle,The Revelation of Jesus Christ
+﻿BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
+1,1,1,"Genesis",Gen;Gen;Gn,GEN,50,1533,38262,"Law","The First Book of Moses"
+2,2,1,"Exodus",Exod;Exod;Exo;Ex,EXOD,40,1213,32685,"Law","The Second Book of Moses"
+3,3,1,"Leviticus",Lev;Lev;Lv,LEV,27,859,24541,"Law","The Third Book of Moses"
+4,4,1,"Numbers",Num;Num;Nm,NUM,36,1288,32896,"Law","The Fourth Book of Moses"
+5,5,1,"Deuteronomy",Deut;Deut;Deu;Dt,DEUT,34,959,28352,"Law","The Fifth Book of Moses"
+6,6,1,"Joshua",Josh;Josh;Jos;Jo,JOSH,24,658,18854,"OT Narrative",""
+7,7,1,"Judges",Judg;Judg;Jdg;Jgs,JUDG,21,618,18966,"OT Narrative",""
+8,8,1,"Ruth",Ruth;Ruth;Rut;Ru,RUTH,4,85,2574,"OT Narrative",""
+9,9,1,"1 Samuel",1Sam;1Sam;1Sm,SAM1,31,810,25048,"OT Narrative","The First Book of Samuel Otherwise Called, The First Book of the Kings"
+10,10,1,"2 Samuel",2Sam;2Sam;2Sm,SAM2,24,695,20600,"OT Narrative","The Second Book of Samuel Otherwise Called, The Second Book of the Kings"
+11,11,1,"1 Kings",1Kgs;1Kgs,KGS1,22,816,24513,"OT Narrative","The First Book of the Kings Commonly Called, The Third Book of the Kings"
+12,12,1,"2 Kings",2Kgs;2Kgs,KGS2,25,719,23517,"OT Narrative","The Second Book of the Kings Commonly Called, The Fourth Book of the Kings"
+13,13,1,"1 Chronicles",1Chr;1Chr;1Chron;1Ch,CHR1,29,942,20365,"OT Narrative","The First Book of the Chronicles"
+14,14,1,"2 Chronicles",2Chr;2Chr;2Chron;2Ch,CHR2,36,822,26069,"OT Narrative","The Second Book of the Chronicles"
+15,15,1,"Ezra",Ezra;Ezra;Ezr,EZRA,10,280,7440,"OT Narrative",""
+16,16,1,"Nehemiah",Neh;Neh,NEH,13,406,10480,"OT Narrative",""
+17,17,1,"Esther",Esth;Est;Esth,ESTH,10,167,5633,"OT Narrative",""
+18,18,1,"Job",Job;Job;Jb,JOB,42,1070,18098,"Wisdom",""
+19,19,1,"Psalms",Ps;Ps;Pss,PS,150,2461,42682,"Wisdom",""
+20,20,1,"Proverbs",Prov;Prov;Prv;Pv,PROV,31,915,15038,"Wisdom",""
+21,21,1,"Ecclesiastes",Eccl;Eccl;Eccles,ECCL,12,222,5579,"Wisdom","Ecclesiastes; Or, The Preacher"
+22,22,1,"Song Of Solomon",Song;Song;Sg,SONG,8,117,2658,"Wisdom",""
+23,23,1,"Isaiah",Isa;Isa;Is,ISA,66,1292,37036,"Major Prophets","The Book of the Prophet Isaiah"
+24,24,1,"Jeremiah",Jer;Jer,JER,52,1364,42654,"Major Prophets","The Book of the Prophet Jeremiah"
+25,25,1,"Lamentations",Lam;Lam,LAM,5,154,3411,"Major Prophets","The Lamentations of Jeremiah"
+26,26,1,"Ezekiel",Ezek;Ezek;Eze;Ez,EZEK,48,1273,39401,"Major Prophets","The Book of the Prophet Ezekiel"
+27,27,1,"Daniel",Dan;Dan;Dn,DAN,12,357,11602,"Major Prophets","The Book of <i>the Prophet</i> Daniel"
+28,28,1,"Hosea",Hos;Hos,HOS,14,197,5174,"Minor Prophets",""
+29,29,1,"Joel",Joel;Joel;Joe;Jl,JOEL,3,73,2033,"Minor Prophets",""
+30,30,1,"Amos",Amos;Amos;Amo;Am,AMOS,9,146,4216,"Minor Prophets",""
+31,31,1,"Obadiah",Obad;Obad;Oba;Ob,OBAD,1,21,669,"Minor Prophets",""
+32,32,1,"Jonah",Jonah;Jonah;Jona;Jon,JONAH,4,48,1320,"Minor Prophets",""
+33,33,1,"Micah",Mic;Mic;Mi,MIC,7,105,3152,"Minor Prophets",""
+34,34,1,"Nahum",Nah;Nah;Na,NAH,3,47,1284,"Minor Prophets",""
+35,35,1,"Habakkuk",Hab;Hab;Hb,HAB,3,56,1475,"Minor Prophets",""
+36,36,1,"Zephaniah",Zeph;Zeph;Zep,ZEPH,3,53,1616,"Minor Prophets",""
+37,37,1,"Haggai",Hag;Hag;Hg,HAG,2,38,1130,"Minor Prophets",""
+38,38,1,"Zechariah",Zech;Zech;Zec,ZECH,14,211,6443,"Minor Prophets",""
+39,39,1,"Malachi",Mal;Mal,MAL,4,55,1781,"Minor Prophets",""
+40,1,2,"Matthew",Matt;Matt;Mt,MATT,28,1071,23684,"NT Narrative","The Gospel According to Saint Matthew"
+41,2,2,"Mark",Mark;Mark;Mk,MARK,16,678,15166,"NT Narrative","The Gospel According to Saint Mark"
+42,3,2,"Luke",Luke;Luke;Lk,LUKE,24,1151,25939,"NT Narrative","The Gospel According to Saint Luke"
+43,4,2,"John",John;John;Jhn;Jn,JOHN,21,879,19094,"NT Narrative","The Gospel According to Saint John"
+44,5,2,"Acts",Acts;Acts,ACTS,28,1007,24245,"NT Narrative","The Acts of the Apostles"
+45,6,2,"Romans",Rom;Rom,ROM,16,433,9422,"Pauline Epistles","The Epistle of Paul the Apostle to the Romans"
+46,7,2,"1 Corinthians",1Cor;1Cor,COR1,16,437,9462,"Pauline Epistles","The First Epistle of Paul the Apostle to the Corinthians"
+47,8,2,"2 Corinthians",2Cor;2Cor,COR2,13,257,6065,"Pauline Epistles","The Second Epistle of Paul the Apostle to the Corinthians"
+48,9,2,"Galatians",Gal;Gal,GAL,6,149,3084,"Pauline Epistles","The Epistle of Paul the Apostle to the Galatians"
+49,10,2,"Ephesians",Eph;Eph,EPH,6,155,3022,"Pauline Epistles","The Epistle of Paul the Apostle to the Ephesians"
+50,11,2,"Philippians",Phil;Phil,PHIL,4,104,2183,"Pauline Epistles","The Epistle of Paul the Apostle to the Philippians"
+51,12,2,"Colossians",Col;Col,COL,4,95,1979,"Pauline Epistles","The Epistle of Paul the Apostle to the Colossians"
+52,13,2,"1 Thessalonians",1Thess;1Thess;1Thes;1Th,THESS1,5,89,1837,"Pauline Epistles","The First Epistle of Paul the Apostle to the Thessalonians"
+53,14,2,"2 Thessalonians",2Thess;2Thess;2Thes;2Th,THESS2,3,47,1022,"Pauline Epistles","The Second Epistle of Paul the Apostle to the Thessalonains"
+54,15,2,"1 Timothy",1Tim;1Tim;1Tm,TIM1,6,113,2244,"Pauline Epistles","The First Epistle of Paul the Apostle to Timothy"
+55,16,2,"2 Timothy",2Tim;2Tim;2Tm,TIM2,4,83,1666,"Pauline Epistles","The Second Epistle of Paul the Apostle to Timothy"
+56,17,2,"Titus",Titus;Titus;Ti,TITUS,3,46,896,"Pauline Epistles","The Epistle of Paul to Titus"
+57,18,2,"Philemon",Phlm;Phlm;Philem,PHLM,1,25,430,"Pauline Epistles","The Epistle of Paul to Philemon"
+58,19,2,"Hebrews",Heb;Heb,HEB,13,303,6897,"Pauline Epistles","The Epistle of Paul the Apostle to the Hebrews"
+59,20,2,"James",Jas;Jas,JAS,5,108,2304,"General Epistles","The General Epistle of James"
+60,21,2,"1 Peter",1Pet;1Pet;1Pt,PET1,5,105,2476,"General Epistles","The First General Epistle of Peter"
+61,22,2,"2 Peter",2Pet;2Pet;2Pt,PET2,3,61,1553,"General Epistles","The Second General Epistle of Peter"
+62,23,2,"1 John",1John;1John;1Jn,JOHN1,5,105,2517,"General Epistles","The First General Epistle of John"
+63,24,2,"2 John",2John;2John;2Jn,JOHN2,1,13,298,"General Epistles","The Second General Epistle of John"
+64,25,2,"3 John",3John;3John;3Jn,JOHN3,1,14,294,"General Epistles","The Third General Epistle of John"
+65,26,2,"Jude",Jude;Jude,JUDE,1,25,608,"General Epistles","The General Epistle of Jude"
+66,27,2,"Revelation",Rev;Rev;Rv;Apoc,REV,22,404,11995,"Apocalyptic Epistle","The Revelation of Jesus Christ"
