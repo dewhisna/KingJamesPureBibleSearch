@@ -42,6 +42,7 @@ public:
 	static QByteArray CSVStringToIndexBlob(const QString &str);
 
 protected:
+	bool BuildDBInfoTable();
 	bool BuildTestamentTable();
 	bool BuildBooksTable();
 	bool BuildChaptersTable();

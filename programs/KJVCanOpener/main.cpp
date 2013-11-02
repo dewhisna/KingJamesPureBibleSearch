@@ -780,16 +780,15 @@ int main(int argc, char *argv[])
 		CBuildDatabase bdb(splash);
 		if (bBuildDB) {
 			if (!bdb.BuildDatabase(fiKJVDatabase.absoluteFilePath())) {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build KJV Database!\nAborting..."));
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
 				return -2;
 			}
 		}
 
 		// Read Main Database
 		CReadDatabase rdb(splash);
-		TBibleDescriptor descKJV(constBibleDescriptors[BDE_KJV]);
-		if (!rdb.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), descKJV.m_strDBName, descKJV.m_strDBDesc, descKJV.m_strUUID, true)) {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate KJV Database!\nCheck Installation!"));
+		if (!rdb.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), true)) {
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(fiKJVDatabase.absoluteFilePath()));
 			return -3;
 		}
 

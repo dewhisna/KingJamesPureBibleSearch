@@ -38,7 +38,7 @@ public:
 	CReadDatabase(QWidget *pParent = NULL);
 	~CReadDatabase();
 
-	bool ReadBibleDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain = false);
+	bool ReadBibleDatabase(const QString &strDatabaseFilename, bool bSetAsMain = false);
 	bool ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
 	bool ReadDictionaryDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB = true, bool bSetAsMain = false);
 
@@ -51,6 +51,7 @@ public:
 	// ------------------------------------------------------------------------
 
 protected:
+	bool ReadDBInfoTable();
 	bool ReadTestamentTable();
 	bool ReadBooksTable();
 	bool ReadChaptersTable();

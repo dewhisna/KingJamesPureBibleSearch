@@ -585,10 +585,11 @@ class QAbstractTextDocumentLayout;
 class CBibleDatabase
 {
 private:
-	CBibleDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID);		// Creatable by CReadDatabase
+	CBibleDatabase();		// Creatable by CReadDatabase
 public:
 	~CBibleDatabase();
 
+	QString language() const { return m_strLanguage; }
 	QString name() const { return m_strName; }
 	QString description() const { return m_strDescription; }
 	QString info() const { return m_strInfo; }
@@ -707,6 +708,7 @@ private:
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:
+	QString m_strLanguage;					// Language ID for this database (en, es, etc)
 	QString m_strName;						// Name for this database
 	QString m_strDescription;				// Database description
 	QString m_strInfo;						// Information about this database (copyright details, etc)

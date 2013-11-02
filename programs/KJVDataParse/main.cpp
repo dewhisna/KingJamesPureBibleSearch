@@ -39,6 +39,7 @@
 #include <QtXml>
 #include <QStringList>
 #include <QtGlobal>
+#include <QSettings>
 
 #include <iostream>
 #include <set>
@@ -365,7 +366,7 @@ static QString WordFromWordSet(const TAltWordSet &setAltWords)
 class COSISXmlHandler : public QXmlDefaultHandler
 {
 public:
-	COSISXmlHandler(const QString &strNamespace, const QString &strUUID)
+	COSISXmlHandler(const QString &strNamespace)
 		:	m_strNamespace(strNamespace),
 			m_bInHeader(false),
 			m_bCaptureTitle(false),
@@ -385,7 +386,7 @@ public:
 	{
 		g_setBooks();
 		g_setTstNames();
-		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(QString(), QString(), strUUID));		// Note: We'll set the name and description later in the reading of the data
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());		// Note: We'll set the name and description later in the reading of the data
 		for (unsigned int i=0; i<NUM_BK; ++i) {
 			m_lstOsisBookList.append(g_arrBooks[i].m_strOsisAbbr);
 		}
@@ -1209,33 +1210,38 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	QString strDBName;
-	QString strDBDesc;
-	QString strUUID;
+	QString strDBName;				// Name of Database (descriptive)
+	QString strDBDesc;				// Description of Database
+	QString strUUID;				// Unique Identifier for Database
+	QString strDBInfoFilename;		// Database Information Filename (used for indirect during build)
 	switch (QString(argv[1]).toInt()) {
 		case 0:
 			// Special Test Value:
 			strDBName = "Special Test";
 			strDBDesc = "Special Test Bible Database";
 			strUUID = "00000000-0000-11E3-8FFD-0800200C9A66";
+			strDBInfoFilename = "";
 			break;
 		case 1:
 			// KJV:
 			strDBName = "King James";
 			strDBDesc = "King James Version (1769)";
 			strUUID = "85D8A6B0-E670-11E2-A28F-0800200C9A66";
+			strDBInfoFilename = "";
 			break;
 		case 2:
 			// RVG2010:
 			strDBName = "Reina-Valera Gómez";
 			strDBDesc = "Reina-Valera Gómez Version (2010)";
 			strUUID = "9233CB60-141A-11E3-8FFD-0800200C9A66";
+			strDBInfoFilename = "";
 			break;
 		case 3:
-			// KJF:
+			// KJF2006:
 			strDBName = "King James Française";
 			strDBDesc = "la Bible King James Française, édition 2006";
 			strUUID = "31FC2ED0-141B-11E3-8FFD-0800200C9A66";
+			strDBInfoFilename = "";
 			break;
 		default:
 			std::cerr << "Unknown UUID-Index\n";
@@ -1260,7 +1266,7 @@ int main(int argc, char *argv[])
 
 	QXmlInputSource xmlInput(&fileOSIS);
 	QXmlSimpleReader xmlReader;
-	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace", strUUID);
+	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace");
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
@@ -1283,6 +1289,16 @@ int main(int argc, char *argv[])
 	QFile fileWords;		// Words CSV being written
 	QFile fileFootnotes;	// Footnotes CSV being written
 	QFile fileWordSummary;	// Words Summary CSV being written
+
+	QSettings settingsDBInfo(dirOutput.absoluteFilePath("DBInfo.ini"), QSettings::IniFormat);
+	settingsDBInfo.clear();
+	settingsDBInfo.beginGroup("BibleDBInfo");
+	settingsDBInfo.setValue("Language", xmlHandler.language());
+	settingsDBInfo.setValue("Name", strDBName);
+	settingsDBInfo.setValue("Description", strDBDesc);
+	settingsDBInfo.setValue("UUID", strUUID);
+	settingsDBInfo.setValue("InfoFilename", strDBInfoFilename);
+	settingsDBInfo.endGroup();
 
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
 	if (!fileTestaments.open(QIODevice::WriteOnly)) {

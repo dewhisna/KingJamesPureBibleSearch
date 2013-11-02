@@ -91,6 +91,67 @@ CReadDatabase::~CReadDatabase()
 
 // ============================================================================
 
+bool CReadDatabase::ReadDBInfoTable()
+{
+	assert(m_pBibleDatabase != NULL);
+
+	// Read the Database Info Table:
+
+	QSqlQuery queryTable(m_myDatabase);
+
+	// Check to see if the table exists:
+	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='DBInfo'")) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"DBInfo\" Failed!\n%1").arg(queryTable.lastError().text()));
+		return false;
+	}
+	queryTable.next();
+	if (!queryTable.value(0).toInt()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"DBInfo\" Table in database!"));
+		return false;
+	}
+	queryTable.finish();
+
+	QSqlQuery queryData(m_myDatabase);
+	queryData.setForwardOnly(true);
+	queryData.exec("SELECT ndx, uuid, Language, Name, Description, Info FROM DBInfo");
+	bool bDBInfoGood = true;
+	QString strError;
+	while ((bDBInfoGood) && (queryData.next())) {
+		if (queryData.value(0).toUInt() != 1) {
+			bDBInfoGood = false;
+			strError = QObject::tr("Invalid Bible Database DBInfo Index");
+			continue;
+		}
+		m_pBibleDatabase->m_strCompatibilityUUID = queryData.value(1).toString();
+		if (m_pBibleDatabase->m_strCompatibilityUUID.isEmpty()) {
+			bDBInfoGood = false;
+			strError = QObject::tr("Invalid Bible Database Compatibility UUID");
+			continue;
+		}
+		m_pBibleDatabase->m_strLanguage = queryData.value(2).toString();
+		if (m_pBibleDatabase->m_strLanguage.isEmpty()) {
+			bDBInfoGood = false;
+			strError = QObject::tr("Invalid Bible Database Language Identifier");
+			continue;
+		}
+		m_pBibleDatabase->m_strName = queryData.value(3).toString();
+		if (m_pBibleDatabase->m_strName.isEmpty()) {
+			bDBInfoGood = false;
+			strError = QObject::tr("Invalid Bible Database Name");
+			continue;
+		}
+		m_pBibleDatabase->m_strDescription = queryData.value(4).toString();
+		m_pBibleDatabase->m_strInfo = QString(queryData.value(5).toByteArray());
+	}
+	queryData.finish();
+
+	if (!bDBInfoGood) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, strError);
+	}
+
+	return bDBInfoGood;
+}
+
 bool CReadDatabase::ReadTestamentTable()
 {
 	assert(m_pBibleDatabase != NULL);
@@ -914,7 +975,7 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 // ============================================================================
 
-bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bSetAsMain)
+bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool bSetAsMain)
 {
 	m_myDatabase = g_sqldbReadMain;
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
@@ -922,7 +983,7 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, const 
 
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
-	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(strName, strDescription, strCompatUUID));
+	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());
 	assert(m_pBibleDatabase.data() != NULL);
 
 	if (!m_myDatabase.open()) {
@@ -932,7 +993,8 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, const 
 
 	bool bSuccess = true;
 
-	if ((!ReadTestamentTable()) ||
+	if ((!ReadDBInfoTable()) ||
+		(!ReadTestamentTable()) ||
 		(!ReadBooksTable()) ||
 		(!ReadChaptersTable()) ||
 		(!ReadVerseTables()) ||

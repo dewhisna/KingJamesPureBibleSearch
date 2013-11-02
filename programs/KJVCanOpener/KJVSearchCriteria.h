@@ -120,6 +120,8 @@ private:
 
 // ============================================================================
 
+#ifndef OSIS_PARSER_BUILD
+
 #include "ui_KJVSearchCriteria.h"
 
 class CKJVSearchCriteriaWidget : public QWidget
@@ -300,6 +302,8 @@ private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CSearchWithinModelIndex m_rootSearchWithinModelIndex;
 };
+
+#endif
 
 // ============================================================================
 

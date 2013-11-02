@@ -73,7 +73,8 @@ HEADERS += \
 	../KJVCanOpener/SearchCompleter.h \
 	../KJVCanOpener/ScriptureDocument.h \
 	../KJVCanOpener/UserNotesDatabase.h \
-	../KJVCanOpener/PersistentSettings.h
+	../KJVCanOpener/PersistentSettings.h \
+	../KJVCanOpener/KJVSearchCriteria.h
 
 
 #QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS

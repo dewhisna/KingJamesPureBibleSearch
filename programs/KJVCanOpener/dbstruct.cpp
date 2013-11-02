@@ -913,11 +913,8 @@ CRelIndex CBibleDatabase::calcRelIndex(
 // ============================================================================
 
 
-CBibleDatabase::CBibleDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID)
-	:	m_strName(strName),
-		m_strDescription(strDescription),
-		m_strCompatibilityUUID(strCompatUUID),
-		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
+CBibleDatabase::CBibleDatabase()
+	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 
 }
