@@ -89,5 +89,7 @@
 		<file>res/window_app_list_close.png</file>
 		<file>res/gnome_window_new.png</file>
 		<file>res/refresh-128.png</file>
+		<file>res/applications_internet-128.png</file>
+		<file>res/package_network-128.png</file>
 	</qresource>
 </RCC>

@@ -105,7 +105,7 @@ void CKJVAboutDlg::en_licenseDisplay()
 						"See the GNU General Public License for more details.\n\n"
 						"You should have received a copy of the GNU General Public License along with this program; "
 						"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
-						"Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.\n"
+						"Copyright (C) 2012-2013 Donna Whisnant, a.k.a. Dewtronics.\n"
 						"Contact: http://www.dewtronics.com/\n"
 						"Written and Developed for Bethel Church, Festus, MO."));
 }

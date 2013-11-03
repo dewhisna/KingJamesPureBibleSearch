@@ -642,9 +642,16 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// Note: This action's menu will be automatically updated by our application object
 
 	// --- Help Menu
+	ui.mainToolBar->addSeparator();
+
 	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help"));
 	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
 	pAction->setStatusTip(tr("Display the Users Manual"));
+
+	pAction = pHelpMenu->addAction(QIcon(":/res/package_network-128.png"), tr("Goto PureBibleSearch.com..."), this, SLOT(en_PureBibleSearchDotCom()), QKeySequence(Qt::Key_F2));
+	pAction->setStatusTip(tr("Open a Web Browser and Navigate to www.PureBibleSearch.com"));
+	pAction->setToolTip(tr("Goto www.PureBibleSearch.com Home Page"));
+	ui.mainToolBar->addAction(pAction);
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), tr("About..."), this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
@@ -652,7 +659,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionAbout->setToolTip(tr("About the King James Pure Bible Search..."));
 	m_pActionAbout->setMenuRole(QAction::AboutRole);
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(en_HelpAbout()));
-	ui.mainToolBar->addSeparator();
 	ui.mainToolBar->addAction(m_pActionAbout);
 	pHelpMenu->addAction(m_pActionAbout);
 
@@ -1915,6 +1921,14 @@ void CKJVCanOpener::en_HelpAbout()
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	CKJVAboutDlgPtr pDlg(this);
 	pDlg->exec();
+}
+
+void CKJVCanOpener::en_PureBibleSearchDotCom()
+{
+	if (!QDesktopServices::openUrl(QUrl("http://www.PureBibleSearch.com/"))) {
+		QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
+													 "http://www.PureBibleSearch.com/"));
+	}
 }
 
 void CKJVCanOpener::en_QuickActivate()

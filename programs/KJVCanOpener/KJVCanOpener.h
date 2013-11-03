@@ -186,6 +186,7 @@ protected slots:
 
 	void en_HelpManual();
 	void en_HelpAbout();
+	void en_PureBibleSearchDotCom();
 
 	void en_QuickActivate();
 
