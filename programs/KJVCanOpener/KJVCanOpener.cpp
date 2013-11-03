@@ -198,6 +198,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_bSearchResultsActive(false),
 	m_bBrowserActive(false),
 	m_bCanClose(true),
+	m_bIsClosing(false),
 	m_pSearchSpecWidget(NULL),
 	m_pSplitter(NULL),
 	m_pSplitterDictionary(NULL),
@@ -1271,6 +1272,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		savePersistentSettings();
 	}
 
+	m_bIsClosing = true;
 	emit isClosing(this);
 //	QMainWindow::closeEvent(event);
 	deleteLater();
@@ -1278,7 +1280,9 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 
 bool CKJVCanOpener::event(QEvent *pEvent)
 {
-	if (pEvent->type() == QEvent::WindowActivate) emit windowActivated(this);
+	if (!m_bIsClosing) {
+		if (pEvent->type() == QEvent::WindowActivate) emit windowActivated(this);
+	}
 	return QMainWindow::event(pEvent);
 }
 
