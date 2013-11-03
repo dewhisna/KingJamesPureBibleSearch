@@ -49,6 +49,14 @@
 QSqlDatabase g_sqldbBuildMain;
 QSqlDatabase g_sqldbBuildUser;
 
+#ifndef OSIS_PARSER_BUILD
+#include "main.h"
+extern CMyApplication *g_pMyApplication;
+#define MY_GET_APP_DIR_PATH g_pMyApplication->initialAppDirPath()
+#else
+#define MY_GET_APP_DIR_PATH QCoreApplication::applicationDirPath()
+#endif
+
 namespace {
 //:BuildDB
 	const QString g_constrBuildDatabase = QObject::tr("Building Database");
@@ -189,7 +197,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 						QMessageBox::Ignore, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else {
 				// Open the table data file:
-				QSettings settingsDBInfo(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/DBInfo.ini")).absoluteFilePath(), QSettings::IniFormat);
+				QSettings settingsDBInfo(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/DBInfo.ini")).absoluteFilePath(), QSettings::IniFormat);
 				settingsDBInfo.beginGroup("BibleDBInfo");
 				QString strDBLang = settingsDBInfo.value("Language").toString();
 				QString strDBName = settingsDBInfo.value("Name").toString();
@@ -256,7 +264,7 @@ bool CBuildDatabase::BuildTestamentTable()
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
 			// Open the table data file:
-			QFile fileTestament(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/TESTAMENT.csv")).absoluteFilePath());
+			QFile fileTestament(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/TESTAMENT.csv")).absoluteFilePath());
 			while (1) {
 				if (!fileTestament.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -340,7 +348,7 @@ bool CBuildDatabase::BuildBooksTable()
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
 			// Open the table data file:
-			QFile fileBook(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/TOC.csv")).absoluteFilePath());
+			QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/TOC.csv")).absoluteFilePath());
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -444,7 +452,7 @@ bool CBuildDatabase::BuildChaptersTable()
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
 			// Open the table data file:
-			QFile fileBook(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/LAYOUT.csv")).absoluteFilePath());
+			QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/LAYOUT.csv")).absoluteFilePath());
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -536,7 +544,7 @@ bool CBuildDatabase::BuildVerseTables()
 		if (queryCreate.value(0).toInt()) continue;             // If the table exists, skip it
 
 		// Open the table data file:
-		QFile fileBook(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i])).absoluteFilePath());
+		QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i])).absoluteFilePath());
 		while (1) {
 			if (!fileBook.open(QIODevice::ReadOnly)) {
 				if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -662,7 +670,7 @@ bool CBuildDatabase::BuildWordsTable()
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
 			// Open the table data file:
-			QFile fileBook(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/WORDS.csv")).absoluteFilePath());
+			QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/WORDS.csv")).absoluteFilePath());
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -754,7 +762,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 		queryCreate.next();
 		if (!queryCreate.value(0).toInt()) {
 			// Open the table data file:
-			QFile fileBook(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/FOOTNOTES.csv")).absoluteFilePath());
+			QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/FOOTNOTES.csv")).absoluteFilePath());
 			while (1) {
 				if (!fileBook.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,
@@ -857,7 +865,7 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 		}
 		if (!bUserPhrases) {
 			// If this is the main phrases table, open our data file for populating it:
-			QFile filePhrases(QFileInfo(QDir(QCoreApplication::applicationDirPath()), QString("../../KJVCanOpener/db/data/PHRASES.csv")).absoluteFilePath());
+			QFile filePhrases(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/PHRASES.csv")).absoluteFilePath());
 			while (1) {
 				if (!filePhrases.open(QIODevice::ReadOnly)) {
 					if (QMessageBox::warning(m_pParent, g_constrBuildDatabase,

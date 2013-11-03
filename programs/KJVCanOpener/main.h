@@ -78,10 +78,12 @@ public:
 #endif
 			m_nLastActivateCanOpener(-1)
 	{
-
+		m_strInitialAppDirPath = applicationDirPath();
 	}
 
 	virtual ~CMyApplication();
+
+	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 
@@ -158,6 +160,7 @@ protected:
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
+	QString m_strInitialAppDirPath;						// Initial applicationDirPath() -- needed since according to Qt documentation, QCoreApplcation::applicationDirPath assumes we haven't changed our current directory
 };
 
 #endif // MAIN_H

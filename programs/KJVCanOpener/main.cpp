@@ -664,6 +664,10 @@ int main(int argc, char *argv[])
 
 	app.setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
 
+	// Setup our SQL/Image Plugin paths:
+	QFileInfo fiPlugins(app.initialAppDirPath(), g_constrPluginsPath);
+	app.addLibraryPath(fiPlugins.absolutePath());
+
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 	QString strKJSFile;
 	bool bBuildDB = false;
@@ -780,7 +784,7 @@ int main(int argc, char *argv[])
 
 	// Setup our Fonts:
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
-		QFileInfo fiFont(app.applicationDirPath(), g_constrarrFontFilenames[ndxFont]);
+		QFileInfo fiFont(app.initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
 		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
 		if (nFontStatus == -1) {
 #ifdef QT_DEBUG
@@ -794,14 +798,10 @@ int main(int argc, char *argv[])
 	splash->repaint();
 	qApp->processEvents();
 
-	// Setup our SQL Plugin paths:
-	QFileInfo fiPlugins(app.applicationDirPath(), g_constrPluginsPath);
-	app.addLibraryPath(fiPlugins.absolutePath());
-
 	// Database Paths:
-	QFileInfo fiKJVDatabase(app.applicationDirPath(), g_constrKJVDatabaseFilename);
-	QFileInfo fiUserDatabaseTemplate(app.applicationDirPath(), g_constrUserDatabaseTemplateFilename);
-	QFileInfo fiWeb1828DictDatabase(app.applicationDirPath(), g_constrWeb1828DatabaseFilename);
+	QFileInfo fiKJVDatabase(app.initialAppDirPath(), g_constrKJVDatabaseFilename);
+	QFileInfo fiUserDatabaseTemplate(app.initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
+	QFileInfo fiWeb1828DictDatabase(app.initialAppDirPath(), g_constrWeb1828DatabaseFilename);
 	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 	QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
 	QDir dirDataFolder;
