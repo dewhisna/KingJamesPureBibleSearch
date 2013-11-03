@@ -667,11 +667,19 @@ int main(int argc, char *argv[])
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 	QString strKJSFile;
 	bool bBuildDB = false;
+	bool bStealthMode = false;
+	QString strStealthSettingsFilename;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
 	// Hook receiving messages from other KJPBS app launches:
 	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
+
+#ifdef Q_WS_WIN
+	app.setWindowIcon(QIcon(":/res/bible.ico"));
+#else
+	app.setWindowIcon(QIcon(":/res/bible_48.png"));
+#endif
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash);
@@ -700,19 +708,45 @@ int main(int argc, char *argv[])
 	// Parse the Commmand-line:
 	if (strKJSFile.isEmpty() && !app.fileToLoad().isEmpty()) strKJSFile = app.fileToLoad();
 
+	bool bLookingForSettings = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
-		if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
-			bBuildDB = true;
-		} else if ((!strArg.startsWith("-")) && (strKJSFile.isEmpty())) {
-			strKJSFile = strArg;
+		if (!strArg.startsWith("-")) {
+			if (bLookingForSettings) {
+				strStealthSettingsFilename = strArg;
+				bLookingForSettings = false;
+			} else if (strKJSFile.isEmpty()) {
+				strKJSFile = strArg;
+			} else {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"").arg(strArg));
+			}
+		} else if (!bLookingForSettings) {
+			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
+				bBuildDB = true;
+			} else if (strArg.compare("-stealth", Qt::CaseInsensitive) == 0) {
+				bStealthMode = true;
+			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
+				bStealthMode = true;
+				bLookingForSettings = true;
+			} else {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
+			}
 		} else {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
+			if (bLookingForSettings) {
+				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead").arg(strArg));
+				bLookingForSettings = false;
+			}
 		}
 	}
 
 	// Check for existing KJPBS and have it handle this launch request:
 	if (instance.isRunning()) {
+		if (bBuildDB) {
+			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!"));
+			delete splash;
+			return -2;
+		}
+
 		int nElapsed;
 		do {
 			nElapsed = splashTimer.elapsed();
@@ -735,6 +769,13 @@ int main(int argc, char *argv[])
 			delete splash;
 			return -1;
 		}
+	}
+
+	// Check/Set Stealth Mode:
+	// Must do this after multiple window launch (above), but before we
+	//		attempt to read any persistent settings:
+	if (bStealthMode) {
+		CPersistentSettings::instance()->setStealthMode(strStealthSettingsFilename);
 	}
 
 	// Setup our Fonts:
@@ -781,6 +822,7 @@ int main(int argc, char *argv[])
 		if (bBuildDB) {
 			if (!bdb.BuildDatabase(fiKJVDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
+				delete splash;
 				return -2;
 			}
 		}
@@ -789,6 +831,7 @@ int main(int argc, char *argv[])
 		CReadDatabase rdb(splash);
 		if (!rdb.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), true)) {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(fiKJVDatabase.absoluteFilePath()));
+			delete splash;
 			return -3;
 		}
 
@@ -825,6 +868,7 @@ int main(int argc, char *argv[])
 		} else {
 			if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
+				delete splash;
 				return -4;
 			} else {
 				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
@@ -836,6 +880,7 @@ int main(int argc, char *argv[])
 			TDictionaryDescriptor descWeb1828(constDictionaryDescriptors[DDE_WEB1828]);
 			if (!rdb.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
+				delete splash;
 				return -5;
 			}
 		}
@@ -858,16 +903,18 @@ int main(int argc, char *argv[])
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif
 
-	QSettings &settings(CPersistentSettings::instance()->settings());
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
 
-	settings.beginGroup(constrMainAppControlGroup);
-	QString strFontName = settings.value(constrFontNameKey, fntAppControls.family()).toString();
-	int nFontSize = settings.value(constrFontSizeKey, fntAppControls.pointSize()).toInt();
-	settings.endGroup();
+		settings.beginGroup(constrMainAppControlGroup);
+		QString strFontName = settings.value(constrFontNameKey, fntAppControls.family()).toString();
+		int nFontSize = settings.value(constrFontSizeKey, fntAppControls.pointSize()).toInt();
+		settings.endGroup();
 
-	if ((!strFontName.isEmpty()) && (nFontSize>0)) {
-		fntAppControls.setFamily(strFontName);
-		fntAppControls.setPointSize(nFontSize);
+		if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+			fntAppControls.setFamily(strFontName);
+			fntAppControls.setPointSize(nFontSize);
+		}
 	}
 
 	app.setFont(fntAppControls);
@@ -889,10 +936,13 @@ int main(int argc, char *argv[])
 
 	// Update settings for next time.  Use application font instead of
 	//		our variables in case Qt substituted for another available font:
-	settings.beginGroup(constrMainAppControlGroup);
-	settings.setValue(constrFontNameKey, app.font().family());
-	settings.setValue(constrFontSizeKey, app.font().pointSize());
-	settings.endGroup();
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrMainAppControlGroup);
+		settings.setValue(constrFontNameKey, app.font().family());
+		settings.setValue(constrFontSizeKey, app.font().pointSize());
+		settings.endGroup();
+	}
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());

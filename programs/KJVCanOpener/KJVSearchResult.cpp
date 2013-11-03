@@ -1055,11 +1055,14 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	// Setup our keyword model -- note we have to do this after setting up our SearchResultsTreeView
 	//		since it will call it to set the keyword list for filtering:
 	m_pNoteKeywordWidget->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(), g_pUserNotesDatabase->compositeKeywordList());
+	keywordListChanged(true);
 
 	connect(m_pNoteKeywordWidget, SIGNAL(keywordListChanged()), this, SLOT(en_modelKeywordListChanged()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesKeywords()), this, SLOT(keywordListChanged()));
 
 	// -------------------- Search Results List View:
+
+	setViewMode(viewMode());		// This call will setup our UI so don't have redundant code
 
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
 

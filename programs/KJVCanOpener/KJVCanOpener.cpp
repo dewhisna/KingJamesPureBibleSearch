@@ -240,6 +240,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionUserNoteEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
 	m_pActionUserNoteEditor->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage"));
 	m_pActionUserNoteEditor->setToolTip(tr("Add/Edit/Remove Note to current verse or passage"));
+	m_pActionUserNoteEditor->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 	ui.usernotesToolBar->addAction(m_pActionUserNoteEditor);
 
 	ui.usernotesToolBar->addSeparator();
@@ -248,6 +249,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
 	m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
+	m_pActionCrossRefsEditor->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 	ui.usernotesToolBar->addAction(m_pActionCrossRefsEditor);
 
 	// -------------------- Setup the Three Panes:
@@ -715,15 +717,20 @@ void CKJVCanOpener::initialize()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	QSettings &settings(CPersistentSettings::instance()->settings());
+	TPhraseTag tag(CRelIndex(1,1,0,0), 0);						// Default for unset key
 
-	TPhraseTag tag;
-	settings.beginGroup(constrBrowserViewGroup);
-	// Read last location : Default initial location is Genesis 1
-	tag.relIndex() = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex(1,1,0,0).asAnchor()).toString());	// Default for unset key
-	if (!tag.relIndex().isSet()) tag.relIndex() = CRelIndex(1,1,0,0);		// Default for zero key
-	tag.count() = settings.value(constrLastSelectionSizeKey, 0).toUInt();
-	settings.endGroup();
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+
+		settings.beginGroup(constrBrowserViewGroup);
+		// Read last location : Default initial location is Genesis 1
+		CRelIndex ndxLastRef = CRelIndex(settings.value(constrLastReferenceKey, tag.relIndex().asAnchor()).toString());
+		unsigned int nCount = settings.value(constrLastSelectionSizeKey, 0).toUInt();
+		if (ndxLastRef.isSet()) tag = TPhraseTag(ndxLastRef, nCount);
+		settings.endGroup();
+	} else {
+		setWindowTitle(windowTitle() + " (" + tr("Stealth Mode") + ")");
+	}
 
 	// If there is no selection to highlight, default to the first sub-entity
 	//		of the index specified:
@@ -738,7 +745,8 @@ void CKJVCanOpener::initialize()
 
 void CKJVCanOpener::savePersistentSettings()
 {
-	QSettings &settings(CPersistentSettings::instance()->settings());
+	if (CPersistentSettings::instance()->settings() == NULL) return;
+	QSettings &settings(*CPersistentSettings::instance()->settings());
 
 	// Main App and Toolbars RestoreState:
 	settings.beginGroup(constrMainAppRestoreStateGroup);
@@ -858,255 +866,279 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
 
-	QSettings &settings(CPersistentSettings::instance()->settings());
-	QString strFont;
+	bool bFocusSearchResults = false;
+	bool bFocusBrowser = false;
 	bool bLaunchNotesSetupConfig = false;
 
-	// Main App and Toolbars RestoreState:
-	if (bIsFirstCanOpener) {
-		settings.beginGroup(constrMainAppRestoreStateGroup);
-		restoreGeometry(settings.value(constrGeometryKey).toByteArray());
-		restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		QString strFont;
+
+		// Main App and Toolbars RestoreState:
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrMainAppRestoreStateGroup);
+			restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+			restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+			settings.endGroup();
+		} else {
+			CKJVCanOpener *pPrimaryCanOpener = g_pMyApplication->canOpeners().at(0);
+			restoreState(pPrimaryCanOpener->saveState(KJVAPP_REGISTRY_VERSION), KJVAPP_REGISTRY_VERSION);
+			resize(pPrimaryCanOpener->size());
+		}
+
+		// Main App General Settings:
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrMainAppControlGroup);
+			CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool());
+			CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt());
+			CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
+			settings.endGroup();
+		}
+
+		// Colors:
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrColorsGroup);
+			QColor clrTemp;
+			clrTemp.setNamedColor(settings.value(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name()).toString());
+			CPersistentSettings::instance()->setColorWordsOfJesus(clrTemp);
+			clrTemp.setNamedColor(settings.value(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name()).toString());
+			CPersistentSettings::instance()->setColorSearchResults(clrTemp);
+			clrTemp.setNamedColor(settings.value(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name()).toString());
+			CPersistentSettings::instance()->setColorCursorFollow(clrTemp);
+			settings.endGroup();
+		}
+
+		// Splitter:
+		settings.beginGroup(constrSplitterRestoreStateGroup);
+		m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
 		settings.endGroup();
-	} else {
-		CKJVCanOpener *pPrimaryCanOpener = g_pMyApplication->canOpeners().at(0);
-		restoreState(pPrimaryCanOpener->saveState(KJVAPP_REGISTRY_VERSION), KJVAPP_REGISTRY_VERSION);
-		resize(pPrimaryCanOpener->size());
-	}
 
-	// Main App General Settings:
-	if (bIsFirstCanOpener) {
-		settings.beginGroup(constrMainAppControlGroup);
-		CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool());
-		CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt());
-		CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
+		// Splitter Dictionary:
+		settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+		m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
 		settings.endGroup();
-	}
 
-	// Colors:
-	if (bIsFirstCanOpener) {
-		settings.beginGroup(constrColorsGroup);
-		QColor clrTemp;
-		clrTemp.setNamedColor(settings.value(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name()).toString());
-		CPersistentSettings::instance()->setColorWordsOfJesus(clrTemp);
-		clrTemp.setNamedColor(settings.value(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name()).toString());
-		CPersistentSettings::instance()->setColorSearchResults(clrTemp);
-		clrTemp.setNamedColor(settings.value(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name()).toString());
-		CPersistentSettings::instance()->setColorCursorFollow(clrTemp);
-		settings.endGroup();
-	}
+		// User Notes Database:
+		assert(g_pUserNotesDatabase != NULL);
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrUserNotesDatabaseGroup);
+			g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
+			g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
+			g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
+			QColor clrTemp;
+			clrTemp.setNamedColor(settings.value(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name()).toString());
+			CPersistentSettings::instance()->setColorDefaultNoteBackground(clrTemp);
+			settings.endGroup();
+		}
 
-	// Splitter:
-	settings.beginGroup(constrSplitterRestoreStateGroup);
-	m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
-	settings.endGroup();
+		m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
+		m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 
-	// Splitter Dictionary:
-	settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
-	m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
-	settings.endGroup();
-
-	// User Notes Database:
-	if (bIsFirstCanOpener) {
-	assert(g_pUserNotesDatabase != NULL);
-		settings.beginGroup(constrUserNotesDatabaseGroup);
-		g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
-		g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
-		g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
-		QColor clrTemp;
-		clrTemp.setNamedColor(settings.value(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name()).toString());
-		CPersistentSettings::instance()->setColorDefaultNoteBackground(clrTemp);
-		settings.endGroup();
-	}
-
-	m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
-	m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
-
-	if (bIsFirstCanOpener) {
-		if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
-			if (!g_pUserNotesDatabase->load()) {
-				show();
-				QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
-				// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
-				//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
-				//		the time we exit.  But save a reference to it so we can get the user navigated back there:
-				g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
-				g_pUserNotesDatabase->setFilePathName(QString());
-				bLaunchNotesSetupConfig = true;
-			} else {
-				if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
+		if (bIsFirstCanOpener) {
+			if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
+				if (!g_pUserNotesDatabase->load()) {
 					show();
-					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
-												"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
-												"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
-												"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
-				} else if (g_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
-					show();
-					QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
-												"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
-												"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
-												"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
-												"risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!"
-												"\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+					QMessageBox::warning(this, tr("King James Notes File Error"),  g_pUserNotesDatabase->lastLoadSaveError() + tr("\n\nCheck File existence and Program Settings!"));
+					// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
+					//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
+					//		the time we exit.  But save a reference to it so we can get the user navigated back there:
+					g_pUserNotesDatabase->setErrorFilePathName(g_pUserNotesDatabase->filePathName());
+					g_pUserNotesDatabase->setFilePathName(QString());
+					bLaunchNotesSetupConfig = true;
+				} else {
+					if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
+						show();
+						QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
+													"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
+													"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
+													"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+					} else if (g_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
+						show();
+						QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
+													"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
+													"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
+													"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
+													"risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!"
+													"\n\nFilename: \"%1\"").arg(g_pUserNotesDatabase->filePathName()));
+					}
 				}
 			}
 		}
-	}
 
-	// Highlighter Tool Bar (must be after loading the User Notes Database):
-	int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-	if (nColors != 0) {
-		for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterButtons->count())); ++ndxColor) {
-			settings.setArrayIndex(ndxColor);
-			QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
-			m_pHighlighterButtons->setHighlighterList(ndxColor, strHighlighterName);
-		}
-	} else {
-		// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
-		if (g_pUserNotesDatabase->filePathName().isEmpty()) {
-			const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
-			int ndxColor = 0;
-			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
-							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
-							++itrHighlighters) {
-				m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
-				ndxColor++;
+		// Highlighter Tool Bar (must be after loading the User Notes Database):
+		int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+		if (nColors != 0) {
+			for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterButtons->count())); ++ndxColor) {
+				settings.setArrayIndex(ndxColor);
+				QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
+				m_pHighlighterButtons->setHighlighterList(ndxColor, strHighlighterName);
+			}
+		} else {
+			// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
+			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
+				const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+				int ndxColor = 0;
+				for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
+								((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
+								++itrHighlighters) {
+					m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+					ndxColor++;
+				}
 			}
 		}
-	}
-	settings.endArray();
+		settings.endArray();
 
-	// Set Search Results View Keyword Filter:
-	m_pSearchResultWidget->keywordListChanged(true);
+		// Set Search Results View Keyword Filter:
+		m_pSearchResultWidget->keywordListChanged(true);
 
-	if (bIsFirstCanOpener) {
-		// Search Phrases Settings:
-		settings.beginGroup(constrSearchPhrasesGroup);
-		CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
-		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
-		CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
+		if (bIsFirstCanOpener) {
+			// Search Phrases Settings:
+			settings.beginGroup(constrSearchPhrasesGroup);
+			CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
+			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
+			CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
+			settings.endGroup();
+
+			// Read Last Search before setting Search Results mode or else the last settings
+			//	won't get restored -- they will be overriden by the loading of the Last Search...
+			//	But, we first need to disable our SearchActivationDelay so that the updates
+			//	will happen immediately -- otherwise, Search Results mode settings won't
+			//	restore properly:
+			int nSaveSearchActivationDelay = CPersistentSettings::instance()->searchActivationDelay();
+			CPersistentSettings::instance()->setSearchActivationDelay(-1);
+
+			// Last Search:
+			m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+
+			// Restore our activation delay:
+			CPersistentSettings::instance()->setSearchActivationDelay(nSaveSearchActivationDelay);
+		} else {
+			m_pSearchSpecWidget->reset();
+		}
+
+		// Search Results mode:
+		settings.beginGroup(constrSearchResultsViewGroup);
+		if (bIsFirstCanOpener) {
+			// Restore auto-expand before we set the view mode so that it will update correctly:
+			CPersistentSettings::instance()->setAutoExpandSearchResultsTree(settings.value(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree()).toBool());
+		}
+		setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
+		setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));
+		setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
+		setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
+		m_pSearchResultWidget->setShowHighlightersInSearchResults(settings.value(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults()).toBool());
+		CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
+		QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
+		if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc
+		bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
+		if (bIsFirstCanOpener) {
+			strFont = settings.value(constrFontKey).toString();
+			if (!strFont.isEmpty()) {
+				QFont aFont;
+				aFont.fromString(strFont);
+				// Just use face-name and point size from the stored font.  This is to work around the
+				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+				//		or something:
+				QFont aFont2;
+				aFont2.setFamily(aFont.family());
+				aFont2.setPointSizeF(aFont.pointSizeF());
+				CPersistentSettings::instance()->setFontSearchResults(aFont2);
+			}
+		}
 		settings.endGroup();
 
-		// Read Last Search before setting Search Results mode or else the last settings
-		//	won't get restored -- they will be overriden by the loading of the Last Search...
-		//	But, we first need to disable our SearchActivationDelay so that the updates
-		//	will happen immediately -- otherwise, Search Results mode settings won't
-		//	restore properly:
-		int nSaveSearchActivationDelay = CPersistentSettings::instance()->searchActivationDelay();
-		CPersistentSettings::instance()->setSearchActivationDelay(-1);
+		// Current Browser Reference:
+		//		Note: The actual browser reference has already been loaded in
+		//			initialize().  However, this will lookup the reference and
+		//			see if the user was displaying a search result and if so,
+		//			will set the current index for the search result to that
+		//			as a fallback for when there is no Last Current Index:
+		bool bLastSet = false;
+		if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastCurrentIndex, strHighlighterName), false);	// Note: Uses ViewMode set above! (this must come after Search Results mode restoration)
+		settings.beginGroup(constrBrowserViewGroup);
+		bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
+		if (!bLastSet) {
+			CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
+			if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastBrowsed, strHighlighterName), false);
+		}
+		if (bIsFirstCanOpener) {
+			strFont = settings.value(constrFontKey).toString();
+			if (!strFont.isEmpty()) {
+				QFont aFont;
+				aFont.fromString(strFont);
+				// Just use face-name and point size from the stored font.  This is to work around the
+				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+				//		or something:
+				QFont aFont2;
+				aFont2.setFamily(aFont.family());
+				aFont2.setPointSizeF(aFont.pointSizeF());
+				CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
+			}
+			CPersistentSettings::instance()->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay()).toInt());
+			CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
+			CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
+		}
+		settings.endGroup();
 
-		// Last Search:
-		m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+		// Browser Object (used for Subwindows: FindDialog, etc):
+		m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
 
-		// Restore our activation delay:
-		CPersistentSettings::instance()->setSearchActivationDelay(nSaveSearchActivationDelay);
+		// Dictionary Widget Settings:
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrDictionaryGroup);
+			strFont = settings.value(constrFontKey).toString();
+			if (!strFont.isEmpty()) {
+				QFont aFont;
+				aFont.fromString(strFont);
+				// Just use face-name and point size from the stored font.  This is to work around the
+				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+				//		or something:
+				QFont aFont2;
+				aFont2.setFamily(aFont.family());
+				aFont2.setPointSizeF(aFont.pointSizeF());
+				CPersistentSettings::instance()->setFontDictionary(aFont2);
+			}
+			CPersistentSettings::instance()->setDictionaryActivationDelay(settings.value(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay()).toInt());
+			CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
+			settings.endGroup();
+		}
+
+		// Copy Options:
+		if (bIsFirstCanOpener) {
+			settings.beginGroup(constrCopyOptionsGroup);
+			CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
+			CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(settings.value(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames()).toBool());
+			CPersistentSettings::instance()->setReferencesInBold(settings.value(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold()).toBool());
+			CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(settings.value(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames()).toBool());
+			CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
+			CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
+			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
+			settings.endGroup();
+		}
 	} else {
+		// If we aren't using Persistent Settings:
+
+		assert(g_pUserNotesDatabase != NULL);
+
+		// Set the ToolBar to the initial file default highlighters:
+		const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+		int ndxColor = 0;
+		for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
+						((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
+						++itrHighlighters) {
+			m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+			ndxColor++;
+		}
+
+		// Reset our search phrases
 		m_pSearchSpecWidget->reset();
-	}
-
-	// Search Results mode:
-	settings.beginGroup(constrSearchResultsViewGroup);
-	if (bIsFirstCanOpener) {
-		// Restore auto-expand before we set the view mode so that it will update correctly:
-		CPersistentSettings::instance()->setAutoExpandSearchResultsTree(settings.value(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree()).toBool());
-	}
-	setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
-	setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));
-	setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
-	setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
-	m_pSearchResultWidget->setShowHighlightersInSearchResults(settings.value(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults()).toBool());
-	CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
-	QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
-	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc
-	bool bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
-	if (bIsFirstCanOpener) {
-		strFont = settings.value(constrFontKey).toString();
-		if (!strFont.isEmpty()) {
-			QFont aFont;
-			aFont.fromString(strFont);
-			// Just use face-name and point size from the stored font.  This is to work around the
-			//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-			//		or something:
-			QFont aFont2;
-			aFont2.setFamily(aFont.family());
-			aFont2.setPointSizeF(aFont.pointSizeF());
-			CPersistentSettings::instance()->setFontSearchResults(aFont2);
-		}
-	}
-	settings.endGroup();
-
-	// Current Browser Reference:
-	//		Note: The actual browser reference has already been loaded in
-	//			initialize().  However, this will lookup the reference and
-	//			see if the user was displaying a search result and if so,
-	//			will set the current index for the search result to that
-	//			as a fallback for when there is no Last Current Index:
-	bool bLastSet = false;
-	if (ndxLastCurrentIndex.isSet()) bLastSet = m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastCurrentIndex, strHighlighterName), false);	// Note: Uses ViewMode set above! (this must come after Search Results mode restoration)
-	settings.beginGroup(constrBrowserViewGroup);
-	bool bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
-	if (!bLastSet) {
-		CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
-		if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastBrowsed, strHighlighterName), false);
-	}
-	if (bIsFirstCanOpener) {
-		strFont = settings.value(constrFontKey).toString();
-		if (!strFont.isEmpty()) {
-			QFont aFont;
-			aFont.fromString(strFont);
-			// Just use face-name and point size from the stored font.  This is to work around the
-			//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-			//		or something:
-			QFont aFont2;
-			aFont2.setFamily(aFont.family());
-			aFont2.setPointSizeF(aFont.pointSizeF());
-			CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
-		}
-		CPersistentSettings::instance()->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay()).toInt());
-		CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
-		CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
-	}
-	settings.endGroup();
-
-	// Browser Object (used for Subwindows: FindDialog, etc):
-	m_pBrowserWidget->restorePersistentSettings(constrBrowserViewGroup);
-
-	// Dictionary Widget Settings:
-	if (bIsFirstCanOpener) {
-		settings.beginGroup(constrDictionaryGroup);
-		strFont = settings.value(constrFontKey).toString();
-		if (!strFont.isEmpty()) {
-			QFont aFont;
-			aFont.fromString(strFont);
-			// Just use face-name and point size from the stored font.  This is to work around the
-			//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-			//		or something:
-			QFont aFont2;
-			aFont2.setFamily(aFont.family());
-			aFont2.setPointSizeF(aFont.pointSizeF());
-			CPersistentSettings::instance()->setFontDictionary(aFont2);
-		}
-		CPersistentSettings::instance()->setDictionaryActivationDelay(settings.value(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay()).toInt());
-		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
-		settings.endGroup();
-	}
-
-	// Copy Options:
-	if (bIsFirstCanOpener) {
-		settings.beginGroup(constrCopyOptionsGroup);
-		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
-		CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(settings.value(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames()).toBool());
-		CPersistentSettings::instance()->setReferencesInBold(settings.value(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold()).toBool());
-		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
-		CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(settings.value(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames()).toBool());
-		CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
-		CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
-		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
-		settings.endGroup();
 	}
 
 	show();			// Now that we've restored our settings and geometry, show our window...
 	initialize();	// Navigate to our restored location, now that we've finished showing our window (must be done after show so ScriptureBrowser textSelect works)
+	raise();
+	activateWindow();
 
 	if (bIsFirstCanOpener) {
 		// If the Search Result was focused last time, focus it again, else if

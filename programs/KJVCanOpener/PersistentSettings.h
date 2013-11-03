@@ -42,8 +42,9 @@ private:				// Enforce Singleton:
 
 public:
 	~CPersistentSettings();
+	void setStealthMode(const QString &strFilename);
 	static CPersistentSettings *instance();
-	inline QSettings &settings() { return *m_pSettings; }
+	QSettings *settings();
 
 	const QFont &fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
 	const QFont &fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
@@ -205,6 +206,7 @@ private:
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;
+	bool m_bStealthMode;								// True if we're either writing to a special alternate file or not writing settings
 };
 
 #endif // PERSISTENTSETTINGS_H

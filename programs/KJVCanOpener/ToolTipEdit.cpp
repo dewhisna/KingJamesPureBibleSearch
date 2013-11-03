@@ -154,9 +154,11 @@ CTipEdit::~CTipEdit()
 void CTipEdit::savePersistentSettings()
 {
 #ifndef NO_PERSISTENT_SETTINGS
+	if (CPersistentSettings::instance()->settings() == NULL) return;
+
 	const int nFontSize = fontInfo().pointSize();
 
-	QSettings &settings(CPersistentSettings::instance()->settings());
+	QSettings &settings(*CPersistentSettings::instance()->settings());
 	settings.beginGroup(constrToolTipEditGroup);
 	settings.setValue(constrFontSizeKey, nFontSize);
 	settings.endGroup();
@@ -166,7 +168,9 @@ void CTipEdit::savePersistentSettings()
 void CTipEdit::restorePersistentSettings()
 {
 #ifndef NO_PERSISTENT_SETTINGS
-	QSettings &settings(CPersistentSettings::instance()->settings());
+	if (CPersistentSettings::instance()->settings() == NULL) return;
+
+	QSettings &settings(*CPersistentSettings::instance()->settings());
 
 	QFont fnt = font();
 

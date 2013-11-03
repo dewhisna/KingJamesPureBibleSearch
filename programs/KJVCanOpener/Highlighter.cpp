@@ -349,6 +349,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
 		pActionToolButton->setToolTip(tr("Highlighter Tool #%1").arg(ndx+1));
 		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1").arg(ndx+1));
+		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 #ifndef Q_OS_MAC
 		switch (ndx) {
 			case 0:

@@ -102,24 +102,42 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 
 CPersistentSettings::CPersistentSettings(QObject *parent)
 	:	QObject(parent),
-		m_pPersistentSettingData(&m_PersistentSettingData1)
+		m_pPersistentSettingData(&m_PersistentSettingData1),
+		m_pSettings(NULL),
+		m_bStealthMode(false)
 {
 	// Must set these in main() before caling settings!:
 	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationName().compare(VER_ORGNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationDomain().compare(VER_ORGDOMAIN_STR_QT) == 0);
-
-	m_pSettings = new QSettings(this);
 }
 
 CPersistentSettings::~CPersistentSettings()
 {
 }
 
+void CPersistentSettings::setStealthMode(const QString &strFilename)
+{
+	assert(m_pSettings == NULL);			// Can only set once
+	m_bStealthMode = true;
+	if (!strFilename.isEmpty()) {
+		m_pSettings = new QSettings(strFilename, QSettings::IniFormat, this);
+	}
+}
+
 CPersistentSettings *CPersistentSettings::instance()
 {
 	static CPersistentSettings thePersistentSettings;
 	return &thePersistentSettings;
+}
+
+QSettings *CPersistentSettings::settings()
+{
+	if ((m_pSettings == NULL) && (!m_bStealthMode)) {
+		// Create NON-Stealth Settings:
+		m_pSettings = new QSettings(this);
+	}
+	return m_pSettings;
 }
 
 void CPersistentSettings::togglePersistentSettingData(bool bCopy)

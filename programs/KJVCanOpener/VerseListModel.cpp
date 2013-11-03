@@ -72,7 +72,7 @@ void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
-		m_nDisplayMode(VDME_HEADING),
+		m_nDisplayMode(VDME_RICHTEXT),
 		m_nTreeMode(VTME_LIST),
 		m_nViewMode(VVME_SEARCH_RESULTS),
 		m_bShowMissingLeafs(false),

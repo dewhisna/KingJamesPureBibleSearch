@@ -252,15 +252,19 @@ void CScriptureText<T,U>::setTextBrightness(bool bInvert, int nBrightness)
 template<class T, class U>
 void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
 {
-	QSettings &settings(CPersistentSettings::instance()->settings());
-	m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	}
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 {
-	QSettings &settings(CPersistentSettings::instance()->settings());
-	m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+	}
 }
 
 // ----------------------------------------------------------------------------

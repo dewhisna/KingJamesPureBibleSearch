@@ -66,8 +66,6 @@ public:
 	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVCanOpener();
 
-	void initialize();
-
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
 	bool isPhraseEditorActive() const { return m_bPhraseEditorActive; }
@@ -116,6 +114,8 @@ protected slots:
 	}
 
 protected:
+	void initialize();
+
 	virtual void closeEvent(QCloseEvent * event);
 	virtual bool event(QEvent *pEvent);
 
