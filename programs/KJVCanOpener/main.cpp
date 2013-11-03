@@ -682,7 +682,9 @@ int main(int argc, char *argv[])
 #ifdef Q_WS_WIN
 	app.setWindowIcon(QIcon(":/res/bible.ico"));
 #else
+#ifndef Q_WS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
 	app.setWindowIcon(QIcon(":/res/bible_48.png"));
+#endif
 #endif
 
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
