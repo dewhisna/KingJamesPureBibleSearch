@@ -155,16 +155,14 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_pButtonDroplist->setGeometry(sizeHint().width()-m_pButtonDroplist->sizeHint().width(),0,
 								m_pButtonDroplist->sizeHint().width(),m_pButtonDroplist->sizeHint().height());
 
-	CPhraseList phrases = m_pBibleDatabase->phraseList();
-	phrases.append(g_lstUserPhrases);
-	phrases.removeDuplicates();
-	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(phrases, this);
-	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
-	m_pCommonPhrasesCompleter = new QCompleter(pCommonPhrasesModel, this);
+	m_pCommonPhrasesCompleter = new QCompleter(this);
 	m_pCommonPhrasesCompleter->setWidget(this);
 	m_pCommonPhrasesCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	m_pCommonPhrasesCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 	m_pCommonPhrasesCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+	CPhraseListModel *pCommonPhrasesModel = new CPhraseListModel(m_pCommonPhrasesCompleter);
+	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
+	m_pCommonPhrasesCompleter->setModel(pCommonPhrasesModel);		// Note: Parenting the model (above) to the Completer, the completer will delete the old model when we call setModel()
 
 //	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
@@ -213,24 +211,6 @@ void CPhraseLineEdit::setExclude(bool bExclude)
 		emit phraseChanged();				// But, we need to recalculate our search results
 		emit changeExclude(bExclude);
 	}
-}
-
-void CPhraseLineEdit::en_phraseListChanged()
-{
-	assert(m_pBibleDatabase.data() != NULL);
-
-	assert(m_pCommonPhrasesCompleter != NULL);
-	if (m_pCommonPhrasesCompleter == NULL) return;
-
-	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
-	assert(pModel != NULL);
-	if (pModel == NULL) return;
-
-	CPhraseList phrases = m_pBibleDatabase->phraseList();
-	phrases.append(g_lstUserPhrases);
-	phrases.removeDuplicates();
-	pModel->setPhraseList(phrases);
-	pModel->sort(0, Qt::AscendingOrder);
 }
 
 void CPhraseLineEdit::insertCompletion(const QString& completion)
@@ -432,6 +412,19 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
+	assert(m_pBibleDatabase != NULL);
+	if (m_pBibleDatabase == NULL) return;
+	assert(m_pCommonPhrasesCompleter != NULL);
+	if (m_pCommonPhrasesCompleter == NULL) return;
+	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
+	assert(pModel != NULL);
+	if (pModel == NULL) return;
+
+	CPhraseList phrases = m_pBibleDatabase->phraseList();
+	phrases.append(userPhrases());
+	phrases.removeDuplicates();
+	pModel->setPhraseList(phrases);
+	pModel->sort(0, Qt::AscendingOrder);
 	m_pCommonPhrasesCompleter->complete();
 }
 
@@ -504,6 +497,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchActivationDelay(int)));
 
+	connect(CPersistentSettings::instance(), SIGNAL(changedUserPhrases()), this, SLOT(setPhraseButtonEnables()));
+
 	connect(ui.chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui.editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui.chkAccentSensitive, SIGNAL(clicked(bool)), this, SLOT(en_AccentSensitiveChanged(bool)));
@@ -514,7 +509,6 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(ui.buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
 	connect(ui.buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
 	connect(ui.buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
-	connect(this, SIGNAL(phraseListChanged()), ui.editPhrase, SLOT(en_phraseListChanged()));
 	connect(ui.editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(ui.buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 }
@@ -654,23 +648,14 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 
 void CKJVSearchPhraseEdit::en_phraseAdd()
 {
-	assert(!g_lstUserPhrases.contains(m_phraseEntry));
-	g_lstUserPhrases.push_back(m_phraseEntry);
-	g_bUserPhrasesDirty = true;
-	setPhraseButtonEnables();
-	emit phraseListChanged();
+	CPersistentSettings::instance()->addUserPhrase(m_phraseEntry);
+//	setPhraseButtonEnables();
 }
 
 void CKJVSearchPhraseEdit::en_phraseDel()
 {
-	int ndx = g_lstUserPhrases.indexOf(m_phraseEntry);
-	assert(ndx != -1);		// Shouldn't be in this handler if it didn't exist!!  What happened?
-	if (ndx >= 0) {
-		g_lstUserPhrases.removeAt(ndx);
-		g_bUserPhrasesDirty = true;
-	}
-	setPhraseButtonEnables();
-	emit phraseListChanged();
+	CPersistentSettings::instance()->removeUserPhrase(m_phraseEntry);
+//	setPhraseButtonEnables();
 }
 
 void CKJVSearchPhraseEdit::en_phraseClear()
@@ -687,7 +672,7 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 void CKJVSearchPhraseEdit::setPhraseButtonEnables()
 {
 	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
-	bool bUserFound = g_lstUserPhrases.contains(m_phraseEntry);
+	bool bUserFound = CPersistentSettings::instance()->userPhrases().contains(m_phraseEntry);
 	bool bHaveText = (!m_phraseEntry.text().isEmpty());
 	ui.buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
 	ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);

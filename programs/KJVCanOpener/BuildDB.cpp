@@ -46,9 +46,6 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-QSqlDatabase g_sqldbBuildMain;
-QSqlDatabase g_sqldbBuildUser;
-
 #ifndef OSIS_PARSER_BUILD
 #include "main.h"
 extern CMyApplication *g_pMyApplication;
@@ -148,26 +145,13 @@ namespace {
 CBuildDatabase::CBuildDatabase(QWidget *pParent)
 	:	m_pParent(pParent)
 {
-	if (!g_sqldbBuildMain.contains(g_constrMainBuildConnection)) {
-		g_sqldbBuildMain = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainBuildConnection);
-	}
 
-	if (!g_sqldbBuildUser.contains(g_constrUserBuildConnection)) {
-		g_sqldbBuildUser = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserBuildConnection);
-	}
 }
 
 CBuildDatabase::~CBuildDatabase()
 {
-	if (g_sqldbBuildMain.contains(g_constrMainBuildConnection)) {
-		g_sqldbBuildMain = QSqlDatabase();
-		QSqlDatabase::removeDatabase(g_constrMainBuildConnection);
-	}
-
-	if (g_sqldbBuildUser.contains(g_constrUserBuildConnection)) {
-		g_sqldbBuildUser = QSqlDatabase();
-		QSqlDatabase::removeDatabase(g_constrUserBuildConnection);
-	}
+	if (QSqlDatabase::contains(g_constrMainBuildConnection)) QSqlDatabase::removeDatabase(g_constrMainBuildConnection);
+	if (QSqlDatabase::contains(g_constrUserBuildConnection)) QSqlDatabase::removeDatabase(g_constrUserBuildConnection);
 }
 
 // ============================================================================
@@ -911,6 +895,9 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 			}
 
 			filePhrases.close();
+		} else {
+			// If this is the User Database, get it from the global list:
+			phrases.append(userPhrases());
 		}
 
 		// Create the table in the database:
@@ -923,10 +910,7 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 			return false;
 		}
 
-		// Get the phrases and use the CPhraseListModel to sort it (since that will be displaying it later):
-		if (bUserPhrases) {
-			phrases.append(g_lstUserPhrases);
-		}
+		// Use the CPhraseListModel to sort it (since that will be displaying it later):
 		CPhraseListModel mdlPhrases(phrases);
 		mdlPhrases.sort(0, Qt::AscendingOrder);
 		phrases = mdlPhrases.phraseList();
@@ -961,29 +945,32 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 
 bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 {
-	m_myDatabase = g_sqldbBuildMain;
+	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainBuildConnection);
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 
 //	QMessageBox::information(m_pParent, g_constrBuildDatabase, m_myDatabase.databaseName());
 
-	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
-		return false;
-	}
-
 	bool bSuccess = true;
 
-	if ((!BuildDBInfoTable()) ||
-		(!BuildTestamentTable()) ||
-		(!BuildBooksTable()) ||
-		(!BuildChaptersTable()) ||
-		(!BuildVerseTables()) ||
-		(!BuildWordsTable()) ||
-		(!BuildFootnotesTables()) ||
-		(!BuildPhrasesTable(false))) bSuccess = false;
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
+		bSuccess = false;
+	}
 
-	m_myDatabase.close();
+	if (bSuccess) {
+		if ((!BuildDBInfoTable()) ||
+			(!BuildTestamentTable()) ||
+			(!BuildBooksTable()) ||
+			(!BuildChaptersTable()) ||
+			(!BuildVerseTables()) ||
+			(!BuildWordsTable()) ||
+			(!BuildFootnotesTables()) ||
+			(!BuildPhrasesTable(false))) bSuccess = false;
+		m_myDatabase.close();
+	}
+
 	m_myDatabase = QSqlDatabase();
+	QSqlDatabase::removeDatabase(g_constrMainBuildConnection);
 
 	if (bSuccess) QMessageBox::information(m_pParent, g_constrBuildDatabase, QObject::tr("Build Complete!"));
 	return bSuccess;
@@ -991,25 +978,24 @@ bool CBuildDatabase::BuildDatabase(const QString &strDatabaseFilename)
 
 bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings)
 {
-	m_myDatabase = g_sqldbBuildUser;
+	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserBuildConnection);
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
+
+	bool bSuccess = true;
 
 	if (!m_myDatabase.open()) {
 		if (!bHideWarnings)
 			QMessageBox::warning(m_pParent, g_constrBuildDatabase, QObject::tr("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
-		return false;
-	}
-
-	bool bSuccess = true;
-
-	if (!BuildPhrasesTable(true)) {
 		bSuccess = false;
-	} else {
-		g_bUserPhrasesDirty = false;
 	}
 
-	m_myDatabase.close();
+	if (bSuccess) {
+		if (!BuildPhrasesTable(true)) bSuccess = false;
+		m_myDatabase.close();
+	}
+
 	m_myDatabase = QSqlDatabase();
+	QSqlDatabase::removeDatabase(g_constrUserBuildConnection);
 
 	return bSuccess;
 }

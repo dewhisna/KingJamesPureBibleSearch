@@ -32,6 +32,29 @@
 
 // ============================================================================
 
+#ifdef OSIS_PARSER_BUILD
+static CPhraseList g_lstUserPhrases;
+const CPhraseList &userPhrases()
+{
+	return g_lstUserPhrases;
+}
+void setUserPhrases(const CPhraseList &lstUserPhrases)
+{
+	g_lstUserPhrases = lstUserPhrases;
+}
+#else
+const CPhraseList &userPhrases()
+{
+	return CPersistentSettings::instance()->userPhrases();
+}
+void setUserPhrases(const CPhraseList &lstUserPhrases)
+{
+	return CPersistentSettings::instance()->setUserPhrases(lstUserPhrases);
+}
+#endif
+
+// ============================================================================
+
 namespace
 {
 	//////////////////////////////////////////////////////////////////////
@@ -138,6 +161,32 @@ QSettings *CPersistentSettings::settings()
 		m_pSettings = new QSettings(this);
 	}
 	return m_pSettings;
+}
+
+const CPhraseList &CPersistentSettings::userPhrases() const
+{
+	return m_lstUserPhrases;
+}
+
+void CPersistentSettings::setUserPhrases(const CPhraseList &lstUserPhrases)
+{
+	m_lstUserPhrases = lstUserPhrases;
+	emit changedUserPhrases();
+}
+
+void CPersistentSettings::addUserPhrase(const CPhraseEntry &aPhraseEntry)
+{
+	if (m_lstUserPhrases.contains(aPhraseEntry)) return;
+	m_lstUserPhrases.append(aPhraseEntry);
+	emit changedUserPhrases();
+}
+
+void CPersistentSettings::removeUserPhrase(const CPhraseEntry &aPhraseEntry)
+{
+	int ndx = m_lstUserPhrases.indexOf(aPhraseEntry);
+	if (ndx < 0) return;
+	m_lstUserPhrases.removeAt(ndx);
+	emit changedUserPhrases();
 }
 
 void CPersistentSettings::togglePersistentSettingData(bool bCopy)

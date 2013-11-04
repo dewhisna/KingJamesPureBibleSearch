@@ -45,6 +45,10 @@ public:
 	void setStealthMode(const QString &strFilename);
 	static CPersistentSettings *instance();
 	QSettings *settings();
+	const CPhraseList &userPhrases() const;
+	void setUserPhrases(const CPhraseList &lstUserPhrases);
+	void addUserPhrase(const CPhraseEntry &aPhraseEntry);
+	void removeUserPhrase(const CPhraseEntry &aPhraseEntry);
 
 	const QFont &fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
 	const QFont &fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
@@ -90,6 +94,8 @@ public:
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
+	void changedUserPhrases();
+
 	void fontChangedScriptureBrowser(const QFont &aFont);
 	void fontChangedSearchResults(const QFont &aFont);
 	void fontChangedDictionary(const QFont &aFont);
@@ -207,6 +213,7 @@ private:
 
 	QSettings *m_pSettings;
 	bool m_bStealthMode;								// True if we're either writing to a special alternate file or not writing settings
+	CPhraseList m_lstUserPhrases;						// User-defined phrases read
 };
 
 #endif // PERSISTENTSETTINGS_H

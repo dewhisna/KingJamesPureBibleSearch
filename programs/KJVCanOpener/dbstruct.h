@@ -567,9 +567,8 @@ inline uint qHash(const CPhraseEntry &key)
 	return nHash;
 }
 
-extern CPhraseList g_lstUserPhrases;			// User-defined phrases read from optional user database
-extern bool g_bUserPhrasesDirty;				// True if user has edited the phrase list
-extern QString g_strUserDatabase;				// User Database filePathName used to save User-defined phrases
+extern const CPhraseList &userPhrases();			// User-defined phrases
+extern void setUserPhrases(const CPhraseList &lstUserPhrases);
 
 // ============================================================================
 

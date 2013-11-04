@@ -293,7 +293,6 @@ CMyApplication::~CMyApplication()
 	g_lstDictionaryDatabases.clear();
 	g_pMainDictionaryDatabase.clear();
 	g_pUserNotesDatabase.clear();
-	g_lstUserPhrases.clear();
 }
 
 // ============================================================================
@@ -816,9 +815,7 @@ int main(int argc, char *argv[])
 //adb.BuildDatabase(fiKJVDatabase.absoluteFilePath());
 //return 0;
 
-	// Read User Database if it exists:
-	QString strUserDatabaseFilename;
-
+	// Read (and/or Build) our Databases:
 	{
 		CBuildDatabase bdb(splash);
 		if (bBuildDB) {
@@ -830,57 +827,40 @@ int main(int argc, char *argv[])
 		}
 
 		// Read Main Database
-		CReadDatabase rdb(splash);
-		if (!rdb.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), true)) {
+		CReadDatabase rdbMain(splash);
+		if (!rdbMain.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), true)) {
 			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(fiKJVDatabase.absoluteFilePath()));
 			delete splash;
 			return -3;
 		}
 
 		// Read User Database:
+		CReadDatabase rdbUser(splash);
 		if (!fiUserDatabase.exists()) {
 			// If the user's database doesn't exist, see if the template one
-			//		does.  And if so, see if we can copy from it to the user's:
-			if (fiUserDatabaseTemplate.exists()) {
-				if (rdb.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true)) {
-					if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-						// Use the copy if that was successful.  Strings will have already
-						//	been set, so no need to read again:
-						strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
-					}
-					// If we were successful with reading the template database, we'll
-					//	already have the strings loaded, so the user can use them.  But,
-					//	we'll leave the pathname empty to disable user changes since
-					//	the template will be a read-only copy
-				} else {
-					// Otherwise, if reading the template failed and there was no user
-					//	database, see if we can just create a user database:
-					if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-						strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
-					}
-				}
-			} else {
-				// If there was no template and no user database, see if we can just create
-				//	the user database.  If so, use it (this is like the failure case above,
-				//	but where the template doesn't exist at all):
-				if (bdb.BuildUserDatabase(fiUserDatabase.absoluteFilePath(), true)) {
-					strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
-				}
+			//		does.  If so, read and use it:
+			if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
+				rdbUser.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true);
 			}
 		} else {
-			if (!rdb.ReadUserDatabase(fiUserDatabase.absoluteFilePath())) {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read KJV User Database!\nCheck Installation and Verify Database File!"));
-				delete splash;
-				return -4;
-			} else {
-				strUserDatabaseFilename = fiUserDatabase.absoluteFilePath();
+			// If the user's database does exist, read it. But if it isn't a proper file
+			//		or if the read fails, try reading the template if it exists:
+			if ((!fiUserDatabase.isFile()) || (!rdbUser.ReadUserDatabase(fiUserDatabase.absoluteFilePath(), true))) {
+				if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
+					rdbUser.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true);
+				}
 			}
 		}
+		// At this point, userPhrases() will either be the:
+		//		- User Database if it existed
+		//		- Else, the Template Database if it existed
+		//		- Else, empty
 
-		// Read Dictionary Database
+		// Read Dictionary Database:
+		CReadDatabase rdbDict(splash);
 		if (fiWeb1828DictDatabase.exists()) {
 			TDictionaryDescriptor descWeb1828(constDictionaryDescriptors[DDE_WEB1828]);
-			if (!rdb.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
+			if (!rdbDict.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
 				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
 				delete splash;
 				return -5;
@@ -948,7 +928,6 @@ int main(int argc, char *argv[])
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
-	g_strUserDatabase = strUserDatabaseFilename;
 
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();

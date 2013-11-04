@@ -51,9 +51,6 @@
 
 // ============================================================================
 
-QSqlDatabase g_sqldbReadMain;
-QSqlDatabase g_sqldbReadUser;
-
 namespace {
 	const QString g_constrReadDatabase = QObject::tr("Reading Database");
 
@@ -67,26 +64,13 @@ namespace {
 CReadDatabase::CReadDatabase(QWidget *pParent)
 	:	m_pParent(pParent)
 {
-	if (!g_sqldbReadMain.contains(g_constrMainReadConnection)) {
-		g_sqldbReadMain = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
-	}
 
-	if (!g_sqldbReadUser.contains(g_constrUserReadConnection)) {
-		g_sqldbReadUser = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserReadConnection);
-	}
 }
 
 CReadDatabase::~CReadDatabase()
 {
-	if (g_sqldbReadMain.contains(g_constrMainReadConnection)) {
-		g_sqldbReadMain = QSqlDatabase();
-		QSqlDatabase::removeDatabase(g_constrMainReadConnection);
-	}
-
-	if (g_sqldbReadUser.contains(g_constrUserReadConnection)) {
-		g_sqldbReadUser = QSqlDatabase();
-		QSqlDatabase::removeDatabase(g_constrUserReadConnection);
-	}
+	if (QSqlDatabase::contains(g_constrMainReadConnection)) QSqlDatabase::removeDatabase(g_constrMainReadConnection);
+	if (QSqlDatabase::contains(g_constrUserReadConnection)) QSqlDatabase::removeDatabase(g_constrUserReadConnection);
 }
 
 // ============================================================================
@@ -705,7 +689,9 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 {
-	assert(m_pBibleDatabase != NULL);
+	if (!bUserPhrases) {
+		assert(m_pBibleDatabase != NULL);
+	}
 
 	// Read the Phrases table:
 
@@ -723,9 +709,8 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 	}
 	queryTable.finish();
 
-	if (bUserPhrases) {
-		g_lstUserPhrases.clear();
-	} else {
+	CPhraseList lstUserPhrases;
+	if (!bUserPhrases) {
 		m_pBibleDatabase->m_lstCommonPhrases.clear();
 	}
 
@@ -740,13 +725,15 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		phrase.setExclude((queryData.value(4).toInt() != 0) ? true : false);
 		if (!phrase.text().isEmpty()) {
 			if (bUserPhrases) {
-				g_lstUserPhrases.push_back(phrase);
+				lstUserPhrases.append(phrase);
 			} else {
 				m_pBibleDatabase->m_lstCommonPhrases.push_back(phrase);
 			}
 		}
 	}
 	queryData.finish();
+
+	if (bUserPhrases) setUserPhrases(lstUserPhrases);
 
 	return true;
 }
@@ -977,7 +964,7 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool bSetAsMain)
 {
-	m_myDatabase = g_sqldbReadMain;
+	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
@@ -986,25 +973,28 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool b
 	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());
 	assert(m_pBibleDatabase.data() != NULL);
 
-	if (!m_myDatabase.open()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
-		return false;
-	}
-
 	bool bSuccess = true;
 
-	if ((!ReadDBInfoTable()) ||
-		(!ReadTestamentTable()) ||
-		(!ReadBooksTable()) ||
-		(!ReadChaptersTable()) ||
-		(!ReadVerseTables()) ||
-		(!ReadWordsTable()) ||
-		(!ReadFOOTNOTESTable()) ||
-		(!ReadPHRASESTable(false)) ||
-		(!ValidateData())) bSuccess = false;
+	if (!m_myDatabase.open()) {
+		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
+		bSuccess = false;
+	}
 
-	m_myDatabase.close();
+	if (bSuccess) {
+		if ((!ReadDBInfoTable()) ||
+			(!ReadTestamentTable()) ||
+			(!ReadBooksTable()) ||
+			(!ReadChaptersTable()) ||
+			(!ReadVerseTables()) ||
+			(!ReadWordsTable()) ||
+			(!ReadFOOTNOTESTable()) ||
+			(!ReadPHRASESTable(false)) ||
+			(!ValidateData())) bSuccess = false;
+		m_myDatabase.close();
+	}
+
 	m_myDatabase = QSqlDatabase();
+	QSqlDatabase::removeDatabase(g_constrMainReadConnection);
 
 	if (bSuccess) {
 		g_lstBibleDatabases.push_back(m_pBibleDatabase);
@@ -1016,26 +1006,25 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool b
 
 bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings)
 {
-	m_myDatabase = g_sqldbReadUser;
+	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserReadConnection);
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
+
+	bool bSuccess = true;
 
 	if (!m_myDatabase.open()) {
 		if (!bHideWarnings)
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
-		return false;
-	}
-
-	bool bSuccess = true;
-
-	if (!ReadPHRASESTable(true)) {
 		bSuccess = false;
-	} else {
-		g_bUserPhrasesDirty = false;
 	}
 
-	m_myDatabase.close();
+	if (bSuccess) {
+		if (!ReadPHRASESTable(true)) bSuccess = false;
+		m_myDatabase.close();
+	}
+
 	m_myDatabase = QSqlDatabase();
+	QSqlDatabase::removeDatabase(g_constrUserReadConnection);
 
 	return bSuccess;
 }
@@ -1056,6 +1045,8 @@ bool CReadDatabase::ReadDictionaryDatabase(const QString &strDatabaseFilename, c
 
 	if (!m_pDictionaryDatabase->m_myDatabase.open()) {
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
+		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
+		QSqlDatabase::removeDatabase(strCompatUUID);
 		return false;
 	}
 

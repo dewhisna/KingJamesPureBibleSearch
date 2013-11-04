@@ -75,9 +75,6 @@ public:
 
 	void processPendingUpdateCompleter();
 
-public slots:
-	void en_phraseListChanged();
-
 protected slots:
 	virtual void en_textChanged();
 
@@ -146,7 +143,6 @@ public:
 signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
-	void phraseListChanged();
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 public slots:
@@ -167,8 +163,6 @@ protected slots:
 	void en_phraseAdd();
 	void en_phraseDel();
 	void en_phraseClear();
-
-private:
 	void setPhraseButtonEnables();
 
 // Data Private:

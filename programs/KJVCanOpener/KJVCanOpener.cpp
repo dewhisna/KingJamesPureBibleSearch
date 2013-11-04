@@ -38,6 +38,8 @@
 #include "KJVCrossRefEditDlg.h"
 #include "SearchCompleter.h"
 #include "DictionaryWidget.h"
+#include "PhraseEdit.h"
+#include "PhraseListModel.h"
 
 #include <assert.h>
 
@@ -108,6 +110,7 @@ namespace {
 	// Search Phrases:
 	const QString constrLastSearchGroup("LastSearch");
 	const QString constrSearchPhrasesGroup("SearchPhrases");
+	const QString constrUserSearchPhrasesGroup("UserSearchPhrases");
 	const QString constrSearchActivationDelayKey("SearchActivationDelay");
 	const QString constrSearchPhraseCompleterFilterModeKey("SearchPhraseCompleterFilterMode");
 	const QString constrInitialNumberOfSearchPhrasesKey("InitialNumberOfSearchPhrases");
@@ -832,6 +835,24 @@ void CKJVCanOpener::savePersistentSettings()
 	// Last Search:
 	m_pSearchSpecWidget->writeKJVSearchFile(settings, constrLastSearchGroup);
 
+	// User Search Phrases Settings:
+	CPhraseList phrases;
+	phrases.append(CPersistentSettings::instance()->userPhrases());
+	CPhraseListModel mdlPhrases(phrases);
+	mdlPhrases.sort(0, Qt::AscendingOrder);
+	phrases = mdlPhrases.phraseList();
+
+	settings.beginWriteArray(constrUserSearchPhrasesGroup);
+	settings.remove("");
+	for (int ndx = 0; ndx < CPersistentSettings::instance()->userPhrases().size(); ++ndx) {
+		settings.setArrayIndex(ndx);
+		settings.setValue("Phrase", phrases.at(ndx).text());
+		settings.setValue("CaseSensitive", phrases.at(ndx).caseSensitive());
+		settings.setValue("AccentSensitive", phrases.at(ndx).accentSensitive());
+		settings.setValue("Exclude", phrases.at(ndx).isExcluded());
+	}
+	settings.endArray();
+
 	// Current Browser Reference and Browser Settings:
 	settings.beginGroup(constrBrowserViewGroup);
 	TPhraseTag tag = m_pBrowserWidget->selection();
@@ -1016,6 +1037,25 @@ void CKJVCanOpener::restorePersistentSettings()
 
 			// Last Search:
 			m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+
+			// User Search Phrases Settings:
+			int nPhrases = settings.beginReadArray(constrUserSearchPhrasesGroup);
+			if (nPhrases != 0) {
+				CPhraseList lstUserPhrases;
+				lstUserPhrases.reserve(nPhrases);
+				for (int ndx = 0; ndx < nPhrases; ++ndx) {
+					CPhraseEntry phrase;
+					settings.setArrayIndex(ndx);
+					phrase.setText(settings.value("Phrase", QString()).toString());
+					phrase.setCaseSensitive(settings.value("CaseSensitive", false).toBool());
+					phrase.setAccentSensitive(settings.value("AccentSensitive", false).toBool());
+					phrase.setExclude(settings.value("Exclude", false).toBool());
+					if (phrase.text().isEmpty()) continue;
+					lstUserPhrases.append(phrase);
+				}
+				setUserPhrases(lstUserPhrases);
+			}
+			settings.endArray();
 
 			// Restore our activation delay:
 			CPersistentSettings::instance()->setSearchActivationDelay(nSaveSearchActivationDelay);
@@ -1251,23 +1291,6 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 			}
 			// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
 		}	//	(or we didn't have an updated file to save)...
-
-		if ((g_bUserPhrasesDirty) && (!g_strUserDatabase.isEmpty())) {
-			nResult = QMessageBox::warning(this, windowTitle(), tr("Do you wish to save the search phrase list changes you've made to the user database?"),
-																	(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-			if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
-				event->ignore();
-				return;
-			}
-			if (nResult == QMessageBox::Yes) {
-				CBuildDatabase bdb(this);
-				if (!bdb.BuildUserDatabase(g_strUserDatabase)) {
-					QMessageBox::warning(this, windowTitle(), tr("Failed to save KJV User Database!\nCheck installation and settings!"));
-					event->ignore();
-					return;
-				}
-			}
-		}
 
 		savePersistentSettings();
 	}
