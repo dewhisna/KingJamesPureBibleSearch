@@ -436,6 +436,10 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 
 	// --------------------------------------------------------------
 
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_userNotesChanged()));
+
+	// --------------------------------------------------------------
+
 	loadSettings();
 }
 
@@ -932,6 +936,11 @@ void CKJVTextFormatConfig::en_selectionChangedBrowser()
 	}
 }
 
+void CKJVTextFormatConfig::en_userNotesChanged()
+{
+	loadSettings();
+}
+
 // ============================================================================
 // ============================================================================
 
@@ -1133,7 +1142,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 		m_pUserNotesDatabase->setFilePathName(strNewFilePathName);
 		ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
 
-		if (!m_pUserNotesDatabase->load()) {
+		if (!loadUserNotesDatabase()) {
 			QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError());
 			// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 			//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
@@ -1164,6 +1173,12 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 	m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
 }
 
+bool CKJVUserNotesDatabaseConfig::loadUserNotesDatabase()
+{
+	CBusyCursor iAmBusy(NULL);
+	return m_pUserNotesDatabase->load();
+}
+
 void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 {
 	if ((m_pUserNotesDatabase->filePathName().isEmpty()) || (ui.editPrimaryUserNotesFilename->text().isEmpty())) return;
@@ -1189,6 +1204,8 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 			bDone = true;
 		}
 	}
+
+	CBusyCursor iAmBusy(NULL);
 
 	m_pUserNotesDatabase->setErrorFilePathName(QString());
 	m_pUserNotesDatabase->setFilePathName(QString());
@@ -1923,7 +1940,7 @@ void CKJVConfigurationDialog::en_dataChanged()
 
 void CKJVConfigurationDialog::accept()
 {
-	CBusyCursor iAmBusy(this);
+	CBusyCursor iAmBusy(NULL);
 
 	m_pConfiguration->saveSettings();
 	QDialog::accept();
@@ -1948,7 +1965,7 @@ void CKJVConfigurationDialog::apply()
 {
 	assert(g_pUserNotesDatabase != NULL);
 
-	CBusyCursor iAmBusy(this);
+	CBusyCursor iAmBusy(NULL);
 
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent

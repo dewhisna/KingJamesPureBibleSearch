@@ -128,6 +128,8 @@ public slots:
 
 	void en_selectionChangedBrowser();
 
+	void en_userNotesChanged();
+
 private:
 	void recalcColorListWidth();
 
@@ -213,6 +215,9 @@ private slots:
 	void en_changedKeepBackup();
 	void en_changedBackupExtension();
 	void en_DefaultNoteBackgroundColorPicked(const QColor &color);
+
+private:
+	bool loadUserNotesDatabase();				// Isolated to function for busyCursor
 
 // Data Private:
 private:
