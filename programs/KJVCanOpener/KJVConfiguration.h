@@ -110,6 +110,7 @@ public slots:
 	void en_AdjustDialogElementBrightness(bool bAdjust);
 
 	void en_WordsOfJesusColorPicked(const QColor &color);
+	void en_clickedEnableWordsOfJesusColor(bool bEnable);
 	void en_SearchResultsColorPicked(const QColor &color);
 	void en_CursorTrackerColorPicked(const QColor &color);
 	void en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color);

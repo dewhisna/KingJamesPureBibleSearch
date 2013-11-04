@@ -81,7 +81,11 @@ public:
 		calcHash();
 	}
 	void setWordsOfJesusTagsByColor(const QColor &color) {
-		setWordsOfJesusTags(QString("<font color=\"%1\"> ").arg(color.name()), "</font> ");
+		if (color.isValid()) {
+			setWordsOfJesusTags(QString("<font color=\"%1\"> ").arg(color.name()), "</font> ");
+		} else {
+			setWordsOfJesusTags(" ", " ");
+		}
 	}
 
 	inline QString divineNameBegin() const { return m_strDivideNameBegin; }

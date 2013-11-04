@@ -773,7 +773,11 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Colors:
 	settings.beginGroup(constrColorsGroup);
-	settings.setValue(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name());
+	if (CPersistentSettings::instance()->colorWordsOfJesus().isValid()) {
+		settings.setValue(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name());
+	} else {
+		settings.setValue(constrWordsOfJesusColorKey, "");
+	}
 	settings.setValue(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name());
 	settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
 	settings.endGroup();
@@ -927,7 +931,12 @@ void CKJVCanOpener::restorePersistentSettings()
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrColorsGroup);
 			QColor clrTemp;
-			clrTemp.setNamedColor(settings.value(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name()).toString());
+			QString strWordsOfJesusColor = settings.value(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name()).toString();
+			if (!strWordsOfJesusColor.isEmpty()) {
+				clrTemp.setNamedColor(strWordsOfJesusColor);
+			} else {
+				clrTemp = QColor();
+			}
 			CPersistentSettings::instance()->setColorWordsOfJesus(clrTemp);
 			clrTemp.setNamedColor(settings.value(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name()).toString());
 			CPersistentSettings::instance()->setColorSearchResults(clrTemp);

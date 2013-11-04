@@ -358,7 +358,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	toQwwColorButton(ui.buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
 	ui.buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
 	ui.buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	ui.vertLayoutColorOptions->addWidget(ui.buttonWordsOfJesusColor);
+	ui.horzLayoutWordsOfJesusColor->insertWidget(0, ui.buttonWordsOfJesusColor, 10);
 
 	ui.buttonSearchResultsColor = new QwwColorButton(this);
 	ui.buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
@@ -375,6 +375,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	ui.vertLayoutColorOptions->addWidget(ui.buttonCursorFollowColor);
 
 	connect(toQwwColorButton(ui.buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
+	connect(ui.checkBoxEnableWordsOfJesusColor, SIGNAL(clicked(bool)), this, SLOT(en_clickedEnableWordsOfJesusColor(bool)));
 	connect(toQwwColorButton(ui.buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui.buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
@@ -400,7 +401,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 
 	// Reinsert them in the correct TabOrder:
 	QWidget::setTabOrder(ui.toolButtonRenameHighlighter, ui.buttonWordsOfJesusColor);
-	QWidget::setTabOrder(ui.buttonWordsOfJesusColor, ui.buttonSearchResultsColor);
+	QWidget::setTabOrder(ui.buttonWordsOfJesusColor, ui.checkBoxEnableWordsOfJesusColor);
+	QWidget::setTabOrder(ui.checkBoxEnableWordsOfJesusColor, ui.buttonSearchResultsColor);
 	QWidget::setTabOrder(ui.buttonSearchResultsColor, ui.buttonCursorFollowColor);
 	QWidget::setTabOrder(ui.buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
@@ -449,6 +451,8 @@ void CKJVTextFormatConfig::loadSettings()
 	// --------------------------------------------------------------
 
 	toQwwColorButton(ui.buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	ui.buttonWordsOfJesusColor->setEnabled(CPersistentSettings::instance()->colorWordsOfJesus().isValid());
+	ui.checkBoxEnableWordsOfJesusColor->setChecked(CPersistentSettings::instance()->colorWordsOfJesus().isValid());
 	toQwwColorButton(ui.buttonSearchResultsColor)->setCurrentColor(CPersistentSettings::instance()->colorSearchResults());
 	toQwwColorButton(ui.buttonCursorFollowColor)->setCurrentColor(CPersistentSettings::instance()->colorCursorFollow());
 
@@ -606,7 +610,27 @@ void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
 {
 	if (m_bLoadingData) return;
 
+	ui.buttonWordsOfJesusColor->setEnabled(color.isValid());
+	ui.checkBoxEnableWordsOfJesusColor->setChecked(color.isValid());
 	CPersistentSettings::instance()->setColorWordsOfJesus(color);
+	navigateToDemoText();
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CKJVTextFormatConfig::en_clickedEnableWordsOfJesusColor(bool bEnable)
+{
+	if (m_bLoadingData) return;
+
+	if (bEnable) {
+		CPersistentSettings::instance()->setColorWordsOfJesus(QColor("red"));
+		toQwwColorButton(ui.buttonWordsOfJesusColor)->setCurrentColor(CPersistentSettings::instance()->colorWordsOfJesus());
+		ui.buttonWordsOfJesusColor->setEnabled(true);
+	} else {
+		CPersistentSettings::instance()->setColorWordsOfJesus(QColor());
+		toQwwColorButton(ui.buttonWordsOfJesusColor)->setCurrentColor(QColor());
+		ui.buttonWordsOfJesusColor->setEnabled(false);
+	}
 	navigateToDemoText();
 	m_bIsDirty = true;
 	emit dataChanged();
