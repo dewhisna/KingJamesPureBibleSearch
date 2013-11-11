@@ -293,6 +293,7 @@ private slots:
 	void en_changedNavigationActivationDelay(int nValue);
 	void en_changedPassageReferenceActivationDelay(int nValue);
 	void en_changedShowExcludedSearchResults(bool bShowExcludedSearchResults);
+	void en_changedChapterScrollbarMode(int nIndex);
 
 // UI Private:
 private:

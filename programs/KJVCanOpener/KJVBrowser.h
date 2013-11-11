@@ -129,6 +129,8 @@ private:
 	void initialize();
 
 private slots:
+	void en_changedChapterScrollbarMode();
+
 	void en_selectionChanged();
 
 	void en_sourceChanged(const QUrl &src);
@@ -160,6 +162,8 @@ private slots:
 	void en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults);
 
 private:
+	void setupChapterScrollbar();
+
 	void gotoIndex2(const TPhraseTag &tag);
 	void doHighlighting(bool bClear = false);		// Highlight the areas marked in the PhraseTags.  If bClear=True, removes the highlighting, which is used to swapout the current tag list for a new one without redrawing everything
 

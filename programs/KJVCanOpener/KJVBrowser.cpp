@@ -68,6 +68,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	connect(CPersistentSettings::instance(), SIGNAL(changedNavigationActivationDelay(int)), this, SLOT(setNavigationActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -89,10 +90,6 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(delayPassageReference(const TPhraseTag &)));
 	connect(ui.widgetPassageReference, SIGNAL(enterPressed()), this, SLOT(PassageReferenceEnterPressed()));
-
-	connect(ui.scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
-	connect(ui.scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
-	connect(ui.scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
 
 	connect(&m_dlyBkCombo, SIGNAL(triggered(int)), this, SLOT(BkComboIndexChanged(int)));
 	connect(&m_dlyBkChpCombo, SIGNAL(triggered(int)), this, SLOT(BkChpComboIndexChanged(int)));
@@ -146,7 +143,8 @@ CKJVBrowser::~CKJVBrowser()
 
 bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 {
-	if ((obj == ui.scrollbarChapter) &&
+	if ((ui.scrollbarChapter != NULL) &&
+		(obj == ui.scrollbarChapter) &&
 		(ev->type() == QEvent::MouseMove) &&
 		(ui.scrollbarChapter->isSliderDown())) {
 		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(ev);
@@ -197,6 +195,19 @@ void CKJVBrowser::initialize()
 	int nColSpan;
 	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
+	int ndxChapterScrollbar = ui.gridLayout->indexOf(ui.scrollbarChapter);
+	assert(ndxChapterScrollbar != -1);
+	if (ndxChapterScrollbar == -1) return;
+	int nRowChapterScrollbar;
+	int nColChapterScrollbar;
+	int nRowSpanChapterScrollbar;
+	int nColSpanChapterScrollbar;
+	ui.gridLayout->getItemPosition(ndxChapterScrollbar, &nRowChapterScrollbar, &nColChapterScrollbar, &nRowSpanChapterScrollbar, &nColSpanChapterScrollbar);
+
+	assert(nRow == nRowChapterScrollbar);
+	assert(nColSpan == 1);
+	assert(nColSpanChapterScrollbar == 1);
+
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
 	m_pScriptureBrowser->setMouseTracking(true);
@@ -206,9 +217,21 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 	m_pScriptureBrowser->setOpenLinks(false);
 
+	bool bChapterScrollNone = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_NONE);
+	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
+
 	delete ui.textBrowserMainText;
+	delete ui.scrollbarChapter;
 	ui.textBrowserMainText = NULL;
-	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
+	ui.scrollbarChapter = NULL;
+	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, (bChapterScrollLeft ? nColChapterScrollbar : nCol), nRowSpan, (bChapterScrollNone ? (nColSpan + nColSpanChapterScrollbar) : nColSpan));
+
+	if (!bChapterScrollNone) {
+		ui.scrollbarChapter = new QScrollBar(this);
+		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
+		ui.scrollbarChapter->setOrientation(Qt::Vertical);
+		ui.gridLayout->addWidget(ui.scrollbarChapter, nRowChapterScrollbar, (bChapterScrollLeft ? nCol : nColChapterScrollbar), nRowSpanChapterScrollbar, nColSpanChapterScrollbar);
+	}
 
 	// Reinsert it in the correct TabOrder:
 	QWidget::setTabOrder(ui.comboBkChp, m_pScriptureBrowser);
@@ -234,15 +257,85 @@ void CKJVBrowser::initialize()
 	}
 
 	// Setup the Chapter Scroller:
-	ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
-	ui.scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
-	ui.scrollbarChapter->setTracking(true);
-	ui.scrollbarChapter->setMouseTracking(true);
-	ui.scrollbarChapter->installEventFilter(this);
-	ui.scrollbarChapter->setSingleStep(1);
-	ui.scrollbarChapter->setPageStep(3);
+	setupChapterScrollbar();
 
 	end_update();
+}
+
+void CKJVBrowser::en_changedChapterScrollbarMode()
+{
+	bool bChapterScrollNone = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_NONE);
+	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
+
+	int ndx = ui.gridLayout->indexOf(m_pScriptureBrowser);
+	assert(ndx != -1);
+	if (ndx == -1) return;
+	int nRow;
+	int nCol;
+	int nRowSpan;
+	int nColSpan;
+	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
+	nCol = (bChapterScrollLeft ? 1 : 0);
+	nColSpan = (bChapterScrollNone ? 2 : 1);
+	ui.gridLayout->takeAt(ndx);
+
+	int ndxChapterScrollbar = -1;
+	if (ui.scrollbarChapter != NULL) {
+		ndxChapterScrollbar = ui.gridLayout->indexOf(ui.scrollbarChapter);
+		assert(ndxChapterScrollbar != -1);
+		if (ndxChapterScrollbar == -1) return;
+	}
+	int nRowChapterScrollbar = nRow;
+	int nColChapterScrollbar;		// This one will be set below
+	int nRowSpanChapterScrollbar = nRowSpan;
+	int nColSpanChapterScrollbar = 1;
+	if (ndxChapterScrollbar != -1) {
+		ui.gridLayout->getItemPosition(ndxChapterScrollbar, &nRowChapterScrollbar, &nColChapterScrollbar, &nRowSpanChapterScrollbar, &nColSpanChapterScrollbar);
+		ui.gridLayout->takeAt(ndxChapterScrollbar);
+	}
+	assert(nRowChapterScrollbar == nRow);
+	nColChapterScrollbar = (bChapterScrollLeft ? 0 : 1);
+	assert(nRowSpanChapterScrollbar == nRowSpan);
+	assert(nColSpanChapterScrollbar == 1);
+
+	if (!bChapterScrollNone) {
+		if (ui.scrollbarChapter == NULL) {
+			ui.scrollbarChapter = new QScrollBar(this);
+			setupChapterScrollbar();
+		}
+	} else {
+		if (ui.scrollbarChapter != NULL) {
+			delete ui.scrollbarChapter;
+			ui.scrollbarChapter = NULL;
+		}
+	}
+
+	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
+	if (ui.scrollbarChapter != NULL) {
+		ui.gridLayout->addWidget(ui.scrollbarChapter, nRowChapterScrollbar, nColChapterScrollbar, nRowSpanChapterScrollbar, nColSpanChapterScrollbar);
+	}
+
+	if (ui.scrollbarChapter != NULL) {
+//		rerender();
+		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, m_ndxCurrent).ofBible().first);
+	}
+}
+
+void CKJVBrowser::setupChapterScrollbar()
+{
+	if (ui.scrollbarChapter != NULL) {
+		ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
+		ui.scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
+		ui.scrollbarChapter->setTracking(true);
+		ui.scrollbarChapter->setMouseTracking(true);
+		ui.scrollbarChapter->installEventFilter(this);
+		ui.scrollbarChapter->setSingleStep(1);
+		ui.scrollbarChapter->setPageStep(3);
+
+		connect(ui.scrollbarChapter, SIGNAL(valueChanged(int)), this, SLOT(ChapterSliderMoved(int)));
+		connect(ui.scrollbarChapter, SIGNAL(sliderMoved(int)), this, SLOT(ChapterSliderMoved(int)));
+		connect(ui.scrollbarChapter, SIGNAL(sliderReleased()), this, SLOT(ChapterSliderValueChanged()));
+	}
 }
 
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
@@ -605,8 +698,10 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(nBibleChp));
 
 	// Set the chapter scroller to the chapter of the Bible:
-	ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
-//	ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
+	if (ui.scrollbarChapter != NULL) {
+		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
+//		ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
+	}
 
 	end_update();
 
@@ -737,6 +832,9 @@ void CKJVBrowser::PassageReferenceEnterPressed()
 
 void CKJVBrowser::ChapterSliderMoved(int index)
 {
+	assert(ui.scrollbarChapter != NULL);
+	if (ui.scrollbarChapter == NULL) return;
+
 	if (m_bDoingUpdate) return;
 
 	CRelIndex ndxTarget(m_pBibleDatabase->calcRelIndex(0, 0, index, 0, 0));
@@ -759,6 +857,9 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 
 void CKJVBrowser::ChapterSliderValueChanged()
 {
+	assert(ui.scrollbarChapter != NULL);
+	if (ui.scrollbarChapter == NULL) return;
+
 	ChapterSliderMoved(ui.scrollbarChapter->value());
 	m_ptChapterScrollerMousePos = QPoint();
 }

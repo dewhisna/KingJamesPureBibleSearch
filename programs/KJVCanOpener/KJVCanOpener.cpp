@@ -137,6 +137,7 @@ namespace {
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
 	const QString constrPassageReferenceActivationDelayKey("PassageReferenceActivationDelay");
 	const QString constrShowExcludedSearchResultsKey("ShowExcludedSearchResults");
+	const QString constrChapterScrollbarModeKey("ChapterScrollbarMode");
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
@@ -867,6 +868,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay());
 	settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
 	settings.setValue(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
+	settings.setValue(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode());
 	settings.endGroup();
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1133,6 +1135,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay()).toInt());
 			CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
 			CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
+			CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(settings.value(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode()).toUInt()));
 		}
 		settings.endGroup();
 

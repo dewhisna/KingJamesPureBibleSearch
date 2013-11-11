@@ -1348,9 +1348,14 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	ui.comboBoxChapterScrollbarMode->addItem(tr("None"), CSME_NONE);
+	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side"), CSME_LEFT);
+	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side"), CSME_RIGHT);
+
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
+	connect(ui.comboBoxChapterScrollbarMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedChapterScrollbarMode(int)));
 
 	loadSettings();
 }
@@ -1368,6 +1373,13 @@ void CConfigBrowserOptions::loadSettings()
 	ui.spinBrowserPassageReferenceActivationDelay->setValue(CPersistentSettings::instance()->passageReferenceActivationDelay());
 	ui.checkBoxShowExcludedSearchResults->setChecked(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
 
+	int nIndex = ui.comboBoxChapterScrollbarMode->findData(CPersistentSettings::instance()->chapterScrollbarMode());
+	if (nIndex != -1) {
+		ui.comboBoxChapterScrollbarMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
 	m_bLoadingData = false;
 	m_bIsDirty = false;
 }
@@ -1377,6 +1389,13 @@ void CConfigBrowserOptions::saveSettings()
 	CPersistentSettings::instance()->setNavigationActivationDelay(ui.spinBrowserNavigationActivationDelay->value());
 	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui.spinBrowserPassageReferenceActivationDelay->value());
 	CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(ui.checkBoxShowExcludedSearchResults->isChecked());
+	int nIndex = ui.comboBoxChapterScrollbarMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(ui.comboBoxChapterScrollbarMode->itemData(nIndex).toUInt()));
+		m_bIsDirty = false;
+	} else {
+		assert(false);
+	}
 	m_bIsDirty = false;
 }
 
@@ -1403,6 +1422,15 @@ void CConfigBrowserOptions::en_changedShowExcludedSearchResults(bool bShowExclud
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(bShowExcludedSearchResults);
+	m_bIsDirty = true;
+	emit dataChanged();
+}
+
+void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
 	emit dataChanged();
 }

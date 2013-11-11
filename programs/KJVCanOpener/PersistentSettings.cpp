@@ -105,6 +105,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
+		m_nChapterScrollbarMode(CSME_RIGHT),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
@@ -224,6 +225,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
 		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
 		if (pSource->m_bShowExcludedSearchResultsInBrowser != pTarget->m_bShowExcludedSearchResultsInBrowser) emit changedShowExcludedSearchResultsInBrowser(pTarget->m_bShowExcludedSearchResultsInBrowser);
+		if (pSource->m_nChapterScrollbarMode != pTarget->m_nChapterScrollbarMode) emit changedChapterScrollbarMode(pTarget->m_nChapterScrollbarMode);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -243,27 +245,35 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 void CPersistentSettings::setFontScriptureBrowser(const QFont &aFont)
 {
-	m_pPersistentSettingData->m_fntScriptureBrowser = aFont;
-	emit fontChangedScriptureBrowser(aFont);
+	if (aFont != m_pPersistentSettingData->m_fntScriptureBrowser) {
+		m_pPersistentSettingData->m_fntScriptureBrowser = aFont;
+		emit fontChangedScriptureBrowser(aFont);
+	}
 }
 
 void CPersistentSettings::setFontSearchResults(const QFont &aFont)
 {
-	m_pPersistentSettingData->m_fntSearchResults = aFont;
-	emit fontChangedSearchResults(aFont);
+	if (m_pPersistentSettingData->m_fntSearchResults != aFont) {
+		m_pPersistentSettingData->m_fntSearchResults = aFont;
+		emit fontChangedSearchResults(aFont);
+	}
 }
 
 void CPersistentSettings::setFontDictionary(const QFont &aFont)
 {
-	m_pPersistentSettingData->m_fntDictionary = aFont;
-	emit fontChangedDictionary(aFont);
+	if (m_pPersistentSettingData->m_fntDictionary != aFont) {
+		m_pPersistentSettingData->m_fntDictionary = aFont;
+		emit fontChangedDictionary(aFont);
+	}
 }
 
 void CPersistentSettings::setInvertTextBrightness(bool bInvert)
 {
-	m_pPersistentSettingData->m_bInvertTextBrightness = bInvert;
-	emit invertTextBrightnessChanged(m_pPersistentSettingData->m_bInvertTextBrightness);
-	emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
+	if (m_pPersistentSettingData->m_bInvertTextBrightness != bInvert) {
+		m_pPersistentSettingData->m_bInvertTextBrightness = bInvert;
+		emit invertTextBrightnessChanged(m_pPersistentSettingData->m_bInvertTextBrightness);
+		emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
+	}
 }
 
 void CPersistentSettings::setTextBrightness(int nBrightness)
@@ -271,15 +281,19 @@ void CPersistentSettings::setTextBrightness(int nBrightness)
 	assert((nBrightness >= 0) && (nBrightness <= 100));
 	if (nBrightness < 0) nBrightness = 0;
 	if (nBrightness > 100) nBrightness = 100;
-	m_pPersistentSettingData->m_nTextBrightness = nBrightness;
-	emit textBrightnessChanged(m_pPersistentSettingData->m_nTextBrightness);
-	emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
+	if (m_pPersistentSettingData->m_nTextBrightness != nBrightness) {
+		m_pPersistentSettingData->m_nTextBrightness = nBrightness;
+		emit textBrightnessChanged(m_pPersistentSettingData->m_nTextBrightness);
+		emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
+	}
 }
 
 void CPersistentSettings::setAdjustDialogElementBrightness(bool bAdjust)
 {
-	m_pPersistentSettingData->m_bAdjustDialogElementBrightness = bAdjust;
-	emit adjustDialogElementBrightnessChanged(m_pPersistentSettingData->m_bAdjustDialogElementBrightness);
+	if (m_pPersistentSettingData->m_bAdjustDialogElementBrightness != bAdjust) {
+		m_pPersistentSettingData->m_bAdjustDialogElementBrightness = bAdjust;
+		emit adjustDialogElementBrightnessChanged(m_pPersistentSettingData->m_bAdjustDialogElementBrightness);
+	}
 }
 
 QColor CPersistentSettings::textForegroundColor() const
@@ -308,127 +322,177 @@ QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
 
 void CPersistentSettings::setColorWordsOfJesus(const QColor &color)
 {
-	m_pPersistentSettingData->m_clrWordsOfJesus = color;
-	emit changedColorWordsOfJesus(m_pPersistentSettingData->m_clrWordsOfJesus);
+	if (m_pPersistentSettingData->m_clrWordsOfJesus != color) {
+		m_pPersistentSettingData->m_clrWordsOfJesus = color;
+		emit changedColorWordsOfJesus(m_pPersistentSettingData->m_clrWordsOfJesus);
+	}
 }
 
 void CPersistentSettings::setColorSearchResults(const QColor &color)
 {
-	m_pPersistentSettingData->m_clrSearchResults = color;
-	emit changedColorSearchResults(m_pPersistentSettingData->m_clrSearchResults);
+	if (m_pPersistentSettingData->m_clrSearchResults != color) {
+		m_pPersistentSettingData->m_clrSearchResults = color;
+		emit changedColorSearchResults(m_pPersistentSettingData->m_clrSearchResults);
+	}
 }
 
 void CPersistentSettings::setColorCursorFollow(const QColor &color)
 {
-	m_pPersistentSettingData->m_clrCursorFollow = color;
-	emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
+	if (m_pPersistentSettingData->m_clrCursorFollow != color) {
+		m_pPersistentSettingData->m_clrCursorFollow = color;
+		emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
+	}
 }
 
 void CPersistentSettings::setColorDefaultNoteBackground(const QColor &color)
 {
-	m_pPersistentSettingData->m_clrDefaultNoteBackground = color;
-	emit changedColorDefaultNoteBackground(m_pPersistentSettingData->m_clrDefaultNoteBackground);
+	if (m_pPersistentSettingData->m_clrDefaultNoteBackground != color) {
+		m_pPersistentSettingData->m_clrDefaultNoteBackground = color;
+		emit changedColorDefaultNoteBackground(m_pPersistentSettingData->m_clrDefaultNoteBackground);
+	}
 }
 
 void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
-	m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
-	emit changedSearchPhraseCompleterFilterMode(m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode);
+	if (m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode != nMode) {
+		m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
+		emit changedSearchPhraseCompleterFilterMode(m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode);
+	}
 }
 
 void CPersistentSettings::setSearchActivationDelay(int nDelay)
 {
-	m_pPersistentSettingData->m_nSearchActivationDelay = nDelay;
-	emit changedSearchPhraseActivationDelay(m_pPersistentSettingData->m_nSearchActivationDelay);
+	if (m_pPersistentSettingData->m_nSearchActivationDelay != nDelay) {
+		m_pPersistentSettingData->m_nSearchActivationDelay = nDelay;
+		emit changedSearchPhraseActivationDelay(m_pPersistentSettingData->m_nSearchActivationDelay);
+	}
 }
 
 void CPersistentSettings::setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases)
 {
-	m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases = nInitialNumberOfSearchPhrases;
-	emit changedInitialNumberOfSearchPhrases(m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases);
+	if (m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases != nInitialNumberOfSearchPhrases) {
+		m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases = nInitialNumberOfSearchPhrases;
+		emit changedInitialNumberOfSearchPhrases(m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases);
+	}
 }
 
 void CPersistentSettings::setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree)
 {
-	m_pPersistentSettingData->m_bAutoExpandSearchResultsTree = bAutoExpandSearchResultsTree;
-	emit changedAutoExpandSearchResultsTree(m_pPersistentSettingData->m_bAutoExpandSearchResultsTree);
+	if (m_pPersistentSettingData->m_bAutoExpandSearchResultsTree != bAutoExpandSearchResultsTree) {
+		m_pPersistentSettingData->m_bAutoExpandSearchResultsTree = bAutoExpandSearchResultsTree;
+		emit changedAutoExpandSearchResultsTree(m_pPersistentSettingData->m_bAutoExpandSearchResultsTree);
+	}
 }
 
 void CPersistentSettings::setNavigationActivationDelay(int nDelay)
 {
-	m_pPersistentSettingData->m_nNavigationActivationDelay = nDelay;
-	emit changedNavigationActivationDelay(m_pPersistentSettingData->m_nNavigationActivationDelay);
+	if (m_pPersistentSettingData->m_nNavigationActivationDelay != nDelay) {
+		m_pPersistentSettingData->m_nNavigationActivationDelay = nDelay;
+		emit changedNavigationActivationDelay(m_pPersistentSettingData->m_nNavigationActivationDelay);
+	}
 }
 
 void CPersistentSettings::setPassageReferenceActivationDelay(int nDelay)
 {
-	m_pPersistentSettingData->m_nPassageReferenceActivationDelay = nDelay;
-	emit changedPassageReferenceActivationDelay(m_pPersistentSettingData->m_nPassageReferenceActivationDelay);
+	if (m_pPersistentSettingData->m_nPassageReferenceActivationDelay != nDelay) {
+		m_pPersistentSettingData->m_nPassageReferenceActivationDelay = nDelay;
+		emit changedPassageReferenceActivationDelay(m_pPersistentSettingData->m_nPassageReferenceActivationDelay);
+	}
 }
 
 void CPersistentSettings::setShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults)
 {
-	m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser = bShowExcludedSearchResults;
-	emit changedShowExcludedSearchResultsInBrowser(m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser);
+	if (m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser != bShowExcludedSearchResults) {
+		m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser = bShowExcludedSearchResults;
+		emit changedShowExcludedSearchResultsInBrowser(m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser);
+	}
+}
+
+void CPersistentSettings::setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode)
+{
+	if (m_pPersistentSettingData->m_nChapterScrollbarMode != nMode) {
+		m_pPersistentSettingData->m_nChapterScrollbarMode = nMode;
+		emit changedChapterScrollbarMode(m_pPersistentSettingData->m_nChapterScrollbarMode);
+	}
 }
 
 void CPersistentSettings::setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
-	m_pPersistentSettingData->m_nDictionaryCompleterFilterMode = nMode;
-	emit changedDictionaryCompleterFilterMode(m_pPersistentSettingData->m_nDictionaryCompleterFilterMode);
+	if (m_pPersistentSettingData->m_nDictionaryCompleterFilterMode != nMode) {
+		m_pPersistentSettingData->m_nDictionaryCompleterFilterMode = nMode;
+		emit changedDictionaryCompleterFilterMode(m_pPersistentSettingData->m_nDictionaryCompleterFilterMode);
+	}
 }
 
 void CPersistentSettings::setDictionaryActivationDelay(int nDelay)
 {
-	m_pPersistentSettingData->m_nDictionaryActivationDelay = nDelay;
-	emit changedDictionaryActivationDelay(m_pPersistentSettingData->m_nDictionaryActivationDelay);
+	if (m_pPersistentSettingData->m_nDictionaryActivationDelay != nDelay) {
+		m_pPersistentSettingData->m_nDictionaryActivationDelay = nDelay;
+		emit changedDictionaryActivationDelay(m_pPersistentSettingData->m_nDictionaryActivationDelay);
+	}
 }
 
 void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
-	m_pPersistentSettingData->m_nReferenceDelimiterMode = nMode;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_nReferenceDelimiterMode != nMode) {
+		m_pPersistentSettingData->m_nReferenceDelimiterMode = nMode;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames)
 {
-	m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames = bUseAbbrBookNames;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames != bUseAbbrBookNames) {
+		m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames = bUseAbbrBookNames;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setReferencesInBold(bool bInBold)
 {
-	m_pPersistentSettingData->m_bReferencesInBold = bInBold;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_bReferencesInBold != bInBold) {
+		m_pPersistentSettingData->m_bReferencesInBold = bInBold;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
-	m_pPersistentSettingData->m_nVerseNumberDelimiterMode = nMode;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_nVerseNumberDelimiterMode != nMode) {
+		m_pPersistentSettingData->m_nVerseNumberDelimiterMode = nMode;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookNames)
 {
-	m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames = bUseAbbrBookNames;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames != bUseAbbrBookNames) {
+		m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames = bUseAbbrBookNames;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setVerseNumbersInBold(bool bInBold)
 {
-	m_pPersistentSettingData->m_bVerseNumbersInBold = bInBold;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_bVerseNumbersInBold != bInBold) {
+		m_pPersistentSettingData->m_bVerseNumbersInBold = bInBold;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setAddQuotesAroundVerse(bool bAddQuotes)
 {
-	m_pPersistentSettingData->m_bAddQuotesAroundVerse = bAddQuotes;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_bAddQuotesAroundVerse != bAddQuotes) {
+		m_pPersistentSettingData->m_bAddQuotesAroundVerse = bAddQuotes;
+		emit changedCopyOptions();
+	}
 }
 
 void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode)
 {
-	m_pPersistentSettingData->m_nTransChangeAddWordMode = nMode;
-	emit changedCopyOptions();
+	if (m_pPersistentSettingData->m_nTransChangeAddWordMode != nMode) {
+		m_pPersistentSettingData->m_nTransChangeAddWordMode = nMode;
+		emit changedCopyOptions();
+	}
 }
 
