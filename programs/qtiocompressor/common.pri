@@ -1,7 +1,7 @@
 !contains( included_modules, qtiocompressor/common.pri) {
 		included_modules += qtiocompressor/common.pri
 
-infile(config.pri, SOLUTIONS_LIBRARY, yes): CONFIG += qtiocompressor-uselib
+exists(config.pri):infile(config.pri, SOLUTIONS_LIBRARY, yes): CONFIG += qtiocompressor-uselib
 TEMPLATE += fakelib
 QTIOCOMPRESSOR_LIBNAME = $$qtLibraryTarget(QtSolutions_IOCompressor-2.3)
 TEMPLATE -= fakelib
