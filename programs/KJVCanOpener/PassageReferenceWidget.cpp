@@ -74,10 +74,12 @@ void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
 	if ((event) &&
 		((event->key() == Qt::Key_Enter) ||
 		 (event->key() == Qt::Key_Return))) {
+		// Process enter/return so it won't propagate and "accept" the parent dialog:
+		event->accept();
 		emit enterPressed();
+	} else {
+		QWidget::keyPressEvent(event);
 	}
-
-	QWidget::keyPressEvent(event);
 }
 
 // ============================================================================
