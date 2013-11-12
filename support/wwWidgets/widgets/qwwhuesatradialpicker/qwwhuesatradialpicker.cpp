@@ -13,6 +13,7 @@
 
 #include "qwwhuesatradialpicker.h"
 #include <QPainter>
+#include <QBitmap>
 #include <QMouseEvent>
 #include <cmath>
 #include "wwglobal_p.h"

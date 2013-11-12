@@ -23,6 +23,7 @@
 #include <QStandardItemModel>
 #include <QStylePainter>
 #include <QDragEnterEvent>
+#include <QMimeData>
 #include "wwglobal_p.h"
 #include "colormodel.h"
 
