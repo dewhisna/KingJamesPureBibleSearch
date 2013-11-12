@@ -245,7 +245,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 void CPersistentSettings::setFontScriptureBrowser(const QFont &aFont)
 {
-	if (aFont != m_pPersistentSettingData->m_fntScriptureBrowser) {
+	if (m_pPersistentSettingData->m_fntScriptureBrowser != aFont) {
 		m_pPersistentSettingData->m_fntScriptureBrowser = aFont;
 		emit fontChangedScriptureBrowser(aFont);
 	}
