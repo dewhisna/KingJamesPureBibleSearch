@@ -17,7 +17,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.education</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.91.1</string>
+	<string>2.0.0</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dewtronics.@EXECUTABLE@</string>
 	<key>NOTE</key>

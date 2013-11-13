@@ -68,8 +68,8 @@ public:
 	template <class T> CCSVStream &operator >>(T &val) {
 		QString strTemp;
 		CCSVStream &retVal = (*this >> strTemp);
-		QByteArray data(strTemp.utf16(), strTemp.size() * sizeof(ushort));
-		QBuffer tmpBuff(data);
+		QByteArray data(reinterpret_cast<const char *>(strTemp.utf16()), strTemp.size() * sizeof(ushort));
+		QBuffer tmpBuff(&data);
 		tmpBuff.open(QIODevice::ReadOnly);
 		QTextStream aStream(&tmpBuff);
 		aStream.setCodec("UTF-16");
