@@ -297,6 +297,16 @@ CMyApplication::~CMyApplication()
 
 // ============================================================================
 
+void CMyApplication::setupTextBrightnessStyleHooks()
+{
+	// Setup Default TextBrightness:
+	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
+}
+
+// ============================================================================
+
 bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 {
 	try {
@@ -533,6 +543,36 @@ void CMyApplication::en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClos
 	Q_UNUSED(pCanOpener);
 	Q_UNUSED(bCanClose);
 	emit canQuitChanged(canQuit());
+}
+
+void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
+{
+	// Note: This code needs to cooperate with the setStyleSheet in the constructor
+	//			of KJVCanOpener that works around QTBUG-13768...
+
+	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
+		// Note: This will automatically cause a repaint:
+		setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+							  "QLineEdit { background-color:%1; color:%2; }\n"
+							  "QComboBox { background-color:%1; color:%2; }\n"
+							  "QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
+							  "QFontComboBox { background-color:%1; color:%2; }\n"
+							  "QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
+							  "QSpinBox { background-color:%1; color:%2; }\n"
+							  "QDoubleSpinBox { background-color:%1; color:%2; }\n"
+							).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
+							 .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+	} else {
+		setStyleSheet(startupStyleSheet());
+	}
+
+	return;
+}
+
+void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
+{
+	Q_UNUSED(bAdjust);
+	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 }
 
 // ============================================================================
@@ -925,6 +965,8 @@ int main(int argc, char *argv[])
 		settings.setValue(constrFontSizeKey, app.font().pointSize());
 		settings.endGroup();
 	}
+
+	app.setupTextBrightnessStyleHooks();
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());

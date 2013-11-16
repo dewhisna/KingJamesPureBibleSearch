@@ -223,15 +223,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	QAction *pAction;
 
-	// --------------------
-
-	m_strAppStartupStyleSheet = g_pMyApplication->styleSheet();
-
-	// Setup Default TextBrightness:
-	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
-	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
-
 	// -------------------- User Notes/Highlighter/References Toolbar:
 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
@@ -2034,37 +2025,5 @@ void CKJVCanOpener::en_NewCanOpener()
 
 	CKJVCanOpener *pNewCanOpener = g_pMyApplication->createKJVCanOpener(m_pBibleDatabase);
 	assert(pNewCanOpener != NULL);
-}
-
-void CKJVCanOpener::setTextBrightness(bool bInvert, int nBrightness)
-{
-	assert(g_pMyApplication != NULL);
-
-	// Note: This code needs to cooperate with the setStyleSheet in the constructor
-	//			that works around QTBUG-13768...
-
-	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
-		// Note: This will automatically cause a repaint:
-		g_pMyApplication->setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
-												"QLineEdit { background-color:%1; color:%2; }\n"
-												"QComboBox { background-color:%1; color:%2; }\n"
-												"QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
-												"QFontComboBox { background-color:%1; color:%2; }\n"
-												"QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
-												"QSpinBox { background-color:%1; color:%2; }\n"
-												"QDoubleSpinBox { background-color:%1; color:%2; }\n"
-										 ).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
-										  .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
-	} else {
-		g_pMyApplication->setStyleSheet(m_strAppStartupStyleSheet);
-	}
-
-	return;
-}
-
-void CKJVCanOpener::setAdjustDialogElementBrightness(bool bAdjust)
-{
-	Q_UNUSED(bAdjust);
-	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 }
 

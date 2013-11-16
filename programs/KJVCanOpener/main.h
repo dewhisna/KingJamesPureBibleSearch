@@ -79,11 +79,15 @@ public:
 			m_nLastActivateCanOpener(-1)
 	{
 		m_strInitialAppDirPath = applicationDirPath();
+		m_strStartupStyleSheet = styleSheet();
 	}
 
 	virtual ~CMyApplication();
 
+	void setupTextBrightnessStyleHooks();
+
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
+	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 
@@ -152,6 +156,9 @@ private slots:
 
 	void en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 
+	void en_setTextBrightness(bool bInvert, int nBrightness);
+	void en_setAdjustDialogElementBrightness(bool bAdjust);
+
 protected:
 	bool event(QEvent *event);
 
@@ -161,6 +168,7 @@ protected:
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
 	QString m_strInitialAppDirPath;						// Initial applicationDirPath() -- needed since according to Qt documentation, QCoreApplcation::applicationDirPath assumes we haven't changed our current directory
+	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 };
 
 #endif // MAIN_H

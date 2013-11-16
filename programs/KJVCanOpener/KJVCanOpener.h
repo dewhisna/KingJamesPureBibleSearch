@@ -195,9 +195,6 @@ protected slots:
 
 	void en_NewCanOpener();
 
-	void setTextBrightness(bool bInvert, int nBrightness);
-	void setAdjustDialogElementBrightness(bool bAdjust);
-
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -243,7 +240,6 @@ private:
 	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
 	bool m_bIsClosing;				// True when window has issued an isClosing signal and set a deleteLater(), used as a guard for our event handler
 
-	QString m_strAppStartupStyleSheet;			// Copy of the original StyleSheet from QApp, which will be the user's StyleSheet if they used the "-stylesheet" option
 	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
 	QSplitter *m_pSplitterDictionary;
