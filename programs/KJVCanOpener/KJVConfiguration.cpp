@@ -514,9 +514,8 @@ void CKJVTextFormatConfig::saveSettings()
 	CPersistentSettings::instance()->setFontScriptureBrowser(m_fntScriptureBrowser);
 	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);
 	CPersistentSettings::instance()->setFontDictionary(m_fntDictionary);
-	CPersistentSettings::instance()->setInvertTextBrightness(m_bInvertTextBrightness);
-	CPersistentSettings::instance()->setTextBrightness(m_nTextBrightness);
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
+	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	m_bIsDirty = false;
 }
 

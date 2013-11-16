@@ -205,8 +205,6 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_fntSearchResults != pTarget->m_fntSearchResults) emit fontChangedSearchResults(pTarget->m_fntSearchResults);
 		if (pSource->m_fntDictionary != pTarget->m_fntDictionary) emit fontChangedDictionary(pTarget->m_fntDictionary);
 
-		if (pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) emit invertTextBrightnessChanged(pTarget->m_bInvertTextBrightness);
-		if (pSource->m_nTextBrightness != pTarget->m_nTextBrightness) emit textBrightnessChanged(pTarget->m_nTextBrightness);
 		if ((pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) ||
 			(pSource->m_nTextBrightness != pTarget->m_nTextBrightness)) emit changedTextBrightness(pTarget->m_bInvertTextBrightness, pTarget->m_nTextBrightness);
 		if (pSource->m_bAdjustDialogElementBrightness != pTarget->m_bAdjustDialogElementBrightness) emit adjustDialogElementBrightnessChanged(pTarget->m_bAdjustDialogElementBrightness);
@@ -267,23 +265,15 @@ void CPersistentSettings::setFontDictionary(const QFont &aFont)
 	}
 }
 
-void CPersistentSettings::setInvertTextBrightness(bool bInvert)
-{
-	if (m_pPersistentSettingData->m_bInvertTextBrightness != bInvert) {
-		m_pPersistentSettingData->m_bInvertTextBrightness = bInvert;
-		emit invertTextBrightnessChanged(m_pPersistentSettingData->m_bInvertTextBrightness);
-		emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
-	}
-}
-
-void CPersistentSettings::setTextBrightness(int nBrightness)
+void CPersistentSettings::setTextBrightness(bool bInvert, int nBrightness)
 {
 	assert((nBrightness >= 0) && (nBrightness <= 100));
 	if (nBrightness < 0) nBrightness = 0;
 	if (nBrightness > 100) nBrightness = 100;
-	if (m_pPersistentSettingData->m_nTextBrightness != nBrightness) {
+	if ((m_pPersistentSettingData->m_nTextBrightness != nBrightness) ||
+		(m_pPersistentSettingData->m_bInvertTextBrightness != bInvert)) {
+		m_pPersistentSettingData->m_bInvertTextBrightness = bInvert;
 		m_pPersistentSettingData->m_nTextBrightness = nBrightness;
-		emit textBrightnessChanged(m_pPersistentSettingData->m_nTextBrightness);
 		emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 	}
 }

@@ -914,9 +914,10 @@ void CKJVCanOpener::restorePersistentSettings()
 		// Main App General Settings:
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrMainAppControlGroup);
-			CPersistentSettings::instance()->setInvertTextBrightness(settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool());
-			CPersistentSettings::instance()->setTextBrightness(settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt());
+			bool bInvertTextBrightness = settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool();
+			int nTextBrightness = settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt();
 			CPersistentSettings::instance()->setAdjustDialogElementBrightness(settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool());
+			CPersistentSettings::instance()->setTextBrightness(bInvertTextBrightness, nTextBrightness);
 			settings.endGroup();
 		}
 

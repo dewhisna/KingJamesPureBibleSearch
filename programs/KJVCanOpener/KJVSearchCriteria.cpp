@@ -520,7 +520,7 @@ void CKJVSearchCriteriaWidget::setTextBrightness(bool bInvert, int nBrightness)
 void CKJVSearchCriteriaWidget::setAdjustDialogElementBrightness(bool bAdjust)
 {
 	Q_UNUSED(bAdjust);
-	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+//	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 }
 
 // ============================================================================

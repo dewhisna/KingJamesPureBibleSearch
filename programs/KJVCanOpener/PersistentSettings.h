@@ -107,10 +107,7 @@ signals:
 	void fontChangedSearchResults(const QFont &aFont);
 	void fontChangedDictionary(const QFont &aFont);
 
-	void invertTextBrightnessChanged(bool bInvert);
-	void textBrightnessChanged(int nBrightness);
 	void adjustDialogElementBrightnessChanged(bool bAdjust);
-
 	void changedTextBrightness(bool bInvert, int nBrightness);
 
 	void changedColorWordsOfJesus(const QColor &color);
@@ -139,8 +136,7 @@ public slots:
 	void setFontSearchResults(const QFont &aFont);
 	void setFontDictionary(const QFont &aFont);
 
-	void setInvertTextBrightness(bool bInvert);
-	void setTextBrightness(int nBrightness);
+	void setTextBrightness(bool bInvert, int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 
 	void setColorWordsOfJesus(const QColor &color);
