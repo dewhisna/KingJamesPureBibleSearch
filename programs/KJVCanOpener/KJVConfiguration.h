@@ -95,7 +95,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 public slots:
 	void en_ScriptureBrowserFontChanged(const QFont &font);
@@ -174,7 +174,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 // Data Private:
 private:
@@ -206,7 +206,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private slots:
 	void en_clickedSetPrimaryUserNotesFilename();
@@ -249,7 +249,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private slots:
 	void en_changedSearchPhraseCompleterFilterMode(int nIndex);
@@ -287,7 +287,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private slots:
 	void en_changedNavigationActivationDelay(int nValue);
@@ -321,7 +321,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private slots:
 	void en_changedDictionaryCompleterFilterMode(int nIndex);
@@ -359,7 +359,7 @@ public:
 	bool isDirty() const { return m_bIsDirty; }
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private slots:
 	void en_changedReferenceDelimiterMode(int nIndex);
@@ -405,7 +405,7 @@ public:
 	bool isDirty() const;
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 // Data Private:
 private:
@@ -438,7 +438,7 @@ public:
 	bool isDirty() const;
 
 signals:
-	void dataChanged();
+	void dataChanged(bool bNeedRestart);
 
 private:
 	CKJVGeneralSettingsConfig *m_pGeneralSettingsConfig;
@@ -457,8 +457,10 @@ public:
 	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
 	virtual ~CKJVConfigurationDialog();
 
+	bool restartApp() const { return m_bRestartApp; }
+
 public slots:
-	virtual void en_dataChanged();
+	virtual void en_dataChanged(bool bNeedRestart);
 	virtual void accept();
 	virtual void reject();
 	virtual void apply();
@@ -469,10 +471,15 @@ private slots:
 	void en_setToLastIndex();
 
 private:
+	bool promptRestart();
+
+private:
 	int m_nLastIndex;						// Last Configuration Index active
 	bool m_bHandlingPageSwap;				// Set to true while we are handling a page swap, used as a safe-guard in case we need to switch pages back
 	CKJVConfiguration *m_pConfiguration;
 	QDialogButtonBox *m_pButtonBox;
+	bool m_bNeedRestart;					// True if we need a restart to apply these settings, but haven't prompted user yet -- user will be prompted on accept/apply...
+	bool m_bRestartApp;						// True if we need to restart app and user has accepted for us to
 };
 
 // ============================================================================

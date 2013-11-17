@@ -2013,6 +2013,8 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
 		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->leaveConfigurationMode();
 	}
+
+	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication, SLOT(restartApp()));
 }
 
 void CKJVCanOpener::en_LaunchUserNoteConfig()

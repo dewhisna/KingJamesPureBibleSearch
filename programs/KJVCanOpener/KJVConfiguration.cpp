@@ -526,7 +526,7 @@ void CKJVTextFormatConfig::en_ScriptureBrowserFontChanged(const QFont &font)
 	m_fntScriptureBrowser.setFamily(font.family());
 	m_pScriptureBrowser->setFont(m_fntScriptureBrowser);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
@@ -536,7 +536,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
 	m_fntSearchResults.setFamily(font.family());
 	m_pSearchResultsTreeView->setFontSearchResults(m_fntSearchResults);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
@@ -546,7 +546,7 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 	m_fntDictionary.setFamily(font.family());
 	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
@@ -556,7 +556,7 @@ void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
 	m_fntScriptureBrowser.setPointSizeF(nFontSize);
 	m_pScriptureBrowser->setFont(m_fntScriptureBrowser);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
@@ -566,7 +566,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
 	m_fntSearchResults.setPointSizeF(nFontSize);
 	m_pSearchResultsTreeView->setFontSearchResults(m_fntSearchResults);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
@@ -576,7 +576,7 @@ void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
 	m_fntDictionary.setPointSizeF(nFontSize);
 	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
@@ -586,7 +586,7 @@ void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
 	m_bInvertTextBrightness = bInvert;
 	setPreview();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
@@ -596,7 +596,7 @@ void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
 	m_nTextBrightness = nBrightness;
 	setPreview();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
@@ -606,7 +606,7 @@ void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
 	m_bAdjustDialogElementBrightness = bAdjust;
 	setPreview();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
@@ -618,7 +618,7 @@ void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
 	CPersistentSettings::instance()->setColorWordsOfJesus(color);
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_clickedEnableWordsOfJesusColor(bool bEnable)
@@ -636,7 +636,7 @@ void CKJVTextFormatConfig::en_clickedEnableWordsOfJesusColor(bool bEnable)
 	}
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
@@ -646,7 +646,7 @@ void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
 	CPersistentSettings::instance()->setColorSearchResults(color);
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
@@ -656,7 +656,7 @@ void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
 	CPersistentSettings::instance()->setColorCursorFollow(color);
 //	setPreview();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color)
@@ -669,7 +669,7 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 	recalcColorListWidth();			// If color was previously invalid and is now valid, we'll have a preview to paint and so the width can change
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	en_HighlighterColorClicked(strUserDefinedHighlighterName);
 }
 
@@ -689,7 +689,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 	g_pUserNotesDatabase->setHighlighterEnabled(strUserDefinedHighlighterName, bEnabled);
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	en_HighlighterColorClicked(strUserDefinedHighlighterName);
 }
 
@@ -722,7 +722,7 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_removeHighlighterClicked()
@@ -785,7 +785,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 
 	navigateToDemoText();
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVTextFormatConfig::en_renameHighlighterClicked()
@@ -843,7 +843,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 
 		navigateToDemoText();
 		m_bIsDirty = true;
-		emit dataChanged();
+		emit dataChanged(false);
 	} else {
 		QMessageBox::warning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
 													 "To rename it, create a new highlighter with the desired name.  Then, use the \"View Highlighters\" "
@@ -1224,14 +1224,14 @@ void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
 {
 	if (m_bLoadingData) return;
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVUserNotesDatabaseConfig::en_changedBackupExtension()
 {
 	if (m_bLoadingData) return;
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QColor &color)
@@ -1240,7 +1240,7 @@ void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QCol
 
 	CPersistentSettings::instance()->setColorDefaultNoteBackground(color);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 // ============================================================================
@@ -1308,7 +1308,7 @@ void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
 
 	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
@@ -1317,7 +1317,7 @@ void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
 
 	Q_UNUSED(nValue);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigSearchOptions::en_changedInitialNumberOfSearchPhrases(int nValue)
@@ -1326,7 +1326,7 @@ void CConfigSearchOptions::en_changedInitialNumberOfSearchPhrases(int nValue)
 
 	Q_UNUSED(nValue);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigSearchOptions::en_changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree)
@@ -1335,7 +1335,7 @@ void CConfigSearchOptions::en_changedAutoExpandSearchResultsTree(bool bAutoExpan
 
 	Q_UNUSED(bAutoExpandSearchResultsTree);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 // ============================================================================
@@ -1404,7 +1404,7 @@ void CConfigBrowserOptions::en_changedNavigationActivationDelay(int nValue)
 
 	Q_UNUSED(nValue);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue)
@@ -1413,7 +1413,7 @@ void CConfigBrowserOptions::en_changedPassageReferenceActivationDelay(int nValue
 
 	Q_UNUSED(nValue);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigBrowserOptions::en_changedShowExcludedSearchResults(bool bShowExcludedSearchResults)
@@ -1422,7 +1422,7 @@ void CConfigBrowserOptions::en_changedShowExcludedSearchResults(bool bShowExclud
 
 	Q_UNUSED(bShowExcludedSearchResults);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
@@ -1431,7 +1431,7 @@ void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
 
 	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 // ============================================================================
@@ -1493,7 +1493,7 @@ void CConfigDictionaryOptions::en_changedDictionaryCompleterFilterMode(int nInde
 
 	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 void CConfigDictionaryOptions::en_changedDictionaryActivationDelay(int nValue)
@@ -1502,7 +1502,7 @@ void CConfigDictionaryOptions::en_changedDictionaryActivationDelay(int nValue)
 
 	Q_UNUSED(nValue);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 }
 
 // ============================================================================
@@ -1682,7 +1682,7 @@ void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
 		assert(false);
 	}
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1692,7 +1692,7 @@ void CConfigCopyOptions::en_changedReferencesUseAbbreviatedBookNames(bool bUseAb
 
 	CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(bUseAbbrBookName);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1702,7 +1702,7 @@ void CConfigCopyOptions::en_changedReferencesInBold(bool bInBold)
 
 	CPersistentSettings::instance()->setReferencesInBold(bInBold);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1716,7 +1716,7 @@ void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
 		assert(false);
 	}
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1726,7 +1726,7 @@ void CConfigCopyOptions::en_changedVerseNumbersUseAbbreviatedBookNames(bool bUse
 
 	CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(bUseAbbrBookName);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1736,7 +1736,7 @@ void CConfigCopyOptions::en_changedVerseNumbersInBold(bool bInBold)
 
 	CPersistentSettings::instance()->setVerseNumbersInBold(bInBold);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1746,7 +1746,7 @@ void CConfigCopyOptions::en_changedAddQuotesAroundVerse(bool bAddQuotes)
 
 	CPersistentSettings::instance()->setAddQuotesAroundVerse(bAddQuotes);
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1760,7 +1760,7 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 		assert(false);
 	}
 	m_bIsDirty = true;
-	emit dataChanged();
+	emit dataChanged(false);
 	setVerseCopyPreview();
 }
 
@@ -1793,10 +1793,10 @@ CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDat
 
 	ui.widgetCopyOptions->initialize(pBibleDatabase);
 
-	connect(ui.widgetSearchOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(ui.widgetBrowserOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(ui.widgetDictionaryOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(ui.widgetCopyOptions, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(ui.widgetSearchOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(ui.widgetBrowserOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(ui.widgetDictionaryOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(ui.widgetCopyOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
 CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
@@ -1872,10 +1872,10 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 
 	setCurrentGroup(pSelect);
 
-	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(m_pTextFormatConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
-//	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pTextFormatConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+//	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
 CKJVConfiguration::~CKJVConfiguration()
@@ -1914,7 +1914,9 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
 		m_pConfiguration(NULL),
-		m_pButtonBox(NULL)
+		m_pButtonBox(NULL),
+		m_bNeedRestart(false),
+		m_bRestartApp(false)
 {
 	assert(pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase != NULL);
@@ -1951,7 +1953,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	connect(m_pButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 	connect(m_pButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 
-	connect(m_pConfiguration, SIGNAL(dataChanged()), this, SLOT(en_dataChanged()));
+	connect(m_pConfiguration, SIGNAL(dataChanged(bool)), this, SLOT(en_dataChanged(bool)));
 }
 
 CKJVConfigurationDialog::~CKJVConfigurationDialog()
@@ -1959,14 +1961,17 @@ CKJVConfigurationDialog::~CKJVConfigurationDialog()
 
 }
 
-void CKJVConfigurationDialog::en_dataChanged()
+void CKJVConfigurationDialog::en_dataChanged(bool bNeedRestart)
 {
 	updateGeometry();
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty());
+	m_bNeedRestart = (bNeedRestart && m_pConfiguration->isDirty());
 }
 
 void CKJVConfigurationDialog::accept()
 {
+	if (m_bNeedRestart) m_bRestartApp = promptRestart();
+
 	CBusyCursor iAmBusy(NULL);
 
 	m_pConfiguration->saveSettings();
@@ -1992,15 +1997,25 @@ void CKJVConfigurationDialog::apply()
 {
 	assert(g_pUserNotesDatabase != NULL);
 
+	if (m_bNeedRestart) m_bRestartApp = promptRestart();
+
 	CBusyCursor iAmBusy(NULL);
 
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent
 	//		as the user is "applying" them:
 	m_pConfiguration->saveSettings();
-	CPersistentSettings::instance()->togglePersistentSettingData(true);
-	g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
-	en_dataChanged();
+	if (m_bRestartApp) {
+		QDialog::accept();
+		// If we are restarting, then leave the settings permanent, by
+		//		not copying them back in the persistent settings object.
+		//		This is the same functionality of "accept()".  We have
+		//		already prompted the user above...
+	} else {
+		CPersistentSettings::instance()->togglePersistentSettingData(true);
+		g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
+		en_dataChanged(false);
+	}
 }
 
 void CKJVConfigurationDialog::restore(bool bRecopy)
@@ -2017,7 +2032,7 @@ void CKJVConfigurationDialog::restore(bool bRecopy)
 		CPersistentSettings::instance()->togglePersistentSettingData(true);
 		g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
 		m_pConfiguration->loadSettings();
-		en_dataChanged();
+		en_dataChanged(false);
 	}
 }
 
@@ -2065,6 +2080,16 @@ void CKJVConfigurationDialog::en_setToLastIndex()
 	assert(m_nLastIndex != -1);
 	m_pConfiguration->setCurrentIndex(m_nLastIndex);
 	m_bHandlingPageSwap = false;
+}
+
+bool CKJVConfigurationDialog::promptRestart()
+{
+	int nResult = QMessageBox::information(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
+																   "Doing so will close all Search Windows just like exiting the program.  "
+																   "If you choose not to exit, they will be applied the next time you run the program.\n\n"
+																   "Do you wish to restart the app??"),
+																(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+	return (nResult == QMessageBox::Yes);
 }
 
 // ============================================================================
