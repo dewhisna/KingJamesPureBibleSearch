@@ -600,8 +600,6 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 			m_bUsingCustomStyleSheet = false;
 		}
 	}
-
-	return;
 }
 
 void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
