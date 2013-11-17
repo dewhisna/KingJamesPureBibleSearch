@@ -98,9 +98,11 @@ signals:
 	void dataChanged(bool bNeedRestart);
 
 public slots:
+	void en_ApplicationFontChanged(const QFont &font);
 	void en_ScriptureBrowserFontChanged(const QFont &font);
 	void en_SearchResultsFontChanged(const QFont &font);
 	void en_DictionaryFontChanged(const QFont &font);
+	void en_ApplicationFontSizeChanged(double nFontSize);
 	void en_ScriptureBrowserFontSizeChanged(double nFontSize);
 	void en_SearchResultsFontSizeChanged(double nFontSize);
 	void en_DictionaryFontSizeChanged(double nFontSize);

@@ -33,6 +33,7 @@
 #include "PhraseEdit.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
+#include "main.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -410,6 +411,14 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 
 	// --------------------------------------------------------------
 
+	if (CPersistentSettings::instance()->settings() == NULL) {
+		ui.fontComboBoxApplication->setEnabled(false);
+		ui.fontComboBoxApplication->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
+		ui.dblSpinBoxApplicationFontSize->setEnabled(false);
+		ui.dblSpinBoxApplicationFontSize->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
+	}
+
+	ui.dblSpinBoxApplicationFontSize->setRange(6, 24);
 	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
 	int nFontMin = -1;
 	int nFontMax = -1;
@@ -421,9 +430,11 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	ui.dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
 	ui.dblSpinBoxDictionaryFontSize->setRange(nFontMin, nFontMax);
 
+	connect(ui.fontComboBoxApplication, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ApplicationFontChanged(const QFont &)));
 	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
 	connect(ui.fontComboBoxSearchResults, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_SearchResultsFontChanged(const QFont &)));
 	connect(ui.fontComboBoxDictionary, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_DictionaryFontChanged(const QFont &)));
+	connect(ui.dblSpinBoxApplicationFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ApplicationFontSizeChanged(double)));
 	connect(ui.dblSpinBoxScriptureBrowserFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ScriptureBrowserFontSizeChanged(double)));
 	connect(ui.dblSpinBoxSearchResultsFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_SearchResultsFontSizeChanged(double)));
 	connect(ui.dblSpinBoxDictionaryFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_DictionaryFontSizeChanged(double)));
@@ -480,10 +491,12 @@ void CKJVTextFormatConfig::loadSettings()
 	m_fntSearchResults = CPersistentSettings::instance()->fontSearchResults();
 	m_fntDictionary = CPersistentSettings::instance()->fontDictionary();
 
+	ui.fontComboBoxApplication->setCurrentFont(QApplication::font());
 	ui.fontComboBoxScriptureBrowser->setCurrentFont(m_fntScriptureBrowser);
 	ui.fontComboBoxSearchResults->setCurrentFont(m_fntSearchResults);
 	ui.fontComboBoxDictionary->setCurrentFont(m_fntDictionary);
 
+	ui.dblSpinBoxApplicationFontSize->setValue(QApplication::font().pointSizeF());
 	ui.dblSpinBoxScriptureBrowserFontSize->setValue(m_fntScriptureBrowser.pointSizeF());
 	ui.dblSpinBoxSearchResultsFontSize->setValue(m_fntSearchResults.pointSizeF());
 	ui.dblSpinBoxDictionaryFontSize->setValue(m_fntDictionary.pointSizeF());
@@ -516,7 +529,27 @@ void CKJVTextFormatConfig::saveSettings()
 	CPersistentSettings::instance()->setFontDictionary(m_fntDictionary);
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+
+	// Save application font only if not in stealth mode:
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QFont fntApp;
+		fntApp.setFamily(ui.fontComboBoxApplication->currentFont().family());
+		fntApp.setPointSizeF(ui.dblSpinBoxApplicationFontSize->value());
+		QApplication::setFont(fntApp);
+		CMyApplication::saveApplicationFontSettings();
+	}
+
 	m_bIsDirty = false;
+}
+
+void CKJVTextFormatConfig::en_ApplicationFontChanged(const QFont &font)
+{
+	if (m_bLoadingData) return;
+	if (CPersistentSettings::instance()->settings() == NULL) return;
+
+	Q_UNUSED(font);
+	m_bIsDirty = true;
+	emit dataChanged(true);
 }
 
 void CKJVTextFormatConfig::en_ScriptureBrowserFontChanged(const QFont &font)
@@ -547,6 +580,16 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged(false);
+}
+
+void CKJVTextFormatConfig::en_ApplicationFontSizeChanged(double nFontSize)
+{
+	if (m_bLoadingData) return;
+	if (CPersistentSettings::instance()->settings() == NULL) return;
+
+	Q_UNUSED(nFontSize);
+	m_bIsDirty = true;
+	emit dataChanged(true);
 }
 
 void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
@@ -1039,6 +1082,8 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 	strExtension = "." + strExtension;
 	m_pUserNotesDatabase->setKeepBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
 	m_pUserNotesDatabase->setBackupFilenamePostfix(strExtension);
+	CPersistentSettings::instance()->setColorDefaultNoteBackground(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->currentColor());
+	m_bIsDirty = false;
 }
 
 void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
@@ -1238,7 +1283,7 @@ void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QCol
 {
 	if (m_bLoadingData) return;
 
-	CPersistentSettings::instance()->setColorDefaultNoteBackground(color);
+	Q_UNUSED(color);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

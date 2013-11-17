@@ -75,6 +75,7 @@ public:
 
 	bool areRestarting() const { return m_bAreRestarting; }
 
+	static void saveApplicationFontSettings();
 	void setupTextBrightnessStyleHooks();
 
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }

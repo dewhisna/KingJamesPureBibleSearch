@@ -327,6 +327,17 @@ CMyApplication::~CMyApplication()
 
 // ============================================================================
 
+void CMyApplication::saveApplicationFontSettings()
+{
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrMainAppControlGroup);
+		settings.setValue(constrFontNameKey, font().family());
+		settings.setValue(constrFontSizeKey, font().pointSize());
+		settings.endGroup();
+	}
+}
+
 void CMyApplication::setupTextBrightnessStyleHooks()
 {
 	// Setup Default TextBrightness:
@@ -999,14 +1010,9 @@ int main(int argc, char *argv[])
 
 	// Update settings for next time.  Use application font instead of
 	//		our variables in case Qt substituted for another available font:
-	if (CPersistentSettings::instance()->settings() != NULL) {
-		QSettings &settings(*CPersistentSettings::instance()->settings());
-		settings.beginGroup(constrMainAppControlGroup);
-		settings.setValue(constrFontNameKey, app.font().family());
-		settings.setValue(constrFontSizeKey, app.font().pointSize());
-		settings.endGroup();
-	}
+	app.saveApplicationFontSettings();
 
+	// Connect TextBrightness change notifications:
 	app.setupTextBrightnessStyleHooks();
 
 	// Create default empty KJN file before we create CKJVCanOpener:

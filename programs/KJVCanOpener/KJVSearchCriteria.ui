@@ -127,18 +127,6 @@
      </property>
      <item>
       <widget class="QPushButton" name="buttonCopySummary">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>24</height>
-        </size>
-       </property>
        <property name="text">
         <string>&amp;Copy Search Phrase Summary to Clipboard</string>
        </property>
