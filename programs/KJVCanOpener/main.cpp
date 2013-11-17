@@ -292,7 +292,8 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	:	QApplication(argc, argv),
 #endif
 		m_nLastActivateCanOpener(-1),
-		m_bUsingCustomStyleSheet(false)
+		m_bUsingCustomStyleSheet(false),
+		m_bAreRestarting(false)
 {
 	m_strInitialAppDirPath = applicationDirPath();
 	m_strStartupStyleSheet = styleSheet();
@@ -395,6 +396,7 @@ void CMyApplication::signalSpyCaughtSlot(const QString &strMessage) const
 
 CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDatabase)
 {
+	m_bAreRestarting = false;			// Once we create a new CanOpener we are no longer restarting...
 	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase);
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
@@ -434,7 +436,7 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
 	if (g_pMdiArea != NULL) {
 		if (m_lstKJVCanOpeners.size() == 0) {
-			g_pMdiArea->deleteLater();
+			if (!areRestarting()) g_pMdiArea->deleteLater();
 		} else {
 			QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
 			for (int ndxSubWindows = 0; ndxSubWindows < lstSubWindows.size(); ++ndxSubWindows) {
@@ -546,6 +548,12 @@ void CMyApplication::updateSearchWindowList()
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 		m_lstKJVCanOpeners.at(ndx)->en_updateSearchWindowList();
 	}
+}
+
+void CMyApplication::restartApp()
+{
+	m_bAreRestarting = true;
+	closeAllCanOpeners();
 }
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
@@ -1022,7 +1030,17 @@ int main(int argc, char *argv[])
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
 
-	int nRetVal = app.exec();
+	int nRetVal = 0;
+	bool bDone = false;
+
+	while (!bDone) {
+		nRetVal = app.exec();
+		if ((nRetVal != 0) || (!app.areRestarting())) {
+			bDone = true;
+		} else {
+			app.createKJVCanOpener(g_pMainBibleDatabase);
+		}
+	}
 
 	QFontDatabase::removeAllApplicationFonts();
 

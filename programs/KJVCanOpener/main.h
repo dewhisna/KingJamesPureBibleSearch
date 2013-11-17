@@ -73,6 +73,8 @@ public:
 	CMyApplication(int & argc, char ** argv);
 	virtual ~CMyApplication();
 
+	bool areRestarting() const { return m_bAreRestarting; }
+
 	void setupTextBrightnessStyleHooks();
 
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
@@ -124,6 +126,7 @@ public slots:
 	void activateAllCanOpeners() const;
 	void closeAllCanOpeners() const;
 	void updateSearchWindowList();
+	void restartApp();
 
 signals:
 	void loadFile(const QString &strFilename);
@@ -159,6 +162,7 @@ protected:
 	QString m_strInitialAppDirPath;						// Initial applicationDirPath() -- needed since according to Qt documentation, QCoreApplcation::applicationDirPath assumes we haven't changed our current directory
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
+	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 };
 
 #endif // MAIN_H
