@@ -31,6 +31,8 @@
 #include <QPainter>
 #include <QLocale>
 #include <QMessageBox>
+#include <QFile>
+#include <QTextStream>
 #include <QFileInfo>
 //#include <QtPlugin>
 #include <QFontDatabase>
@@ -282,6 +284,33 @@ public:
 };
 
 // ============================================================================
+
+CMyApplication::CMyApplication(int & argc, char ** argv)
+#ifdef USING_QT_SINGLEAPPLICATION
+	:	QtSingleApplication(g_constrApplicationID, argc, argv),
+#else
+	:	QApplication(argc, argv),
+#endif
+		m_nLastActivateCanOpener(-1),
+		m_bUsingCustomStyleSheet(false)
+{
+	m_strInitialAppDirPath = applicationDirPath();
+	m_strStartupStyleSheet = styleSheet();
+
+	if (m_strStartupStyleSheet.startsWith(QLatin1String("file:///"))) {
+		// If the startupStyleSheet was a file, read it:
+		m_strStartupStyleSheet.remove(0, 8);
+		QFile fileSS(m_strStartupStyleSheet);
+		if (fileSS.open(QFile::ReadOnly)) {
+			QTextStream stream(&fileSS);
+			m_strStartupStyleSheet = stream.readAll();
+		} else {
+			qWarning() << "Failed to load stylesheet file " << m_strStartupStyleSheet;
+			m_strStartupStyleSheet.clear();
+			setStyleSheet(QString());
+		}
+	}
+}
 
 CMyApplication::~CMyApplication()
 {
@@ -552,7 +581,8 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 
 	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
 		// Note: This will automatically cause a repaint:
-		setStyleSheet(QString("CPhraseLineEdit { background-color:%1; color:%2; }\n"
+		setStyleSheet(QString("%3\n"
+							  "CPhraseLineEdit { background-color:%1; color:%2; }\n"
 							  "QLineEdit { background-color:%1; color:%2; }\n"
 							  "QComboBox { background-color:%1; color:%2; }\n"
 							  "QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
@@ -561,9 +591,14 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 							  "QSpinBox { background-color:%1; color:%2; }\n"
 							  "QDoubleSpinBox { background-color:%1; color:%2; }\n"
 							).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
-							 .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+							 .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name())
+							 .arg(startupStyleSheet()));
+		m_bUsingCustomStyleSheet = true;
 	} else {
-		setStyleSheet(startupStyleSheet());
+		if (m_bUsingCustomStyleSheet) {
+			setStyleSheet(startupStyleSheet());
+			m_bUsingCustomStyleSheet = false;
+		}
 	}
 
 	return;

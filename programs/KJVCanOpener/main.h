@@ -70,18 +70,7 @@ public:
 		KAMCE_NEW_CANOPENER_OPEN_KJS = 3		// Launch a new CanOpener Search Window and Open a .KJS Search File
 	};
 
-	CMyApplication(int & argc, char ** argv)
-#ifdef USING_QT_SINGLEAPPLICATION
-		:	QtSingleApplication(g_constrApplicationID, argc, argv),
-#else
-		:	QApplication(argc, argv),
-#endif
-			m_nLastActivateCanOpener(-1)
-	{
-		m_strInitialAppDirPath = applicationDirPath();
-		m_strStartupStyleSheet = styleSheet();
-	}
-
+	CMyApplication(int & argc, char ** argv);
 	virtual ~CMyApplication();
 
 	void setupTextBrightnessStyleHooks();
@@ -169,6 +158,7 @@ protected:
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
 	QString m_strInitialAppDirPath;						// Initial applicationDirPath() -- needed since according to Qt documentation, QCoreApplcation::applicationDirPath assumes we haven't changed our current directory
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
+	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 };
 
 #endif // MAIN_H
