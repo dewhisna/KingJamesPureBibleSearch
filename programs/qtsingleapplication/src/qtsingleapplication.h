@@ -45,7 +45,7 @@
 
 class QtLocalPeer;
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN32)
 #  if !defined(QT_QTSINGLEAPPLICATION_EXPORT) && !defined(QT_QTSINGLEAPPLICATION_IMPORT)
 #    define QT_QTSINGLEAPPLICATION_EXPORT
 #  elif defined(QT_QTSINGLEAPPLICATION_IMPORT)

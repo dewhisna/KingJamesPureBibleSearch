@@ -165,5 +165,6 @@ protected:
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 };
+extern QPointer<CMyApplication> g_pMyApplication;
 
 #endif // MAIN_H

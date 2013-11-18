@@ -36,7 +36,11 @@
 #include <QFileInfo>
 //#include <QtPlugin>
 #include <QFontDatabase>
+#if QT_VERSION < 0x050000
 #include <QDesktopServices>
+#else
+#include <QStandardPaths>
+#endif
 #include <QDir>
 #include <QObject>
 #include <QProxyStyle>
@@ -88,7 +92,13 @@ namespace {
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
-#ifndef Q_OS_MAC
+#ifdef Q_OS_ANDROID
+	const char *g_constrPluginsPath = "/data/local/tmp/qt/plugins/";
+//	const char *g_constrDatabaseFilename = "/data/data/com.dewtronics.KingJamesPureBibleSearch/db/kjvtext.s3db";
+//	const char *g_constrUserDatabaseTemplateFilename = "/data/data/com.dewtronics.KingJamesPureBibleSearch/db/kjvuser.s3db";
+	const char *g_constrDatabaseFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/db/kjvtext.s3db";
+	const char *g_constrUserDatabaseTemplateFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/db/kjvuser.s3db";
+#elif !defined(Q_OS_MAC)
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrKJVDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
@@ -101,7 +111,53 @@ namespace {
 #endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
-#ifndef Q_OS_MAC
+#ifdef Q_OS_ANDROID
+//	const char *g_constrScriptBLFontFilename = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/SCRIPTBL.TTF";
+//	const char *g_constrDejaVuSans_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-BoldOblique.ttf";
+//	const char *g_constrDejaVuSans_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Bold.ttf";
+//	const char *g_constrDejaVuSansCondensed_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansCondensed_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Bold.ttf";
+//	const char *g_constrDejaVuSansCondensed_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Oblique.ttf";
+//	const char *g_constrDejaVuSansCondensed = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed.ttf";
+//	const char *g_constrDejaVuSans_ExtraLight = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-ExtraLight.ttf";
+//	const char *g_constrDejaVuSansMono_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-BoldOblique.ttf";
+//	const char *g_constrDejaVuSansMono_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Bold.ttf";
+//	const char *g_constrDejaVuSansMono_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Oblique.ttf";
+//	const char *g_constrDejaVuSansMono = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono.ttf";
+//	const char *g_constrDejaVuSans_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Oblique.ttf";
+//	const char *g_constrDejaVuSans = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans.ttf";
+//	const char *g_constrDejaVuSerif_BoldItalic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerif_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Bold.ttf";
+//	const char *g_constrDejaVuSerifCondensed_Italic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Italic.ttf";
+//	const char *g_constrDejaVuSerifCondensed = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed.ttf";
+//	const char *g_constrDejaVuSerif_Italic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Italic.ttf";
+//	const char *g_constrDejaVuSerif = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif.ttf";
+
+	const char *g_constrScriptBLFontFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/SCRIPTBL.TTF";
+	const char *g_constrDejaVuSans_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+	const char *g_constrDejaVuSansCondensed_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-ExtraLight.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldItalic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-BoldItalic.ttf";
+	const char *g_constrDejaVuSerif_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_BoldItalic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+	const char *g_constrDejaVuSerifCondensed_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_Italic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Italic.ttf";
+	const char *g_constrDejaVuSerifCondensed = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed.ttf";
+	const char *g_constrDejaVuSerif_Italic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Italic.ttf";
+	const char *g_constrDejaVuSerif = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif.ttf";
+#elif !defined(Q_OS_MAC)
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -770,10 +826,10 @@ int main(int argc, char *argv[])
 	// Hook receiving messages from other KJPBS app launches:
 	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 	app.setWindowIcon(QIcon(":/res/bible.ico"));
 #else
-#ifndef Q_WS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
+#ifndef Q_OS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
 	app.setWindowIcon(QIcon(":/res/bible_48.png"));
 #endif
 #endif
@@ -895,7 +951,11 @@ int main(int argc, char *argv[])
 	QFileInfo fiKJVDatabase(app.initialAppDirPath(), g_constrKJVDatabaseFilename);
 	QFileInfo fiUserDatabaseTemplate(app.initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
 	QFileInfo fiWeb1828DictDatabase(app.initialAppDirPath(), g_constrWeb1828DatabaseFilename);
+#if QT_VERSION < 0x050000
 	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#else
+	QString strDataFolder = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+#endif
 	QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
 	QDir dirDataFolder;
 	dirDataFolder.mkpath(strDataFolder);
@@ -969,9 +1029,9 @@ int main(int argc, char *argv[])
 
 	// Setup our default font for our controls:
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
 	QFont fntAppControls = QFont("DejaVu Sans", 10);
 #else
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
@@ -1004,7 +1064,7 @@ int main(int argc, char *argv[])
 	//	the properties.  This works around the Qt Mac bug as
 	//	reported at the bottom of this blog:
 	//	http://blog.qt.digia.com/blog/2008/11/16/font-and-palette-propagation-in-qt/
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	app.setDesktopSettingsAware(false);
 #endif
 
@@ -1021,7 +1081,7 @@ int main(int argc, char *argv[])
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();
 	g_pMdiArea->show();
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 	g_pMdiArea->setWindowIcon(QIcon(":/res/bible.ico"));
 #else
 	g_pMdiArea->setWindowIcon(QIcon(":/res/bible_48.png"));

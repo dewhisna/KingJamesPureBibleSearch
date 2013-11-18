@@ -57,6 +57,9 @@ QtSingleApplication {
 	QT += network
 }
 
+#greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
+greaterThan(QT_MAJOR_VERSION,4):QTPLUGIN += qplastiquestyle
+
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE
@@ -72,7 +75,9 @@ unix:!macx {
 }
 
 macx:CONFIG += x86 x86_64
-macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
+lessThan(QT_MAJOR_VERSION,5):macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
+greaterThan(QT_MAJOR_VERSION,4):macx:static:release:LIBS += -lQt5Core -lQt5Gui -lQt5Widgets -lQt5Sql -lQt5Xml -dead_strip
+greaterThan(QT_MAJOR_VERSION,4):macx:static:debug:LIBS += -lQt5Core_debug -lQt5Gui_debug -lQt5Widgets_debug -lQt5Sql_debug -lQt5Xml_debug -dead_strip
 
 # The following fixes a bad codegen, pointer diff to global weak in symbol vtable
 #   error on Mac with the QtSharedPointer that we are using for the Bible Database.

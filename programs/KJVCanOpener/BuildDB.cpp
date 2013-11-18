@@ -48,7 +48,6 @@
 
 #ifndef OSIS_PARSER_BUILD
 #include "main.h"
-extern CMyApplication *g_pMyApplication;
 #define MY_GET_APP_DIR_PATH g_pMyApplication->initialAppDirPath()
 #else
 #define MY_GET_APP_DIR_PATH QCoreApplication::applicationDirPath()

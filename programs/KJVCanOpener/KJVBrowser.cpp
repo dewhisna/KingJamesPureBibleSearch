@@ -40,6 +40,11 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
+#if QT_VERSION >= 0x050000
+#include <QStyle>
+#include <QStyleFactory>
+#include <QProxyStyle>
+#endif
 
 // ============================================================================
 
@@ -51,6 +56,9 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_ExcludedSearchResultsHighlighter(pModel, true),
 	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
+#if QT_VERSION >= 0x050000
+	m_pPlastiqueStyle(NULL),
+#endif
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(NULL)
 {
@@ -58,6 +66,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	assert(g_pUserNotesDatabase != NULL);
 
 	ui.setupUi(this);
+
+#if QT_VERSION >= 0x050000
+	m_pPlastiqueStyle = new QProxyStyle(QStyleFactory::create("plastique"));
+#endif
 
 	initialize();
 
@@ -136,7 +148,12 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 CKJVBrowser::~CKJVBrowser()
 {
-
+#if QT_VERSION >= 0x050000
+	if (m_pPlastiqueStyle) {
+		delete m_pPlastiqueStyle;
+		m_pPlastiqueStyle = NULL;
+	}
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -324,7 +341,12 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 void CKJVBrowser::setupChapterScrollbar()
 {
 	if (ui.scrollbarChapter != NULL) {
+#if QT_VERSION >= 0x050000
+		assert(m_pPlastiqueStyle != NULL);
+		ui.scrollbarChapter->setStyle(m_pPlastiqueStyle);
+#else
 		ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
+#endif
 		ui.scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
 		ui.scrollbarChapter->setTracking(true);
 		ui.scrollbarChapter->setMouseTracking(true);

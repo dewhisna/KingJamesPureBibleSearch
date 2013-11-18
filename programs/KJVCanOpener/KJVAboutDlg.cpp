@@ -31,7 +31,22 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>
+
+// ============================================================================
+
+#if QT_VERSION < 0x050000
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+
+static inline QString htmlEscape(const QString &aString)
+{
+	return Qt::escape(aString);
+}
+#else
+static inline QString htmlEscape(const QString &aString)
+{
+	return aString.toHtmlEscaped();
+}
+#endif
 
 // ============================================================================
 
@@ -60,7 +75,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
-	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + Qt::escape(tr("Click Here to Visit Bethel Church")) + QString("</a></body></html>"));
+	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + htmlEscape(tr("Click Here to Visit Bethel Church")) + QString("</a></body></html>"));
 	m_pBethelURL->setOpenExternalLinks(true);
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	// --------

@@ -198,7 +198,6 @@ template<class T, class U>
 CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 {
 	if (m_pParentCanOpener == NULL) {
-		extern CMyApplication *g_pMyApplication;
 		assert(g_pMyApplication != NULL);
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<T>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during

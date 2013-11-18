@@ -82,7 +82,7 @@ bool CNoteKeywordModel::setData(const QModelIndex &index, const QVariant &value,
 			for (int n = 0; n < m_lstKeywordData.size(); ++n) {
 				m_lstKeywordData[n].m_bChecked = value.toBool();
 			}
-			emit dataChanged(createIndex(0, 0, 0), createIndex(m_lstKeywordData.size()-1, 0, 0));
+			emit dataChanged(createIndex(0, 0), createIndex(m_lstKeywordData.size()-1, 0));
 			emit changedNoteKeywords();
 			updateContextMenu();
 			return true;

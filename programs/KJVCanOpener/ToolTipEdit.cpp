@@ -225,7 +225,6 @@ void CTipEdit::adjustToolTipSize()
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
 
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	if (widget) {
@@ -479,13 +478,12 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 		}
 	}
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	// When in full screen mode, there is no Dock nor Menu so we can use
 	// the whole screen for displaying the tooltip. However when not in
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
 
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 
@@ -500,7 +498,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 
 	QPoint p = pos;
 	p += QPoint(2,
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 				21
 #else
 				16
@@ -572,7 +570,7 @@ void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const 
 	}
 
 	if ((!text.isEmpty()) || CTipEdit::tipEditIsPinned(pCanOpener)) { // no tip can be reused, create new tip:
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN32
 		new CTipEdit(pCanOpener, w); // sets CTipEdit::instance() to itself
 #else
 //		// On windows, we can't use the widget as parent otherwise the window will be

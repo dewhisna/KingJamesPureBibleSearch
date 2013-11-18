@@ -1109,7 +1109,6 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	}
 	if (!bHaveAtLeastOneUniqueSource) return false;
 
-	extern CMyApplication *g_pMyApplication;
 	assert(g_pMyApplication != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	assert(pCanOpener != NULL);

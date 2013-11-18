@@ -57,8 +57,6 @@
 #include <QDesktopServices>
 #include <QDir>
 
-extern CMyApplication *g_pMyApplication;
-
 // ============================================================================
 
 #define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
@@ -71,7 +69,7 @@ namespace {
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #else
 	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
@@ -298,7 +296,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// --------------------
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
 	setWindowIcon(QIcon(":/res/bible.ico"));
 #else
 	setWindowIcon(QIcon(":/res/bible_48.png"));

@@ -42,6 +42,9 @@
 #include <QAbstractTextDocumentLayout>
 #include <QToolTip>
 #include <QWhatsThis>
+#if QT_VERSION >= 0x050000
+#include <qdrawutil.h>
+#endif
 
 CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 	:	QStyledItemDelegate(parent),

@@ -31,12 +31,26 @@
 #include <QDir>
 #include <QColor>
 #include <QtIOCompressor>
-#include <QTextDocument>			// Also needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+#include <QTextDocument>			// Also needed for Qt::escape for Qt4.x below, which is in this header, not <Qt> as is assistant says
 #include <QTextCursor>
 #include <QTextCharFormat>
 #include <QTextBlockFormat>
 
 #include <algorithm>
+
+// ============================================================================
+
+#if QT_VERSION < 0x050000
+static inline QString htmlEscape(const QString &aString)
+{
+	return Qt::escape(aString);
+}
+#else
+static inline QString htmlEscape(const QString &aString)
+{
+	return aString.toHtmlEscaped();
+}
+#endif
 
 // ============================================================================
 
@@ -730,9 +744,9 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
 								.arg(constrCountAttr).arg((itrNotes->second).verseCount())
-								.arg(constrBackgroundColorAttr).arg(Qt::escape((itrNotes->second).backgroundColor().name()))
+								.arg(constrBackgroundColorAttr).arg(htmlEscape((itrNotes->second).backgroundColor().name()))
 								.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
-								.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(Qt::escape((itrNotes->second).m_lstKeywords.join(","))) : QString())
+								.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(htmlEscape((itrNotes->second).m_lstKeywords.join(","))) : QString())
 								.toUtf8());
 		QString strNote = (itrNotes->second).text();
 		strNote.replace("]]>", "]]&gt;");			// safe-guard to make sure we don't have any embedded CDATA terminators
@@ -748,13 +762,13 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	for (TBibleDBHighlighterTagMap::const_iterator itrHighlightDB = m_mapHighlighterTags.begin(); itrHighlightDB != m_mapHighlighterTags.end(); ++itrHighlightDB) {
 		const THighlighterTagMap &highlightMap(itrHighlightDB->second);
 		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrHighlighterDBTag)
-											.arg(constrUUIDAttr).arg(Qt::escape(itrHighlightDB->first))
+											.arg(constrUUIDAttr).arg(htmlEscape(itrHighlightDB->first))
 											.arg(constrSizeAttr).arg(highlightMap.size())
 											.toUtf8());
 		for (THighlighterTagMap::const_iterator itrHighlightHL = highlightMap.begin(); itrHighlightHL != highlightMap.end(); ++itrHighlightHL) {
 			const TPhraseTagList &tagList(itrHighlightHL->second);
 			outUND.write(QString("\t\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrHighlighterTagsTag)
-													.arg(constrHighlighterNameAttr).arg(Qt::escape(itrHighlightHL->first))
+													.arg(constrHighlighterNameAttr).arg(htmlEscape(itrHighlightHL->first))
 													.arg(constrSizeAttr).arg(tagList.size())
 													.toUtf8());
 			for (TPhraseTagList::const_iterator itrTags = tagList.begin(); itrTags != tagList.end(); ++itrTags) {
@@ -791,8 +805,8 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 							.toUtf8());
 	for (TUserDefinedColorMap::const_iterator itrHLDefs = m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constBegin(); itrHLDefs != m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.constEnd(); ++itrHLDefs) {
 		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" />\n").arg(constrKJNPrefix).arg(constrHighlighterDefTag)
-								.arg(constrHighlighterNameAttr).arg(Qt::escape(itrHLDefs.key()))
-								.arg(constrColorAttr).arg(Qt::escape(itrHLDefs.value().m_color.name()))
+								.arg(constrHighlighterNameAttr).arg(htmlEscape(itrHLDefs.key()))
+								.arg(constrColorAttr).arg(htmlEscape(itrHLDefs.value().m_color.name()))
 								.arg(constrEnabledAttr).arg(itrHLDefs.value().m_bEnabled ? "True" : "False")
 								.toUtf8());
 	}
