@@ -79,10 +79,14 @@ lessThan(QT_MAJOR_VERSION,5):macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_
 greaterThan(QT_MAJOR_VERSION,4):macx:static:release:LIBS += -lQt5Core -lQt5Gui -lQt5Widgets -lQt5Sql -lQt5Xml -dead_strip
 greaterThan(QT_MAJOR_VERSION,4):macx:static:debug:LIBS += -lQt5Core_debug -lQt5Gui_debug -lQt5Widgets_debug -lQt5Sql_debug -lQt5Xml_debug -dead_strip
 
+# No longer need to have this here since we also needed to do the same thing with
+#   the Qt build itself.  It was just easier to patch it into the mkspec file:
+#   mkspecs/common/gcc-base-macx.conf so that we pick it up for everything...
 # The following fixes a bad codegen, pointer diff to global weak in symbol vtable
 #   error on Mac with the QtSharedPointer that we are using for the Bible Database.
 #   It's only an issue when linking with the Static Qt we use for release:
-macx:release:QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+#   (It's an XCode 4 to XCode 5 thing)
+#macx:release:QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 
 # On the latest XCode release with gcc mapped to Apple LLVM version 5.0 (clang-500.2.79),
 #   we started getting false overloaded-virtual and unused-private-field warnings, the

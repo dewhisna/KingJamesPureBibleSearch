@@ -39,15 +39,15 @@ Linux LOCAL BUILD (x64 release):
 MAC Cocoa:
 ----------
 
-../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -arch ppc64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
+../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -arch ppc64 -prefix /Users/dewhisna/Qt/4.8.4-cocoa-run
 
 *******************************************************************************
 
 Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
-../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-run
+../4.8.4-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.4-cocoa-static-run
 
 Cocoa x86/x64 Dynamic:   <<<< This was the development build for Mac
-../4.8.4-src/configure -platform macx-g++ -opensource -release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-run
+../4.8.4-src/configure -platform macx-g++ -opensource -release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.4-cocoa-run
 
 *******************************************************************************
 
@@ -56,11 +56,11 @@ newer platforms and so I don't have a PPC compiler.  Here for reference in case
 someone loans me an old Mac and there is sufficient requests for an old version:
 
 Cocoa x86/x64/PPC (universal):
-../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -prefix /Users/donna/Qt/4.8.4-cocoa-static-univ-run
+../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.4-cocoa-static-univ-run
 
 
 Carbon x86/PPC (universal):
-../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -carbon -universal -arch x86 -arch ppc -prefix /Users/donna/Qt/4.8.4-carbon-static-univ-run
+../4.8.4-src/configure -platform macx-llvm -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -carbon -universal -arch x86 -arch ppc -prefix /Users/dewhisna/Qt/4.8.4-carbon-static-univ-run
 
 
 Mac Cross-Compile on Linux Attempt:
@@ -85,18 +85,6 @@ configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32-
 Needs -no-ssse3 to fix issue in src/gui/image/qjpeghandler.cpp:813: undefined reference to `__imp___Z32qt_convert_rgb888_to_rgb32_ssse3PjPKhi'
 
 ../4.8.4-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -no-ssse3 -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.4-win32 -confirm-license 
-
-
-Qt 4.8.5 -- Win32 Cross-Compile
-===============================
-
-Built with:   i686-w64-mingw32-gcc-4.7.4-release-linux64_rubenvb.tar.xz from:
-https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.7-release/
-
-../4.8.5-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.5-win32 -confirm-license 
-
-Add this:
-no-pkg-config
 
 
 ===============================================================================
@@ -127,18 +115,37 @@ LSB x64:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-64
 Mac Cocoa
 ---------
 Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
-../4.8.5-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/4.8.5-cocoa-static-run
+../4.8.5-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.5-cocoa-static-run
+
+
+Mac Cocoa (Patched)
+-------------------
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../4.8.5-src-patched/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.5-patched-cocoa-static-run
 
 
 ----------------------------------------------------
 
 Windows (native)
--------
+----------------
 - Built in-place rather than as shadow-build:
 For MinGW, download the mingw-builds-install.exe and use: x32-4.8.1-posix-dwarf-rev5
 Install MinGW to the Program Files (x86) folder, as default, and add C:\MinGW junction to locate it, so it can co-exist with other builds.
 Configure Qt like so:
 configure -platform win32-g++ -opensource -debug-and-release -qt-style-plastique -qt-style-windows -qt-style-windowsxp -qt-style-windowsvista -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -nomake tools -nomake examples -nomake demos -confirm-license 
+
+----------------------------------------------------
+
+Qt 4.8.5 -- Win32 Cross-Compile
+-------------------------------
+
+Built with:   i686-w64-mingw32-gcc-4.7.4-release-linux64_rubenvb.tar.xz from:
+https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.7-release/
+
+../4.8.5-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.5-win32 -confirm-license 
+
+Add this:
+no-pkg-config
 
 
 ===============================================================================
@@ -171,26 +178,26 @@ Possibly needed for LSB:
 
 
 Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
-../5.0.1-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+../5.0.1-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/5.0.1-cocoa-static-run
 *** Won't Build QtCore on Mac with: -no-opengl
 Must delete: qttools folder (it doesn't listen to the -nomake tools!), qtwebkit, qtxmlpatterns
 
 
-./configure -platform macx-clang-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+./configure -platform macx-clang-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.1-cocoa-static-run
 
-./configure -platform macx-g++-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+./configure -platform macx-g++-32 -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.1-cocoa-static-run
 ????? It won't build 32-bit on Mac! ?????
 
-./configure -platform macx-clang -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+./configure -platform macx-clang -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.1-cocoa-static-run
 ????? Won't build on clang due to QCocoaWindow namespace in qcocoawindow.h ?????
 
 
 This one builds for Qt5, but target KJPBS app won't compile due to duplicate symbols in qcocoawindow platform:
 --------------------------------------------------------------------------------------------------------------
-./configure -platform macx-g++ -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-static-run
+./configure -platform macx-g++ -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.1-cocoa-static-run
 
 
-./configure -platform macx-g++ -opensource -debug-and-release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.1-cocoa-run
+./configure -platform macx-g++ -opensource -debug-and-release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -no-xcb -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.1-cocoa-run
 
 ===============================================================================
 ===============================================================================
@@ -230,10 +237,10 @@ MAC Cocoa:
 // Doesn't want to work with -no-opengl that still works in Linux!
 
 Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
-../5.0.2-src/configure -platform macx-g++-32 -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.2-cocoa-static-run -confirm-license 
+../5.0.2-src/configure -platform macx-g++-32 -opensource -release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake tools -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.2-cocoa-static-run -confirm-license 
 
 Cocoa x86/x64 Dynamic:   <<<< This was the development build for Mac
-../5.0.2-src/configure -platform macx-g++-32 -opensource -debug-and-release -developer-build -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake examples -nomake demos -nomake tests -prefix /Users/donna/Qt/5.0.2-cocoa-run -confirm-license 
+../5.0.2-src/configure -platform macx-g++-32 -opensource -debug-and-release -developer-build -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake examples -nomake demos -nomake tests -prefix /Users/dewhisna/Qt/5.0.2-cocoa-run -confirm-license 
 
 ===============================================================================
 ===============================================================================
