@@ -87,15 +87,15 @@ public:
 		CKJVCanOpenerCloseGuard(CKJVCanOpener *pCanOpener)
 			:	m_pCanOpener(pCanOpener)
 		{
-			assert(m_pCanOpener != NULL);
+			assert(m_pCanOpener.data() != NULL);
 			m_bPreviousCanClose = m_pCanOpener->canClose();
 			m_pCanOpener->setCanClose(false);
 		}
 
 		~CKJVCanOpenerCloseGuard()
 		{
-			assert(m_pCanOpener != NULL);
-			if (m_pCanOpener != NULL) m_pCanOpener->setCanClose(m_bPreviousCanClose);
+			assert(m_pCanOpener.data() != NULL);
+			if (m_pCanOpener.data() != NULL) m_pCanOpener->setCanClose(m_bPreviousCanClose);
 		}
 
 	private:

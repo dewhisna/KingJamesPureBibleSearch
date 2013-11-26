@@ -70,8 +70,8 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
-	assert(pBibleDatabase != NULL);
-	assert(pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(pUserNotesDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -197,7 +197,7 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(m_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase.data() != NULL);
 
 	m_ndxLocation = ndxLocation;
 	m_ndxLocation.setWord(0);		// Work with whole verses only
@@ -224,7 +224,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 void CKJVNoteEditDlg::accept()
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(m_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase.data() != NULL);
 
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
@@ -296,7 +296,7 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
 	assert(button != NULL);
-	assert(m_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase.data() != NULL);
 
 	if (button == m_pDeleteNoteButton) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??"),

@@ -412,7 +412,7 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 	if (m_pBibleDatabase == NULL) return;
 	assert(m_pCommonPhrasesCompleter != NULL);
 	if (m_pCommonPhrasesCompleter == NULL) return;

@@ -64,8 +64,8 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
-	assert(m_pBibleDatabase != NULL);
-	assert(m_pUserNotesDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
+	assert(m_pUserNotesDatabase.data() != NULL);
 
 	// Create a working copy and initialize it to the existing database:
 	m_pWorkingUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
@@ -210,7 +210,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 
 void CKJVCrossRefEditDlg::saveCrossRefs()
 {
-	assert(m_pUserNotesDatabase != NULL);
+	assert(m_pUserNotesDatabase.data() != NULL);
 
 	m_pUserNotesDatabase->setCrossRefsMap(m_pWorkingUserNotesDatabase->crossRefsMap());
 	m_bIsDirty = false;

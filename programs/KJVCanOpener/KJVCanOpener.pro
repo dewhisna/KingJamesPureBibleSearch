@@ -28,33 +28,40 @@
 #-------------------------------------------------
 
 QT       += core gui sql xml
-
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 CONFIG += rtti
 
 CONFIG += wwwidgets
 
-# Select Desired Package:
-#	SingleApplication
-#	QtSingleApplication
-CONFIG += QtSingleApplication
-
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
+
+android {
+	QT += androidextras
+	include(../qtassetsmanager/qtassetsmanager.pri)
+	LIBS += -landroid
+}
 
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
 
-SingleApplication {
-	include(../singleapplication/singleapplication.pri)
-	DEFINES += USING_SINGLEAPPLICATION
-	QT += network
-}
-QtSingleApplication {
-	include(../qtsingleapplication/src/qtsingleapplication.pri)
-	DEFINES += USING_QT_SINGLEAPPLICATION
-	QT += network
+!android {
+	# Select Desired Package:
+	#	SingleApplication
+	#	QtSingleApplication
+	CONFIG += QtSingleApplication
+
+	SingleApplication {
+		include(../singleapplication/singleapplication.pri)
+		DEFINES += USING_SINGLEAPPLICATION
+		QT += network
+	}
+	QtSingleApplication {
+		include(../qtsingleapplication/src/qtsingleapplication.pri)
+		DEFINES += USING_QT_SINGLEAPPLICATION
+		QT += network
+	}
 }
 
 #greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
@@ -247,5 +254,47 @@ ICON = res/bible.icns
 # Info.plist for Mac OSX:
 # This is broken in qmake.  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
 #QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+ANDROID_PACKAGE = org.dewtronics.KingJamesPureBibleSearch
+ANDROID_MINIMUM_VERSION = 8
+ANDROID_TARGET_VERSION = 18
+ANDROID_APP_NAME = King James Pure Bible Search
+
+android:OTHER_FILES += \
+	android/AndroidManifest.xml
+
+
+android_install {
+#       plugins.files += $$[QT_INSTALL_PLUGINS]/sqldrivers/libqsqlite.so
+#       plugins.path = /data/plugins
+
+#       dbDeploy.files = ../KJVCanOpener/db/*.s3db
+#       dbDeploy.path = /data/db
+#       fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
+#       fontDeploy.path = /data/fonts
+#       docDeploy.files = ../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+#       docDeploy.path = /data/doc
+
+		dbDeploy.files = ../KJVCanOpener/db/kjvtext.s3db ../KJVCanOpener/db/kjvuser.s3db ../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.path = /assets/KJVCanOpener/db
+		fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
+		fontDeploy.path = /assets/KJVCanOpener/fonts
+		docDeploy.files = ../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+		docDeploy.path = /assets/KJVCanOpener/doc
+
+#		pushDeploy.files = ../KJVCanOpener/android_push.sh
+#		pushDeploy.path = /
+
+#		myData.files = ../KJVCanOpener/android/data/*
+#       myData.path = /data
+
+#		DEPLOYMENT += plugins dbDeploy fontDeploy docDeploy
+#		DEPLOYMENT += plugins myData
+#		DEPLOYMENT_PLUGIN += qsqlite
+#		INSTALLS += dbDeploy fontDeploy docDeploy pushDeploy
+		INSTALLS += dbDeploy fontDeploy docDeploy
+
+}
 
 message($$CONFIG)

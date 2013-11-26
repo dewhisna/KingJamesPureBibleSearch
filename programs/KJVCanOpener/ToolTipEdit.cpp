@@ -225,7 +225,7 @@ void CTipEdit::adjustToolTipSize()
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
 
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	if (widget) {
 		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
@@ -484,7 +484,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
 
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 
 	QRect screen;

@@ -198,7 +198,7 @@ template<class T, class U>
 CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 {
 	if (m_pParentCanOpener == NULL) {
-		assert(g_pMyApplication != NULL);
+		assert(g_pMyApplication.data() != NULL);
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<T>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
 		//		the construction process before the parent actually exists.  In that case, we'll
@@ -601,7 +601,7 @@ template<class T, class U>
 void CScriptureText<T,U>::updateSelection()
 {
 	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (m_bDoingSelectionChange) return;
 	m_bDoingSelectionChange = true;
@@ -821,7 +821,7 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	if (!U::hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
 	assert(pAction != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	TPhraseTag tagSel = selection();
 	CRelIndex relNdx = tagSel.relIndex();
@@ -866,7 +866,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 		assert(ndxLink.isSet());
 		if (!ndxLink.isSet()) return;
 
-		assert(g_pUserNotesDatabase != NULL);
+		assert(g_pUserNotesDatabase.data() != NULL);
 		assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
 		if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
 
@@ -901,7 +901,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 template<class T, class U>
 void CScriptureText<T,U>::en_showAllNotes()
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (!itrNotes->second.isVisible()) {
@@ -917,7 +917,7 @@ void CScriptureText<T,U>::en_showAllNotes()
 template<class T, class U>
 void CScriptureText<T,U>::en_hideAllNotes()
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (itrNotes->second.isVisible()) {

@@ -90,8 +90,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		m_userNotesResults(&m_private),
 		m_crossRefsResults(&m_private)
 {
-	assert(pBibleDatabase != NULL);
-	assert(pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(pUserNotesDatabase.data() != NULL);
 
 	m_private.m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
@@ -507,7 +507,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 {
-	assert(m_private.m_pBibleDatabase);
+	assert(m_private.m_pBibleDatabase.data() != NULL);
 
 	if (!index.isValid()) return QVariant();
 
@@ -1109,7 +1109,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	}
 	if (!bHaveAtLeastOneUniqueSource) return false;
 
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	assert(pCanOpener != NULL);
 
@@ -1659,7 +1659,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetVerseIndexAndC
 
 int CVerseListModel::TVerseListModelResults::GetBookCount() const
 {
-	assert(m_private->m_pBibleDatabase != NULL);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if (m_private->m_bShowMissingLeafs) return m_private->m_pBibleDatabase->bibleEntry().m_nNumBk;
 
@@ -1677,7 +1677,7 @@ int CVerseListModel::TVerseListModelResults::GetBookCount() const
 
 int CVerseListModel::TVerseListModelResults::IndexByBook(unsigned int nBk) const
 {
-	assert(m_private->m_pBibleDatabase != NULL);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if (m_private->m_bShowMissingLeafs) {
 		if ((nBk < 1) || (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk)) return -1;
@@ -1704,7 +1704,7 @@ int CVerseListModel::TVerseListModelResults::IndexByBook(unsigned int nBk) const
 
 unsigned int CVerseListModel::TVerseListModelResults::BookByIndex(int ndxBook) const
 {
-	assert(m_private->m_pBibleDatabase != NULL);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if (m_private->m_bShowMissingLeafs) {
 		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= m_private->m_pBibleDatabase->bibleEntry().m_nNumBk)) return 0;
@@ -1727,7 +1727,7 @@ unsigned int CVerseListModel::TVerseListModelResults::BookByIndex(int ndxBook) c
 
 int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) const
 {
-	assert(m_private->m_pBibleDatabase != NULL);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if (nBk == 0) return 0;
 	if (m_private->m_bShowMissingLeafs) {
@@ -1755,7 +1755,7 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 
 int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 {
-	assert(m_private->m_pBibleDatabase);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if (nBk == 0) return -1;
 	if (m_private->m_bShowMissingLeafs) {
@@ -1786,7 +1786,7 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 
 unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook, int ndxChapter) const
 {
-	assert(m_private->m_pBibleDatabase);
+	assert(m_private->m_pBibleDatabase.data() != NULL);
 
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
 	if (m_private->m_bShowMissingLeafs) {
@@ -2226,7 +2226,7 @@ void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &se
 
 CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria)
 {
-	assert(m_private.m_pBibleDatabase);
+	assert(m_private.m_pBibleDatabase.data() != NULL);
 
 	CRelIndex indexScoped;
 

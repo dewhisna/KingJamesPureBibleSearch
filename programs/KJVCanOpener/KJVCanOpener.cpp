@@ -786,7 +786,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	// User Notes Database:
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	settings.beginGroup(constrUserNotesDatabaseGroup);
 	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
 	settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
@@ -888,7 +888,7 @@ void CKJVCanOpener::savePersistentSettings()
 
 void CKJVCanOpener::restorePersistentSettings()
 {
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 
 	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
 
@@ -951,7 +951,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		settings.endGroup();
 
 		// User Notes Database:
-		assert(g_pUserNotesDatabase != NULL);
+		assert(g_pUserNotesDatabase.data() != NULL);
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrUserNotesDatabaseGroup);
 			g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
@@ -1171,7 +1171,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	} else {
 		// If we aren't using Persistent Settings:
 
-		assert(g_pUserNotesDatabase != NULL);
+		assert(g_pUserNotesDatabase.data() != NULL);
 
 		// Set the ToolBar to the initial file default highlighters:
 		const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
@@ -1220,10 +1220,10 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	int nResult;
 	bool bPromptFilename = false;
 
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 
 	if (g_pMyApplication->isLastCanOpener()) {
-		assert(g_pUserNotesDatabase != NULL);
+		assert(g_pUserNotesDatabase.data() != NULL);
 		if (g_pUserNotesDatabase->isDirty()) {
 			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
 			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
@@ -1868,8 +1868,8 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pUserNoteEditorDlg != NULL);
-	assert(g_pUserNotesDatabase != NULL);
-	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
+	assert(g_pUserNotesDatabase.data() != NULL);
+	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase.data() == NULL)) return;
 
 	CRelIndex indexNote;
 
@@ -1891,8 +1891,8 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pCrossRefsEditorDlg != NULL);
-	assert(g_pUserNotesDatabase != NULL);
-	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase == NULL)) return;
+	assert(g_pUserNotesDatabase.data() != NULL);
+	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase.data() == NULL)) return;
 
 	TPassageTag tagCrossRef;
 
@@ -1935,7 +1935,7 @@ void CKJVCanOpener::setDetailsEnable()
 
 void CKJVCanOpener::en_HelpManual()
 {
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 
 	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
 	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
@@ -2000,7 +2000,7 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure(int nInitialPage)
 {
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 
@@ -2025,7 +2025,7 @@ void CKJVCanOpener::en_LaunchUserNoteConfig()
 
 void CKJVCanOpener::en_NewCanOpener()
 {
-	assert(g_pMyApplication != NULL);
+	assert(g_pMyApplication.data() != NULL);
 
 	CKJVCanOpener *pNewCanOpener = g_pMyApplication->createKJVCanOpener(m_pBibleDatabase);
 	assert(pNewCanOpener != NULL);

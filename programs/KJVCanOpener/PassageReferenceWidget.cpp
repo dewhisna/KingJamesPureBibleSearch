@@ -52,7 +52,7 @@ CPassageReferenceWidget::~CPassageReferenceWidget()
 
 void CPassageReferenceWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	m_pBibleDatabase = pBibleDatabase;
 	buildSoundExTables();
 }
@@ -86,8 +86,8 @@ void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
 
 void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 {
-	assert(m_pBibleDatabase != NULL);
-	if (m_pBibleDatabase == NULL) return;
+	assert(m_pBibleDatabase.data() != NULL);
+	if (m_pBibleDatabase.data() == NULL) return;
 
 	//	From: http://stackoverflow.com/questions/9974012/php-preg-match-bible-scripture-format
 	//
@@ -261,7 +261,7 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 
 void CPassageReferenceWidget::buildSoundExTables()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 	m_lstBookSoundEx.clear();
 	m_lstBookSoundEx.reserve(m_pBibleDatabase->bibleEntry().m_nNumBk);
 
@@ -288,7 +288,7 @@ void CPassageReferenceWidget::buildSoundExTables()
 
 uint32_t CPassageReferenceWidget::resolveBook(const QString &strPreBook, const QString &strBook) const
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 	QString strBookName = strPreBook.toLower() + strBook.toLower();
 	// TODO : Set the language of the following to the Bible Database's language once that has been implemented:
 	QString strSoundEx = strPreBook + CSoundExSearchCompleterFilter::soundEx(strBookName,

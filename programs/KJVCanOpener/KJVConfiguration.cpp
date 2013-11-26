@@ -134,7 +134,7 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 		m_pEnableCheckbox(NULL)
 {
 	assert(pList != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_pWidget = new QWidget(pList);
 	m_pWidget->setObjectName(QString("widget_%1").arg(strUserDefinedHighlighterName));
@@ -257,8 +257,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_bIsDirty(false),
 	m_bLoadingData(false)
 {
-	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -706,7 +706,7 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, color);
 	recalcColorListWidth();			// If color was previously invalid and is now valid, we'll have a preview to paint and so the width can change
@@ -727,7 +727,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterEnabled(strUserDefinedHighlighterName, bEnabled);
 	navigateToDemoText();
@@ -738,7 +738,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	ui.toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui.toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
@@ -749,7 +749,7 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -772,7 +772,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -835,7 +835,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -992,7 +992,7 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 		m_bIsDirty(false),
 		m_bLoadingData(false)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -1026,7 +1026,7 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 		m_bIsDirty(false),
 		m_bLoadingData(false)
 {
-	assert(pUserNotesDatabase != NULL);
+	assert(pUserNotesDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -1620,7 +1620,7 @@ CConfigCopyOptions::~CConfigCopyOptions()
 
 void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	m_pBibleDatabase = pBibleDatabase;
 
 	// ----------
@@ -1811,7 +1811,7 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 
 void CConfigCopyOptions::setVerseCopyPreview()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	QString strHtml;
 	QTextDocument doc;
@@ -1832,7 +1832,7 @@ void CConfigCopyOptions::setVerseCopyPreview()
 CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -1880,8 +1880,8 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pUserNotesDatabaseConfig(NULL),
 		m_pBibleDatabaseConfig(NULL)
 {
-	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
@@ -1963,8 +1963,8 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_bNeedRestart(false),
 		m_bRestartApp(false)
 {
-	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	// --------------------------------------------------------------
 
@@ -2040,7 +2040,7 @@ void CKJVConfigurationDialog::reject()
 
 void CKJVConfigurationDialog::apply()
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (m_bNeedRestart) m_bRestartApp = promptRestart();
 
@@ -2065,7 +2065,7 @@ void CKJVConfigurationDialog::apply()
 
 void CKJVConfigurationDialog::restore(bool bRecopy)
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	// Restore original settings by switching back to the original
 	//		settings without copying:

@@ -301,6 +301,25 @@ make install_docs
 ===============================================================================
 ===============================================================================
 
+Qt 5.2.0 RC1-159 - (Desktop)
+===========================
+
+Linux
+-----
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.1.0 (note: doesn't build docs)
+(Note: would NOT build with the "-no-opengl" option!)
+../5.2.0-rc1-159-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -no-javascript-jit -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.2.0-rc1-159-64-local -confirm-license 
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
+
+
+===============================================================================
+===============================================================================
+
 This section is JUNK trying to figure out how to compile Qt for Android:
 ------------------------------------------------------------------------
 

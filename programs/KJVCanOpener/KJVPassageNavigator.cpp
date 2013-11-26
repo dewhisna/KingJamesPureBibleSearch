@@ -48,7 +48,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_nRefType(nRefType),
 		m_bDoingUpdate(false)
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	ui.setupUi(this);
 

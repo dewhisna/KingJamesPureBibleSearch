@@ -1069,7 +1069,7 @@ TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndx
 void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_TextDocument.clear();
 
@@ -1155,7 +1155,7 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_TextDocument.clear();
 

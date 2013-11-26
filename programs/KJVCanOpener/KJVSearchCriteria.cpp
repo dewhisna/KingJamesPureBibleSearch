@@ -77,7 +77,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const T
 	:	QAbstractItemModel(pParent),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Build our model data (which should be static with the given Bible Database):
 	// The root node is the "Whole Bible"
@@ -208,7 +208,7 @@ QModelIndex CSearchWithinModel::parent(const QModelIndex &index) const
 
 QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 {
-	assert(m_pBibleDatabase);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	if (!index.isValid()) return QVariant();
 
@@ -371,7 +371,7 @@ CKJVSearchCriteriaWidget::~CKJVSearchCriteriaWidget()
 
 void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	m_pBibleDatabase = pBibleDatabase;
 
 	begin_update();

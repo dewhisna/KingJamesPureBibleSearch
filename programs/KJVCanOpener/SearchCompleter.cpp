@@ -163,7 +163,7 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 		m_pDictionaryDatabase(pDictionary),
 		m_editorWord(editorWord)
 {
-	assert(pDictionary != NULL);
+	assert(pDictionary.data() != NULL);
 }
 
 CSearchDictionaryListModel::~CSearchDictionaryListModel()
@@ -367,7 +367,7 @@ void CSearchCompleter::selectFirstMatchString()
 
 void CSearchCompleter::setWordsFromPhrase()
 {
-	assert(m_pSearchStringListModel);
+	assert(m_pSearchStringListModel != NULL);
 	m_pSearchStringListModel->setWordsFromPhrase();
 }
 

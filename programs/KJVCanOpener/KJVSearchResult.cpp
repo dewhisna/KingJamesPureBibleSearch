@@ -86,8 +86,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pReflowDelegate(NULL),
 		m_pParentCanOpener(NULL)
 {
-	assert(pBibleDatabase != NULL);
-	assert(pUserNotesDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
+	assert(pUserNotesDatabase.data() != NULL);
 
 #ifdef SIGNAL_SPY_DEBUG
 #ifdef SEARCH_RESULTS_SPY
@@ -208,7 +208,7 @@ CSearchResultsTreeView::~CSearchResultsTreeView()
 CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 {
 	if (m_pParentCanOpener == NULL) {
-		assert(g_pMyApplication != NULL);
+		assert(g_pMyApplication.data() != NULL);
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
 		//		the construction process before the parent actually exists.  In that case, we'll
@@ -981,8 +981,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pNoteKeywordWidget(NULL),
 	m_pSearchResultsTreeView(NULL)
 {
-	assert(m_pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setSpacing(4);
@@ -1326,7 +1326,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 
 void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;

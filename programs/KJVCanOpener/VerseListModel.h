@@ -310,8 +310,8 @@ public:
 	}
 	static QStringList getVerseAsWordList(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
 	{
-		assert(pBibleDatabase != NULL);
-		if (pBibleDatabase == NULL) return QStringList();
+		assert(pBibleDatabase.data() != NULL);
+		if (pBibleDatabase.data() == NULL) return QStringList();
 		if (!ndx.isSet()) return QStringList();
 		QStringList strWords;
 		const CVerseEntry *pVerseEntry = pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
@@ -354,8 +354,8 @@ public:
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase, const CVerseTextRichifierTags &richifierTags)
 	{
-		assert(pBibleDatabase != NULL);
-		if (pBibleDatabase == NULL) return QString();
+		assert(pBibleDatabase.data() != NULL);
+		if (pBibleDatabase.data() == NULL) return QString();
 		if (!ndx.isSet()) return QString();
 		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
 	}

@@ -207,7 +207,7 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 
 bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -262,7 +262,7 @@ bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatab
 bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
 {
 	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (g_pUserNotesDatabase->haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = g_pUserNotesDatabase->crossReferencesFor(relNdx);
@@ -331,7 +331,7 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 
 bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
 {
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -386,7 +386,7 @@ bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleData
 bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
 {
 	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	if (g_pUserNotesDatabase->haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = g_pUserNotesDatabase->crossReferencesFor(relNdx);

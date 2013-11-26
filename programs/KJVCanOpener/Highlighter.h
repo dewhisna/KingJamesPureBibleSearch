@@ -297,7 +297,7 @@ public:
 	{
 		QList<CHighlighterWidgetAction *> lstWidgetActions;
 		for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
-			if (m_lstButtons.at(ndx) != NULL)
+			if (m_lstButtons.at(ndx).data() != NULL)
 				lstWidgetActions.append(m_lstButtons.at(ndx));
 		}
 		return lstWidgetActions;

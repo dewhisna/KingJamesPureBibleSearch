@@ -62,8 +62,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(NULL)
 {
-	assert(m_pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 
 	ui.setupUi(this);
 
@@ -470,7 +470,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 	if (m_bShowExcludedSearchResults)
 		m_pScriptureBrowser->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 
-	assert(g_pUserNotesDatabase != NULL);
+	assert(g_pUserNotesDatabase.data() != NULL);
 	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
 	if (pmapHighlighterTags) {
 		// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:

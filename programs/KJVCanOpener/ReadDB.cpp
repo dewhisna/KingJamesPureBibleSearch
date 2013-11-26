@@ -44,6 +44,10 @@
 
 #include <QString>
 
+#ifdef Q_OS_ANDROID
+#include <android/log.h>
+#endif
+
 // Used for debugging:
 #ifdef NEVER
 #include <QTextStream>
@@ -77,7 +81,7 @@ CReadDatabase::~CReadDatabase()
 
 bool CReadDatabase::ReadDBInfoTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Database Info Table:
 
@@ -138,7 +142,7 @@ bool CReadDatabase::ReadDBInfoTable()
 
 bool CReadDatabase::ReadTestamentTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Testament Table
 
@@ -174,7 +178,7 @@ bool CReadDatabase::ReadTestamentTable()
 
 bool CReadDatabase::ReadBooksTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Books Table
 
@@ -268,7 +272,7 @@ bool CReadDatabase::ReadBooksTable()
 
 bool CReadDatabase::ReadChaptersTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Chapters (LAYOUT) table:
 
@@ -329,7 +333,7 @@ bool CReadDatabase::ReadChaptersTable()
 
 bool CReadDatabase::ReadVerseTables()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Book Verses tables:
 
@@ -430,7 +434,7 @@ static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 
 bool CReadDatabase::ReadWordsTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Words table:
 
@@ -646,7 +650,7 @@ bool CReadDatabase::ReadWordsTable()
 
 bool CReadDatabase::ReadFOOTNOTESTable()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Footnotes table:
 
@@ -690,7 +694,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 {
 	if (!bUserPhrases) {
-		assert(m_pBibleDatabase != NULL);
+		assert(m_pBibleDatabase.data() != NULL);
 	}
 
 	// Read the Phrases table:
@@ -740,7 +744,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 bool CReadDatabase::ValidateData()
 {
-	assert(m_pBibleDatabase != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
 	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
@@ -864,7 +868,7 @@ bool CReadDatabase::ValidateData()
 
 bool CReadDatabase::ReadDictionaryDBInfo()
 {
-	assert(m_pDictionaryDatabase != NULL);
+	assert(m_pDictionaryDatabase.data() != NULL);
 
 	// Read the Dictionary Info table:
 
@@ -900,7 +904,7 @@ bool CReadDatabase::ReadDictionaryDBInfo()
 
 bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 {
-	assert(m_pDictionaryDatabase != NULL);
+	assert(m_pDictionaryDatabase.data() != NULL);
 
 	// Read the Dictionary Defintions table:
 
@@ -976,6 +980,9 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool b
 	bool bSuccess = true;
 
 	if (!m_myDatabase.open()) {
+#ifdef Q_OS_ANDROID
+		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
+#endif
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		bSuccess = false;
 	}
@@ -1013,6 +1020,9 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bH
 	bool bSuccess = true;
 
 	if (!m_myDatabase.open()) {
+#ifdef Q_OS_ANDROID
+		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
+#endif
 		if (!bHideWarnings)
 			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		bSuccess = false;
@@ -1044,6 +1054,9 @@ bool CReadDatabase::ReadDictionaryDatabase(const QString &strDatabaseFilename, c
 //	QMessageBox::information(m_pParent, g_constrReadDatabase, m_pDictionaryDatabase->m_myDatabase.databaseName());
 
 	if (!m_pDictionaryDatabase->m_myDatabase.open()) {
+#ifdef Q_OS_ANDROID
+		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()).toUtf8().data());
+#endif
 		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
 		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
 		QSqlDatabase::removeDatabase(strCompatUUID);

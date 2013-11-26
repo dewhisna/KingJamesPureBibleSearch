@@ -1210,7 +1210,7 @@ void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPass
 		m_RelIndex = CRelIndex();
 		m_nCount = 0;
 	} else {
-		assert(pBibleDatabase != NULL);
+		assert(pBibleDatabase.data() != NULL);
 		m_RelIndex = tagPassage.relIndex();
 		CRelIndex ndxStart = tagPassage.relIndex();
 		ndxStart.setWord(1);
@@ -1232,14 +1232,14 @@ TTagBoundsPair TPhraseTag::bounds(CBibleDatabasePtr pBibleDatabase) const
 bool TPhraseTag::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	return bounds(pBibleDatabase).completelyContains(aTag.bounds(pBibleDatabase));
 }
 
 bool TPhraseTag::intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	return bounds(pBibleDatabase).intersects(aTag.bounds(pBibleDatabase));
 }
 
@@ -1247,7 +1247,7 @@ bool TPhraseTag::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhr
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
 
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	TTagBoundsPair tbpRef = bounds(pBibleDatabase);
 
@@ -1291,7 +1291,7 @@ TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
 
 bool TPhraseTagList::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	if (!aTag.relIndex().isSet()) return false;
 
@@ -1319,7 +1319,7 @@ bool TPhraseTagList::completelyContains(CBibleDatabasePtr pBibleDatabase, const 
 
 void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	if (!aTag.relIndex().isSet()) return;
 
@@ -1355,7 +1355,7 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 
 void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	if (aTagList.isEmpty()) return;
 
 	const_iterator itrNewTags = aTagList.constBegin();
@@ -1440,7 +1440,7 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 
 bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	bool bRemovedIntersection = false;
 
@@ -1503,7 +1503,7 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 
 int TPhraseTagList::findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, int nStartIndex) const
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase.data() != NULL);
 	if (nStartIndex < 0) return -1;
 	if (!aTag.isSet()) return -1;
 
@@ -1523,7 +1523,7 @@ void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhra
 		m_RelIndex = CRelIndex();
 		m_nVerseCount = 0;
 	} else {
-		assert(pBibleDatabase != NULL);
+		assert(pBibleDatabase.data() != NULL);
 		m_RelIndex = tagPhrase.relIndex();
 		m_RelIndex.setWord(1);
 		CRelIndex ndxTarget = tagPhrase.relIndex();
