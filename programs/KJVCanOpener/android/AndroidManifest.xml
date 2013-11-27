@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<manifest android:versionName="2.0" package="com.dewtronics.KingJamesPureBibleSearch" android:versionCode="1" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest android:versionName="2.0" package="com.dewtronics.KingJamesPureBibleSearch" android:versionCode="1" xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:largeHeap="true">
 	<application android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="@string/app_name" android:icon="@drawable/icon">
 		<activity android:screenOrientation="unspecified" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="@string/app_name" android:configChanges="orientation|locale|fontScale|keyboard|keyboardHidden|navigation|screenSize">
 			<intent-filter>
@@ -14,7 +14,7 @@
 			<!-- Deploy Qt libs as part of package -->
 			<meta-data android:value="1" android:name="android.app.bundle_local_qt_libs"/>
 			<meta-data android:resource="@array/bundled_in_lib" android:name="android.app.bundled_in_lib_resource_id"/>
-			<meta-data android:resource="@array/bundled_in_assets" android:name="android.app.bundled_in_assets_resource_id"/>
+			<meta-data android:resource="@array/my_bundled_in_assets" android:name="android.app.bundled_in_assets_resource_id"/>
 			<!-- Run with local libs -->
 			<meta-data android:value="1" android:name="android.app.use_local_qt_libs"/>
 			<meta-data android:value="/data/local/tmp/qt/" android:name="android.app.libs_prefix"/>
@@ -33,7 +33,7 @@
 	</application>
 	<!-- %%INSERT_USES_SDK%% -->
 	<supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:anyDensity="true"/>
-	<uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18"/>
+	<uses-sdk android:minSdkVersion="11" android:targetSdkVersion="18"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>

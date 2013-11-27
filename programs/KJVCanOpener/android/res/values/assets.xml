@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+	<array name="my_bundled_in_assets">
+		<item>KJVCanOpener/db/dct-web1828.s3db:files/KJVCanOpener/db/dct-web1828.s3db</item>
+		<item>KJVCanOpener/db/kjvtext.s3db:files/KJVCanOpener/db/kjvtext.s3db</item>
+		<item>KJVCanOpener/db/kjvuser.s3db:files/KJVCanOpener/db/kjvuser.s3db</item>
+		<item>KJVCanOpener/doc/KingJamesPureBibleSearch.pdf:files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf</item>
+		<item>KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf:files/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSans-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSans-Bold.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf:files/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf:files/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansCondensed.ttf:files/KJVCanOpener/fonts/DejaVuSansCondensed.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf:files/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf:files/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf:files/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSansMono.ttf:files/KJVCanOpener/fonts/DejaVuSansMono.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSans-Oblique.ttf:files/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSans.ttf:files/KJVCanOpener/fonts/DejaVuSans.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf:files/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerif-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf:files/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf:files/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerifCondensed.ttf:files/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerif-Italic.ttf:files/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf</item>
+		<item>KJVCanOpener/fonts/DejaVuSerif.ttf:files/KJVCanOpener/fonts/DejaVuSerif.ttf</item>
+		<item>KJVCanOpener/fonts/SCRIPTBL.TTF:files/KJVCanOpener/fonts/SCRIPTBL.TTF</item>
+	</array>
+</resources>
