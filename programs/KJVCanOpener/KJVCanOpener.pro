@@ -38,9 +38,10 @@ CONFIG += wwwidgets
 #CONFIG += pcre
 
 android {
-	QT += androidextras
+# These (or parts of these) only needed for JNI calls and our intense experimentation with the Android filesystem:
+#	QT += androidextras
 #	include(../qtassetsmanager/qtassetsmanager.pri)
-	LIBS += -landroid
+#	LIBS += -landroid
 }
 
 include(../qtiocompressor/src/qtiocompressor.pri)

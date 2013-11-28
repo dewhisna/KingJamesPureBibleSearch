@@ -53,12 +53,6 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 
-#ifdef Q_OS_ANDROID
-//#include <QtAndroidExtras/QtAndroidExtras>
-//#include <android/asset_manager.h>
-//#include <qandroidassetsfileenginehandler.h>
-#endif
-
 #include "main.h"
 #include "KJVCanOpener.h"
 
@@ -99,16 +93,9 @@ namespace {
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
 #ifdef Q_OS_ANDROID
+// Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
 //	const char *g_constrPluginsPath = "assets:/plugins/";
 //	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/plugins/";
-
-//	const char *g_constrKJVDatabaseFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/db/kjvtext.s3db";
-//	const char *g_constrUserDatabaseTemplateFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/db/kjvuser.s3db";
-//	const char *g_constrWeb1828DatabaseFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/db/dct-web1828.s3db";
-
-//	const char *g_constrKJVDatabaseFilename = "assets:/KJVCanOpener/db/kjvtext.s3db";
-//	const char *g_constrUserDatabaseTemplateFilename = "assets:/KJVCanOpener/db/kjvuser.s3db";
-//	const char *g_constrWeb1828DatabaseFilename = "assets:/KJVCanOpener/db/dct-web1828.s3db";
 
 	const char *g_constrKJVDatabaseFilename = "KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "KJVCanOpener/db/kjvuser.s3db";
@@ -127,75 +114,6 @@ namespace {
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
 #ifdef Q_OS_ANDROID
-//	const char *g_constrScriptBLFontFilename = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/SCRIPTBL.TTF";
-//	const char *g_constrDejaVuSans_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-BoldOblique.ttf";
-//	const char *g_constrDejaVuSans_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansCondensed_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Oblique.ttf";
-//	const char *g_constrDejaVuSansCondensed = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed.ttf";
-//	const char *g_constrDejaVuSans_ExtraLight = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-ExtraLight.ttf";
-//	const char *g_constrDejaVuSansMono_BoldOblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansMono_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Bold.ttf";
-//	const char *g_constrDejaVuSansMono_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Oblique.ttf";
-//	const char *g_constrDejaVuSansMono = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono.ttf";
-//	const char *g_constrDejaVuSans_Oblique = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Oblique.ttf";
-//	const char *g_constrDejaVuSans = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans.ttf";
-//	const char *g_constrDejaVuSerif_BoldItalic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerif_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Bold = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Italic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Italic.ttf";
-//	const char *g_constrDejaVuSerifCondensed = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed.ttf";
-//	const char *g_constrDejaVuSerif_Italic = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Italic.ttf";
-//	const char *g_constrDejaVuSerif = "/data/data/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif.ttf";
-
-//	const char *g_constrScriptBLFontFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/SCRIPTBL.TTF";
-//	const char *g_constrDejaVuSans_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-BoldOblique.ttf";
-//	const char *g_constrDejaVuSans_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansCondensed_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed-Oblique.ttf";
-//	const char *g_constrDejaVuSansCondensed = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansCondensed.ttf";
-//	const char *g_constrDejaVuSans_ExtraLight = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-ExtraLight.ttf";
-//	const char *g_constrDejaVuSansMono_BoldOblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansMono_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Bold.ttf";
-//	const char *g_constrDejaVuSansMono_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono-Oblique.ttf";
-//	const char *g_constrDejaVuSansMono = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSansMono.ttf";
-//	const char *g_constrDejaVuSans_Oblique = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans-Oblique.ttf";
-//	const char *g_constrDejaVuSans = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSans.ttf";
-//	const char *g_constrDejaVuSerif_BoldItalic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerif_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Bold = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Italic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed-Italic.ttf";
-//	const char *g_constrDejaVuSerifCondensed = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerifCondensed.ttf";
-//	const char *g_constrDejaVuSerif_Italic = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif-Italic.ttf";
-//	const char *g_constrDejaVuSerif = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/fonts/DejaVuSerif.ttf";
-
-//	const char *g_constrScriptBLFontFilename = "assets:/KJVCanOpener/fonts/SCRIPTBL.TTF";
-//	const char *g_constrDejaVuSans_BoldOblique = "assets:/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-//	const char *g_constrDejaVuSans_Bold = "assets:/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_BoldOblique = "assets:/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansCondensed_Bold = "assets:/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSansCondensed_Oblique = "assets:/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-//	const char *g_constrDejaVuSansCondensed = "assets:/KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-//	const char *g_constrDejaVuSans_ExtraLight = "assets:/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-//	const char *g_constrDejaVuSansMono_BoldOblique = "assets:/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-//	const char *g_constrDejaVuSansMono_Bold = "assets:/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-//	const char *g_constrDejaVuSansMono_Oblique = "assets:/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-//	const char *g_constrDejaVuSansMono = "assets:/KJVCanOpener/fonts/DejaVuSansMono.ttf";
-//	const char *g_constrDejaVuSans_Oblique = "assets:/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-//	const char *g_constrDejaVuSans = "assets:/KJVCanOpener/fonts/DejaVuSans.ttf";
-//	const char *g_constrDejaVuSerif_BoldItalic = "assets:/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerif_Bold = "assets:/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_BoldItalic = "assets:/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Bold = "assets:/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-//	const char *g_constrDejaVuSerifCondensed_Italic = "assets:/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-//	const char *g_constrDejaVuSerifCondensed = "assets:/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-//	const char *g_constrDejaVuSerif_Italic = "assets:/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-//	const char *g_constrDejaVuSerif = "assets:/KJVCanOpener/fonts/DejaVuSerif.ttf";
-
 	const char *g_constrScriptBLFontFilename = "KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -1007,49 +925,6 @@ int main(int argc, char *argv[])
 	if (bStealthMode) {
 		CPersistentSettings::instance()->setStealthMode(strStealthSettingsFilename);
 	}
-
-#ifdef NEVER		// Q_OS_ANDROID
-	QFile fileLog(QFileInfo(QDir(QDir::tempPath()), "kjpbs_log.txt").absoluteFilePath());
-	fileLog.open(QIODevice::WriteOnly);
-	fileLog.write("Hello World!\n");
-	fileLog.flush();
-	AndroidAssetsFileEngineHandler *andHandler = new AndroidAssetsFileEngineHandler();
-//	QAbstractFileEngine *pAssetFolder = andHandler->create("assets:/" + AndroidAssetsFileEngineHandler::packageCodePath());
-	QAbstractFileEngine *pAssetFolder = andHandler->create("assets:/KJVCanOpener/");
-//	QAbstractFileEngine *pAssetFolder = andHandler->create("assets:/");
-	fileLog.write(QString("Abstract File Engine: %1\n").arg((int)pAssetFolder).toUtf8());
-	if (pAssetFolder) {
-		QStringList lstFileFilters;
-		lstFileFilters << "*";
-		QAbstractFileEngine::Iterator *itrAssets = pAssetFolder->beginEntryList(QDir::AllEntries, lstFileFilters);
-		fileLog.write(QString("Iterator: %1\n").arg((int)itrAssets).toUtf8());
-		if (itrAssets) {
-			while (itrAssets->hasNext()) {
-				fileLog.write(itrAssets->next().toUtf8());
-				fileLog.write("\n");
-			}
-		}
-		delete itrAssets;
-	}
-	delete pAssetFolder;
-	fileLog.close();
-#endif
-
-#ifdef NEVER		// Q_OS_ANDROID
-	QFile fileLog(QFileInfo(QDir(QDir::tempPath()), "kjpbs_log.txt").absoluteFilePath());
-	fileLog.open(QIODevice::WriteOnly);
-	fileLog.write(QString("AppDirPath: %1\n").arg(app.applicationDirPath()).toUtf8());
-	fileLog.write(QString("QDir tempPath: %1\n").arg(QDir::tempPath()).toUtf8());
-	fileLog.write(QString("QDir homePath: %1\n").arg(QDir::homePath()).toUtf8());
-	fileLog.write(QString("writable DataLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation)).toUtf8());
-	fileLog.write(QString("writable HomeLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).toUtf8());
-	fileLog.write(QString("writable TempLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).toUtf8());
-	fileLog.write(QString("writable CacheLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).toUtf8());
-	fileLog.write(QString("writable ConfigLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)).toUtf8());
-	fileLog.write(QString("writable GenericCacheLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation)).toUtf8());
-	fileLog.write(QString("writable GenericDataLocation: %1\n").arg(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).toUtf8());
-	fileLog.close();
-#endif
 
 	// Setup our Fonts:
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {

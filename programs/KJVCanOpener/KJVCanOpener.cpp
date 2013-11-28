@@ -70,9 +70,6 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 #ifdef Q_OS_ANDROID
-//	const char *g_constrHelpDocFilename = "/data/data/com.dewtronics.KingJamesPureBibleSearch/doc/KingJamesPureBibleSearch.pdf";
-//	const char *g_constrHelpDocFilename = "/data/local/tmp/com.dewtronics.KingJamesPureBibleSearch/doc/KingJamesPureBibleSearch.pdf";
-//	const char *g_constrHelpDocFilename = "assets:/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 	const char *g_constrHelpDocFilename = "KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif !defined(Q_OS_MAC)
 	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
