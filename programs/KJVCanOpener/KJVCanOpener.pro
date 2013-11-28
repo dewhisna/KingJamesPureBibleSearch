@@ -256,25 +256,27 @@ ICON = res/bible.icns
 # This is broken in qmake.  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
 #QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
 
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-ANDROID_PACKAGE = org.dewtronics.KingJamesPureBibleSearch
-ANDROID_MINIMUM_VERSION = 11
-ANDROID_TARGET_VERSION = 18
-ANDROID_APP_NAME = King James Pure Bible Search
+android {
+	ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+	ANDROID_PACKAGE = org.dewtronics.KingJamesPureBibleSearch
+	ANDROID_MINIMUM_VERSION = 11
+	ANDROID_TARGET_VERSION = 18
+	ANDROID_APP_NAME = King James Pure Bible Search
 
-android:OTHER_FILES += \
-	android/AndroidManifest.xml \
-	android/res/values/assets.xml
+	OTHER_FILES += \
+		android/AndroidManifest.xml \
+		android/res/values/assets.xml
 
-android_install {
-	dbDeploy.files = ../KJVCanOpener/db/kjvtext.s3db ../KJVCanOpener/db/kjvuser.s3db ../KJVCanOpener/db/dct-web1828.s3db
-	dbDeploy.path = /assets/KJVCanOpener/db
-	fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
-	fontDeploy.path = /assets/KJVCanOpener/fonts
-	docDeploy.files = ../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
-	docDeploy.path = /assets/KJVCanOpener/doc
+	android_install {
+		dbDeploy.files = ../KJVCanOpener/db/kjvtext.s3db ../KJVCanOpener/db/kjvuser.s3db ../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.path = /assets/KJVCanOpener/db
+		fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
+		fontDeploy.path = /assets/KJVCanOpener/fonts
+		docDeploy.files = ../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+		docDeploy.path = /assets/KJVCanOpener/doc
 
-	INSTALLS += dbDeploy fontDeploy docDeploy
+		INSTALLS += dbDeploy fontDeploy docDeploy
+	}
 }
 
 message($$CONFIG)
