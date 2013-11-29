@@ -47,7 +47,7 @@ android {
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
 
-!android {
+!android:!ios {
 	# Select Desired Package:
 	#	SingleApplication
 	#	QtSingleApplication
@@ -65,8 +65,10 @@ include(../grantlee/textdocument/textdocument.pri)
 	}
 }
 
-#greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
-greaterThan(QT_MAJOR_VERSION,4):QTPLUGIN += qplastiquestyle
+!ios {
+	#greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
+	greaterThan(QT_MAJOR_VERSION,4):QTPLUGIN += qplastiquestyle
+}
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
@@ -101,8 +103,8 @@ greaterThan(QT_MAJOR_VERSION,4):macx:static:debug:LIBS += -lQt5Core_debug -lQt5G
 #   only way I've found to disable them is to remove the warn_on feature and manually
 #   output the "-Wall -W" settings it would have and add our own overrides to disable
 #   these two.  Just adding the disables didn't work with warn_on still on:
-macx:CONFIG -= warn_on
-macx:QMAKE_CXXFLAGS += -Wall -W -Wno-overloaded-virtual -Wno-unused-private-field
+mac:CONFIG -= warn_on
+mac:QMAKE_CXXFLAGS += -Wall -W -Wno-overloaded-virtual -Wno-unused-private-field
 
 #QTPLUGIN += qsqlite
 
@@ -123,6 +125,9 @@ CODECFORSRC = UTF-8
 CODECFORTR  = UTF-8
 
 RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
+
+INCLUDEPATH += $$PWD
+DEPENDPATH += $$PWD
 
 SOURCES += main.cpp \
 	KJVCanOpener.cpp \

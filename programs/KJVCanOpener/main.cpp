@@ -785,13 +785,11 @@ int main(int argc, char *argv[])
 	app.setApplicationName(VER_APPNAME_STR_QT);
 	app.setOrganizationName(VER_ORGNAME_STR_QT);
 	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
-#ifndef Q_OS_ANDROID
 #ifdef USING_SINGLEAPPLICATION
 	SingleApplication instance(g_constrApplicationID, &app);
 #endif
 #ifdef USING_QT_SINGLEAPPLICATION
 	QtSingleApplication &instance = app;
-#endif
 #endif
 
 	app.setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
@@ -810,7 +808,7 @@ int main(int argc, char *argv[])
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
-#ifndef Q_OS_ANDROID
+#if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
 
 	// Hook receiving messages from other KJPBS app launches:
 	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
@@ -883,7 +881,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-#ifndef Q_OS_ANDROID
+#if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
 
 	// Check for existing KJPBS and have it handle this launch request:
 	if (instance.isRunning()) {

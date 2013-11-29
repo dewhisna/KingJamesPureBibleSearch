@@ -22,10 +22,10 @@ win32 {
     else:qtiocompressor-uselib:DEFINES += QT_QTIOCOMPRESSOR_IMPORT
 }
 
-# Qt-5.2.0-beta1 Pre-built Android install apparently doesn't include qt-zlib and since
-#	we are currently using the prebuilt Android version, we'll just include the .pri
+# Qt-5.2.0-beta1 Pre-built Android and iOS installs apparently doesn't include qt-zlib and since
+#	we are currently using the prebuilt Android and iOS versions, we'll just include the .pri
 #	file here to link it statically in our project:
-android {
+android|ios {
 	include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
 }
 
