@@ -1,7 +1,17 @@
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/wwWidgets
 
 #qtAddLibrary(wwwidgets4)
-LIBS += -lwwwidgets4
+mac {
+	iphonesimulator {
+		!declarative_debug:LIBS += -lwwwidgets4_iphonesimulator
+		declarative_debug:LIBS += -lwwwidgets4_iphonesimulator_debug
+	} else {
+		!declarative_debug:LIBS += -lwwwidgets4
+		declarative_debug:LIBS += -lwwwidgets4_debug
+	}
+} else {
+	LIBS += -lwwwidgets4
+}
 
 DEFINES += WWWIDGETS
 DEFINES -= NO_WWWIDGETS

@@ -19,11 +19,19 @@ linux-g++|linux-g++-64 {
 #	CONFIG += debug_and_release separate_debug_info
 } else {
 	# For Cocoa-static:
-	macx {
+	mac {
 		CONFIG += static
 	} else {
 		CONFIG += debug_and_release
 	}
+}
+
+# The following will build the correct .a libs, but for
+#	whatever reason, make install breaks things!!  So
+#	they have to be manually copied! ugh!
+ios {
+	QMAKE_IOS_DEVICE_ARCHS = armv7
+	QMAKE_IOS_SIMULATOR_ARCHS = i386
 }
 
 dlltarget.path = $$[QT_INSTALL_BINS]
