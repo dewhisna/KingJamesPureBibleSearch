@@ -124,6 +124,13 @@ Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
 ../4.8.5-src-patched/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.5-patched-cocoa-static-run
 
 
+
+Mac Cocoa (Patched) Universal x86, x86_64, PPC, PPC64
+-----------------------------------------------------
+../4.8.5-src-patched/configure -platform macx-g++ -opensource -release -static -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.5.sdk -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -universal -arch x86 -arch ppc -arch x86_64 -arch ppc64 -prefix /Users/dewhisna/Qt/4.8.5-patched-univ-static-run
+(Good try, but doesn't work saying it doesn't understand the "triple" from the PPC target)
+
+
 ----------------------------------------------------
 
 Windows (native)
@@ -315,6 +322,21 @@ To build/install docs:
 ----------------------
 make docs
 make install_docs
+
+
+===============================================================================
+===============================================================================
+
+Qt 5.2.0 RC1 - (Desktop)
+========================
+
+
+MAC Cocoa:
+----------
+
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../5.2.0-rc1-src/configure -platform macx-g++ -opensource -debug-and-release -static -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-dbus -nomake tools -nomake examples -nomake tests -skip webkit -skip webkit-examples -prefix /Users/dewhisna/Qt/5.2.0-rc1-cocoa-static-run -confirm-license
+
 
 
 ===============================================================================

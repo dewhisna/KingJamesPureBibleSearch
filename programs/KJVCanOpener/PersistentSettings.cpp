@@ -83,9 +83,15 @@ QString groupCombine(const QString &strSubgroup, const QString &strGroup)
 CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 	:
 		// Default Fonts:
+#ifdef Q_OS_MAC
+		m_fntScriptureBrowser("Times New Roman", 14),
+		m_fntSearchResults("Times New Roman", 14),
+		m_fntDictionary("Times New Roman", 14),
+#else
 		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),
 		m_fntDictionary("Times New Roman", 12),
+#endif
 		// Default Text Brightness Options:
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),

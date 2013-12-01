@@ -28,5 +28,8 @@ win32 {
 android|ios {
 	include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
 }
+macx {
+	greaterThan(QT_MAJOR_VERSION,4):include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
+}
 
 }

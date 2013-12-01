@@ -65,7 +65,7 @@ include(../grantlee/textdocument/textdocument.pri)
 	}
 }
 
-!ios {
+!mac {
 	#greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
 	greaterThan(QT_MAJOR_VERSION,4):QTPLUGIN += qplastiquestyle
 }
@@ -84,10 +84,16 @@ unix:!macx {
 	QMAKE_CXXFLAGS += -static
 }
 
-macx:CONFIG += x86 x86_64
+lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
+greaterThan(QT_MAJOR_VERSION,4):macx:CONFIG += x86_64
 lessThan(QT_MAJOR_VERSION,5):macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
-greaterThan(QT_MAJOR_VERSION,4):macx:static:release:LIBS += -lQt5Core -lQt5Gui -lQt5Widgets -lQt5Sql -lQt5Xml -dead_strip
-greaterThan(QT_MAJOR_VERSION,4):macx:static:debug:LIBS += -lQt5Core_debug -lQt5Gui_debug -lQt5Widgets_debug -lQt5Sql_debug -lQt5Xml_debug -dead_strip
+greaterThan(QT_MAJOR_VERSION,4):macx:static:!declarative_debug:LIBS += -lQt5Core -lQt5Gui -lQt5Widgets -lQt5Sql -lQt5Xml -dead_strip
+greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -lQt5Core_debug -lQt5Gui_debug -lQt5Widgets_debug -lQt5Sql_debug -lQt5Xml_debug -dead_strip
+
+ios {
+	QMAKE_IOS_DEVICE_ARCHS = armv7
+	QMAKE_IOS_SIMULATOR_ARCHS = i386
+}
 
 # No longer need to have this here since we also needed to do the same thing with
 #   the Qt build itself.  It was just easier to patch it into the mkspec file:
@@ -258,8 +264,8 @@ RESOURCES += \
 ICON = res/bible.icns
 
 # Info.plist for Mac OSX:
-# This is broken in qmake.  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
-#QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
+# This is broken in qmake (on Qt4).  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
+greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
 
 android {
 	ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

@@ -390,7 +390,11 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 {
 	try {
+#ifdef USING_QT_SINGLEAPPLICATION
+		return QtSingleApplication::notify(pReceiver, pEvent);
+#else
 		return QApplication::notify(pReceiver, pEvent);
+#endif
 	} catch (const std::exception &ex) {
 		std::cerr << "std::exception was caught: " << ex.what() << std::endl;
 	} catch (...) {
@@ -410,7 +414,11 @@ bool CMyApplication::event(QEvent *event) {
 		receivedKJPBSMessage(strMessage);
 		return true;
 	}
+#ifdef USING_QT_SINGLEAPPLICATION
+	return QtSingleApplication::event(event);
+#else
 	return QApplication::event(event);
+#endif
 }
 
 #ifdef SIGNAL_SPY_DEBUG
@@ -1027,7 +1035,7 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WIN32
 	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
 #elif defined(Q_OS_MAC)
-	QFont fntAppControls = QFont("DejaVu Sans", 10);
+	QFont fntAppControls = QFont("DejaVu Sans Mono", 12);
 #else
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif
