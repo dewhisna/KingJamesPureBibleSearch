@@ -65,9 +65,23 @@ include(../grantlee/textdocument/textdocument.pri)
 	}
 }
 
-!mac {
-	#greaterThan(QT_MAJOR_VERSION,4):include(../qtstyleplugins/src/qtstyleplugins.pri)
-	greaterThan(QT_MAJOR_VERSION,4):QTPLUGIN += qplastiquestyle
+greaterThan(QT_MAJOR_VERSION,4) {
+	!mac {
+#		include(../qtstyleplugins/src/qtstyleplugins.pri)
+		QTPLUGIN += qplastiquestyle
+		DEFINES -= PLASTIQUE_STATIC
+	} else {
+		include(../qtstyleplugins/src/qtstyleplugins.pri)
+		DEFINES += PLASTIQUE_STATIC
+#		QTPLUGIN += qplastiquestyle
+#
+# for reference only:
+#		greaterThan(QT_MAJOR_VERSION,4):macx:static:!declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle
+#		greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle_debug
+	}
+} else {
+	# In Qt4, Plastique is built-in:
+	DEFINES += PLASTIQUE_STATIC
 }
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:

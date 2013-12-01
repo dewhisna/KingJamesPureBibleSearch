@@ -40,7 +40,7 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
-#if QT_VERSION >= 0x050000
+#ifndef PLASTIQUE_STATIC
 #include <QStyle>
 #include <QStyleFactory>
 #include <QProxyStyle>
@@ -56,7 +56,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_ExcludedSearchResultsHighlighter(pModel, true),
 	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
-#if QT_VERSION >= 0x050000
+#ifndef PLASTIQUE_STATIC
 	m_pPlastiqueStyle(NULL),
 #endif
 	m_bDoingPassageReference(false),
@@ -67,7 +67,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	ui.setupUi(this);
 
-#if QT_VERSION >= 0x050000
+#ifndef PLASTIQUE_STATIC
 	m_pPlastiqueStyle = new QProxyStyle(QStyleFactory::create("plastique"));
 #endif
 
@@ -148,7 +148,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 CKJVBrowser::~CKJVBrowser()
 {
-#if QT_VERSION >= 0x050000
+#ifndef PLASTIQUE_STATIC
 	if (m_pPlastiqueStyle) {
 		delete m_pPlastiqueStyle;
 		m_pPlastiqueStyle = NULL;
@@ -341,7 +341,7 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 void CKJVBrowser::setupChapterScrollbar()
 {
 	if (ui.scrollbarChapter != NULL) {
-#if QT_VERSION >= 0x050000
+#ifndef PLASTIQUE_STATIC
 		assert(m_pPlastiqueStyle != NULL);
 		ui.scrollbarChapter->setStyle(m_pPlastiqueStyle);
 #else

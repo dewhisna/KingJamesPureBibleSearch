@@ -37,7 +37,7 @@
 #include <QUrl>
 #include <QMenu>
 #include <QPoint>
-#if QT_VERSION < 0x050000
+#if PLASTIQUE_STATIC
 #include <QPlastiqueStyle>
 #else
 class QStyle;
@@ -189,7 +189,7 @@ private:
 private:
 	bool m_bDoingUpdate;					// True if combo boxes, etc, are being updated and change notifications should be ignored
 	QPoint m_ptChapterScrollerMousePos;		// Last mouse position tracked for chapter scroller for rolling tooltips
-#if QT_VERSION < 0x050000
+#if PLASTIQUE_STATIC
 	QPlastiqueStyle m_PlastiqueStyle;		// Used to define specific style for our chapter scroller so that it will have extra scroller buttons, etc, even on the limited Mac
 #else
 	QStyle *m_pPlastiqueStyle;

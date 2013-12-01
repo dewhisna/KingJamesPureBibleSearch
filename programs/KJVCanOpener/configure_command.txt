@@ -543,4 +543,25 @@ Qt 5.1.0
 Lots of porting changes... Will make patch file...
 
 
+===============================================================================
+===============================================================================
+
+------------------------
+Building qtstyleplugins:
+------------------------
+
+Mac 5.2.0-rc1-cocoa-static:
+----------------------------
+
+Well, this builds it, but we end up with a duplicate define of the
+StylePlugin internals.  It seems their plugin was designed only to
+be dynamic.  So....  we'll just finish up our .pri for it, then we
+can do it both ways...
+
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_0_rc1_cocoa_static
+cd build-qtstyleplugins-5_2_0_rc1_cocoa_static
+~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release QMAKE_CXXFLAGS+=-DQT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
 
