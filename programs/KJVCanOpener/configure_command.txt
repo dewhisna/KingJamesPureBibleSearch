@@ -596,3 +596,18 @@ sudo make install
 -----
 
 
+Android 5.2.0-rc1 (armeabi_v7a):
+--------------------------------
+
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
+cd build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9b
+export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
+~/Qt/5.2.0-rc1-android/5.2.0-rc1/android_armv7/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+

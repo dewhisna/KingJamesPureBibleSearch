@@ -24,15 +24,15 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_QT						"2.0.0"
-#define VER_FILEVERSION				2,0,0,0
-#define VER_FILEVERSION_STR			"2,0,0,0\0"
+#define VER_QT						"2.0.90"
+#define VER_FILEVERSION				2,0,90,0
+#define VER_FILEVERSION_STR			"2,0,90,0\0"
 
-#define VER_PRODUCTVERSION			2,0,0,0
-#define VER_PRODUCTVERSION_STR		"2,0,0,0\0"
+#define VER_PRODUCTVERSION			2,0,90,0
+#define VER_PRODUCTVERSION_STR		"2,0,90,0\0"
 
-#define VER_SPECIALVERSION_STR		"(Beta Version for Upcoming 2.0 Release)\0"
-#define SPECIAL_BUILD				0
+#define VER_SPECIALVERSION_STR		"(Pre-Alpha Version)\0"
+#define SPECIAL_BUILD				1
 
 #define VER_APPNAME_STR_QT			"KingJamesPureBibleSearch\0"
 #define VER_ORGNAME_STR_QT			VER_COMPANYNAME_STR
