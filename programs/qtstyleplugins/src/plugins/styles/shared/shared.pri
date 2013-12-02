@@ -6,5 +6,5 @@ HEADERS += \
     $$PWD/qstylecache_p.h \
     $$PWD/qstylehelper_p.h
 
-SOURCES += \
+!static:SOURCES += \
     $$PWD/qstylehelper.cpp

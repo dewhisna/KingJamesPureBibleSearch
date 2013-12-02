@@ -553,15 +553,20 @@ Building qtstyleplugins:
 Mac 5.2.0-rc1-cocoa-static:
 ----------------------------
 
-Well, this builds it, but we end up with a duplicate define of the
-StylePlugin internals.  It seems their plugin was designed only to
-be dynamic.  So....  we'll just finish up our .pri for it, then we
-can do it both ways...
+This now works with our modified version of qtstyleplugins so that we don't
+link the qstylehelper.cpp file when building as a static library.  That's
+needed for a dynamic plugin, but not static.  As static, we get duplicate
+symbols between it and qt itself.
 
+-----
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_0_rc1_cocoa_static
 cd build-qtstyleplugins-5_2_0_rc1_cocoa_static
-~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release QMAKE_CXXFLAGS+=-DQT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
+-----
+
+For Reference:
+~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release QMAKE_CXXFLAGS+=-DQT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 

@@ -37,6 +37,11 @@ CONFIG += wwwidgets
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
+unix:!macx {
+	CONFIG += static
+	QMAKE_CXXFLAGS += -static
+}
+
 android {
 # These (or parts of these) only needed for JNI calls and our intense experimentation with the Android filesystem:
 #	QT += androidextras
@@ -65,23 +70,18 @@ include(../grantlee/textdocument/textdocument.pri)
 	}
 }
 
+# Add the Plastique Style:
+# In Qt4, Plastique is built-in to Qt itself:
+lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 greaterThan(QT_MAJOR_VERSION,4) {
-	!mac {
-#		include(../qtstyleplugins/src/qtstyleplugins.pri)
-		QTPLUGIN += qplastiquestyle
-		DEFINES -= PLASTIQUE_STATIC
-	} else {
+	static {
 		include(../qtstyleplugins/src/qtstyleplugins.pri)
 		DEFINES += PLASTIQUE_STATIC
-#		QTPLUGIN += qplastiquestyle
-#
-# for reference only:
-#		greaterThan(QT_MAJOR_VERSION,4):macx:static:!declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle
-#		greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle_debug
+	} else {
+		# Use Dynamic Plugin Style:
+		QTPLUGIN += qplastiquestyle
+		DEFINES -= PLASTIQUE_STATIC
 	}
-} else {
-	# In Qt4, Plastique is built-in:
-	DEFINES += PLASTIQUE_STATIC
 }
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
@@ -92,11 +92,6 @@ greaterThan(QT_MAJOR_VERSION,4) {
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
 declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
-
-unix:!macx {
-	CONFIG += static
-	QMAKE_CXXFLAGS += -static
-}
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:CONFIG += x86_64

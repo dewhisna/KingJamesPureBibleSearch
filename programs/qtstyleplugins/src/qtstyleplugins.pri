@@ -1,20 +1,17 @@
 !contains( included_modules, qtstyleplugins/src/qtstyleplugins.pri) {
 		included_modules += qtstyleplugins/src/qtstyleplugins.pri
 
-INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+	INCLUDEPATH += $$PWD
+	DEPENDPATH += $$PWD
 
-#INCLUDEPATH += $$PWD/plugins/styles/plastique
-#DEPENDPATH += $$PWD/plugins/styles/plastique
+	static {
+		#macx and ios:
+		mac:!declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle
+		mac:declarative_debug:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle_debug
 
-QT += core-private gui-private
+		#win32 will be done dynamically always
 
-HEADERS += $$PWD/plugins/styles/plastique/qplastiquestyle.h
-SOURCES += $$PWD/plugins/styles/plastique/qplastiquestyle.cpp
-SOURCES += $$PWD/plugins/styles/plastique/plugin.cpp
-
-#include(plugins/styles/shared/shared.pri)
-
-OTHER_FILES += $$PWD/plugins/styles/plastique/plastique.json
-
+		#linux and android:
+		linux|android:LIBS += -L$$[QT_INSTALL_PLUGINS]/styles -lqplastiquestyle
+	}
 }
