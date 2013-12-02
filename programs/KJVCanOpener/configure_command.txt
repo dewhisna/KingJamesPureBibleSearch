@@ -295,7 +295,7 @@ Qt 5.2.0 Beta 1 - (Desktop)
 Linux
 -----
 
-Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.1.0 (note: doesn't build docs)
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.2.0-beta1 (note: doesn't build docs)
 (Note: would NOT build with the "-no-opengl" option!)
 ../5.2.0-beta1-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -no-javascript-jit -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.2.0-beta1-64-local -confirm-license 
 
@@ -314,7 +314,7 @@ Qt 5.2.0 RC1-159 - (Desktop)
 Linux
 -----
 
-Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.1.0 (note: doesn't build docs)
+Linux LOCAL BUILD (x64 dynamic):
 (Note: would NOT build with the "-no-opengl" option!)
 ../5.2.0-rc1-159-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -no-javascript-jit -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.2.0-rc1-159-64-local -confirm-license 
 
@@ -329,6 +329,17 @@ make install_docs
 
 Qt 5.2.0 RC1 - (Desktop)
 ========================
+
+Linux
+-----
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.2.0-rc1 (note: doesn't build docs)
+../5.2.0-rc1-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -no-javascript-jit -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.2.0-rc1-64-local -confirm-license 
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
 
 
 MAC Cocoa:
@@ -562,11 +573,26 @@ symbols between it and qt itself.
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_0_rc1_cocoa_static
 cd build-qtstyleplugins-5_2_0_rc1_cocoa_static
-~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake  CONFIG+=staticQt CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
 
 For Reference:
-~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release QMAKE_CXXFLAGS+=-DQT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake  CONFIG+=staticQt CONFIG+=static CONFIG+=debug_and_release QMAKE_CXXFLAGS+=-DQT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+
+
+
+Linux 5.2.0-rc1-64-local (dynamicQt):
+-------------------------------------
+
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_0_rc1_64_local
+cd build-qtstyleplugins-5_2_0_rc1_64_local
+/usr/local/Trolltech/Qt-5.2.0-rc1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+sudo make install
+-----
+
 
