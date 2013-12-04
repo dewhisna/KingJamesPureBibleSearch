@@ -263,7 +263,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSplitterDictionary = new QSplitter(m_pSplitter);
 	m_pSplitterDictionary->setObjectName(QString::fromUtf8("splitterDictionary"));
 	m_pSplitterDictionary->setOrientation(Qt::Vertical);
-	m_pSplitter->setChildrenCollapsible(true);
+	m_pSplitterDictionary->setChildrenCollapsible(true);
 
 	m_pSearchResultWidget = new CKJVSearchResult(m_pBibleDatabase, m_pSplitter);
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
