@@ -186,7 +186,7 @@ public:
 
   /* reimp */ void appendLiteralText( const QString &text );
 
-  /* reimp */ const QString escape( const QString &s );
+  /* reimp */ const QString escape( const QString &s ) const;
 
   /* reimp */ void appendRawText( const QString &text );
 

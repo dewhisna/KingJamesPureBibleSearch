@@ -339,7 +339,7 @@ void PlainTextMarkupBuilder::appendLiteralText( const QString &text )
   appendRawText( escape(text) );
 }
 
-const QString PlainTextMarkupBuilder::escape( const QString &s )
+const QString PlainTextMarkupBuilder::escape( const QString &s ) const
 {
 	return s;
 }

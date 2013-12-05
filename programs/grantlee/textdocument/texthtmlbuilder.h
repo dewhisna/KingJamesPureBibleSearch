@@ -205,7 +205,7 @@ public:
   */
   /* reimp */ void appendLiteralText( const QString &text );
 
-  /* reimp */ const QString escape( const QString &s );
+  /* reimp */ const QString escape( const QString &s ) const;
 
   /**
     Append @p text without escaping.

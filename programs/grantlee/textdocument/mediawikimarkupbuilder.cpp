@@ -192,7 +192,7 @@ void MediaWikiMarkupBuilder::appendLiteralText( const QString &text )
   appendRawText( escape( text ) );
 }
 
-const QString MediaWikiMarkupBuilder::escape( const QString &s )
+const QString MediaWikiMarkupBuilder::escape( const QString &s ) const
 {
   if ( s.contains( QLatin1Char( '<' ) ) ) {    // TODO: This could contain more. "''" and "[" for example
     return QLatin1String( "<nowiki>" ) + s + QLatin1String( "</nowiki>" );

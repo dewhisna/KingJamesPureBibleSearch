@@ -114,12 +114,14 @@ ios {
 #macx:release:QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 
 # On the latest XCode release with gcc mapped to Apple LLVM version 5.0 (clang-500.2.79),
-#   we started getting false overloaded-virtual and unused-private-field warnings, the
+#   we started getting false unused-private-field warnings from Qt source on Qt4.8.x, the
 #   only way I've found to disable them is to remove the warn_on feature and manually
 #   output the "-Wall -W" settings it would have and add our own overrides to disable
 #   these two.  Just adding the disables didn't work with warn_on still on:
-mac:CONFIG -= warn_on
-mac:QMAKE_CXXFLAGS += -Wall -W -Wno-overloaded-virtual -Wno-unused-private-field
+lessThan(QT_MAJOR_VERSION,5) {
+	mac:CONFIG -= warn_on
+	mac:QMAKE_CXXFLAGS += -Wall -W -Wno-unused-private-field
+}
 
 #QTPLUGIN += qsqlite
 

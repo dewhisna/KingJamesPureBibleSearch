@@ -243,7 +243,7 @@ public:
   */
   virtual void appendLiteralText( const QString &text ) = 0;
 
-  virtual const QString escape( const QString &s ) = 0;
+  virtual const QString escape( const QString &s ) const = 0;
 
   /**
     Appends the raw text @p text to the markup. @p text is added unescaped.

@@ -172,7 +172,7 @@ CSingleLineTextEdit::~CSingleLineTextEdit()
 
 }
 
-QSize CSingleLineTextEdit::sizeHint()
+QSize CSingleLineTextEdit::sizeHint() const
 {
 	QFontMetrics fm(font());
 	int h = qMax(fm.height(), 14) + 4;

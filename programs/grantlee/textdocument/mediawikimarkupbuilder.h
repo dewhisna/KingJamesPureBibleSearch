@@ -76,7 +76,7 @@ public:
   /**
     Escapes @p text appropriately for MediaWiki.
   */
-  /* reimp */ const QString escape( const QString &s );
+  /* reimp */ const QString escape( const QString &s ) const;
 
   /* reimp */ void appendRawText( const QString &text );
 

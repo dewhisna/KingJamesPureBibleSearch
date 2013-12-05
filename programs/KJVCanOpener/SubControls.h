@@ -157,7 +157,7 @@ public:
 	CSingleLineTextEdit(int nMinHeight = -1, QWidget *pParent = NULL);
 	virtual ~CSingleLineTextEdit();
 
-	virtual QSize sizeHint();
+	virtual QSize sizeHint() const;
 
 protected:
 	virtual void insertFromMimeData(const QMimeData * source);

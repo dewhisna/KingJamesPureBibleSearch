@@ -416,7 +416,7 @@ void TextHTMLBuilder::appendLiteralText( const QString &text )
   appendRawText( escape( text ) );
 }
 
-const QString TextHTMLBuilder::escape( const QString &s )
+const QString TextHTMLBuilder::escape( const QString &s ) const
 {
 #if QT_VERSION < 0x050000
 	return Qt::escape( s );
