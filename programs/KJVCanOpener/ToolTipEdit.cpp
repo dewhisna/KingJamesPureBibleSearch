@@ -22,7 +22,7 @@
 ****************************************************************************/
 
 #include "ToolTipEdit.h"
-#include "main.h"
+#include "myApplication.h"
 #include "KJVCanOpener.h"
 
 #ifndef NO_PERSISTENT_SETTINGS

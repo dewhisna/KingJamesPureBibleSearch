@@ -25,7 +25,7 @@
 #include "PersistentSettings.h"
 #include "ScriptureDocument.h"
 #include "SearchCompleter.h"
-#include "main.h"
+#include "myApplication.h"
 #include "KJVCanOpener.h"
 
 #include <QVector>

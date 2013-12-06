@@ -32,7 +32,7 @@
 #include "KJVCrossRefEditDlg.h"
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
-#include "main.h"
+#include "myApplication.h"
 #include "KJVCanOpener.h"
 
 #include <assert.h>

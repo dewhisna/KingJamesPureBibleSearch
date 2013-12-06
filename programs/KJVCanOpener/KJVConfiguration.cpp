@@ -33,7 +33,7 @@
 #include "PhraseEdit.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
-#include "main.h"
+#include "myApplication.h"
 
 #include <QIcon>
 #include <QVBoxLayout>

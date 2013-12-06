@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -21,20 +21,19 @@
 **
 ****************************************************************************/
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef MY_APPLICATION_H
+#define MY_APPLICATION_H
 
 #include "dbstruct.h"
 
 #include <QApplication>
+#include <QMdiArea>
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QString>
 #include <QStringList>
 #include <QList>
 #include <QAction>
-#include <QActionGroup>
-#include <QMenu>
 #include <QPointer>
 
 #ifdef USING_QT_SINGLEAPPLICATION
@@ -51,6 +50,37 @@ extern const QString g_constrApplicationID;
 
 // Forward Declarations:
 class CKJVCanOpener;
+
+// ============================================================================
+
+typedef struct {
+	const QString m_strDBName;
+	const QString m_strDBDesc;
+	const QString m_strUUID;
+} TBibleDescriptor;
+
+// Must match constBibleDescriptors[]!!
+enum BIBLE_DESCRIPTOR_ENUM {
+	BDE_SPECIAL_TEST = 0,
+	BDE_KJV = 1,
+	BDE_RVG2010 = 2,
+	BDE_KJF2006 = 3
+};
+
+typedef struct {
+	const QString m_strDBName;
+	const QString m_strDBDesc;
+	const QString m_strUUID;
+} TDictionaryDescriptor;
+
+// Must match coonstDictionaryDescriptors[]!!
+enum DICTIONARY_DESCRIPTOR_ENUM {
+	DDE_SPECIAL_TEST = 0,
+	DDE_WEB1828 = 1
+};
+
+extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);
+extern const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex);
 
 // ============================================================================
 
@@ -76,6 +106,7 @@ public:
 	bool areRestarting() const { return m_bAreRestarting; }
 
 	static void saveApplicationFontSettings();
+	static void restoreApplicationFontSettings();
 	void setupTextBrightnessStyleHooks();
 
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
@@ -166,5 +197,6 @@ protected:
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 };
 extern QPointer<CMyApplication> g_pMyApplication;
+extern QPointer<QMdiArea> g_pMdiArea;
 
-#endif // MAIN_H
+#endif // MY_APPLICATION_H

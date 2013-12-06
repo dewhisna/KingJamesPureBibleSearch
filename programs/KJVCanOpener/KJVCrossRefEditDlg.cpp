@@ -23,7 +23,7 @@
 
 #include "KJVCrossRefEditDlg.h"
 
-#include "main.h"
+#include "myApplication.h"
 #include "PersistentSettings.h"
 
 #include "KJVSearchResult.h"

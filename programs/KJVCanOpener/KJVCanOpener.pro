@@ -73,7 +73,8 @@ include(../grantlee/textdocument/textdocument.pri)
 # Add the Plastique Style:
 # In Qt4, Plastique is built-in to Qt itself:
 lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
-greaterThan(QT_MAJOR_VERSION,4) {
+# Disable on iOS until we get make further progress on the port:
+!ios:greaterThan(QT_MAJOR_VERSION,4) {
 	static {
 		include(../qtstyleplugins/src/qtstyleplugins.pri)
 		DEFINES += PLASTIQUE_STATIC
@@ -102,6 +103,12 @@ greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -lQt5Core_
 ios {
 	QMAKE_IOS_DEVICE_ARCHS = armv7
 	QMAKE_IOS_SIMULATOR_ARCHS = i386
+
+	# This eliminates the weird text relocation error we get on linking
+	#	complaining about text relocation in functions like __stack_chk_fail
+	#	Not sure this is exactly correct, but seems OK for i386 compile, based
+	#	on online searches, which is where I found this:
+	x86:QMAKE_LFLAGS += -read_only_relocs suppress
 }
 
 # No longer need to have this here since we also needed to do the same thing with
@@ -147,6 +154,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += main.cpp \
+	myApplication.cpp \
 	KJVCanOpener.cpp \
 	CSV.cpp \
 	dbstruct.cpp \
@@ -193,7 +201,7 @@ SOURCES += main.cpp \
 	PassageReferenceWidget.cpp \
 	DictionaryWidget.cpp
 
-HEADERS  += main.h \
+HEADERS  += myApplication.h \
 	KJVCanOpener.h \
 	CSV.h \
 	dbstruct.h \

@@ -23,7 +23,7 @@
 
 #include "KJVNoteEditDlg.h"
 
-#include "main.h"
+#include "myApplication.h"
 #include "PersistentSettings.h"
 
 #include "KJVPassageNavigatorDlg.h"

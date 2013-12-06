@@ -47,7 +47,7 @@
 #include <QFileInfo>
 
 #ifndef OSIS_PARSER_BUILD
-#include "main.h"
+#include "myApplication.h"
 #define MY_GET_APP_DIR_PATH g_pMyApplication->initialAppDirPath()
 #else
 #define MY_GET_APP_DIR_PATH QCoreApplication::applicationDirPath()

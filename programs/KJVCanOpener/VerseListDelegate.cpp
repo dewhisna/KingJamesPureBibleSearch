@@ -29,7 +29,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
-#include "main.h"
+#include "myApplication.h"
 
 #include <QModelIndex>
 #include <QApplication>

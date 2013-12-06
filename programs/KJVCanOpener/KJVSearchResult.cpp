@@ -36,7 +36,7 @@
 #include "SearchCompleter.h"
 #include "BusyCursor.h"
 
-#include "main.h"
+#include "myApplication.h"
 
 #include <assert.h>
 

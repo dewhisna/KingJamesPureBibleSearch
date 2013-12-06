@@ -30,7 +30,7 @@
 #include "PersistentSettings.h"
 #ifndef OSIS_PARSER_BUILD
 #include "ToolTipEdit.h"
-#include "main.h"
+#include "myApplication.h"
 #endif
 
 #include <QStringListModel>

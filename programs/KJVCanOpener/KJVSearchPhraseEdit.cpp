@@ -28,7 +28,7 @@
 #include "PersistentSettings.h"
 
 #ifdef SIGNAL_SPY_DEBUG
-#include "main.h"
+#include "myApplication.h"
 #endif
 
 #include <QTextCharFormat>
