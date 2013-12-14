@@ -95,7 +95,8 @@ declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
-greaterThan(QT_MAJOR_VERSION,4):macx:CONFIG += x86_64
+greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
+greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64
 lessThan(QT_MAJOR_VERSION,5):macx:static:LIBS += -lQtCore -lQtGui -lQtSql -dead_strip
 greaterThan(QT_MAJOR_VERSION,4):macx:static:!declarative_debug:LIBS += -lQt5Core -lQt5Gui -lQt5Widgets -lQt5Sql -lQt5Xml -dead_strip
 greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -lQt5Core_debug -lQt5Gui_debug -lQt5Widgets_debug -lQt5Sql_debug -lQt5Xml_debug -dead_strip
