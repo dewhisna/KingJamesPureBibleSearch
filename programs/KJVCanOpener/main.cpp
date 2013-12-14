@@ -97,7 +97,7 @@ namespace {
 	const char *g_constrKJVDatabaseFilename = "./Resources/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "./Resources/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "./Resources/db/dct-web1828.s3db";
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrKJVDatabaseFilename = "../Resources/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
@@ -156,7 +156,7 @@ namespace {
 	const char *g_constrDejaVuSerifCondensed = "./Resources/fonts/DejaVuSerifCondensed.ttf";
 	const char *g_constrDejaVuSerif_Italic = "./Resources/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "./Resources/fonts/DejaVuSerif.ttf";
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../Resources/fonts/DejaVuSans-Bold.ttf";

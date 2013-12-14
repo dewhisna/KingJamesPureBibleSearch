@@ -85,6 +85,12 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 	}
 }
 
+# The following is absolutely needed on Qt5.2.0, or else we'll crash in the
+#	failure of the accessibility factory from creating an accessibility
+#	object.  Should probably be there for all platforms to make sure the
+#	accessibility support gets loaded:
+QTPLUGIN += qtaccessiblewidgets
+
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE
