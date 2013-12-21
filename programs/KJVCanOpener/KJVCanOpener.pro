@@ -37,7 +37,7 @@ CONFIG += wwwidgets
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
-unix:!macx {
+unix:!mac {
 	CONFIG += static
 	QMAKE_CXXFLAGS += -static
 }
@@ -110,12 +110,6 @@ greaterThan(QT_MAJOR_VERSION,4):macx:static:declarative_debug:LIBS += -lQt5Core_
 ios {
 	QMAKE_IOS_DEVICE_ARCHS = armv7
 	QMAKE_IOS_SIMULATOR_ARCHS = i386
-
-	# This eliminates the weird text relocation error we get on linking
-	#	complaining about text relocation in functions like __stack_chk_fail
-	#	Not sure this is exactly correct, but seems OK for i386 compile, based
-	#	on online searches, which is where I found this:
-	x86:QMAKE_LFLAGS += -read_only_relocs suppress
 }
 
 # No longer need to have this here since we also needed to do the same thing with
@@ -137,7 +131,7 @@ lessThan(QT_MAJOR_VERSION,5) {
 	mac:QMAKE_CXXFLAGS += -Wall -W -Wno-unused-private-field
 }
 
-#QTPLUGIN += qsqlite
+ios:QTPLUGIN += qsqlite
 
 TARGET = KingJamesPureBibleSearch
 TEMPLATE = app
@@ -286,12 +280,16 @@ FORMS    += KJVCanOpener.ui \
 RESOURCES += \
 	KJVCanOpener.qrc
 
-# ICON for Mac OSX:
-ICON = res/bible.icns
+# ICON for Mac OSX/iOS:
+mac:ICON = res/bible.icns
 
 # Info.plist for Mac OSX:
 # This is broken in qmake (on Qt4).  Copy KJVCanOpener.Info.plist.app to ~/Qt/.../mkspecs/default/Info.plist.app
-greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
+macx:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
+# Temporary workaround for QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
+#	We'll add the fonts to the Info.plist so iOS will auto-load them for us:
+#ios:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.iOS.Info.plist.app
+ios:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.iOS.fonts.Info.plist.app
 
 android {
 	ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
@@ -313,6 +311,49 @@ android {
 		docDeploy.path = /assets/KJVCanOpener/doc
 
 		INSTALLS += dbDeploy fontDeploy docDeploy
+	}
+}
+
+ios {
+	app_bundle {
+		# Note: For some reason, wildcards don't work with the builtin-copy operation on Mac/iOS
+		#		so we have to explicitly name each file:
+		iconDeploy.files = ../../KJVCanOpener/res/bible_64.png
+		iconDeploy.path = .
+		dbDeploy.files =  ../../KJVCanOpener/db/kjvtext.s3db ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.path = /assets/KJVCanOpener/db
+		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf
+		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif.ttf
+		fontDeploy.path = /assets/KJVCanOpener/fonts
+		docDeploy.files = ../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+		docDeploy.path = /assets/KJVCanOpener/doc
+		licDeploy.files = ../../KJVCanOpener/gpl-3.0.txt
+		licDeploy.path = .
+
+# Temporary workaround for QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
+#	We'll add the fonts to the Info.plist so iOS will auto-load them for us:
+#		QMAKE_BUNDLE_DATA += iconDeploy dbDeploy docDeploy licDeploy
+		QMAKE_BUNDLE_DATA += iconDeploy dbDeploy fontDeploy docDeploy licDeploy
 	}
 }
 

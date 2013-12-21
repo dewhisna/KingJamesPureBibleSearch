@@ -72,7 +72,7 @@ namespace {
 #ifdef Q_OS_ANDROID
 	const char *g_constrHelpDocFilename = "KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_IOS)
-	const char *g_constrHelpDocFilename = "./SharedSupport/doc/KingJamesPureBibleSearch.pdf";
+	const char *g_constrHelpDocFilename = "./assets/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
 #else

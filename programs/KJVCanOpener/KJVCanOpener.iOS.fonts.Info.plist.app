@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+	<key>CFBundleIconFile</key>
+	<string>bible_64</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Copyright(c)2012-2013 Donna Whisnant, a.k.a. Dewtronics</string>
+	<key>CFBundleSignature</key>
+	<string>@TYPEINFO@</string>
+	<key>CFBundleExecutable</key>
+	<string>@EXECUTABLE@</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.education</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.0.0</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.dewtronics.@EXECUTABLE@-iOS</string>
+	<key>NOTE</key>
+	<string>Don't make me have to open a can on you!</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>bible_64</string>
+			<key>CFBundleTypeName</key>
+			<string>King James Search File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.dewtronics.@EXECUTABLE@.kjs</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIconFile</key>
+			<string>bible_64</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>King James Search File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.dewtronics.@EXECUTABLE@.kjs</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>kjs</string>
+				<key>public.mime-type</key>
+				<string>application/octet-stream</string>
+			</dict>
+		</dict>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>assets/KJVCanOpener/fonts/SCRIPTBL.TTF</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSans-Bold.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansCondensed.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSansMono.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSans.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf</string>
+		<string>assets/KJVCanOpener/fonts/DejaVuSerif.ttf</string>
+	</array>
+</dict>
+</plist>

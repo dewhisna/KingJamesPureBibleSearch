@@ -94,9 +94,9 @@ namespace {
 	const char *g_constrWeb1828DatabaseFilename = "KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_IOS)
 	const char *g_constrPluginsPath = "./Frameworks/";
-	const char *g_constrKJVDatabaseFilename = "./Resources/db/kjvtext.s3db";
-	const char *g_constrUserDatabaseTemplateFilename = "./Resources/db/kjvuser.s3db";
-	const char *g_constrWeb1828DatabaseFilename = "./Resources/db/dct-web1828.s3db";
+	const char *g_constrKJVDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrUserDatabaseTemplateFilename = "./assets/KJVCanOpener/db/kjvuser.s3db";
+	const char *g_constrWeb1828DatabaseFilename = "./assets/KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrKJVDatabaseFilename = "../Resources/db/kjvtext.s3db";
@@ -134,28 +134,28 @@ namespace {
 	const char *g_constrDejaVuSerif_Italic = "KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "KJVCanOpener/fonts/DejaVuSerif.ttf";
 #elif defined(Q_OS_IOS)
-	const char *g_constrScriptBLFontFilename = "./Resources/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "./Resources/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "./Resources/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "./Resources/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "./Resources/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "./Resources/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "./Resources/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "./Resources/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "./Resources/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "./Resources/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "./Resources/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "./Resources/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "./Resources/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "./Resources/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "./Resources/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "./Resources/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "./Resources/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "./Resources/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "./Resources/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "./Resources/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "./Resources/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "./Resources/fonts/DejaVuSerif.ttf";
+	const char *g_constrScriptBLFontFilename = "./assets/KJVCanOpener/fonts/SCRIPTBL.TTF";
+	const char *g_constrDejaVuSans_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "./assets/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+	const char *g_constrDejaVuSansCondensed_Bold = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "./assets/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "./assets/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "./assets/KJVCanOpener/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "./assets/KJVCanOpener/fonts/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldItalic = "./assets/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
+	const char *g_constrDejaVuSerif_Bold = "./assets/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_BoldItalic = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+	const char *g_constrDejaVuSerifCondensed_Bold = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_Italic = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
+	const char *g_constrDejaVuSerifCondensed = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
+	const char *g_constrDejaVuSerif_Italic = "./assets/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
+	const char *g_constrDejaVuSerif = "./assets/KJVCanOpener/fonts/DejaVuSerif.ttf";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
@@ -396,6 +396,13 @@ int main(int argc, char *argv[])
 	}
 
 	// Setup our Fonts:
+	//	Note: As of Qt 5.2, iOS doesn't currently load fonts correctly and causes:
+	//			This plugin does not support application fonts
+	//			This plugin does not support propagateSizeHints()
+	//	See QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
+	//	Temporary workaround is to add these to the Info.plist so iOS will
+	//		auto-load them for us:
+#ifndef Q_OS_IOS
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
 		QFileInfo fiFont(app.initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
 		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
@@ -405,6 +412,7 @@ int main(int argc, char *argv[])
 #endif
 		}
 	}
+#endif
 
 	// Sometimes the splash screen fails to paint, so we'll pump events again
 	//	between the fonts and database:
