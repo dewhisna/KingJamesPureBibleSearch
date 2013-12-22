@@ -5,6 +5,8 @@
 		<item>KJVCanOpener/db/kjvtext.s3db:files/KJVCanOpener/db/kjvtext.s3db</item>
 		<item>KJVCanOpener/db/kjvuser.s3db:files/KJVCanOpener/db/kjvuser.s3db</item>
 		<item>KJVCanOpener/doc/KingJamesPureBibleSearch.pdf:files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf</item>
+<!--		<item>KJVCanOpener/doc/kjv_summary.xls:files/KJVCanOpener/doc/kjv_summary.xls</item>-->
+<!--		<item>KJVCanOpener/doc/kjv_stats.xls:files/KJVCanOpener/doc/kjv_stats.xls</item>-->
 		<item>KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf:files/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf</item>
 		<item>KJVCanOpener/fonts/DejaVuSans-Bold.ttf:files/KJVCanOpener/fonts/DejaVuSans-Bold.ttf</item>
 		<item>KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf:files/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf</item>
@@ -27,5 +29,20 @@
 		<item>KJVCanOpener/fonts/DejaVuSerif-Italic.ttf:files/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf</item>
 		<item>KJVCanOpener/fonts/DejaVuSerif.ttf:files/KJVCanOpener/fonts/DejaVuSerif.ttf</item>
 		<item>KJVCanOpener/fonts/SCRIPTBL.TTF:files/KJVCanOpener/fonts/SCRIPTBL.TTF</item>
+		<item>KJVCanOpener/examples/example01.kjs:files/KJVCanOpener/examples/example01.kjs</item>
+		<item>KJVCanOpener/examples/example02.kjs:files/KJVCanOpener/examples/example02.kjs</item>
+		<item>KJVCanOpener/examples/example03.kjs:files/KJVCanOpener/examples/example03.kjs</item>
+		<item>KJVCanOpener/examples/example04.kjs:files/KJVCanOpener/examples/example04.kjs</item>
+		<item>KJVCanOpener/examples/example05.kjs:files/KJVCanOpener/examples/example05.kjs</item>
+		<item>KJVCanOpener/examples/example06.kjs:files/KJVCanOpener/examples/example06.kjs</item>
+		<item>KJVCanOpener/examples/example07.kjs:files/KJVCanOpener/examples/example07.kjs</item>
+		<item>KJVCanOpener/examples/example08.kjs:files/KJVCanOpener/examples/example08.kjs</item>
+		<item>KJVCanOpener/examples/example09.kjs:files/KJVCanOpener/examples/example09.kjs</item>
+		<item>KJVCanOpener/examples/example10.kjs:files/KJVCanOpener/examples/example10.kjs</item>
+		<item>KJVCanOpener/examples/example11.kjs:files/KJVCanOpener/examples/example11.kjs</item>
+		<item>KJVCanOpener/examples/example12.kjs:files/KJVCanOpener/examples/example12.kjs</item>
+		<item>KJVCanOpener/examples/example13.kjs:files/KJVCanOpener/examples/example13.kjs</item>
+		<item>KJVCanOpener/examples/example14.kjs:files/KJVCanOpener/examples/example14.kjs</item>
+		<item>KJVCanOpener/license/gpl-3.0.txt:files/KJVCanOpener/license/gpl-3.0.txt</item>
 	</array>
 </resources>

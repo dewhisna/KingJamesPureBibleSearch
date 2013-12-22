@@ -650,3 +650,41 @@ Mac 5.2.0-64-local:
 -------------------
 ~/Qt/5.2.0-ios-android/5.2.0/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
 
+
+
+===============================================================================
+===============================================================================
+
+-----------------------
+Qt Source Dependencies:
+-----------------------
+
+In the Qt Install folder ($$[QT_INSTALL_PREFIX]), the following must be copied
+and/or installed from the Qt Source folder in order to provide a common place
+for these to be located.  The target names were derived from the Qt 4.8.x source
+where we started our application, and have been maintained through Qt 5 for
+consistency rather than dealing with the new module subfolder structures:
+
+For Qt 4.8.x
+------------
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/3rdparty
+cd src/3rdparty/
+cp -r <Qt-Source-Folder>/src/3rdparty/zlib* .
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/gui/mac/qt_menu.nib
+cd src/gui/mac/qt_menu.nib/
+cp <Qt-Source-Folder>/src/gui/mac/qt_menu.nib/* .
+
+
+For Qt 5.x.x
+------------
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/3rdparty
+cd src/3rdparty/
+cp -r <Qt-Source-Folder>/qtbase/src/3rdparty/zlib* .
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/gui/mac/qt_menu.nib
+cd src/gui/mac/qt_menu.nib
+cp <Qt-Source-Folder>/qtbase/src/plugins/platforms/cocoa/qt_menu.nib/* .
+
