@@ -60,7 +60,8 @@
 // ============================================================================
 
 #define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
-#define KJVAPP_REGISTRY_VERSION 2		// Version of Registry Settings
+#define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
+#define PS_SPLITTER_VERSION 1			// Persistent Settings -- Splitter Version (update when changing splitter layout and/or state properties)
 
 #define NUM_QUICK_ACTIONS 10
 
@@ -101,6 +102,7 @@ namespace {
 	const QString constrSplitterDictionaryRestoreStateGroup("RestoreState/SplitterDictionary");
 	const QString constrGeometryKey("Geometry");
 	const QString constrWindowStateKey("WindowState");
+	const QString constrStateVersionKey("StateVersion");
 
 	// UserNotesDatabase:
 	const QString constrUserNotesDatabaseGroup("UserNotesDatabase");
@@ -778,11 +780,13 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Splitter:
 	settings.beginGroup(constrSplitterRestoreStateGroup);
+	settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
 	settings.endGroup();
 
 	// Splitter Dictionary:
 	settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+	settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 	settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
 	settings.endGroup();
 
@@ -941,14 +945,22 @@ void CKJVCanOpener::restorePersistentSettings()
 			settings.endGroup();
 		}
 
+		unsigned int nSplitterVersion;
+
 		// Splitter:
 		settings.beginGroup(constrSplitterRestoreStateGroup);
-		m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
+		if (nSplitterVersion == PS_SPLITTER_VERSION) {
+			m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		}
 		settings.endGroup();
 
 		// Splitter Dictionary:
 		settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
-		m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
+		if (nSplitterVersion == PS_SPLITTER_VERSION) {
+			m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		}
 		settings.endGroup();
 
 		// User Notes Database:
