@@ -26,7 +26,7 @@
 #include <QSplashScreen>
 #include <QWidget>
 #include <QMainWindow>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QLocale>
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 							strSpecialVersion +
 							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 	splash->repaint();
-	qApp->processEvents();
+	app.processEvents();
 
 #ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
 	//			exit and InnoSetup actually suggest we leave it open
 #endif
 
-	QTime splashTimer;
+	QElapsedTimer splashTimer;
 	splashTimer.start();
 
 	// Parse the Commmand-line:
@@ -362,10 +362,9 @@ int main(int argc, char *argv[])
 			return -2;
 		}
 
-		int nElapsed;
 		do {
-			nElapsed = splashTimer.elapsed();
-		} while ((nElapsed>=0) && (nElapsed<g_connInterAppSplasTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
+			app.processEvents();
+		} while (!splashTimer.hasExpired(g_connInterAppSplasTimeMS));
 
 		QString strMessage;
 		if (!strKJSFile.isEmpty()) {
@@ -417,7 +416,7 @@ int main(int argc, char *argv[])
 	// Sometimes the splash screen fails to paint, so we'll pump events again
 	//	between the fonts and database:
 	splash->repaint();
-	qApp->processEvents();
+	app.processEvents();
 
 	// Database Paths:
 	QFileInfo fiKJVDatabase(app.initialAppDirPath(), g_constrKJVDatabaseFilename);
@@ -495,10 +494,9 @@ int main(int argc, char *argv[])
 	}
 
 	// Show splash for minimum time:
-	int nElapsed;
 	do {
-		nElapsed = splashTimer.elapsed();
-	} while ((nElapsed>=0) && (nElapsed<g_connMinSplashTimeMS));		// Test the 0 case in case of DST shift so user doesn't have to sit here for an extra hour
+		app.processEvents();
+	} while (!splashTimer.hasExpired(g_connMinSplashTimeMS));
 
 
 	// Setup our default font for our controls:
