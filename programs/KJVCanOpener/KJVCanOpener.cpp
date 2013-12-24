@@ -60,7 +60,7 @@
 // ============================================================================
 
 #define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
-#define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
+#define KJVAPP_REGISTRY_VERSION 2		// Version of Registry Settings
 
 #define NUM_QUICK_ACTIONS 10
 
@@ -252,20 +252,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Setup the Three Panes:
 
-	m_pSearchSpecWidget = new CKJVSearchSpec(m_pBibleDatabase, ui.centralWidget);
-	m_pSearchSpecWidget->setObjectName(QString::fromUtf8("SearchSpecWidget"));
-
-	ui.horizontalLayout->addWidget(m_pSearchSpecWidget);
-
 	m_pSplitter = new QSplitter(ui.centralWidget);
 	m_pSplitter->setObjectName(QString::fromUtf8("splitter"));
 	m_pSplitter->setOrientation(Qt::Horizontal);
-	m_pSplitter->setChildrenCollapsible(false);
+	m_pSplitter->setChildrenCollapsible(true);
 
 	m_pSplitterDictionary = new QSplitter(m_pSplitter);
 	m_pSplitterDictionary->setObjectName(QString::fromUtf8("splitterDictionary"));
 	m_pSplitterDictionary->setOrientation(Qt::Vertical);
 	m_pSplitterDictionary->setChildrenCollapsible(true);
+
+	m_pSearchSpecWidget = new CKJVSearchSpec(m_pBibleDatabase, m_pSplitter);
+	m_pSearchSpecWidget->setObjectName(QString::fromUtf8("SearchSpecWidget"));
+	m_pSplitter->addWidget(m_pSearchSpecWidget);
 
 	m_pSearchResultWidget = new CKJVSearchResult(m_pBibleDatabase, m_pSplitter);
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
@@ -311,6 +310,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 // The following is supposed to be another workaround for QTBUG-13768
 //	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
 	m_pSplitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
+	if (m_pSplitter->count() > 2) m_pSplitter->handle(2)->setAttribute(Qt::WA_Hover);
 	if (m_pSplitterDictionary->count() > 1) m_pSplitterDictionary->handle(1)->setAttribute(Qt::WA_Hover);
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 

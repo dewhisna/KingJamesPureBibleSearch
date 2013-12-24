@@ -111,7 +111,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
-		m_nChapterScrollbarMode(CSME_RIGHT),
+		m_nChapterScrollbarMode(CSME_NONE),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),

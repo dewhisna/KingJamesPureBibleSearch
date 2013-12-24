@@ -62,6 +62,13 @@
 #include <QPair>
 #include <QMessageBox>
 
+#if QT_VERSION >= 0x050000
+// Qt5 redefines scroll by pixel to be by single pixel.  This
+//		defines how many lines we want to scroll the vertical
+//		scrollbar on a per-step
+#define LINES_PER_SCROLL_BLOCK 4
+#endif
+
 // ============================================================================
 
 CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
@@ -825,6 +832,10 @@ void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 void CSearchResultsTreeView::setFontSearchResults(const QFont& aFont)
 {
 	vlmodel()->setFont(aFont);
+
+#if QT_VERSION >= 0x050000
+	verticalScrollBar()->setSingleStep(qMax(fontMetrics().height() * LINES_PER_SCROLL_BLOCK, 2));
+#endif
 }
 
 void CSearchResultsTreeView::setTextBrightness(bool bInvert, int nBrightness)
@@ -986,7 +997,6 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setSpacing(4);
-	pLayout->setContentsMargins(11, 11, 11, 11);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 	pLayout->setContentsMargins(0, 0, 0, 0);
 

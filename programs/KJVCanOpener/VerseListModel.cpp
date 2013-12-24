@@ -76,7 +76,7 @@ CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePt
 		m_nTreeMode(VTME_LIST),
 		m_nViewMode(VVME_SEARCH_RESULTS),
 		m_bShowMissingLeafs(false),
-		m_bShowHighlightersInSearchResults(false)
+		m_bShowHighlightersInSearchResults(true)
 {
 
 }
