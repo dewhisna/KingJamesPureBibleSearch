@@ -98,8 +98,8 @@ namespace {
 
 	// RestoreState:
 	const QString constrMainAppRestoreStateGroup("RestoreState/MainApp");
-	const QString constrSplitterRestoreStateGroup("RestoreState/Splitter");
-	const QString constrSplitterDictionaryRestoreStateGroup("RestoreState/SplitterDictionary");
+	const QString constrSplitterRestoreStateGroup("RestoreState/SplitterEx");
+	const QString constrSplitterDictionaryRestoreStateGroup("RestoreState/SplitterDictionaryEx");
 	const QString constrGeometryKey("Geometry");
 	const QString constrWindowStateKey("WindowState");
 	const QString constrStateVersionKey("StateVersion");
