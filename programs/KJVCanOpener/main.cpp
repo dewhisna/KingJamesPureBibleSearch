@@ -80,7 +80,7 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
-	const int g_connInterAppSplasTimeMS = 2000;	// Splash Time for Inter-Application communications
+	const int g_connInterAppSplashTimeMS = 2000;	// Splash Time for Inter-Application communications
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
@@ -297,6 +297,12 @@ int main(int argc, char *argv[])
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash);
 	splash->show();
+#ifdef Q_OS_IOS
+	// The following is a work-around for QTBUG-35787
+	QEventLoop loop;
+	QMetaObject::invokeMethod(&loop, "quit", Qt::QueuedConnection);
+	loop.exec();
+#endif
 	splash->raise();
 	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
 	const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -364,7 +370,7 @@ int main(int argc, char *argv[])
 
 		do {
 			app.processEvents();
-		} while (!splashTimer.hasExpired(g_connInterAppSplasTimeMS));
+		} while (!splashTimer.hasExpired(g_connInterAppSplashTimeMS));
 
 		QString strMessage;
 		if (!strKJSFile.isEmpty()) {
