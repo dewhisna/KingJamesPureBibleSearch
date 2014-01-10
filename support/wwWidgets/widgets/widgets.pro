@@ -5,7 +5,8 @@ linux-g++|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
 HEADERS += wwglobal.h wwglobal_p.h colormodel.h
 SOURCES += wwglobal_p.cpp colormodel.cpp
 
-QT += core gui widgets
+QT += core gui
+greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 RESOURCES += ../images/wwwidgets.qrc
 INCLUDEPATH += .
