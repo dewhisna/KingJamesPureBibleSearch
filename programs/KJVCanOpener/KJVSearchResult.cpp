@@ -62,7 +62,17 @@
 #include <QPair>
 #include <QMessageBox>
 
-#if QT_VERSION >= 0x050000
+#ifdef TOUCH_GESTURE_PROCESSING
+#include <QGestureEvent>
+#include <QTapGesture>
+#include <QTapAndHoldGesture>
+#include <QPanGesture>
+#include <QSwipeGesture>
+#include <QScrollBar>
+#endif
+
+#ifdef WORKAROUND_QTBUG_33906
+// Workaround for QTBUG-33906:
 // Qt5 redefines scroll by pixel to be by single pixel.  This
 //		defines how many lines we want to scroll the vertical
 //		scrollbar on a per-step
@@ -73,6 +83,10 @@
 
 CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QTreeView(parent),
+#ifdef TOUCH_GESTURE_PROCESSING
+		m_bDoubleTouchStarted(false),
+		m_nAccumulatedScrollOffset(0),
+#endif
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
 		m_bDoingPopup(false),
@@ -115,6 +129,19 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	header()->setVisible(false);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+#ifdef TOUCH_GESTURE_PROCESSING
+	grabGesture(Qt::TapGesture);
+	grabGesture(Qt::TapAndHoldGesture);
+	grabGesture(Qt::PanGesture);
+	grabGesture(Qt::SwipeGesture);
+
+// The following is for QTouchEvent:
+//	viewport()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+
+	m_dlyDoubleTouch.setMinimumDelay(QApplication::doubleClickInterval());
+	connect(&m_dlyDoubleTouch, SIGNAL(triggered()), this, SLOT(en_doubleTouchTimeout()));
+#endif
 
 	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
 	QAbstractItemModel *pOldModel = model();
@@ -204,6 +231,10 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	// Setup our change notifications:
 	connect(vlmodel(), SIGNAL(modelReset()), this, SLOT(en_listChanged()));
 	connect(vlmodel(), SIGNAL(layoutChanged()), this, SLOT(en_listChanged()));
+
+	connect(this, SIGNAL(displayContextMenu(const QPoint &)), this, SLOT(en_displayContextMenu(const QPoint &)), Qt::QueuedConnection);
+
+	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(handle_searchResultActivated(const QModelIndex &)));
 }
 
 CSearchResultsTreeView::~CSearchResultsTreeView()
@@ -461,8 +492,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 
 void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 {
-	QPoint ptPos = mapToGlobal(m_ptLastTrackPosition);
-	new CNotificationToolTip(1000, ptPos, tr("Text Copied to Clipboard"), viewport());
+	new CNotificationToolTip(1000, m_ptLastTrackPosition, tr("Text Copied to Clipboard"), viewport());
 }
 
 // ----------------------------------------------------------------------------
@@ -620,9 +650,205 @@ void CSearchResultsTreeView::showPassageNavigator()
 	}
 }
 
+// ----------------------------------------------------------------------------
+
+bool CSearchResultsTreeView::event(QEvent *event)
+{
+	assert(event != NULL);
+#ifdef TOUCH_GESTURE_PROCESSING
+	if (event->type() == QEvent::Gesture) {
+		QGestureEvent *pGestureEvent = static_cast<QGestureEvent *>(event);
+		QTapGesture *pTap = static_cast<QTapGesture *>(pGestureEvent->gesture(Qt::TapGesture));
+		QTapAndHoldGesture *pTapAndHold = static_cast<QTapAndHoldGesture *>(pGestureEvent->gesture(Qt::TapAndHoldGesture));
+		QPanGesture *pPan = static_cast<QPanGesture *>(pGestureEvent->gesture(Qt::PanGesture));
+		QSwipeGesture *pSwipe = static_cast<QSwipeGesture *>(pGestureEvent->gesture(Qt::SwipeGesture));
+		// Observe in order of priority, as some gestures can trigger multiple recognitions:
+		if (pSwipe != NULL) {
+			return handleSwipeGesture(pSwipe);
+		} else if (pPan != NULL) {
+			return handlePanGesture(pPan);
+		} else if (pTapAndHold != NULL) {
+			return handleTapAndHoldGesture(pTapAndHold);
+		} else if (pTap) {
+			return handleTapGesture(pTap);
+		}
+	}
+#endif
+
+	return QTreeView::event(event);
+}
+
+void CSearchResultsTreeView::keyPressEvent(QKeyEvent *event)
+{
+	assert(event != NULL);
+	switch (event->key()) {
+		case Qt::Key_Select:
+			// Also do Key_Enter action.
+			if (currentIndex().isValid()) {
+				if (state() != EditingState) handle_searchResultActivated(currentIndex());
+			} else {
+				event->ignore();
+			}
+			break;
+
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+			// ### we can't open the editor on enter, becuse
+			// some widgets will forward the enter event back
+			// to the viewport, starting an endless loop
+			if (state() != EditingState || hasFocus()) {
+				if (currentIndex().isValid()) handle_searchResultActivated(currentIndex());
+				event->ignore();
+			}
+			break;
+		default:
+			QTreeView::keyPressEvent(event);
+			break;
+	}
+}
+
+void CSearchResultsTreeView::handle_searchResultActivated(const QModelIndex &index)
+{
+qDebug("handle searchResultActivated");
+	emit searchResultActivated(index);
+}
+
+// ----------------------------------------------------------------------------
+
+#ifdef TOUCH_GESTURE_PROCESSING
+QString CSearchResultsTreeView::debugGestureState(QGesture *pGesture) const
+{
+	switch (pGesture->state()) {
+		case Qt::GestureStarted:
+			return QString("GestureStarted");
+		case Qt::GestureUpdated:
+			return QString("GestureUpdated");
+		case Qt::GestureFinished:
+			return QString("GestureFinished");
+		case Qt::GestureCanceled:
+			return QString("GestureCanceled");
+		default:
+			return QString("Unknown Gesture State");
+	}
+
+	return QString();
+}
+
+bool CSearchResultsTreeView::handleTapGesture(QTapGesture *pTapGesture)
+{
+qDebug("%s", QString("Handle Tap Gesture -- %1").arg(debugGestureState(pTapGesture)).toUtf8().data());
+	assert(pTapGesture != NULL);
+
+	if (pTapGesture->state() == Qt::GestureFinished) {
+		if (m_bDoubleTouchStarted) {
+qDebug("Finish double-touch");
+			// Second touch triggers a double-touch gesture:
+			m_dlyDoubleTouch.untrigger();
+			m_bDoubleTouchStarted = false;
+			QPersistentModelIndex index = indexAt(pTapGesture->position().toPoint());
+			if ((index.isValid()) &&
+				(index == m_ndxDoubleTouch)) handle_searchResultActivated(index);
+			m_ndxDoubleTouch = QModelIndex();
+		} else {
+qDebug("Start double-touch");
+			// First touch starts a double-touch gesture:
+			m_bDoubleTouchStarted = true;
+			m_dlyDoubleTouch.trigger();
+			m_ndxDoubleTouch = indexAt(pTapGesture->position().toPoint());
+		}
+	} else if (pTapGesture->state() == Qt::GestureCanceled) {
+if (m_bDoubleTouchStarted) qDebug("Cancel double-touch");
+		// Canceling a touch-gesture cancels any pending double-touch gesture too:
+		m_bDoubleTouchStarted = false;
+		m_dlyDoubleTouch.untrigger();
+		m_ndxDoubleTouch = QModelIndex();
+	}
+
+	return true;
+}
+
+void CSearchResultsTreeView::en_doubleTouchTimeout()
+{
+qDebug("Double-touch timed out");
+	m_bDoubleTouchStarted = false;
+	m_ndxDoubleTouch = QModelIndex();
+}
+
+bool CSearchResultsTreeView::handleTapAndHoldGesture(QTapAndHoldGesture *pTapAndHoldGesture)
+{
+qDebug("%s", QString("Handle TapAndHold Gesture -- %1").arg(debugGestureState(pTapAndHoldGesture)).toUtf8().data());
+	assert(pTapAndHoldGesture != NULL);
+
+	if ((pTapAndHoldGesture->state() == Qt::GestureFinished) &&
+		(!m_bDoingPopup)) {
+		en_displayContextMenu(pTapAndHoldGesture->position().toPoint());
+//		emit displayContextMenu(pTapAndHoldGesture->position().toPoint());
+	} else if (pTapAndHoldGesture->state() == Qt::GestureStarted) {
+		// Starting a tap-and-hold cancels a pending double-touch:
+		m_bDoubleTouchStarted = false;
+		m_dlyDoubleTouch.untrigger();
+		m_ndxDoubleTouch = QModelIndex();
+	}
+
+	return true;
+}
+
+bool CSearchResultsTreeView::handlePanGesture(QPanGesture *pPanGesture)
+{
+qDebug("%s", QString("Handle Pan Gesture -- %1").arg(debugGestureState(pPanGesture)).toUtf8().data());
+	assert(pPanGesture != NULL);
+
+	QScrollBar *pVertSB = verticalScrollBar();
+	int nStepsToScroll = 0;
+	qreal nOffset = (pPanGesture->delta().ry() / 120) * pVertSB->singleStep();
+
+	// Check if the pan changed direction since last event:
+	if ((m_nAccumulatedScrollOffset != 0) && ((nOffset / m_nAccumulatedScrollOffset) < 0))
+		m_nAccumulatedScrollOffset = 0;
+
+	m_nAccumulatedScrollOffset += nOffset;
+	nStepsToScroll = int(m_nAccumulatedScrollOffset);
+	m_nAccumulatedScrollOffset -= int(m_nAccumulatedScrollOffset);
+	if (nStepsToScroll == 0) return false;
+
+	if (pVertSB->invertedControls()) nStepsToScroll = -nStepsToScroll;
+
+	int nPrevValue = pVertSB->value();
+
+	int nNewValue = pVertSB->value() + nStepsToScroll;
+	if ((nStepsToScroll > 0) && (nNewValue < pVertSB->value())) {
+		nNewValue = pVertSB->maximum();
+	} else if ((nStepsToScroll < 0) && (nNewValue > pVertSB->value())) {
+		nNewValue = pVertSB->minimum();
+	}
+	pVertSB->setValue(nNewValue);
+
+// TODO :CLEAN
+//    position = overflowSafeAdd(stepsToScroll); // value will be updated by triggerAction()
+//    q->triggerAction(QAbstractSlider::SliderMove);
+
+	if (nPrevValue == nNewValue) {
+		m_nAccumulatedScrollOffset = 0;
+		return false;
+	}
+
+	return true;
+}
+
+bool CSearchResultsTreeView::handleSwipeGesture(QSwipeGesture *pSwipeGesture)
+{
+qDebug("%s", QString("Handle Swipe Gesture -- %1").arg(debugGestureState(pSwipeGesture)).toUtf8().data());
+	assert(pSwipeGesture != NULL);
+
+	// TODO : Something here for swipe gesture...
+
+	return true;
+}
+#endif
+
 void CSearchResultsTreeView::mouseMoveEvent(QMouseEvent *ev)
 {
-	m_ptLastTrackPosition = ev->pos();
+	m_ptLastTrackPosition = ev->globalPos();
 	QTreeView::mouseMoveEvent(ev);
 }
 
@@ -651,10 +877,15 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 {
+	en_displayContextMenu(event->globalPos());
+}
+
+void CSearchResultsTreeView::en_displayContextMenu(const QPoint &ptGlobalPos)
+{
 	m_bDoingPopup = true;
-	m_pEditMenuLocal->exec(event->globalPos());
+	m_pEditMenuLocal->exec(ptGlobalPos);
 	m_bDoingPopup = false;
-	m_ptLastTrackPosition = event->pos();
+	m_ptLastTrackPosition = ptGlobalPos;
 }
 
 void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
@@ -833,7 +1064,7 @@ void CSearchResultsTreeView::setFontSearchResults(const QFont& aFont)
 {
 	vlmodel()->setFont(aFont);
 
-#if QT_VERSION >= 0x050000
+#ifdef WORKAROUND_QTBUG_33906
 	verticalScrollBar()->setSingleStep(qMax(fontMetrics().height() * LINES_PER_SCROLL_BLOCK, 2));
 #endif
 }
@@ -1076,7 +1307,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
 
 	// Set Outgoing Pass-Through Signals:
-	connect(m_pSearchResultsTreeView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL(activated(const QModelIndex &)));
+	connect(m_pSearchResultsTreeView, SIGNAL(searchResultActivated(const QModelIndex &)), this, SIGNAL(searchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
 

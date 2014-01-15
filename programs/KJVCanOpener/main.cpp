@@ -134,6 +134,7 @@ namespace {
 	const char *g_constrDejaVuSerif_Italic = "KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "KJVCanOpener/fonts/DejaVuSerif.ttf";
 #elif defined(Q_OS_IOS)
+#ifndef WORKAROUND_QTBUG_34490
 	const char *g_constrScriptBLFontFilename = "./assets/KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "./assets/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -156,6 +157,7 @@ namespace {
 	const char *g_constrDejaVuSerifCondensed = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
 	const char *g_constrDejaVuSerif_Italic = "./assets/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "./assets/KJVCanOpener/fonts/DejaVuSerif.ttf";
+#endif
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
@@ -205,6 +207,7 @@ namespace {
 #endif
 
 
+#ifndef WORKAROUND_QTBUG_34490
 	const char *g_constrarrFontFilenames[] = {
 		g_constrScriptBLFontFilename,
 		g_constrDejaVuSans_BoldOblique,
@@ -230,6 +233,8 @@ namespace {
 		g_constrDejaVuSerif,
 		NULL
 	};
+#endif
+
 }	// namespace
 
 // ============================================================================
@@ -240,7 +245,7 @@ public:
 	int styleHint(StyleHint hint, const QStyleOption *option = 0,
 				const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const
 	{
-		if (hint == QStyle:: SH_ItemView_ActivateItemOnSingleClick) return 0;
+		if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0;
 
 		return QProxyStyle::styleHint(hint, option, widget, returnData);
 	}
@@ -297,8 +302,10 @@ int main(int argc, char *argv[])
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash);
 	splash->show();
-#ifdef Q_OS_IOS
-	// The following is a work-around for QTBUG-35787
+#ifdef WORKAROUND_QTBUG_35787
+	// The following is a work-around for QTBUG-35787 where the
+	//		splashscreen won't display on iOS unless an event
+	//		loop completes:
 	QEventLoop loop;
 	QMetaObject::invokeMethod(&loop, "quit", Qt::QueuedConnection);
 	loop.exec();
@@ -407,7 +414,7 @@ int main(int argc, char *argv[])
 	//	See QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
 	//	Temporary workaround is to add these to the Info.plist so iOS will
 	//		auto-load them for us:
-#ifndef Q_OS_IOS
+#ifndef WORKAROUND_QTBUG_34490
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
 		QFileInfo fiFont(app.initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
 		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());

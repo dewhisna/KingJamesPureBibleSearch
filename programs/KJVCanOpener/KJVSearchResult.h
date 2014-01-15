@@ -29,6 +29,11 @@
 #include "SearchPhraseListModel.h"
 #include "VerseListModel.h"
 
+#ifdef TOUCH_GESTURE_PROCESSING
+#include "DelayedExecutionTimer.h"
+#include <QPersistentModelIndex>
+#endif
+
 #include <QWidget>
 #include <QModelIndex>
 #include <QModelIndexList>
@@ -38,6 +43,7 @@
 #include <QResizeEvent>
 #include <QContextMenuEvent>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QString>
 #include <QLabel>
 #include <QCheckBox>
@@ -57,6 +63,13 @@ class CKJVCanOpener;
 class CReflowDelegate;
 
 class CNoteKeywordWidget;
+
+#ifdef TOUCH_GESTURE_PROCESSING
+class QTapGesture;
+class QTapAndHoldGesture;
+class QPanGesture;
+class QSwipeGesture;
+#endif
 
 // ============================================================================
 
@@ -122,7 +135,16 @@ public slots:
 	virtual void setFontSearchResults(const QFont& aFont);
 	virtual void setTextBrightness(bool bInvert, int nBrightness);
 
+ private slots:
+	void en_displayContextMenu(const QPoint &ptGlobalPos);
+	void handle_searchResultActivated(const QModelIndex &index);	// Triggered on Activate or DoubleClick to handle Enter or double-click activation of searchResult (this emits our searchResultActivated signal)
+#ifdef TOUCH_GESTURE_PROCESSING
+	void en_doubleTouchTimeout();
+#endif
+
 signals:
+	void searchResultActivated(const QModelIndex &index);		// Enter or double-click activated
+	void displayContextMenu(const QPoint &ptGlobalPos);
 	void activatedSearchResults();
 	void gotoIndex(const TPhraseTag &tag);
 	void canExpandAll(bool bEnable);
@@ -131,6 +153,15 @@ signals:
 	void selectionListChanged();
 
 protected:
+	virtual bool event(QEvent *event);
+	virtual void keyPressEvent(QKeyEvent *event);
+#ifdef TOUCH_GESTURE_PROCESSING
+	QString debugGestureState(QGesture *pGesture) const;
+	bool handleTapGesture(QTapGesture *pTapGesture);
+	bool handleTapAndHoldGesture(QTapAndHoldGesture *pTapAndHoldGesture);
+	bool handlePanGesture(QPanGesture *pPanGesture);
+	bool handleSwipeGesture(QSwipeGesture *pSwipeGesture);
+#endif
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void focusOutEvent(QFocusEvent *event);
@@ -158,13 +189,19 @@ private:
 
 // Private UI:
 private:
+#ifdef TOUCH_GESTURE_PROCESSING
+	DelayedExecutionTimer m_dlyDoubleTouch;		// Timer for triggering a double-touch event
+	bool m_bDoubleTouchStarted;
+	QPersistentModelIndex m_ndxDoubleTouch;		// Index in our model for the double-touch target
+	float m_nAccumulatedScrollOffset;
+#endif
 	bool m_bInvertTextBrightness;	// Local copies so we can have different current values than the app setting so we can preview settings
 	int m_nTextBrightness;
 	// ----
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	QMenu *m_pEditMenu;				// Edit menu for main screen when this editor is active
 	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
-	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track position or Context Popup position for popups
+	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track global position or Context Popup position for popups
 	// ----
 	QAction *m_pActionCopyVerseText;			// Edit menu copy text
 	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text
@@ -237,7 +274,7 @@ public slots:
 	void keywordListChanged(bool bInitialLoad = false);
 
 signals:			// Outgoing Pass-Through:
-	void activated(const QModelIndex &);
+	void searchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 	void gotoIndex(const TPhraseTag &);
 	void changedSearchResults();
 	void setDetailsEnable();

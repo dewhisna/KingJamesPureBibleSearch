@@ -309,13 +309,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// --------------------
 
+#ifdef WORKAROUND_QTBUG_13768
 // The following is supposed to be another workaround for QTBUG-13768
 //	m_pSplitter->setStyleSheet("QSplitterHandle:hover {}  QSplitter::handle:hover { background-color: palette(highlight); }");
 	m_pSplitter->handle(1)->setAttribute(Qt::WA_Hover);		// Work-Around QTBUG-13768
 	if (m_pSplitter->count() > 2) m_pSplitter->handle(2)->setAttribute(Qt::WA_Hover);
 	if (m_pSplitterDictionary->count() > 1) m_pSplitterDictionary->handle(1)->setAttribute(Qt::WA_Hover);
 	setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
-
+#endif
 
 	CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode = m_pSearchResultWidget->viewMode();
 	CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode = m_pSearchResultWidget->displayMode();
@@ -683,7 +684,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Search Results List View:
 
-	connect(m_pSearchResultWidget, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
+	connect(m_pSearchResultWidget, SIGNAL(searchResultActivated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 

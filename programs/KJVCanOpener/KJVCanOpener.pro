@@ -100,6 +100,15 @@ QTPLUGIN += qtaccessiblewidgets
 declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
 
+# Enable workarounds for some QTBUGs:
+DEFINES += WORKAROUND_QTBUG_13768											# Hover attribute for QSplitter
+greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
+ios:greaterThan(QT_MAJOR_VERSION,4):CONFIG += WORKAROUND_QTBUG_34490		# iOS Font Bug
+ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS SplashScreen Bug
+
+# Enable Gesture/TouchDevice processing:
+greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
 greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64
@@ -288,8 +297,13 @@ mac:ICON = res/bible.icns
 macx:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.app
 # Temporary workaround for QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
 #	We'll add the fonts to the Info.plist so iOS will auto-load them for us:
-#ios:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.iOS.Info.plist.app
-ios:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.iOS.fonts.Info.plist.app
+ios:greaterThan(QT_MAJOR_VERSION,4) {
+	!WORKAROUND_QTBUG_34490:QMAKE_INFO_PLIST = KJVCanOpener.iOS.Info.plist.app
+	WORKAROUND_QTBUG_34490 {
+		QMAKE_INFO_PLIST = KJVCanOpener.iOS.fonts.Info.plist.app
+		DEFINES += WORKAROUND_QTBUG_34490
+	}
+}
 
 android {
 	ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
