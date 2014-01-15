@@ -688,3 +688,275 @@ mkdir -p src/gui/mac/qt_menu.nib
 cd src/gui/mac/qt_menu.nib
 cp <Qt-Source-Folder>/qtbase/src/plugins/platforms/cocoa/qt_menu.nib/* .
 
+
+===============================================================================
+===============================================================================
+
+=================================
+Emscripten-Qt (4.8.4 equivalent):
+=================================
+
+http://vps2.etotheipiplusone.com:30176/redmine/projects/emscripten-qt/wiki
+http://vps2.etotheipiplusone.com:30176/redmine/projects/emscripten-qt/wiki/Demos
+
+https://emscripten.org
+https://github.com/kripken/emscripten/wiki
+https://github.com/kripken/emscripten/wiki/Tutorial
+https://github.com/kripken/emscripten
+
+
+Requires:
+---------
+llvm and clang 3.2 (sudo apt-get install llvm clang)
+nodejs 0.6.19 (sudo apt-get install nodejs)
+node 0.10.24 (download from nodejs.org and install to system) (http://nodejs.org/)
+
+
+Native build also requires SDL:
+------------------------------
+sudo apt-get install libsdl-net1.2 libsdl-image1.2 libsdl.1.2debian  (possibly others -- I lost count)
+
+
+Cleaning up old installations:
+------------------------------
+rm ~/.emscripten
+rm -r ~/.emscripten_cache/
+rm ~/.emscripten_sanity
+
+
+Code Checkout:
+--------------
+mkdir ~/emscripten
+cd ~/emscripten
+git clone https://github.com/kripken/emscripten.git emscripten              (SEE NOTES BELOW)
+use:  git clone -b 1.5.1 https://github.com/kripken/emscripten.git emscripten
+git clone git://gitorious.org/qt/emscripten-qt.git
+
+
+Emscripten Notes and Issues:
+----------------------------
+
+See:  https://github.com/kripken/emscripten/issues/2003
+
+Note: Emscripten 1.8.2 (the latest at the time of this writing) has optimization code bugs
+that breaks emscripten-qt!! Such as the following code from QPngHandlerPrivate::readPngImage
+in src/gui/image/qpnghandler.cpp:
+
+ // sanity check palette entries 
+    if (color_type == PNG_COLOR_TYPE_PALETTE 
+        && outImage->format() == QImage::Format_Indexed8) { 
+        int color_table_size = outImage->colorCount(); 
+        for (int y=0; y<(int)height; ++y) { 
+            uchar *p = FAST_SCAN_LINE(data, bpl, y); 
+            uchar *end = p + width;
+            while (p < end) {
+                if (*p >= color_table_size)
+                    *p = 0;
+                ++p;
+            }
+        }
+    }
+
+
+Emscripten incorrectly generates:
+
+    // sanity check palette entries 
+    if (color_type == PNG_COLOR_TYPE_PALETTE 
+        && outImage->format() == QImage::Format_Indexed8) { 
+        int color_table_size = outImage->colorCount(); 
+        for (int y=0; y<(int)height; ++y) { 
+            uchar *p = FAST_SCAN_LINE(data, bpl, y); 
+            while (p < p + width) {
+                if (*p >= color_table_size)
+                    *p = 0;
+                ++p;
+            }
+        }
+    }
+
+
+Note:  Emscripten 1.6.4 is also bad
+Note:  Emscripten 1.5.7 is also bad
+Note:  Emscripten 1.5.6 is also bad
+Note:  Emscripten 1.5.5 is also bad
+Note:  Emscripten 1.5.4 is also bad
+Note:  Emscripten 1.5.3 is also bad -- but almost comes up (displays debug log and derives bad configuration paths)
+Note:  Emscripten 1.5.2 is also bad -- but almost comes up
+Note:  Emscripten 1.5.1 <<<--- WORKS!!
+Note:  Emscripten 1.5.0 Works! (mostly)
+Note:  Emscripten 1.4.2 Works! (mostly)
+Note:  Emscripten 1.3.8 Works! (mostly)
+
+
+
+Configure and Test:
+-------------------
+cd emscripten
+
+clang tests/hello_world.cpp
+./a.out
+
+nodejs tests/hello_world.js
+
+./emcc           (first run builds ~/.emscripten setup file!!)
+
+./emcc tests/hello_world.cpp
+node a.out.js
+
+./emcc tests/hello_world_sdl.cpp -o hello.html
+
+./emcc tests/hello_world_file.cpp -o hello.html --preload-file tests/hello_world_file.txt
+
+cd test
+../emcc hello_image_sdl.c --preload-file screenshot.jpg -o a.html
+
+
+
+Building Emscripten-Qt:
+=======================
+
+For all:
+export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
+
+
+Generic Build:
+--------------
+
+cd ~/emscripten
+mkdir build-emscripten-qt
+cd build-emscripten-qt
+
+../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+
+
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets install_mkspecs
+
+
+(optional optimization):
+for i in qcosmeticstroker qdrawhelper qgrayraster; do opt -O3 src/gui/.obj/debug-static-emb-emscripten/$i.o > tmp-llvm-$i.o; mv tmp-llvm-$i.o src/gui/.obj/debug-static-emb-emscripten/$i.o; done && make  sub-corelib-install_subtargets sub-gui-install_subtargets 
+
+
+Native Build:
+-------------
+
+export EMSCRIPTEN_USE_AR_FOR_STATIC_LIBRARIES=yes
+(the above export is also needed on your local app builds!!)
+
+cd ~/emscripten
+mkdir build-emscripten-qt-native
+cd build-emscripten-qt-native
+
+../emscripten-qt/configure -xplatform qws/emscripten-clang-native  -embedded emscripten -static -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+
+
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets install_mkspecs
+
+
+Note: The optimization shown for the Generic Build doesn't work for Native Build!
+
+
+Building Chips Demo (Generic):
+==============================
+
+cd ~/emscripten    (apps won't build under the build-emscripten-qt folder)
+mkdir qtdemos
+cd qtdemos
+cp -R ../emscripten-qt/demos/chip .
+cd chip
+patch main.cpp < ../../emscripten-qt/emscripten-stuff/chip-emscripten-qt-patch.patch
+cd ..
+mkdir build-chip
+cd build-chip
+~/emscripten/build-emscripten-qt/install/bin/qmake ../chip/chip.pro -spec qws/emscripten-clang
+make
+
+mkdir -p qt-fonts && cp ../../build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ../../build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
+cp ../../build-emscripten-qt/install/lib/QtGui.a QtGui.so
+cp ../../build-emscripten-qt/install/lib/QtCore.a QtCore.so
+
+../../emscripten/emcc \
+  chip.bc \
+  QtGui.so QtCore.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js ../../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library ../../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged']" \
+  -s TOTAL_MEMORY=67108864 \
+  -s INLINING_LIMIT=50 \
+  -o chip.html 
+
+Info from Simon's website:
+A brief explanation of the arguments:
+    chip.bc is of course the llvm bitcode file that we want to convert to Javascript;
+    then we provide the paths to QtCore.a and QtGui.a, which are the bitcode libraries we created when we compiled emscripten-qt;
+    -O2 is the optimisation level;
+    --closure 0 disables Google's "Closure" compiler as it currently seems to generate incorrect code with emscripten-qt;
+    --jcache just tells emcc to cache the results so hopefully things will go faster should we want to compile this again;
+    --pre-qt.js contains a bunch of Javascript helpers for interfacing with the canvas (flushing the QWS framebuffer to it; passing canvas mouse events to QWS; setting up the single font file provided with emscripten-qt; etc);
+    --embed-file qt-fonts adds the fonts that we just copied over - note that the directory name "qt-fonts" is important here, as emscripten-qt is hardcoded to look for fonts stored in a directory called "qt-fonts";
+    -s EXPORTED_FUNCTIONS is something that will hopefully be useful to us when/ if I figure out how to get Closure working with emscripten-qt;
+    -s TOTAL_MEMORY sets the amount of "simulated" memory that will be allotted to the app when it runs; the "chip" demo takes up a fair bit of RAM, and Emscripten in asm.js mode requires RAM to be a power of 2, so we allocate ~64MB to be on the safe side; and
+    chip.html will be the web page containing the converted Javascript + canvas version of the chips demo that we can run in a browser.
+
+
+NOTE: Simon's website has a few errors in the commands listed above, such as wrong export
+names for the canvas_width_pixels and canvas_height_pixels functions, etc...  Compare!!
+
+
+Building Chips Demo (Native):
+=============================
+
+export EMSCRIPTEN_USE_AR_FOR_STATIC_LIBRARIES=yes
+
+cd ~/emscripten    (apps won't build under the build-emscripten-qt folder)
+mkdir qtdemos
+cd qtdemos
+cp -R ../emscripten-qt/demos/chip .
+cd chip
+patch main.cpp < ../../emscripten-qt/emscripten-stuff/chip-emscripten-qt-patch.patch
+cd ..
+mkdir build-chip-native
+cd build-chip-native
+~/emscripten/build-emscripten-qt-native/install/bin/qmake ../chip/chip.pro -spec qws/emscripten-clang-native
+make
+
+
+
+The above 'make' fails I think because of the "EMSCRIPTEN_USE_AR_FOR_STATIC_LIBRARIES" flag.
+Doing the following lets it build to a .a file, but the final build step, while it succeeds
+(with a couple of tweaks), fails to produce code that actually does anything:
+~/emscripten/build-emscripten-qt-native/install/bin/qmake ../chip/chip.pro -spec qws/emscripten-clang-native TEMPLATE=lib QMAKE_CXXFLAGS+=-fPIC QMAKE_CXXFLAGS+=-static CONFIG+=static
+make
+??????????
+
+
+
+
+
+mkdir -p qt-fonts && cp ../../build-emscripten-qt-native/install/lib/fonts/helvetica_*.qpf ../../build-emscripten-qt-native/install/lib/fonts/fixed_*.qpf qt-fonts/
+cp ../../build-emscripten-qt-native/install/lib/QtGui.a QtGui.so
+cp ../../build-emscripten-qt-native/install/lib/QtCore.a QtCore.so
+
+../../emscripten/emcc \
+  chip.bc \
+  QtGui.so QtCore.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js ../../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library ../../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged']" \
+  -s TOTAL_MEMORY=67108864 \
+  -s INLINING_LIMIT=50 \
+  -o chip.html 
+
+
+
+===============================================================================
+===============================================================================
+
+
