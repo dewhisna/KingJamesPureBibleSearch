@@ -27,17 +27,18 @@
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
-#include "BuildDB.h"
-#include "KJVAboutDlg.h"
 #include "version.h"
 #include "PersistentSettings.h"
-#include "KJVConfiguration.h"
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
+#include "SearchCompleter.h"
+#ifndef EMSCRIPTEN
+#include "KJVConfiguration.h"
+#include "DictionaryWidget.h"
+#include "KJVAboutDlg.h"
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
-#include "SearchCompleter.h"
-#include "DictionaryWidget.h"
+#endif
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
 
@@ -281,6 +282,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBrowserWidget->setSizePolicy(aSizePolicy);
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
+#ifndef EMSCRIPTEN
 	if (g_pMainDictionaryDatabase != NULL) {
 		m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
@@ -291,6 +293,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 		m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
 		m_pSplitterDictionary->addWidget(m_pDictionaryWidget);
 	}
+#endif
 
 	m_pSplitter->addWidget(m_pSplitterDictionary);
 
@@ -690,20 +693,26 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Scripture Browser:
 
+#ifndef EMSCRIPTEN
 	if (m_pDictionaryWidget != NULL) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
 	}
+#endif
 
 	// -------------------- UserNoteEditor Dialog:
+#ifndef EMSCRIPTEN
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
 	connect(m_pActionUserNoteEditor, SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
+#endif
 
 
 	// -------------------- CrossRefsEditor Dialog:
+#ifndef EMSCRIPTEN
 	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
 	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
+#endif
 
 
 	// -------------------- Persistent Settings:
@@ -800,8 +809,10 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
 	settings.endGroup();
 
+#ifndef EMSCRIPTEN
 	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 	m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
+#endif
 
 	// Highlighter Tool Bar:
 	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
@@ -977,8 +988,10 @@ void CKJVCanOpener::restorePersistentSettings()
 			settings.endGroup();
 		}
 
+#ifndef EMSCRIPTEN
 		m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 		m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
+#endif
 
 		if (bIsFirstCanOpener) {
 			if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
@@ -1878,6 +1891,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 
 void CKJVCanOpener::en_userNoteEditorTriggered()
 {
+#ifndef EMSCRIPTEN
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -1897,10 +1911,12 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	m_pUserNoteEditorDlg->setLocationIndex(indexNote);
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pUserNoteEditorDlg->exec();
+#endif
 }
 
 void CKJVCanOpener::en_crossRefsEditorTriggered()
 {
+#ifndef EMSCRIPTEN
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -1921,6 +1937,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	m_pCrossRefsEditorDlg->setSourcePassage(tagCrossRef);
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pCrossRefsEditorDlg->exec();
+#endif
 }
 
 void CKJVCanOpener::en_viewDetails()
@@ -1964,9 +1981,11 @@ void CKJVCanOpener::en_HelpManual()
 
 void CKJVCanOpener::en_HelpAbout()
 {
+#ifndef EMSCRIPTEN
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	CKJVAboutDlgPtr pDlg(this);
 	pDlg->exec();
+#endif
 }
 
 void CKJVCanOpener::en_PureBibleSearchDotCom()
@@ -2014,6 +2033,7 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure(int nInitialPage)
 {
+#ifndef EMSCRIPTEN
 	assert(g_pMyApplication.data() != NULL);
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
@@ -2030,11 +2050,16 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 	}
 
 	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication, SLOT(restartApp()));
+#else
+	Q_UNUSED(nInitialPage);
+#endif
 }
 
 void CKJVCanOpener::en_LaunchUserNoteConfig()
 {
+#ifndef EMSCRIPTEN
 	en_Configure(CPSE_USER_NOTES_DATABASE);
+#endif
 }
 
 void CKJVCanOpener::en_NewCanOpener()

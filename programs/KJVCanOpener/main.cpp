@@ -22,15 +22,16 @@
 ****************************************************************************/
 
 #include <QtCore>
+#ifdef SHOW_SPLASH_SCREEN
 #include <QPixmap>
 #include <QSplashScreen>
+#include <QElapsedTimer>
+#endif
 #include <QWidget>
 #include <QMainWindow>
-#include <QElapsedTimer>
 #include <QDesktopWidget>
 #include <QPainter>
 #include <QLocale>
-#include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
 #include <QFileInfo>
@@ -53,10 +54,13 @@
 
 #include "myApplication.h"
 #include "KJVCanOpener.h"
+#include "ReportError.h"
 
 #include "version.h"
 #include "dbstruct.h"
+#ifdef BUILD_KJV_DATABASE
 #include "BuildDB.h"
+#endif
 #include "ReadDB.h"
 
 #include "PersistentSettings.h"
@@ -79,12 +83,17 @@ namespace {
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
-	const int g_connMinSplashTimeMS = 5000;		// Minimum number of milliseconds to display splash screen
+#ifdef SHOW_SPLASH_SCREEN
+	const int g_connMinSplashTimeMS = 5000;			// Minimum number of milliseconds to display splash screen
 	const int g_connInterAppSplashTimeMS = 2000;	// Splash Time for Inter-Application communications
+#endif
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
 
+	//////////////////////////////////////////////////////////////////////
+
 #ifdef Q_OS_ANDROID
+	// --------------------------------------------------------------------------------------------------------- Android ------------------------
 // Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
 //	const char *g_constrPluginsPath = "assets:/plugins/";
 //	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/plugins/";
@@ -93,16 +102,30 @@ namespace {
 	const char *g_constrUserDatabaseTemplateFilename = "KJVCanOpener/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_IOS)
+	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
 	const char *g_constrKJVDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "./assets/KJVCanOpener/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "./assets/KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
+	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrKJVDatabaseFilename = "../Resources/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "../Resources/db/dct-web1828.s3db";
+#elif defined(EMSCRIPTEN)
+	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
+	#ifdef EMSCRIPTEN_NATIVE
+		const char *g_constrKJVDatabaseFilename = "./data/kjvtext.s3db";
+		const char *g_constrUserDatabaseTemplateFilename = "./data/kjvuser.s3db";
+		const char *g_constrWeb1828DatabaseFilename = "./data/dct-web1828.s3db";
+	#else
+		const char *g_constrKJVDatabaseFilename = "data/kjvtext.s3db";
+		const char *g_constrUserDatabaseTemplateFilename = "data/kjvuser.s3db";
+		const char *g_constrWeb1828DatabaseFilename = "data/dct-web1828.s3db";
+	#endif
 #else
+	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrKJVDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
@@ -110,7 +133,12 @@ namespace {
 #endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
+	//////////////////////////////////////////////////////////////////////
+
+#ifdef LOAD_APPLICATION_FONTS
+
 #ifdef Q_OS_ANDROID
+	// --------------------------------------------------------------------------------------------------------- Android ------------------------
 	const char *g_constrScriptBLFontFilename = "KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -134,6 +162,7 @@ namespace {
 	const char *g_constrDejaVuSerif_Italic = "KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "KJVCanOpener/fonts/DejaVuSerif.ttf";
 #elif defined(Q_OS_IOS)
+	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 #ifndef WORKAROUND_QTBUG_34490
 	const char *g_constrScriptBLFontFilename = "./assets/KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
@@ -159,6 +188,7 @@ namespace {
 	const char *g_constrDejaVuSerif = "./assets/KJVCanOpener/fonts/DejaVuSerif.ttf";
 #endif
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
+	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../Resources/fonts/DejaVuSans-Bold.ttf";
@@ -181,7 +211,11 @@ namespace {
 	const char *g_constrDejaVuSerifCondensed = "../Resources/fonts/DejaVuSerifCondensed.ttf";
 	const char *g_constrDejaVuSerif_Italic = "../Resources/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "../Resources/fonts/DejaVuSerif.ttf";
+#elif defined(EMSCRIPTEN)
+	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
+	// Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder
 #else
+	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -205,7 +239,6 @@ namespace {
 	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
 #endif
-
 
 #ifndef WORKAROUND_QTBUG_34490
 	const char *g_constrarrFontFilenames[] = {
@@ -233,7 +266,9 @@ namespace {
 		g_constrDejaVuSerif,
 		NULL
 	};
-#endif
+#endif		// WORKAROUND_QTBUG_34490
+
+#endif		//	LOAD_APPLICATION_FONTS
 
 }	// namespace
 
@@ -255,25 +290,25 @@ public:
 
 int main(int argc, char *argv[])
 {
-	CMyApplication app(argc, argv);
-	g_pMyApplication = &app;
-	app.setApplicationVersion(VER_QT);
-	app.setApplicationName(VER_APPNAME_STR_QT);
-	app.setOrganizationName(VER_ORGNAME_STR_QT);
-	app.setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
+	CMyApplication *pApp = new CMyApplication(argc, argv);
+	g_pMyApplication = pApp;
+	pApp->setApplicationVersion(VER_QT);
+	pApp->setApplicationName(VER_APPNAME_STR_QT);
+	pApp->setOrganizationName(VER_ORGNAME_STR_QT);
+	pApp->setOrganizationDomain(VER_ORGDOMAIN_STR_QT);
 #ifdef USING_SINGLEAPPLICATION
-	SingleApplication instance(g_constrApplicationID, &app);
+	SingleApplication instance(g_constrApplicationID, pApp);
 #endif
 #ifdef USING_QT_SINGLEAPPLICATION
-	QtSingleApplication &instance = app;
+	QtSingleApplication &instance = *pApp;
 #endif
 
-	app.setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
+	pApp->setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
 
 	// Setup our SQL/Image Plugin paths:
-#ifndef Q_OS_ANDROID
-	QFileInfo fiPlugins(app.initialAppDirPath(), g_constrPluginsPath);
-	app.addLibraryPath(fiPlugins.absolutePath());
+#if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
+	QFileInfo fiPlugins(pApp->initialAppDirPath(), g_constrPluginsPath);
+	pApp->addLibraryPath(fiPlugins.absolutePath());
 #endif
 
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
@@ -287,39 +322,45 @@ int main(int argc, char *argv[])
 #if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
 
 	// Hook receiving messages from other KJPBS app launches:
-	app.connect(&instance, SIGNAL(messageReceived(const QString &)), &app, SLOT(receivedKJPBSMessage(const QString &)));
+	pApp->connect(&instance, SIGNAL(messageReceived(const QString &)), pApp, SLOT(receivedKJPBSMessage(const QString &)));
 
 #endif
 
 #ifdef Q_OS_WIN32
-	app.setWindowIcon(QIcon(":/res/bible.ico"));
+	pApp->setWindowIcon(QIcon(":/res/bible.ico"));
 #else
 #ifndef Q_OS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
-	app.setWindowIcon(QIcon(":/res/bible_48.png"));
+	pApp->setWindowIcon(QIcon(":/res/bible_48.png"));
 #endif
 #endif
 
+#ifdef SHOW_SPLASH_SCREEN
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
 	QSplashScreen *splash = new QSplashScreen(pixSplash);
-	splash->show();
+	if (splash) {
+		splash->show();
 #ifdef WORKAROUND_QTBUG_35787
-	// The following is a work-around for QTBUG-35787 where the
-	//		splashscreen won't display on iOS unless an event
-	//		loop completes:
-	QEventLoop loop;
-	QMetaObject::invokeMethod(&loop, "quit", Qt::QueuedConnection);
-	loop.exec();
+		// The following is a work-around for QTBUG-35787 where the
+		//		splashscreen won't display on iOS unless an event
+		//		loop completes:
+		QEventLoop loop;
+		QMetaObject::invokeMethod(&loop, "quit", Qt::QueuedConnection);
+		loop.exec();
 #endif
-	splash->raise();
-	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
-	const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-	if (!strSpecialVersion.isEmpty()) strSpecialVersion = "<br>\n" + strOffsetSpace + strSpecialVersion;
-	splash->showMessage(QString("<html><body><table height=375 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>") +
-							strOffsetSpace + QObject::tr("Please Wait...") +
-							strSpecialVersion +
-							QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
-	splash->repaint();
-	app.processEvents();
+		splash->raise();
+		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
+		const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		if (!strSpecialVersion.isEmpty()) strSpecialVersion = "<br>\n" + strOffsetSpace + strSpecialVersion;
+		splash->showMessage(QString("<html><body><table height=375 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>") +
+								strOffsetSpace + QObject::tr("Please Wait...") +
+								strSpecialVersion +
+								QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
+		splash->repaint();
+		pApp->processEvents();
+	}
+#else
+	QWidget *splash = NULL;
+#endif
 
 #ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
@@ -328,11 +369,13 @@ int main(int argc, char *argv[])
 	//			exit and InnoSetup actually suggest we leave it open
 #endif
 
+#ifdef SHOW_SPLASH_SCREEN
 	QElapsedTimer splashTimer;
 	splashTimer.start();
+#endif
 
 	// Parse the Commmand-line:
-	if (strKJSFile.isEmpty() && !app.fileToLoad().isEmpty()) strKJSFile = app.fileToLoad();
+	if (strKJSFile.isEmpty() && !pApp->fileToLoad().isEmpty()) strKJSFile = pApp->fileToLoad();
 
 	bool bLookingForSettings = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
@@ -344,7 +387,7 @@ int main(int argc, char *argv[])
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"").arg(strArg));
+				displayWarning(splash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"").arg(strArg));
 			}
 		} else if (!bLookingForSettings) {
 			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
@@ -355,45 +398,51 @@ int main(int argc, char *argv[])
 				bStealthMode = true;
 				bLookingForSettings = true;
 			} else {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
+				displayWarning(splash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
 			}
 		} else {
 			if (bLookingForSettings) {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead").arg(strArg));
+				displayWarning(splash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead").arg(strArg));
 				bLookingForSettings = false;
 			}
 		}
 	}
+
+#ifdef EMSCRIPTEN
+	bStealthMode = true;
+#endif
 
 #if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
 
 	// Check for existing KJPBS and have it handle this launch request:
 	if (instance.isRunning()) {
 		if (bBuildDB) {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!"));
-			delete splash;
+			displayWarning(splash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!"));
+			if (splash) delete splash;
 			return -2;
 		}
 
+#ifdef SHOW_SPLASH_SCREEN
 		do {
-			app.processEvents();
+			pApp->processEvents();
 		} while (!splashTimer.hasExpired(g_connInterAppSplashTimeMS));
+#endif
 
 		QString strMessage;
 		if (!strKJSFile.isEmpty()) {
 			QFileInfo fiKJSFile(strKJSFile);
-			strMessage = app.createKJPBSMessage(CMyApplication::KAMCE_ACTIVATE_EXISTING_OPEN_KJS, QStringList(QString("KJS=%1").arg(fiKJSFile.absoluteFilePath())));
+			strMessage = pApp->createKJPBSMessage(CMyApplication::KAMCE_ACTIVATE_EXISTING_OPEN_KJS, QStringList(QString("KJS=%1").arg(fiKJSFile.absoluteFilePath())));
 		} else{
-			strMessage = app.createKJPBSMessage(CMyApplication::KAMCE_NEW_CANOPENER, QStringList());
+			strMessage = pApp->createKJPBSMessage(CMyApplication::KAMCE_NEW_CANOPENER, QStringList());
 		}
 
 		if (instance.sendMessage(strMessage, 5000)) {
-			delete splash;
+			if (splash) delete splash;
 			return 0;
 		} else {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("There appears to be another copy of King James Pure Bible Search running, but it is not responding. "
-																			 "Please check the running copy to see if it's functioning and revive it and/or reboot."));
-			delete splash;
+			displayWarning(splash, g_constrInitialization, QObject::tr("There appears to be another copy of King James Pure Bible Search running, but it is not responding. "
+																		 "Please check the running copy to see if it's functioning and revive it and/or reboot."));
+			if (splash) delete splash;
 			return -1;
 		}
 	}
@@ -408,6 +457,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Setup our Fonts:
+#ifdef LOAD_APPLICATION_FONTS
 	//	Note: As of Qt 5.2, iOS doesn't currently load fonts correctly and causes:
 	//			This plugin does not support application fonts
 	//			This plugin does not support propagateSizeHints()
@@ -416,25 +466,34 @@ int main(int argc, char *argv[])
 	//		auto-load them for us:
 #ifndef WORKAROUND_QTBUG_34490
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
-		QFileInfo fiFont(app.initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
+		QFileInfo fiFont(pApp->initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
 		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
 		if (nFontStatus == -1) {
 #ifdef QT_DEBUG
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
-#endif
+			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
+#endif	// QT_DEBUG
 		}
+	}
+#endif	// WORKAROUND_QTBUG_34490
+#endif	// LOAD_APPLICATION_FONTS
+
+#ifdef SHOW_SPLASH_SCREEN
+	// Sometimes the splash screen fails to paint, so we'll pump events again
+	//	between the fonts and database:
+	if (splash) {
+		splash->repaint();
+		pApp->processEvents();
 	}
 #endif
 
-	// Sometimes the splash screen fails to paint, so we'll pump events again
-	//	between the fonts and database:
-	splash->repaint();
-	app.processEvents();
-
 	// Database Paths:
-	QFileInfo fiKJVDatabase(app.initialAppDirPath(), g_constrKJVDatabaseFilename);
-	QFileInfo fiUserDatabaseTemplate(app.initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
-	QFileInfo fiWeb1828DictDatabase(app.initialAppDirPath(), g_constrWeb1828DatabaseFilename);
+#ifndef EMSCRIPTEN
+	QString strKJVDatabasePath = QFileInfo(pApp->initialAppDirPath(), g_constrKJVDatabaseFilename).absoluteFilePath();
+#else
+	QString strKJVDatabasePath = g_constrKJVDatabaseFilename;
+#endif
+	QFileInfo fiUserDatabaseTemplate(pApp->initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
+	QFileInfo fiWeb1828DictDatabase(pApp->initialAppDirPath(), g_constrWeb1828DatabaseFilename);
 #if QT_VERSION < 0x050000
 	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #else
@@ -450,25 +509,33 @@ int main(int argc, char *argv[])
 
 
 //CBuildDatabase adb(splash);
-//adb.BuildDatabase(fiKJVDatabase.absoluteFilePath());
+//adb.BuildDatabase(strKJVDatabasePath);
 //return 0;
 
 	// Read (and/or Build) our Databases:
 	{
+#ifdef BUILD_KJV_DATABASE
 		CBuildDatabase bdb(splash);
 		if (bBuildDB) {
-			if (!bdb.BuildDatabase(fiKJVDatabase.absoluteFilePath())) {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
-				delete splash;
+			if (!bdb.BuildDatabase(strKJVDatabasePath)) {
+				displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
+				if (splash) delete splash;
 				return -2;
 			}
 		}
+#else
+		if (bBuildDB) {
+			displayWarning(splash, g_constrInitialization, QObject::tr("Database building isn't supported on this platform/build..."));
+			if (splash) delete splash;
+			return -2;
+		}
+#endif
 
 		// Read Main Database
 		CReadDatabase rdbMain(splash);
-		if (!rdbMain.ReadBibleDatabase(fiKJVDatabase.absoluteFilePath(), true)) {
-			QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(fiKJVDatabase.absoluteFilePath()));
-			delete splash;
+		if (!rdbMain.ReadBibleDatabase(strKJVDatabasePath, true)) {
+			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(strKJVDatabasePath));
+			if (splash) delete splash;
 			return -3;
 		}
 
@@ -499,21 +566,22 @@ int main(int argc, char *argv[])
 		if (fiWeb1828DictDatabase.exists()) {
 			const TDictionaryDescriptor &descWeb1828 = dictionaryDescriptor(DDE_WEB1828);
 			if (!rdbDict.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
-				QMessageBox::warning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
-				delete splash;
+				displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
+				if (splash) delete splash;
 				return -5;
 			}
 		}
 	}
 
+#ifdef SHOW_SPLASH_SCREEN
 	// Show splash for minimum time:
 	do {
-		app.processEvents();
+		pApp->processEvents();
 	} while (!splashTimer.hasExpired(g_connMinSplashTimeMS));
-
+#endif
 
 	// Setup our default font for our controls:
-	app.restoreApplicationFontSettings();
+	pApp->restoreApplicationFontSettings();
 
 
 	// Set setDesktopSettingsAware here instead of before app being
@@ -528,15 +596,15 @@ int main(int argc, char *argv[])
 	//	reported at the bottom of this blog:
 	//	http://blog.qt.digia.com/blog/2008/11/16/font-and-palette-propagation-in-qt/
 #ifdef Q_OS_MAC
-	app.setDesktopSettingsAware(false);
+	pApp->setDesktopSettingsAware(false);
 #endif
 
 	// Update settings for next time.  Use application font instead of
 	//		our variables in case Qt substituted for another available font:
-	app.saveApplicationFontSettings();
+	pApp->saveApplicationFontSettings();
 
 	// Connect TextBrightness change notifications:
-	app.setupTextBrightnessStyleHooks();
+	pApp->setupTextBrightnessStyleHooks();
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
@@ -553,25 +621,46 @@ int main(int argc, char *argv[])
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener *pMain = app.createKJVCanOpener(g_pMainBibleDatabase);
-	splash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
-	delete splash;
+	CKJVCanOpener *pMain = pApp->createKJVCanOpener(g_pMainBibleDatabase);
+#ifdef SHOW_SPLASH_SCREEN
+	if (splash) {
+		splash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
+		delete splash;
+	}
+#endif
 
 	if (!strKJSFile.isEmpty()) pMain->openKJVSearchFile(strKJSFile);
 
 	int nRetVal = 0;
+
+#ifndef EMSCRIPTEN
 	bool bDone = false;
 
 	while (!bDone) {
-		nRetVal = app.exec();
-		if ((nRetVal != 0) || (!app.areRestarting())) {
+		nRetVal = pApp->exec();
+		if ((nRetVal != 0) || (!pApp->areRestarting())) {
 			bDone = true;
 		} else {
-			app.createKJVCanOpener(g_pMainBibleDatabase);
+			pApp->createKJVCanOpener(g_pMainBibleDatabase);
 		}
 	}
 
+#ifdef LOAD_APPLICATION_FONTS
+#ifndef WORKAROUND_QTBUG_34490
 	QFontDatabase::removeAllApplicationFonts();
+#endif	// WORKAROUND_QTBUG_34490
+#endif	// LOAD_APPLICATION_FONTS
+
+	delete pApp;
+#else
+	pApp->exec();
+#ifdef EMSCRIPTEN_NATIVE
+	while (true) {
+		pApp->processEvents();
+	}
+#endif
+
+#endif
 
 	return nRetVal;
 }

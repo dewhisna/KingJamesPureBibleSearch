@@ -826,10 +826,10 @@ cd ~/emscripten
 mkdir build-emscripten-qt
 cd build-emscripten-qt
 
-../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
 
 
-make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets install_mkspecs
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-sql-install_subtargets sub-xml-install_subtargets install_mkspecs
 
 
 (optional optimization):
@@ -849,7 +849,7 @@ cd build-emscripten-qt-native
 ../emscripten-qt/configure -xplatform qws/emscripten-clang-native  -embedded emscripten -static -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
 
 
-make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets install_mkspecs
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-sql-install_subtargets sub-xml-install_subtargets install_mkspecs
 
 
 Note: The optimization shown for the Generic Build doesn't work for Native Build!
@@ -857,6 +857,8 @@ Note: The optimization shown for the Generic Build doesn't work for Native Build
 
 Building Chips Demo (Generic):
 ==============================
+
+export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
 
 cd ~/emscripten    (apps won't build under the build-emscripten-qt folder)
 mkdir qtdemos
@@ -909,6 +911,7 @@ names for the canvas_width_pixels and canvas_height_pixels functions, etc...  Co
 Building Chips Demo (Native):
 =============================
 
+export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
 export EMSCRIPTEN_USE_AR_FOR_STATIC_LIBRARIES=yes
 
 cd ~/emscripten    (apps won't build under the build-emscripten-qt folder)
@@ -954,6 +957,96 @@ cp ../../build-emscripten-qt-native/install/lib/QtCore.a QtCore.so
   -s INLINING_LIMIT=50 \
   -o chip.html 
 
+
+Building KJPBS for Emscripten (Generic):
+========================================
+
+export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
+
+<Build in QtCreator>
+
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
+
+mkdir -p qt-fonts && cp ~/emscripten/build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ~/emscripten/build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/QtGui.a QtGui.so
+cp ~/emscripten/build-emscripten-qt/install/lib/QtCore.a QtCore.so
+cp ~/emscripten/build-emscripten-qt/install/lib/QtSql.a QtSql.so
+cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
+
+mkdir -p data
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.s3db data/
+
+$EMSCRIPTEN_ROOT_PATH/emcc \
+  KingJamesPureBibleSearch.bc \
+  QtGui.so QtCore.so QtSql.so QtXml.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  --embed-file data \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged']" \
+  -s TOTAL_MEMORY=1073741824 \
+  -s INLINING_LIMIT=50 \
+  -o KingJamesPureBibleSearch.html
+
+
+$EMSCRIPTEN_ROOT_PATH/emcc \
+  KingJamesPureBibleSearch.bc \
+  QtGui.so QtCore.so QtSql.so QtXml.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  --preload-file data/kjvtext.s3db \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged']" \
+  -s TOTAL_MEMORY=1073741824 \
+  -s INLINING_LIMIT=50 \
+  -o KingJamesPureBibleSearch.html
+
+
+Memory Sizes:
+134217728
+268435456
+536870912
+1073741824
+2147483648 <<< this one doesn't work at all (probably too big)
+
+https://github.com/kripken/emscripten/wiki/CodeGuidelinesAndLimitations#function-pointer-issues
+
+References:
+-s VERBOSE=1
+-s ALIASING_FUNCTION_POINTERS=0
+
+===============================================================================
+===============================================================================
+
+Emscripten Warnings during first build (SQL Issues to resolve):
+(These were fixed by changing emscripten-qt/src/3rdparty/sqlite/sqlite.c
+to emscripten-qt/src/3rdparty/sqlite/sqlite.cpp and editing all casts, etc
+to be C++ format and undating the sqlite.pri file accordingly)
+===============================================================
+
+Warning: Casting potentially incompatible function pointer i32 (i8*, i32, i32)* to void ()*, for posixOpen
+Warning: See https://github.com/kripken/emscripten/wiki/CodeGuidlinesAndLimitations#function-pointer-issues for more information on dangerous function pointer casts
+Warning: Incompatible function pointer casts are very dangerous with ASM_JS=1, you should investigate and correct these
+Warning: Casting potentially incompatible function pointer i32 (i32)* to void ()*, for close
+Warning: Casting potentially incompatible function pointer i32 (i8*, i32)* to void ()*, for access
+Warning: Casting potentially incompatible function pointer i8* (i8*, i32)* to void ()*, for getcwd
+Warning: Casting potentially incompatible function pointer i32 (i8*, %struct.stat*)* to void ()*, for stat
+Warning: Casting potentially incompatible function pointer i32 (i32, %struct.stat*)* to void ()*, for fstat
+Warning: Casting potentially incompatible function pointer i32 (i32, i32)* to void ()*, for ftruncate
+Warning: Casting potentially incompatible function pointer i32 (i32, i32, ...)* to void ()*, for fcntl
+Warning: Casting potentially incompatible function pointer i32 (i32, i8*, i32)* to void ()*, for read
+Warning: Casting potentially incompatible function pointer i32 (i32, i8*, i32)* to void ()*, for write
+
+
+Warning: Casting potentially incompatible function pointer void (%struct.sqlite3*, i8*)* to void (i8*)*, for sqlite3DbFree
+Warning: See https://github.com/kripken/emscripten/wiki/CodeGuidlinesAndLimitations#function-pointer-issues for more information on dangerous function pointer casts
+Warning: Incompatible function pointer casts are very dangerous with ASM_JS=1, you should investigate and correct these
 
 
 ===============================================================================

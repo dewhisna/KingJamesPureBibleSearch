@@ -31,8 +31,10 @@
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
+#ifndef EMSCRIPTEN
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#endif
 #include "SearchCompleter.h"
 #include "BusyCursor.h"
 

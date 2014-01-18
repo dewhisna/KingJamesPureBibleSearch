@@ -30,9 +30,15 @@
 QT       += core gui sql xml
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
-CONFIG += rtti
+!emscripten {
+	win32:CONFIG += rtti
+	CONFIG += wwwidgets
+}
 
-CONFIG += wwwidgets
+!android:!ios:!emscripten {
+	CONFIG += buildKJVDatabase
+	DEFINES += BUILD_KJV_DATABASE
+}
 
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
@@ -52,7 +58,7 @@ android {
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
 
-!android:!ios {
+!android:!ios:!emscripten {
 	# Select Desired Package:
 	#	SingleApplication
 	#	QtSingleApplication
@@ -89,7 +95,7 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #	failure of the accessibility factory from creating an accessibility
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
-QTPLUGIN += qtaccessiblewidgets
+!emscripten:QTPLUGIN += qtaccessiblewidgets
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
@@ -97,7 +103,7 @@ QTPLUGIN += qtaccessiblewidgets
 #DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
 #DEFINES += SEARCH_PHRASE_SPY SEARCH_RESULTS_SPY
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
-declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
+!emscripten:declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
 
 # Enable workarounds for some QTBUGs:
@@ -105,6 +111,12 @@ DEFINES += WORKAROUND_QTBUG_13768											# Hover attribute for QSplitter
 greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):CONFIG += WORKAROUND_QTBUG_34490		# iOS Font Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS SplashScreen Bug
+
+# Enable Splash Screen:
+DEFINES += SHOW_SPLASH_SCREEN
+
+# Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
+!emscripten:DEFINES += LOAD_APPLICATION_FONTS
 
 # Enable Gesture/TouchDevice processing:
 greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
@@ -165,126 +177,141 @@ DEPENDPATH += $$PWD
 
 SOURCES += main.cpp \
 	myApplication.cpp \
-	KJVCanOpener.cpp \
+	BusyCursor.cpp \
 	CSV.cpp \
 	dbstruct.cpp \
-	BuildDB.cpp \
-	ReadDB.cpp \
+	DelayedExecutionTimer.cpp \
+	Highlighter.cpp \
 	KJVBrowser.cpp \
-	KJVSearchPhraseEdit.cpp \
-	VerseListModel.cpp \
-	KJVSearchCriteria.cpp \
-	PhraseListModel.cpp \
+	KJVCanOpener.cpp \
 	KJVPassageNavigator.cpp \
 	KJVPassageNavigatorDlg.cpp \
-	PhraseEdit.cpp \
-	ScriptureEdit.cpp \
-	Highlighter.cpp \
-	VerseListDelegate.cpp \
-	KJVAboutDlg.cpp \
-	SearchPhraseListModel.cpp \
-	MimeHelper.cpp \
-	ToolTipEdit.cpp \
-	PersistentSettings.cpp \
-	QtFindReplaceDialog/dialogs/findreplaceform.cpp \
-	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
-	QtFindReplaceDialog/dialogs/findform.cpp \
-	QtFindReplaceDialog/dialogs/finddialog.cpp \
+	KJVSearchCriteria.cpp \
+	KJVSearchPhraseEdit.cpp \
 	KJVSearchResult.cpp \
 	KJVSearchSpec.cpp \
-	ParseSymbols.cpp \
-	VerseRichifier.cpp \
-	DelayedExecutionTimer.cpp \
-	BusyCursor.cpp \
+	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
-	ReflowDelegate.cpp \
-	signalspy/Q4puGenericSignalSpy.cpp \
-	SearchCompleter.cpp \
-	KJVConfiguration.cpp \
-	UserNotesDatabase.cpp \
-	SubControls.cpp \
-	KJVNoteEditDlg.cpp \
-	ScriptureDocument.cpp \
 	NoteKeywordWidget.cpp \
-	KJVCrossRefEditDlg.cpp \
-	RenameHighlighterDlg.cpp \
+	ParseSymbols.cpp \
 	PassageReferenceWidget.cpp \
-	DictionaryWidget.cpp
+	PersistentSettings.cpp \
+	PhraseEdit.cpp \
+	PhraseListModel.cpp \
+	ReadDB.cpp \
+	ReflowDelegate.cpp \
+	ReportError.cpp \
+	ScriptureDocument.cpp \
+	ScriptureEdit.cpp \
+	SearchCompleter.cpp \
+	SearchPhraseListModel.cpp \
+	SubControls.cpp \
+	ToolTipEdit.cpp \
+	UserNotesDatabase.cpp \
+	VerseListModel.cpp \
+	VerseListDelegate.cpp \
+	VerseRichifier.cpp
 
-HEADERS  += myApplication.h \
-	KJVCanOpener.h \
+buildKJVDatabase:SOURCES += \
+	BuildDB.cpp
+
+!emscripten:SOURCES += \
+	DictionaryWidget.cpp \
+	KJVAboutDlg.cpp \
+	KJVConfiguration.cpp \
+	KJVCrossRefEditDlg.cpp \
+	KJVNoteEditDlg.cpp \
+	QtFindReplaceDialog/dialogs/finddialog.cpp \
+	QtFindReplaceDialog/dialogs/findform.cpp \
+	QtFindReplaceDialog/dialogs/findreplaceform.cpp \
+	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
+	RenameHighlighterDlg.cpp \
+	signalspy/Q4puGenericSignalSpy.cpp
+
+
+HEADERS += myApplication.h \
+	BusyCursor.h \
 	CSV.h \
 	dbstruct.h \
-	ReadDB.h \
-	BuildDB.h \
+	DelayedExecutionTimer.h \
+	Highlighter.h \
 	KJVBrowser.h \
-	KJVSearchPhraseEdit.h \
-	VerseListModel.h \
-	KJVSearchCriteria.h \
-	PhraseListModel.h \
+	KJVCanOpener.h \
 	KJVPassageNavigator.h \
 	KJVPassageNavigatorDlg.h \
-	PhraseEdit.h \
-	ScriptureEdit.h \
-	Highlighter.h \
-	VerseListDelegate.h \
-	KJVAboutDlg.h \
-	version.h \
-	SearchPhraseListModel.h \
-	MimeHelper.h \
-	ToolTipEdit.h \
-	PersistentSettings.h \
-	QtFindReplaceDialog/dialogs/findreplaceform.h \
-	QtFindReplaceDialog/dialogs/findreplacedialog.h \
-	QtFindReplaceDialog/dialogs/findform.h \
-	QtFindReplaceDialog/dialogs/finddialog.h \
-	QtFindReplaceDialog/dialogs/findreplace_global.h \
+	KJVSearchCriteria.h \
+	KJVSearchPhraseEdit.h \
 	KJVSearchResult.h \
 	KJVSearchSpec.h \
-	ParseSymbols.h \
-	VerseRichifier.h \
-	DelayedExecutionTimer.h \
-	BusyCursor.h \
+	MimeHelper.h \
 	ModelRowForwardIterator.h \
-	ReflowDelegate.h \
-	signalspy/Q4puGenericSignalSpy.h \
-	SearchCompleter.h \
-	KJVConfiguration.h \
-	UserNotesDatabase.h \
-	SubControls.h \
-	KJVNoteEditDlg.h \
-	ScriptureDocument.h \
-	ScriptureTextFormatProperties.h \
 	NoteKeywordWidget.h \
-	KJVCrossRefEditDlg.h \
-	RenameHighlighterDlg.h \
+	ParseSymbols.h \
 	PassageReferenceWidget.h \
-	DictionaryWidget.h
+	PersistentSettings.h \
+	PhraseEdit.h \
+	PhraseListModel.h \
+	ReadDB.h \
+	ReflowDelegate.h \
+	ReportError.h \
+	ScriptureDocument.h \
+	ScriptureEdit.h \
+	ScriptureTextFormatProperties.h \
+	SearchCompleter.h \
+	SearchPhraseListModel.h \
+	SubControls.h \
+	ToolTipEdit.h \
+	UserNotesDatabase.h \
+	VerseListModel.h \
+	VerseListDelegate.h \
+	VerseRichifier.h \
+	version.h
 
-FORMS    += KJVCanOpener.ui \
-	KJVBrowser.ui \
-	KJVSearchPhraseEdit.ui \
-	KJVSearchCriteria.ui \
+buildKJVDatabase:HEADERS += \
+	BuildDB.h
+
+!emscripten:HEADERS += \
+	DictionaryWidget.h \
+	KJVAboutDlg.h \
+	KJVConfiguration.h \
+	KJVCrossRefEditDlg.h \
+	KJVNoteEditDlg.h \
+	QtFindReplaceDialog/dialogs/finddialog.h \
+	QtFindReplaceDialog/dialogs/findform.h \
+	QtFindReplaceDialog/dialogs/findreplaceform.h \
+	QtFindReplaceDialog/dialogs/findreplacedialog.h \
+	QtFindReplaceDialog/dialogs/findreplace_global.h \
+	RenameHighlighterDlg.h \
+	signalspy/Q4puGenericSignalSpy.h
+
+
+FORMS += KJVBrowser.ui \
+	KJVCanOpener.ui \
 	KJVPassageNavigator.ui \
 	KJVPassageNavigatorDlg.ui \
+	KJVSearchCriteria.ui \
+	KJVSearchPhraseEdit.ui \
+	KJVSearchSpec.ui \
+	NoteKeywordWidget.ui \
+	PassageReferenceWidget.ui
+
+!emscripten:FORMS += \
+	ConfigBrowserOptions.ui \
+	ConfigCopyOptions.ui \
+	ConfigDictionaryOptions.ui \
+	ConfigSearchOptions.ui \
+	DictionaryWidget.ui \
 	KJVAboutDlg.ui \
+	KJVBibleDatabaseConfig.ui \
+	KJVCrossRefEditDlg.ui \
+	KJVGeneralSettingsConfig.ui \
+	KJVNoteEditDlg.ui \
+	KJVTextFormatConfig.ui \
+	KJVUserNotesDatabaseConfig.ui \
 	QtFindReplaceDialog/dialogs/findreplaceform.ui \
 	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
-	KJVSearchSpec.ui \
-	KJVTextFormatConfig.ui \
-	KJVNoteEditDlg.ui \
-	NoteKeywordWidget.ui \
-	KJVCrossRefEditDlg.ui \
-	KJVBibleDatabaseConfig.ui \
-	KJVUserNotesDatabaseConfig.ui \
-	KJVGeneralSettingsConfig.ui \
-	ConfigSearchOptions.ui \
-	ConfigBrowserOptions.ui \
-	ConfigDictionaryOptions.ui \
-	ConfigCopyOptions.ui \
-	RenameHighlighterDlg.ui \
-	PassageReferenceWidget.ui \
-	DictionaryWidget.ui
+	RenameHighlighterDlg.ui
+
 
 RESOURCES += \
 	KJVCanOpener.qrc

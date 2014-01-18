@@ -29,6 +29,7 @@
 #include "CSV.h"
 #include "PhraseEdit.h"
 #include "SearchCompleter.h"
+#include "ReportError.h"
 
 #include <assert.h>
 
@@ -36,7 +37,6 @@
 
 #include <QtSql>
 #include <QSqlQuery>
-#include <QMessageBox>
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
@@ -89,12 +89,12 @@ bool CReadDatabase::ReadDBInfoTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='DBInfo'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"DBInfo\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"DBInfo\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"DBInfo\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"DBInfo\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -134,7 +134,7 @@ bool CReadDatabase::ReadDBInfoTable()
 	queryData.finish();
 
 	if (!bDBInfoGood) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, strError);
+		displayWarning(m_pParent, g_constrReadDatabase, strError);
 	}
 
 	return bDBInfoGood;
@@ -150,12 +150,12 @@ bool CReadDatabase::ReadTestamentTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TESTAMENT'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TESTAMENT\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TESTAMENT\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TESTAMENT\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -186,12 +186,12 @@ bool CReadDatabase::ReadBooksTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TOC'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TOC\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"TOC\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TOC\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"TOC\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -280,12 +280,12 @@ bool CReadDatabase::ReadChaptersTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LAYOUT'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"LAYOUT\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"LAYOUT\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"LAYOUT\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -348,12 +348,12 @@ bool CReadDatabase::ReadVerseTables()
 
 		// Check to see if the table exists:
 		if (!queryTable.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName))) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName).arg(queryTable.lastError().text()));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName).arg(queryTable.lastError().text()));
 			return false;
 		}
 		queryTable.next();
 		if (!queryTable.value(0).toInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"%1\" Table in database!").arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName));
 			return false;
 		}
 		queryTable.finish();
@@ -442,12 +442,12 @@ bool CReadDatabase::ReadWordsTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='WORDS'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"WORDS\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"WORDS\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"WORDS\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"WORDS\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -489,7 +489,7 @@ bool CReadDatabase::ReadWordsTable()
 			assert(entryWord.m_strWord.compare(strKey) == 0);
 			assert(entryWord.m_bCasePreserve == bCasePreserve);
 			if ((entryWord.m_strWord.compare(strKey) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
-				QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
 				return false;
 			}
 		}
@@ -513,23 +513,23 @@ bool CReadDatabase::ReadWordsTable()
 			}
 		}
 		if (entryWord.m_lstAltWords.size() != entryWord.m_lstAltWordCount.size()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Mismatch Word Counts for \"%1\" AltWords=%2, AltWordCounts=%3")
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Mismatch Word Counts for \"%1\" AltWords=%2, AltWordCounts=%3")
 							.arg(strWord).arg(entryWord.m_lstAltWords.size()).arg(entryWord.m_lstAltWordCount.size()));
 			return false;
 		}
 		if (nAltCount != queryData.value(3).toUInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad AltWordCounts for \"%1\"").arg(strWord));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Bad AltWordCounts for \"%1\"").arg(strWord));
 			return false;
 		}
 		nConcordanceCount += entryWord.m_lstAltWords.size();		// Note: nConcordanceCount will be slightly too large due to folding of duplicate decomposed indexes, but is sufficient for a reserve()
 
 		TNormalizedIndexList lstNormalIndexes;
 		if (!IndexBlobToIndexList(queryData.value(6).toByteArray(), lstNormalIndexes)) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Bad word indexes for \"%1\"").arg(strWord));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Bad word indexes for \"%1\"").arg(strWord));
 			return false;
 		}
 		if (lstNormalIndexes.size() != queryData.value(3).toUInt()) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Index/Count consistency error in WORDS table!"));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Index/Count consistency error in WORDS table!"));
 			return false;
 		}
 		entryWord.m_ndxNormalizedMapping.insert(entryWord.m_ndxNormalizedMapping.end(), lstNormalIndexes.begin(), lstNormalIndexes.end());
@@ -581,7 +581,7 @@ bool CReadDatabase::ReadWordsTable()
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
 				assert(ndxMapping < entryWord.m_ndxNormalizedMapping.size());
 				if (entryWord.m_ndxNormalizedMapping.at(ndxMapping) > nNumWordsInText) {
-					QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping.at(ndxMapping)));
+					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping.at(ndxMapping)));
 					return false;
 				}
 				m_pBibleDatabase->m_lstConcordanceMapping[entryWord.m_ndxNormalizedMapping.at(ndxMapping)] = lstSortIndex.at(ndxWord);
@@ -658,12 +658,12 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='FOOTNOTES'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"FOOTNOTES\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"FOOTNOTES\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"FOOTNOTES\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -703,12 +703,12 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='PHRASES'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"PHRASES\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"PHRASES\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"PHRASES\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"PHRASES\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -762,15 +762,15 @@ bool CReadDatabase::ValidateData()
 	unsigned int ncntWrd_Vrs = 0;	// Word count in current Verse
 
 	if (m_pBibleDatabase->m_lstBookVerses.size() != m_pBibleDatabase->m_lstBooks.size()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book List and Table of Contents have different sizes!\nCheck the database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book List and Table of Contents have different sizes!\nCheck the database!"));
 		return false;
 	}
 
 	ncntTstTot = m_pBibleDatabase->m_lstTestaments.size();
 	for (unsigned int nBk=0; nBk<m_pBibleDatabase->m_lstBooks.size(); ++ nBk) {		// Books
 		if ((m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx < 1) || (m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx > ncntTstTot)) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) References Invalid Testament %3")
-								.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) References Invalid Testament %3")
+							.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx));
 			return false;
 		}
 		ncntChp_Bk = 0;
@@ -798,29 +798,29 @@ bool CReadDatabase::ValidateData()
 				ncntWrd_Bk += itrBook->second.m_nNumWrd;
 			}
 			if (ncntVrs_Chp != itrChapters->second.m_nNumVrs) {
-				QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
-									.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrChapters->second.m_nNumVrs));
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!")
+								.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntVrs_Chp).arg(itrChapters->second.m_nNumVrs));
 				return false;
 			}
 			if (ncntWrd_Chp != itrChapters->second.m_nNumWrd) {
-				QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
-									.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrChapters->second.m_nNumWrd));
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!")
+								.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(nChp+1).arg(ncntWrd_Chp).arg(itrChapters->second.m_nNumWrd));
 				return false;
 			}
 		}
 		if (ncntChp_Bk != m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
-									.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntChp_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!")
+							.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntChp_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp));
 			return false;
 		}
 		if (ncntVrs_Bk != m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
-									.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntVrs_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!")
+							.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntVrs_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs));
 			return false;
 		}
 		if (ncntWrd_Bk != m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
-									.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!")
+							.arg(m_pBibleDatabase->m_lstBooks[nBk].m_strBkName).arg(nBk+1).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd));
 			return false;
 		}
 	}
@@ -830,13 +830,13 @@ bool CReadDatabase::ValidateData()
 		nWordListTot += itrWords->second.m_ndxNormalizedMapping.size();
 	}
 	if (nWordListTot != ncntWrdTot) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Word List contains %1 indexes, expected %2!").arg(nWordListTot).arg(ncntWrdTot));
 		return false;
 	}
 
 	// Check concordance:
 	if ((nWordListTot+1) != m_pBibleDatabase->m_lstConcordanceMapping.size()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(m_pBibleDatabase->m_lstConcordanceMapping.size()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!").arg(nWordListTot+1).arg(m_pBibleDatabase->m_lstConcordanceMapping.size()));
 		return false;
 	}
 
@@ -846,7 +846,7 @@ bool CReadDatabase::ValidateData()
 		(ncntChpTot != m_pBibleDatabase->bibleEntry().m_nNumChp) ||
 		(ncntVrsTot != m_pBibleDatabase->bibleEntry().m_nNumVrs) ||
 		(ncntWrdTot != m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Overall Bible Entry Data Counts are inconsistent!  Check database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Overall Bible Entry Data Counts are inconsistent!  Check database!"));
 		return false;
 	}
 
@@ -855,7 +855,7 @@ bool CReadDatabase::ValidateData()
 	for (unsigned int nWrd = 1; nWrd <= m_pBibleDatabase->bibleEntry().m_nNumWrd; ++nWrd) {
 		uint32_t ndxRel = m_pBibleDatabase->DenormalizeIndex(nWrd);
 		if (m_pBibleDatabase->NormalizeIndex(ndxRel) != nWrd) {
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3").arg(nWrd).arg(ndxRel).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3").arg(nWrd).arg(ndxRel).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
 			assert(false);
 		}
 	}
@@ -876,12 +876,12 @@ bool CReadDatabase::ReadDictionaryDBInfo()
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='title'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"title\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"title\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"title\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"title\" Table in database!"));
 		queryTable.finish();
 		return false;
 	}
@@ -893,7 +893,7 @@ bool CReadDatabase::ReadDictionaryDBInfo()
 	if (queryData.next()) {
 		m_pDictionaryDatabase->m_strInfo = queryData.value(2).toString();
 	} else {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find Dictionary information record!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find Dictionary information record!"));
 		queryData.finish();
 		return false;
 	}
@@ -912,12 +912,12 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 
 	// Check to see if the table exists:
 	if (!queryTable.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='dictionary'")) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"dictioanry\" Failed!\n%1").arg(queryTable.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Table Lookup for \"dictioanry\" Failed!\n%1").arg(queryTable.lastError().text()));
 		return false;
 	}
 	queryTable.next();
 	if (!queryTable.value(0).toInt()) {
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"dictionary\" Table in database!"));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Unable to find \"dictionary\" Table in database!"));
 		return false;
 	}
 	queryTable.finish();
@@ -972,7 +972,7 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool b
 	m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
-//	QMessageBox::information(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
+//	displayWarning(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
 	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());
 	assert(m_pBibleDatabase.data() != NULL);
@@ -983,7 +983,7 @@ bool CReadDatabase::ReadBibleDatabase(const QString &strDatabaseFilename, bool b
 #ifdef Q_OS_ANDROID
 		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
 #endif
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		bSuccess = false;
 	}
 
@@ -1024,7 +1024,7 @@ bool CReadDatabase::ReadUserDatabase(const QString &strDatabaseFilename, bool bH
 		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
 #endif
 		if (!bHideWarnings)
-			QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
 		bSuccess = false;
 	}
 
@@ -1051,13 +1051,13 @@ bool CReadDatabase::ReadDictionaryDatabase(const QString &strDatabaseFilename, c
 	m_pDictionaryDatabase->m_myDatabase.setDatabaseName(strDatabaseFilename);
 	m_pDictionaryDatabase->m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
-//	QMessageBox::information(m_pParent, g_constrReadDatabase, m_pDictionaryDatabase->m_myDatabase.databaseName());
+//	displayWarning(m_pParent, g_constrReadDatabase, m_pDictionaryDatabase->m_myDatabase.databaseName());
 
 	if (!m_pDictionaryDatabase->m_myDatabase.open()) {
 #ifdef Q_OS_ANDROID
 		__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()).toUtf8().data());
 #endif
-		QMessageBox::warning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
 		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
 		QSqlDatabase::removeDatabase(strCompatUUID);
 		return false;

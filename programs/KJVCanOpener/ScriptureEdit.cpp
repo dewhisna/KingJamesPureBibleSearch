@@ -28,8 +28,11 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#ifndef EMSCRIPTEN
+#include "QtFindReplaceDialog/dialogs/finddialog.h"
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#endif
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
@@ -110,9 +113,11 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 	// FindDialog:
+#ifndef EMSCRIPTEN
 	m_pFindDialog = new FindDialog(this);
 	m_pFindDialog->setModal(false);
 	m_pFindDialog->setTextEdit(this);
+#endif
 
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
@@ -159,15 +164,19 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text"));
 	m_pEditMenu->addSeparator();
-	m_pActionFind = m_pEditMenu->addAction(T::tr("&Find..."), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
-	m_pActionFind->setStatusTip(T::tr("Find text within the passage browser"));
-	m_pActionFind->setEnabled(T::useFindDialog());
-	m_pActionFindNext = m_pEditMenu->addAction(T::tr("Find &Next"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
-	m_pActionFindNext->setStatusTip(T::tr("Find next occurrence of text within the passage browser"));
-	m_pActionFindNext->setEnabled(T::useFindDialog());
-	m_pActionFindPrev = m_pEditMenu->addAction(T::tr("Find &Previous"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
-	m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser"));
-	m_pActionFindPrev->setEnabled(T::useFindDialog());
+#ifndef EMSCRIPTEN
+	if (m_pFindDialog != NULL) {
+		m_pActionFind = m_pEditMenu->addAction(T::tr("&Find..."), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+		m_pActionFind->setStatusTip(T::tr("Find text within the passage browser"));
+		m_pActionFind->setEnabled(T::useFindDialog());
+		m_pActionFindNext = m_pEditMenu->addAction(T::tr("Find &Next"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
+		m_pActionFindNext->setStatusTip(T::tr("Find next occurrence of text within the passage browser"));
+		m_pActionFindNext->setEnabled(T::useFindDialog());
+		m_pActionFindPrev = m_pEditMenu->addAction(T::tr("Find &Previous"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
+		m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser"));
+		m_pActionFindPrev->setEnabled(T::useFindDialog());
+	}
+#endif
 
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
@@ -251,19 +260,27 @@ void CScriptureText<T,U>::setTextBrightness(bool bInvert, int nBrightness)
 template<class T, class U>
 void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
 {
+#ifndef EMSCRIPTEN
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
-		m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+		if (m_pFindDialog != NULL) m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
 	}
+#else
+	Q_UNUSED(strGroup);
+#endif
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 {
+#ifndef EMSCRIPTEN
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
 	}
+#else
+	Q_UNUSED(strGroup);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -271,14 +288,18 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 template<class T, class U>
 void CScriptureText<T,U>::en_findDialog()
 {
-	if (haveSelection()) {
-		m_pFindDialog->setTextToFind(m_selectedPhrase.phrase().phraseRaw());
+#ifndef EMSCRIPTEN
+	if (m_pFindDialog != NULL) {
+		if (haveSelection()) {
+			m_pFindDialog->setTextToFind(m_selectedPhrase.phrase().phraseRaw());
+		}
+		if (m_pFindDialog->isVisible()) {
+			m_pFindDialog->activateWindow();
+		} else {
+			m_pFindDialog->show();
+		}
 	}
-	if (m_pFindDialog->isVisible()) {
-		m_pFindDialog->activateWindow();
-	} else {
-		m_pFindDialog->show();
-	}
+#endif
 }
 
 // ----------------------------------------------------------------------------

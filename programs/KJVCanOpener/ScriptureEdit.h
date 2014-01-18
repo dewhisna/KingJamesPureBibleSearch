@@ -29,8 +29,6 @@
 #include "PhraseEdit.h"
 #include "DelayedExecutionTimer.h"
 
-#include "QtFindReplaceDialog/dialogs/finddialog.h"
-
 #include <QWidget>
 #include <QTextBrowser>
 #include <QTextEdit>
@@ -47,6 +45,7 @@
 
 // Forward declarations:
 class CKJVCanOpener;
+class FindDialog;
 
 // ============================================================================
 
@@ -271,7 +270,13 @@ public:
 	{ }
 
 	static bool useToolTipEdit() { return true; }
-	static bool useFindDialog() { return true; }
+	static bool useFindDialog() {
+#ifndef EMSCRIPTEN
+		return true;
+#else
+		return false;
+#endif
+	}
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);
