@@ -36,6 +36,21 @@ extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QStrin
 													QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
 
 
+extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
+													QMessageBox::StandardButton nButton0,
+													QMessageBox::StandardButton nButton1);
+
+
+// ------------------------------------
+
+extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+														QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
+														QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
+
+extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+														QMessageBox::StandardButton nButton0,
+														QMessageBox::StandardButton nButton1);
+
 // ============================================================================
 
 #endif		// REPORT_ERROR_H

@@ -35,13 +35,43 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 #ifndef EMSCRIPTEN
 	return QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
 #else
-	qDebug("%s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
+	qDebug("warning: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
-	Q_UNUSED(nDefaultButton);
+	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
 #endif
 }
 
+QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
+											QMessageBox::StandardButton nButton0,
+											QMessageBox::StandardButton nButton1)
+{
+	return displayWarning(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
+}
+
+// ----------------------------------------------------------------------------
+
+QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+												QMessageBox::StandardButtons nButtons,
+												QMessageBox::StandardButton nDefaultButton)
+{
+#ifndef EMSCRIPTEN
+	return QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
+#else
+	qDebug("information: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
+	Q_UNUSED(pParent);
+	Q_UNUSED(nButtons);
+	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
+	return QMessageBox::Ok;
+#endif
+}
+
+QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+												QMessageBox::StandardButton nButton0,
+												QMessageBox::StandardButton nButton1)
+{
+	return displayInformation(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
+}
 
 // ============================================================================

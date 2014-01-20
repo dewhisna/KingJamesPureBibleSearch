@@ -1104,6 +1104,7 @@ CDictionaryDatabase::CDictionaryDatabase(const QString &strName, const QString &
 
 CDictionaryDatabase::~CDictionaryDatabase()
 {
+#ifndef NOT_USING_SQL
 	if (isLiveDatabase()) {
 		assert(m_myDatabase.contains(m_strCompatibilityUUID));
 		m_myDatabase.close();
@@ -1112,6 +1113,7 @@ CDictionaryDatabase::~CDictionaryDatabase()
 	} else {
 		assert(!m_myDatabase.contains(m_strCompatibilityUUID));
 	}
+#endif
 }
 
 QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord, bool bCache) const

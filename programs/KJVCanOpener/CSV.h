@@ -29,6 +29,7 @@
 #include <QIODevice>
 #include <QBuffer>
 #include <QTextStream>
+#include <QScopedPointer>
 
 // ============================================================================
 
@@ -104,6 +105,31 @@ inline CCSVStream& operator<<(CCSVStream &aStream, TCSVFUNC aFunction)
 {
 	return (*aFunction)(aStream);
 }
+
+// ============================================================================
+
+// This class allows a stack-scope to create a new CSVStream to assign to the
+//		main object scoped value, making it accessible to other member functions,
+//		and yet be guaranteed to be cleaned up, both for the local stack and
+//		the member object -- i.e. it's a way to clean up the member object without
+//		resorting to signals and slots and QObject...
+
+class CScopedCSVStream {
+public:
+	CScopedCSVStream(QScopedPointer<CCSVStream> &scopedCSV, CCSVStream *pCSVStream)
+		:	m_scopedCSV(scopedCSV)
+	{
+		m_scopedCSV.reset(pCSVStream);
+	}
+
+	~CScopedCSVStream()
+	{
+		m_scopedCSV.reset();
+	}
+
+private:
+	QScopedPointer<CCSVStream> &m_scopedCSV;
+};
 
 // ============================================================================
 

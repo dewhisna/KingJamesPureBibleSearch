@@ -24,25 +24,37 @@
 #ifndef READDB_H
 #define READDB_H
 
+#ifndef NOT_USING_SQL
 #include <QSqlDatabase>
+#endif
+
 #include <QWidget>
 #include <QByteArray>
 #include <QString>
+#include <QScopedPointer>
 #include "dbstruct.h"
+
+// ============================================================================
+
+// Forward Declarations:
+class CCSVStream;
 
 // ============================================================================
 
 class CReadDatabase
 {
 public:
+	enum DATABASE_TYPE_ENUM {
+		DTE_SQL = 0,					// SQLite3 (when NOT_USING_SQL not defined)
+		DTE_CC = 1						// Compressed-CSV (always available)
+	};
+
 	CReadDatabase(QWidget *pParent = NULL);
 	~CReadDatabase();
 
-	bool ReadBibleDatabase(const QString &strDatabaseFilename, bool bSetAsMain = false);
-	bool ReadUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
-	bool ReadDictionaryDatabase(const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB = true, bool bSetAsMain = false);
-
-	static bool IndexBlobToIndexList(const QByteArray &baBlob, TNormalizedIndexList &anIndexList);
+	bool ReadBibleDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bSetAsMain = false);
+	bool ReadUserDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bHideWarnings = false);
+	bool ReadDictionaryDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB = true, bool bSetAsMain = false);
 
 	// ------------------------------------------------------------------------
 
@@ -69,8 +81,18 @@ protected:
 	// ------------------------------------------------------------------------
 
 private:
+	bool readBibleStub();
+	bool readUserStub();
+	bool readDictionaryStub(bool bLiveDB);
+
+private:
 	QWidget *m_pParent;
+
+#ifndef NOT_USING_SQL
 	QSqlDatabase m_myDatabase;
+#endif
+	QScopedPointer<CCSVStream> m_pCCDatabase;		// KJPBS Format Database .ccdb (compress-csv database)
+
 	CBibleDatabasePtr m_pBibleDatabase;				// Pointer to the Bible Database currently being read -- created in ReadBibleDatabase, used by reader functions
 	CDictionaryDatabasePtr m_pDictionaryDatabase;	// Pointer to the Dictionary Database currently being read -- created in ReadDictionaryDatabase, used by reader functions
 };

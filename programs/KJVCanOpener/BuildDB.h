@@ -24,11 +24,22 @@
 #ifndef BUILDDB_H
 #define BUILDDB_H
 
+#ifndef NOT_USING_SQL
 #include <QSqlDatabase>
+#endif
+
 #include <QWidget>
 #include <QByteArray>
 #include <QString>
+#include <QScopedPointer>
 #include "dbstruct.h"
+
+// ============================================================================
+
+// Forward Declarations:
+class CCSVStream;
+
+// ============================================================================
 
 class CBuildDatabase
 {
@@ -36,10 +47,8 @@ public:
 	CBuildDatabase(QWidget *pParent = NULL);
 	~CBuildDatabase();
 
-	bool BuildDatabase(const QString &strDatabaseFilename);
+	bool BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename);
 	bool BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
-
-	static QByteArray CSVStringToIndexBlob(const QString &str);
 
 protected:
 	bool BuildDBInfoTable();
@@ -53,7 +62,12 @@ protected:
 
 private:
 	QWidget *m_pParent;
+#ifndef NOT_USING_SQL
 	QSqlDatabase m_myDatabase;
+#endif
+	QScopedPointer<CCSVStream> m_pCCDatabase;				// KJPBS Format Database .ccdb (compress-csv database)
 };
+
+// ============================================================================
 
 #endif // BUILDDB_H

@@ -27,7 +27,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml
+QT       += core gui xml
+!emscripten {
+	QT += sql
+} else {
+	DEFINES += NOT_USING_SQL
+}
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 !emscripten {
@@ -325,10 +330,11 @@ macx:greaterThan(QT_MAJOR_VERSION,4):QMAKE_INFO_PLIST = KJVCanOpener.Info.plist.
 # Temporary workaround for QTBUG-34490:	https://bugreports.qt-project.org/browse/QTBUG-34490
 #	We'll add the fonts to the Info.plist so iOS will auto-load them for us:
 ios:greaterThan(QT_MAJOR_VERSION,4) {
-	!WORKAROUND_QTBUG_34490:QMAKE_INFO_PLIST = KJVCanOpener.iOS.Info.plist.app
 	WORKAROUND_QTBUG_34490 {
 		QMAKE_INFO_PLIST = KJVCanOpener.iOS.fonts.Info.plist.app
 		DEFINES += WORKAROUND_QTBUG_34490
+	} else {
+		QMAKE_INFO_PLIST = KJVCanOpener.iOS.Info.plist.app
 	}
 }
 

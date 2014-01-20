@@ -98,36 +98,38 @@ namespace {
 //	const char *g_constrPluginsPath = "assets:/plugins/";
 //	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/plugins/";
 
-	const char *g_constrKJVDatabaseFilename = "KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVSQLDatabaseFilename = "KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVCCDatabaseFilename = "KJVCanOpener/db/kjvtext.ccdb";
 	const char *g_constrUserDatabaseTemplateFilename = "KJVCanOpener/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
-	const char *g_constrKJVDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVSQLDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVCCDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.ccdb";
 	const char *g_constrUserDatabaseTemplateFilename = "./assets/KJVCanOpener/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "./assets/KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrPluginsPath = "../Frameworks/";
-	const char *g_constrKJVDatabaseFilename = "../Resources/db/kjvtext.s3db";
+	const char *g_constrKJVSQLDatabaseFilename = "../Resources/db/kjvtext.s3db";
+	const char *g_constrKJVCCDatabaseFilename = "../Resources/db/kjvtext.ccdb";
 	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "../Resources/db/dct-web1828.s3db";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	#ifdef EMSCRIPTEN_NATIVE
-		const char *g_constrKJVDatabaseFilename = "./data/kjvtext.s3db";
-		const char *g_constrUserDatabaseTemplateFilename = "./data/kjvuser.s3db";
-		const char *g_constrWeb1828DatabaseFilename = "./data/dct-web1828.s3db";
+		const char *g_constrKJVSQLDatabaseFilename = "./data/kjvtext.s3db";
+		const char *g_constrKJVCCDatabaseFilename = "./data/kjvtext.ccdb";
 	#else
-		const char *g_constrKJVDatabaseFilename = "data/kjvtext.s3db";
-		const char *g_constrUserDatabaseTemplateFilename = "data/kjvuser.s3db";
-		const char *g_constrWeb1828DatabaseFilename = "data/dct-web1828.s3db";
+		const char *g_constrKJVSQLDatabaseFilename = "data/kjvtext.s3db";
+		const char *g_constrKJVCCDatabaseFilename = "data/kjvtext.ccdb";
 	#endif
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-	const char *g_constrKJVDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVSQLDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
+	const char *g_constrKJVCCDatabaseFilename = "../../KJVCanOpener/db/kjvtext.ccdb";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 	const char *g_constrWeb1828DatabaseFilename = "../../KJVCanOpener/db/dct-web1828.s3db";
 #endif
@@ -488,10 +490,31 @@ int main(int argc, char *argv[])
 
 	// Database Paths:
 #ifndef EMSCRIPTEN
-	QString strKJVDatabasePath = QFileInfo(pApp->initialAppDirPath(), g_constrKJVDatabaseFilename).absoluteFilePath();
-#else
-	QString strKJVDatabasePath = g_constrKJVDatabaseFilename;
+	QFileInfo fiKJVSQLDatabase = QFileInfo(pApp->initialAppDirPath(), g_constrKJVSQLDatabaseFilename);
+	QFileInfo fiKJVCCDatabase = QFileInfo(pApp->initialAppDirPath(), g_constrKJVCCDatabaseFilename);
+
+	QString strKJVSQLDatabasePath = fiKJVSQLDatabase.absoluteFilePath();
+	QString strKJVCCDatabasePath = fiKJVCCDatabase.absoluteFilePath();
+
+	// If we can't support SQL, we can't:
+#ifdef NOT_USING_SQL
+	strKJVSQLDatabasePath.clear();
+	fiKJVSQLDatabase = QFileInfo();
 #endif
+
+	// Prefer the CC database over the SQL one for non-build mode:
+	if (!bBuildDB) {
+		if ((!strKJVCCDatabasePath.isEmpty()) && (fiKJVCCDatabase.exists())) {
+			strKJVSQLDatabasePath.clear();
+			fiKJVSQLDatabase = QFileInfo();
+		} else {
+#ifndef NOT_USING_SQL
+			strKJVCCDatabasePath.clear();
+			fiKJVCCDatabase = QFileInfo();
+#endif
+		}
+	}
+
 	QFileInfo fiUserDatabaseTemplate(pApp->initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
 	QFileInfo fiWeb1828DictDatabase(pApp->initialAppDirPath(), g_constrWeb1828DatabaseFilename);
 #if QT_VERSION < 0x050000
@@ -504,12 +527,19 @@ int main(int argc, char *argv[])
 		QDir dirDataFolder;
 		dirDataFolder.mkpath(strDataFolder);
 	}
+#else
+	QString strKJVSQLDatabasePath;
+	QString strKJVCCDatabasePath = g_constrKJVCCDatabaseFilename;
+
+	QFileInfo fiKJVSQLDatabase;
+	QFileInfo fiKJVCCDatabase(strKJVCCDatabasePath);
+#endif
 
 //	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
 
 //CBuildDatabase adb(splash);
-//adb.BuildDatabase(strKJVDatabasePath);
+//adb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath);
 //return 0;
 
 	// Read (and/or Build) our Databases:
@@ -517,7 +547,7 @@ int main(int argc, char *argv[])
 #ifdef BUILD_KJV_DATABASE
 		CBuildDatabase bdb(splash);
 		if (bBuildDB) {
-			if (!bdb.BuildDatabase(strKJVDatabasePath)) {
+			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
 				if (splash) delete splash;
 				return -2;
@@ -532,27 +562,39 @@ int main(int argc, char *argv[])
 #endif
 
 		// Read Main Database
+		if ((strKJVSQLDatabasePath.isEmpty()) && (strKJVCCDatabasePath.isEmpty())) {
+			displayWarning(splash, g_constrInitialization, QObject::tr("No Bible Database Defined!"));
+			if (splash) delete splash;
+			return -3;
+		}
 		CReadDatabase rdbMain(splash);
-		if (!rdbMain.ReadBibleDatabase(strKJVDatabasePath, true)) {
-			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(strKJVDatabasePath));
+		if (((!strKJVSQLDatabasePath.isEmpty()) && (fiKJVSQLDatabase.exists()) && (!rdbMain.ReadBibleDatabase(CReadDatabase::DTE_SQL, strKJVSQLDatabasePath, true))) ||
+			((!strKJVCCDatabasePath.isEmpty()) && (fiKJVCCDatabase.exists()) && (!rdbMain.ReadBibleDatabase(CReadDatabase::DTE_CC, strKJVCCDatabasePath, true)))) {
+			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(strKJVSQLDatabasePath));
+			if (splash) delete splash;
+			return -3;
+		}
+		if (g_pMainBibleDatabase.data() == NULL) {
+			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!"));
 			if (splash) delete splash;
 			return -3;
 		}
 
+#ifndef EMSCRIPTEN
 		// Read User Database:
 		CReadDatabase rdbUser(splash);
 		if (!fiUserDatabase.exists()) {
 			// If the user's database doesn't exist, see if the template one
 			//		does.  If so, read and use it:
 			if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
-				rdbUser.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true);
+				rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabaseTemplate.absoluteFilePath(), true);
 			}
 		} else {
 			// If the user's database does exist, read it. But if it isn't a proper file
 			//		or if the read fails, try reading the template if it exists:
-			if ((!fiUserDatabase.isFile()) || (!rdbUser.ReadUserDatabase(fiUserDatabase.absoluteFilePath(), true))) {
+			if ((!fiUserDatabase.isFile()) || (!rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabase.absoluteFilePath(), true))) {
 				if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
-					rdbUser.ReadUserDatabase(fiUserDatabaseTemplate.absoluteFilePath(), true);
+					rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabaseTemplate.absoluteFilePath(), true);
 				}
 			}
 		}
@@ -562,15 +604,19 @@ int main(int argc, char *argv[])
 		//		- Else, empty
 
 		// Read Dictionary Database:
+#ifndef NOT_USING_SQL
 		CReadDatabase rdbDict(splash);
 		if (fiWeb1828DictDatabase.exists()) {
 			const TDictionaryDescriptor &descWeb1828 = dictionaryDescriptor(DDE_WEB1828);
-			if (!rdbDict.ReadDictionaryDatabase(fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
+			if (!rdbDict.ReadDictionaryDatabase(CReadDatabase::DTE_SQL, fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
 				displayWarning(splash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
 				if (splash) delete splash;
 				return -5;
 			}
 		}
+#endif	// !NOT_USING_SQL
+#endif	// EMSCRIPTEN
+
 	}
 
 #ifdef SHOW_SPLASH_SCREEN

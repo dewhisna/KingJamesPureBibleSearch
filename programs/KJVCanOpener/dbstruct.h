@@ -40,7 +40,9 @@
 #include <QDataStream>
 #include <QSharedPointer>
 #include <QObject>
+#ifndef NOT_USING_SQL
 #include <QSqlDatabase>
+#endif
 
 #include <assert.h>
 
@@ -52,6 +54,9 @@
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
+// ============================================================================
+
+#define KJPBS_CCDB_VERSION		1			// Current version of our CCDB file format
 
 // ============================================================================
 
@@ -785,7 +790,13 @@ public:
 	QString description() const { return m_strDescription; }
 	QString info() const { return m_strInfo; }
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
-	bool isLiveDatabase() const { return m_myDatabase.isOpen(); }
+	bool isLiveDatabase() const {
+#ifndef NOT_USING_SQL
+		return m_myDatabase.isOpen();
+#else
+		return false;
+#endif
+	}
 
 	QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
 
@@ -811,7 +822,9 @@ private:
 	QString m_strDescription;				// Database description
 	QString m_strInfo;						// Information about this database (copyright details, etc)
 	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
+#ifndef NOT_USING_SQL
 	QSqlDatabase m_myDatabase;				// Open SQL for this dictionary
+#endif
 };
 
 
