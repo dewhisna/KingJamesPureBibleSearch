@@ -31,6 +31,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QTimer>
 
 // ============================================================================
 
@@ -55,6 +56,10 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 {
 	ui.setupUi(this);
 
+#ifdef EMSCRIPTEN
+	setAttribute(Qt::WA_DeleteOnClose);
+#endif
+
 	QPushButton *pLicenseButton = ui.buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
 	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(en_licenseDisplay()));
 	QPushButton *pCloseButton = ui.buttonBox->button(QDialogButtonBox::Close);
@@ -65,6 +70,12 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
 	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
+#ifdef EMSCRIPTEN
+	m_pExtraVersionInfo = scene->addText(tr("Lite Emscripten Web-Version"), QFont("Times New Roman", 10));
+	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
+#else
+	m_pExtraVersionInfo = NULL;
+#endif
 	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
 	if (!strSpecialVersion.isEmpty()) {
 		m_pAppSpecialVersion = scene->addText(strSpecialVersion, QFont("Times New Roman", 10));
@@ -85,6 +96,10 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	nYPos += m_pBethelURL->boundingRect().height();
 	m_pAppTitle->setPos(nXCenterLine - (m_pAppTitle->boundingRect().width() / 2), nYPos);
 	nYPos += m_pAppTitle->boundingRect().height();
+	if (m_pExtraVersionInfo) {
+		m_pExtraVersionInfo->setPos(nXCenterLine - (m_pExtraVersionInfo->boundingRect().width() / 2), nYPos);
+		nYPos += m_pExtraVersionInfo->boundingRect().height();
+	}
 	if (m_pAppSpecialVersion) {
 		m_pAppSpecialVersion->setPos(nXCenterLine - (m_pAppSpecialVersion->boundingRect().width() / 2), nYPos);
 		nYPos += m_pAppSpecialVersion->boundingRect().height();
@@ -92,6 +107,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBroughtToYouBy->setPos(nXCenterLine - (m_pBroughtToYouBy->boundingRect().width() / 2), nYPos);
 	nYPos += m_pBroughtToYouBy->boundingRect().height();
 	ui.graphicsView->setScene(scene);
+	updateGeometry();
 	adjustSize();
 
 	if (ui.graphicsView->verticalScrollBar())
@@ -102,6 +118,12 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 #ifndef Q_OS_MAC
 	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
 #endif
+
+	// Note:  The minimumSizeHint isn't computed until the
+	//	event loop runs, so just calling adjustSize here has
+	//	no effect.  So, we'll setup a dummy timer and
+	//	trigger it later in the event stack:
+	QTimer::singleShot(0, this, SLOT(en_resizeMe()));
 }
 
 CKJVAboutDlg::~CKJVAboutDlg()
@@ -109,20 +131,41 @@ CKJVAboutDlg::~CKJVAboutDlg()
 
 }
 
+void CKJVAboutDlg::en_resizeMe()
+{
+	adjustSize();
+
+	QWidget *pParentWidget = parentWidget();
+	if (pParentWidget != NULL) {
+		QPoint ptParent = pParentWidget->mapToGlobal(pParentWidget->rect().center());
+		move(ptParent.x() - width()/2, ptParent.y() - height()/2);
+	}
+}
+
 void CKJVAboutDlg::en_licenseDisplay()
 {
-	QMessageBox::information(this, tr("About King James Pure Bible Search License"),
-						tr("This program is free software; you can redistribute it and/or modify it under the terms "
-						"of the GNU General Public License as published by the Free Software Foundation; either "
-						"version 3 of the License, or (at your option) any later version.\n\n"
-						"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "
-						"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  "
-						"See the GNU General Public License for more details.\n\n"
-						"You should have received a copy of the GNU General Public License along with this program; "
-						"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
-						"Copyright (C) 2012-2013 Donna Whisnant, a.k.a. Dewtronics.\n"
-						"Contact: http://www.dewtronics.com/\n"
-						"Written and Developed for Bethel Church, Festus, MO."));
+	const QString strLicenseInfo =
+			tr("This program is free software; you can redistribute it and/or modify it under the terms "
+			"of the GNU General Public License as published by the Free Software Foundation; either "
+			"version 3 of the License, or (at your option) any later version.\n\n"
+			"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "
+			"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  "
+			"See the GNU General Public License for more details.\n\n"
+			"You should have received a copy of the GNU General Public License along with this program; "
+			"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
+			"Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.\n"
+			"Contact: http://www.dewtronics.com/\n"
+			"Written and Developed for Bethel Church, Festus, MO.");
+	const QString strTitle = tr("About King James Pure Bible Search License");
+
+#ifndef EMSCRIPTEN
+	QMessageBox::information(this, strTitle, strLicenseInfo);
+#else
+	QMessageBox *pMsgBox = new QMessageBox(QMessageBox::Information, strTitle, strLicenseInfo, QMessageBox::Ok, this);
+	pMsgBox->setAttribute(Qt::WA_DeleteOnClose);
+	pMsgBox->setModal(true);
+	pMsgBox->show();
+#endif
 }
 
 // ============================================================================

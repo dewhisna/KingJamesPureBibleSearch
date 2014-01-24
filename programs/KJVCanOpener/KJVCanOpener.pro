@@ -180,13 +180,15 @@ RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-SOURCES += main.cpp \
+SOURCES += \
+	main.cpp \
 	myApplication.cpp \
 	BusyCursor.cpp \
 	CSV.cpp \
 	dbstruct.cpp \
 	DelayedExecutionTimer.cpp \
 	Highlighter.cpp \
+	KJVAboutDlg.cpp \
 	KJVBrowser.cpp \
 	KJVCanOpener.cpp \
 	KJVPassageNavigator.cpp \
@@ -222,7 +224,6 @@ buildKJVDatabase:SOURCES += \
 
 !emscripten:SOURCES += \
 	DictionaryWidget.cpp \
-	KJVAboutDlg.cpp \
 	KJVConfiguration.cpp \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
@@ -234,12 +235,14 @@ buildKJVDatabase:SOURCES += \
 	signalspy/Q4puGenericSignalSpy.cpp
 
 
-HEADERS += myApplication.h \
+HEADERS += \
+	myApplication.h \
 	BusyCursor.h \
 	CSV.h \
 	dbstruct.h \
 	DelayedExecutionTimer.h \
 	Highlighter.h \
+	KJVAboutDlg.h \
 	KJVBrowser.h \
 	KJVCanOpener.h \
 	KJVPassageNavigator.h \
@@ -277,7 +280,6 @@ buildKJVDatabase:HEADERS += \
 
 !emscripten:HEADERS += \
 	DictionaryWidget.h \
-	KJVAboutDlg.h \
 	KJVConfiguration.h \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
@@ -290,7 +292,9 @@ buildKJVDatabase:HEADERS += \
 	signalspy/Q4puGenericSignalSpy.h
 
 
-FORMS += KJVBrowser.ui \
+FORMS += \
+	KJVAboutDlg.ui \
+	KJVBrowser.ui \
 	KJVCanOpener.ui \
 	KJVPassageNavigator.ui \
 	KJVPassageNavigatorDlg.ui \
@@ -306,7 +310,6 @@ FORMS += KJVBrowser.ui \
 	ConfigDictionaryOptions.ui \
 	ConfigSearchOptions.ui \
 	DictionaryWidget.ui \
-	KJVAboutDlg.ui \
 	KJVBibleDatabaseConfig.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVGeneralSettingsConfig.ui \

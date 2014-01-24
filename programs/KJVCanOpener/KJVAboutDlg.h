@@ -42,6 +42,7 @@ public:
 	virtual ~CKJVAboutDlg();
 
 private slots:
+	void en_resizeMe();
 	void en_licenseDisplay();
 
 // Data Private:
@@ -52,6 +53,7 @@ private:
 private:
 	QGraphicsPixmapItem *m_pBethelChurch;
 	QGraphicsTextItem *m_pAppTitle;
+	QGraphicsTextItem *m_pExtraVersionInfo;
 	QGraphicsTextItem *m_pAppSpecialVersion;
 	QGraphicsTextItem *m_pBroughtToYouBy;
 	QGraphicsTextItem *m_pBethelURL;

@@ -514,12 +514,12 @@ void CNoteKeywordWidget::en_keywordCurrentIndexChanged(const QString &text)
 
 void CNoteKeywordWidget::en_customContextMenuRequested(const QPoint &pos)
 {
-	m_pKeywordModel->contextMenu()->exec(ui.comboKeywords->mapToGlobal(pos));
+	m_pKeywordModel->contextMenu()->popup(ui.comboKeywords->mapToGlobal(pos));
 }
 
 void CNoteKeywordWidget::en_customContextMenuRequestedView(const QPoint &pos)
 {
-	m_pKeywordModel->contextMenu()->exec(ui.comboKeywords->view()->mapToGlobal(pos));
+	m_pKeywordModel->contextMenu()->popup(ui.comboKeywords->view()->mapToGlobal(pos));
 }
 
 // ============================================================================

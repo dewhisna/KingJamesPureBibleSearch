@@ -640,6 +640,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 		if (!ndxRel.isSet()) return;
 	}
 
+#ifndef EMSCRIPTEN
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
@@ -650,6 +651,12 @@ void CSearchResultsTreeView::showPassageNavigator()
 	if (pDlg->exec() == QDialog::Accepted) {
 		if (pDlg != NULL) emit gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
+#else
+	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(vlmodel()->bibleDatabase(), this);
+	connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	pDlg->navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
+	pDlg->show();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -885,7 +892,11 @@ void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 void CSearchResultsTreeView::en_displayContextMenu(const QPoint &ptGlobalPos)
 {
 	m_bDoingPopup = true;
+#ifndef EMSCRIPTEN
 	m_pEditMenuLocal->exec(ptGlobalPos);
+#else
+	m_pEditMenuLocal->popup(ptGlobalPos);
+#endif
 	m_bDoingPopup = false;
 	m_ptLastTrackPosition = ptGlobalPos;
 }
@@ -1258,10 +1269,12 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
+#ifndef EMSCRIPTEN
 	m_pShowHighlightersInSearchResults = new QCheckBox(this);
 	m_pShowHighlightersInSearchResults->setObjectName(QString::fromUtf8("checkBoxShowHighlightersInSearchResults"));
 	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results"));
 	pLayout->addWidget(m_pShowHighlightersInSearchResults);
+#endif
 
 	// --------------------------------
 
@@ -1289,8 +1302,10 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-	m_pShowHighlightersInSearchResults->setChecked(m_pSearchResultsTreeView->vlmodel()->showHighlightersInSearchResults());
-	connect(m_pShowHighlightersInSearchResults, SIGNAL(clicked(bool)), m_pSearchResultsTreeView->vlmodel(), SLOT(setShowHighlightersInSearchResults(bool)));
+	if (m_pShowHighlightersInSearchResults != NULL) {
+		m_pShowHighlightersInSearchResults->setChecked(m_pSearchResultsTreeView->vlmodel()->showHighlightersInSearchResults());
+		connect(m_pShowHighlightersInSearchResults, SIGNAL(clicked(bool)), m_pSearchResultsTreeView->vlmodel(), SLOT(setShowHighlightersInSearchResults(bool)));
+	}
 
 	// --------------------------------
 
@@ -1376,8 +1391,10 @@ void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMo
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pExcludedSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
-	m_pShowHighlightersInSearchResults->setVisible((nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
-												   (nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
+	if (m_pShowHighlightersInSearchResults != NULL) {
+		m_pShowHighlightersInSearchResults->setVisible((nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
+													   (nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
+	}
 	m_pNoteKeywordWidget->setVisible(nViewMode == CVerseListModel::VVME_USERNOTES);
 	m_pSearchResultsTreeView->setViewMode(nViewMode);
 	setSearchResultsType();
@@ -1429,7 +1446,9 @@ void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 void CKJVSearchResult::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
 {
 	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(bShowHighlightersInSearchResults);
-	m_pShowHighlightersInSearchResults->setChecked(bShowHighlightersInSearchResults);
+	if (m_pShowHighlightersInSearchResults != NULL) {
+		m_pShowHighlightersInSearchResults->setChecked(bShowHighlightersInSearchResults);
+	}
 }
 
 void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)

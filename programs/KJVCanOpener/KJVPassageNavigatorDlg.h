@@ -56,6 +56,12 @@ public:
 	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM refType() const;
 	void setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType);
 
+signals:
+	void gotoIndex(const TPhraseTag &tag);
+
+public slots:
+	virtual void accept();
+
 private slots:
 	void en_modeChanged(bool bRelative);
 	void en_ApplyResolvedClicked();

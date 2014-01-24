@@ -106,7 +106,11 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 		m_pPushButton(NULL)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
+#ifndef EMSCRIPTEN
 	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
+#else
+	setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
+#endif
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
 	setWordWrapMode(QTextOption::NoWrap);
@@ -122,7 +126,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 
 	m_pPushButton = new QPushButton(this);
 	m_pPushButton->setFlat(true);
-	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	setPushPinIcon();
 	m_pPushButton->setIconSize(QSize(32, 32));
 	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
 	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
@@ -273,10 +277,15 @@ void CTipEdit::setPushPinPosition()
 	m_pPushButton->move(szViewPort.width() - m_pPushButton->size().width(), 0);
 }
 
+void CTipEdit::setPushPinIcon()
+{
+	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+}
+
 void CTipEdit::en_pushPinPressed()
 {
 	setTipEditIsPinned(!tipEditIsPinned(m_pParentCanOpener));
-	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	setPushPinIcon();
 	if (tipEditIsPinned(m_pParentCanOpener)) {
 		QPoint pntTip = pos();
 		pntTip.ry() += this->height()/2;
@@ -284,6 +293,9 @@ void CTipEdit::en_pushPinPressed()
 		CToolTipEdit::showText(m_pParentCanOpener, pntTip, toHtml(), widget);
 	} else {
 		setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
+#ifdef EMSCRIPTEN
+		CToolTipEdit::hideText(m_pParentCanOpener);
+#endif
 	}
 }
 
@@ -291,8 +303,9 @@ void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
 {
 	hideTimer.stop();
 	expireTimer.stop();
-	m_bDoingContextMenu = true;
 	QMenu *pMenu = createStandardContextMenu();
+#ifndef EMSCRIPTEN
+	m_bDoingContextMenu = true;
 	pMenu->exec(e->globalPos());
 	delete pMenu;
 	m_bDoingContextMenu = false;
@@ -305,6 +318,11 @@ void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
 	//		the X-Mouse activation time and less than the hideTip
 	//		time:
 	QTimer::singleShot(250, this, SLOT(activate()));
+#else
+	pMenu->setAttribute(Qt::WA_DeleteOnClose);
+	pMenu->popup(e->globalPos());
+	pMenu->connect(pMenu, SIGNAL(destroyed()), this, SLOT(activate()));
+#endif
 }
 
 void CTipEdit::mouseMoveEvent(QMouseEvent *e)

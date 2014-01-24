@@ -406,7 +406,11 @@ void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)
 void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
 	m_bDoingPopup = true;
+#ifndef EMSCRIPTEN
 	m_pEditMenu->exec(event->globalPos());
+#else
+	m_pEditMenu->popup(event->globalPos());
+#endif
 	m_bDoingPopup = false;
 }
 

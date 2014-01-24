@@ -85,6 +85,7 @@ public slots:
 protected slots:
 	void activate();
 	void setPushPinPosition();
+	void setPushPinIcon();
 	void en_pushPinPressed();
 
 private:

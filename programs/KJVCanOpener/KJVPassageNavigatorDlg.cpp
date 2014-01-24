@@ -45,6 +45,10 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	ui.setupUi(this);
 
+#ifdef EMSCRIPTEN
+	setAttribute(Qt::WA_DeleteOnClose);
+#endif
+
 	// --------------------------------------------------------------
 
 	//	Swapout the widgetKJVPassageNavigator from the layout with
@@ -177,6 +181,12 @@ void CKJVPassageNavigatorDlg::en_gotoIndex(const TPhraseTag &tag)
 	//		instead of navigating to it:
 	m_pNavigator->startAbsoluteMode(tag);
 	accept();
+}
+
+void CKJVPassageNavigatorDlg::accept()
+{
+	emit gotoIndex(passage());
+	QDialog::accept();
 }
 
 void CKJVPassageNavigatorDlg::en_resizeMe()

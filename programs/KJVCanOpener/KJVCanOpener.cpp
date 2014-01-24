@@ -32,10 +32,10 @@
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
 #include "SearchCompleter.h"
+#include "KJVAboutDlg.h"
 #ifndef EMSCRIPTEN
 #include "KJVConfiguration.h"
 #include "DictionaryWidget.h"
-#include "KJVAboutDlg.h"
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
@@ -77,9 +77,13 @@ namespace {
 	const char *g_constrHelpDocFilename = "./assets/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
+#elif defined(EMSCRIPTEN)
+	const char *g_constrHelpDocFilename = "http://cloud.dewtronics.com/KingJamesPureBibleSearch/KingJamesPureBibleSearch.pdf";
 #else
 	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #endif
+
+	const char *g_constrPureBibleSearchURL = "http://www.PureBibleSearch.com/";
 
 	// Key constants:
 	// --------------
@@ -230,6 +234,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- User Notes/Highlighter/References Toolbar:
 
+#ifndef EMSCRIPTEN
+
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
 	m_pHighlighterButtons = new CHighlighterButtons(this);
@@ -252,6 +258,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another"));
 	m_pActionCrossRefsEditor->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 	ui.usernotesToolBar->addAction(m_pActionCrossRefsEditor);
+
+#else
+	removeToolBar(ui.usernotesToolBar);
+	delete ui.usernotesToolBar;
+	ui.usernotesToolBar = NULL;
+#endif
 
 	// -------------------- Setup the Three Panes:
 
@@ -336,6 +348,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setToolTip("Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search");
 	ui.mainToolBar->addAction(pAction);
 
+#ifndef EMSCRIPTEN
 	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File"));
@@ -345,6 +358,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Save current Search Phrases to a King James Search File"));
 	pAction->setToolTip(tr("Save current Search Phrases to a King James Search File"));
 	ui.mainToolBar->addAction(pAction);
+#endif
 
 	pFileMenu->addSeparator();
 	ui.mainToolBar->addSeparator();
@@ -376,8 +390,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar"));
 	pViewToolbarsMenu->addAction(ui.browserNavigationToolBar->toggleViewAction());
 	ui.browserNavigationToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide the Scripture Browser Navigation Tool Bar"));
-	pViewToolbarsMenu->addAction(ui.usernotesToolBar->toggleViewAction());
-	ui.usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
+	if (ui.usernotesToolBar != NULL) {
+		pViewToolbarsMenu->addAction(ui.usernotesToolBar->toggleViewAction());
+		ui.usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar"));
+	}
 
 	pAction = m_pViewMenu->addSeparator();
 	pAction->setText(tr("View Mode") + QString(" (%1):").arg(QKeySequence(Qt::Key_F6).toString(QKeySequence::NativeText)));
@@ -403,6 +419,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
+#ifndef EMSCRIPTEN
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters"));
 	m_pViewMenu->addAction(pAction);
 	pAction->setData(CVerseListModel::VVME_HIGHLIGHTERS);
@@ -426,6 +443,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setCheckable(true);
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_CROSSREFS);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
+#endif
 
 	connect(m_pActionGroupViewMode, SIGNAL(triggered(QAction*)), this, SLOT(en_viewModeChange(QAction*)));
 
@@ -617,6 +635,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.browserNavigationToolBar->addSeparator();
 	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
 
+#ifndef EMSCRIPTEN
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui.menuBar->addMenu(tr("Se&ttings"));
 
@@ -624,6 +643,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application"));
 	pAction->setToolTip(tr("Configure King James Pure Bible Search"));
 	pAction->setMenuRole(QAction::PreferencesRole);
+#endif
 
 	// --- Window Menu
 	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
@@ -735,6 +755,7 @@ void CKJVCanOpener::initialize()
 
 	TPhraseTag tag(CRelIndex(1,1,0,0), 0);						// Default for unset key
 
+#ifndef EMSCRIPTEN
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
@@ -747,6 +768,9 @@ void CKJVCanOpener::initialize()
 	} else {
 		setWindowTitle(windowTitle() + " (" + tr("Stealth Mode") + ")");
 	}
+#else
+	setWindowTitle(windowTitle() + " (" + tr("Lite Version") + ")");
+#endif
 
 	// If there is no selection to highlight, default to the first sub-entity
 	//		of the index specified:
@@ -815,13 +839,15 @@ void CKJVCanOpener::savePersistentSettings()
 #endif
 
 	// Highlighter Tool Bar:
-	settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-	settings.remove("");
-	for (int ndxColor = 0; ndxColor < m_pHighlighterButtons->count(); ++ndxColor) {
-		settings.setArrayIndex(ndxColor);
-		settings.setValue(constrHighlighterNameKey, m_pHighlighterButtons->highlighter(ndxColor));
+	if (m_pHighlighterButtons != NULL) {
+		settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+		settings.remove("");
+		for (int ndxColor = 0; ndxColor < m_pHighlighterButtons->count(); ++ndxColor) {
+			settings.setArrayIndex(ndxColor);
+			settings.setValue(constrHighlighterNameKey, m_pHighlighterButtons->highlighter(ndxColor));
+		}
+		settings.endArray();
 	}
-	settings.endArray();
 
 	// Search Results mode:
 	settings.beginGroup(constrSearchResultsViewGroup);
@@ -1025,27 +1051,29 @@ void CKJVCanOpener::restorePersistentSettings()
 		}
 
 		// Highlighter Tool Bar (must be after loading the User Notes Database):
-		int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-		if (nColors != 0) {
-			for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterButtons->count())); ++ndxColor) {
-				settings.setArrayIndex(ndxColor);
-				QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
-				m_pHighlighterButtons->setHighlighterList(ndxColor, strHighlighterName);
-			}
-		} else {
-			// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
-			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
-				const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
-				int ndxColor = 0;
-				for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
-								((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
-								++itrHighlighters) {
-					m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
-					ndxColor++;
+		if (m_pHighlighterButtons != NULL) {
+			int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+			if (nColors != 0) {
+				for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterButtons->count())); ++ndxColor) {
+					settings.setArrayIndex(ndxColor);
+					QString strHighlighterName = settings.value(constrHighlighterNameKey, QString()).toString();
+					m_pHighlighterButtons->setHighlighterList(ndxColor, strHighlighterName);
+				}
+			} else {
+				// For a new (empty) User Notes Database, set the ToolBar to the initial file default highlighters:
+				if (g_pUserNotesDatabase->filePathName().isEmpty()) {
+					const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+					int ndxColor = 0;
+					for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
+									((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
+									++itrHighlighters) {
+						m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+						ndxColor++;
+					}
 				}
 			}
+			settings.endArray();
 		}
-		settings.endArray();
 
 		// Set Search Results View Keyword Filter:
 		m_pSearchResultWidget->keywordListChanged(true);
@@ -1201,13 +1229,15 @@ void CKJVCanOpener::restorePersistentSettings()
 		assert(g_pUserNotesDatabase.data() != NULL);
 
 		// Set the ToolBar to the initial file default highlighters:
-		const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
-		int ndxColor = 0;
-		for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
-						((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
-						++itrHighlighters) {
-			m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
-			ndxColor++;
+		if (m_pHighlighterButtons != NULL) {
+			const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
+			int ndxColor = 0;
+			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
+							((itrHighlighters != mapHighlighters.constEnd()) && (ndxColor < m_pHighlighterButtons->count()));
+							++itrHighlighters) {
+				m_pHighlighterButtons->setHighlighterList(ndxColor, itrHighlighters.key());
+				ndxColor++;
+			}
 		}
 
 		// Reset our search phrases
@@ -1412,18 +1442,43 @@ void CKJVCanOpener::en_NewSearch()
 
 void CKJVCanOpener::en_OpenSearch()
 {
+#ifndef EMSCRIPTEN
 	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Open Failed"), tr("Failed to open and read the specified KJV Search File!"));
+#else
+	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
+	//	Left here for reference for how to do the open asynchronously:
+	QFileDialog *pDlg = new QFileDialog(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
+	pDlg->setOptions(QFileDialog::ReadOnly);
+	pDlg->setAttribute(Qt::WA_DeleteOnClose);
+	pDlg->setModal(true);
+	pDlg->setFileMode(QFileDialog::ExistingFile);
+	pDlg->setAcceptMode(QFileDialog::AcceptOpen);
+	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(openKJVSearchFile(const QString &)));
+	pDlg->show();
+#endif
 }
 
 void CKJVCanOpener::en_SaveSearch()
 {
+#ifndef EMSCRIPTEN
 	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed"), tr("Failed to save the specified KJV Search File!"));
+#else
+	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
+	//	Left here for reference for how to do the open asynchronously:
+	QFileDialog *pDlg = new QFileDialog(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
+	pDlg->setAttribute(Qt::WA_DeleteOnClose);
+	pDlg->setModal(true);
+	pDlg->setFileMode(QFileDialog::AnyFile);
+	pDlg->setAcceptMode(QFileDialog::AcceptSave);
+	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(saveKJVSearchFile(const QString &)));
+	pDlg->show();
+#endif
 }
 
 void CKJVCanOpener::en_ClearSearchPhrases()
@@ -1434,6 +1489,8 @@ void CKJVCanOpener::en_ClearSearchPhrases()
 
 bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 {
+	if (strFilePathName.isEmpty()) return true;						// Empty is no-file-selected (cancel), treat it as "OK"
+
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
 
@@ -1877,6 +1934,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
+#ifndef EMSCRIPTEN
 		CKJVCanOpenerCloseGuard closeGuard(this);
 		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
@@ -1886,6 +1944,12 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 				m_pBrowserWidget->setFocusBrowser();
 			}
 		}
+#else
+		CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(m_pBibleDatabase, this);
+		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
+		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(setFocusBrowser()));
+		pDlg->show();
+#endif
 	}
 }
 
@@ -1966,6 +2030,7 @@ void CKJVCanOpener::setDetailsEnable()
 
 void CKJVCanOpener::en_HelpManual()
 {
+#ifndef EMSCRIPTEN
 	assert(g_pMyApplication.data() != NULL);
 
 	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
@@ -1977,6 +2042,9 @@ void CKJVCanOpener::en_HelpManual()
 	}
 
 //	QMessageBox::information(this, windowTitle(), tr("An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates."));
+#else
+	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+#endif
 }
 
 void CKJVCanOpener::en_HelpAbout()
@@ -1985,14 +2053,19 @@ void CKJVCanOpener::en_HelpAbout()
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	CKJVAboutDlgPtr pDlg(this);
 	pDlg->exec();
+#else
+	CKJVAboutDlg *pDlg = new CKJVAboutDlg(this);
+	pDlg->show();
 #endif
 }
 
 void CKJVCanOpener::en_PureBibleSearchDotCom()
 {
-	if (!QDesktopServices::openUrl(QUrl("http://www.PureBibleSearch.com/"))) {
+	if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
+#ifndef EMSCRIPTEN
 		QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
 													 "http://www.PureBibleSearch.com/"));
+#endif
 	}
 }
 

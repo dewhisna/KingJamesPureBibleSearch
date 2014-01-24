@@ -224,6 +224,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if ((pCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
+#ifndef EMSCRIPTEN
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
@@ -236,6 +237,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
+#endif
 	}
 }
 
@@ -501,6 +503,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 
 	m_CursorFollowHighlighter.setEnabled(true);
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
+#ifndef EMSCRIPTEN
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
 //	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
@@ -508,6 +511,12 @@ void CScriptureText<T,U>::showPassageNavigator()
 	if (pDlg->exec() == QDialog::Accepted) {
 		if (pDlg != NULL) emit T::gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
+#else
+	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(m_pBibleDatabase, T::parentWidget());
+	T::connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	pDlg->navigator().startAbsoluteMode(tagSel);
+	pDlg->show();
+#endif
 
 	end_popup();
 }
@@ -523,50 +532,56 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
-	QMenu menu;
-	menu.addAction(m_pActionCopy);
-	menu.addAction(m_pActionCopyPlain);
-	menu.addSeparator();
-	menu.addAction(m_pActionCopyRaw);
-	menu.addAction(m_pActionCopyVeryRaw);
-	menu.addSeparator();
-	menu.addAction(m_pActionCopyVerses);
-	menu.addAction(m_pActionCopyVersesPlain);
-	menu.addSeparator();
-	menu.addAction(m_pActionCopyReferenceDetails);
-	menu.addAction(m_pActionCopyPassageStatistics);
-	menu.addAction(m_pActionCopyEntirePassageDetails);
-	menu.addSeparator();
-	menu.addAction(m_pActionSelectAll);
+	QMenu *menu = new QMenu(this);
+	menu->addAction(m_pActionCopy);
+	menu->addAction(m_pActionCopyPlain);
+	menu->addSeparator();
+	menu->addAction(m_pActionCopyRaw);
+	menu->addAction(m_pActionCopyVeryRaw);
+	menu->addSeparator();
+	menu->addAction(m_pActionCopyVerses);
+	menu->addAction(m_pActionCopyVersesPlain);
+	menu->addSeparator();
+	menu->addAction(m_pActionCopyReferenceDetails);
+	menu->addAction(m_pActionCopyPassageStatistics);
+	menu->addAction(m_pActionCopyEntirePassageDetails);
+	menu->addSeparator();
+	menu->addAction(m_pActionSelectAll);
 	if (T::useFindDialog()) {
-		menu.addSeparator();
-		menu.addAction(m_pActionFind);
-		menu.addAction(m_pActionFindNext);
-		menu.addAction(m_pActionFindPrev);
+		menu->addSeparator();
+		menu->addAction(m_pActionFind);
+		menu->addAction(m_pActionFindNext);
+		menu->addAction(m_pActionFindPrev);
 	}
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		if (parentCanOpener()) {
-			menu.addSeparator();
-			menu.addActions(parentCanOpener()->highlighterButtons()->actions());
-			menu.addSeparator();
-			menu.addAction(parentCanOpener()->actionUserNoteEditor());
-			if (m_pActionShowAllNotes) menu.addAction(m_pActionShowAllNotes);
-			if (m_pActionHideAllNotes) menu.addAction(m_pActionHideAllNotes);
-			menu.addSeparator();
-			menu.addAction(parentCanOpener()->actionCrossRefsEditor());
+			menu->addSeparator();
+			menu->addActions(parentCanOpener()->highlighterButtons()->actions());
+			menu->addSeparator();
+			menu->addAction(parentCanOpener()->actionUserNoteEditor());
+			if (m_pActionShowAllNotes) menu->addAction(m_pActionShowAllNotes);
+			if (m_pActionHideAllNotes) menu->addAction(m_pActionHideAllNotes);
+			menu->addSeparator();
+			menu->addAction(parentCanOpener()->actionCrossRefsEditor());
 		}
-		menu.addSeparator();
-		QAction *pActionNavigator = menu.addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
+		menu->addSeparator();
+		QAction *pActionNavigator = menu->addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator..."));
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 		pActionNavigator->setEnabled(true);
 		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	}
-	menu.addSeparator();
-	QAction *pActionDetails = menu.addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), T::tr("View &Details..."));
+	menu->addSeparator();
+	QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), T::tr("View &Details..."));
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
-	menu.exec(T::viewport()->mapToGlobal(pos));
+#ifndef EMSCRIPTEN
+	menu->exec(T::viewport()->mapToGlobal(pos));
+	delete menu;
+#else
+	menu->setAttribute(Qt::WA_DeleteOnClose);
+	menu->popup(T::viewport()->mapToGlobal(pos));
+#endif
 	m_ptLastTrackPosition = pos;
 
 	end_popup();

@@ -819,6 +819,7 @@ For all:
 export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
 
 
+--------------
 Generic Build:
 --------------
 
@@ -826,16 +827,52 @@ cd ~/emscripten
 mkdir build-emscripten-qt
 cd build-emscripten-qt
 
+----------------------------------
+
+Without SQL (Debug, no freetype):
+---------------------------------
+../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -debug  -no-qt3support -no-opengl -no-openssl -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+
+
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-xml-install_subtargets install_mkspecs
+
+----------------------------------
+
+Without SQL (Debug, with freetype):
+-----------------------------------
+../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -debug  -no-qt3support -no-opengl -no-openssl -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -qt-freetype -fontconfig -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+
+
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-xml-install_subtargets install_mkspecs
+
+
+----------------------------------
+
+Without SQL (Release, with freetype):
+-------------------------------------
+../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -release  -no-qt3support -no-opengl -no-openssl -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -qt-freetype -fontconfig -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
+
+
+make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-xml-install_subtargets install_mkspecs
+
+----------------------------------
+
+With SQL:
+---------
 ../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -debug  -no-qt3support -no-opengl -no-openssl -qt-sql-sqlite  -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
 
 
 make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-uic-install_subtargets sub-rcc-install_subtargets && make  sub-corelib-install_subtargets sub-gui-install_subtargets sub-sql-install_subtargets sub-xml-install_subtargets install_mkspecs
+
+----------------------------------
 
 
 (optional optimization):
 for i in qcosmeticstroker qdrawhelper qgrayraster; do opt -O3 src/gui/.obj/debug-static-emb-emscripten/$i.o > tmp-llvm-$i.o; mv tmp-llvm-$i.o src/gui/.obj/debug-static-emb-emscripten/$i.o; done && make  sub-corelib-install_subtargets sub-gui-install_subtargets 
 
 
+
+-------------
 Native Build:
 -------------
 
@@ -853,6 +890,7 @@ make sub-tools-bootstrap && make install_qmake sub-moc-install_subtargets sub-ui
 
 
 Note: The optimization shown for the Generic Build doesn't work for Native Build!
+
 
 
 Building Chips Demo (Generic):
@@ -976,6 +1014,9 @@ cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
 mkdir -p data
 cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.s3db data/
 
+
+(Inline):
+---------
 $EMSCRIPTEN_ROOT_PATH/emcc \
   KingJamesPureBibleSearch.bc \
   QtGui.so QtCore.so QtSql.so QtXml.so \
@@ -992,6 +1033,8 @@ $EMSCRIPTEN_ROOT_PATH/emcc \
   -o KingJamesPureBibleSearch.html
 
 
+(Preload):
+----------
 $EMSCRIPTEN_ROOT_PATH/emcc \
   KingJamesPureBibleSearch.bc \
   QtGui.so QtCore.so QtSql.so QtXml.so \
@@ -1005,6 +1048,36 @@ $EMSCRIPTEN_ROOT_PATH/emcc \
   -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged']" \
   -s TOTAL_MEMORY=1073741824 \
   -s INLINING_LIMIT=50 \
+  -o KingJamesPureBibleSearch.html
+
+
+(No SQL):
+---------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
+
+mkdir -p qt-fonts && cp ~/emscripten/build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ~/emscripten/build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/QtGui.a QtGui.so
+cp ~/emscripten/build-emscripten-qt/install/lib/QtCore.a QtCore.so
+cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
+
+mkdir -p data
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.ccdb data/
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVu*.ttf data/
+
+$EMSCRIPTEN_ROOT_PATH/emcc \
+  KingJamesPureBibleSearch.bc \
+  QtGui.so QtCore.so QtXml.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  --preload-file data \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged', '_EMSCRIPTENQT_attemptedLocalEventLoop']" \
+  -s TOTAL_MEMORY=268435456 \
+  -s INLINING_LIMIT=50 \
+  -s ALIASING_FUNCTION_POINTERS=0 \
   -o KingJamesPureBibleSearch.html
 
 
@@ -1024,7 +1097,7 @@ References:
 ===============================================================================
 ===============================================================================
 
-Emscripten Warnings during first build (SQL Issues to resolve):
+Emscripten Warnings when building SQL with original SQLite3 Module
 (These were fixed by changing emscripten-qt/src/3rdparty/sqlite/sqlite.c
 to emscripten-qt/src/3rdparty/sqlite/sqlite.cpp and editing all casts, etc
 to be C++ format and undating the sqlite.pri file accordingly)
@@ -1047,6 +1120,29 @@ Warning: Casting potentially incompatible function pointer i32 (i32, i8*, i32)* 
 Warning: Casting potentially incompatible function pointer void (%struct.sqlite3*, i8*)* to void (i8*)*, for sqlite3DbFree
 Warning: See https://github.com/kripken/emscripten/wiki/CodeGuidlinesAndLimitations#function-pointer-issues for more information on dangerous function pointer casts
 Warning: Incompatible function pointer casts are very dangerous with ASM_JS=1, you should investigate and correct these
+
+===============================================================================
+===============================================================================
+
+Emscripten Warnings when building Freetype font support
+===============================================================
+
+warning: Casting potentially incompatible function pointer i32 (%struct.FT_SizeRec_.36025*)* to i32 (%struct.FT_SizeRec_.36025*, i32)*, for FNT_Size_Select
+warning: See https://github.com/kripken/emscripten/wiki/CodeGuidelinesAndLimitations#function-pointer-issues for more information on dangerous function pointer casts
+warning: Incompatible function pointer casts are very dangerous with ASM_JS=1, you should investigate and correct these
+warning: Casting potentially incompatible function pointer i32 (%struct.PS_UnicodesRec_*)* to i32 (%struct.FT_CMapRec_.30283*, i8*)*, for t1_cmap_unicode_init
+warning: Casting potentially incompatible function pointer i32 (%struct.T1_CMapStdRec_*)* to i32 (%struct.FT_CMapRec_.30283*, i8*)*, for t1_cmap_standard_init
+warning: Casting potentially incompatible function pointer i32 (%struct.T1_CMapStdRec_*)* to i32 (%struct.FT_CMapRec_.30283*, i8*)*, for t1_cmap_expert_init
+warning: Casting potentially incompatible function pointer i32 (%struct.T1_CMapCustomRec_*)* to i32 (%struct.FT_CMapRec_.30283*, i8*)*, for t1_cmap_custom_init
+warning: Casting potentially incompatible function pointer i32 (%struct.PFR_CMapRec_*)* to i32 (%struct.FT_CMapRec_.30038*, i8*)*, for pfr_cmap_init
+warning: Casting potentially incompatible function pointer void (%struct.TRaster_.35561*, i32, i8*)* to i32 (%struct.FT_RasterRec_*, i32, i8*)*, for ft_black_set_mode
+warning: Casting potentially incompatible function pointer i32 (%struct.FNT_CMapRec_*)* to i32 (%struct.FT_CMapRec_.36055*, i8*)*, for fnt_cmap_init
+warning: Casting potentially incompatible function pointer i32 (%struct.CID_FaceRec_*, %struct.CID_Parser_*)* to void (%struct.FT_FaceRec_.35885*, i8*)*, for parse_fd_array
+warning: Casting potentially incompatible function pointer i32 (%struct.CID_FaceRec_*, %struct.CID_Parser_*)* to void (%struct.FT_FaceRec_.35885*, i8*)*, for parse_font_matrix19192
+warning: Casting potentially incompatible function pointer i32 (%struct.CID_FaceRec_*, %struct.CID_Parser_*)* to void (%struct.FT_FaceRec_.35885*, i8*)*, for parse_expansion_factor
+warning: Casting potentially incompatible function pointer i32 (%struct.PS_UnicodesRec_.36202*)* to i32 (%struct.FT_CMapRec_.36189*, i8*)*, for cff_cmap_unicode_init
+warning: Casting potentially incompatible function pointer i32 (%struct.CFF_CMapStdRec_*)* to i32 (%struct.FT_CMapRec_.36189*, i8*)*, for cff_cmap_encoding_init
+warning: Casting potentially incompatible function pointer i32 (%struct.AF_GlyphHintsRec_*, %struct.FT_Outline_*)* to i32 (%struct.AF_GlyphHintsRec_*, %struct.FT_Outline_*, %struct.AF_ScriptMetricsRec_*)*, for af_dummy_hints_apply
 
 
 ===============================================================================

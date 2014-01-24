@@ -216,6 +216,33 @@ namespace {
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	// Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder
+	#ifdef EMSCRIPTEN_NATIVE
+	const char *g_constrDejaVuSans_BoldOblique = "./data/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "./data/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "./data/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "./data/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "./data/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "./data/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "./data/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "./data/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldOblique = "./data/DejaVuSerif-BoldOblique.ttf";
+	const char *g_constrDejaVuSerif_Bold = "./data/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerif_Oblique = "./data/DejaVuSerif-Oblique.ttf";
+	const char *g_constrDejaVuSerif = "./data/DejaVuSerif.ttf";
+	#else
+		const char *g_constrDejaVuSans_BoldOblique = "data/DejaVuSans-BoldOblique.ttf";
+		const char *g_constrDejaVuSans_Bold = "data/DejaVuSans-Bold.ttf";
+		const char *g_constrDejaVuSansMono_BoldOblique = "data/DejaVuSansMono-BoldOblique.ttf";
+		const char *g_constrDejaVuSansMono_Bold = "data/DejaVuSansMono-Bold.ttf";
+		const char *g_constrDejaVuSansMono_Oblique = "data/DejaVuSansMono-Oblique.ttf";
+		const char *g_constrDejaVuSansMono = "data/DejaVuSansMono.ttf";
+		const char *g_constrDejaVuSans_Oblique = "data/DejaVuSans-Oblique.ttf";
+		const char *g_constrDejaVuSans = "data/DejaVuSans.ttf";
+		const char *g_constrDejaVuSerif_BoldOblique = "data/DejaVuSerif-BoldOblique.ttf";
+		const char *g_constrDejaVuSerif_Bold = "data/DejaVuSerif-Bold.ttf";
+		const char *g_constrDejaVuSerif_Oblique = "data/DejaVuSerif-Oblique.ttf";
+		const char *g_constrDejaVuSerif = "data/DejaVuSerif.ttf";
+	#endif
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
@@ -243,6 +270,8 @@ namespace {
 #endif
 
 #ifndef WORKAROUND_QTBUG_34490
+
+#ifndef EMSCRIPTEN
 	const char *g_constrarrFontFilenames[] = {
 		g_constrScriptBLFontFilename,
 		g_constrDejaVuSans_BoldOblique,
@@ -268,6 +297,24 @@ namespace {
 		g_constrDejaVuSerif,
 		NULL
 	};
+#else
+	const char *g_constrarrFontFilenames[] = {
+		g_constrDejaVuSans_BoldOblique,
+		g_constrDejaVuSans_Bold,
+		g_constrDejaVuSansMono_BoldOblique,
+		g_constrDejaVuSansMono_Bold,
+		g_constrDejaVuSansMono_Oblique,
+		g_constrDejaVuSansMono,
+		g_constrDejaVuSans_Oblique,
+		g_constrDejaVuSans,
+		g_constrDejaVuSerif_BoldOblique,
+		g_constrDejaVuSerif_Bold,
+		g_constrDejaVuSerif_Oblique,
+		g_constrDejaVuSerif,
+		NULL
+	};
+#endif		// EMSCRIPTEN
+
 #endif		// WORKAROUND_QTBUG_34490
 
 #endif		//	LOAD_APPLICATION_FONTS
@@ -290,7 +337,24 @@ public:
 
 // ============================================================================
 
+#ifdef EMSCRIPTEN_NATIVE
+extern int emscriptenQtSDLMain(int argc, char *argv[]);
+#include <QtGui/emscripten-qt-sdl.h>
+void triggerAssert()
+{
+	Q_ASSERT(false);
+}
+
 int main(int argc, char *argv[])
+{
+	EmscriptenQtSDL::setAttemptedLocalEventLoopCallback(triggerAssert);
+	return EmscriptenQtSDL::run(1280, 720, argc, argv);
+}
+
+int emscriptenQtSDLMain(int argc, char *argv[])
+#else
+int main(int argc, char *argv[])
+#endif
 {
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
@@ -359,6 +423,9 @@ int main(int argc, char *argv[])
 								QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 		splash->repaint();
 		pApp->processEvents();
+#ifdef EMSCRIPTEN
+		pApp->exec();
+#endif
 	}
 #else
 	QWidget *splash = NULL;
@@ -468,11 +535,15 @@ int main(int argc, char *argv[])
 	//		auto-load them for us:
 #ifndef WORKAROUND_QTBUG_34490
 	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
-		QFileInfo fiFont(pApp->initialAppDirPath(), g_constrarrFontFilenames[ndxFont]);
-		int nFontStatus = QFontDatabase::addApplicationFont(fiFont.absoluteFilePath());
+#ifndef EMSCRIPTEN
+		QString strFontFileName = QFileInfo(pApp->initialAppDirPath(), g_constrarrFontFilenames[ndxFont]).absoluteFilePath();
+#else
+		QString strFontFileName = g_constrarrFontFilenames[ndxFont];
+#endif
+		int nFontStatus = QFontDatabase::addApplicationFont(strFontFileName);
 		if (nFontStatus == -1) {
 #ifdef QT_DEBUG
-			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(fiFont.absoluteFilePath()));
+			displayWarning(splash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(strFontFileName));
 #endif	// QT_DEBUG
 		}
 	}
@@ -699,7 +770,13 @@ int main(int argc, char *argv[])
 
 	delete pApp;
 #else
+// Note: Emscripten does pApp->exec() above just after splash screen creation if we have
+//			a splash screen.  If not, we need to call it here after creating the main
+//			screen:
+#ifndef SHOW_SPLASH_SCREEN
 	pApp->exec();
+#endif
+
 #ifdef EMSCRIPTEN_NATIVE
 	while (true) {
 		pApp->processEvents();
