@@ -1736,7 +1736,11 @@ void CKJVCanOpener::en_nextViewMode()
 			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED;
 			break;
 		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
+#ifndef EMSCRIPTEN
 			nNewMode = CVerseListModel::VVME_HIGHLIGHTERS;
+#else
+			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS;
+#endif
 			break;
 		case CVerseListModel::VVME_HIGHLIGHTERS:
 			nNewMode = CVerseListModel::VVME_USERNOTES;
@@ -1752,6 +1756,7 @@ void CKJVCanOpener::en_nextViewMode()
 			break;
 	}
 
+	setViewMode(nNewMode, false);
 	m_pSearchResultWidget->setViewMode(nNewMode);
 
 	m_bDoingUpdate = false;
@@ -1792,6 +1797,7 @@ void CKJVCanOpener::en_nextDisplayMode()
 			break;
 	}
 
+	setDisplayMode(nNewMode);
 	m_pSearchResultWidget->setDisplayMode(nNewMode);
 
 	m_bDoingUpdate = false;
@@ -1837,7 +1843,9 @@ void CKJVCanOpener::en_nextTreeMode()
 			break;
 	}
 
+	setTreeMode(nNewMode);
 	m_pSearchResultWidget->setTreeMode(nNewMode);
+	m_pActionShowMissingLeafs->setEnabled(nNewMode != CVerseListModel::VTME_LIST);
 
 	m_bDoingUpdate = false;
 }
