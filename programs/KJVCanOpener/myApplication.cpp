@@ -198,7 +198,7 @@ void CMyApplication::restoreApplicationFontSettings()
 #elif defined(Q_OS_MAC)
 	QFont fntAppControls = QFont("Arial", 12);
 #elif EMSCRIPTEN
-	QFont fntAppControls = QFont("DejaVu Sans", 14);
+	QFont fntAppControls = QFont("DejaVu Sans", 12);
 #else
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif

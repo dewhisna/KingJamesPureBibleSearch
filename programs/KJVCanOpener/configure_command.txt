@@ -831,6 +831,9 @@ cd build-emscripten-qt
 
 Without SQL (Debug, no freetype):
 ---------------------------------
+*******************************************************************************
+NOTE: This is the production release we are using for final KJPBS Build!!!
+*******************************************************************************
 ../emscripten-qt/configure -xplatform qws/emscripten-clang  -embedded emscripten -static -stl -opensource -debug  -no-qt3support -no-opengl -no-openssl -system-zlib -no-gif -qt-zlib -qt-libpng -no-libmng -no-libtiff -qt-libjpeg -no-accessibility -dbus -script -no-fpu -no-mmx -no-3dnow -no-sse -no-sse2 -no-sse3 -no-ssse3 -no-sse4.1 -no-sse4.2 -no-icu -no-rpath  -confirm-license -no-webkit -no-phonon -no-freetype -nomake demos -nomake examples -little-endian -no-feature-socket  -no-feature-codecs -no-feature-textcodecplugin -no-feature-systemlocale  -no-feature-qws_multiprocess -no-feature-sound    -no-feature-printpreviewwidget  -no-feature-printpreviewdialog  -no-feature-systemsemaphore -no-feature-sharedmemory -no-feature-localeventloop -feature-qws_clientblit -feature-qws_cursor  -depths 32 -make tools  --prefix=$(pwd)/install
 
 
@@ -1053,16 +1056,25 @@ $EMSCRIPTEN_ROOT_PATH/emcc \
 
 (No SQL):
 ---------
+*******************************************************************************
+NOTE: This is the production release we are using for final KJPBS Build!!!
+*******************************************************************************
 cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
 
 mkdir -p qt-fonts && cp ~/emscripten/build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ~/emscripten/build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
+
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVuSans.ttf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVuSerif-BoldOblique.ttf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVuSerif-Bold.ttf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVuSerif-Oblique.ttf qt-fonts/
+cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVuSerif.ttf qt-fonts/
+
 cp ~/emscripten/build-emscripten-qt/install/lib/QtGui.a QtGui.so
 cp ~/emscripten/build-emscripten-qt/install/lib/QtCore.a QtCore.so
 cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
 
 mkdir -p data
 cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.ccdb data/
-cp ~/emscripten/build-emscripten-qt/install/lib/fonts/DejaVu*.ttf data/
 
 $EMSCRIPTEN_ROOT_PATH/emcc \
   KingJamesPureBibleSearch.bc \
