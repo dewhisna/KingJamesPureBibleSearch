@@ -287,11 +287,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitterDictionary);
 	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
-	QSizePolicy aSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	aSizePolicy.setHorizontalStretch(20);
-	aSizePolicy.setVerticalStretch(20);
-	aSizePolicy.setHeightForWidth(m_pBrowserWidget->sizePolicy().hasHeightForWidth());
-	m_pBrowserWidget->setSizePolicy(aSizePolicy);
+	QSizePolicy aSizePolicyBrowser(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	aSizePolicyBrowser.setHorizontalStretch(20);
+	aSizePolicyBrowser.setVerticalStretch(20);
+	aSizePolicyBrowser.setHeightForWidth(m_pBrowserWidget->sizePolicy().hasHeightForWidth());
+	m_pBrowserWidget->setSizePolicy(aSizePolicyBrowser);
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
 #ifndef EMSCRIPTEN
@@ -308,6 +308,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #endif
 
 	m_pSplitter->addWidget(m_pSplitterDictionary);
+
+	m_pSplitter->setStretchFactor(0, 0);
+	m_pSplitter->setStretchFactor(1, 20);
+	m_pSplitter->setStretchFactor(2, 20);
 
 	m_pSplitterDictionary->setStretchFactor(0, 10);
 	if (m_pSplitterDictionary->count() > 1) m_pSplitterDictionary->setStretchFactor(1, 1);
