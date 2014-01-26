@@ -264,6 +264,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if (pCanOpener != NULL) {
+#ifndef EMSCRIPTEN
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
 		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightSearchResults(QAction *)));
@@ -279,6 +280,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 		// ----
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
 		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionCrossRefsEditor());
+#endif
 	}
 }
 

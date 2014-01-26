@@ -270,13 +270,7 @@ public:
 	{ }
 
 	static bool useToolTipEdit() { return true; }
-	static bool useFindDialog() {
-#ifndef EMSCRIPTEN
-		return true;
-#else
-		return false;
-#endif
-	}
+	static bool useFindDialog() { return true; }
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);

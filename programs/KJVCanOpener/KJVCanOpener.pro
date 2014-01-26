@@ -205,6 +205,10 @@ SOURCES += \
 	PersistentSettings.cpp \
 	PhraseEdit.cpp \
 	PhraseListModel.cpp \
+	QtFindReplaceDialog/dialogs/finddialog.cpp \
+	QtFindReplaceDialog/dialogs/findform.cpp \
+	QtFindReplaceDialog/dialogs/findreplaceform.cpp \
+	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
 	ReadDB.cpp \
 	ReflowDelegate.cpp \
 	ReportError.cpp \
@@ -227,10 +231,6 @@ buildKJVDatabase:SOURCES += \
 	KJVConfiguration.cpp \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
-	QtFindReplaceDialog/dialogs/finddialog.cpp \
-	QtFindReplaceDialog/dialogs/findform.cpp \
-	QtFindReplaceDialog/dialogs/findreplaceform.cpp \
-	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
 	RenameHighlighterDlg.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp
 
@@ -259,6 +259,11 @@ HEADERS += \
 	PersistentSettings.h \
 	PhraseEdit.h \
 	PhraseListModel.h \
+	QtFindReplaceDialog/dialogs/finddialog.h \
+	QtFindReplaceDialog/dialogs/findform.h \
+	QtFindReplaceDialog/dialogs/findreplaceform.h \
+	QtFindReplaceDialog/dialogs/findreplacedialog.h \
+	QtFindReplaceDialog/dialogs/findreplace_global.h \
 	ReadDB.h \
 	ReflowDelegate.h \
 	ReportError.h \
@@ -283,11 +288,6 @@ buildKJVDatabase:HEADERS += \
 	KJVConfiguration.h \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
-	QtFindReplaceDialog/dialogs/finddialog.h \
-	QtFindReplaceDialog/dialogs/findform.h \
-	QtFindReplaceDialog/dialogs/findreplaceform.h \
-	QtFindReplaceDialog/dialogs/findreplacedialog.h \
-	QtFindReplaceDialog/dialogs/findreplace_global.h \
 	RenameHighlighterDlg.h \
 	signalspy/Q4puGenericSignalSpy.h
 
@@ -302,7 +302,9 @@ FORMS += \
 	KJVSearchPhraseEdit.ui \
 	KJVSearchSpec.ui \
 	NoteKeywordWidget.ui \
-	PassageReferenceWidget.ui
+	PassageReferenceWidget.ui \
+	QtFindReplaceDialog/dialogs/findreplaceform.ui \
+	QtFindReplaceDialog/dialogs/findreplacedialog.ui
 
 !emscripten:FORMS += \
 	ConfigBrowserOptions.ui \
@@ -316,8 +318,6 @@ FORMS += \
 	KJVNoteEditDlg.ui \
 	KJVTextFormatConfig.ui \
 	KJVUserNotesDatabaseConfig.ui \
-	QtFindReplaceDialog/dialogs/findreplaceform.ui \
-	QtFindReplaceDialog/dialogs/findreplacedialog.ui \
 	RenameHighlighterDlg.ui
 
 
