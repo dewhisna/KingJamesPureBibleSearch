@@ -35,6 +35,10 @@
 #include <QList>
 #include <QAction>
 #include <QPointer>
+#include <QWidget>
+#ifdef SHOW_SPLASH_SCREEN
+#include <QElapsedTimer>
+#endif
 
 #ifdef USING_QT_SINGLEAPPLICATION
 #include <QtSingleApplication>
@@ -50,6 +54,7 @@ extern const QString g_constrApplicationID;
 
 // Forward Declarations:
 class CKJVCanOpener;
+class QSplashScreen;
 
 // ============================================================================
 
@@ -103,6 +108,9 @@ public:
 	CMyApplication(int & argc, char ** argv);
 	virtual ~CMyApplication();
 
+	QWidget *showSplash();
+	void completeInterAppSplash();
+
 	bool areRestarting() const { return m_bAreRestarting; }
 
 	static void saveApplicationFontSettings();
@@ -114,7 +122,8 @@ public:
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 
-	const QString &fileToLoad() const { return m_strFileToLoad; }
+	const QString fileToLoad() const { return m_strFileToLoad; }
+	void setFileToLoad(const QString &strFilename) { m_strFileToLoad = strFilename; }
 
 	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
 	bool isFirstCanOpener(bool bInCanOpenerConstructor = false) const
@@ -152,6 +161,7 @@ public:
 	QString createKJPBSMessage(KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand, const QStringList &lstArgs) const;
 
 public slots:
+	int execute(bool bBuildDB = false);
 	void receivedKJPBSMessage(const QString &strMessage);
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
@@ -195,6 +205,10 @@ protected:
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
+#ifdef SHOW_SPLASH_SCREEN
+	QElapsedTimer m_splashTimer;
+#endif
+	QSplashScreen *m_pSplash;							// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
 };
 extern QPointer<CMyApplication> g_pMyApplication;
 extern QPointer<QMdiArea> g_pMdiArea;

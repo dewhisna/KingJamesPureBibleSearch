@@ -720,7 +720,6 @@ void CSearchResultsTreeView::keyPressEvent(QKeyEvent *event)
 
 void CSearchResultsTreeView::handle_searchResultActivated(const QModelIndex &index)
 {
-qDebug("handle searchResultActivated");
 	emit searchResultActivated(index);
 }
 

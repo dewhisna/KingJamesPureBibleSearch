@@ -1098,8 +1098,13 @@ void CKJVCanOpener::restorePersistentSettings()
 			int nSaveSearchActivationDelay = CPersistentSettings::instance()->searchActivationDelay();
 			CPersistentSettings::instance()->setSearchActivationDelay(-1);
 
-			// Last Search:
-			m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+			// Last Search or passed KJS file:
+			if (g_pMyApplication->fileToLoad().isEmpty()) {
+				m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
+			} else {
+				openKJVSearchFile(g_pMyApplication->fileToLoad());
+				g_pMyApplication->setFileToLoad(QString());
+			}
 
 			// User Search Phrases Settings:
 			int nPhrases = settings.beginReadArray(constrUserSearchPhrasesGroup);
@@ -1505,12 +1510,14 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 	kjsFile.endGroup();
 
 	if (nFileVersion < KJS_FILE_VERSION) {
+		show();		// Make sure we are visible if this was during construction
 		QMessageBox::warning(this, tr("Opening King James Search File"), tr("Warning: The file you are opening was saved on "
 									"an older version of King James Pure Bible Search.  Some manual editing may be necessary "
 									"to configure any new search options added since that older version.\n\n"
 									"To avoid this message when opening this file in the future, then resave your "
 									"search phrases over top of this file, replacing this old version."));
 	} else if (nFileVersion > KJS_FILE_VERSION) {
+		show();		// Make sure we are visible if this was during construction
 		QMessageBox::warning(this, tr("Opening King James Search File"), tr("Warning: The file you are opening was created on "
 									"a newer version of King James Pure Bible Search.  It may contain settings for options not "
 									"available on this version of King James Pure Bible Search.  If so, those options will be "

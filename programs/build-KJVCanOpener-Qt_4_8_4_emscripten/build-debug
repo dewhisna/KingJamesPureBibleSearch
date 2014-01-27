@@ -1,0 +1,75 @@
+#!/bin/bash
+
+bcfile=KingJamesPureBibleSearch.bc
+target=Debug
+
+if [[ -z "$EMSCRIPTEN_ROOT_PATH" ]]; then
+	echo "error: Must define EMSCRIPTEN_ROOT_PATH..."
+	exit 1
+fi
+
+echo "Building King James Pure Bible Search Emscripten (${target})..."
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd -P`
+popd > /dev/null
+
+if [[ -z "$SCRIPTPATH" ]]; then
+	echo "error: Unable to resolve script path..."
+	exit 2
+fi
+
+cd ${SCRIPTPATH}/${target}
+
+if [[ ! -e "$bcfile" ]]; then
+	echo "error: Can't find ${bcfile}.  You must compile it first!"
+	exit 3
+fi
+
+# Fonts:
+mkdir -p qt-fonts
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/helvetica_*.qpf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/DejaVuSans.ttf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/DejaVuSerif-BoldOblique.ttf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/DejaVuSerif-Bold.ttf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/DejaVuSerif-Oblique.ttf qt-fonts/
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/fonts/DejaVuSerif.ttf qt-fonts/
+
+# Dependent Code Libraries:
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/QtGui.a QtGui.so
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/QtCore.a QtCore.so
+cp $EMSCRIPTEN_ROOT_PATH/../build-emscripten-qt/install/lib/QtXml.a QtXml.so
+
+# KJV Database:
+mkdir -p data
+cp ../../KJVCanOpener/db/kjvtext.ccdb data/
+
+$EMSCRIPTEN_ROOT_PATH/emcc \
+  $bcfile \
+  QtGui.so QtCore.so QtXml.so \
+  -O2 \
+  --closure 0 \
+  --jcache \
+  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --js-library $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-library.js \
+  --embed-file qt-fonts \
+  --preload-file data \
+  -s EXPORTED_FUNCTIONS="['_main', '_EMSCRIPTENQT_resetTimerCallback', '_EMSCRIPTENQT_timerCallback', '_EMSCRIPTENQT_timerCallback_springboard', '_EMSCRIPTENQT_canvas_width_pixels', '_EMSCRIPTENQT_canvas_height_pixels', '_EMSCRIPTENQT_mouseCanvasPosChanged', '_EMSCRIPTENQT_mouseCanvasButtonChanged', '_EMSCRIPTENQT_attemptedLocalEventLoop']" \
+  -s TOTAL_MEMORY=134217728 \
+  -s INLINING_LIMIT=50 \
+  -s ALIASING_FUNCTION_POINTERS=0 \
+  -o KingJamesPureBibleSearch.html
+
+rm -r build
+mkdir -p build
+cp ../../KJVCanOpener/emscripten/KingJamesPureBibleSearch.html build/
+cp ../../KJVCanOpener/emscripten/KingJamesPureBibleSearch_1024x768.html build/
+cp ../../KJVCanOpener/emscripten/KingJamesPureBibleSearch_1280x720.html build/
+cp ../../KJVCanOpener/emscripten/KingJamesPureBibleSearch_1440x810.html build/
+cp ../../KJVCanOpener/emscripten/KingJamesPureBibleSearch_1920x1080.html build/
+cp ../../KJVCanOpener/emscripten/index.html build/
+cp ./KingJamesPureBibleSearch.data build/
+cp ./KingJamesPureBibleSearch.js build/
+
+echo Done...
+

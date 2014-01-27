@@ -108,17 +108,33 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrDefaultNoteBackground("#F0F0A0"),			// Default note background (stick-note yellow)
 		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+#ifndef EMSCRIPTEN
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nSearchActivationDelay(QApplication::doubleClickInterval() * 2),
+#endif
 		m_nInitialNumberOfSearchPhrases(1),
 		m_bAutoExpandSearchResultsTree(false),
 		// Default Browser Options:
+#ifndef EMSCRIPTEN
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nNavigationActivationDelay(QApplication::doubleClickInterval() * 2),
+#endif
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
+#ifndef EMSCRIPTEN
 		m_nChapterScrollbarMode(CSME_NONE),
+#else
+		m_nChapterScrollbarMode(CSME_RIGHT),
+#endif
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+#ifndef EMSCRIPTEN
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nDictionaryActivationDelay(QApplication::doubleClickInterval() * 2),
+#endif
 		// Default Copy Options:
 		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
 		m_bReferencesUseAbbreviatedBookNames(false),
