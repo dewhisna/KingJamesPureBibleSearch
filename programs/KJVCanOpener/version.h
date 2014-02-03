@@ -31,8 +31,13 @@
 #define VER_PRODUCTVERSION			2,0,90,0
 #define VER_PRODUCTVERSION_STR		"2,0,90,0\0"
 
+#ifndef EMSCRIPTEN
 #define VER_SPECIALVERSION_STR		"(Pre-Alpha Version)\0"
 #define SPECIAL_BUILD				1
+#else
+#define VER_SPECIALVERSION_STR		"(Emscripten Web-Version)\0"
+#define SPECIAL_BUILD				1
+#endif
 
 #define VER_APPNAME_STR_QT			"KingJamesPureBibleSearch\0"
 #define VER_ORGNAME_STR_QT			VER_COMPANYNAME_STR
@@ -42,7 +47,7 @@
 #define VER_COMPANYNAME_STR			"Dewtronics\0"
 #define VER_FILEDESCRIPTION_STR		"King James Pure Bible Search\0"
 #define VER_INTERNALNAME_STR		"King James Pure Bible Search\0"
-#define VER_LEGALCOPYRIGHT_STR		"Copyright(c)2012-2013 Donna Whisnant, a.k.a. Dewtronics\0"
+#define VER_LEGALCOPYRIGHT_STR		"Copyright(c)2012-2014 Donna Whisnant, a.k.a. Dewtronics\0"
 #define VER_ORIGINALFILENAME_STR	"KingJamesPureBibleSearch.exe\0"
 #define VER_PRODUCTNAME_STR			"King James Pure Bible Search\0"
 

@@ -71,7 +71,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #ifdef EMSCRIPTEN
-	m_pExtraVersionInfo = scene->addText(tr("Lite Emscripten Web-Version"), QFont("Times New Roman", 10));
+	m_pExtraVersionInfo = scene->addText(tr("Lite Version"), QFont("Times New Roman", 10));
 	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #else
 	m_pExtraVersionInfo = NULL;

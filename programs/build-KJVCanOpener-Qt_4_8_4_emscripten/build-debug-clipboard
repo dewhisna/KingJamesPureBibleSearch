@@ -50,7 +50,7 @@ $EMSCRIPTEN_ROOT_PATH/emcc \
   -O2 \
   --closure 0 \
   --jcache \
-  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt.js \
+  --pre-js $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-clipboard.js \
   --js-library $EMSCRIPTEN_ROOT_PATH/../emscripten-qt/emscripten-stuff/pre-qt-library.js \
   --embed-file qt-fonts \
   --preload-file data \
