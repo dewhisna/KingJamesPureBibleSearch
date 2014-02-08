@@ -840,13 +840,13 @@ Normal-&gt;Relative-&gt;Normal:
     <message>
         <location filename="../KJVCanOpener/dbstruct.h" line="249"/>
         <source>Entire Bible</source>
-        <translation type="unfinished"></translation>
+        <translation>Toda la Biblia</translation>
     </message>
     <message>
         <location filename="main.cpp" line="149"/>
         <source>Genesis</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Génesis</translation>
     </message>
     <message>
         <location filename="main.cpp" line="149"/>
@@ -862,19 +862,19 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="153"/>
         <source>Law</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ley</translation>
     </message>
     <message>
         <location filename="main.cpp" line="149"/>
         <source>The First Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Primero de Moisés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="150"/>
         <source>Exodus</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Éxodo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="150"/>
@@ -886,13 +886,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="150"/>
         <source>The Second Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Segundo de Moisés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="151"/>
         <source>Leviticus</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Levítico</translation>
     </message>
     <message>
         <location filename="main.cpp" line="151"/>
@@ -904,13 +904,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="151"/>
         <source>The Third Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Tercero de Moisés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="152"/>
         <source>Numbers</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Números</translation>
     </message>
     <message>
         <location filename="main.cpp" line="152"/>
@@ -922,13 +922,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="152"/>
         <source>The Fourth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Cuarto de Moisés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="153"/>
         <source>Deuteronomy</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Deuteronomio</translation>
     </message>
     <message>
         <location filename="main.cpp" line="153"/>
@@ -940,13 +940,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="153"/>
         <source>The Fifth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Quinto de Moisés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="154"/>
         <source>Joshua</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Josué</translation>
     </message>
     <message>
         <location filename="main.cpp" line="154"/>
@@ -969,13 +969,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="165"/>
         <source>OT Narative</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Las narrativas del Antiguo Testamento</translation>
     </message>
     <message>
         <location filename="main.cpp" line="155"/>
         <source>Judges</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jueces</translation>
     </message>
     <message>
         <location filename="main.cpp" line="155"/>
@@ -987,7 +987,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="156"/>
         <source>Ruth</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ruth</translation>
     </message>
     <message>
         <location filename="main.cpp" line="156"/>
@@ -999,7 +999,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="157"/>
         <source>1 Samuel</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Samuel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="157"/>
@@ -1011,13 +1011,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="157"/>
         <source>The First Book of Samuel Otherwise Called, The First Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Primero de Samuel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="158"/>
         <source>2 Samuel</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Samuel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="158"/>
@@ -1029,13 +1029,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="158"/>
         <source>The Second Book of Samuel Otherwise Called, The Second Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Segundo de Samuel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="159"/>
         <source>1 Kings</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Reyes</translation>
     </message>
     <message>
         <location filename="main.cpp" line="159"/>
@@ -1047,13 +1047,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="159"/>
         <source>The First Book of the Kings Commonly Called, The Third Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Primero de Reyes</translation>
     </message>
     <message>
         <location filename="main.cpp" line="160"/>
         <source>2 Kings</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Reyes</translation>
     </message>
     <message>
         <location filename="main.cpp" line="160"/>
@@ -1065,13 +1065,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="160"/>
         <source>The Second Book of the Kings Commonly Called, The Fourth Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Segundo de Reyes</translation>
     </message>
     <message>
         <location filename="main.cpp" line="161"/>
         <source>1 Chronicles</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Crónicas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="161"/>
@@ -1083,13 +1083,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="161"/>
         <source>The First Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Primero de Crónicas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="162"/>
         <source>2 Chronicles</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Crónicas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="162"/>
@@ -1101,13 +1101,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="162"/>
         <source>The Second Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro Segundo de Crónicas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="163"/>
         <source>Ezra</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Esdras</translation>
     </message>
     <message>
         <location filename="main.cpp" line="163"/>
@@ -1119,7 +1119,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="164"/>
         <source>Nehemiah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nehemías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="164"/>
@@ -1131,7 +1131,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="165"/>
         <source>Esther</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Esther</translation>
     </message>
     <message>
         <location filename="main.cpp" line="165"/>
@@ -1143,7 +1143,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="166"/>
         <source>Job</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Job</translation>
     </message>
     <message>
         <location filename="main.cpp" line="166"/>
@@ -1159,13 +1159,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="170"/>
         <source>Wisdom</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sabiduría</translation>
     </message>
     <message>
         <location filename="main.cpp" line="167"/>
         <source>Psalms</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Salmos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="167"/>
@@ -1177,7 +1177,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="168"/>
         <source>Proverbs</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Proverbios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="168"/>
@@ -1189,7 +1189,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="169"/>
         <source>Ecclesiastes</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eclesiastés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="169"/>
@@ -1201,13 +1201,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="169"/>
         <source>Ecclesiastes; Or, The Preacher</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Libro de Eclesiastés</translation>
     </message>
     <message>
         <location filename="main.cpp" line="170"/>
         <source>Song Of Solomon</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cantar de los Cantares</translation>
     </message>
     <message>
         <location filename="main.cpp" line="170"/>
@@ -1219,7 +1219,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="171"/>
         <source>Isaiah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Isaias</translation>
     </message>
     <message>
         <location filename="main.cpp" line="171"/>
@@ -1235,19 +1235,19 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="175"/>
         <source>Major Prophets</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Profetas Mayores</translation>
     </message>
     <message>
         <location filename="main.cpp" line="171"/>
         <source>The Book of the Prophet Isaiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Libro de Isaías el Profeta</translation>
     </message>
     <message>
         <location filename="main.cpp" line="172"/>
         <source>Jeremiah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jeremías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="172"/>
@@ -1259,13 +1259,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="172"/>
         <source>The Book of the Prophet Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Libro de Jeremías el Profeta</translation>
     </message>
     <message>
         <location filename="main.cpp" line="173"/>
         <source>Lamentations</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lamentaciones</translation>
     </message>
     <message>
         <location filename="main.cpp" line="173"/>
@@ -1277,13 +1277,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="173"/>
         <source>The Lamentations of Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Las Lamentaciones de Jeremías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="174"/>
         <source>Ezekiel</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ezequiel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="174"/>
@@ -1295,13 +1295,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="174"/>
         <source>The Book of the Prophet Ezekiel</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Libro de Ezequiel el Profeta</translation>
     </message>
     <message>
         <location filename="main.cpp" line="175"/>
         <source>Daniel</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Daniel</translation>
     </message>
     <message>
         <location filename="main.cpp" line="175"/>
@@ -1313,13 +1313,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="175"/>
         <source>The Book of &lt;i&gt;the Prophet&lt;/i&gt; Daniel</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Libro de Daniel el Profeta</translation>
     </message>
     <message>
         <location filename="main.cpp" line="176"/>
         <source>Hosea</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Oseas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="176"/>
@@ -1342,13 +1342,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="187"/>
         <source>Minor Prophets</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Profetas Menores</translation>
     </message>
     <message>
         <location filename="main.cpp" line="177"/>
         <source>Joel</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Joél</translation>
     </message>
     <message>
         <location filename="main.cpp" line="177"/>
@@ -1360,7 +1360,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="178"/>
         <source>Amos</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Amós</translation>
     </message>
     <message>
         <location filename="main.cpp" line="178"/>
@@ -1372,7 +1372,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="179"/>
         <source>Obadiah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Abdías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="179"/>
@@ -1384,7 +1384,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="180"/>
         <source>Jonah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jonás</translation>
     </message>
     <message>
         <location filename="main.cpp" line="180"/>
@@ -1396,7 +1396,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="181"/>
         <source>Micah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Miqueas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="181"/>
@@ -1408,7 +1408,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="182"/>
         <source>Nahum</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nahúm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="182"/>
@@ -1420,7 +1420,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="183"/>
         <source>Habakkuk</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Habacuc</translation>
     </message>
     <message>
         <location filename="main.cpp" line="183"/>
@@ -1432,7 +1432,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="184"/>
         <source>Zephaniah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sofonías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="184"/>
@@ -1444,7 +1444,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="185"/>
         <source>Haggai</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hageo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="185"/>
@@ -1456,7 +1456,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="186"/>
         <source>Zechariah</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Zacarías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="186"/>
@@ -1468,7 +1468,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="187"/>
         <source>Malachi</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Malaquías</translation>
     </message>
     <message>
         <location filename="main.cpp" line="187"/>
@@ -1480,7 +1480,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="188"/>
         <source>Matthew</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mateo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="188"/>
@@ -1496,19 +1496,19 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="192"/>
         <source>NT Narative</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Las Narrativas del Nuevo Testamento</translation>
     </message>
     <message>
         <location filename="main.cpp" line="188"/>
         <source>The Gospel According to Saint Matthew</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Santo Evangelio según San Mateo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="189"/>
         <source>Mark</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Marcos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="189"/>
@@ -1520,13 +1520,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="189"/>
         <source>The Gospel According to Saint Mark</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Santo Evangelio según San Marcos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="190"/>
         <source>Luke</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lucas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="190"/>
@@ -1538,13 +1538,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="190"/>
         <source>The Gospel According to Saint Luke</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Santo Evangelio según San Lucas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="191"/>
         <source>John</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="191"/>
@@ -1556,13 +1556,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="191"/>
         <source>The Gospel According to Saint John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>El Santo Evangelio según San Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="192"/>
         <source>Acts</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hechos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="192"/>
@@ -1574,13 +1574,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="192"/>
         <source>The Acts of the Apostles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hechos de los Apóstoles</translation>
     </message>
     <message>
         <location filename="main.cpp" line="193"/>
         <source>Romans</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Romanos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="193"/>
@@ -1605,19 +1605,19 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="206"/>
         <source>Pauline Epistles</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Epístolas Paulinas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="193"/>
         <source>The Epistle of Paul the Apostle to the Romans</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Romanos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="194"/>
         <source>1 Corinthians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ro Corintios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="194"/>
@@ -1629,13 +1629,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="194"/>
         <source>The First Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Primera Epístola del Apóstol San Pablo a los Corintios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="195"/>
         <source>2 Corinthians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2do Corintios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="195"/>
@@ -1647,13 +1647,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="195"/>
         <source>The Second Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Segunda Epístola del Apóstol San Pablo a los Corintios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="196"/>
         <source>Galatians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gálatas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="196"/>
@@ -1665,13 +1665,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="196"/>
         <source>The Epistle of Paul the Apostle to the Galatians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Gálatas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="197"/>
         <source>Ephesians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Efesios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="197"/>
@@ -1683,13 +1683,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="197"/>
         <source>The Epistle of Paul the Apostle to the Ephesians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Efesios</translation>
     </message>
     <message>
         <location filename="main.cpp" line="198"/>
         <source>Philippians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Filipenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="198"/>
@@ -1701,13 +1701,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="198"/>
         <source>The Epistle of Paul the Apostle to the Philippians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Filipenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="199"/>
         <source>Colossians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Colosenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="199"/>
@@ -1719,13 +1719,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="199"/>
         <source>The Epistle of Paul the Apostle to the Colossians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Colosenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="200"/>
         <source>1 Thessalonians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Tesalonicenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="200"/>
@@ -1737,13 +1737,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="200"/>
         <source>The First Epistle of Paul the Apostle to the Thessalonians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Primera Epístola del Apóstol San Pablo a los Tesalonicenses</translation>
     </message>
     <message>
         <location filename="main.cpp" line="201"/>
         <source>2 Thessalonians</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Tesalonicences</translation>
     </message>
     <message>
         <location filename="main.cpp" line="201"/>
@@ -1755,13 +1755,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="201"/>
         <source>The Second Epistle of Paul the Apostle to the Thessalonains</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Segunda Epístola del Apóstol San Pablo a los Thessalonains</translation>
     </message>
     <message>
         <location filename="main.cpp" line="202"/>
         <source>1 Timothy</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Timoteo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="202"/>
@@ -1773,13 +1773,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="202"/>
         <source>The First Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Primera Epístola del Apóstol San Pablo a Timoteo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="203"/>
         <source>2 Timothy</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Timoteo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="203"/>
@@ -1791,13 +1791,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="203"/>
         <source>The Second Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Segunda Epístola del Apóstol San Pablo a Timoteo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="204"/>
         <source>Titus</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Tito</translation>
     </message>
     <message>
         <location filename="main.cpp" line="204"/>
@@ -1809,13 +1809,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="204"/>
         <source>The Epistle of Paul to Titus</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol Pablo a Tito</translation>
     </message>
     <message>
         <location filename="main.cpp" line="205"/>
         <source>Philemon</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Filemón</translation>
     </message>
     <message>
         <location filename="main.cpp" line="205"/>
@@ -1827,13 +1827,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="205"/>
         <source>The Epistle of Paul to Philemon</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol Pablo a Filemón</translation>
     </message>
     <message>
         <location filename="main.cpp" line="206"/>
         <source>Hebrews</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hebreos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="206"/>
@@ -1845,13 +1845,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="206"/>
         <source>The Epistle of Paul the Apostle to the Hebrews</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola del Apóstol San Pablo a los Hebreos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="207"/>
         <source>James</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Santiago</translation>
     </message>
     <message>
         <location filename="main.cpp" line="207"/>
@@ -1869,19 +1869,19 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="213"/>
         <source>General Epistles</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Epístolas Generales</translation>
     </message>
     <message>
         <location filename="main.cpp" line="207"/>
         <source>The General Epistle of James</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola Universal de Santiago</translation>
     </message>
     <message>
         <location filename="main.cpp" line="208"/>
         <source>1 Peter</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Pedro</translation>
     </message>
     <message>
         <location filename="main.cpp" line="208"/>
@@ -1893,13 +1893,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="208"/>
         <source>The First General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Primera Epístola Universal de Pedro</translation>
     </message>
     <message>
         <location filename="main.cpp" line="209"/>
         <source>2 Peter</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Pedro</translation>
     </message>
     <message>
         <location filename="main.cpp" line="209"/>
@@ -1911,13 +1911,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="209"/>
         <source>The Second General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Segunda Epístola Universal de Pedro</translation>
     </message>
     <message>
         <location filename="main.cpp" line="210"/>
         <source>1 John</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>1ra Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="210"/>
@@ -1929,13 +1929,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="210"/>
         <source>The First General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Primera Epístola del Apóstol Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="211"/>
         <source>2 John</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>2da Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="211"/>
@@ -1947,13 +1947,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="211"/>
         <source>The Second General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Segunda Epístola del Apóstol Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="212"/>
         <source>3 John</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>3ra Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="212"/>
@@ -1965,13 +1965,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="212"/>
         <source>The Third General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Tercera Epístola del Apóstol Juan</translation>
     </message>
     <message>
         <location filename="main.cpp" line="213"/>
         <source>Jude</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Judas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="213"/>
@@ -1983,13 +1983,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="213"/>
         <source>The General Epistle of Jude</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Epístola de Judas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="214"/>
         <source>Revelation</source>
         <comment>bookname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Apocalipsis</translation>
     </message>
     <message>
         <location filename="main.cpp" line="214"/>
@@ -2001,25 +2001,25 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="214"/>
         <source>Apocalyptic Epistle</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Epístola Apocalíptica</translation>
     </message>
     <message>
         <location filename="main.cpp" line="214"/>
         <source>The Revelation of Jesus Christ</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>La Revelación de Jesucristo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="226"/>
         <source>Old Testament</source>
         <comment>testname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Antiguo Testamento</translation>
     </message>
     <message>
         <location filename="main.cpp" line="227"/>
         <source>New Testament</source>
         <comment>testname</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo Testamento</translation>
     </message>
 </context>
 <context>

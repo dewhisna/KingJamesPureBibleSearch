@@ -89,13 +89,17 @@ HEADERS += \
 !isEmpty(TRANSLATIONS) {
 	DEFINES+=HAVE_TRANSLATIONS
 	for(f, TRANSLATIONS):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
-	QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+	exists($$[QT_INSTALL_BINS]/lrelease) {
+		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+	} else {
+		message("Can't build translations!  Using previously built translations if possible")
+	}
 	unix:!mac {
 		translationDeploy.path = .
 		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
 	}
 	#INSTALLS += translationDeploy
-	message(Deploying translations: $$TRANSLATIONS $$escape_expand(\\n))
+	message("Deploying translations:" $$TRANSLATIONS$$escape_expand(\\n))
 }
 
-message($$CONFIG)
+message($$CONFIG$$escape_expand(\\n))
