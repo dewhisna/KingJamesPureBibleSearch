@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 
 	if (argc < 3) {
-		std::cerr << QString("Usage: %1 <in-file> <out-file>\n").arg(argv[0]).toStdString();
+		std::cerr << QString::fromUtf8("Usage: %1 <in-file> <out-file>\n").arg(argv[0]).toStdString();
 		return -1;
 	}
 
@@ -265,74 +265,79 @@ int main(int argc, char *argv[])
 	QFile fileOut(argv[2]);
 
 	if (!fileIn.open(QIODevice::ReadOnly)) {
-		std::cerr << QString("Unable to open \"%1\" for reading\n").arg(fileIn.fileName()).toUtf8().data();
+		std::cerr << QString::fromUtf8("Unable to open \"%1\" for reading\n").arg(fileIn.fileName()).toUtf8().data();
 		return -2;
 	}
 
 	if (!fileOut.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("Unable to open \"%1\" for writing\n").arg(fileOut.fileName()).toUtf8().data();
+		std::cerr << QString::fromUtf8("Unable to open \"%1\" for writing\n").arg(fileOut.fileName()).toUtf8().data();
 		return -3;
 	}
 
-	fileOut.write(QString("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\n").toUtf8());
-	fileOut.write(QString("<osis xmlns=\"http://www.bibletechnologies.net/2003/OSIS/namespace\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.2.1.1.xsd\">\n\n").toUtf8());
-	fileOut.write(QString("<osisText osisIDWork=\"RVG2010\" osisRefWork=\"defaultReferenceScheme\" lang=\"es\">\n\n").toUtf8());
-	fileOut.write(QString("<header>\n").toUtf8());
-	fileOut.write(QString("<work osisWork=\"RVG2010\">\n").toUtf8());
-	fileOut.write(QString("<title>Reina Valera Gómez 2010 (edition 2013-02-22)</title>\n").toUtf8());
-	fileOut.write(QString("<identifier type=\"OSIS\">Bible.RVG2010</identifier>\n").toUtf8());
-	fileOut.write(QString("<refSystem>Bible.KJV</refSystem>\n").toUtf8());
-	fileOut.write(QString("</work>\n").toUtf8());
-	fileOut.write(QString("<work osisWork=\"defaultReferenceScheme\">\n").toUtf8());
-	fileOut.write(QString("<refSystem>Bible.KJV</refSystem>\n").toUtf8());
-	fileOut.write(QString("</work>\n").toUtf8());
-	fileOut.write(QString("</header>\n").toUtf8());
+	fileOut.write(QByteArray("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\n"));
+	fileOut.write(QByteArray("<osis xmlns=\"http://www.bibletechnologies.net/2003/OSIS/namespace\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.2.1.1.xsd\">\n\n"));
+	fileOut.write(QByteArray("<osisText osisIDWork=\"RVG2010\" osisRefWork=\"defaultReferenceScheme\" lang=\"es\">\n\n"));
+	fileOut.write(QByteArray("<header>\n"));
+	fileOut.write(QByteArray("<work osisWork=\"RVG2010\">\n"));
+	fileOut.write(QByteArray("<title>Reina Valera Gómez 2010 (edition 2014-01-26)</title>\n"));
+	fileOut.write(QByteArray("<identifier type=\"OSIS\">Bible.RVG2010</identifier>\n"));
+	fileOut.write(QByteArray("<refSystem>Bible.KJV</refSystem>\n"));
+	fileOut.write(QByteArray("</work>\n"));
+	fileOut.write(QByteArray("<work osisWork=\"defaultReferenceScheme\">\n"));
+	fileOut.write(QByteArray("<refSystem>Bible.KJV</refSystem>\n"));
+	fileOut.write(QByteArray("</work>\n"));
+	fileOut.write(QByteArray("</header>\n"));
 
 	unsigned int nVerseCount = 0;
 	unsigned int nTst = 0;
 
 	for (unsigned int nBk = 0; nBk < NUM_BK; ++nBk) {
 		if ((nBk == 0) || (nBk == NUM_BK_OT))
-			fileOut.write(QString("<div type=\"x-testament\">\n").toUtf8().data());
+			fileOut.write(QByteArray("<div type=\"x-testament\">\n"));
 
 
 		QStringList lstVerseCounts = g_arrChapterVerseCounts[nBk].split(",");		// Number of chapters = size of lstVerseCounts, each entry is number of verses in chapter
 
-		std::cout << QString("Book: %1\n").arg(g_arrBooks[nBk].m_strName).toUtf8().data();
-		fileOut.write(QString("<div type=\"book\" osisID=\"%1\">\n").arg(g_arrBooks[nBk].m_strOsisAbbr).toUtf8());
+		std::cout << QString::fromUtf8("Book: %1\n").arg(g_arrBooks[nBk].m_strName).toUtf8().data();
+		fileOut.write(QString::fromUtf8("<div type=\"book\" osisID=\"%1\">\n").arg(g_arrBooks[nBk].m_strOsisAbbr).toUtf8());
 
 		for (unsigned int nChp = 0; nChp < static_cast<unsigned int>(lstVerseCounts.size()); ++nChp) {
 			unsigned int nVerses = lstVerseCounts.at(nChp).toUInt();
 
-			std::cout << QString("    Chapter: %1").arg(nChp+1).toUtf8().data();
-			fileOut.write(QString("<chapter osisID=\"%1.%2\">\n").arg(g_arrBooks[nBk].m_strOsisAbbr).arg(nChp+1).toUtf8().data());
+			std::cout << QString::fromUtf8("    Chapter: %1").arg(nChp+1).toUtf8().data();
+			fileOut.write(QString::fromUtf8("<chapter osisID=\"%1.%2\">\n").arg(g_arrBooks[nBk].m_strOsisAbbr).arg(nChp+1).toUtf8().data());
 
 			for (unsigned int nVrs = 0; nVrs < nVerses; ++nVrs) {
-				assert(!fileIn.atEnd());
+				if (fileIn.atEnd()) {
+					std::cerr << "Unexpected end of input file!";
+					break;
+				}
 
 				++nVerseCount;
 
 				std::cout << ".";
-				fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk].m_strOsisAbbr).arg(nChp+1).arg(nVrs+1).arg(convertVerseText(QString::fromUtf8(fileIn.readLine()), nBk, nChp, nVrs).trimmed()).toUtf8().data());
-				fileOut.write(QString("</verse>\n").toUtf8().data());
+				fileOut.write(QString::fromUtf8("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk].m_strOsisAbbr).arg(nChp+1).arg(nVrs+1).arg(convertVerseText(QString::fromUtf8(fileIn.readLine()), nBk, nChp, nVrs).trimmed()).toUtf8().data());
+				fileOut.write(QByteArray("</verse>\n"));
 			}
 
 			std::cout << "\n";
-			fileOut.write(QString("</chapter>\n").toUtf8().data());
+			fileOut.write(QByteArray("</chapter>\n"));
 		}
 
-		fileOut.write(QString("</div>\n").toUtf8().data());				// End of Book
+		fileOut.write(QByteArray("</div>\n"));				// End of Book
 
 		if ((nBk == (NUM_BK_OT - 1)) || (nBk == (NUM_BK - 1))) {
-			fileOut.write(QString("</div>\n").toUtf8().data());			// End of testament
+			fileOut.write(QByteArray("</div>\n"));			// End of testament
 			nTst++;
 		}
 	}
 
-	assert(nVerseCount == 31102);
+	if (nVerseCount != 31102) {
+		std::cerr << QString::fromUtf8("Error: Expected 31102 verses, but found %1").arg(nVerseCount).toUtf8().data();
+	}
 
-	fileOut.write(QString("\n</osisText>\n").toUtf8());
-	fileOut.write(QString("\n</osis>\n").toUtf8());
+	fileOut.write(QByteArray("\n</osisText>\n"));
+	fileOut.write(QByteArray("\n</osis>\n"));
 
 	fileOut.close();
 	fileIn.close();
