@@ -27,7 +27,14 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml sql
+QT       += core gui xml
+
+DEFINES += NOT_USING_SQL
+DEFINES += NO_PERSISTENT_SETTINGS
+DEFINES += OSIS_PARSER_BUILD
+
+# Workaround QTBUG-30594 (was fixed in 4.8.5):
+equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
 TARGET = KJVDataParse
 CONFIG   += console
@@ -43,44 +50,52 @@ CODECFORTR  = UTF-8
 
 TRANSLATIONS += \
 		kjvdataparse_en.ts \
-		kjvdataparse_fr.ts
+		kjvdataparse_fr.ts \
+		kjvdataparse_es.ts
 
 SOURCES += main.cpp \
-	../KJVCanOpener/dbstruct.cpp \
-	../KJVCanOpener/ReadDB.cpp \
 	../KJVCanOpener/BuildDB.cpp \
 	../KJVCanOpener/CSV.cpp \
-	../KJVCanOpener/PhraseEdit.cpp \
-	../KJVCanOpener/PhraseListModel.cpp \
+	../KJVCanOpener/dbstruct.cpp \
 	../KJVCanOpener/Highlighter.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
-	../KJVCanOpener/VerseRichifier.cpp \
-	../KJVCanOpener/SearchCompleter.cpp \
+	../KJVCanOpener/PersistentSettings.cpp \
+	../KJVCanOpener/PhraseEdit.cpp \
+	../KJVCanOpener/PhraseListModel.cpp \
+	../KJVCanOpener/ReadDB.cpp \
+	../KJVCanOpener/ReportError.cpp \
 	../KJVCanOpener/ScriptureDocument.cpp \
+	../KJVCanOpener/SearchCompleter.cpp \
 	../KJVCanOpener/UserNotesDatabase.cpp \
-	../KJVCanOpener/PersistentSettings.cpp
+	../KJVCanOpener/VerseRichifier.cpp
 
 HEADERS += \
-	../KJVCanOpener/dbstruct.h \
-	../KJVCanOpener/ReadDB.h \
-	../KJVCanOpener/PhraseListModel.h \
-	../KJVCanOpener/PhraseEdit.h \
 	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
+	../KJVCanOpener/dbstruct.h \
 	../KJVCanOpener/Highlighter.h \
 	../KJVCanOpener/ParseSymbols.h \
-	../KJVCanOpener/VerseRichifier.h \
-	../KJVCanOpener/SearchCompleter.h \
-	../KJVCanOpener/ScriptureDocument.h \
-	../KJVCanOpener/UserNotesDatabase.h \
 	../KJVCanOpener/PersistentSettings.h \
-	../KJVCanOpener/KJVSearchCriteria.h
+	../KJVCanOpener/PhraseEdit.h \
+	../KJVCanOpener/PhraseListModel.h \
+	../KJVCanOpener/ReadDB.h \
+	../KJVCanOpener/ReportError.h \
+	../KJVCanOpener/ScriptureDocument.h \
+	../KJVCanOpener/SearchCompleter.h \
+	../KJVCanOpener/UserNotesDatabase.h \
+	../KJVCanOpener/VerseRichifier.h
 
+# Build Translations:
+!isEmpty(TRANSLATIONS) {
+	DEFINES+=HAVE_TRANSLATIONS
+	for(f, TRANSLATIONS):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
+	QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+	unix:!mac {
+		translationDeploy.path = .
+		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
+	}
+	#INSTALLS += translationDeploy
+	message(Deploying translations: $$TRANSLATIONS $$escape_expand(\\n))
+}
 
-#QMAKE_CXXFLAGS += -DNO_PERSISTENT_SETTINGS
-#QMAKE_CXXFLAGS += -DOSIS_PARSER_BUILD
-
-DEFINES += NO_PERSISTENT_SETTINGS
-DEFINES += OSIS_PARSER_BUILD
-
-
+message($$CONFIG)

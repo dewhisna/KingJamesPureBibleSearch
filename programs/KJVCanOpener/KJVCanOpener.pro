@@ -341,6 +341,25 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 	}
 }
 
+###############################################################################
+
+
+# Build Translations:
+!isEmpty(TRANSLATIONS) {
+	DEFINES+=HAVE_TRANSLATIONS
+	for(f, TRANSLATIONS):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
+	QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+	unix:!mac {
+		translationDeploy.path = .
+		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
+	}
+	#INSTALLS += translationDeploy
+	message(Deploying translations: $$TRANSLATIONS$$escape_expand(\\n))
+}
+
+
+###############################################################################
+
 android {
 	ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 	ANDROID_PACKAGE = org.dewtronics.KingJamesPureBibleSearch
@@ -367,6 +386,10 @@ android {
 		licDeploy.path = /assets/KJVCanOpener/license
 
 		INSTALLS += dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+		!isEmpty(TRANSLATIONS) {
+			translationDeploy.path = /assets/KJVCanOpener/translations
+			INSTALLS += translationDeploy
+		}
 	}
 }
 
@@ -424,6 +447,10 @@ ios {
 		licDeploy.path = /assets/KJVCanOpener/license
 
 		QMAKE_BUNDLE_DATA += iconDeploy dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+		!isEmpty(TRANSLATIONS) {
+			translationDeploy.path = /assets/KJVCanOpener/translations
+			QMAKE_BUNDLE_DATA += translationDeploy
+		}
 	}
 }
 
@@ -483,6 +510,10 @@ macx {
 		licDeploy.path = /Contents/SharedSupport/license
 
 		QMAKE_BUNDLE_DATA += nibDeploy dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+		!isEmpty(TRANSLATIONS) {
+			translationDeploy.path = /Contents/Resources/translations
+			QMAKE_BUNDLE_DATA += translationDeploy
+		}
 	}
 }
 

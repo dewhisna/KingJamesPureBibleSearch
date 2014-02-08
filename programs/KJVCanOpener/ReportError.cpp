@@ -25,6 +25,10 @@
 
 #include <QDebug>
 
+#ifdef OSIS_PARSER_BUILD
+#include <iostream>
+#endif
+
 // ============================================================================
 
 
@@ -32,14 +36,20 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 										   QMessageBox::StandardButtons nButtons,
 										   QMessageBox::StandardButton nDefaultButton)
 {
-#ifndef EMSCRIPTEN
-	return QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
-#else
+#if defined(EMSCRIPTEN)
 	qDebug("warning: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
+#elif defined(OSIS_PARSER_BUILD)
+	std::cerr << QString::fromUtf8("warning: %1: %2").arg(strTitle).arg(strText).toUtf8().data();
+	Q_UNUSED(pParent);
+	Q_UNUSED(nButtons);
+	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
+	return QMessageBox::Ok;
+#else
+	return QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
 #endif
 }
 
@@ -56,14 +66,20 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 												QMessageBox::StandardButtons nButtons,
 												QMessageBox::StandardButton nDefaultButton)
 {
-#ifndef EMSCRIPTEN
-	return QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
-#else
+#if defined(EMSCRIPTEN)
 	qDebug("information: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
+#elif defined(OSIS_PARSER_BUILD)
+	std::cerr << QString::fromUtf8("information: %1: %2").arg(strTitle).arg(strText).toUtf8().data();
+	Q_UNUSED(pParent);
+	Q_UNUSED(nButtons);
+	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
+	return QMessageBox::Ok;
+#else
+	return QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
 #endif
 }
 
