@@ -40,6 +40,7 @@
 
 #include <QObject>
 #include <QFile>
+#include <QDir>
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
@@ -275,8 +276,10 @@ private:
 
 // ============================================================================
 
-CReadDatabase::CReadDatabase(QWidget *pParent)
-	:	m_pParent(pParent)
+CReadDatabase::CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent)
+	:	m_pParent(pParent),
+		m_strBibleDatabasePath(strBibleDBPath),
+		m_strDictionaryDatabasePath(strDictionaryDBPath)
 {
 
 }
@@ -1170,6 +1173,50 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 // ============================================================================
 
+bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const
+{
+	QFileInfo fiSQL(bibleDBFileInfo(DTE_SQL, bblDesc));
+	QFileInfo fiCC(bibleDBFileInfo(DTE_CC, bblDesc));
+	return ((fiCC.exists() && fiCC.isFile()) ||
+			(fiSQL.exists() && fiSQL.isFile()));
+}
+
+bool CReadDatabase::haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const
+{
+	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
+	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));
+	return ((fiCC.exists() && fiCC.isFile()) ||
+			(fiSQL.exists() && fiSQL.isFile()));
+}
+
+QFileInfo CReadDatabase::bibleDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TBibleDescriptor &bblDesc) const
+{
+	switch (nDatabaseType) {
+		case DTE_SQL:
+			return QFileInfo(QDir(m_strBibleDatabasePath), bblDesc.m_strS3DBFilename);
+		case DTE_CC:
+			return QFileInfo(QDir(m_strBibleDatabasePath), bblDesc.m_strCCDBFilename);
+		default:
+			assert(false);
+			return QFileInfo();
+	}
+}
+
+QFileInfo CReadDatabase::dictDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TDictionaryDescriptor &dctDesc) const
+{
+	switch (nDatabaseType) {
+		case DTE_SQL:
+			return QFileInfo(QDir(m_strDictionaryDatabasePath), dctDesc.m_strS3DBFilename);
+		case DTE_CC:
+			return QFileInfo(QDir(m_strDictionaryDatabasePath), dctDesc.m_strCCDBFilename);
+		default:
+			assert(false);
+			return QFileInfo();
+	}
+}
+
+// ============================================================================
+
 bool CReadDatabase::readBibleStub()
 {
 	if ((!ReadDBInfoTable()) ||
@@ -1184,67 +1231,60 @@ bool CReadDatabase::readBibleStub()
 	return true;
 }
 
-bool CReadDatabase::ReadBibleDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bSetAsMain)
+bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
-	bool bSuccess = true;
+	bool bSuccess = false;
 
-	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());
+	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
 	assert(m_pBibleDatabase.data() != NULL);
 
-	if (nDatabaseType == DTE_SQL) {
+	QFileInfo fiSQL(bibleDBFileInfo(DTE_SQL, bblDesc));
+	QFileInfo fiCC(bibleDBFileInfo(DTE_CC, bblDesc));
+
+	// Prefer CC database over SQL in our search order:
+	if (!bSuccess && fiCC.exists() && fiCC.isFile()) {
+		QFile fileCCDB;
+		fileCCDB.setFileName(fiCC.absoluteFilePath());
+		if (!fileCCDB.open(QIODevice::ReadOnly)) {
+#ifdef Q_OS_ANDROID
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()).toUtf8().data());
+#endif
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()));
+		} else {
+			QtIOCompressor compCCDB(&fileCCDB);
+			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (!compCCDB.open(QIODevice::ReadOnly)) {
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(fiCC.absoluteFilePath()));
+			} else {
+				CScopedCSVStream ccdb(m_pCCDatabase, new CCSVStream(&compCCDB));
+				if (readBibleStub()) bSuccess = true;
+			}
+		}
+	}
+
+	// Try SQL secondarily if we support SQL:
+	if (!bSuccess && fiSQL.exists() && fiSQL.isFile()) {
 #ifndef NOT_USING_SQL
 		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
-		m_myDatabase.setDatabaseName(strDatabaseFilename);
+		m_myDatabase.setDatabaseName(fiSQL.absoluteFilePath());
 		m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 //		displayInformation(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
 		if (!m_myDatabase.open()) {
 #ifdef Q_OS_ANDROID
-			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_myDatabase.lastError().text()).toUtf8().data());
 #endif
-			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
-			bSuccess = false;
-		}
-
-		if (bSuccess) {
-			if (!readBibleStub()) bSuccess = false;
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_myDatabase.lastError().text()));
+		} else {
+			if (readBibleStub()) bSuccess = true;
 			m_myDatabase.close();
 		}
 
 		m_myDatabase = QSqlDatabase();
 		QSqlDatabase::removeDatabase(g_constrMainReadConnection);
 #else
-		return false;
 #endif	// !NOT_USING_SQL
-
-	} else if (nDatabaseType == DTE_CC) {
-		QFile fileCCDB;
-		if ((bSuccess) && (!strDatabaseFilename.isEmpty())) {
-			fileCCDB.setFileName(strDatabaseFilename);
-			if (!fileCCDB.open(QIODevice::ReadOnly)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		QtIOCompressor compCCDB(&fileCCDB);
-		if ((bSuccess) && (fileCCDB.isOpen())) {
-			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
-			if (!compCCDB.open(QIODevice::ReadOnly)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : NULL));
-
-		if (bSuccess) {
-			if (!readBibleStub()) bSuccess = false;
-		}
-	} else {
-		assert(false);
-		return false;
 	}
 
 	if (bSuccess) {
@@ -1331,77 +1371,69 @@ bool CReadDatabase::readDictionaryStub(bool bLiveDB)
 	return true;
 }
 
-bool CReadDatabase::ReadDictionaryDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB, bool bSetAsMain)
+bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB, bool bSetAsMain)
 {
-	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(strName, strDescription, strCompatUUID));
+	bool bSuccess = false;
+
+	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
 	assert(m_pDictionaryDatabase.data() != NULL);
 
-	bool bSuccess = true;
+	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
+	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));
 
-	if (nDatabaseType == DTE_SQL) {
+	// Prefer CC database over SQL in our search order:
+	if (!bSuccess && fiCC.exists() && fiCC.isFile()) {
+		QFile fileCCDB;
+		fileCCDB.setFileName(fiCC.absoluteFilePath());
+		if (!fileCCDB.open(QIODevice::ReadOnly)) {
+#ifdef Q_OS_ANDROID
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()).toUtf8().data());
+#endif
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()));
+		} else {
+			QtIOCompressor compCCDB(&fileCCDB);
+			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (!compCCDB.open(QIODevice::ReadOnly)) {
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(fiCC.absoluteFilePath()));
+			} else {
+				CScopedCSVStream ccdb(m_pCCDatabase, new CCSVStream(&compCCDB));
+				if (readDictionaryStub(false)) bSuccess = true;				// CC Database can't be live by definition
+			}
+		}
+	}
+
+	// Try SQL secondarily if we support SQL:
+	if (!bSuccess && fiSQL.exists() && fiSQL.isFile()) {
 #ifndef NOT_USING_SQL
-
-		if (!m_pDictionaryDatabase->m_myDatabase.contains(strCompatUUID)) {
-			m_pDictionaryDatabase->m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, strCompatUUID);
+		if (!m_pDictionaryDatabase->m_myDatabase.contains(dctDesc.m_strUUID)) {
+			m_pDictionaryDatabase->m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, dctDesc.m_strUUID);
 		}
 
-		m_pDictionaryDatabase->m_myDatabase.setDatabaseName(strDatabaseFilename);
+		m_pDictionaryDatabase->m_myDatabase.setDatabaseName(fiSQL.absoluteFilePath());
 		m_pDictionaryDatabase->m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 //		displayInformation(m_pParent, g_constrReadDatabase, m_pDictionaryDatabase->m_myDatabase.databaseName());
 
 		if (!m_pDictionaryDatabase->m_myDatabase.open()) {
 #ifdef Q_OS_ANDROID
-			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()).toUtf8().data());
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()).toUtf8().data());
 #endif
-			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_pDictionaryDatabase->m_myDatabase.lastError().text()));
 			m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
-			QSqlDatabase::removeDatabase(strCompatUUID);
-			return false;
-		}
-
-		if (bSuccess) {
-			if (!readDictionaryStub(bLiveDB)) {
-				bSuccess = false;
-			}
+			QSqlDatabase::removeDatabase(dctDesc.m_strUUID);
+		} else {
+			if (readDictionaryStub(bLiveDB)) bSuccess = true;
 		}
 
 		if ((!bLiveDB) || (!bSuccess)) {
-			assert(m_pDictionaryDatabase->m_myDatabase.contains(strCompatUUID));
+			assert(m_pDictionaryDatabase->m_myDatabase.contains(dctDesc.m_strUUID));
 			m_pDictionaryDatabase->m_myDatabase.close();
 			m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
-			QSqlDatabase::removeDatabase(strCompatUUID);
+			QSqlDatabase::removeDatabase(dctDesc.m_strUUID);
 		}
 #else
-		return false;
+		Q_UNUSED(bLiveDB)
 #endif	// !NOT_USING_SQL
-	} else if (nDatabaseType == DTE_CC) {
-		QFile fileCCDB;
-		if ((bSuccess) && (!strDatabaseFilename.isEmpty())) {
-			fileCCDB.setFileName(strDatabaseFilename);
-			if (!fileCCDB.open(QIODevice::ReadOnly)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		QtIOCompressor compCCDB(&fileCCDB);
-		if ((bSuccess) && (fileCCDB.isOpen())) {
-			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
-			if (!compCCDB.open(QIODevice::ReadOnly)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : NULL));
-
-		if (bSuccess) {
-			if (!readDictionaryStub(bLiveDB)) bSuccess = false;
-		}
-	} else {
-		assert(false);
-		return false;
 	}
 
 	if (bSuccess) {

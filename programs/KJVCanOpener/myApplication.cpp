@@ -107,40 +107,34 @@ namespace {
 //	const char *g_constrPluginsPath = "assets:/plugins/";
 //	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/plugins/";
 
-	const char *g_constrKJVSQLDatabaseFilename = "KJVCanOpener/db/kjvtext.s3db";
-	const char *g_constrKJVCCDatabaseFilename = "KJVCanOpener/db/kjvtext.ccdb";
+	const char *g_constrBibleDatabasePath = "KJVCanOpener/db/";
+	const char *g_constrDictionaryDatabasePath = "KJVCanOpener/db/";
 	const char *g_constrUserDatabaseTemplateFilename = "KJVCanOpener/db/kjvuser.s3db";
-	const char *g_constrWeb1828DatabaseFilename = "KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
-	const char *g_constrKJVSQLDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.s3db";
-	const char *g_constrKJVCCDatabaseFilename = "./assets/KJVCanOpener/db/kjvtext.ccdb";
+	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
+	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrUserDatabaseTemplateFilename = "./assets/KJVCanOpener/db/kjvuser.s3db";
-	const char *g_constrWeb1828DatabaseFilename = "./assets/KJVCanOpener/db/dct-web1828.s3db";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrPluginsPath = "../Frameworks/";
-	const char *g_constrKJVSQLDatabaseFilename = "../Resources/db/kjvtext.s3db";
-	const char *g_constrKJVCCDatabaseFilename = "../Resources/db/kjvtext.ccdb";
+	const char *g_constrBibleDatabasePath = "../Resources/db/";
+	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
 	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
-	const char *g_constrWeb1828DatabaseFilename = "../Resources/db/dct-web1828.s3db";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	#ifdef EMSCRIPTEN_NATIVE
-		const char *g_constrKJVSQLDatabaseFilename = "./data/kjvtext.s3db";
-		const char *g_constrKJVCCDatabaseFilename = "./data/kjvtext.ccdb";
+		const char *g_constrBibleDatabasePath = "./data/";
 	#else
-		const char *g_constrKJVSQLDatabaseFilename = "data/kjvtext.s3db";
-		const char *g_constrKJVCCDatabaseFilename = "data/kjvtext.ccdb";
+		const char *g_constrBibleDatabasePath = "data/";
 	#endif
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-	const char *g_constrKJVSQLDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
-	const char *g_constrKJVCCDatabaseFilename = "../../KJVCanOpener/db/kjvtext.ccdb";
+	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
+	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
-	const char *g_constrWeb1828DatabaseFilename = "../../KJVCanOpener/db/dct-web1828.s3db";
 #endif
 	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
@@ -449,9 +443,9 @@ QWidget *CMyApplication::showSplash()
 {
 #ifdef SHOW_SPLASH_SCREEN
 	QPixmap pixSplash(":/res/KJPBS_SplashScreen800x500.png");
-	QSplashScreen *splash = new QSplashScreen(pixSplash);
-	if (splash) {
-		splash->show();
+	m_pSplash = new QSplashScreen(pixSplash);
+	if (m_pSplash) {
+		m_pSplash->show();
 #ifdef WORKAROUND_QTBUG_35787
 		// The following is a work-around for QTBUG-35787 where the
 		//		splashscreen won't display on iOS unless an event
@@ -460,20 +454,12 @@ QWidget *CMyApplication::showSplash()
 		QMetaObject::invokeMethod(&loop, "quit", Qt::QueuedConnection);
 		loop.exec();
 #endif
-		splash->raise();
-		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
-		const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		if (!strSpecialVersion.isEmpty()) strSpecialVersion = "<br>\n" + strOffsetSpace + strSpecialVersion;
-		splash->showMessage(QString("<html><body><table height=375 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>") +
-								strOffsetSpace + QObject::tr("Please Wait...") +
-								strSpecialVersion +
-								QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
-		splash->repaint();
+		m_pSplash->raise();
+		setSplashMessage();
 		processEvents();
 	}
 
 	m_splashTimer.start();
-	m_pSplash = splash;
 #endif
 
 	return static_cast<QWidget *>(m_pSplash);
@@ -487,6 +473,28 @@ void CMyApplication::completeInterAppSplash()
 		do {
 			processEvents();
 		} while (!m_splashTimer.hasExpired(g_connInterAppSplashTimeMS));
+#endif
+	}
+}
+
+void CMyApplication::setSplashMessage(const QString &strMessage)
+{
+	if (m_pSplash != NULL) {
+#ifdef SHOW_SPLASH_SCREEN
+		m_pSplash->clearMessage();
+		const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
+		if (!strSpecialVersion.isEmpty()) strSpecialVersion = "<br>\n" + strOffsetSpace + strSpecialVersion;
+		QString strStatus;
+		if (!strMessage.isEmpty()) strStatus += "<br>\n" + strOffsetSpace + strMessage;
+		m_pSplash->showMessage(QString("<html><body><table height=375 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>") +
+										strOffsetSpace + QObject::tr("Please Wait...") +
+										strSpecialVersion +
+										strStatus +
+										QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
+		m_pSplash->repaint();
+#else
+		Q_UNUSED(strMessage);
 #endif
 	}
 }
@@ -986,65 +994,30 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 #endif
 
-	// Database Paths:
+	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
+
 #ifndef EMSCRIPTEN
-	QFileInfo fiKJVSQLDatabase = QFileInfo(initialAppDirPath(), g_constrKJVSQLDatabaseFilename);
-	QFileInfo fiKJVCCDatabase = QFileInfo(initialAppDirPath(), g_constrKJVCCDatabaseFilename);
-
-	QString strKJVSQLDatabasePath = fiKJVSQLDatabase.absoluteFilePath();
-	QString strKJVCCDatabasePath = fiKJVCCDatabase.absoluteFilePath();
-
-	// If we can't support SQL, we can't:
-#ifdef NOT_USING_SQL
-	strKJVSQLDatabasePath.clear();
-	fiKJVSQLDatabase = QFileInfo();
-#endif
-
-	// Prefer the CC database over the SQL one for non-build mode:
-	if (!bBuildDB) {
-		if ((!strKJVCCDatabasePath.isEmpty()) && (fiKJVCCDatabase.exists())) {
-			strKJVSQLDatabasePath.clear();
-			fiKJVSQLDatabase = QFileInfo();
-		} else {
-#ifndef NOT_USING_SQL
-			strKJVCCDatabasePath.clear();
-			fiKJVCCDatabase = QFileInfo();
-#endif
-		}
-	}
-
-	QFileInfo fiUserDatabaseTemplate(initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
-	QFileInfo fiWeb1828DictDatabase(initialAppDirPath(), g_constrWeb1828DatabaseFilename);
-#if QT_VERSION < 0x050000
-	QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+	QString strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
+	QString strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
 #else
-	QString strDataFolder = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+	QString strBibleDatabasePath = g_constrBibleDatabasePath;
+	QString strDictionaryDatabasePath;
 #endif
-	QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
-	if (CPersistentSettings::instance()->settings() == NULL) {			// Will be NULL if we are in stealth mode
-		QDir dirDataFolder;
-		dirDataFolder.mkpath(strDataFolder);
-	}
-#else
-	QString strKJVSQLDatabasePath;
-	QString strKJVCCDatabasePath = g_constrKJVCCDatabaseFilename;
-
-	QFileInfo fiKJVSQLDatabase;
-	QFileInfo fiKJVCCDatabase(strKJVCCDatabasePath);
-#endif
-
-//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
-
-
-//CBuildDatabase adb(m_pSplash);
-//adb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath);
-//return 0;
 
 	// Read (and/or Build) our Databases:
 	{
 #ifdef BUILD_KJV_DATABASE
 		CBuildDatabase bdb(m_pSplash);
 		if (bBuildDB) {
+			// Database Paths for building (Default to KJV names when building, user can move them to proper names when done):
+#ifdef NOT_USING_SQL
+			// If we can't support SQL, we can't:
+			QString strKJVSQLDatabasePath;
+#else
+			QString strKJVSQLDatabasePath = QFileInfo(initialAppDirPath(), bibleDescriptor(BDE_KJV).m_strS3DBFilename).absoluteFilePath();
+#endif
+			QString strKJVCCDatabasePath = QFileInfo(initialAppDirPath(), bibleDescriptor(BDE_KJV).m_strCCDBFilename).absoluteFilePath();
+
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
 				return -2;
@@ -1057,16 +1030,16 @@ int CMyApplication::execute(bool bBuildDB)
 		}
 #endif
 
-		// Read Main Database
-		if ((strKJVSQLDatabasePath.isEmpty()) && (strKJVCCDatabasePath.isEmpty())) {
-			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("No Bible Database Defined!"));
-			return -3;
-		}
-		CReadDatabase rdbMain(m_pSplash);
-		if (((!strKJVSQLDatabasePath.isEmpty()) && (fiKJVSQLDatabase.exists()) && (!rdbMain.ReadBibleDatabase(CReadDatabase::DTE_SQL, strKJVSQLDatabasePath, true))) ||
-			((!strKJVCCDatabasePath.isEmpty()) && (fiKJVCCDatabase.exists()) && (!rdbMain.ReadBibleDatabase(CReadDatabase::DTE_CC, strKJVCCDatabasePath, true)))) {
-			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(strKJVSQLDatabasePath));
-			return -3;
+		// Read Main Database(s)
+		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
+			const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+			CReadDatabase rdbMain(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
+			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
+			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
+			if (!rdbMain.ReadBibleDatabase(bblDesc, (g_pMainBibleDatabase.data() == NULL))) {
+				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
+				return -3;
+			}
 		}
 		if (g_pMainBibleDatabase.data() == NULL) {
 			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!"));
@@ -1075,7 +1048,18 @@ int CMyApplication::execute(bool bBuildDB)
 
 #ifndef EMSCRIPTEN
 		// Read User Database:
-		CReadDatabase rdbUser(m_pSplash);
+		QFileInfo fiUserDatabaseTemplate(initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
+	#if QT_VERSION < 0x050000
+		QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+	#else
+		QString strDataFolder = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+	#endif
+		QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
+		if (CPersistentSettings::instance()->settings() == NULL) {			// Will be NULL if we are in stealth mode
+			QDir dirDataFolder;
+			dirDataFolder.mkpath(strDataFolder);
+		}
+		CReadDatabase rdbUser(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
 		if (!fiUserDatabase.exists()) {
 			// If the user's database doesn't exist, see if the template one
 			//		does.  If so, read and use it:
@@ -1097,17 +1081,17 @@ int CMyApplication::execute(bool bBuildDB)
 		//		- Else, empty
 
 		// Read Dictionary Database:
-#ifndef NOT_USING_SQL
-		CReadDatabase rdbDict(m_pSplash);
-		if (fiWeb1828DictDatabase.exists()) {
-			const TDictionaryDescriptor &descWeb1828 = dictionaryDescriptor(DDE_WEB1828);
-			if (!rdbDict.ReadDictionaryDatabase(CReadDatabase::DTE_SQL, fiWeb1828DictDatabase.absoluteFilePath(), descWeb1828.m_strDBName, descWeb1828.m_strDBDesc, descWeb1828.m_strUUID, true, true)) {
-				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Webster 1828 Dictionary Database!\nCheck Installation!"));
+		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
+			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+			CReadDatabase rdbDict(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
+			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
+			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
+			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (g_pMainDictionaryDatabase.data() == NULL))) {
+				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!").arg(dctDesc.m_strDBDesc));
 				return -5;
 			}
 		}
-#endif	// !NOT_USING_SQL
-#endif	// EMSCRIPTEN
+#endif	// !EMSCRIPTEN
 
 	}
 

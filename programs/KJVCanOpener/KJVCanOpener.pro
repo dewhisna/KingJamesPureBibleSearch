@@ -100,7 +100,7 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #	failure of the accessibility factory from creating an accessibility
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
-!emscripten:QTPLUGIN += qtaccessiblewidgets
+!emscripten:!win32:QTPLUGIN += qtaccessiblewidgets
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE

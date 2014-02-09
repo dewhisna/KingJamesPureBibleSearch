@@ -908,10 +908,11 @@ CRelIndex CBibleDatabase::calcRelIndex(
 // ============================================================================
 
 
-CBibleDatabase::CBibleDatabase()
+CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
-
+	// Currently the descriptor is unused for Bible Databases as this info is simply read from the database itself (the more authoritative source):
+	Q_UNUSED(bblDesc);
 }
 
 CBibleDatabase::~CBibleDatabase()
@@ -1094,10 +1095,10 @@ CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord, const QString
 
 // ============================================================================
 
-CDictionaryDatabase::CDictionaryDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID)
-	:	m_strName(strName),
-		m_strDescription(strDescription),
-		m_strCompatibilityUUID(strCompatUUID)
+CDictionaryDatabase::CDictionaryDatabase(const TDictionaryDescriptor &dctDesc)
+	:	m_strName(dctDesc.m_strDBName),
+		m_strDescription(dctDesc.m_strDBDesc),
+		m_strCompatibilityUUID(dctDesc.m_strUUID)
 {
 
 }

@@ -37,7 +37,7 @@ typedef struct {
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 } TBibleDescriptor;
 
-// Must match constBibleDescriptors[]!!
+// Must match constBibleDescriptors[]!!  This is also the order we attempt to read/load them in:
 enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_SPECIAL_TEST = 0,
 	BDE_KJV = 1,
@@ -54,7 +54,7 @@ typedef struct {
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 } TDictionaryDescriptor;
 
-// Must match coonstDictionaryDescriptors[]!!
+// Must match coonstDictionaryDescriptors[]!!  This is also the order we attempt to read/load them in:
 enum DICTIONARY_DESCRIPTOR_ENUM {
 	DDE_SPECIAL_TEST = 0,
 	DDE_WEB1828 = 1

@@ -165,6 +165,8 @@ private slots:
 protected:
 	bool event(QEvent *event);
 
+	void setSplashMessage(const QString &strMessage = QString());
+
 protected:
 	QString m_strFileToLoad;
 

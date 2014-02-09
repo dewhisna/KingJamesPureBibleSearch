@@ -24,6 +24,8 @@
 #ifndef DBSTRUCT_H
 #define DBSTRUCT_H
 
+#include "dbDescriptors.h"
+
 #include <string.h>
 #include <string>
 #include <vector>
@@ -589,7 +591,7 @@ class QAbstractTextDocumentLayout;
 class CBibleDatabase
 {
 private:
-	CBibleDatabase();		// Creatable by CReadDatabase
+	CBibleDatabase(const TBibleDescriptor &bblDesc);		// Creatable by CReadDatabase
 public:
 	~CBibleDatabase();
 
@@ -782,7 +784,7 @@ typedef std::map<QString, CDictionaryWordEntry> TDictionaryWordListMap;		// Inde
 class CDictionaryDatabase
 {
 private:
-	CDictionaryDatabase(const QString &strName, const QString &strDescription, const QString &strCompatUUID);		// Creatable by CReadDatabase
+	CDictionaryDatabase(const TDictionaryDescriptor &dctDesc);		// Creatable by CReadDatabase
 public:
 	~CDictionaryDatabase();
 

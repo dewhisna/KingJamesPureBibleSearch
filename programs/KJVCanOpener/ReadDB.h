@@ -32,7 +32,9 @@
 #include <QByteArray>
 #include <QString>
 #include <QScopedPointer>
+#include <QFileInfo>
 #include "dbstruct.h"
+#include "dbDescriptors.h"
 
 // ============================================================================
 
@@ -49,12 +51,14 @@ public:
 		DTE_CC = 1						// Compressed-CSV (always available)
 	};
 
-	CReadDatabase(QWidget *pParent = NULL);
+	CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent = NULL);
 	~CReadDatabase();
 
-	bool ReadBibleDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bSetAsMain = false);
+	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
+	bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
+	bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
 	bool ReadUserDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bHideWarnings = false);
-	bool ReadDictionaryDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, const QString &strName, const QString &strDescription, const QString &strCompatUUID, bool bLiveDB = true, bool bSetAsMain = false);
+	bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
 
 	// ------------------------------------------------------------------------
 
@@ -80,6 +84,11 @@ protected:
 
 	// ------------------------------------------------------------------------
 
+	QFileInfo bibleDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TBibleDescriptor &bblDesc) const;
+	QFileInfo dictDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TDictionaryDescriptor &dctDesc) const;
+
+	// ------------------------------------------------------------------------
+
 private:
 	bool readBibleStub();
 	bool readUserStub();
@@ -95,6 +104,9 @@ private:
 
 	CBibleDatabasePtr m_pBibleDatabase;				// Pointer to the Bible Database currently being read -- created in ReadBibleDatabase, used by reader functions
 	CDictionaryDatabasePtr m_pDictionaryDatabase;	// Pointer to the Dictionary Database currently being read -- created in ReadDictionaryDatabase, used by reader functions
+
+	QString m_strBibleDatabasePath;
+	QString m_strDictionaryDatabasePath;
 };
 
 // ============================================================================
