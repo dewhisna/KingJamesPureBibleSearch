@@ -373,6 +373,7 @@ private:
 	bool m_bKeepBackup;									// True if we should write a backup copy on save.  Done by "copy-to" prior to writing the new file
 	QString m_strBackupFilenamePostfix;					// Filename Postfix to add to the base filename for backups
 	bool m_bIsDirty;									// True when the document has been modified
+	bool m_bKeepDirtyAfterLoad;							// Used for bug workarounds to make sure we rewrite our corrected file
 	int m_nVersion;										// Version of the file read
 
 	QString m_strLastError;								// Last error during load/save

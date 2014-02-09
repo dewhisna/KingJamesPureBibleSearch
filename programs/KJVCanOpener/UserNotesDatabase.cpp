@@ -186,6 +186,7 @@ CUserNotesDatabase::CUserNotesDatabase(QObject *pParent)
 		m_bKeepBackup(true),
 		m_strBackupFilenamePostfix(QString(".bak")),
 		m_bIsDirty(false),
+		m_bKeepDirtyAfterLoad(false),
 		m_nVersion(KJN_FILE_VERSION)
 {
 	clearXMLVars();
@@ -380,6 +381,13 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		if (m_strDatabaseUUID.isEmpty()) {
 			m_strLastError = tr("DatabaseUUID on HighlighterDB is Empty");
 			return false;
+		}
+		// Workaround bugfix for our UUID problem with the KJV where we were writing "en" instead
+		//		of our real UUID.  Fix it by swapping any "en" read for the KJV UUID.  We just
+		//		have to make sure we don't screw this up with another database:
+		if (m_strDatabaseUUID == "en") {
+			m_strDatabaseUUID = bibleDescriptor(BDE_KJV).m_strUUID;
+			m_bKeepDirtyAfterLoad = true;			// Force writing correction
 		}
 #ifdef DEBUG_KJN_XML_READ
 		int ndxSize = findAttribute(attr, constrSizeAttr);
@@ -631,6 +639,9 @@ bool CUserNotesDatabase::load()
 
 bool CUserNotesDatabase::load(QIODevice *pIODevice)
 {
+	m_bIsDirty = true;				// Leave isDirty set until we've finished loading it (need to set this on both load() functions so it works with callers to either)
+	m_bKeepDirtyAfterLoad = false;
+
 	emit aboutToChangeHighlighters();		// Highlighter definitions (not tags) -- Guarantee this gets sent as the clear() only does it if we have definitions
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
 	emit removedUserNote(CRelIndex());
@@ -661,8 +672,11 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	clearXMLVars();				// Might as well clear it when we're done -- it isn't much extra memory, but...
 
 	inUND.close();
-	m_bIsDirty = false;
-	m_pUserNotesDatabaseData->m_bIsDirty = false;
+	if (!m_bKeepDirtyAfterLoad) {
+		m_bIsDirty = false;
+		m_pUserNotesDatabaseData->m_bIsDirty = false;
+	}
+	m_bKeepDirtyAfterLoad = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
 	emit addedUserNote(CRelIndex());
@@ -1177,6 +1191,7 @@ void CUserNotesDatabase::initUserNotesDatabaseData()
 	// Mimic "Load" without the loading:
 	m_bIsDirty = false;
 	m_pUserNotesDatabaseData->m_bIsDirty = false;
+	m_bKeepDirtyAfterLoad = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
 	emit addedUserNote(CRelIndex());
