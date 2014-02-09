@@ -56,6 +56,7 @@ TRANSLATIONS += \
 SOURCES += main.cpp \
 	../KJVCanOpener/BuildDB.cpp \
 	../KJVCanOpener/CSV.cpp \
+	../KJVCanOpener/dbDescriptors.cpp \
 	../KJVCanOpener/dbstruct.cpp \
 	../KJVCanOpener/Highlighter.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
@@ -72,6 +73,7 @@ SOURCES += main.cpp \
 HEADERS += \
 	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
+	../KJVCanOpener/dbDescriptors.h \
 	../KJVCanOpener/dbstruct.h \
 	../KJVCanOpener/Highlighter.h \
 	../KJVCanOpener/ParseSymbols.h \

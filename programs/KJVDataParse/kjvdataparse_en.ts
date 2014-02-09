@@ -1336,7 +1336,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="149"/>
         <source>Gen;Gn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gen;Gn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="149"/>
@@ -1364,7 +1364,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="150"/>
         <source>Exod;Exo;Ex</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Exod;Exo;Ex</translation>
     </message>
     <message>
         <location filename="main.cpp" line="150"/>
@@ -1382,7 +1382,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="151"/>
         <source>Lev;Lv</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lev;Lv</translation>
     </message>
     <message>
         <location filename="main.cpp" line="151"/>
@@ -1400,7 +1400,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="152"/>
         <source>Num;Nm</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Num;Nm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="152"/>
@@ -1418,7 +1418,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="153"/>
         <source>Deut;Deu;Dt</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Deut;Deu;Dt</translation>
     </message>
     <message>
         <location filename="main.cpp" line="153"/>
@@ -1436,7 +1436,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="154"/>
         <source>Josh;Jos;Jo</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Josh;Jos;Jo</translation>
     </message>
     <message>
         <location filename="main.cpp" line="154"/>
@@ -1465,7 +1465,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="155"/>
         <source>Judg;Jdg;Jgs</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Judg;Jdg;Jgs</translation>
     </message>
     <message>
         <location filename="main.cpp" line="156"/>
@@ -1477,7 +1477,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="156"/>
         <source>Ruth;Rut;Ru</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ruth;Rut;Ru</translation>
     </message>
     <message>
         <location filename="main.cpp" line="157"/>
@@ -1489,7 +1489,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="157"/>
         <source>1Sam;1Sm</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Sam;1Sm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="157"/>
@@ -1507,7 +1507,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="158"/>
         <source>2Sam;2Sm</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Sam;2Sm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="158"/>
@@ -1525,7 +1525,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="159"/>
         <source>1Kgs</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Kgs</translation>
     </message>
     <message>
         <location filename="main.cpp" line="159"/>
@@ -1543,7 +1543,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="160"/>
         <source>2Kgs</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Kgs</translation>
     </message>
     <message>
         <location filename="main.cpp" line="160"/>
@@ -1561,7 +1561,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="161"/>
         <source>1Chr;1Chron;1Ch</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Chr;1Chron;1Ch</translation>
     </message>
     <message>
         <location filename="main.cpp" line="161"/>
@@ -1579,7 +1579,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="162"/>
         <source>2Chr;2Chron;2Ch</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Chr;2Chron;2Ch</translation>
     </message>
     <message>
         <location filename="main.cpp" line="162"/>
@@ -1597,7 +1597,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="163"/>
         <source>Ezra;Ezr</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ezra;Ezr</translation>
     </message>
     <message>
         <location filename="main.cpp" line="164"/>
@@ -1609,7 +1609,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="164"/>
         <source>Neh</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Neh</translation>
     </message>
     <message>
         <location filename="main.cpp" line="165"/>
@@ -1621,7 +1621,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="165"/>
         <source>Est;Esth</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Est;Esth</translation>
     </message>
     <message>
         <location filename="main.cpp" line="166"/>
@@ -1633,7 +1633,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="166"/>
         <source>Job;Jb</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Job;Jb</translation>
     </message>
     <message>
         <location filename="main.cpp" line="166"/>
@@ -1655,7 +1655,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="167"/>
         <source>Ps;Pss</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ps;Pss</translation>
     </message>
     <message>
         <location filename="main.cpp" line="168"/>
@@ -1667,7 +1667,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="168"/>
         <source>Prov;Prv;Pv</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Prov;Prv;Pv;Pro;Pr</translation>
     </message>
     <message>
         <location filename="main.cpp" line="169"/>
@@ -1679,7 +1679,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="169"/>
         <source>Eccl;Eccles</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eccl;Eccles</translation>
     </message>
     <message>
         <location filename="main.cpp" line="169"/>
@@ -1697,7 +1697,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="170"/>
         <source>Song;Sg</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Song;Sg</translation>
     </message>
     <message>
         <location filename="main.cpp" line="171"/>
@@ -1709,7 +1709,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="171"/>
         <source>Isa;Is</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Isa;Is</translation>
     </message>
     <message>
         <location filename="main.cpp" line="171"/>
@@ -1737,7 +1737,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="172"/>
         <source>Jer</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jer</translation>
     </message>
     <message>
         <location filename="main.cpp" line="172"/>
@@ -1755,7 +1755,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="173"/>
         <source>Lam</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lam</translation>
     </message>
     <message>
         <location filename="main.cpp" line="173"/>
@@ -1773,7 +1773,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="174"/>
         <source>Ezek;Eze;Ez</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ezek;Eze;Ez</translation>
     </message>
     <message>
         <location filename="main.cpp" line="174"/>
@@ -1791,7 +1791,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="175"/>
         <source>Dan;Dn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Dan;Dn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="175"/>
@@ -1809,7 +1809,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="176"/>
         <source>Hos</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hos</translation>
     </message>
     <message>
         <location filename="main.cpp" line="176"/>
@@ -1838,7 +1838,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="177"/>
         <source>Joel;Joe;Jl</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Joel;Joe;Jl</translation>
     </message>
     <message>
         <location filename="main.cpp" line="178"/>
@@ -1850,7 +1850,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="178"/>
         <source>Amos;Amo;Am</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Amos;Amo;Am</translation>
     </message>
     <message>
         <location filename="main.cpp" line="179"/>
@@ -1862,7 +1862,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="179"/>
         <source>Obad;Oba;Ob</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Obad;Oba;Ob</translation>
     </message>
     <message>
         <location filename="main.cpp" line="180"/>
@@ -1874,7 +1874,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="180"/>
         <source>Jonah;Jona;Jon</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jonah;Jona;Jon</translation>
     </message>
     <message>
         <location filename="main.cpp" line="181"/>
@@ -1886,7 +1886,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="181"/>
         <source>Mic;Mi</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mic;Mi</translation>
     </message>
     <message>
         <location filename="main.cpp" line="182"/>
@@ -1898,7 +1898,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="182"/>
         <source>Nah;Na</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nah;Na</translation>
     </message>
     <message>
         <location filename="main.cpp" line="183"/>
@@ -1910,7 +1910,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="183"/>
         <source>Hab;Hb</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hab;Hb</translation>
     </message>
     <message>
         <location filename="main.cpp" line="184"/>
@@ -1922,7 +1922,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="184"/>
         <source>Zeph;Zep</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Zeph;Zep</translation>
     </message>
     <message>
         <location filename="main.cpp" line="185"/>
@@ -1934,7 +1934,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="185"/>
         <source>Hag;Hg</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Hag;Hg</translation>
     </message>
     <message>
         <location filename="main.cpp" line="186"/>
@@ -1946,7 +1946,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="186"/>
         <source>Zech;Zec</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Zech;Zec</translation>
     </message>
     <message>
         <location filename="main.cpp" line="187"/>
@@ -1958,7 +1958,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="187"/>
         <source>Mal</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mal</translation>
     </message>
     <message>
         <location filename="main.cpp" line="188"/>
@@ -1970,7 +1970,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="188"/>
         <source>Matt;Mt</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Matt;Mt</translation>
     </message>
     <message>
         <location filename="main.cpp" line="188"/>
@@ -1998,7 +1998,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="189"/>
         <source>Mark;Mk</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mark;Mk</translation>
     </message>
     <message>
         <location filename="main.cpp" line="189"/>
@@ -2016,7 +2016,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="190"/>
         <source>Luke;Lk</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Luke;Lk</translation>
     </message>
     <message>
         <location filename="main.cpp" line="190"/>
@@ -2034,7 +2034,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="191"/>
         <source>John;Jhn;Jn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>John;Jhn;Jn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="191"/>
@@ -2052,7 +2052,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="192"/>
         <source>Acts</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished">Acts</translation>
+        <translation>Acts</translation>
     </message>
     <message>
         <location filename="main.cpp" line="192"/>
@@ -2070,7 +2070,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="193"/>
         <source>Rom</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Rom</translation>
     </message>
     <message>
         <location filename="main.cpp" line="193"/>
@@ -2107,7 +2107,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="194"/>
         <source>1Cor</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Cor;1Co</translation>
     </message>
     <message>
         <location filename="main.cpp" line="194"/>
@@ -2125,7 +2125,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="195"/>
         <source>2Cor</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Cor;2Co</translation>
     </message>
     <message>
         <location filename="main.cpp" line="195"/>
@@ -2143,7 +2143,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="196"/>
         <source>Gal</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gal</translation>
     </message>
     <message>
         <location filename="main.cpp" line="196"/>
@@ -2161,7 +2161,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="197"/>
         <source>Eph</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eph</translation>
     </message>
     <message>
         <location filename="main.cpp" line="197"/>
@@ -2179,7 +2179,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="198"/>
         <source>Phil</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Phil</translation>
     </message>
     <message>
         <location filename="main.cpp" line="198"/>
@@ -2197,7 +2197,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="199"/>
         <source>Col</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Col</translation>
     </message>
     <message>
         <location filename="main.cpp" line="199"/>
@@ -2215,7 +2215,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="200"/>
         <source>1Thess;1Thes;1Th</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Thess;1Thes;1Th</translation>
     </message>
     <message>
         <location filename="main.cpp" line="200"/>
@@ -2233,7 +2233,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="201"/>
         <source>2Thess;2Thes;2Th</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Thess;2Thes;2Th</translation>
     </message>
     <message>
         <location filename="main.cpp" line="201"/>
@@ -2251,7 +2251,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="202"/>
         <source>1Tim;1Tm</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Tim;1Tm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="202"/>
@@ -2269,7 +2269,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="203"/>
         <source>2Tim;2Tm</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Tim;2Tm</translation>
     </message>
     <message>
         <location filename="main.cpp" line="203"/>
@@ -2287,7 +2287,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="204"/>
         <source>Titus;Ti</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Titus;Ti</translation>
     </message>
     <message>
         <location filename="main.cpp" line="204"/>
@@ -2305,7 +2305,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="205"/>
         <source>Phlm;Philem</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Phlm;Philem</translation>
     </message>
     <message>
         <location filename="main.cpp" line="205"/>
@@ -2323,7 +2323,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="206"/>
         <source>Heb</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Heb</translation>
     </message>
     <message>
         <location filename="main.cpp" line="206"/>
@@ -2341,7 +2341,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="207"/>
         <source>Jas</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jas</translation>
     </message>
     <message>
         <location filename="main.cpp" line="207"/>
@@ -2371,7 +2371,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="208"/>
         <source>1Pet;1Pt</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1Pet;1Pt</translation>
     </message>
     <message>
         <location filename="main.cpp" line="208"/>
@@ -2389,7 +2389,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="209"/>
         <source>2Pet;2Pt</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2Pet;2Pt</translation>
     </message>
     <message>
         <location filename="main.cpp" line="209"/>
@@ -2407,7 +2407,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="210"/>
         <source>1John;1Jn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>1John;1Jn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="210"/>
@@ -2425,7 +2425,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="211"/>
         <source>2John;2Jn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>2John;2Jn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="211"/>
@@ -2443,7 +2443,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="212"/>
         <source>3John;3Jn</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>3John;3Jn</translation>
     </message>
     <message>
         <location filename="main.cpp" line="212"/>
@@ -2461,7 +2461,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="213"/>
         <source>Jude</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished">Jude</translation>
+        <translation>Jude</translation>
     </message>
     <message>
         <location filename="main.cpp" line="213"/>
@@ -2479,7 +2479,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="main.cpp" line="214"/>
         <source>Rev;Rv;Apoc</source>
         <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
+        <translation>Rev;Rv;Apoc;Ap</translation>
     </message>
     <message>
         <location filename="main.cpp" line="214"/>

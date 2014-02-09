@@ -35,6 +35,9 @@
 #include <QFileInfo>
 #include <QObject>
 #include <QTimer>
+#if QT_VERSION < 0x050000
+#include <QTextCodec>
+#endif
 
 #include "version.h"
 #include "PersistentSettings.h"
@@ -91,6 +94,10 @@ int main(int argc, char *argv[])
 #endif
 #ifdef USING_QT_SINGLEAPPLICATION
 	QtSingleApplication &instance = *pApp;
+#endif
+
+#if QT_VERSION < 0x050000
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
 
 	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));

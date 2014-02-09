@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "myApplication.h"
+#include "dbDescriptors.h"
 #include "KJVCanOpener.h"
 #include "ReportError.h"
 
@@ -97,33 +98,6 @@ namespace {
 #endif
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
-
-	//////////////////////////////////////////////////////////////////////
-
-	// Bible Database Descriptor Constants:
-	// ------------------------------------
-	const TBibleDescriptor constBibleDescriptors[] =
-	{
-		// Special Test Value:
-		{ "Special Test", QObject::tr("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66" },
-		// KJV:
-		{ "King James", QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66" },
-		// RVG2010:
-		{ "Reina-Valera Gómez", QObject::tr("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66" },
-		// KJF2006:
-		{ "King James Française 2006", QObject::tr("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66" }
-	};
-
-
-	// Dictionary Database Descriptor Constants:
-	// -----------------------------------------
-	const TDictionaryDescriptor constDictionaryDescriptors[] =
-	{
-		// Special Test Value:
-		{ "Special Test", QObject::tr("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66" },
-		// Webster 1828:
-		{ "Webster 1828", QObject::tr("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66" }
-	};
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -364,7 +338,7 @@ CBibleDatabasePtr locateBibleDatabase(const QString &strUUID)
 
 	if (strTargetUUID.isEmpty()) {
 		// Default database is KJV
-		strTargetUUID = constBibleDescriptors[BDE_KJV].m_strUUID;
+		strTargetUUID = bibleDescriptor(BDE_KJV).m_strUUID;
 	}
 
 	for (int ndx = 0; ndx < g_lstBibleDatabases.size(); ++ndx) {
@@ -381,7 +355,7 @@ CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID)
 
 	if (strTargetUUID.isEmpty()) {
 		// Default database is Web1828
-		strTargetUUID = constDictionaryDescriptors[DDE_WEB1828].m_strUUID;
+		strTargetUUID = dictionaryDescriptor(DDE_WEB1828).m_strUUID;
 	}
 	for (int ndx = 0; ndx < g_lstDictionaryDatabases.size(); ++ndx) {
 		if (g_lstDictionaryDatabases.at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
@@ -389,18 +363,6 @@ CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID)
 	}
 
 	return CDictionaryDatabasePtr();
-}
-
-const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex)
-{
-	assert(static_cast<unsigned int>(nIndex) < _countof(constBibleDescriptors));
-	return constBibleDescriptors[nIndex];
-}
-
-const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex)
-{
-	assert(static_cast<unsigned int>(nIndex) < _countof(constDictionaryDescriptors));
-	return constDictionaryDescriptors[nIndex];
 }
 
 // ============================================================================

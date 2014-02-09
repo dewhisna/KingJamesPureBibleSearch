@@ -58,37 +58,6 @@ class QSplashScreen;
 
 // ============================================================================
 
-typedef struct {
-	const QString m_strDBName;
-	const QString m_strDBDesc;
-	const QString m_strUUID;
-} TBibleDescriptor;
-
-// Must match constBibleDescriptors[]!!
-enum BIBLE_DESCRIPTOR_ENUM {
-	BDE_SPECIAL_TEST = 0,
-	BDE_KJV = 1,
-	BDE_RVG2010 = 2,
-	BDE_KJF2006 = 3
-};
-
-typedef struct {
-	const QString m_strDBName;
-	const QString m_strDBDesc;
-	const QString m_strUUID;
-} TDictionaryDescriptor;
-
-// Must match coonstDictionaryDescriptors[]!!
-enum DICTIONARY_DESCRIPTOR_ENUM {
-	DDE_SPECIAL_TEST = 0,
-	DDE_WEB1828 = 1
-};
-
-extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);
-extern const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex);
-
-// ============================================================================
-
 #ifdef USING_QT_SINGLEAPPLICATION
 class CMyApplication : public QtSingleApplication
 #else

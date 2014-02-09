@@ -185,6 +185,7 @@ SOURCES += \
 	myApplication.cpp \
 	BusyCursor.cpp \
 	CSV.cpp \
+	dbDescriptors.cpp \
 	dbstruct.cpp \
 	DelayedExecutionTimer.cpp \
 	Highlighter.cpp \
@@ -239,6 +240,7 @@ HEADERS += \
 	myApplication.h \
 	BusyCursor.h \
 	CSV.h \
+	dbDescriptors.h \
 	dbstruct.h \
 	DelayedExecutionTimer.h \
 	Highlighter.h \

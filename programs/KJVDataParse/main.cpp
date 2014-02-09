@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "../KJVCanOpener/dbstruct.h"
+#include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/BuildDB.h"
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
@@ -40,6 +41,9 @@
 #include <QStringList>
 #include <QtGlobal>
 #include <QSettings>
+#if QT_VERSION < 0x050000
+#include <QTextCodec>
+#endif
 
 #include <iostream>
 #include <set>
@@ -1197,55 +1201,28 @@ int main(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 	const char *pstrFilename = NULL;
 
+#if QT_VERSION < 0x050000
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+#endif
+
 	if (argc < 4) {
 		std::cerr << QString("Usage: %1 <UUID-Index> <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
 		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
-		std::cerr << QString("    0 = Special Test Value\n").toUtf8().data();
-		std::cerr << QString("    1 = KJV\n").toUtf8().data();
-		std::cerr << QString("    2 = RVG2010\n").toUtf8().data();
-		std::cerr << QString("    3 = KJF\n").toUtf8().data();
+		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
+			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBName).toUtf8().data();
+		}
 		std::cerr << "\n";
 		return -1;
 	}
 
-	QString strDBName;				// Name of Database (descriptive)
-	QString strDBDesc;				// Description of Database
-	QString strUUID;				// Unique Identifier for Database
-	QString strDBInfoFilename;		// Database Information Filename (used for indirect during build)
-	switch (QString(argv[1]).toInt()) {
-		case 0:
-			// Special Test Value:
-			strDBName = "Special Test";
-			strDBDesc = "Special Test Bible Database";
-			strUUID = "00000000-0000-11E3-8FFD-0800200C9A66";
-			strDBInfoFilename = "";
-			break;
-		case 1:
-			// KJV:
-			strDBName = "King James";
-			strDBDesc = "King James Version (1769)";
-			strUUID = "85D8A6B0-E670-11E2-A28F-0800200C9A66";
-			strDBInfoFilename = "";
-			break;
-		case 2:
-			// RVG2010:
-			strDBName = "Reina-Valera Gómez";
-			strDBDesc = "Reina-Valera Gómez Version (2010)";
-			strUUID = "9233CB60-141A-11E3-8FFD-0800200C9A66";
-			strDBInfoFilename = "";
-			break;
-		case 3:
-			// KJF2006:
-			strDBName = "King James Française";
-			strDBDesc = "la Bible King James Française, édition 2006";
-			strUUID = "31FC2ED0-141B-11E3-8FFD-0800200C9A66";
-			strDBInfoFilename = "";
-			break;
-		default:
-			std::cerr << "Unknown UUID-Index\n";
-			return -1;
+	TBibleDescriptor bblDescriptor;
+	if (QString(argv[1]).toUInt() < bibleDescriptorCount()) {
+		bblDescriptor = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(QString(argv[1]).toUInt()));
+	} else {
+		std::cerr << "Unknown UUID-Index\n";
+		return -1;
 	}
 
 	QDir dirOutput(argv[3]);
@@ -1294,10 +1271,10 @@ int main(int argc, char *argv[])
 	settingsDBInfo.clear();
 	settingsDBInfo.beginGroup("BibleDBInfo");
 	settingsDBInfo.setValue("Language", xmlHandler.language());
-	settingsDBInfo.setValue("Name", strDBName);
-	settingsDBInfo.setValue("Description", strDBDesc);
-	settingsDBInfo.setValue("UUID", strUUID);
-	settingsDBInfo.setValue("InfoFilename", strDBInfoFilename);
+	settingsDBInfo.setValue("Name", bblDescriptor.m_strDBName);
+	settingsDBInfo.setValue("Description", bblDescriptor.m_strDBDesc);
+	settingsDBInfo.setValue("UUID", bblDescriptor.m_strUUID);
+	settingsDBInfo.setValue("InfoFilename", bblDescriptor.m_strDBInfoFilename);
 	settingsDBInfo.endGroup();
 
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
