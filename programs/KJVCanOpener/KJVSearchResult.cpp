@@ -1550,7 +1550,8 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	QString strSummary;
 
 	if (m_bLastCalcSuccess) {
-		strSummary += tr("Found %n %1Occurrence(s)", NULL, m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "") + "\n";
+		strSummary += tr("Found %n %1Occurrence(s)%2", NULL, m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "")
+						.arg(m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text"))) + "\n";
 		strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastSearchVerses) + "\n";
 		strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastSearchChapters) + "\n";
 		strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastSearchBooks) + "\n";
