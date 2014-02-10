@@ -370,7 +370,7 @@ static QString WordFromWordSet(const TAltWordSet &setAltWords)
 class COSISXmlHandler : public QXmlDefaultHandler
 {
 public:
-	COSISXmlHandler(const QString &strNamespace)
+	COSISXmlHandler(const QString &strNamespace, const TBibleDescriptor &bblDesc)
 		:	m_strNamespace(strNamespace),
 			m_bInHeader(false),
 			m_bCaptureTitle(false),
@@ -390,7 +390,7 @@ public:
 	{
 		g_setBooks();
 		g_setTstNames();
-		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase());		// Note: We'll set the name and description later in the reading of the data
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));		// Note: We'll set the name and description later in the reading of the data
 		for (unsigned int i=0; i<NUM_BK; ++i) {
 			m_lstOsisBookList.append(g_arrBooks[i].m_strOsisAbbr);
 		}
@@ -1243,7 +1243,7 @@ int main(int argc, char *argv[])
 
 	QXmlInputSource xmlInput(&fileOSIS);
 	QXmlSimpleReader xmlReader;
-	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace");
+	COSISXmlHandler xmlHandler("http://www.bibletechnologies.net/2003/OSIS/namespace", bblDescriptor);
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
