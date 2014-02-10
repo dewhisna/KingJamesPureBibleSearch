@@ -123,11 +123,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 #endif
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
-#ifndef EMSCRIPTEN
 		m_nChapterScrollbarMode(CSME_NONE),
-#else
-		m_nChapterScrollbarMode(CSME_RIGHT),
-#endif
+		m_nVerseRenderingMode(VRME_VPL),
+		m_bShowPilcrowMarkers(true),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -250,6 +248,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
 		if (pSource->m_bShowExcludedSearchResultsInBrowser != pTarget->m_bShowExcludedSearchResultsInBrowser) emit changedShowExcludedSearchResultsInBrowser(pTarget->m_bShowExcludedSearchResultsInBrowser);
 		if (pSource->m_nChapterScrollbarMode != pTarget->m_nChapterScrollbarMode) emit changedChapterScrollbarMode(pTarget->m_nChapterScrollbarMode);
+		if (pSource->m_nVerseRenderingMode != pTarget->m_nVerseRenderingMode) emit changedVerseRenderingMode(pTarget->m_nVerseRenderingMode);
+		if (pSource->m_bShowPilcrowMarkers != pTarget->m_bShowPilcrowMarkers) emit changedShowPilcrowMarkers(pTarget->m_bShowPilcrowMarkers);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -429,6 +429,22 @@ void CPersistentSettings::setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nM
 	if (m_pPersistentSettingData->m_nChapterScrollbarMode != nMode) {
 		m_pPersistentSettingData->m_nChapterScrollbarMode = nMode;
 		emit changedChapterScrollbarMode(m_pPersistentSettingData->m_nChapterScrollbarMode);
+	}
+}
+
+void CPersistentSettings::setVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode)
+{
+	if (m_pPersistentSettingData->m_nVerseRenderingMode != nMode) {
+		m_pPersistentSettingData->m_nVerseRenderingMode = nMode;
+		emit changedVerseRenderingMode(m_pPersistentSettingData->m_nVerseRenderingMode);
+	}
+}
+
+void CPersistentSettings::setShowPilcrowMarkers(bool bShowPilcrowMarkers)
+{
+	if (m_pPersistentSettingData->m_bShowPilcrowMarkers != bShowPilcrowMarkers) {
+		m_pPersistentSettingData->m_bShowPilcrowMarkers = bShowPilcrowMarkers;
+		emit changedShowPilcrowMarkers(m_pPersistentSettingData->m_bShowPilcrowMarkers);
 	}
 }
 

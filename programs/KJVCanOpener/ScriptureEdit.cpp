@@ -94,7 +94,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionHideAllNotes(NULL),
 		m_pStatusAction(NULL),
 		m_pParentCanOpener(NULL),
-		m_dlyDetailUpdate(-1, 500)
+		m_dlyDetailUpdate(-1, 500),
+		m_dlyRerenderCompressor(-1, 10)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -111,6 +112,10 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	U::connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(setFont(const QFont &)));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
+
+	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 
 	// FindDialog:
 	if (T::useFindDialog()) {

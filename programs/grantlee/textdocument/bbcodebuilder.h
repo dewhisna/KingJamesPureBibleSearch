@@ -78,6 +78,8 @@ public:
   /* reimp */ void endParagraph();
   /* reimp */ void addNewline();
 
+  /* reimp */ void addLineBreak();
+
   /* reimp */ void insertImage( const QString &src, qreal width, qreal height );
 
   /* reimp */ void beginList( QTextListFormat::Style type );

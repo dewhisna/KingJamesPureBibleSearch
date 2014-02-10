@@ -40,6 +40,11 @@ enum CHAPTER_SCROLLBAR_MODE_ENUM {
 	CSME_RIGHT = 2
 };
 
+enum VERSE_RENDERING_MODE_ENUM {
+	VRME_VPL = 0,				// Verse-Per-Line mode
+	VRME_FF = 1					// Display as Free-Flow/Paragraph mode
+};
+
 class CPersistentSettings : public QObject
 {
 	Q_OBJECT
@@ -85,6 +90,8 @@ public:
 	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
 	bool showExcludedSearchResultsInBrowser() const { return m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser; }
 	CHAPTER_SCROLLBAR_MODE_ENUM chapterScrollbarMode() const { return m_pPersistentSettingData->m_nChapterScrollbarMode; }
+	VERSE_RENDERING_MODE_ENUM verseRenderingMode() const { return m_pPersistentSettingData->m_nVerseRenderingMode; }
+	bool showPilcrowMarkers() const { return m_pPersistentSettingData->m_bShowPilcrowMarkers; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
@@ -125,6 +132,8 @@ signals:
 	void changedPassageReferenceActivationDelay(int nDelay);
 	void changedShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults);
 	void changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
+	void changedVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode);
+	void changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 
 	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -154,6 +163,8 @@ public slots:
 	void setPassageReferenceActivationDelay(int nDelay);
 	void setShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults);
 	void setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
+	void setVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode);
+	void setShowPilcrowMarkers(bool bShowPilcrowMarkers);
 
 	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
@@ -203,6 +214,8 @@ private:
 		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls
 		bool m_bShowExcludedSearchResultsInBrowser;		// True if Excluded Search Results will be Highlighted in the Scripture Browser
 		CHAPTER_SCROLLBAR_MODE_ENUM m_nChapterScrollbarMode;	// Location of Chapter Scrollbar relative to the Scripture Browser
+		VERSE_RENDERING_MODE_ENUM m_nVerseRenderingMode;	// How to display verses within the Scripture Browser
+		bool m_bShowPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be rendered
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation

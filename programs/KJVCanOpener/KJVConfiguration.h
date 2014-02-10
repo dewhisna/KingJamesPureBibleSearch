@@ -296,6 +296,8 @@ private slots:
 	void en_changedPassageReferenceActivationDelay(int nValue);
 	void en_changedShowExcludedSearchResults(bool bShowExcludedSearchResults);
 	void en_changedChapterScrollbarMode(int nIndex);
+	void en_changedVerseRenderingMode(int nIndex);
+	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 
 // UI Private:
 private:

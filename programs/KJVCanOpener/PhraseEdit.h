@@ -336,6 +336,10 @@ protected slots:
 	{
 		m_richifierTags.setWordsOfJesusTagsByColor(color);
 	}
+	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
+	{
+		m_richifierTags.setShowPilcrowMarkers(bShowPilcrowMarkers);
+	}
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;

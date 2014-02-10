@@ -891,6 +891,9 @@ CPhraseNavigator::CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocume
 {
 	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+
+	m_richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
+	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 }
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
@@ -1327,13 +1330,17 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	bool bParagraph = false;
 	CRelIndex ndxVerse;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
+		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
+			(bParagraph)) scriptureHTML.addLineBreak();
+
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
 		if (pVerse == NULL) {
 			assert(false);
 			continue;
 		}
-		if (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) {
+		if ((pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) &&
+			(CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) {
 			if (bParagraph) {
 				scriptureHTML.endParagraph();
 				bParagraph=false;
@@ -1713,9 +1720,13 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassag
 			assert(false);
 			break;
 	}
+	richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
 
 	CRelIndex ndxPrev = ndxFirst;
 	for (CRelIndex ndx = ndxFirst; ((ndx.index() <= ndxLast.index()) && (ndx.isSet())); ndx=m_pBibleDatabase->calcRelIndex(0,1,0,0,0,ndx)) {
+		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
+			(ndx != ndxFirst)) scriptureHTML.addLineBreak();
+
 		if (ndx.book() != ndxPrev.book()) {
 			scriptureHTML.appendLiteralText("  ");
 			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();

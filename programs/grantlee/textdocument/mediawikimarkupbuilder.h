@@ -58,6 +58,8 @@ public:
   /* reimp */ void endParagraph();
   /* reimp */ void addNewline();
 
+  /* reimp */ void addLineBreak();
+
   /* reimp */ void beginAnchor( const QString &href = QString(), const QString &name = QString() );
   /* reimp */ void endAnchor();
 

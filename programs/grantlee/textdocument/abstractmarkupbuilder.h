@@ -138,6 +138,9 @@ public:
   /** Add a newline to the markup. */
   virtual void addNewline() = 0;
 
+  /** Add a linebreak to the markup. */
+  virtual void addLineBreak() = 0;
+
   /**
     Insert a horizontal rule into the markup.
     @param width The width of the rule. Default is full width.

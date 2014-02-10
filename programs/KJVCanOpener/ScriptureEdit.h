@@ -196,6 +196,7 @@ private:
 	mutable CKJVCanOpener *m_pParentCanOpener;	// Parent CanOpener once we locate it.  Set lazily on demand since parent doesn't exist yet during object creation
 
 	DelayedExecutionTimer m_dlyDetailUpdate;
+	DelayedExecutionTimer m_dlyRerenderCompressor;
 
 #define begin_popup()							\
 			bool bPopupSave = m_bDoingPopup;	\

@@ -268,6 +268,11 @@ void TextHTMLBuilder::addNewline()
   appendRawText( QLatin1String( "<p>&nbsp;</p>\n" ) );
 }
 
+void TextHTMLBuilder::addLineBreak()
+{
+  appendRawText( QLatin1String( "<br>\n") );
+}
+
 void TextHTMLBuilder::insertHorizontalRule( int width )
 {
   if ( width != -1 ) {

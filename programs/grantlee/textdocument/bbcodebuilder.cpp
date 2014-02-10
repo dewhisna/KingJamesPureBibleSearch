@@ -134,6 +134,11 @@ void BBCodeBuilder::addNewline()
   appendRawText( QLatin1String( "\n" ) );
 }
 
+void BBCodeBuilder::addLineBreak()
+{
+  appendRawText( QLatin1String( "\n" ) );
+}
+
 void BBCodeBuilder::insertImage( const QString &src, qreal width, qreal height )
 {
   Q_UNUSED( width );

@@ -79,6 +79,11 @@ void MediaWikiMarkupBuilder::addNewline()
   appendRawText( QLatin1String( "\n" ) );
 }
 
+void MediaWikiMarkupBuilder::addLineBreak()
+{
+  appendRawText( QLatin1String( "\n" ) );
+}
+
 void MediaWikiMarkupBuilder::beginAnchor( const QString &href, const QString &name )
 {
   Q_UNUSED( name );

@@ -147,6 +147,8 @@ namespace {
 	const QString constrPassageReferenceActivationDelayKey("PassageReferenceActivationDelay");
 	const QString constrShowExcludedSearchResultsKey("ShowExcludedSearchResults");
 	const QString constrChapterScrollbarModeKey("ChapterScrollbarMode");
+	const QString constrVerseRenderingModeKey("VerseRenderingMode");
+	const QString constrShowPilcrowMarkersKey("ShowPilcrowMarkers");
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
@@ -908,6 +910,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
 	settings.setValue(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
 	settings.setValue(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode());
+	settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode());
+	settings.setValue(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers());
 	settings.endGroup();
 
 	// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1193,6 +1197,8 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
 			CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
 			CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(settings.value(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseRenderingMode(static_cast<VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode()).toUInt()));
+			CPersistentSettings::instance()->setShowPilcrowMarkers(settings.value(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers()).toBool());
 		}
 		settings.endGroup();
 

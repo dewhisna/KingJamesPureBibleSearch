@@ -1396,10 +1396,15 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side"), CSME_LEFT);
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side"), CSME_RIGHT);
 
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line"), VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph"), VRME_FF);
+
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
 	connect(ui.comboBoxChapterScrollbarMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedChapterScrollbarMode(int)));
+	connect(ui.comboBoxVerseRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingMode(int)));
+	connect(ui.checkBoxShowPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 
 	loadSettings();
 }
@@ -1424,6 +1429,15 @@ void CConfigBrowserOptions::loadSettings()
 		assert(false);
 	}
 
+	nIndex = ui.comboBoxVerseRenderingMode->findData(CPersistentSettings::instance()->verseRenderingMode());
+	if (nIndex != -1) {
+		ui.comboBoxVerseRenderingMode->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
+
 	m_bLoadingData = false;
 	m_bIsDirty = false;
 }
@@ -1440,6 +1454,13 @@ void CConfigBrowserOptions::saveSettings()
 	} else {
 		assert(false);
 	}
+	nIndex = ui.comboBoxVerseRenderingMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
+	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
 	m_bIsDirty = false;
 }
 
@@ -1475,6 +1496,24 @@ void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedVerseRenderingMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(bShowPilcrowMarkers);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

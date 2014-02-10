@@ -156,6 +156,8 @@ public:
   /* reimp */ void endParagraph();
   /* reimp */ void addNewline();
 
+  /* reimp */ void addLineBreak();
+
   /* reimp */ void insertHorizontalRule( int width = -1 );
 
   /* reimp */ void insertImage( const QString &src, qreal width, qreal height );

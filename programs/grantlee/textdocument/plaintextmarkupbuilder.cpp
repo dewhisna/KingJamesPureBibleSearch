@@ -226,6 +226,11 @@ void PlainTextMarkupBuilder::addNewline()
   appendRawText( QLatin1String( "\n" ) );
 }
 
+void PlainTextMarkupBuilder::addLineBreak()
+{
+  appendRawText( QLatin1String( "\n" ) );
+}
+
 void PlainTextMarkupBuilder::insertHorizontalRule( int width )
 {
   Q_UNUSED( width )

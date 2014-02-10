@@ -46,7 +46,8 @@ public:
 //			m_strDivideNameBegin("<b>"),
 //			m_strDivideNameEnd("</b>")
 			m_strDivideNameBegin("<font size=\"-1\">"),
-			m_strDivideNameEnd("</font>")
+			m_strDivideNameEnd("</font>"),
+			m_bShowPilcrowMarkers(true)
 	{
 		calcHash();
 	}
@@ -97,6 +98,13 @@ public:
 		calcHash();
 	}
 
+	inline bool showPilcrowMarkers() const { return m_bShowPilcrowMarkers; }
+	void setShowPilcrowMarkers(bool bShowPilcrowMarkers)
+	{
+		m_bShowPilcrowMarkers = bShowPilcrowMarkers;
+		calcHash();
+	}
+
 	inline uint hash() const { return m_nHash; }
 
 protected:
@@ -108,7 +116,8 @@ protected:
 						'J' + m_strWordsOfJesusBegin +
 						'j' + m_strWordsOfJesusEnd +
 						'D' + m_strDivideNameBegin +
-						'd' + m_strDivideNameEnd);
+						'd' + m_strDivideNameEnd +
+						(m_bShowPilcrowMarkers ? 'P' : 'p'));
 	}
 
 private:
@@ -120,6 +129,7 @@ private:
 	QString m_strWordsOfJesusEnd;
 	QString m_strDivideNameBegin;
 	QString m_strDivideNameEnd;
+	bool m_bShowPilcrowMarkers;
 };
 
 class CVerseTextPlainRichifierTags : public CVerseTextRichifierTags
@@ -132,6 +142,7 @@ public:
 		setTransChangeAddedTags("[", "]");
 		setWordsOfJesusTags(QString(), QString());
 		setDivineNameTags(QString(), QString());
+		setShowPilcrowMarkers(false);
 	}
 };
 

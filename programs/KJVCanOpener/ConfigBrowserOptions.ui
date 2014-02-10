@@ -119,6 +119,37 @@
      </item>
     </layout>
    </item>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="lblVerseRenderingMode">
+       <property name="text">
+        <string>Verse &amp;Rendering:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxVerseRenderingMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxVerseRenderingMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="checkBoxShowPilcrowMarkers">
+     <property name="text">
+      <string>Show &amp;Pilcrow (¶) Symbols (Paragraph Marker)</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -132,6 +163,8 @@
   <tabstop>spinBrowserNavigationActivationDelay</tabstop>
   <tabstop>spinBrowserPassageReferenceActivationDelay</tabstop>
   <tabstop>checkBoxShowExcludedSearchResults</tabstop>
+  <tabstop>comboBoxChapterScrollbarMode</tabstop>
+  <tabstop>comboBoxVerseRenderingMode</tabstop>
  </tabstops>
  <resources/>
  <connections/>

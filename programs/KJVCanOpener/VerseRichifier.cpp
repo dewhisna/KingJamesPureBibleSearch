@@ -325,7 +325,8 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	CRichifierBaton baton(pBibleDatabase, ndxRelative, pWordCount);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
-		(ndxRelative.word() <= 1)) {
+		(ndxRelative.word() <= 1) &&
+		(tags.showPilcrowMarkers())) {
 		baton.m_strVerseText.append(g_chrPilcrow);
 		baton.m_strVerseText.append(QChar(' '));
 	}
