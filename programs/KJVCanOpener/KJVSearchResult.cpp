@@ -411,7 +411,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			strVerseHeadings += item.getHeading() + "\n";
+			strVerseHeadings += item.getHeading(true) + "\n";
 		}
 	}
 

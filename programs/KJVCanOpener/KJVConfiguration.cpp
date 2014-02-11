@@ -34,6 +34,7 @@
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
+#include "VerseListModel.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1649,6 +1650,13 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 
 	// ----------
 
+	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
+	connect(ui.checkBoxCopyOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyOCntInSearchResultsRefs(bool)));
+	connect(ui.checkBoxShowWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowWrdNdxInSearchResultsRefs(bool)));
+	connect(ui.checkBoxCopyWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyWrdNdxInSearchResultsRefs(bool)));
+
+	// ----------
+
 	loadSettings();
 }
 
@@ -1678,13 +1686,16 @@ void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pEditCopyOptionPreview->setReadOnly(true);
 	m_pEditCopyOptionPreview->setContextMenuPolicy(Qt::DefaultContextMenu);
 
+	int nIndex = ui.verticalLayoutMain->indexOf(ui.editCopyOptionPreview);
+	assert(nIndex != -1);
 	delete ui.editCopyOptionPreview;
 	ui.editCopyOptionPreview = NULL;
-	ui.verticalLayoutMain->addWidget(m_pEditCopyOptionPreview);
+	ui.verticalLayoutMain->insertWidget(nIndex, m_pEditCopyOptionPreview);
 
 	// ----------
 
 	setVerseCopyPreview();
+	setSearchResultsRefsPreview();
 	QTextCursor aCursor(m_pEditCopyOptionPreview->textCursor());
 	aCursor.movePosition(QTextCursor::Start);
 	m_pEditCopyOptionPreview->setTextCursor(aCursor);
@@ -1742,6 +1753,13 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		assert(false);
 	}
+
+	// ----------
+
+	ui.checkBoxShowOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->showOCntInSearchResultsRefs());
+	ui.checkBoxCopyOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
+	ui.checkBoxShowWrdNdxInSearchResultsRefs->setChecked(CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs());
+	ui.checkBoxCopyWrdNdxInSearchResultsRefs->setChecked(CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 
 	// ----------
 
@@ -1848,6 +1866,44 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 	setVerseCopyPreview();
 }
 
+void CConfigCopyOptions::en_changedShowOCntInSearchResultsRefs(bool bShow)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setShowOCntInSearchResultsRefs(bShow);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setSearchResultsRefsPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyOCntInSearchResultsRefs(bool bCopy)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(bCopy);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigCopyOptions::en_changedShowWrdNdxInSearchResultsRefs(bool bShow)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setShowWrdNdxInSearchResultsRefs(bShow);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setSearchResultsRefsPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(bCopy);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
 void CConfigCopyOptions::setVerseCopyPreview()
 {
 	assert(m_pBibleDatabase.data() != NULL);
@@ -1864,6 +1920,18 @@ void CConfigCopyOptions::setVerseCopyPreview()
 	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(65, 1, 25, 0), 3));
 	strHtml += doc.toHtml();
 	m_pEditCopyOptionPreview->document()->setHtml(strHtml);
+}
+
+void CConfigCopyOptions::setSearchResultsRefsPreview()
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	TPhraseTagList lstTags;
+	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 1)));
+	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 3)));
+	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 5)));
+	CVerseListItem vliTemp(TVerseIndex(CRelIndex(40, 24, 50, 0), VLMRTE_SEARCH_RESULTS, VLMNTE_VERSE_TERMINATOR_NODE), m_pBibleDatabase, lstTags);
+	ui.lineEditSearchResultsRefsPreview->setText(vliTemp.getHeading());
 }
 
 // ============================================================================

@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "VerseListModel.h"
-#include "PersistentSettings.h"
 #include "ScriptureDocument.h"
 #include "SearchCompleter.h"
 #include "myApplication.h"

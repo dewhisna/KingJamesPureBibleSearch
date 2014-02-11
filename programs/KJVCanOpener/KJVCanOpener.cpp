@@ -136,6 +136,8 @@ namespace {
 	const QString constrFontKey("Font");
 	const QString constrAutoExpandSearchResultsTreeViewKey("AutoExpandSearchResultsTreeView");
 	const QString constrShowHighlightersInSearchResultsKey("ShowHighlightingInSearchResults");
+	const QString constrShowOCntInSearchResultsRefs("ShowOCntInSearchResultsRefs");
+	const QString constrShowWrdNdxInSearchResultsRefs("ShowWrdNdxInSearchResultsRefs");
 
 	// Browser View:
 	const QString constrBrowserViewGroup("Browser");
@@ -166,6 +168,8 @@ namespace {
 	const QString constrVerseNumbersInBoldKey("VerseNumbersInBold");
 	const QString constrAddQuotesAroundVerseKey("AddQuotesAroundVerse");
 	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
+	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
+	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
 
 	// UserNoteEditor Dialog:
 	const QString constrUserNoteEditorGroup("UserNoteEditor");
@@ -869,6 +873,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 	settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
 	settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
+	settings.setValue(constrShowOCntInSearchResultsRefs, CPersistentSettings::instance()->showOCntInSearchResultsRefs());
+	settings.setValue(constrShowWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs());
 	settings.endGroup();
 
 	// Search Phrases Settings:
@@ -934,6 +940,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold());
 	settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
 	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
+	settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
+	settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 	settings.endGroup();
 }
 
@@ -1146,6 +1154,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		setTreeMode(static_cast<CVerseListModel::VERSE_TREE_MODE_ENUM>(settings.value(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode()).toUInt()));
 		setShowMissingLeafs(settings.value(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs()).toBool());
 		m_pSearchResultWidget->setShowHighlightersInSearchResults(settings.value(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults()).toBool());
+		CPersistentSettings::instance()->setShowOCntInSearchResultsRefs(settings.value(constrShowOCntInSearchResultsRefs, CPersistentSettings::instance()->showOCntInSearchResultsRefs()).toBool());
+		CPersistentSettings::instance()->setShowWrdNdxInSearchResultsRefs(settings.value(constrShowWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs()).toBool());
 		CRelIndex ndxLastCurrentIndex(settings.value(constrCurrentIndexKey, CRelIndex().asAnchor()).toString());
 		QString strHighlighterName = settings.value(constrCurrentHighlighterKey, QString()).toString();
 		if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc
@@ -1236,6 +1246,8 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
 			CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
 			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
+			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
+			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();
 		}
 	} else {

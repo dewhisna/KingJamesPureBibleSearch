@@ -141,7 +141,12 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bVerseNumbersUseAbbreviatedBookNames(true),
 		m_bVerseNumbersInBold(true),
 		m_bAddQuotesAroundVerse(true),
-		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS)
+		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
+		// ----
+		m_bShowOCntInSearchResultsRefs(true),
+		m_bCopyOCntInSearchResultsRefs(true),
+		m_bShowWrdNdxInSearchResultsRefs(true),
+		m_bCopyWrdNdxInSearchResultsRefs(true)
 {
 
 }
@@ -261,7 +266,12 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_bVerseNumbersUseAbbreviatedBookNames != pTarget->m_bVerseNumbersUseAbbreviatedBookNames) ||
 			(pSource->m_bVerseNumbersInBold != pTarget->m_bVerseNumbersInBold) ||
 			(pSource->m_bAddQuotesAroundVerse != pTarget->m_bAddQuotesAroundVerse) ||
-			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode)) emit changedCopyOptions();
+			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode) ||
+			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
+			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
+
+		if (pSource->m_bShowOCntInSearchResultsRefs != pTarget->m_bShowOCntInSearchResultsRefs) emit changedShowOCntInSearchResultsRefs(pTarget->m_bShowOCntInSearchResultsRefs);
+		if (pSource->m_bShowWrdNdxInSearchResultsRefs != pTarget->m_bShowWrdNdxInSearchResultsRefs) emit changedShowWrdNdxInSearchResultsRefs(pTarget->m_bShowWrdNdxInSearchResultsRefs);
 	}
 }
 
@@ -528,3 +538,34 @@ void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHAN
 	}
 }
 
+void CPersistentSettings::setShowOCntInSearchResultsRefs(bool bShow)
+{
+	if (m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs != bShow) {
+		m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs = bShow;
+		emit changedShowOCntInSearchResultsRefs(m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs);
+	}
+}
+
+void CPersistentSettings::setCopyOCntInSearchResultsRefs(bool bCopy)
+{
+	if (m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs != bCopy) {
+		m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs = bCopy;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setShowWrdNdxInSearchResultsRefs(bool bShow)
+{
+	if (m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs != bShow) {
+		m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs = bShow;
+		emit changedShowWrdNdxInSearchResultsRefs(m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs);
+	}
+}
+
+void CPersistentSettings::setCopyWrdNdxInSearchResultsRefs(bool bCopy)
+{
+	if (m_pPersistentSettingData->m_bCopyWrdNdxInSearchResultsRefs != bCopy) {
+		m_pPersistentSettingData->m_bCopyWrdNdxInSearchResultsRefs = bCopy;
+		emit changedCopyOptions();
+	}
+}

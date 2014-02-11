@@ -29,6 +29,7 @@
 #include "KJVSearchCriteria.h"
 #include "VerseRichifier.h"
 #include "UserNotesDatabase.h"
+#include "PersistentSettings.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -155,7 +156,7 @@ public:
 
 	TVerseIndexPtr verseIndex() const { return m_pVerseIndex; }
 
-	inline QString getHeading() const {
+	inline QString getHeading(bool bForCopying = false) const {		// bForCopying = false for Showing/Displaying the heading, true for Copy mode
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		bool bSearchRefs = ((verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS) ||
@@ -164,16 +165,29 @@ public:
 		if ((m_lstTags.size() > 0) &&
 			(verseIndex()->resultsType() != VLMRTE_USER_NOTES) &&
 			(verseIndex()->resultsType() != VLMRTE_CROSS_REFS)) {
-			strHeading += QString("(%1) ").arg(m_lstTags.size());
+			if (((bForCopying) && (CPersistentSettings::instance()->copyOCntInSearchResultsRefs())) ||
+				((!bForCopying) && (CPersistentSettings::instance()->showOCntInSearchResultsRefs()))) {
+				strHeading += QString("(%1) ").arg(m_lstTags.size());
+			}
 			for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 				if (ndx == 0) {
+					CRelIndex relNdxTag;
 					if (bSearchRefs) {
-						strHeading += m_pBibleDatabase->PassageReferenceText(m_lstTags.at(ndx).relIndex());
+						relNdxTag = m_lstTags.at(ndx).relIndex();
 					} else {
-						strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
+						relNdxTag = getIndex();
 					}
+					if (((bForCopying) && (!CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||
+						((!bForCopying) && (!CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs()))) {
+						relNdxTag.setWord(0);
+					}
+					strHeading += m_pBibleDatabase->PassageReferenceText(relNdxTag);
 				} else {
-					if (bSearchRefs) strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
+					if ((bSearchRefs) &&
+						(((bForCopying) && (CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||
+						((!bForCopying) && (CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs())))) {
+						strHeading += QString("[%1]").arg(m_lstTags.at(ndx).relIndex().word());
+					}
 				}
 			}
 		} else {

@@ -374,9 +374,14 @@ private slots:
 	void en_changedVerseNumbersInBold(bool bInBold);
 	void en_changedAddQuotesAroundVerse(bool bAddQuotes);
 	void en_changedTransChangeAddWordMode(int nIndex);
+	void en_changedShowOCntInSearchResultsRefs(bool bShow);
+	void en_changedCopyOCntInSearchResultsRefs(bool bCopy);
+	void en_changedShowWrdNdxInSearchResultsRefs(bool bShow);
+	void en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy);
 
 private:
 	void setVerseCopyPreview();
+	void setSearchResultsRefsPreview();
 
 // Data Private:
 private:

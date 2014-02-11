@@ -105,6 +105,11 @@ public:
 	bool addQuotesAroundVerse() const { return m_pPersistentSettingData->m_bAddQuotesAroundVerse; }
 	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
 
+	bool showOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs; }
+	bool copyOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs; }
+	bool showWrdNdxInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs; }
+	bool copyWrdNdxInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyWrdNdxInSearchResultsRefs; }
+
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
@@ -139,6 +144,9 @@ signals:
 	void changedDictionaryActivationDelay(int nDelay);
 
 	void changedCopyOptions();
+
+	void changedShowOCntInSearchResultsRefs(bool bShow);
+	void changedShowWrdNdxInSearchResultsRefs(bool bShow);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -177,6 +185,11 @@ public slots:
 	void setVerseNumbersInBold(bool bInBold);
 	void setAddQuotesAroundVerse(bool bAddQuotes);
 	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
+
+	void setShowOCntInSearchResultsRefs(bool bShow);
+	void setCopyOCntInSearchResultsRefs(bool bCopy);
+	void setShowWrdNdxInSearchResultsRefs(bool bShow);
+	void setCopyWrdNdxInSearchResultsRefs(bool bCopy);
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -228,6 +241,11 @@ private:
 		bool m_bVerseNumbersInBold;
 		bool m_bAddQuotesAroundVerse;
 		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
+		// ----
+		bool m_bShowOCntInSearchResultsRefs;			// True if showing Occurrence Counts in Search Results References
+		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
+		bool m_bShowWrdNdxInSearchResultsRefs;			// True if showing Word Indexes in Search Results References
+		bool m_bCopyWrdNdxInSearchResultsRefs;			// True if copying Word Indexes in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;
