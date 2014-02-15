@@ -481,7 +481,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 		}
 	}
 
-#if QT_VERSION >= 0x050000					// I HATE this work-around when using it with the highlighters!  Annoying jumps!!
+#ifdef WORKAROUND_QTBUG_BROWSER_BOUNCE		// I HATE this work-around when using it with the highlighters!  Annoying jumps!!
 	// Work around Qt5 bug.  Without this, rendering goes Minnie Mouse and
 	//		the scroll jumps back a half-line on some lines after doing the
 	//		highlighting -- usually noticeable just after a gotoIndex call:

@@ -110,12 +110,14 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
 !emscripten:declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
+#DEFINES += DEBUG_CURSOR_SELECTION
 
 # Enable workarounds for some QTBUGs:
 DEFINES += WORKAROUND_QTBUG_13768											# Hover attribute for QSplitter
-greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
+equals(QT_MAJOR_VERSION,5):if(lessThan(QT_MINOR_VERSION,2) | equals(QT_MINOR_VERSION,2):equals(QT_PATCH_VERSION,0)):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):CONFIG += WORKAROUND_QTBUG_34490		# iOS Font Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS SplashScreen Bug
+greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not a submitted Qt bug, that I know of, but a Qt 5 bug
 
 # Enable Splash Screen:
 DEFINES += SHOW_SPLASH_SCREEN

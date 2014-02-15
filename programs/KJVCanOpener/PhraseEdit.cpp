@@ -1329,9 +1329,10 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	// Print the Chapter Text:
 	bool bParagraph = false;
 	CRelIndex ndxVerse;
+	bool bVPLNeedsLineBreak = false;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
 		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
-			(bParagraph)) scriptureHTML.addLineBreak();
+			(bParagraph)) bVPLNeedsLineBreak = true;
 
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
@@ -1352,6 +1353,12 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 		}
 
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
+
+		if (bVPLNeedsLineBreak) {
+			scriptureHTML.addLineBreak();
+			bVPLNeedsLineBreak = false;
+		}
+
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString(" %1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
