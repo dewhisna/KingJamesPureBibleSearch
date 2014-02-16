@@ -493,6 +493,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 										strStatus +
 										QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 		m_pSplash->repaint();
+		processEvents();
 #else
 		Q_UNUSED(strMessage);
 #endif

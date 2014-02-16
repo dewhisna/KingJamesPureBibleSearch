@@ -126,7 +126,7 @@ DEFINES += SHOW_SPLASH_SCREEN
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
 
 # Enable Gesture/TouchDevice processing:
-greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+!macx:greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
@@ -407,7 +407,7 @@ ios {
 		#		so we have to explicitly name each file:
 		iconDeploy.files = ../../KJVCanOpener/res/bible_64.png
 		iconDeploy.path = .
-		dbDeploy.files =  ../../KJVCanOpener/db/kjvtext.s3db ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files =  ../../KJVCanOpener/db/kjvtext.ccdb ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /assets/KJVCanOpener/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
@@ -470,7 +470,7 @@ macx {
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/info.nib
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/keyedobjects.nib
 		nibDeploy.path = /Contents/Resources/qt_menu.nib
-		dbDeploy.files =  ../../KJVCanOpener/db/kjvtext.s3db ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files =  ../../KJVCanOpener/db/kjvtext.ccdb ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /Contents/Resources/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf

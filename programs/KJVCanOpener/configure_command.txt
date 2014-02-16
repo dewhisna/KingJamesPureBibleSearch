@@ -659,7 +659,6 @@ make install
 
 Mac 5.2.0-cocoa-static:
 -----------------------
-
 -----
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_0_cocoa_static
@@ -672,13 +671,18 @@ make install
 
 Mac 5.2.0-64-local:
 -------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_0_64_local
+cd build-qtstyleplugins-5_2_0_64_local
 ~/Qt/5.2.0-ios-android/5.2.0/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
-
+make
+make install
+-----
 
 
 Linux 5.2.0-64-local (dynamicQt):
 -------------------------------------
-
 -----
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_0_64_local
@@ -692,7 +696,6 @@ sudo make install
 
 Linux 5.2.1-64-local (dynamicQt):
 -------------------------------------
-
 -----
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_1_64_local
@@ -700,6 +703,30 @@ cd build-qtstyleplugins-5_2_1_64_local
 /usr/local/Trolltech/Qt-5.2.1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
 sudo make install
+-----
+
+
+Mac 5.2.1-cocoa-static:
+-----------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_1_cocoa_static
+cd build-qtstyleplugins-5_2_1_cocoa_static
+~/Qt/5.2.1-cocoa-static-run/bin/qmake  CONFIG+=staticQt CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+
+Mac 5.2.1-64-local:
+-------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_2_1_64_local
+cd build-qtstyleplugins-5_2_1_64_local
+~/Qt/5.2.1-ios/5.2.1/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
 -----
 
 
