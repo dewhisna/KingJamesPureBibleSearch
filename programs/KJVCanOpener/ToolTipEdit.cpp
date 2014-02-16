@@ -444,14 +444,16 @@ bool CTipEdit::event(QEvent *e)
 					hideTip();
 			} else {
 				m_bFirstActivate = false;
+				restartExpireTimer();
 			}
 			break;
 
 		case QEvent::Enter:				// Entering us, activating us, or focusing us halts hiding us
-		case QEvent::WindowActivate:
 		case QEvent::FocusIn:
-			hideTimer.stop();
 			expireTimer.stop();
+			// Fall through...
+		case QEvent::WindowActivate:
+			hideTimer.stop();
 			break;
 
 		default:
