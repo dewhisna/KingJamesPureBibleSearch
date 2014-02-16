@@ -16,3 +16,49 @@ diff -rupN 4.8.5-src/mkspecs/common/gcc-base-macx.conf 4.8.5-src-patched/mkspecs
  QMAKE_CFLAGS_DWARF2 += -gdwarf-2
  
  QMAKE_CXXFLAGS_X86    += $$QMAKE_CFLAGS_X86
+diff -rupN 4.8.5-src/src/corelib/global/qglobal.h 4.8.5-src-patched/src/corelib/global/qglobal.h
+--- 4.8.5-src/src/corelib/global/qglobal.h	2013-06-07 00:16:52.000000000 -0500
++++ 4.8.5-src-patched/src/corelib/global/qglobal.h	2014-02-15 21:05:51.000000000 -0600
+@@ -327,7 +327,10 @@ namespace QT_NAMESPACE {}
+ #  if !defined(MAC_OS_X_VERSION_10_8)
+ #       define MAC_OS_X_VERSION_10_8 MAC_OS_X_VERSION_10_7 + 1
+ #  endif
+-#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_8)
++#  if !defined(MAC_OS_X_VERSION_10_9)
++#       define MAC_OS_X_VERSION_10_9 MAC_OS_X_VERSION_10_8 + 1
++#  endif
++#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_9)
+ #    warning "This version of Mac OS X is unsupported"
+ #  endif
+ #endif
+diff -rupN 4.8.5-src/src/gui/text/qfontdatabase.cpp 4.8.5-src-patched/src/gui/text/qfontdatabase.cpp
+--- 4.8.5-src/src/gui/text/qfontdatabase.cpp	2013-06-07 00:16:59.000000000 -0500
++++ 4.8.5-src-patched/src/gui/text/qfontdatabase.cpp	2014-02-15 20:53:20.000000000 -0600
+@@ -441,6 +441,7 @@ struct  QtFontFamily
+ #endif
+ #if !defined(QWS) && defined(Q_OS_MAC)
+     bool fixedPitchComputed : 1;
++    QString postscriptName;
+ #endif
+ #ifdef Q_WS_X11
+     bool symbol_checked : 1;
+diff -rupN 4.8.5-src/src/gui/text/qfontdatabase_mac.cpp 4.8.5-src-patched/src/gui/text/qfontdatabase_mac.cpp
+--- 4.8.5-src/src/gui/text/qfontdatabase_mac.cpp	2013-06-07 00:16:59.000000000 -0500
++++ 4.8.5-src-patched/src/gui/text/qfontdatabase_mac.cpp	2014-02-15 20:57:35.000000000 -0600
+@@ -147,6 +147,7 @@ if (QSysInfo::MacintoshVersion >= QSysIn
+         QCFString family_name = (CFStringRef)CTFontDescriptorCopyLocalizedAttribute(font, kCTFontFamilyNameAttribute, NULL);
+         QCFString style_name = (CFStringRef)CTFontDescriptorCopyLocalizedAttribute(font, kCTFontStyleNameAttribute, NULL);
+         QtFontFamily *family = db->family(family_name, true);
++        family->postscriptName = QCFString((CFStringRef)CTFontDescriptorCopyAttribute(font, kCTFontNameAttribute));
+ 
+         if (QCFType<CFArrayRef> languages = (CFArrayRef) CTFontDescriptorCopyAttribute(font, kCTFontLanguagesAttribute)) {
+             CFIndex length = CFArrayGetCount(languages);
+@@ -327,7 +328,7 @@ static QFontEngine *loadFromDatabase(QFo
+             if (db->families[k]->name.compare(family_list.at(i), Qt::CaseInsensitive) == 0) {
+                 QByteArray family_name = db->families[k]->name.toUtf8();
+ #if defined(QT_MAC_USE_COCOA)
+-                QCFType<CTFontRef> ctFont = CTFontCreateWithName(QCFString(db->families[k]->name), 12, NULL);
++                QCFType<CTFontRef> ctFont = CTFontCreateWithName(QCFString(db->families[k]->postscriptName), 12, NULL);
+                 if (ctFont) {
+                     fontName = CTFontCopyFullName(ctFont);
+                     goto found;
