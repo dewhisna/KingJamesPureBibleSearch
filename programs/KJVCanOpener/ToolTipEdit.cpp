@@ -103,7 +103,8 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 		m_pParentCanOpener(pCanOpener),
 		widget(0),
 		m_bDoingContextMenu(false),
-		m_pPushButton(NULL)
+		m_pPushButton(NULL),
+		m_bFirstActivate(true)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
 #ifndef EMSCRIPTEN
@@ -215,6 +216,8 @@ void CTipEdit::reuseTip(const QString &text)
 	raise();
 
 	restartExpireTimer();
+
+	m_bFirstActivate = true;
 }
 
 void CTipEdit::adjustToolTipSize()
@@ -303,7 +306,7 @@ void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
 {
 	hideTimer.stop();
 	expireTimer.stop();
-	QMenu *pMenu = createStandardContextMenu();
+	QPointer<QMenu> pMenu = createStandardContextMenu();
 #ifndef EMSCRIPTEN
 	m_bDoingContextMenu = true;
 	pMenu->exec(e->globalPos());
@@ -436,8 +439,12 @@ bool CTipEdit::event(QEvent *e)
 		case QEvent::Leave:				// Leaving us, deactivating, or focusing us out hides us
 		case QEvent::WindowDeactivate:
 		case QEvent::FocusOut:
-			if ((!m_bDoingContextMenu) && (!tipEditIsPinned(m_pParentCanOpener)))
-				hideTip();
+			if (!m_bFirstActivate) {
+				if ((!m_bDoingContextMenu) && (!tipEditIsPinned(m_pParentCanOpener)))
+					hideTip();
+			} else {
+				m_bFirstActivate = false;
+			}
 			break;
 
 		case QEvent::Enter:				// Entering us, activating us, or focusing us halts hiding us
@@ -595,7 +602,7 @@ void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const 
 //		// raised when the tooltip will be shown
 //		new CTipEdit(pCanOpener, QApplication::desktop()->screen(CTipEdit::getTipScreen(pos, w)));
 
-		// For normal tooptips, the above applies, but since we are a special popup
+		// For normal tooltips, the above applies, but since we are a special popup
 		//	scroll widget, we need to or user can't activate us in a modal dialog!
 		new CTipEdit(pCanOpener, w);
 #endif

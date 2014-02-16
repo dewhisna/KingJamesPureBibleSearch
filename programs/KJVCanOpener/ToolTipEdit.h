@@ -101,6 +101,7 @@ private:
 	QRect rect;
 	bool m_bDoingContextMenu;
 	QPushButton *m_pPushButton;
+	bool m_bFirstActivate;
 };
 
 // ============================================================================
