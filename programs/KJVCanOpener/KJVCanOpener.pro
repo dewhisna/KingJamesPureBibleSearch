@@ -118,6 +118,7 @@ equals(QT_MAJOR_VERSION,5):if(lessThan(QT_MINOR_VERSION,2) | equals(QT_MINOR_VER
 ios:greaterThan(QT_MAJOR_VERSION,4):CONFIG += WORKAROUND_QTBUG_34490		# iOS Font Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS SplashScreen Bug
 greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not a submitted Qt bug, that I know of, but a Qt 5 bug
+macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Font Bug on MacX Mavericks
 
 # Enable Splash Screen:
 DEFINES += SHOW_SPLASH_SCREEN

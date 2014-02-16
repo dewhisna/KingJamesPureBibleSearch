@@ -84,13 +84,13 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 	:
 		// Default Fonts:
 #ifdef Q_OS_MAC
-		m_fntScriptureBrowser("Times New Roman", 14),
-		m_fntSearchResults("Times New Roman", 14),
-		m_fntDictionary("Times New Roman", 14),
+		m_fntScriptureBrowser("DejaVu Serif", 14),
+		m_fntSearchResults("DejaVu Serif", 14),
+		m_fntDictionary("DejaVu Serif", 14),
 #elif EMSCRIPTEN
-	  m_fntScriptureBrowser("DejaVu Serif", 14),
-	  m_fntSearchResults("DejaVu Serif", 14),
-	  m_fntDictionary("DejaVu Serif", 14),
+		m_fntScriptureBrowser("DejaVu Serif", 14),
+		m_fntSearchResults("DejaVu Serif", 14),
+		m_fntDictionary("DejaVu Serif", 14),
 #else
 		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),

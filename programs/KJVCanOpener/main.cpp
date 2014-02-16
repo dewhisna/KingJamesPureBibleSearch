@@ -83,6 +83,15 @@ int emscriptenQtSDLMain(int argc, char *argv[])
 int main(int argc, char *argv[])
 #endif
 {
+#ifdef WORKAROUND_QTBUG_32789
+	// fix Mac OS X 10.9 (mavericks) font issue
+	// https://bugreports.qt-project.org/browse/QTBUG-32789
+	// http://successfulsoftware.net/2013/10/23/fixing-qt-4-for-mac-os-x-10-9-mavericks/
+	if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_8) {
+		QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+	}
+#endif
+
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
 	pApp->setApplicationVersion(VER_QT);

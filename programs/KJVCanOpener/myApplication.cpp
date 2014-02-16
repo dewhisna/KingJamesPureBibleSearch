@@ -519,7 +519,8 @@ void CMyApplication::restoreApplicationFontSettings()
 #ifdef Q_OS_WIN32
 	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
 #elif defined(Q_OS_MAC)
-	QFont fntAppControls = QFont("Arial", 12);
+//	QFont fntAppControls = QFont("Arial", 12);
+	QFont fntAppControls = QFont("Lucida Grande", 12);
 #elif EMSCRIPTEN
 	QFont fntAppControls = QFont("DejaVu Sans", 12);
 #else
