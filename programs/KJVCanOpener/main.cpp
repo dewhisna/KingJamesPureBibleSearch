@@ -187,6 +187,7 @@ int main(int argc, char *argv[])
 	if (instance.isRunning()) {
 		if (bBuildDB) {
 			displayWarning(pSplash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!"));
+			delete pApp;
 			return -2;
 		}
 
