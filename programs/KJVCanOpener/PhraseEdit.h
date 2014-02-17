@@ -313,11 +313,12 @@ public:
 										 CPhraseNavigator::TRO_Colophons | \
 										 CPhraseNavigator::TRO_Category)
 #define defaultDocumentToVerseFlags		(CPhraseNavigator::TRO_None)
-	void setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
-	void setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
-	void setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
-	void setDocumentToFormattedVerses(const TPhraseTag &tagPhrase);		// Note: By definition, this one doesn't include anchors
-	void setDocumentToFormattedVerses(const TPassageTag &tagPassage);	// Note: By definition, this one doesn't include anchors
+	// Returns unaltered raw-HTML text (as opposed to the QTextEdit changes to the HTML):
+	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
+	QString setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
+	QString setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
+	QString setDocumentToFormattedVerses(const TPhraseTag &tagPhrase);		// Note: By definition, this one doesn't include anchors
+	QString setDocumentToFormattedVerses(const TPassageTag &tagPassage);	// Note: By definition, this one doesn't include anchors
 
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();

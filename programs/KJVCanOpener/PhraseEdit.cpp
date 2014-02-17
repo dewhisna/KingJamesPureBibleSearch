@@ -1069,19 +1069,19 @@ TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndx
 	return tagCurrentDisplay;
 }
 
-void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
+QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_TextDocument.clear();
 
-	if (ndx.book() == 0) return;
+	if (ndx.book() == 0) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
@@ -1151,23 +1151,25 @@ void CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOpt
 		scriptureHTML.insertHorizontalRule();
 
 	scriptureHTML.appendRawText("</body></html>");
-	m_TextDocument.setHtml(scriptureHTML.getResult());
+	QString strRawHTML = scriptureHTML.getResult();
+	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
+	return strRawHTML;
 }
 
-void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
+QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_TextDocument.clear();
 
-	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return;
+	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
@@ -1176,13 +1178,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	if (pChapter == NULL) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	CScriptureTextHtmlBuilder scriptureHTML;
@@ -1517,11 +1519,13 @@ void CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpti
 	}
 
 	scriptureHTML.appendRawText("</body></html>");
-	m_TextDocument.setHtml(scriptureHTML.getResult());
+	QString strRawHTML = scriptureHTML.getResult();
+	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
+	return strRawHTML;
 }
 
-void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
+QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1529,13 +1533,13 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 
 	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) {
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
@@ -1543,20 +1547,20 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
 	if (pChapter == NULL) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	if (ndx.verse() > pChapter->m_nNumVrs) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	CRelIndex ndxVerse = ndx;
@@ -1595,7 +1599,7 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 	if (pVerse == NULL) {
 		assert(false);
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 	scriptureHTML.beginBold();
@@ -1615,16 +1619,18 @@ void CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOption
 		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 
 	scriptureHTML.appendRawText("</body></html>");
-	m_TextDocument.setHtml(scriptureHTML.getResult());
+	QString strRawHTML = scriptureHTML.getResult();
+	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
+	return strRawHTML;
 }
 
-void CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tagPhrase)
+QString CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tagPhrase)
 {
-	setDocumentToFormattedVerses(TPassageTag::fromPhraseTag(m_pBibleDatabase, tagPhrase));
+	return setDocumentToFormattedVerses(TPassageTag::fromPhraseTag(m_pBibleDatabase, tagPhrase));
 }
 
-void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassage)
+QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassage)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -1632,7 +1638,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassag
 
 	if ((!tagPassage.relIndex().isSet()) || (tagPassage.verseCount() == 0)) {
 		emit changedDocumentText();
-		return;
+		return QString();
 	}
 
 	CRelIndex ndxFirst = tagPassage.relIndex();
@@ -1800,7 +1806,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassag
 		if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 			assert(false);
 			emit changedDocumentText();
-			return;
+			return QString();
 		}
 
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
@@ -1808,7 +1814,7 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassag
 		if (ndx.chapter() > book.m_nNumChp) {
 			assert(false);
 			emit changedDocumentText();
-			return;
+			return QString();
 		}
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, richifierTags, false));
@@ -1820,8 +1826,10 @@ void CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassag
 	scriptureHTML.endParagraph();
 	scriptureHTML.appendRawText("</body></html>");
 
-	m_TextDocument.setHtml(scriptureHTML.getResult());
+	QString strRawHTML = scriptureHTML.getResult();
+	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
+	return strRawHTML;
 }
 
 QString CPhraseNavigator::referenceStartingDelimiter()
