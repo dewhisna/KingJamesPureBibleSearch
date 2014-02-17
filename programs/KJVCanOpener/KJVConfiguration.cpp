@@ -1592,13 +1592,18 @@ void CConfigDictionaryOptions::en_changedDictionaryActivationDelay(int nValue)
 
 // ============================================================================
 
-CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
+CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent),
+		m_pBibleDatabase(pBibleDatabase),
 		m_bIsDirty(false),
 		m_bLoadingData(false),
 		m_pEditCopyOptionPreview(NULL)
 {
+	assert(pBibleDatabase.data() != NULL);
+
 	ui.setupUi(this);
+
+	initialize();
 
 	// ----------
 
@@ -1616,6 +1621,10 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 	// ----------
 
 	connect(ui.checkBoxReferencesInBold, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesInBold(bool)));
+
+	// ----------
+
+	connect(ui.checkBoxReferencesAtEnd, SIGNAL(clicked(bool)), this, SLOT(en_changedReferencesAtEnd(bool)));
 
 	// ----------
 
@@ -1650,6 +1659,17 @@ CConfigCopyOptions::CConfigCopyOptions(QWidget *parent)
 
 	// ----------
 
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line"), VRME_VPL);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph"), VRME_FF);
+
+	connect(ui.comboBoxVerseRenderingModeCopying, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingModeCopying(int)));
+
+	// ----------
+
+	connect(ui.checkBoxCopyPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyPilcrowMarkers(bool)));
+
+	// ----------
+
 	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxCopyOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxShowWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowWrdNdxInSearchResultsRefs(bool)));
@@ -1665,11 +1685,8 @@ CConfigCopyOptions::~CConfigCopyOptions()
 
 }
 
-void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
+void CConfigCopyOptions::initialize()
 {
-	assert(pBibleDatabase.data() != NULL);
-	m_pBibleDatabase = pBibleDatabase;
-
 	// ----------
 
 	//	Swapout the editCopyOptionPreview from the layout with
@@ -1686,11 +1703,11 @@ void CConfigCopyOptions::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pEditCopyOptionPreview->setReadOnly(true);
 	m_pEditCopyOptionPreview->setContextMenuPolicy(Qt::DefaultContextMenu);
 
-	int nIndex = ui.verticalLayoutMain->indexOf(ui.editCopyOptionPreview);
+	int nIndex = ui.verticalLayoutCopyOptionPreview->indexOf(ui.editCopyOptionPreview);
 	assert(nIndex != -1);
 	delete ui.editCopyOptionPreview;
 	ui.editCopyOptionPreview = NULL;
-	ui.verticalLayoutMain->insertWidget(nIndex, m_pEditCopyOptionPreview);
+	ui.verticalLayoutCopyOptionPreview->insertWidget(nIndex, m_pEditCopyOptionPreview);
 
 	// ----------
 
@@ -1726,6 +1743,10 @@ void CConfigCopyOptions::loadSettings()
 
 	// ----------
 
+	ui.checkBoxReferencesAtEnd->setChecked(CPersistentSettings::instance()->referencesAtEnd());
+
+	// ----------
+
 	nIndex = ui.comboVerseNumberDelimiterMode->findData(CPersistentSettings::instance()->verseNumberDelimiterMode());
 	if (nIndex != -1) {
 		ui.comboVerseNumberDelimiterMode->setCurrentIndex(nIndex);
@@ -1753,6 +1774,19 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		assert(false);
 	}
+
+	// ----------
+
+	nIndex = ui.comboBoxVerseRenderingModeCopying->findData(CPersistentSettings::instance()->verseRenderingModeCopying());
+	if (nIndex != -1) {
+		ui.comboBoxVerseRenderingModeCopying->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	// ----------
+
+	ui.checkBoxCopyPilcrowMarkers->setChecked(CPersistentSettings::instance()->copyPilcrowMarkers());
 
 	// ----------
 
@@ -1803,6 +1837,16 @@ void CConfigCopyOptions::en_changedReferencesInBold(bool bInBold)
 	if (m_bLoadingData) return;
 
 	CPersistentSettings::instance()->setReferencesInBold(bInBold);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedReferencesAtEnd(bool bAtEnd)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setReferencesAtEnd(bAtEnd);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 	setVerseCopyPreview();
@@ -1866,6 +1910,30 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 	setVerseCopyPreview();
 }
 
+void CConfigCopyOptions::en_changedVerseRenderingModeCopying(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setCopyPilcrowMarkers(bCopyPilcrowMarkers);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setVerseCopyPreview();
+}
+
 void CConfigCopyOptions::en_changedShowOCntInSearchResultsRefs(bool bShow)
 {
 	if (m_bLoadingData) return;
@@ -1883,6 +1951,7 @@ void CConfigCopyOptions::en_changedCopyOCntInSearchResultsRefs(bool bCopy)
 	CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(bCopy);
 	m_bIsDirty = true;
 	emit dataChanged(false);
+	setSearchResultsRefsPreview();
 }
 
 void CConfigCopyOptions::en_changedShowWrdNdxInSearchResultsRefs(bool bShow)
@@ -1902,6 +1971,7 @@ void CConfigCopyOptions::en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy)
 	CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(bCopy);
 	m_bIsDirty = true;
 	emit dataChanged(false);
+	setSearchResultsRefsPreview();
 }
 
 void CConfigCopyOptions::setVerseCopyPreview()
@@ -1915,6 +1985,12 @@ void CConfigCopyOptions::setVerseCopyPreview()
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
 	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(40, 24, 50, 0), 4));
+	strHtml += doc.toHtml();
+	strHtml += "<hr>\n";
+	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(41, 13, 24, 0), 2));
+	strHtml += doc.toHtml();
+	strHtml += "<hr>\n";
+	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(41, 13, 31, 0), 3));
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
 	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(65, 1, 25, 0), 3));
@@ -1931,7 +2007,8 @@ void CConfigCopyOptions::setSearchResultsRefsPreview()
 	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 3)));
 	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 5)));
 	CVerseListItem vliTemp(TVerseIndex(CRelIndex(40, 24, 50, 0), VLMRTE_SEARCH_RESULTS, VLMNTE_VERSE_TERMINATOR_NODE), m_pBibleDatabase, lstTags);
-	ui.lineEditSearchResultsRefsPreview->setText(vliTemp.getHeading());
+	ui.lineEditShowSearchResultsRefsPreview->setText(vliTemp.getHeading(false));
+	ui.lineEditCopySearchResultsRefsPreview->setText(vliTemp.getHeading(true));
 }
 
 // ============================================================================
@@ -1943,12 +2020,9 @@ CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDat
 
 	ui.setupUi(this);
 
-	ui.widgetCopyOptions->initialize(pBibleDatabase);
-
 	connect(ui.widgetSearchOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(ui.widgetBrowserOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(ui.widgetDictionaryOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
-	connect(ui.widgetCopyOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
 CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
@@ -1961,7 +2035,6 @@ void CKJVGeneralSettingsConfig::loadSettings()
 	ui.widgetSearchOptions->loadSettings();
 	ui.widgetBrowserOptions->loadSettings();
 	ui.widgetDictionaryOptions->loadSettings();
-	ui.widgetCopyOptions->loadSettings();
 }
 
 void CKJVGeneralSettingsConfig::saveSettings()
@@ -1969,12 +2042,11 @@ void CKJVGeneralSettingsConfig::saveSettings()
 	ui.widgetSearchOptions->saveSettings();
 	ui.widgetBrowserOptions->saveSettings();
 	ui.widgetDictionaryOptions->saveSettings();
-	ui.widgetCopyOptions->saveSettings();
 }
 
 bool CKJVGeneralSettingsConfig::isDirty() const
 {
-	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetDictionaryOptions->isDirty() || ui.widgetCopyOptions->isDirty());
+	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetDictionaryOptions->isDirty());
 }
 
 // ============================================================================
@@ -1983,6 +2055,7 @@ bool CKJVGeneralSettingsConfig::isDirty() const
 CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(NULL),
+		m_pCopyOptionsConfig(NULL),
 		m_pTextFormatConfig(NULL),
 		m_pUserNotesDatabaseConfig(NULL),
 		m_pBibleDatabaseConfig(NULL)
@@ -1991,11 +2064,13 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	assert(g_pUserNotesDatabase.data() != NULL);
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
+	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 //	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
+	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));
 	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
 //	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
@@ -2005,6 +2080,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	switch (nInitialPage) {
 		case CPSE_GENERAL_SETTINGS:
 			pSelect = m_pGeneralSettingsConfig;
+			break;
+		case CPSE_COPY_OPTIONS:
+			pSelect = m_pCopyOptionsConfig;
 			break;
 		case CPSE_TEXT_FORMAT:
 			pSelect = m_pTextFormatConfig;
@@ -2025,6 +2103,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	setCurrentGroup(pSelect);
 
 	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pCopyOptionsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 //	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
@@ -2038,6 +2117,7 @@ CKJVConfiguration::~CKJVConfiguration()
 void CKJVConfiguration::loadSettings()
 {
 	m_pGeneralSettingsConfig->loadSettings();
+	m_pCopyOptionsConfig->loadSettings();
 	m_pTextFormatConfig->loadSettings();
 	m_pUserNotesDatabaseConfig->loadSettings();
 //	m_pBibleDatabaseConfig->loadSettings();
@@ -2046,6 +2126,7 @@ void CKJVConfiguration::loadSettings()
 void CKJVConfiguration::saveSettings()
 {
 	m_pGeneralSettingsConfig->saveSettings();
+	m_pCopyOptionsConfig->saveSettings();
 	m_pTextFormatConfig->saveSettings();
 	m_pUserNotesDatabaseConfig->saveSettings();
 //	m_pBibleDatabaseConfig->saveSettings();
@@ -2054,6 +2135,7 @@ void CKJVConfiguration::saveSettings()
 bool CKJVConfiguration::isDirty() const
 {
 	return (m_pGeneralSettingsConfig->isDirty() ||
+			m_pCopyOptionsConfig->isDirty() ||
 			m_pTextFormatConfig->isDirty() ||
 			m_pUserNotesDatabaseConfig->isDirty());		// ||
 //			m_pBibleDatabaseConfig->isDirty());

@@ -27,246 +27,217 @@
   <property name="windowTitle">
    <string>General Settings</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5">
+  <layout class="QHBoxLayout" name="horizontalLayoutMain">
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayoutLeft">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <property name="spacing">
-          <number>0</number>
+        <widget class="QLabel" name="lblSearchOptions">
+         <property name="text">
+          <string>Search Options:</string>
          </property>
-         <item>
-          <widget class="QLabel" name="lblCopyOptions">
-           <property name="text">
-            <string>Copy Options:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frameCopyOptions">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="CConfigCopyOptions" name="widgetCopyOptions" native="true"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
+        </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QFrame" name="frameSearchOptions">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
          </property>
-        </spacer>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="CConfigSearchOptions" name="widgetSearchOptions" native="true"/>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="verticalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeType">
         <enum>QSizePolicy::Fixed</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>8</width>
-         <height>20</height>
+         <width>20</width>
+         <height>13</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <property name="spacing">
-          <number>0</number>
+        <widget class="QLabel" name="lblBrowserOptions">
+         <property name="text">
+          <string>Browser Options:</string>
          </property>
-         <item>
-          <widget class="QLabel" name="lblSearchOptions">
-           <property name="text">
-            <string>Search Options:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frameSearchOptions">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="CConfigSearchOptions" name="widgetSearchOptions" native="true"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
+        </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QFrame" name="frameBrowserOptions">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>13</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lblBrowserOptions">
-           <property name="text">
-            <string>Browser Options:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frameBrowserOptions">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout">
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="CConfigBrowserOptions" name="widgetBrowserOptions" native="true"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>13</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lblDictionaryOptions">
-           <property name="text">
-            <string>Dictionary Options:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frameDictionaryOptions">
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="CConfigDictionaryOptions" name="widgetDictionaryOptions" native="true"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="CConfigBrowserOptions" name="widgetBrowserOptions" native="true"/>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="verticalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>0</width>
-         <height>20</height>
+         <width>20</width>
+         <height>0</height>
         </size>
        </property>
       </spacer>
      </item>
     </layout>
    </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>13</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayoutRight">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lblDictionaryOptions">
+         <property name="text">
+          <string>Dictionary Options:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frameDictionaryOptions">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="CConfigDictionaryOptions" name="widgetDictionaryOptions" native="true"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>58</width>
+       <height>296</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
    <class>CConfigSearchOptions</class>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CConfigCopyOptions</class>
    <container>1</container>
   </customwidget>
   <customwidget>

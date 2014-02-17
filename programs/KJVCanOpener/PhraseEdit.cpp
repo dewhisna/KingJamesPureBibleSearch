@@ -1713,10 +1713,15 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 	strReference += referenceEndingDelimiter();
 
 	scriptureHTML.beginParagraph();
-	if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
-	scriptureHTML.appendLiteralText(strReference);
-	if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
-	scriptureHTML.appendLiteralText(QString(" %1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+
+	if (!CPersistentSettings::instance()->referencesAtEnd()) {
+		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(strReference);
+		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
+		scriptureHTML.appendLiteralText(" ");
+	}
+
+	scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 
 	CVerseTextRichifierTags richifierTags = m_richifierTags;
 	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
@@ -1733,11 +1738,16 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 			assert(false);
 			break;
 	}
-	richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
+	richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
 
 	CRelIndex ndxPrev = ndxFirst;
+	if (CPersistentSettings::instance()->referencesAtEnd()) {
+		// If printing the reference at the end, for printing of the initial verse number:
+		ndxPrev.setVerse(0);
+		ndxPrev.setWord(0);
+	}
 	for (CRelIndex ndx = ndxFirst; ((ndx.index() <= ndxLast.index()) && (ndx.isSet())); ndx=m_pBibleDatabase->calcRelIndex(0,1,0,0,0,ndx)) {
-		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
+		if ((CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) &&
 			(ndx != ndxFirst)) scriptureHTML.addLineBreak();
 
 		if (ndx.book() != ndxPrev.book()) {
@@ -1752,8 +1762,11 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
 			scriptureHTML.appendLiteralText(" ");
 		} else if ((ndx.chapter() != ndxPrev.chapter()) || (ndx.verse() != ndxPrev.verse())) {
-			if (CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER)
+			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER) &&
+				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_VPL) &&
+				(ndx != ndxFirst)) {
 				scriptureHTML.appendLiteralText("  ");
+			}
 			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
 			switch (CPersistentSettings::instance()->verseNumberDelimiterMode()) {
 				case RDME_NO_NUMBER:
@@ -1823,6 +1836,18 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 	}
 
 	scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+
+	if (CPersistentSettings::instance()->referencesAtEnd()) {
+		if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) {
+			scriptureHTML.addLineBreak();
+		} else {
+			scriptureHTML.appendLiteralText(" ");
+		}
+		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
+		scriptureHTML.appendLiteralText(strReference);
+		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
+	}
+
 	scriptureHTML.endParagraph();
 	scriptureHTML.appendRawText("</body></html>");
 

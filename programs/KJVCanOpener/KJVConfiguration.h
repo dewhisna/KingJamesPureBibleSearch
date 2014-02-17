@@ -352,10 +352,8 @@ class CConfigCopyOptions : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CConfigCopyOptions(QWidget *parent = 0);
+	explicit CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);		// Database for the preview
 	~CConfigCopyOptions();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);						// Database for the preview
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -369,17 +367,21 @@ private slots:
 	void en_changedReferenceDelimiterMode(int nIndex);
 	void en_changedReferencesUseAbbreviatedBookNames(bool bUseAbbrBookName);
 	void en_changedReferencesInBold(bool bInBold);
+	void en_changedReferencesAtEnd(bool bAtEnd);
 	void en_changedVerseNumberDelimiterMode(int nIndex);
 	void en_changedVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookName);
 	void en_changedVerseNumbersInBold(bool bInBold);
 	void en_changedAddQuotesAroundVerse(bool bAddQuotes);
 	void en_changedTransChangeAddWordMode(int nIndex);
+	void en_changedVerseRenderingModeCopying(int nIndex);
+	void en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
 	void en_changedShowOCntInSearchResultsRefs(bool bShow);
 	void en_changedCopyOCntInSearchResultsRefs(bool bCopy);
 	void en_changedShowWrdNdxInSearchResultsRefs(bool bShow);
 	void en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy);
 
 private:
+	void initialize();
 	void setVerseCopyPreview();
 	void setSearchResultsRefsPreview();
 
@@ -429,9 +431,10 @@ private:
 enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_DEFAULT = -1,
 	CPSE_GENERAL_SETTINGS = 0,
-	CPSE_TEXT_FORMAT = 1,
-	CPSE_USER_NOTES_DATABASE = 2,
-	CPSE_BIBLE_DATABASE = 3
+	CPSE_COPY_OPTIONS = 1,
+	CPSE_TEXT_FORMAT = 2,
+	CPSE_USER_NOTES_DATABASE = 3,
+	CPSE_BIBLE_DATABASE = 4
 };
 
 class CKJVConfiguration : public QwwConfigWidget
@@ -451,6 +454,7 @@ signals:
 
 private:
 	CKJVGeneralSettingsConfig *m_pGeneralSettingsConfig;
+	CConfigCopyOptions *m_pCopyOptionsConfig;
 	CKJVTextFormatConfig *m_pTextFormatConfig;
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;

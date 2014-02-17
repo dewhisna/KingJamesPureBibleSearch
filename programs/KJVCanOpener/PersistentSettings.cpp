@@ -124,7 +124,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
 		m_nChapterScrollbarMode(CSME_NONE),
-		m_nVerseRenderingMode(VRME_VPL),
+		m_nVerseRenderingMode(VRME_FF),
 		m_bShowPilcrowMarkers(true),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
@@ -137,11 +137,14 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
 		m_bReferencesUseAbbreviatedBookNames(false),
 		m_bReferencesInBold(true),
+		m_bReferencesAtEnd(false),
 		m_nVerseNumberDelimiterMode(CPhraseNavigator::RDME_CURLY_BRACES),
 		m_bVerseNumbersUseAbbreviatedBookNames(true),
 		m_bVerseNumbersInBold(true),
 		m_bAddQuotesAroundVerse(true),
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
+		m_nVerseRenderingModeCopying(VRME_FF),
+		m_bCopyPilcrowMarkers(true),
 		// ----
 		m_bShowOCntInSearchResultsRefs(true),
 		m_bCopyOCntInSearchResultsRefs(true),
@@ -262,11 +265,14 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if ((pSource->m_nReferenceDelimiterMode != pTarget->m_nReferenceDelimiterMode) ||
 			(pSource->m_bReferencesUseAbbreviatedBookNames != pTarget->m_bReferencesUseAbbreviatedBookNames) ||
 			(pSource->m_bReferencesInBold != pTarget->m_bReferencesInBold) ||
+			(pSource->m_bReferencesAtEnd != pTarget->m_bReferencesAtEnd) ||
 			(pSource->m_nVerseNumberDelimiterMode != pTarget->m_nVerseNumberDelimiterMode) ||
 			(pSource->m_bVerseNumbersUseAbbreviatedBookNames != pTarget->m_bVerseNumbersUseAbbreviatedBookNames) ||
 			(pSource->m_bVerseNumbersInBold != pTarget->m_bVerseNumbersInBold) ||
 			(pSource->m_bAddQuotesAroundVerse != pTarget->m_bAddQuotesAroundVerse) ||
 			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode) ||
+			(pSource->m_nVerseRenderingModeCopying != pTarget->m_nVerseRenderingModeCopying) ||
+			(pSource->m_bCopyPilcrowMarkers != pTarget->m_bCopyPilcrowMarkers) ||
 			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
 			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
 
@@ -498,6 +504,14 @@ void CPersistentSettings::setReferencesInBold(bool bInBold)
 	}
 }
 
+void CPersistentSettings::setReferencesAtEnd(bool bAtEnd)
+{
+	if (m_pPersistentSettingData->m_bReferencesAtEnd != bAtEnd) {
+		m_pPersistentSettingData->m_bReferencesAtEnd = bAtEnd;
+		emit changedCopyOptions();
+	}
+}
+
 void CPersistentSettings::setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseNumberDelimiterMode != nMode) {
@@ -537,6 +551,23 @@ void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHAN
 		emit changedCopyOptions();
 	}
 }
+
+void CPersistentSettings::setVerseRenderingModeCopying(VERSE_RENDERING_MODE_ENUM nMode)
+{
+	if (m_pPersistentSettingData->m_nVerseRenderingModeCopying != nMode) {
+		m_pPersistentSettingData->m_nVerseRenderingModeCopying = nMode;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
+{
+	if (m_pPersistentSettingData->m_bCopyPilcrowMarkers != bCopyPilcrowMarkers) {
+		m_pPersistentSettingData->m_bCopyPilcrowMarkers = bCopyPilcrowMarkers;
+		emit changedCopyOptions();
+	}
+}
+
 
 void CPersistentSettings::setShowOCntInSearchResultsRefs(bool bShow)
 {

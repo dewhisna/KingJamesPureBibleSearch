@@ -99,11 +99,14 @@ public:
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
 	bool referencesUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames; }
 	bool referencesInBold() const { return m_pPersistentSettingData->m_bReferencesInBold; }
+	bool referencesAtEnd() const { return m_pPersistentSettingData->m_bReferencesAtEnd; }
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM verseNumberDelimiterMode() const { return m_pPersistentSettingData->m_nVerseNumberDelimiterMode; }
 	bool verseNumbersUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames; }
 	bool verseNumbersInBold() const { return m_pPersistentSettingData->m_bVerseNumbersInBold; }
 	bool addQuotesAroundVerse() const { return m_pPersistentSettingData->m_bAddQuotesAroundVerse; }
 	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
+	VERSE_RENDERING_MODE_ENUM verseRenderingModeCopying() const { return m_pPersistentSettingData->m_nVerseRenderingModeCopying; }
+	bool copyPilcrowMarkers() const { return m_pPersistentSettingData->m_bCopyPilcrowMarkers; }
 
 	bool showOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs; }
 	bool copyOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs; }
@@ -180,11 +183,14 @@ public slots:
 	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames);
 	void setReferencesInBold(bool bInBold);
+	void setReferencesAtEnd(bool bAtEnd);
 	void setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookNames);
 	void setVerseNumbersInBold(bool bInBold);
 	void setAddQuotesAroundVerse(bool bAddQuotes);
 	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
+	void setVerseRenderingModeCopying(VERSE_RENDERING_MODE_ENUM nMode);
+	void setCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
 
 	void setShowOCntInSearchResultsRefs(bool bShow);
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
@@ -236,11 +242,14 @@ private:
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
 		bool m_bReferencesUseAbbreviatedBookNames;
 		bool m_bReferencesInBold;
+		bool m_bReferencesAtEnd;
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nVerseNumberDelimiterMode;
 		bool m_bVerseNumbersUseAbbreviatedBookNames;
 		bool m_bVerseNumbersInBold;
 		bool m_bAddQuotesAroundVerse;
 		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
+		VERSE_RENDERING_MODE_ENUM m_nVerseRenderingModeCopying;	// How to copy verses from Scripture Browser (VPL, FF, etc)
+		bool m_bCopyPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be copied
 		// ----
 		bool m_bShowOCntInSearchResultsRefs;			// True if showing Occurrence Counts in Search Results References
 		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal

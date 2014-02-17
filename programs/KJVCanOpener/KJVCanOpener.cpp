@@ -163,11 +163,14 @@ namespace {
 	const QString constrReferenceDelimiterModeKey("ReferenceDelimiterMode");
 	const QString constrReferencesAbbreviatedBookNamesKey("ReferencesAbbreviatedBookNames");
 	const QString constrReferencesInBoldKey("ReferencesInBold");
+	const QString constrReferencesAtEndKey("ReferencesAtEnd");
 	const QString constrVerseNumberDelimiterModeKey("VerseNumberDelimiterMode");
 	const QString constrVerseNumbersAbbreviatedBookNamesKey("VerseNumbersAbbreviatedBookNames");
 	const QString constrVerseNumbersInBoldKey("VerseNumbersInBold");
 	const QString constrAddQuotesAroundVerseKey("AddQuotesAroundVerse");
 	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
+	//const QString constrVerseRenderingModeKey("VerseRenderingMode");
+	const QString constrCopyPilcrowMarkersKey("CopyPilcrowMarkers");
 	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
 	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
 
@@ -935,11 +938,14 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
 	settings.setValue(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
 	settings.setValue(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold());
+	settings.setValue(constrReferencesAtEndKey, CPersistentSettings::instance()->referencesAtEnd());
 	settings.setValue(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode());
 	settings.setValue(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
 	settings.setValue(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold());
 	settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
 	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
+	settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying());
+	settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
 	settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 	settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 	settings.endGroup();
@@ -1241,11 +1247,14 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
 			CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(settings.value(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames()).toBool());
 			CPersistentSettings::instance()->setReferencesInBold(settings.value(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold()).toBool());
+			CPersistentSettings::instance()->setReferencesAtEnd(settings.value(constrReferencesAtEndKey, CPersistentSettings::instance()->referencesAtEnd()).toBool());
 			CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
 			CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(settings.value(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames()).toBool());
 			CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
 			CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
 			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying()).toUInt()));
+			CPersistentSettings::instance()->setCopyPilcrowMarkers(settings.value(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers()).toBool());
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();

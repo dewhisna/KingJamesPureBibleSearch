@@ -41,7 +41,7 @@ public:
 			m_bAddRichPs119HebrewPrefix(true),
 			m_strTransChangeAddedBegin("<i>"),
 			m_strTransChangeAddedEnd("</i>"),
-			m_strWordsOfJesusBegin("<font color=\"red\"> "),
+			m_strWordsOfJesusBegin("<font color=\"red\">"),
 			m_strWordsOfJesusEnd("</font> "),
 //			m_strDivideNameBegin("<b>"),
 //			m_strDivideNameEnd("</b>")
@@ -83,9 +83,9 @@ public:
 	}
 	void setWordsOfJesusTagsByColor(const QColor &color) {
 		if (color.isValid()) {
-			setWordsOfJesusTags(QString("<font color=\"%1\"> ").arg(color.name()), "</font> ");
+			setWordsOfJesusTags(QString("<font color=\"%1\">").arg(color.name()), "</font> ");
 		} else {
-			setWordsOfJesusTags(" ", " ");
+			setWordsOfJesusTags("", "");
 		}
 	}
 

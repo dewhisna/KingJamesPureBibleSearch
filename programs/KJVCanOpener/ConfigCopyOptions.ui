@@ -27,208 +27,324 @@
   <property name="windowTitle">
    <string>Copy Options</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayoutMain">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QGridLayout" name="gridLayout_3">
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" rowspan="2">
+    <layout class="QVBoxLayout" name="verticalLayoutLeft">
      <item>
-      <widget class="QLabel" name="lblReferenceDelimiterMode">
-       <property name="text">
-        <string>&amp;Reference Delimiter:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>comboReferenceDelimiterMode</cstring>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="lblReferenceDelimiterMode">
+         <property name="text">
+          <string>&amp;Reference Delimiter:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboReferenceDelimiterMode</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboReferenceDelimiterMode">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QComboBox" name="comboReferenceDelimiterMode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QCheckBox" name="checkBoxReferencesUseAbbreviatedBookNames">
+         <property name="text">
+          <string>Use &amp;Abbreviated Book Names</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxReferencesInBold">
+         <property name="text">
+          <string>In &amp;Bold</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxReferencesAtEnd">
+         <property name="text">
+          <string>At E&amp;nd</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <spacer name="horizontalSpacer_2">
+      <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="lblVerseNumberDelimiterMode">
+         <property name="text">
+          <string>&amp;Verse Number Delimiter:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboVerseNumberDelimiterMode</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboVerseNumberDelimiterMode">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QCheckBox" name="checkBoxVerseNumbersUseAbbreviatedBookNames">
+         <property name="text">
+          <string>Use &amp;Abbreviated Book Names</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxVerseNumbersInBold">
+         <property name="text">
+          <string>In &amp;Bold</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxAddQuotesAroundVerse">
+       <property name="text">
+        <string>Add &amp;Quotes Around Verse/Passage</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="lblTransChangeAddedMode">
+         <property name="text">
+          <string>&amp;Translation Change/Added Word Mode:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboTransChangeAddedMode</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboTransChangeAddedMode">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="lblVerseRenderingMode">
+         <property name="text">
+          <string>Verse &amp;Rendering:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxVerseRenderingModeCopying</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxVerseRenderingModeCopying">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxCopyPilcrowMarkers">
+       <property name="text">
+        <string>Copy &amp;Pilcrow (¶) Symbols (Paragraph Marker)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Line" name="line_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelScriptureCopyFont">
+         <property name="text">
+          <string>Copy &amp;Font:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>fontComboBoxScriptureCopy</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="CFontComboBox" name="fontComboBoxScriptureCopy">
+         <property name="toolTip">
+          <string>Set to Desired Font Name for the Scripture Browser</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="CDoubleSpinBox" name="dblSpinBoxScriptureCopyFontSize">
+         <property name="toolTip">
+          <string>Set to Desired Font Point Size for the Scripture Browser</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="lblCopyUsesFont">
+         <property name="text">
+          <string>Copy &amp;Uses Font:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxCopyUsesFont</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="comboBoxCopyUsesFont">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>30</width>
-         <height>20</height>
+         <width>20</width>
+         <height>13</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxReferencesUseAbbreviatedBookNames">
-       <property name="text">
-        <string>Use &amp;Abbreviated Book Names</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxReferencesInBold">
-       <property name="text">
-        <string>In &amp;Bold</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
-   <item>
-    <widget class="Line" name="line_2">
+   <item row="0" column="1" rowspan="2">
+    <widget class="Line" name="line_6">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="lblVerseNumberDelimiterMode">
-       <property name="text">
-        <string>&amp;Verse Number Delimiter:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>comboVerseNumberDelimiterMode</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboVerseNumberDelimiterMode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>30</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxVerseNumbersUseAbbreviatedBookNames">
-       <property name="text">
-        <string>Use &amp;Abbreviated Book Names</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBoxVerseNumbersInBold">
-       <property name="text">
-        <string>In &amp;Bold</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkBoxAddQuotesAroundVerse">
-     <property name="text">
-      <string>Add &amp;Quotes Around Verse/Passage</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="lblTransChangeAddedMode">
-       <property name="text">
-        <string>&amp;Translation Change/Added Word Mode:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>comboTransChangeAddedMode</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboTransChangeAddedMode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="editCopyOptionPreview">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
+   <item row="0" column="2">
     <widget class="QGroupBox" name="groupBoxSearchResultsRefs">
      <property name="title">
       <string>Search Results References:</string>
@@ -249,62 +365,14 @@
       <property name="bottomMargin">
        <number>6</number>
       </property>
-      <item row="0" column="0">
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="lblOCntInSearchResultsRefs">
         <property name="text">
          <string>Occurrence Counts:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="checkBoxShowOCntInSearchResultsRefs">
-        <property name="text">
-         <string>Show</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBoxCopyOCntInSearchResultsRefs">
-        <property name="text">
-         <string>Copy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>44</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lblWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Word Indexes:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="checkBoxShowWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Show</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QCheckBox" name="checkBoxCopyWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Copy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
+      <item row="1" column="4">
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -317,27 +385,170 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0" colspan="4">
-       <widget class="QLineEdit" name="lineEditSearchResultsRefsPreview">
+      <item row="2" column="1" colspan="4">
+       <widget class="QLineEdit" name="lineEditShowSearchResultsRefsPreview">
         <property name="readOnly">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QLabel" name="lblWrdNdxInSearchResultsRefs">
+        <property name="text">
+         <string>Word Indexes:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="checkBoxShowWrdNdxInSearchResultsRefs">
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>44</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="checkBoxShowOCntInSearchResultsRefs">
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="checkBoxCopyOCntInSearchResultsRefs">
+        <property name="text">
+         <string>Copy</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QCheckBox" name="checkBoxCopyWrdNdxInSearchResultsRefs">
+        <property name="text">
+         <string>Copy</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lblShowSearchResultsRefsPreview">
+        <property name="text">
+         <string>Show Preview:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="4">
+       <widget class="QLineEdit" name="lineEditCopySearchResultsRefsPreview">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lblCopySearchResultsRefsPreview">
+        <property name="text">
+         <string>Copy Preview:</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
+   <item row="0" column="3">
+    <spacer name="horizontalSpacer_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="2" colspan="2">
+    <layout class="QVBoxLayout" name="verticalLayoutCopyOptionPreview">
+     <item>
+      <widget class="Line" name="line_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCopyOptionPreview">
+       <property name="text">
+        <string>Copy Option Preview:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTextEdit" name="editCopyOptionPreview">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>10</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CFontComboBox</class>
+   <extends>QFontComboBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>comboReferenceDelimiterMode</tabstop>
   <tabstop>checkBoxReferencesUseAbbreviatedBookNames</tabstop>
   <tabstop>checkBoxReferencesInBold</tabstop>
+  <tabstop>checkBoxReferencesAtEnd</tabstop>
   <tabstop>comboVerseNumberDelimiterMode</tabstop>
   <tabstop>checkBoxVerseNumbersUseAbbreviatedBookNames</tabstop>
   <tabstop>checkBoxVerseNumbersInBold</tabstop>
   <tabstop>checkBoxAddQuotesAroundVerse</tabstop>
   <tabstop>comboTransChangeAddedMode</tabstop>
+  <tabstop>comboBoxVerseRenderingModeCopying</tabstop>
+  <tabstop>checkBoxCopyPilcrowMarkers</tabstop>
+  <tabstop>fontComboBoxScriptureCopy</tabstop>
+  <tabstop>dblSpinBoxScriptureCopyFontSize</tabstop>
+  <tabstop>comboBoxCopyUsesFont</tabstop>
+  <tabstop>checkBoxShowOCntInSearchResultsRefs</tabstop>
+  <tabstop>checkBoxCopyOCntInSearchResultsRefs</tabstop>
+  <tabstop>checkBoxShowWrdNdxInSearchResultsRefs</tabstop>
+  <tabstop>checkBoxCopyWrdNdxInSearchResultsRefs</tabstop>
+  <tabstop>lineEditShowSearchResultsRefsPreview</tabstop>
+  <tabstop>lineEditCopySearchResultsRefsPreview</tabstop>
   <tabstop>editCopyOptionPreview</tabstop>
  </tabstops>
  <resources/>
