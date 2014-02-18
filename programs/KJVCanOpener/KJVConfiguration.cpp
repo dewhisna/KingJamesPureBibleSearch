@@ -1397,8 +1397,8 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side"), CSME_LEFT);
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side"), CSME_RIGHT);
 
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line"), VRME_VPL);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph"), VRME_FF);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
@@ -1457,7 +1457,7 @@ void CConfigBrowserOptions::saveSettings()
 	}
 	nIndex = ui.comboBoxVerseRenderingMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}
@@ -1659,8 +1659,8 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line"), VRME_VPL);
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph"), VRME_FF);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.comboBoxVerseRenderingModeCopying, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingModeCopying(int)));
 
@@ -1915,7 +1915,7 @@ void CConfigCopyOptions::en_changedVerseRenderingModeCopying(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
 	} else {
 		assert(false);
 	}

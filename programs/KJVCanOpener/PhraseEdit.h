@@ -284,6 +284,11 @@ public:
 		TCAWME_BRACKETS = 2							// Put brackets around translation add/change words
 	};
 
+	enum VERSE_RENDERING_MODE_ENUM {
+		VRME_VPL = 0,				// Verse-Per-Line mode
+		VRME_FF = 1					// Display as Free-Flow/Paragraph mode
+	};
+
 	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL);
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:

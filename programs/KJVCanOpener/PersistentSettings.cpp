@@ -124,7 +124,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
 		m_nChapterScrollbarMode(CSME_NONE),
-		m_nVerseRenderingMode(VRME_FF),
+		m_nVerseRenderingMode(CPhraseNavigator::VRME_FF),
 		m_bShowPilcrowMarkers(true),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
@@ -143,7 +143,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bVerseNumbersInBold(true),
 		m_bAddQuotesAroundVerse(true),
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
-		m_nVerseRenderingModeCopying(VRME_FF),
+		m_nVerseRenderingModeCopying(CPhraseNavigator::VRME_FF),
 		m_bCopyPilcrowMarkers(true),
 		// ----
 		m_bShowOCntInSearchResultsRefs(true),
@@ -448,7 +448,7 @@ void CPersistentSettings::setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nM
 	}
 }
 
-void CPersistentSettings::setVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode)
+void CPersistentSettings::setVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseRenderingMode != nMode) {
 		m_pPersistentSettingData->m_nVerseRenderingMode = nMode;
@@ -552,7 +552,7 @@ void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHAN
 	}
 }
 
-void CPersistentSettings::setVerseRenderingModeCopying(VERSE_RENDERING_MODE_ENUM nMode)
+void CPersistentSettings::setVerseRenderingModeCopying(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseRenderingModeCopying != nMode) {
 		m_pPersistentSettingData->m_nVerseRenderingModeCopying = nMode;
