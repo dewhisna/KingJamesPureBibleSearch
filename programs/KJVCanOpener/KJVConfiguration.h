@@ -375,6 +375,9 @@ private slots:
 	void en_changedTransChangeAddWordMode(int nIndex);
 	void en_changedVerseRenderingModeCopying(int nIndex);
 	void en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
+	void en_changedCopyFontSelection(int nIndex);
+	void en_changedFontCopyFont(const QFont &aFont);
+	void en_changedFontCopyFontSize(double nFontSize);
 	void en_changedShowOCntInSearchResultsRefs(bool bShow);
 	void en_changedCopyOCntInSearchResultsRefs(bool bCopy);
 	void en_changedShowWrdNdxInSearchResultsRefs(bool bShow);
@@ -388,6 +391,7 @@ private:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+	QFont m_fntCopyFont;
 
 // UI Private:
 private:

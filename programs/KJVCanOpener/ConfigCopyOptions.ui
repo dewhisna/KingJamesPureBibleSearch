@@ -25,7 +25,7 @@
  <class>CConfigCopyOptions</class>
  <widget class="QWidget" name="CConfigCopyOptions">
   <property name="windowTitle">
-   <string>Copy Options</string>
+   <string>Scripture Browser Copy Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <property name="bottomMargin">
@@ -272,44 +272,47 @@
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="buddy">
-          <cstring>fontComboBoxScriptureCopy</cstring>
+          <cstring>fontComboBoxCopyFont</cstring>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="CFontComboBox" name="fontComboBoxScriptureCopy">
+        <widget class="CFontComboBox" name="fontComboBoxCopyFont">
          <property name="toolTip">
-          <string>Set to Desired Font Name for the Scripture Browser</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Name for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It's up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="CDoubleSpinBox" name="dblSpinBoxScriptureCopyFontSize">
+        <widget class="CDoubleSpinBox" name="dblSpinBoxCopyFontSize">
          <property name="toolTip">
-          <string>Set to Desired Font Point Size for the Scripture Browser</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Point Size for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It's up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="lblCopyUsesFont">
          <property name="text">
-          <string>Copy &amp;Uses Font:</string>
+          <string>Selected Font &amp;Hint:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="buddy">
-          <cstring>comboBoxCopyUsesFont</cstring>
+          <cstring>comboBoxCopyFontSelection</cstring>
          </property>
         </widget>
        </item>
        <item row="1" column="1" colspan="2">
-        <widget class="QComboBox" name="comboBoxCopyUsesFont">
+        <widget class="QComboBox" name="comboBoxCopyFontSelection">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>10</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It's up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -489,7 +492,7 @@
      <item>
       <widget class="QLabel" name="lblCopyOptionPreview">
        <property name="text">
-        <string>Copy Option Preview:</string>
+        <string>Scripture Browser Verse Copying Preview:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -540,9 +543,9 @@
   <tabstop>comboTransChangeAddedMode</tabstop>
   <tabstop>comboBoxVerseRenderingModeCopying</tabstop>
   <tabstop>checkBoxCopyPilcrowMarkers</tabstop>
-  <tabstop>fontComboBoxScriptureCopy</tabstop>
-  <tabstop>dblSpinBoxScriptureCopyFontSize</tabstop>
-  <tabstop>comboBoxCopyUsesFont</tabstop>
+  <tabstop>fontComboBoxCopyFont</tabstop>
+  <tabstop>dblSpinBoxCopyFontSize</tabstop>
+  <tabstop>comboBoxCopyFontSelection</tabstop>
   <tabstop>checkBoxShowOCntInSearchResultsRefs</tabstop>
   <tabstop>checkBoxCopyOCntInSearchResultsRefs</tabstop>
   <tabstop>checkBoxShowWrdNdxInSearchResultsRefs</tabstop>

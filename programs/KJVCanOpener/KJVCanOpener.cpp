@@ -171,6 +171,8 @@ namespace {
 	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
 	//const QString constrVerseRenderingModeKey("VerseRenderingMode");
 	const QString constrCopyPilcrowMarkersKey("CopyPilcrowMarkers");
+	const QString constrCopyFontSelectionKey("CopyFontSelection");
+	const QString constrCopyFontKey("CopyFont");
 	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
 	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
 
@@ -946,6 +948,8 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
 	settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying());
 	settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
+	settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
+	settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
 	settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 	settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 	settings.endGroup();
@@ -1255,6 +1259,19 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
 			CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying()).toUInt()));
 			CPersistentSettings::instance()->setCopyPilcrowMarkers(settings.value(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers()).toBool());
+			CPersistentSettings::instance()->setCopyFontSelection(static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(settings.value(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection()).toUInt()));
+			strFont = settings.value(constrCopyFontKey).toString();
+			if (!strFont.isEmpty()) {
+				QFont aCopyFont;
+				aCopyFont.fromString(strFont);
+				// Just use face-name and point size from the stored font.  This is to work around the
+				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
+				//		or something:
+				QFont aCopyFont2;
+				aCopyFont2.setFamily(aCopyFont.family());
+				aCopyFont2.setPointSizeF(aCopyFont.pointSizeF());
+				CPersistentSettings::instance()->setFontCopyFont(aCopyFont2);
+			}
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();

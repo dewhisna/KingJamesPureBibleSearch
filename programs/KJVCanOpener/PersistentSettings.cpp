@@ -83,18 +83,22 @@ QString groupCombine(const QString &strSubgroup, const QString &strGroup)
 CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 	:
 		// Default Fonts:
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
 		m_fntScriptureBrowser("DejaVu Serif", 14),
 		m_fntSearchResults("DejaVu Serif", 14),
 		m_fntDictionary("DejaVu Serif", 14),
-#elif EMSCRIPTEN
+#elif defined(EMSCRIPTEN)
 		m_fntScriptureBrowser("DejaVu Serif", 14),
 		m_fntSearchResults("DejaVu Serif", 14),
 		m_fntDictionary("DejaVu Serif", 14),
-#else
+#elif defined(Q_OS_WIN32)
 		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),
 		m_fntDictionary("Times New Roman", 12),
+#else
+	  m_fntScriptureBrowser("DejaVu Serif", 12),
+	  m_fntSearchResults("DejaVu Serif", 12),
+	  m_fntDictionary("DejaVu Serif", 12),
 #endif
 		// Default Text Brightness Options:
 		m_bInvertTextBrightness(false),
@@ -145,6 +149,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
 		m_nVerseRenderingModeCopying(CPhraseNavigator::VRME_FF),
 		m_bCopyPilcrowMarkers(true),
+		m_nCopyFontSelection(CPhraseNavigator::CFSE_SCRIPTURE_BROWSER),
+		m_fntCopyFont(m_fntScriptureBrowser),
 		// ----
 		m_bShowOCntInSearchResultsRefs(true),
 		m_bCopyOCntInSearchResultsRefs(true),
@@ -273,6 +279,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode) ||
 			(pSource->m_nVerseRenderingModeCopying != pTarget->m_nVerseRenderingModeCopying) ||
 			(pSource->m_bCopyPilcrowMarkers != pTarget->m_bCopyPilcrowMarkers) ||
+			(pSource->m_nCopyFontSelection != pTarget->m_nCopyFontSelection) ||
+			(pSource->m_fntCopyFont != pTarget->m_fntCopyFont) ||
 			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
 			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
 
@@ -568,6 +576,21 @@ void CPersistentSettings::setCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
 	}
 }
 
+void CPersistentSettings::setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection)
+{
+	if (m_pPersistentSettingData->m_nCopyFontSelection != nCopyFontSelection) {
+		m_pPersistentSettingData->m_nCopyFontSelection = nCopyFontSelection;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setFontCopyFont(const QFont &aFont)
+{
+	if (m_pPersistentSettingData->m_fntCopyFont != aFont) {
+		m_pPersistentSettingData->m_fntCopyFont = aFont;
+		emit changedCopyOptions();
+	}
+}
 
 void CPersistentSettings::setShowOCntInSearchResultsRefs(bool bShow)
 {

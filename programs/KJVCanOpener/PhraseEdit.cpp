@@ -1649,6 +1649,24 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	QString strCopyFont;
+	switch (CPersistentSettings::instance()->copyFontSelection()) {
+		case CFSE_NONE:
+			break;
+		case CFSE_COPY_FONT:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+			break;
+		case CFSE_SCRIPTURE_BROWSER:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+			break;
+		case CFSE_SEARCH_RESULTS:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 //								"<html><head><title>%1</title><style type=\"text/css\">\n"
 //								"body, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n"
@@ -1666,13 +1684,14 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 //						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase))));		// Document Title
 
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-								"<html><head><title>%1</title><style type=\"text/css\">\n"
-								"body, p, li { white-space: pre-wrap; font-size:medium; }\n"
+								"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+								"<title>%1</title><style type=\"text/css\">\n"
+								"body, p, li { white-space: pre-wrap; %2 font-size:medium; }\n"
 								".book { font-size:xx-large; font-weight:bold; }\n"
 								".chapter { font-size:x-large; font-weight:bold; }\n"
 								"</style></head><body>\n")
-						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase))));		// Document Title
-
+						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase)))			// Document Title
+						.arg(strCopyFont));																			// Copy Font
 
 	QString strReference;
 

@@ -421,6 +421,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 
 	ui.dblSpinBoxApplicationFontSize->setRange(6, 24);
 	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
+	assert(lstStandardFontSizes.size() > 0);
 	int nFontMin = -1;
 	int nFontMax = -1;
 	for (int ndx=0; ndx<lstStandardFontSizes.size(); ++ndx) {
@@ -1670,6 +1671,28 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
+	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint"), CPhraseNavigator::CFSE_NONE);
+	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font"), CPhraseNavigator::CFSE_COPY_FONT);
+	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font"), CPhraseNavigator::CFSE_SCRIPTURE_BROWSER);
+	ui.comboBoxCopyFontSelection->addItem(tr("Search Results Font"), CPhraseNavigator::CFSE_SEARCH_RESULTS);
+
+	connect(ui.comboBoxCopyFontSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyFontSelection(int)));
+
+	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
+	assert(lstStandardFontSizes.size() > 0);
+	int nFontMin = -1;
+	int nFontMax = -1;
+	for (int ndx=0; ndx<lstStandardFontSizes.size(); ++ndx) {
+		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
+		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
+	}
+	ui.dblSpinBoxCopyFontSize->setRange(nFontMin, nFontMax);
+
+	connect(ui.fontComboBoxCopyFont, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_changedFontCopyFont(const QFont &)));
+	connect(ui.dblSpinBoxCopyFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_changedFontCopyFontSize(double)));
+
+	// ----------
+
 	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxCopyOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxShowWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowWrdNdxInSearchResultsRefs(bool)));
@@ -1787,6 +1810,22 @@ void CConfigCopyOptions::loadSettings()
 	// ----------
 
 	ui.checkBoxCopyPilcrowMarkers->setChecked(CPersistentSettings::instance()->copyPilcrowMarkers());
+
+	// ----------
+
+	nIndex = ui.comboBoxCopyFontSelection->findData(CPersistentSettings::instance()->copyFontSelection());
+	if (nIndex != -1) {
+		ui.comboBoxCopyFontSelection->setCurrentIndex(nIndex);
+	} else {
+		assert(false);
+	}
+
+	m_fntCopyFont = CPersistentSettings::instance()->fontCopyFont();
+	ui.fontComboBoxCopyFont->setCurrentFont(m_fntCopyFont);
+	ui.dblSpinBoxCopyFontSize->setValue(m_fntCopyFont.pointSizeF());
+
+	ui.fontComboBoxCopyFont->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
+	ui.dblSpinBoxCopyFontSize->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
 
 	// ----------
 
@@ -1932,6 +1971,45 @@ void CConfigCopyOptions::en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
 	m_bIsDirty = true;
 	emit dataChanged(false);
 	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyFontSelection(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	if (nIndex != -1) {
+		CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCFSE = static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(nIndex).toUInt());
+		CPersistentSettings::instance()->setCopyFontSelection(nCFSE);
+		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+	} else {
+		assert(false);
+	}
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedFontCopyFont(const QFont &aFont)
+{
+	if (m_bLoadingData) return;
+
+	m_fntCopyFont.setFamily(aFont.family());
+	CPersistentSettings::instance()->setFontCopyFont(m_fntCopyFont);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedFontCopyFontSize(double nFontSize)
+{
+	if (m_bLoadingData) return;
+
+	m_fntCopyFont.setPointSizeF(nFontSize);
+	CPersistentSettings::instance()->setFontCopyFont(m_fntCopyFont);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedShowOCntInSearchResultsRefs(bool bShow)

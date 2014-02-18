@@ -285,8 +285,15 @@ public:
 	};
 
 	enum VERSE_RENDERING_MODE_ENUM {
-		VRME_VPL = 0,				// Verse-Per-Line mode
-		VRME_FF = 1					// Display as Free-Flow/Paragraph mode
+		VRME_VPL = 0,								// Verse-Per-Line mode
+		VRME_FF = 1									// Display as Free-Flow/Paragraph mode
+	};
+
+	enum COPY_FONT_SELECTION_ENUM {
+		CFSE_NONE = 0,								// Do copying without any font hints
+		CFSE_COPY_FONT = 1,							// Copy Font defined in settings
+		CFSE_SCRIPTURE_BROWSER = 2,					// Use Scripture Browser's Current font setting
+		CFSE_SEARCH_RESULTS = 3						// Use Search Results' Current font setting
 	};
 
 	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL);

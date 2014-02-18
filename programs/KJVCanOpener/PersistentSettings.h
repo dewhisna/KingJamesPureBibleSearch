@@ -56,9 +56,9 @@ public:
 	void addUserPhrase(const CPhraseEntry &aPhraseEntry);
 	void removeUserPhrase(const CPhraseEntry &aPhraseEntry);
 
-	const QFont &fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
-	const QFont &fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
-	const QFont &fontDictionary() const { return m_pPersistentSettingData->m_fntDictionary; }
+	QFont fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
+	QFont fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
+	QFont fontDictionary() const { return m_pPersistentSettingData->m_fntDictionary; }
 
 	bool invertTextBrightness() const { return m_pPersistentSettingData->m_bInvertTextBrightness; }
 	int textBrightness() const { return m_pPersistentSettingData->m_nTextBrightness; }
@@ -102,6 +102,8 @@ public:
 	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
 	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingModeCopying() const { return m_pPersistentSettingData->m_nVerseRenderingModeCopying; }
 	bool copyPilcrowMarkers() const { return m_pPersistentSettingData->m_bCopyPilcrowMarkers; }
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
+	QFont fontCopyFont() const { return m_pPersistentSettingData->m_fntCopyFont; }
 
 	bool showOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs; }
 	bool copyOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs; }
@@ -186,6 +188,8 @@ public slots:
 	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
 	void setVerseRenderingModeCopying(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void setCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
+	void setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection);
+	void setFontCopyFont(const QFont &aFont);
 
 	void setShowOCntInSearchResultsRefs(bool bShow);
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
@@ -245,6 +249,8 @@ private:
 		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
 		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingModeCopying;	// How to copy verses from Scripture Browser (VPL, FF, etc)
 		bool m_bCopyPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be copied
+		CPhraseNavigator::COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
+		QFont m_fntCopyFont;							// Font to use for the Copy Font for CFSE_COPY_FONT mode
 		// ----
 		bool m_bShowOCntInSearchResultsRefs;			// True if showing Occurrence Counts in Search Results References
 		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
