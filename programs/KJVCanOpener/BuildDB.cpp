@@ -49,7 +49,7 @@
 #include <QCoreApplication>
 #include <QtIOCompressor>
 
-#ifndef OSIS_PARSER_BUILD
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
 #include "myApplication.h"
 #define MY_GET_APP_DIR_PATH g_pMyApplication->initialAppDirPath()
 #else

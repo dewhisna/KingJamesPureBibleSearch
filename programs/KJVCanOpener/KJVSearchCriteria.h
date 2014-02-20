@@ -120,7 +120,7 @@ private:
 
 // ============================================================================
 
-#ifndef OSIS_PARSER_BUILD
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
 
 #include "ui_KJVSearchCriteria.h"
 

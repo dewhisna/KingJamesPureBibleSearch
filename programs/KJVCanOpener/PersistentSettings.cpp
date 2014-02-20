@@ -32,7 +32,7 @@
 
 // ============================================================================
 
-#ifdef OSIS_PARSER_BUILD
+#if defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD)
 static CPhraseList g_lstUserPhrases;
 const CPhraseList &userPhrases()
 {

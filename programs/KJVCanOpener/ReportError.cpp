@@ -25,7 +25,7 @@
 
 #include <QDebug>
 
-#ifdef OSIS_PARSER_BUILD
+#if defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD)
 #include <iostream>
 #endif
 
@@ -42,7 +42,7 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
-#elif defined(OSIS_PARSER_BUILD)
+#elif defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD)
 	std::cerr << QString::fromUtf8("warning: %1: %2").arg(strTitle).arg(strText).toUtf8().data();
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
@@ -72,7 +72,7 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
-#elif defined(OSIS_PARSER_BUILD)
+#elif defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD)
 	std::cerr << QString::fromUtf8("information: %1: %2").arg(strTitle).arg(strText).toUtf8().data();
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);

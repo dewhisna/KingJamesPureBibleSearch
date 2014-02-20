@@ -45,7 +45,7 @@
 
 // Forward declarations:
 class CSearchCompleter;
-#ifndef OSIS_PARSER_BUILD
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
 class CKJVCanOpener;
 #endif
 class CParsedPhrase;
@@ -390,7 +390,7 @@ public:
 	using CPhraseNavigator::getSelectedPhrase;
 	TPhraseTag getSelection() const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
 	CSelectedPhrase getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
-#ifndef OSIS_PARSER_BUILD
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
 	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const;
 	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const;
 #endif
