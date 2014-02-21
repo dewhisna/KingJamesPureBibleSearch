@@ -1088,20 +1088,42 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	QString strCopyFont= "font-size:medium;";
+	if (flagsTRO & TRO_Copying) {
+		switch (CPersistentSettings::instance()->copyFontSelection()) {
+			case CFSE_NONE:
+				break;
+			case CFSE_COPY_FONT:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+				break;
+			case CFSE_SCRIPTURE_BROWSER:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+				break;
+			case CFSE_SEARCH_RESULTS:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+				break;
+			default:
+				assert(false);
+				break;
+		}
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><title>%1</title><style type=\"text/css\">\n"
-										"body, p, li { white-space: pre-line; font-size:medium; }\n"
+										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+										"<title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-line; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
-										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+										.arg(strCopyFont));																// Copy Font
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
@@ -1189,20 +1211,42 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	QString strCopyFont= "font-size:medium;";
+	if (flagsTRO & TRO_Copying) {
+		switch (CPersistentSettings::instance()->copyFontSelection()) {
+			case CFSE_NONE:
+				break;
+			case CFSE_COPY_FONT:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+				break;
+			case CFSE_SCRIPTURE_BROWSER:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+				break;
+			case CFSE_SEARCH_RESULTS:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+				break;
+			default:
+				assert(false);
+				break;
+		}
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><title>%1</title><style type=\"text/css\">\n"
-										"body, p, li { white-space: pre-line; font-size:medium; }\n"
+										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+										"<title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-line; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
-										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+										.arg(strCopyFont));																// Copy Font
 
 	uint32_t nFirstWordNormal = m_pBibleDatabase->NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
 	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + pChapter->m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
@@ -1568,20 +1612,42 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	QString strCopyFont= "font-size:medium;";
+	if (flagsTRO & TRO_Copying) {
+		switch (CPersistentSettings::instance()->copyFontSelection()) {
+			case CFSE_NONE:
+				break;
+			case CFSE_COPY_FONT:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+				break;
+			case CFSE_SCRIPTURE_BROWSER:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+				break;
+			case CFSE_SEARCH_RESULTS:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+				break;
+			default:
+				assert(false);
+				break;
+		}
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 //						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
 //						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><title>%1</title><style type=\"text/css\">\n"
-										"body, p, li { white-space: pre-wrap; font-size:medium; }\n"
+										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+										"<title>%1</title><style type=\"text/css\">\n"
+										"body, p, li { white-space: pre-wrap; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
-						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+										.arg(strCopyFont));																// Copy Font
 
 	if (flagsTRO & TRO_AddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 
@@ -1649,7 +1715,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
-	QString strCopyFont;
+	QString strCopyFont= "font-size:medium;";
 	switch (CPersistentSettings::instance()->copyFontSelection()) {
 		case CFSE_NONE:
 			break;
@@ -1686,12 +1752,12 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 								"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
 								"<title>%1</title><style type=\"text/css\">\n"
-								"body, p, li { white-space: pre-wrap; %2 font-size:medium; }\n"
+								"body, p, li { white-space: pre-wrap; %2 }\n"
 								".book { font-size:xx-large; font-weight:bold; }\n"
 								".chapter { font-size:x-large; font-weight:bold; }\n"
 								"</style></head><body>\n")
-						.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase)))			// Document Title
-						.arg(strCopyFont));																			// Copy Font
+								.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase)))			// Document Title
+								.arg(strCopyFont));																			// Copy Font
 
 	QString strReference;
 

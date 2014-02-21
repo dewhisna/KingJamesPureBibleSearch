@@ -149,7 +149,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
 		m_nVerseRenderingModeCopying(CPhraseNavigator::VRME_FF),
 		m_bCopyPilcrowMarkers(true),
-		m_nCopyFontSelection(CPhraseNavigator::CFSE_SCRIPTURE_BROWSER),
+		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
 		// ----
 		m_bShowOCntInSearchResultsRefs(true),

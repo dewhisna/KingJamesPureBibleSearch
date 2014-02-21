@@ -326,7 +326,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		//		change on us if/when they get it fixed, we'll pass
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex());
+		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying);
 		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
@@ -463,7 +463,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 		//		change on us if/when they get it fixed, we'll pass
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex());
+		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying);
 		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));

@@ -265,7 +265,8 @@ public:
 		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
 		TRO_CrossRefs = 0x80,						// Add navigation anchors/text for cross-references
 		TRO_Category = 0x100,						// Add book category
-		TRO_SuppressPrePostChapters = 0x200			// Suppress adding pre/post chapter displays
+		TRO_SuppressPrePostChapters = 0x200,		// Suppress adding pre/post chapter displays
+		TRO_Copying = 0x400							// Text Copying mode (i.e. add selected font from copy option, etc)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
