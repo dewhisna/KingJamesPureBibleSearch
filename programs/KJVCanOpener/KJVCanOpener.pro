@@ -102,6 +102,9 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #	accessibility support gets loaded:
 !emscripten:!win32:QTPLUGIN += qtaccessiblewidgets
 
+# The following will enable libvncserver plugin:
+vncserver:LIBS += -L$$[QT_INSTALL_PLUGINS]/gfxdrivers -lvncserverscreen
+
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
 #DEFINES += VERSE_LIST_RICH_TEXT_CACHE

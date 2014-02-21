@@ -155,6 +155,18 @@ Add this:
 no-pkg-config
 
 
+----------------------------------------------------
+
+Qt 4.8.5 -- VNC:
+----------------
+
+../4.8.5-src/configure -platform linux-g++-64 -opensource -release -static -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /home/dewhisna/Qt/4.8.5-vnc-run -confirm-license
+
+Building with libvncserver:
+http://libvncserver.sourceforge.net/
+http://github.com/connectedtable/qt-libvncserver
+
+
 ===============================================================================
 ===============================================================================
 
