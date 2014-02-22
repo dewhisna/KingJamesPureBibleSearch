@@ -157,14 +157,35 @@ no-pkg-config
 
 ----------------------------------------------------
 
-Qt 4.8.5 -- VNC:
-----------------
+--------------------------
+Qt 4.8.5 -- VNC (DYNAMIC):
+--------------------------
 
-../4.8.5-src/configure -platform linux-g++-64 -opensource -release -static -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /home/dewhisna/Qt/4.8.5-vnc-run -confirm-license
+../4.8.5-src/configure -platform linux-g++-64 -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/dewhisna/Qt/4.8.5-vnc-run
 
 Building with libvncserver:
 http://libvncserver.sourceforge.net/
+	./configure
+	make
+	sudo make install
 http://github.com/connectedtable/qt-libvncserver
+	qmake libvncserver.pro
+	make
+	make install
+http://github.com/kanaka/noVNC
+
+Could not get it to work with a static-built Qt Embedded, even with linking the qt-libvncserver
+into KJPBS.  Maybe it would have worked if I had built Qt, then built qt-libvncserver, then
+rebuilt Qt with the new static qt-libvncserver added.  But the easy fix, since vncserver itself
+is a dynamic library that needs to be installed system-wide, is to just build Qt Embedded as
+dynamic.  The app itself can be static, just not the main Qt and plugins.
+
+Other notes: the CToolTipEdit needs to have a style more like that of the Emscripten build, as
+it gave a warning about my window attributes not being supported on Qt 4.8.5.  The menus and
+dialogs seemed to function correctly with normal exec() logic, unlike that of Emscripten.  And
+of course it isn't sandboxed and can access the local filesystem.  Got it to run pretty well
+using Remote Desktop Viewer, but never quite got it to run with noVNC, at least not yet.  It
+would start to connect and then disconnect, regardless of what webserver was running noVNC.
 
 
 ===============================================================================
