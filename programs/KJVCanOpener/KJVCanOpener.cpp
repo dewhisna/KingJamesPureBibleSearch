@@ -33,11 +33,13 @@
 #include "Highlighter.h"
 #include "SearchCompleter.h"
 #include "KJVAboutDlg.h"
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN)
 #include "KJVConfiguration.h"
 #include "DictionaryWidget.h"
+#if !defined(VNCSERVER)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#endif
 #endif
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
@@ -79,11 +81,15 @@ namespace {
 	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(EMSCRIPTEN)
 	const char *g_constrHelpDocFilename = "http://cloud.dewtronics.com/KingJamesPureBibleSearch/KingJamesPureBibleSearch.pdf";
+#elif defined(VNCSERVER)
+//	const char *g_constrHelpDocFilename = "";
 #else
 	const char *g_constrHelpDocFilename = "../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #endif
 
+#ifndef VNCSERVER
 	const char *g_constrPureBibleSearchURL = "http://www.PureBibleSearch.com/";
+#endif
 
 	// Key constants:
 	// --------------
@@ -245,7 +251,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- User Notes/Highlighter/References Toolbar:
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
@@ -363,7 +369,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setToolTip("Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search");
 	ui.mainToolBar->addAction(pAction);
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File..."), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File"));
@@ -434,7 +440,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters"));
 	m_pViewMenu->addAction(pAction);
 	pAction->setData(CVerseListModel::VVME_HIGHLIGHTERS);
@@ -684,6 +690,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.mainToolBar->addSeparator();
 
 	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help"));
+
+#ifndef VNCSERVER
 	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
 	pAction->setStatusTip(tr("Display the Users Manual"));
 
@@ -691,6 +699,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Open a Web Browser and Navigate to www.PureBibleSearch.com"));
 	pAction->setToolTip(tr("Goto www.PureBibleSearch.com Home Page"));
 	ui.mainToolBar->addAction(pAction);
+#endif
 
 	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), tr("About..."), this);
 	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
@@ -735,7 +744,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #endif
 
 	// -------------------- UserNoteEditor Dialog:
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
 	connect(m_pActionUserNoteEditor, SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
@@ -743,7 +752,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 
 	// -------------------- CrossRefsEditor Dialog:
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
 	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
@@ -770,7 +779,7 @@ void CKJVCanOpener::initialize()
 
 	TPhraseTag tag(CRelIndex(1,1,0,0), 0);						// Default for unset key
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
@@ -848,7 +857,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
 	settings.endGroup();
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 	m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 #endif
@@ -1040,7 +1049,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			settings.endGroup();
 		}
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 		m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 #endif
@@ -1495,42 +1504,42 @@ void CKJVCanOpener::en_NewSearch()
 
 void CKJVCanOpener::en_OpenSearch()
 {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Open Failed"), tr("Failed to open and read the specified KJV Search File!"));
 #else
-	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
-	//	Left here for reference for how to do the open asynchronously:
-	QFileDialog *pDlg = new QFileDialog(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
-	pDlg->setOptions(QFileDialog::ReadOnly);
-	pDlg->setAttribute(Qt::WA_DeleteOnClose);
-	pDlg->setModal(true);
-	pDlg->setFileMode(QFileDialog::ExistingFile);
-	pDlg->setAcceptMode(QFileDialog::AcceptOpen);
-	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(openKJVSearchFile(const QString &)));
-	pDlg->show();
+//	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
+//	//	Left here for reference for how to do the open asynchronously:
+//	QFileDialog *pDlg = new QFileDialog(this, tr("Open KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
+//	pDlg->setOptions(QFileDialog::ReadOnly);
+//	pDlg->setAttribute(Qt::WA_DeleteOnClose);
+//	pDlg->setModal(true);
+//	pDlg->setFileMode(QFileDialog::ExistingFile);
+//	pDlg->setAcceptMode(QFileDialog::AcceptOpen);
+//	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(openKJVSearchFile(const QString &)));
+//	pDlg->show();
 #endif
 }
 
 void CKJVCanOpener::en_SaveSearch()
 {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed"), tr("Failed to save the specified KJV Search File!"));
 #else
-	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
-	//	Left here for reference for how to do the open asynchronously:
-	QFileDialog *pDlg = new QFileDialog(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
-	pDlg->setAttribute(Qt::WA_DeleteOnClose);
-	pDlg->setModal(true);
-	pDlg->setFileMode(QFileDialog::AnyFile);
-	pDlg->setAcceptMode(QFileDialog::AcceptSave);
-	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(saveKJVSearchFile(const QString &)));
-	pDlg->show();
+//	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
+//	//	Left here for reference for how to do the open asynchronously:
+//	QFileDialog *pDlg = new QFileDialog(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"));
+//	pDlg->setAttribute(Qt::WA_DeleteOnClose);
+//	pDlg->setModal(true);
+//	pDlg->setFileMode(QFileDialog::AnyFile);
+//	pDlg->setAcceptMode(QFileDialog::AcceptSave);
+//	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(saveKJVSearchFile(const QString &)));
+//	pDlg->show();
 #endif
 }
 
@@ -1787,7 +1796,7 @@ void CKJVCanOpener::en_nextViewMode()
 			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED;
 			break;
 		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			nNewMode = CVerseListModel::VVME_HIGHLIGHTERS;
 #else
 			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS;
@@ -2018,7 +2027,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 
 void CKJVCanOpener::en_userNoteEditorTriggered()
 {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -2043,7 +2052,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 void CKJVCanOpener::en_crossRefsEditorTriggered()
 {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -2093,7 +2102,10 @@ void CKJVCanOpener::setDetailsEnable()
 
 void CKJVCanOpener::en_HelpManual()
 {
-#ifndef EMSCRIPTEN
+#if defined(EMSCRIPTEN)
+	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+#elif defined(VNCSERVER)
+#else
 	assert(g_pMyApplication.data() != NULL);
 
 	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
@@ -2105,8 +2117,6 @@ void CKJVCanOpener::en_HelpManual()
 	}
 
 //	QMessageBox::information(this, windowTitle(), tr("An online help manual is coming soon for the King James Pure Bible Search Application.\n\nKeep your eyes open for future updates."));
-#else
-	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 #endif
 }
 
@@ -2124,12 +2134,14 @@ void CKJVCanOpener::en_HelpAbout()
 
 void CKJVCanOpener::en_PureBibleSearchDotCom()
 {
+#ifndef VNCSERVER
 	if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
 #ifndef EMSCRIPTEN
 		QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
 													 "http://www.PureBibleSearch.com/"));
 #endif
 	}
+#endif
 }
 
 void CKJVCanOpener::en_QuickActivate()
@@ -2175,14 +2187,16 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
-		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->enterConfigurationMode();
+		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
+		if (pHighlighterButtons != NULL) pHighlighterButtons->enterConfigurationMode();
 	}
 
 	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, g_pMainDictionaryDatabase, this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 	dlgConfigure.exec();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
-		lstCanOpeners.at(ndxCanOpener)->highlighterButtons()->leaveConfigurationMode();
+		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
+		if (pHighlighterButtons != NULL) pHighlighterButtons->leaveConfigurationMode();
 	}
 
 	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication, SLOT(restartApp()));
@@ -2193,7 +2207,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 
 void CKJVCanOpener::en_LaunchUserNoteConfig()
 {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	en_Configure(CPSE_USER_NOTES_DATABASE);
 #endif
 }

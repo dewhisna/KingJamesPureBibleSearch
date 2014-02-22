@@ -40,7 +40,7 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 	CONFIG += wwwidgets
 }
 
-!android:!ios:!emscripten {
+!android:!ios:!emscripten:!vnc {
 	CONFIG += buildKJVDatabase
 	DEFINES += BUILD_KJV_DATABASE
 }
@@ -48,7 +48,7 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
-unix:!mac {
+unix:!mac:!vnc {
 	CONFIG += static
 	QMAKE_CXXFLAGS += -static
 }
@@ -63,7 +63,7 @@ android {
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
 
-!android:!ios:!emscripten {
+!android:!ios:!emscripten:!vnc {
 	# Select Desired Package:
 	#	SingleApplication
 	#	QtSingleApplication
@@ -80,6 +80,7 @@ include(../grantlee/textdocument/textdocument.pri)
 		QT += network
 	}
 }
+vnc:QT += network
 
 # Add the Plastique Style:
 # In Qt4, Plastique is built-in to Qt itself:
@@ -108,7 +109,7 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
 #DEFINES += SEARCH_PHRASE_SPY SEARCH_RESULTS_SPY
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
-!emscripten:declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
+!emscripten:!vnc:declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
 #DEFINES += DEBUG_CURSOR_SELECTION
 
@@ -121,7 +122,7 @@ greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not
 macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Font Bug on MacX Mavericks
 
 # Enable Splash Screen:
-DEFINES += SHOW_SPLASH_SCREEN
+!vnc:DEFINES += SHOW_SPLASH_SCREEN
 
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
@@ -233,9 +234,11 @@ buildKJVDatabase:SOURCES += \
 !emscripten:SOURCES += \
 	DictionaryWidget.cpp \
 	KJVConfiguration.cpp \
+	RenameHighlighterDlg.cpp
+
+!emscripten:!vnc:SOURCES += \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
-	RenameHighlighterDlg.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp
 
 
@@ -291,9 +294,11 @@ buildKJVDatabase:HEADERS += \
 !emscripten:HEADERS += \
 	DictionaryWidget.h \
 	KJVConfiguration.h \
+	RenameHighlighterDlg.h
+
+!emscripten:!vnc:HEADERS += \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
-	RenameHighlighterDlg.h \
 	signalspy/Q4puGenericSignalSpy.h
 
 
@@ -318,12 +323,14 @@ FORMS += \
 	ConfigSearchOptions.ui \
 	DictionaryWidget.ui \
 	KJVBibleDatabaseConfig.ui \
-	KJVCrossRefEditDlg.ui \
 	KJVGeneralSettingsConfig.ui \
-	KJVNoteEditDlg.ui \
 	KJVTextFormatConfig.ui \
-	KJVUserNotesDatabaseConfig.ui \
 	RenameHighlighterDlg.ui
+
+!emscripten:!vnc:FORMS += \
+	KJVCrossRefEditDlg.ui \
+	KJVNoteEditDlg.ui \
+	KJVUserNotesDatabaseConfig.ui
 
 
 RESOURCES += \

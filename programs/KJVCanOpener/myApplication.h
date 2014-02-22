@@ -178,8 +178,10 @@ protected:
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 #ifdef SHOW_SPLASH_SCREEN
 	QElapsedTimer m_splashTimer;
-#endif
 	QSplashScreen *m_pSplash;							// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
+#else
+	QWidget *m_pSplash;									// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
+#endif
 };
 extern QPointer<CMyApplication> g_pMyApplication;
 extern QPointer<QMdiArea> g_pMdiArea;

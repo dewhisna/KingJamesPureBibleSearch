@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
 	pApp->setFileToLoad(strKJSFile);
 
-#ifdef EMSCRIPTEN
+#if defined(EMSCRIPTEN) || defined(VNCSERVER)
 	bStealthMode = true;
 #endif
 

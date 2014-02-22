@@ -31,11 +31,14 @@
 #define VER_PRODUCTVERSION			2,0,90,0
 #define VER_PRODUCTVERSION_STR		"2,0,90,0\0"
 
-#ifndef EMSCRIPTEN
-#define VER_SPECIALVERSION_STR		"(Pre-Alpha Version)\0"
+#if defined(EMSCRIPTEN)
+#define VER_SPECIALVERSION_STR		"(Emscripten Web-Version)\0"
+#define SPECIAL_BUILD				1
+#elif defined(VNCSERVER)
+#define VER_SPECIALVERSION_STR		"(VNC Web-Version)\0"
 #define SPECIAL_BUILD				1
 #else
-#define VER_SPECIALVERSION_STR		"(Emscripten Web-Version)\0"
+#define VER_SPECIALVERSION_STR		"(Pre-Alpha Version)\0"
 #define SPECIAL_BUILD				1
 #endif
 

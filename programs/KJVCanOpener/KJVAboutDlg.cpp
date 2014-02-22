@@ -70,7 +70,10 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
 	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
-#ifdef EMSCRIPTEN
+#if defined(EMSCRIPTEN)
+	m_pExtraVersionInfo = scene->addText(tr("Lite Version"), QFont("Times New Roman", 10));
+	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
+#elif defined(VNCSERVER)
 	m_pExtraVersionInfo = scene->addText(tr("Lite Version"), QFont("Times New Roman", 10));
 	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #else

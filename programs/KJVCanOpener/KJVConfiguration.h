@@ -192,6 +192,8 @@ private:
 
 // ============================================================================
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+
 #include "ui_KJVUserNotesDatabaseConfig.h"
 
 class CKJVUserNotesDatabaseConfig : public QWidget
@@ -232,6 +234,8 @@ private:
 
 	Ui::CKJVUserNotesDatabaseConfig ui;
 };
+
+#endif
 
 // ============================================================================
 
@@ -460,7 +464,9 @@ private:
 	CKJVGeneralSettingsConfig *m_pGeneralSettingsConfig;
 	CConfigCopyOptions *m_pCopyOptionsConfig;
 	CKJVTextFormatConfig *m_pTextFormatConfig;
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
+#endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
 };
 

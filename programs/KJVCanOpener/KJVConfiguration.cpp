@@ -381,6 +381,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	connect(toQwwColorButton(ui.buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
 	connect(toQwwColorButton(ui.buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	ui.listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
 	ui.listWidgetHighlighterColors->setSortingEnabled(true);
 
@@ -398,6 +399,13 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	connect(ui.toolButtonRenameHighlighter, SIGNAL(clicked()), this, SLOT(en_renameHighlighterClicked()));
 
 	connect(ui.listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
+#else
+	ui.listWidgetHighlighterColors->hide();
+	ui.comboBoxHighlighters->hide();
+	ui.toolButtonAddHighlighter->hide();
+	ui.toolButtonRemoveHighlighter->hide();
+	ui.toolButtonRenameHighlighter->hide();
+#endif
 
 	// --------------------------------------------------------------
 
@@ -412,12 +420,14 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 
 	// --------------------------------------------------------------
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() == NULL) {
 		ui.fontComboBoxApplication->setEnabled(false);
 		ui.fontComboBoxApplication->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
 		ui.dblSpinBoxApplicationFontSize->setEnabled(false);
 		ui.dblSpinBoxApplicationFontSize->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
 	}
+#endif
 
 	ui.dblSpinBoxApplicationFontSize->setRange(6, 24);
 	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
@@ -533,13 +543,17 @@ void CKJVTextFormatConfig::saveSettings()
 	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 
 	// Save application font only if not in stealth mode:
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() != NULL) {
+#endif
 		QFont fntApp;
 		fntApp.setFamily(ui.fontComboBoxApplication->currentFont().family());
 		fntApp.setPointSizeF(ui.dblSpinBoxApplicationFontSize->value());
 		QApplication::setFont(fntApp);
 		CMyApplication::saveApplicationFontSettings();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	}
+#endif
 
 	m_bIsDirty = false;
 }
@@ -547,7 +561,9 @@ void CKJVTextFormatConfig::saveSettings()
 void CKJVTextFormatConfig::en_ApplicationFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() == NULL) return;
+#endif
 
 	Q_UNUSED(font);
 	m_bIsDirty = true;
@@ -587,7 +603,9 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 void CKJVTextFormatConfig::en_ApplicationFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() == NULL) return;
+#endif
 
 	Q_UNUSED(nFontSize);
 	m_bIsDirty = true;
@@ -934,6 +952,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview, 5)));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview2, 32)));
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	uint32_t nNormalizedIndex = m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(ndxPreview) + 10;
 
 	for (int i = 0; i < 3; ++i) {
@@ -951,6 +970,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 			nNormalizedIndex += 7;
 		}
 	}
+#endif
 
 	m_previewSearchPhrase.ParsePhrase("trumpet");
 	m_previewSearchPhrase.FindWords();
@@ -1021,6 +1041,8 @@ void CKJVBibleDatabaseConfig::saveSettings()
 
 // ============================================================================
 // ============================================================================
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
 CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QWidget(parent),
@@ -1289,6 +1311,8 @@ void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QCol
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
+
+#endif	// !EMSCRIPTEN && !VNCSERVER
 
 // ============================================================================
 // ============================================================================
@@ -2135,7 +2159,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pGeneralSettingsConfig(NULL),
 		m_pCopyOptionsConfig(NULL),
 		m_pTextFormatConfig(NULL),
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pUserNotesDatabaseConfig(NULL),
+#endif
 		m_pBibleDatabaseConfig(NULL)
 {
 	assert(pBibleDatabase.data() != NULL);
@@ -2144,13 +2170,17 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
+#endif
 //	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
 	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));
 	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
+#endif
 //	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
@@ -2166,7 +2196,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 			pSelect = m_pTextFormatConfig;
 			break;
 		case CPSE_USER_NOTES_DATABASE:
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			pSelect = m_pUserNotesDatabaseConfig;
+#endif
 			break;
 		case CPSE_BIBLE_DATABASE:
 //			pSelect = m_pBibleDatabaseConfig;
@@ -2183,7 +2215,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(m_pGeneralSettingsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pCopyOptionsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pTextFormatConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#endif
 //	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
@@ -2197,7 +2231,9 @@ void CKJVConfiguration::loadSettings()
 	m_pGeneralSettingsConfig->loadSettings();
 	m_pCopyOptionsConfig->loadSettings();
 	m_pTextFormatConfig->loadSettings();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig->loadSettings();
+#endif
 //	m_pBibleDatabaseConfig->loadSettings();
 }
 
@@ -2206,7 +2242,9 @@ void CKJVConfiguration::saveSettings()
 	m_pGeneralSettingsConfig->saveSettings();
 	m_pCopyOptionsConfig->saveSettings();
 	m_pTextFormatConfig->saveSettings();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig->saveSettings();
+#endif
 //	m_pBibleDatabaseConfig->saveSettings();
 }
 
@@ -2214,8 +2252,10 @@ bool CKJVConfiguration::isDirty() const
 {
 	return (m_pGeneralSettingsConfig->isDirty() ||
 			m_pCopyOptionsConfig->isDirty() ||
-			m_pTextFormatConfig->isDirty() ||
-			m_pUserNotesDatabaseConfig->isDirty());		// ||
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+			m_pUserNotesDatabaseConfig->isDirty() ||
+#endif
+			m_pTextFormatConfig->isDirty());			// ||
 //			m_pBibleDatabaseConfig->isDirty());
 }
 

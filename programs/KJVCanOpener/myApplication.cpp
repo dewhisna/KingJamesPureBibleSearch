@@ -129,6 +129,12 @@ namespace {
 	#else
 		const char *g_constrBibleDatabasePath = "data/";
 	#endif
+#elif defined(VNCSERVER)
+	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
+	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
+	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
+	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
@@ -246,6 +252,30 @@ namespace {
 		const char *g_constrDejaVuSerif_Oblique = "data/DejaVuSerif-Oblique.ttf";
 		const char *g_constrDejaVuSerif = "data/DejaVuSerif.ttf";
 	#endif
+#elif defined(VNCSERVER)
+	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
+	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
+	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+	const char *g_constrDejaVuSansCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "../../KJVCanOpener/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "../../KJVCanOpener/fonts/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
+	const char *g_constrDejaVuSerif_Bold = "../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+	const char *g_constrDejaVuSerifCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_Italic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
+	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
+	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
+	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
@@ -521,7 +551,9 @@ void CMyApplication::restoreApplicationFontSettings()
 #elif defined(Q_OS_MAC)
 //	QFont fntAppControls = QFont("Arial", 12);
 	QFont fntAppControls = QFont("Lucida Grande", 12);
-#elif EMSCRIPTEN
+#elif defined(EMSCRIPTEN)
+	QFont fntAppControls = QFont("DejaVu Sans", 12);
+#elif defined(VNCSERVER)
 	QFont fntAppControls = QFont("DejaVu Sans", 12);
 #else
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
@@ -1145,13 +1177,15 @@ int CMyApplication::execute(bool bBuildDB)
 
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
-	CKJVCanOpener *pMain = createKJVCanOpener(g_pMainBibleDatabase);
 #ifdef SHOW_SPLASH_SCREEN
+	CKJVCanOpener *pMain = createKJVCanOpener(g_pMainBibleDatabase);
 	if (m_pSplash != NULL) {
 		m_pSplash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
 		delete m_pSplash;
 		m_pSplash = NULL;
 	}
+#else
+	createKJVCanOpener(g_pMainBibleDatabase);
 #endif
 
 	return 0;

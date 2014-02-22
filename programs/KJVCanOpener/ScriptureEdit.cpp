@@ -29,7 +29,7 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
@@ -227,7 +227,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if ((pCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
@@ -339,6 +339,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 {
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		bool bEditEnable = false;
 		if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 			bEditEnable = true;
@@ -352,7 +353,9 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
 			}
 		}
+#endif
 	} else if (ev->type() == QEvent::FocusOut) {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		QFocusEvent *pFocusEvent = static_cast<QFocusEvent *>(ev);
 		if ((parentCanOpener() != NULL) &&
 			(pFocusEvent->reason() != Qt::MenuBarFocusReason) &&
@@ -364,6 +367,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
 			}
 		}
+#endif
 	}
 
 	switch (ev->type()) {
@@ -548,7 +552,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	}
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		if (parentCanOpener()) {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			menu->addSeparator();
 			menu->addActions(parentCanOpener()->highlighterButtons()->actions());
 			menu->addSeparator();

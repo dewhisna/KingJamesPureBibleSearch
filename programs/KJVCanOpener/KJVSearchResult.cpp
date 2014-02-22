@@ -31,7 +31,7 @@
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
@@ -264,7 +264,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if (pCanOpener != NULL) {
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
 		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightSearchResults(QAction *)));
@@ -873,6 +873,7 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 {
 	QTreeView::focusOutEvent(event);
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if ((parentCanOpener() != NULL) &&
 		(event->reason() != Qt::MenuBarFocusReason) &&
 		(event->reason() != Qt::PopupFocusReason)) {
@@ -883,6 +884,7 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 			lstHighlightActions.at(ndxHighlight)->setEnabled(false);
 		}
 	}
+#endif
 }
 
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
@@ -957,6 +959,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 	m_pActionNavigator->setEnabled(bEditableNode);
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (hasFocus()) {
 		if (parentCanOpener() != NULL) {
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditableNode);
@@ -967,6 +970,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 			}
 		}
 	}
+#endif
 
 	QString strStatusText;
 
@@ -1270,7 +1274,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pShowHighlightersInSearchResults = new QCheckBox(this);
 	m_pShowHighlightersInSearchResults->setObjectName(QString::fromUtf8("checkBoxShowHighlightersInSearchResults"));
 	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results"));

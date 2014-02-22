@@ -95,6 +95,10 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_fntScriptureBrowser("Times New Roman", 12),
 		m_fntSearchResults("Times New Roman", 12),
 		m_fntDictionary("Times New Roman", 12),
+#elif defined(VNCSERVER)
+	  m_fntScriptureBrowser("DejaVu Serif", 12),
+	  m_fntSearchResults("DejaVu Serif", 12),
+	  m_fntDictionary("DejaVu Serif", 12),
 #else
 	  m_fntScriptureBrowser("DejaVu Serif", 12),
 	  m_fntSearchResults("DejaVu Serif", 12),
