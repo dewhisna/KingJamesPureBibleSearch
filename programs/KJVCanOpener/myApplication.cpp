@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "myApplication.h"
-#include "dbDescriptors.h"
 #include "KJVCanOpener.h"
 #include "ReportError.h"
 
@@ -414,7 +413,8 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_nLastActivateCanOpener(-1),
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
-		m_pSplash(NULL)
+		m_pSplash(NULL),
+		m_nSelectedMainBibleDB(BDE_KJV)				// Default to KJV unless we're told otherwise
 {
 #ifdef Q_OS_ANDROID
 	m_strInitialAppDirPath = QDir::homePath();
@@ -1043,14 +1043,14 @@ int CMyApplication::execute(bool bBuildDB)
 #ifdef BUILD_KJV_DATABASE
 		CBuildDatabase bdb(m_pSplash);
 		if (bBuildDB) {
-			// Database Paths for building (Default to KJV names when building, user can move them to proper names when done):
+			// Database Paths for building:
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(BDE_KJV).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(BDE_KJV).m_strCCDBFilename).absoluteFilePath();
+			QString strKJVCCDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
@@ -1070,10 +1070,16 @@ int CMyApplication::execute(bool bBuildDB)
 			CReadDatabase rdbMain(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
 			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
-			if (!rdbMain.ReadBibleDatabase(bblDesc, (g_pMainBibleDatabase.data() == NULL))) {
+			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)))) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
 				return -3;
 			}
+		}
+		// If the specified database wasn't found, see if we loaded any database and if so, make the
+		//		first one loaded (from our priority list) the main database:
+		if ((g_pMainBibleDatabase.data() == NULL) &&
+			(g_lstBibleDatabases.size() > 0)) {
+			g_pMainBibleDatabase = g_lstBibleDatabases.at(0);
 		}
 		if (g_pMainBibleDatabase.data() == NULL) {
 			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!"));

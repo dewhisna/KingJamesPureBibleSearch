@@ -145,12 +145,20 @@ int main(int argc, char *argv[])
 	if (strKJSFile.isEmpty() && !pApp->fileToLoad().isEmpty()) strKJSFile = pApp->fileToLoad();
 
 	bool bLookingForSettings = false;
+	bool bLookingForBibleDB = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
 		if (!strArg.startsWith("-")) {
 			if (bLookingForSettings) {
 				strStealthSettingsFilename = strArg;
 				bLookingForSettings = false;
+			} else if (bLookingForBibleDB) {
+				bLookingForBibleDB = false;
+				if (strArg.toUInt() < bibleDescriptorCount()) {
+					pApp->setSelectedMainBibleDB(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt()));
+				} else {
+					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"").arg(strArg));
+				}
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
@@ -159,6 +167,8 @@ int main(int argc, char *argv[])
 		} else if (!bLookingForSettings) {
 			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 				bBuildDB = true;
+			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
+				bLookingForBibleDB = true;
 			} else if (strArg.compare("-stealth", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
