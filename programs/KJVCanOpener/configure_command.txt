@@ -161,7 +161,12 @@ no-pkg-config
 Qt 4.8.5 -- VNC (DYNAMIC):
 --------------------------
 
+HOME:
 ../4.8.5-src/configure -platform linux-g++-64 -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/dewhisna/Qt/4.8.5-vnc-run
+
+AWS:
+../4.8.5-src/configure -platform linux-g++-64 -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/ubuntu/Qt/4.8.5-vnc-run
+
 
 Building with libvncserver:
 http://libvncserver.sourceforge.net/
@@ -1273,4 +1278,59 @@ warning: Casting potentially incompatible function pointer i32 (%struct.AF_Glyph
 ===============================================================================
 ===============================================================================
 
+------------------------
+Setting up EC2 instance:
+------------------------
+
+sudo apt-get update
+sudo apt-get install joe
+sudo apt-get install build-essentials
+sudo apt-get install libqt4-dev
+sudo apt-get install gperf bison
+sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync0 libxcb-sync0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+sudo apt-get install perl python
+sudo apt-get install libfreetype6-dev fontconfig
+sudo apt-get install libjpeg-dev
+sudo apt-get install zlib1g zlib1g-dev
+sudo apt-get install libssl-dev
+sudo apt-get install pkg-config
+sudo apt-get install patch patchutils
+sudo apt-get install p7zip p7zip-full
+sudo apt-get install unzip
+sudo apt-get install subversion
+sudo apt-get install xrdp
+sudo apt-get install xfce4
+sudo apt-get install apache2 apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils
+sudo apt-get install apt-file
+sudo apt-file update
+sudo cpan -i IO::Socket
+sudo cpan -i CGI
+
+
+Special User Creation:
+----------------------
+sudo useradd -r -U -s /bin/false kjpbs
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser01
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser02
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser03
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser04
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser05
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser06
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser07
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser08
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser09
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser10
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser11
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser12
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser13
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser14
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser15
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser16
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser17
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser18
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser19
+sudo useradd -r -U -s /bin/false -G kjpbs pbsuser20
+
+===============================================================================
+===============================================================================
 
