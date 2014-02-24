@@ -25,6 +25,13 @@
 #include "KJVCanOpener.h"
 #include "ReportError.h"
 
+#ifdef VNCSERVER
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
 #ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
 #endif
@@ -352,6 +359,142 @@ namespace {
 #endif		//	LOAD_APPLICATION_FONTS
 
 }	// namespace
+
+// ============================================================================
+
+#ifdef VNCSERVER
+
+int CMyDaemon::m_sighupFd[2] = { 0, 0 };
+int CMyDaemon::m_sigtermFd[2] = { 0, 0 };
+int CMyDaemon::m_sigusr1Fd[2] = { 0, 0 };
+
+CMyDaemon::CMyDaemon(CMyApplication *pMyApplication)
+	:	QObject(pMyApplication),
+		m_psnHup(NULL),
+		m_psnTerm(NULL),
+		m_psnUsr1(NULL),
+		m_pMyApplication(pMyApplication)
+{
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, m_sighupFd))
+		qFatal("Couldn't create SIGHUP socketpair");
+
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, m_sigtermFd))
+		qFatal("Couldn't create SIGTERM socketpair");
+
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, m_sigusr1Fd))
+		qFatal("Couldn't create SIGUSR1 socketpair");
+
+	m_psnHup = new QSocketNotifier(m_sighupFd[1], QSocketNotifier::Read, this);
+	connect(m_psnHup, SIGNAL(activated(int)), this, SLOT(handleSigHup()));
+	m_psnTerm = new QSocketNotifier(m_sigtermFd[1], QSocketNotifier::Read, this);
+	connect(m_psnTerm, SIGNAL(activated(int)), this, SLOT(handleSigTerm()));
+	m_psnUsr1 = new QSocketNotifier(m_sigusr1Fd[1], QSocketNotifier::Read, this);
+	connect(m_psnUsr1, SIGNAL(activated(int)), this, SLOT(handleSigUsr1()));
+}
+
+CMyDaemon::~CMyDaemon()
+{
+
+}
+
+int CMyDaemon::setup_unix_signal_handlers()
+{
+	struct sigaction hup, term, usr1;
+
+	hup.sa_handler = CMyDaemon::hupSignalHandler;
+	sigemptyset(&hup.sa_mask);
+	hup.sa_flags = 0;
+	hup.sa_flags |= SA_RESTART;
+
+	if (sigaction(SIGHUP, &hup, 0) > 0)
+		return 1;
+
+	term.sa_handler = CMyDaemon::termSignalHandler;
+	sigemptyset(&term.sa_mask);
+	term.sa_flags |= SA_RESTART;
+
+	if (sigaction(SIGTERM, &term, 0) > 0)
+		return 2;
+
+	usr1.sa_handler = CMyDaemon::usr1SignalHandler;
+	sigemptyset(&usr1.sa_mask);
+	usr1.sa_flags |= SA_RESTART;
+
+	if (sigaction(SIGUSR1, &usr1, 0) >0)
+		return 3;
+
+	return 0;
+}
+
+void CMyDaemon::hupSignalHandler(int)
+{
+	char a = 1;
+	ssize_t szWrite = ::write(m_sighupFd[0], &a, sizeof(a));
+	assert(szWrite == sizeof(a));
+}
+
+void CMyDaemon::termSignalHandler(int)
+{
+	char a = 1;
+	ssize_t szWrite = ::write(m_sigtermFd[0], &a, sizeof(a));
+	assert(szWrite == sizeof(a));
+}
+
+void CMyDaemon::usr1SignalHandler(int)
+{
+	char a = 1;
+	ssize_t szWrite = ::write(m_sigusr1Fd[0], &a, sizeof(a));
+	assert(szWrite == sizeof(a));
+}
+
+void CMyDaemon::handleSigHup()
+{
+	m_psnHup->setEnabled(false);
+	char tmp;
+	ssize_t szRead = ::read(m_sighupFd[1], &tmp, sizeof(tmp));
+	assert(szRead == sizeof(tmp));
+
+	// do Qt stuff
+	if (m_pMyApplication.data() != NULL) {
+		m_pMyApplication->closeAllWindows();
+	}
+
+	m_psnHup->setEnabled(true);
+}
+
+void CMyDaemon::handleSigTerm()
+{
+	m_psnTerm->setEnabled(false);
+	char tmp;
+	ssize_t szRead = ::read(m_sigtermFd[1], &tmp, sizeof(tmp));
+	assert(szRead == sizeof(tmp));
+
+	// do Qt stuff
+	if (m_pMyApplication.data() != NULL) {
+		m_pMyApplication->closeAllWindows();
+	}
+
+	m_psnTerm->setEnabled(true);
+}
+
+void CMyDaemon::handleSigUsr1()
+{
+	m_psnUsr1->setEnabled(false);
+	char tmp;
+	ssize_t szRead = ::read(m_sigusr1Fd[1], &tmp, sizeof(tmp));
+	assert(szRead == sizeof(tmp));
+
+	// do Qt stuff
+	QWidget *pParent = NULL;
+	if (m_pMyApplication.data() != NULL) {
+		pParent = m_pMyApplication->activeCanOpener();
+	}
+	QMessageBox::warning(pParent, tr("King James Pure Bible Search"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes."));
+
+	m_psnUsr1->setEnabled(true);
+}
+
+#endif	// VNCSERVER
 
 // ============================================================================
 

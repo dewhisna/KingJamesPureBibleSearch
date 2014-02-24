@@ -41,6 +41,10 @@
 #include <QElapsedTimer>
 #endif
 
+#ifdef VNCSERVER
+#include <QSocketNotifier>
+#endif
+
 #ifdef USING_QT_SINGLEAPPLICATION
 #include <QtSingleApplication>
 #endif
@@ -56,6 +60,46 @@ extern const QString g_constrApplicationID;
 // Forward Declarations:
 class CKJVCanOpener;
 class QSplashScreen;
+class CMyApplication;
+
+// ============================================================================
+
+#ifdef VNCSERVER
+
+class CMyDaemon : public QObject
+{
+	Q_OBJECT
+
+public:
+	CMyDaemon(CMyApplication *pMyApplication);
+	~CMyDaemon();
+
+	// Unix signal handlers.
+	static void hupSignalHandler(int unused);
+	static void termSignalHandler(int unused);
+	static void usr1SignalHandler(int unused);
+
+	static int setup_unix_signal_handlers();
+
+public slots:
+	// Qt signal handlers.
+	void handleSigHup();
+	void handleSigTerm();
+	void handleSigUsr1();
+
+private:
+	static int m_sighupFd[2];
+	static int m_sigtermFd[2];
+	static int m_sigusr1Fd[2];
+
+	QSocketNotifier *m_psnHup;
+	QSocketNotifier *m_psnTerm;
+	QSocketNotifier *m_psnUsr1;
+
+	QPointer<CMyApplication> m_pMyApplication;
+};
+
+#endif
 
 // ============================================================================
 

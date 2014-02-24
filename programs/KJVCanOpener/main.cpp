@@ -141,6 +141,11 @@ int main(int argc, char *argv[])
 	//			exit and InnoSetup actually suggest we leave it open
 #endif
 
+#ifdef VNCSERVER
+	CMyDaemon *pSIGDaemon = new CMyDaemon(pApp);
+	pSIGDaemon->setup_unix_signal_handlers();
+#endif
+
 	// Parse the Commmand-line:
 	if (strKJSFile.isEmpty() && !pApp->fileToLoad().isEmpty()) strKJSFile = pApp->fileToLoad();
 
