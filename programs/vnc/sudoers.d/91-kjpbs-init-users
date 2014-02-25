@@ -1,0 +1,4 @@
+
+%kjpbs ALL=(%kjpbs) NOPASSWD: ALL
+%www-data ALL=(%kjpbs) NOPASSWD: ALL
+
