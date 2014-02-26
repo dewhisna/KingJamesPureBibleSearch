@@ -50,7 +50,7 @@ if ($result->{is_valid}) {
     print header;
     print start_html('King James Pure Bible Search VNC Service');
     print "<p>Sorry, all King James Pure Bible Search VNC Sessions are in use.</p>\n<br><br>\n";
-    print "<a href=\"http://vnc.purebiblesearch.com/status.html\">Click here to see status</a><br>\n";
+    print "<a href=\"http://vnc.purebiblesearch.com/status/\">Click here to see status</a><br>\n";
     print end_html;
   }
 } else {
