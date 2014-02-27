@@ -147,9 +147,17 @@ window.onload = function() {
 				the internet issues to subside.  For the initial connection, you have One Minute to get connected when launching 
 				a Virtual Computer.  If you haven't connected during that period, it will automatically reset and you'll have to try 
 				again to connect.<br /><br /></li>
-			<li>There is currently problems with the clipboard mechanism that are being worked on.  Until that is 
-				resolved, you will not be able to copy text to your computer's clipboard.  Sorry for the inconvenince, but computer 
-				viruses tend to like the clipboard and so browsers are paranoid about enabling it.<br /><br /></li>
+			<li>The Clipboard is functional.  However, web browsers run all clipboard logic in a sandbox and don't allow websites to automatically
+				set/change the system clipboard.  This is done to protect your system from many viruses that attack the clipboard, but it
+				makes for using legitimate programs difficult.<br /><br />
+				To use the clipboard, text you copy to the clipboard from within Pure Bible Search is made available when you click the
+				little Clipboard Icon in the upper right-hand side of the noVNC page that's hosting your session.  When you click that, a
+				text box will appear with your clipboard content.  You then have to select the content there and use your browser's copy
+				function to copy it to your system folder (getting it out of the sandbox).<br /><br />
+				Similarly, to paste text into Pure Bible Search, you can click the little Clipboard Icon to bring up the application's
+				clipboard, clear it, and paste your system clipboard content into it.  The text will then be available to paste inside of Pure Bible
+				Search.  Click on the little Clipboard Icon again to hide the text box.  Yes, this is an annoyance, but there just isn't any
+				good way around it.<br /><br /></li>
 			<li>Sometimes you may find that a new (unreleased) version of Pure Bible Search is running in the Virtual Computer Lab.  These
 				are running to get some alpha/beta test time for them prior to release.  However, they may have unknown bugs, issues,
 				or even crashes.  If so, please report any of these anomolies so they can be fixed. (Thanks for helping to debug!)<br /><br /></li>

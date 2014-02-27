@@ -1296,15 +1296,17 @@ sudo apt-get install libssl-dev
 sudo apt-get install pkg-config
 sudo apt-get install patch patchutils
 sudo apt-get install p7zip p7zip-full
-sudo apt-get install unzip
+sudo apt-get install unzip zip
 sudo apt-get install subversion
 sudo apt-get install xrdp
 sudo apt-get install xfce4
 sudo apt-get install apache2 apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils
+sudo apt-get install autocutsel           ## <<<< This one isn't really needed!
 sudo apt-get install apt-file
 sudo apt-file update
 sudo cpan -i IO::Socket
 sudo cpan -i CGI
+sudo cpan -i Captcha::reCAPTCHA
 
 
 Special User Creation:
