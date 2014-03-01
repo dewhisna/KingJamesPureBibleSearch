@@ -561,14 +561,15 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		}
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
 		m_bInForeignText = true;				// Old format way of handling acrostics
-	} else if ((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) {
+	} else if (((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) ||
+				(localName.compare("closer", Qt::CaseInsensitive) == 0)) {
 		// Note: This must come here as colophon's may (old form) or may not (new form) have m_ndxCurrent set depending on placement relative to books, chapters, and verses:
 		ndx = findAttribute(atts, "osisID");
 		if (ndx != -1) {
 			QStringList lstOsisID = atts.value(ndx).split('.');
 			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
 				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
-				m_ndxColophon = CRelIndex();
+				m_ndxColophon = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 			} else {
 				bool bOK = true;
 				unsigned int nChp = 0;
@@ -582,7 +583,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				}
 			}
 		} else {
-			m_ndxColophon = CRelIndex();
+			m_ndxColophon = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 		}
 		if (findAttribute(atts, "sID") != -1) {
 			// Start of open-ended colophon:
@@ -1211,7 +1212,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
-			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBName).toUtf8().data();
+			BIBLE_DESCRIPTOR_ENUM nDescriptor = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
+			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nDescriptor).m_strDBName).arg(bibleDescriptor(nDescriptor).m_strDBDesc).toUtf8().data();
 		}
 		std::cerr << "\n";
 		return -1;

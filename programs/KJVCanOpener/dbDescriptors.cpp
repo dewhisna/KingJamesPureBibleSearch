@@ -45,13 +45,15 @@ namespace {
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
-		{ QString::fromUtf8("Special Test"), QObject::tr("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
+		{ QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
 		// KJV:
-		{ QString::fromUtf8("King James"), QObject::tr("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
+		{ QString::fromUtf8("King James"), QString::fromUtf8("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
 		// RVG2010:
-		{ QString::fromUtf8("Reina-Valera Gómez"), QObject::tr("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
+		{ QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
 		// KJF2006:
-		{ QString::fromUtf8("King James Française 2006"), QObject::tr("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" }
+		{ QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" },
+		// KJVPureCambridge:
+		{ QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" }
 	};
 
 	//////////////////////////////////////////////////////////////////////
@@ -61,9 +63,9 @@ namespace {
 	const TDictionaryDescriptor constDictionaryDescriptors[] =
 	{
 		// Special Test Value:
-		{ QString::fromUtf8("Special Test"), QObject::tr("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "", "dct-specTest.s3db", "dct-specTest.ccdb" },
+		{ QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "", "dct-specTest.s3db", "dct-specTest.ccdb" },
 		// Webster 1828:
-		{ QString::fromUtf8("Webster 1828"), QObject::tr("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "", "dct-web1828.s3db", "dct-web1828.ccdb" }
+		{ QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "", "dct-web1828.s3db", "dct-web1828.ccdb" }
 	};
 
 }	// namespace

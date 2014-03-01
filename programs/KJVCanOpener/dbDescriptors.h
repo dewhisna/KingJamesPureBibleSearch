@@ -42,7 +42,8 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_SPECIAL_TEST = 0,
 	BDE_KJV = 1,
 	BDE_RVG2010 = 2,
-	BDE_KJF2006 = 3
+	BDE_KJF2006 = 3,
+	BDE_KJVPCE = 4
 };
 
 typedef struct {
