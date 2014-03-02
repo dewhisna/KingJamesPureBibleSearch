@@ -135,3 +135,120 @@ diff -rupN 4.8.5-src/mkspecs/qws/vnc-linux-x86-g++/qplatformdefs.h 4.8.5-src-pat
 +****************************************************************************/
 +
 +#include "../../linux-g++/qplatformdefs.h"
+diff -rupN 4.8.5-src/src/gui/kernel/qclipboard_qws.cpp 4.8.5-src-patched-vnc/src/gui/kernel/qclipboard_qws.cpp
+--- 4.8.5-src/src/gui/kernel/qclipboard_qws.cpp	2013-06-07 00:16:59.000000000 -0500
++++ 4.8.5-src-patched-vnc/src/gui/kernel/qclipboard_qws.cpp	2014-02-26 21:16:38.000000000 -0600
+@@ -53,6 +53,8 @@
+ #include <qwsdisplay_qws.h>
+ #include <qwsproperty_qws.h>
+ #include <qwsevent_qws.h>
++#include <QScreen>
++#include <qscreenvnc_qws.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -100,6 +102,10 @@ static void qwsSetClipboardText(const QS
+     QPaintDevice::qwsDisplay()->
+         setProperty(0, TextClipboard, QWSPropertyManager::PropReplace, ba);
+ 
++    QScreen *pScreen = QScreen::instance();
++    if ((pScreen) && (pScreen->classId() == QScreen::VNCClass)) {
++        (static_cast<QVNCScreen *>(pScreen))->serverCutText();
++    }
+ }
+ 
+ class QClipboardData
+diff -rupN 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_p.h 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_p.h
+--- 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_p.h	2013-06-07 00:17:00.000000000 -0500
++++ 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_p.h	2014-02-26 21:29:38.000000000 -0600
+@@ -450,7 +450,8 @@ public:
+                      ClientCutText = 6 };
+ 
+     enum ServerMsg { FramebufferUpdate = 0,
+-                     SetColourMapEntries = 1 };
++                     SetColourMapEntries = 1,
++                     ServerCutText = 3 };
+ 
+     void convertPixels(char *dst, const char *src, int count) const;
+ 
+@@ -467,6 +468,8 @@ public:
+     inline bool hasClientCursor() const { return qvnc_cursor != 0; }
+ #endif
+ 
++    void serverCutText();
++
+ private:
+     void setPixelFormat();
+     void setEncodings();
+diff -rupN 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.cpp 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.cpp
+--- 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.cpp	2013-06-07 00:17:00.000000000 -0500
++++ 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.cpp	2014-02-26 22:48:04.000000000 -0600
+@@ -60,6 +60,10 @@
+ 
+ #include <stdlib.h>
+ 
++#include <QApplication>
++#include <QClipboard>
++#include <QByteArray>
++
+ QT_BEGIN_NAMESPACE
+ 
+ //#define QT_QWS_VNC_DEBUG
+@@ -1062,12 +1066,33 @@ void QVNCServer::clientCutText()
+     if (cutTextPending && client->bytesAvailable() >= cutTextPending) {
+         char *text = new char [cutTextPending+1];
+         client->read(text, cutTextPending);
++        text[cutTextPending] = 0;		// Make sure string is terminated
++        // Ideally, we'd use UTF8, but according to the RFB spec, the clipboard
++        //	operations are limited to Latin1:
++        QApplication::clipboard()->setText(QString::fromLatin1(text, cutTextPending));
+         delete [] text;
+         cutTextPending = 0;
+         handleMsg = false;
+     }
+ }
+ 
++void QVNCServer::serverCutText()
++{
++    QTcpSocket *socket = clientSocket();
++
++    // According to the RFB spec, the clipboard only supports Latin1 encoding:
++    QByteArray baClipboard = QApplication::clipboard()->text().toLatin1();
++
++    // ServerCutText header
++    const char cmd = 3;
++    socket->write(&cmd, sizeof(cmd));
++    const char padding[3] = { 0, 0, 0 };
++    socket->write(padding, sizeof(padding));
++    const quint32 nSize = htonl(baClipboard.size());
++    socket->write(reinterpret_cast<const char *>(&nSize), sizeof(nSize));
++    socket->write(baClipboard.data(), baClipboard.size());
++}
++
+ // stride in bytes
+ template <class SRC>
+ bool QRfbSingleColorHextile<SRC>::read(const uchar *data,
+@@ -2333,6 +2358,11 @@ void QVNCScreen::shutdownDevice()
+     delete d_ptr->dirty;
+ }
+ 
++void QVNCScreen::serverCutText()
++{
++    if (d_ptr->vncServer) d_ptr->vncServer->serverCutText();
++}
++
+ QT_END_NAMESPACE
+ 
+ #endif // QT_NO_QWS_VNC
+diff -rupN 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.h 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.h
+--- 4.8.5-src/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.h	2013-06-07 00:17:00.000000000 -0500
++++ 4.8.5-src-patched-vnc/src/plugins/gfxdrivers/vnc/qscreenvnc_qws.h	2014-02-26 20:38:42.000000000 -0600
+@@ -67,6 +67,8 @@ public:
+ 
+     void setDirty(const QRect&);
+ 
++    void serverCutText();
++
+ private:
+     friend class QVNCCursor;
+     friend class QVNCClientCursor;
