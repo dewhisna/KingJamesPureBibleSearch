@@ -2006,7 +2006,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		m_pSearchResultWidget->showPassageNavigator();
 	} else {
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 		CKJVCanOpenerCloseGuard closeGuard(this);
 		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
@@ -2045,8 +2045,14 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 	if (!indexNote.isSet()) return;
 	m_pUserNoteEditorDlg->setLocationIndex(indexNote);
+#ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pUserNoteEditorDlg->exec();
+#else
+	// TODO: Add closeGuard logic for this:
+	m_pUserNoteEditorDlg->show();
+#endif
+
 #endif
 }
 
@@ -2071,8 +2077,14 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 
 	if (!tagCrossRef.isSet()) return;
 	m_pCrossRefsEditorDlg->setSourcePassage(tagCrossRef);
+#ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	m_pCrossRefsEditorDlg->exec();
+#else
+	// TODO: Add closeGuard logic for this:
+	m_pCrossRefsEditorDlg->show();
+#endif
+
 #endif
 }
 
@@ -2122,7 +2134,7 @@ void CKJVCanOpener::en_HelpManual()
 
 void CKJVCanOpener::en_HelpAbout()
 {
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpenerCloseGuard closeGuard(this);
 	CKJVAboutDlgPtr pDlg(this);
 	pDlg->exec();

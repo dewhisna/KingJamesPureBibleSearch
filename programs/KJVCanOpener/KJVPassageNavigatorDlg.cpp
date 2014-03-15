@@ -45,7 +45,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	ui.setupUi(this);
 
-#ifdef EMSCRIPTEN
+#ifdef USE_ASYNC_DIALOGS
 	setAttribute(Qt::WA_DeleteOnClose);
 #endif
 

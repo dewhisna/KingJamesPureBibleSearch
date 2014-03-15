@@ -307,7 +307,7 @@ void CTipEdit::contextMenuEvent(QContextMenuEvent *e)
 	hideTimer.stop();
 	expireTimer.stop();
 	QPointer<QMenu> pMenu = createStandardContextMenu();
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	m_bDoingContextMenu = true;
 	pMenu->exec(e->globalPos());
 	delete pMenu;

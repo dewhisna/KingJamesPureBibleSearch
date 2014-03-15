@@ -127,6 +127,10 @@ macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Fon
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
 
+# Enable Asynchronous Dialogs
+#if(emscripten | macx):DEFINES += USE_ASYNC_DIALOGS
+emscripten:DEFINES += USE_ASYNC_DIALOGS
+
 # Enable Gesture/TouchDevice processing:
 !macx:greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 

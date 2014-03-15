@@ -500,7 +500,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 
 	m_CursorFollowHighlighter.setEnabled(true);
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
 //	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
@@ -574,7 +574,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	menu->exec(T::viewport()->mapToGlobal(pos));
 	delete menu;
 #else

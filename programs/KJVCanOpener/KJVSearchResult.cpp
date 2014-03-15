@@ -642,7 +642,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 		if (!ndxRel.isSet()) return;
 	}
 
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
@@ -895,7 +895,7 @@ void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 void CSearchResultsTreeView::en_displayContextMenu(const QPoint &ptGlobalPos)
 {
 	m_bDoingPopup = true;
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	m_pEditMenuLocal->exec(ptGlobalPos);
 #else
 	m_pEditMenuLocal->popup(ptGlobalPos);

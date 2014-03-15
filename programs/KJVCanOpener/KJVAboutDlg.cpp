@@ -56,7 +56,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 {
 	ui.setupUi(this);
 
-#ifdef EMSCRIPTEN
+#ifdef USE_ASYNC_DIALOGS
 	setAttribute(Qt::WA_DeleteOnClose);
 #endif
 
@@ -161,7 +161,7 @@ void CKJVAboutDlg::en_licenseDisplay()
 			"Written and Developed for Bethel Church, Festus, MO.");
 	const QString strTitle = tr("About King James Pure Bible Search License");
 
-#ifndef EMSCRIPTEN
+#ifndef USE_ASYNC_DIALOGS
 	QMessageBox::information(this, strTitle, strLicenseInfo);
 #else
 	QMessageBox *pMsgBox = new QMessageBox(QMessageBox::Information, strTitle, strLicenseInfo, QMessageBox::Ok, this);
