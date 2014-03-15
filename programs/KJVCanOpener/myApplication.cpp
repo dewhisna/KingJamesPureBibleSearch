@@ -1210,6 +1210,7 @@ int CMyApplication::execute(bool bBuildDB)
 		// Read Main Database(s)
 		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 			const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+			if (!bblDesc.m_bAutoLoad) continue;
 			CReadDatabase rdbMain(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
 			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
@@ -1266,6 +1267,7 @@ int CMyApplication::execute(bool bBuildDB)
 		// Read Dictionary Database:
 		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+			if (!dctDesc.m_bAutoLoad) continue;
 			CReadDatabase rdbDict(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
