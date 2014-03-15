@@ -328,7 +328,7 @@ void CUserDefinedHighlighter::clearPhraseTags()
 // ============================================================================
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),

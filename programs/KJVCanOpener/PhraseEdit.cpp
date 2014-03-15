@@ -28,7 +28,7 @@
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 #include "ToolTipEdit.h"
 #include "myApplication.h"
 #endif
@@ -2243,7 +2243,7 @@ CSelectedPhrase CPhraseEditNavigator::getSelectedPhrase() const
 	return getSelectedPhrase(m_TextEditor.textCursor());
 }
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD)
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 
 bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const
 {

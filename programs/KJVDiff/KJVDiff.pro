@@ -1,6 +1,6 @@
 ##*****************************************************************************
 ##
-## Copyright (C) 2014 Donna Whisnant, a.k.a. Dewtronics.
+## Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
 ## Contact: http://www.dewtronics.com/
 ##
 ## This file is part of the KJVCanOpener Application as originally written
@@ -21,6 +21,12 @@
 ##
 ##*****************************************************************************
 
+#-------------------------------------------------
+#
+# Project created by QtCreator 2014-03-15T11:57:58
+#
+#-------------------------------------------------
+
 QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
@@ -28,12 +34,13 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 DEFINES += NOT_USING_SQL
 DEFINES += NO_PERSISTENT_SETTINGS
 #DEFINES += OSIS_PARSER_BUILD
-DEFINES += KJV_SEARCH_BUILD
+#DEFINES += KJV_SEARCH_BUILD
+DEFINES += KJV_DIFF_BUILD
 
 # Workaround QTBUG-30594 (was fixed in 4.8.5):
 equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
-TARGET = KJVSearch
+TARGET = KJVDiff
 CONFIG   += console
 CONFIG   -= app_bundle
 
