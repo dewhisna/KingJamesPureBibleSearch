@@ -52,7 +52,14 @@ static inline QString htmlEscape(const QString &aString)
 // ============================================================================
 
 CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
-	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
+	m_pBethelChurch(NULL),
+	m_pAppTitle(NULL),
+	m_pExtraVersionInfo(NULL),
+	m_pAppSpecialVersion(NULL),
+	m_pQtVersion(NULL),
+	m_pBroughtToYouBy(NULL),
+	m_pBethelURL(NULL)
 {
 	ui.setupUi(this);
 
@@ -86,6 +93,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	} else {
 		m_pAppSpecialVersion = NULL;
 	}
+	m_pQtVersion = scene->addText(tr("Based on Qt Version %1").arg(QT_VERSION_STR), QFont("Times New Roman", 10));
 	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
@@ -106,6 +114,10 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	if (m_pAppSpecialVersion) {
 		m_pAppSpecialVersion->setPos(nXCenterLine - (m_pAppSpecialVersion->boundingRect().width() / 2), nYPos);
 		nYPos += m_pAppSpecialVersion->boundingRect().height();
+	}
+	if (m_pQtVersion) {
+		m_pQtVersion->setPos(nXCenterLine - (m_pQtVersion->boundingRect().width() / 2), nYPos);
+		nYPos += m_pQtVersion->boundingRect().height();
 	}
 	m_pBroughtToYouBy->setPos(nXCenterLine - (m_pBroughtToYouBy->boundingRect().width() / 2), nYPos);
 	nYPos += m_pBroughtToYouBy->boundingRect().height();
