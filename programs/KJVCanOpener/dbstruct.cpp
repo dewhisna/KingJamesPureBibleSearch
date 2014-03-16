@@ -109,7 +109,7 @@ QString CPhraseEntry::textEncoded() const
 
 void CPhraseEntry::setText(const QString &strText)
 {
-	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive(), isExcluded());			// Note: the ParsePhrase() function doesn't need the datbase.  If that ever changes, this must change (TODO)
+	CParsedPhrase parsedPhrase(CBibleDatabasePtr(), caseSensitive(), accentSensitive(), isExcluded());			// Note: the ParsePhrase() function doesn't need the database.  If that ever changes, this must change (TODO)
 	parsedPhrase.ParsePhrase(strText);
 	m_strPhrase = strText;
 }
@@ -1066,14 +1066,15 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedConcordanceWord];
-		// TODO : Assert if language not set
-		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord);			// TODO : Pass Language ID to soundEx
+		assert(!language().isEmpty());
+		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord);			// TODO : Pass Language ID to soundEx
+	assert(!language().isEmpty());
+	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
 }
 
 // ============================================================================
@@ -1121,14 +1122,15 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedDictionaryWord];
-		// TODO : Assert if language not set
-		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord);			// TODO : Pass Language ID to soundEx
+		assert(!language().isEmpty());
+		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedDictionaryWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	return CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord);			// TODO : Pass Language ID to soundEx
+	assert(!language().isEmpty());
+	return CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
 }
 
 QString CDictionaryDatabase::definition(const QString &strWord) const

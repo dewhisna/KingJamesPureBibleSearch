@@ -656,7 +656,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 	QString strSoundEx = strWordIn.toUpper();
 	int nSoundExLen = 0;
 
-	if (nLanguage == SELE_UNKNOWN) return QString();
+	if (nLanguage == SELE_UNKNOWN) nLanguage = SELE_ENGLISH;		// Use default functionality for English if the language isn't defined
 
 	if (nLanguage != SELE_ENGLISH) nOption = SEOME_CLASSIC;			// Currently only support enhanced and census modes in English
 

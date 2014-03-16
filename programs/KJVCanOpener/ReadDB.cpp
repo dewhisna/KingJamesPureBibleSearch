@@ -761,7 +761,7 @@ bool CReadDatabase::ReadWordsTable()
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
 			CConcordanceEntry entryConcordance(strAltWord, ndxWord);
-			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later (TODO : This must be done AFTER setting database language -- VERIFY)
+			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
 			ndxWord++;
 		}
@@ -1377,6 +1377,8 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
 	assert(m_pDictionaryDatabase.data() != NULL);
+
+	m_pDictionaryDatabase->m_strLanguage = dctDesc.m_strLanguage;
 
 	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
 	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));
