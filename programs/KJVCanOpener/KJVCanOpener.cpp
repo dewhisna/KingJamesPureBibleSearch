@@ -39,6 +39,7 @@
 #if !defined(VNCSERVER)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
+#include "SaveFileDialog.h"
 #endif
 #endif
 #include "PhraseEdit.h"
@@ -1342,6 +1343,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	assert(g_pMyApplication.data() != NULL);
 
 	if (g_pMyApplication->isLastCanOpener()) {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		assert(g_pUserNotesDatabase.data() != NULL);
 		if (g_pUserNotesDatabase->isDirty()) {
 			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
@@ -1379,7 +1381,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 				bool bDone = false;
 				do {
 					if (bPromptFilename) {
-						QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save King James Notes File"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), NULL, 0);
+						QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), "kjn", NULL, 0);
 						if (!strFilePathName.isEmpty()) {
 							g_pUserNotesDatabase->setFilePathName(strFilePathName);
 						} else {
@@ -1415,6 +1417,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 			}
 			// Either the user aborted creating the User Notes File or the User Notes File Saved OK....
 		}	//	(or we didn't have an updated file to save)...
+#endif
 
 		savePersistentSettings();
 	}
@@ -1526,7 +1529,7 @@ void CKJVCanOpener::en_OpenSearch()
 void CKJVCanOpener::en_SaveSearch()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), NULL, 0);
+	QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save KJV Search File"), QString(), tr("KJV Search Files (*.kjs)"), "kjs", NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed"), tr("Failed to save the specified KJV Search File!"));

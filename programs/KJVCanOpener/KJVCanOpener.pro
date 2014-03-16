@@ -303,6 +303,7 @@ buildKJVDatabase:HEADERS += \
 !emscripten:!vnc:HEADERS += \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
+	SaveFileDialog.h \
 	signalspy/Q4puGenericSignalSpy.h
 
 

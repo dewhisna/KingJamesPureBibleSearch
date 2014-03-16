@@ -35,6 +35,9 @@
 #include "BusyCursor.h"
 #include "myApplication.h"
 #include "VerseListModel.h"
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#include "SaveFileDialog.h"
+#endif
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1153,7 +1156,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			bDone = false;
 			do {
 				if (bPromptFilename) {
-					QString strFilePathName = QFileDialog::getSaveFileName(this, tr("Save King James Notes File"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), NULL, 0);
+					QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), "kjn", NULL, 0);
 					if (!strFilePathName.isEmpty()) {
 						m_pUserNotesDatabase->setFilePathName(strFilePathName);
 						ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
