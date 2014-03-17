@@ -157,11 +157,11 @@ protected slots:
 	void en_copySearchPhraseSummary();
 	void en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
 
-	void en_addPassageBrowserEditMenu(bool bAdd);
+	void en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferenceEditor);
 	void en_addSearchResultsEditMenu(bool bAdd);
 	void en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
 	void en_addDictionaryEditMenu(bool bAdd, bool bWordEditor);
-	void en_activatedBrowser();
+	void en_activatedBrowser(bool bPassageReferenceEditor);
 	void en_activatedSearchResults();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 	void en_activatedDictionary(bool bWordEditor);
@@ -208,6 +208,7 @@ private:
 	bool m_bDoingUpdate;
 	// ----
 	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
+	QAction *m_pActionPassageReferenceEditMenu;		// Edit Menu from Passage Reference Editor (in browser) when active
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
 	QAction *m_pActionDictionaryEditMenu;			// Edit Menu from Dictionary when active

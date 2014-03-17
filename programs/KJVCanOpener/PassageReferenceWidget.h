@@ -32,6 +32,9 @@
 
 // ============================================================================
 
+class QMenu;
+class QAction;
+
 #include "ui_PassageReferenceWidget.h"
 
 class CPassageReferenceWidget : public QWidget
@@ -44,18 +47,28 @@ public:
 
 	void initialize(CBibleDatabasePtr pBibleDatabase);
 
+	bool hasFocusPassageReferenceEditor() const;
+
+	QMenu *getEditMenu() { return m_pEditMenu; }
+
 	void clear();
 	TPhraseTag phraseTag() const { return m_tagPhrase; }
 
+protected:
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+
 signals:
+	void activatedPassageReference();
 	void passageReferenceChanged(const TPhraseTag &tagPhrase);
 	void enterPressed();
 
 protected slots:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
+	void en_passageReferenceContextMenuRequested(const QPoint &pos);
 
 private slots:
+	void en_setMenuEnables(const QString &strText);
 	void en_PassageReferenceChanged(const QString &strText);
 
 private:
@@ -70,6 +83,14 @@ private:
 
 // UI Private:
 private:
+	QMenu *m_pEditMenu;								// Edit menu for main screen when this editor is active
+	QAction *m_pActionUndo;
+	QAction *m_pActionRedo;
+	QAction *m_pActionCut;
+	QAction *m_pActionCopy;
+	QAction *m_pActionPaste;
+	QAction *m_pActionDelete;
+	QAction *m_pActionSelectAll;
 	Ui::CPassageReferenceWidget ui;
 };
 

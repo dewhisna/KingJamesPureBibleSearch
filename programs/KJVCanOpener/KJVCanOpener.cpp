@@ -198,6 +198,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_bDoingUpdate(false),
 	// ----
 	m_pActionPassageBrowserEditMenu(NULL),
+	m_pActionPassageReferenceEditMenu(NULL),
 	m_pActionSearchResultsEditMenu(NULL),
 	m_pActionSearchPhraseEditMenu(NULL),
 	m_pActionDictionaryEditMenu(NULL),
@@ -403,7 +404,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(g_pMyApplication, SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
 
 	// --- Edit Menu
-	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedBrowser()));
+	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
 	if (m_pDictionaryWidget != NULL)
@@ -1676,22 +1677,39 @@ void CKJVCanOpener::en_updateSearchWindowList()
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd)
+void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferenceEditor)
 {
 	m_bBrowserActive = bAdd;
 
-	if (bAdd) {
-		if (m_pActionPassageBrowserEditMenu == NULL) {
-			m_pActionPassageBrowserEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu());
-			connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
+	if (!bPassageReferenceEditor) {
+		if (bAdd) {
+			if (m_pActionPassageBrowserEditMenu == NULL) {
+				m_pActionPassageBrowserEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu(false));
+				connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
+			}
+		} else {
+			if (m_pActionPassageBrowserEditMenu) {
+				// The following 'if' is needed for insert race conditions to
+				//		keep us from crashing:
+				if (ui.menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
+					ui.menuBar->removeAction(m_pActionPassageBrowserEditMenu);
+				m_pActionPassageBrowserEditMenu = NULL;
+			}
 		}
 	} else {
-		if (m_pActionPassageBrowserEditMenu) {
-			// The following 'if' is needed for insert race conditions to
-			//		keep us from crashing:
-			if (ui.menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
-				ui.menuBar->removeAction(m_pActionPassageBrowserEditMenu);
-			m_pActionPassageBrowserEditMenu = NULL;
+		if (bAdd) {
+			if (m_pActionPassageReferenceEditMenu == NULL) {
+				m_pActionPassageReferenceEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu(true));
+				connect(m_pActionPassageReferenceEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusPassageReferenceEditor()));
+			}
+		} else {
+			if (m_pActionPassageReferenceEditMenu) {
+				// The following 'if' is needed for insert race conditions to
+				//		keep us from crashing:
+				if (ui.menuBar->actions().contains(m_pActionPassageReferenceEditMenu))
+					ui.menuBar->removeAction(m_pActionPassageReferenceEditMenu);
+				m_pActionPassageReferenceEditMenu = NULL;
+			}
 		}
 	}
 }
@@ -1771,10 +1789,11 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 	}
 }
 
-void CKJVCanOpener::en_activatedBrowser()
+void CKJVCanOpener::en_activatedBrowser(bool bPassageReferenceEditor)
 {
 	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
-	en_addPassageBrowserEditMenu(true);
+	en_addPassageBrowserEditMenu(false, !bPassageReferenceEditor);
+	en_addPassageBrowserEditMenu(true, bPassageReferenceEditor);
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(false);
 	en_addDictionaryEditMenu(false, false);
@@ -1785,7 +1804,8 @@ void CKJVCanOpener::en_activatedBrowser()
 void CKJVCanOpener::en_activatedSearchResults()
 {
 	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
-	en_addPassageBrowserEditMenu(false);
+	en_addPassageBrowserEditMenu(false, false);
+	en_addPassageBrowserEditMenu(false, true);
 	en_addSearchResultsEditMenu(true);
 	en_addSearchPhraseEditMenu(false);
 	en_addDictionaryEditMenu(false, false);
@@ -1795,7 +1815,8 @@ void CKJVCanOpener::en_activatedSearchResults()
 
 void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 {
-	en_addPassageBrowserEditMenu(false);
+	en_addPassageBrowserEditMenu(false, false);
+	en_addPassageBrowserEditMenu(false, true);
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(true, pEditor);
 	en_addDictionaryEditMenu(false, false);
@@ -1806,7 +1827,8 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
 {
 	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
-	en_addPassageBrowserEditMenu(false);
+	en_addPassageBrowserEditMenu(false, false);
+	en_addPassageBrowserEditMenu(false, true);
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(false);
 	en_addDictionaryEditMenu(false, !bWordEditor);
@@ -1818,7 +1840,7 @@ bool CKJVCanOpener::isBrowserFocusedOrActive() const
 {
 	assert(m_pBrowserWidget != NULL);
 
-	return (m_pBrowserWidget->hasFocusBrowser() || isBrowserActive());
+	return (m_pBrowserWidget->hasFocusBrowser() || m_pBrowserWidget->hasFocusPassageReferenceEditor() || isBrowserActive());
 }
 
 bool CKJVCanOpener::isSearchResultsFocusedOrActive() const

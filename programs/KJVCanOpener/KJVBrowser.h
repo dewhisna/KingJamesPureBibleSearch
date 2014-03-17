@@ -63,8 +63,9 @@ public:
 	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
 
 	bool hasFocusBrowser() const;
+	bool hasFocusPassageReferenceEditor() const;
 
-	inline QMenu *getEditMenu() { return m_pScriptureBrowser->getEditMenu(); }
+	inline QMenu *getEditMenu(bool bPassageReferenceEditor) { return (bPassageReferenceEditor ? ui.widgetPassageReference->getEditMenu() : m_pScriptureBrowser->getEditMenu()); }
 
 	inline bool haveSelection() const { return m_pScriptureBrowser->haveSelection(); }
 	inline TPhraseTag selection() const { return m_pScriptureBrowser->selection(); }
@@ -93,6 +94,7 @@ public slots:
 
 	void gotoIndex(const TPhraseTag &tag);
 	void setFocusBrowser();
+	void setFocusPassageReferenceEditor();
 	void en_SearchResultsVerseListAboutToChange();
 	void en_SearchResultsVerseListChanged();
 	void en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
@@ -113,11 +115,11 @@ public slots:
 
 signals:
 	void en_gotoIndex(const TPhraseTag &tag);
+	void activatedBrowser(bool bPassageReferenceEditor);		// bPassageReferenceEditor = true if the passage reference activated vs. the scriptureText (for menu selection)
 
 	void wordUnderCursorChanged(const QString &strWord);
 
 signals:			// Outgoing Pass-Through:
-	void activatedScriptureText();
 	void backwardAvailable(bool available);
 	void forwardAvailable(bool available);
 	void historyChanged();
@@ -148,6 +150,9 @@ private slots:
 
 	void PassageReferenceChanged(const TPhraseTag &tag);
 	void PassageReferenceEnterPressed();
+
+	void en_activatedPassageReference();
+	void en_activatedScriptureText();
 
 	void ChapterSliderMoved(int index);
 	void ChapterSliderValueChanged();

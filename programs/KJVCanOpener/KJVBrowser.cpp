@@ -112,8 +112,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	connect(&m_dlyPassageReference, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(PassageReferenceChanged(const TPhraseTag &)));
 
+	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedScriptureText()));
+	connect(ui.widgetPassageReference, SIGNAL(activatedPassageReference()), this, SLOT(en_activatedPassageReference()));
+
 	// Set Outgoing Pass-Through Signals:
-	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SIGNAL(activatedScriptureText()));
 	connect(m_pScriptureBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
@@ -426,6 +428,16 @@ void CKJVBrowser::setFocusBrowser()
 bool CKJVBrowser::hasFocusBrowser() const
 {
 	return m_pScriptureBrowser->hasFocus();
+}
+
+void CKJVBrowser::setFocusPassageReferenceEditor()
+{
+	ui.widgetPassageReference->setFocus();
+}
+
+bool CKJVBrowser::hasFocusPassageReferenceEditor() const
+{
+	return ui.widgetPassageReference->hasFocusPassageReferenceEditor();
 }
 
 // ----------------------------------------------------------------------------
@@ -838,7 +850,7 @@ void CKJVBrowser::PassageReferenceChanged(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
 	m_bDoingPassageReference = true;
-	gotoIndex(tag);
+	if (tag.isSet()) gotoIndex(tag);
 	m_bDoingPassageReference = false;
 }
 
@@ -848,6 +860,16 @@ void CKJVBrowser::PassageReferenceEnterPressed()
 	m_dlyPassageReference.untrigger();
 	gotoIndex(ui.widgetPassageReference->phraseTag());
 	setFocusBrowser();
+}
+
+void CKJVBrowser::en_activatedPassageReference()
+{
+	emit activatedBrowser(true);
+}
+
+void CKJVBrowser::en_activatedScriptureText()
+{
+	emit activatedBrowser(false);
 }
 
 // ----------------------------------------------------------------------------
@@ -927,7 +949,7 @@ void CKJVBrowser::delayBibleChpComboIndexChanged(int index)
 void CKJVBrowser::delayPassageReference(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
-	if (tag.isSet()) m_dlyPassageReference.trigger(tag);
+	m_dlyPassageReference.trigger(tag);
 }
 
 // ----------------------------------------------------------------------------
