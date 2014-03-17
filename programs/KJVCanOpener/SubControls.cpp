@@ -264,6 +264,9 @@ void CSingleLineTextEdit::keyPressEvent(QKeyEvent *event)
 
 	QTextEdit::keyPressEvent(event);
 
+	// Ctrl/Cmd modifier is needed here to keep QCompleter from triggering on our editor shortcuts via setupCompleter()
+	if (event->modifiers() & Qt::ControlModifier) return;
+
 	setupCompleter(event->text(), bForceCompleter);
 }
 

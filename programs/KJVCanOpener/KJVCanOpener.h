@@ -69,10 +69,12 @@ public:
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
 	bool isPhraseEditorActive() const { return m_bPhraseEditorActive; }
+	bool isDictionaryActive() const { return m_bDictionaryActive; }
 
 	bool isBrowserFocusedOrActive() const;
 	bool isSearchResultsFocusedOrActive() const;
 	bool isPhraseEditorFocusedOrActive() const;
+	bool isDictionaryFocusedOrActive() const;
 
 	CHighlighterButtons *highlighterButtons() const { return m_pHighlighterButtons; }
 	QAction *actionUserNoteEditor() const { return m_pActionUserNoteEditor; }
@@ -158,9 +160,11 @@ protected slots:
 	void en_addPassageBrowserEditMenu(bool bAdd);
 	void en_addSearchResultsEditMenu(bool bAdd);
 	void en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
+	void en_addDictionaryEditMenu(bool bAdd, bool bWordEditor);
 	void en_activatedBrowser();
 	void en_activatedSearchResults();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
+	void en_activatedDictionary(bool bWordEditor);
 
 	void en_viewModeChange(QAction *pAction, bool bFocusTree = true);
 	void en_nextViewMode();
@@ -206,6 +210,8 @@ private:
 	QAction *m_pActionPassageBrowserEditMenu;		// Edit Menu from Passage Browser when active
 	QAction *m_pActionSearchResultsEditMenu;		// Edit Menu from Search Results when active
 	QAction *m_pActionSearchPhraseEditMenu;			// Edit Menu from Search Phrase when active
+	QAction *m_pActionDictionaryEditMenu;			// Edit Menu from Dictionary when active
+	QAction *m_pActionDictWordEditMenu;				// Edit Menu from Dictionary Word Editor when active
 	// ----
 	QMenu *m_pViewMenu;						// View Menu, used for insertion reference for edit menu
 	QActionGroup *m_pActionGroupViewMode;		// Group for View Mode (Search Results vs highlighters vs user notes vs references, etc)
@@ -233,9 +239,10 @@ private:
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
 
-	bool m_bPhraseEditorActive;
-	bool m_bSearchResultsActive;
 	bool m_bBrowserActive;
+	bool m_bSearchResultsActive;
+	bool m_bPhraseEditorActive;
+	bool m_bDictionaryActive;
 
 	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
 	bool m_bIsClosing;				// True when window has issued an isClosing signal and set a deleteLater(), used as a guard for our event handler

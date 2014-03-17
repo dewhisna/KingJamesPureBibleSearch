@@ -32,6 +32,7 @@
 #include <QWidget>
 #include <QModelIndex>
 #include <QPoint>
+#include <QMenu>
 
 // ============================================================================
 
@@ -83,7 +84,14 @@ public:
 	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);
 	~CDictionaryWidget();
 
+	inline QMenu *getEditMenu(bool bWordEditor) { return (bWordEditor ? m_pEditMenuDictWord : m_pEditMenuDictionary); }
+
 	int dictionaryActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
+
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+
+signals:
+	void activatedDictionary(bool bWordEditor);
 
 public slots:
 	void setWord(const QString &strWord);
@@ -99,7 +107,7 @@ protected slots:
 	void en_anchorClicked(const QUrl &link);
 
 	void en_definitionBrowserContextMenuRequested(const QPoint &pos);
-
+	void en_editDictionaryWordContextMenuRequested(const QPoint &pos);
 
 // Data Private:
 private:
@@ -108,6 +116,8 @@ private:
 // UI Private:
 private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
+	QMenu *m_pEditMenuDictionary;	// Edit menu for main screen when the dictionary is active
+	QMenu *m_pEditMenuDictWord;		// Edit menu for main screen when the dictionary word editor is active
 	bool m_bDoingUpdate;
 	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CDictionaryWidget ui;

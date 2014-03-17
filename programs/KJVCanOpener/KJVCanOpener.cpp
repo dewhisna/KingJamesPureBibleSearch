@@ -200,6 +200,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionPassageBrowserEditMenu(NULL),
 	m_pActionSearchResultsEditMenu(NULL),
 	m_pActionSearchPhraseEditMenu(NULL),
+	m_pActionDictionaryEditMenu(NULL),
+	m_pActionDictWordEditMenu(NULL),
 	// ----
 	m_pViewMenu(NULL),
 	m_pActionGroupViewMode(NULL),
@@ -225,9 +227,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// ----
 	m_pActionAbout(NULL),
 	// ----
-	m_bPhraseEditorActive(false),
-	m_bSearchResultsActive(false),
 	m_bBrowserActive(false),
+	m_bSearchResultsActive(false),
+	m_bPhraseEditorActive(false),
+	m_bDictionaryActive(false),
 	m_bCanClose(true),
 	m_bIsClosing(false),
 	m_pSearchSpecWidget(NULL),
@@ -403,6 +406,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pBrowserWidget, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedBrowser()));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
+	if (m_pDictionaryWidget != NULL)
+		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
 
 	// --- View Menu
 	m_pViewMenu = ui.menuBar->addMenu(tr("&View"));
@@ -1726,12 +1731,54 @@ void CKJVCanOpener::en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 	}
 }
 
+void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
+{
+	m_bDictionaryActive = bAdd;
+
+	if (m_pDictionaryWidget == NULL) {
+		assert(bAdd == false);			// We shouldn't be receiving a dictionary activiation menu add if we don't even have a dictionary widget
+		return;
+	}
+
+	if (!bWordEditor) {
+		if (bAdd) {
+			if (m_pActionDictionaryEditMenu == NULL) {
+				m_pActionDictionaryEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pDictionaryWidget->getEditMenu(false));
+			}
+		} else {
+			if (m_pActionDictionaryEditMenu) {
+				// The following 'if' is needed for insert race conditions to
+				//		keep us from crashing:
+				if (ui.menuBar->actions().contains(m_pActionDictionaryEditMenu))
+					ui.menuBar->removeAction(m_pActionDictionaryEditMenu);
+				m_pActionDictionaryEditMenu = NULL;
+			}
+		}
+	} else {
+		if (bAdd) {
+			if (m_pActionDictWordEditMenu == NULL) {
+				m_pActionDictWordEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pDictionaryWidget->getEditMenu(true));
+			}
+		} else {
+			if (m_pActionDictWordEditMenu) {
+				// The following 'if' is needed for insert race conditions to
+				//		keep us from crashing:
+				if (ui.menuBar->actions().contains(m_pActionDictWordEditMenu))
+					ui.menuBar->removeAction(m_pActionDictWordEditMenu);
+				m_pActionDictWordEditMenu = NULL;
+			}
+		}
+	}
+}
+
 void CKJVCanOpener::en_activatedBrowser()
 {
 	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
 	en_addPassageBrowserEditMenu(true);
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(false);
+	en_addDictionaryEditMenu(false, false);
+	en_addDictionaryEditMenu(false, true);
 	setDetailsEnable();
 }
 
@@ -1741,6 +1788,8 @@ void CKJVCanOpener::en_activatedSearchResults()
 	en_addPassageBrowserEditMenu(false);
 	en_addSearchResultsEditMenu(true);
 	en_addSearchPhraseEditMenu(false);
+	en_addDictionaryEditMenu(false, false);
+	en_addDictionaryEditMenu(false, true);
 	setDetailsEnable();
 }
 
@@ -1749,6 +1798,19 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	en_addPassageBrowserEditMenu(false);
 	en_addSearchResultsEditMenu(false);
 	en_addSearchPhraseEditMenu(true, pEditor);
+	en_addDictionaryEditMenu(false, false);
+	en_addDictionaryEditMenu(false, true);
+	setDetailsEnable();
+}
+
+void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
+{
+	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	en_addPassageBrowserEditMenu(false);
+	en_addSearchResultsEditMenu(false);
+	en_addSearchPhraseEditMenu(false);
+	en_addDictionaryEditMenu(false, !bWordEditor);
+	en_addDictionaryEditMenu(true, bWordEditor);
 	setDetailsEnable();
 }
 
@@ -1769,6 +1831,11 @@ bool CKJVCanOpener::isSearchResultsFocusedOrActive() const
 bool CKJVCanOpener::isPhraseEditorFocusedOrActive() const
 {
 	return (isPhraseEditorActive());			// TODO : Add PhraseEditor hasFocus() when it's actually needed
+}
+
+bool CKJVCanOpener::isDictionaryFocusedOrActive() const
+{
+	return (isDictionaryActive());				// TODO : Add Dictionary hasFocus() when it's actually needed
 }
 
 // ------------------------------------------------------------------

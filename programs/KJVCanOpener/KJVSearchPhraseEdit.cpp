@@ -100,7 +100,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	TODO : If we ever address what to do with undo/redo, then put this code back in:
 
 	pAction = m_pEditMenu->addAction(tr("&Undo"), this, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
-	pAction->setStatusTip(tr("Undo last operation to the Serach Phrase Editor"));
+	pAction->setStatusTip(tr("Undo last operation to the Search Phrase Editor"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(undoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
