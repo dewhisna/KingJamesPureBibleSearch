@@ -202,9 +202,21 @@ int main(int argc, char *argv[])
 
 	CVerseTextRichifierTags vtfTags;
 	vtfTags.setAddRichPs119HebrewPrefix(false);
-	vtfTags.setTransChangeAddedTags("[", "]");
-	vtfTags.setWordsOfJesusTags("<", ">");
-	vtfTags.setDivineNameTags("/", "\\");
+	if (!bIgnoreTransChange) {
+		vtfTags.setTransChangeAddedTags("[", "]");
+	} else {
+		vtfTags.setTransChangeAddedTags(QString(), QString());
+	}
+	if (!bIgnoreWordsOfJesus) {
+		vtfTags.setWordsOfJesusTags("<", ">");
+	} else {
+		vtfTags.setWordsOfJesusTags(QString(), QString());
+	}
+	if (!bIgnoreDivineNames) {
+		vtfTags.setDivineNameTags("/", "\\");
+	} else {
+		vtfTags.setDivineNameTags(QString(), QString());
+	}
 	vtfTags.setShowPilcrowMarkers(false);
 
 	for (unsigned int nBk = 0; nBk < bblEntry1.m_nNumBk; ++nBk) {
@@ -257,8 +269,8 @@ int main(int argc, char *argv[])
 					strTemplate2.remove(QRegExp("[Jj]"));
 				}
 				if (strTemplate1.compare(strTemplate2) != 0) {
-					strDiffText += QString("    Template1: %1\n").arg(pVerse1->m_strTemplate);
-					strDiffText += QString("    Template2: %1\n").arg(pVerse2->m_strTemplate);
+					strDiffText += QString("    Template1: %1\n").arg(strTemplate1);
+					strDiffText += QString("    Template2: %1\n").arg(strTemplate2);
 					strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), pVerse1, vtfTags)).toUtf8().data();
 					strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), pVerse2, vtfTags)).toUtf8().data();
 					bHaveDiff = true;
