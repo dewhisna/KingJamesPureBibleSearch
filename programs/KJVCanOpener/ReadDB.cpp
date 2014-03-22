@@ -679,7 +679,7 @@ bool CReadDatabase::ReadWordsTable()
 
 		QString strWord = lstFields.at(1);
 		bool bCasePreserve = ((lstFields.at(2).toInt()) ? true : false);
-		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
+		QString strKey = CSearchStringListModel::decompose(strWord, true).toLower();
 		// This check is needed because duplicates can happen from decomposed index keys.
 		//		Note: It's less computationally expensive to search the map for it than
 		//				to do a .contains() call on the m_lstWordList below, even though

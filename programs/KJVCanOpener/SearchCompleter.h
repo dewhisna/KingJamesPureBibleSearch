@@ -72,8 +72,10 @@ public:
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const = 0;		// Return and/or calculate soundEx for the specified Word
 	virtual QString cursorWord() const = 0;
 
-	static QString decompose(const QString &strWord);			// Word decompose() function to breakdown and remove accents from words for searching purposes
-	static QString deApostrHyphen(const QString &strWord);		// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
+	static QString decompose(const QString &strWord, bool bRemoveHyphens);		// Word decompose() function to breakdown and remove accents from words for searching purposes
+	static QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens);	// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
+	static QString deApostrophe(const QString &strWord, bool bRemove = false);	// Decompose/remove Apostrophes only
+	static QString deHyphen(const QString &strWord, bool bRemove = false);		// Decompose/remove Hyphens only
 
 signals:
 	void modelChanged();

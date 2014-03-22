@@ -1627,7 +1627,7 @@ void CKJVSearchResult::en_modelKeywordListChanged()
 		// Decompose our keyword matches for filtering:
 		for (int ndx = 0; ndx < lstKeywordFilter.size(); ++ndx) {
 			if (!lstKeywordFilter.at(ndx).isEmpty()) {
-				lstKeywordFilter.replace(ndx, CSearchStringListModel::decompose(lstKeywordFilter.at(ndx)));
+				lstKeywordFilter.replace(ndx, CSearchStringListModel::decompose(lstKeywordFilter.at(ndx), false));
 			}
 		}
 	}

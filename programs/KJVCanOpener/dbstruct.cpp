@@ -349,7 +349,7 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 
 CConcordanceEntry::CConcordanceEntry(const QString &strWord, int nIndex)
 	:	m_strWord(strWord),
-		m_strDecomposedWord(CSearchStringListModel::decompose(strWord)),
+		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, true)),
 		m_nIndex(nIndex)
 {
 
@@ -1087,7 +1087,7 @@ CDictionaryWordEntry::CDictionaryWordEntry()
 
 CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex)
 	:	m_strWord(strWord),
-		m_strDecomposedWord(CSearchStringListModel::decompose(strWord).toLower()),
+		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, false).toLower()),
 		m_strDefinition(strDefinition),
 		m_nIndex(nIndex)
 {
@@ -1135,7 +1135,7 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 
 QString CDictionaryDatabase::definition(const QString &strWord) const
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord).toLower();
+	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	if (itrWord == m_mapWordDefinitions.end()) return QString();
 
@@ -1148,7 +1148,7 @@ QString CDictionaryDatabase::definition(const QString &strWord) const
 
 bool CDictionaryDatabase::wordExists(const QString &strWord) const
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord).toLower();
+	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	return (itrWord != m_mapWordDefinitions.end());
 }
@@ -1544,7 +1544,7 @@ void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhra
 
 bool HighlighterNameSortPredicate::operator() (const QString &v1, const QString &v2) const
 {
-	return (CSearchStringListModel::decompose(v1).compare(CSearchStringListModel::decompose(v2), Qt::CaseInsensitive) < 0);
+	return (CSearchStringListModel::decompose(v1, false).compare(CSearchStringListModel::decompose(v2, false), Qt::CaseInsensitive) < 0);
 }
 
 // ============================================================================

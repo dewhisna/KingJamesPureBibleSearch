@@ -595,8 +595,8 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 	for (int ndx=0; ndx<subPhrase.m_lstWords.size(); ++ndx) {
 		if (subPhrase.m_lstWords.at(ndx).isEmpty()) continue;
 
-		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx));
-		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx)) : strCurWordDecomp);
+		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), true);
+		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx), true) : strCurWordDecomp);
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
 		int nPreRegExp = strCurWordWildKey.indexOf(QRegExp("[\\[\\]\\*\\?]"));
@@ -645,9 +645,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
 							QString strAltWord = wordEntry.m_lstAltWords.at(ndxAltWord);
 							if (!isAccentSensitive()) {
-								strAltWord = CSearchStringListModel::decompose(strAltWord);
+								strAltWord = CSearchStringListModel::decompose(strAltWord, true);
 							} else{
-								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord);
+								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord, true);
 							}
 							if (expCurWord.exactMatch(strAltWord)) {
 								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
@@ -667,7 +667,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
 					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1)
-																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1)));
+																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), true));
 					if (expCurWord.exactMatch(strNextWord)) {
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}
@@ -708,7 +708,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 
 					subPhrase.m_lstNextWords.reserve(lstNextWords.size());
 					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
-						const CConcordanceEntry &nextWordEntry(lstNextWords.at(ndxWord));
+						const CConcordanceEntry nextWordEntry(lstNextWords.at(ndxWord));
 						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 

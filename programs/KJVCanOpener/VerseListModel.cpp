@@ -1421,7 +1421,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 			bInclude = true;
 		} else {
 			for (int n = 0; n < noteKeywordList.size(); ++n) {
-				if (m_lstUserNoteKeywordFilter.contains(CSearchStringListModel::decompose(noteKeywordList.at(n)), Qt::CaseInsensitive)) {
+				if (m_lstUserNoteKeywordFilter.contains(CSearchStringListModel::decompose(noteKeywordList.at(n), false), Qt::CaseInsensitive)) {
 					bInclude = true;
 					break;
 				}

@@ -95,8 +95,8 @@ bool CNoteKeywordModel::setData(const QModelIndex &index, const QVariant &value,
 			case Qt::EditRole:
 			case Qt::DisplayRole:
 			{
-				QString strDecompNewKeyword = CSearchStringListModel::decompose(value.toString());
-				QString strDecompOldKeyword = CSearchStringListModel::decompose(m_lstKeywordData.at(index.row()).m_strKeyword);
+				QString strDecompNewKeyword = CSearchStringListModel::decompose(value.toString(), false);
+				QString strDecompOldKeyword = CSearchStringListModel::decompose(m_lstKeywordData.at(index.row()).m_strKeyword, false);
 				if (strDecompOldKeyword.compare(strDecompNewKeyword, Qt::CaseInsensitive) != 0) {
 					m_lstKeywordData[index.row()].m_strKeyword = value.toString();
 					emit dataChanged(index, index);
@@ -122,7 +122,7 @@ bool CNoteKeywordModel::setData(const QModelIndex &index, const QVariant &value,
 
 QModelIndex CNoteKeywordModel::findKeyword(const QString &strKeyword) const
 {
-	QString strDecomposedKeyword = CSearchStringListModel::decompose(strKeyword);
+	QString strDecomposedKeyword = CSearchStringListModel::decompose(strKeyword, false);
 	int ndxFound = -1;
 	for (int ndx = 0; ndx < m_lstKeywordData.size(); ++ndx) {
 		if (m_lstKeywordData.at(ndx).m_strKeyword.compare(strDecomposedKeyword, Qt::CaseInsensitive) == 0) {
@@ -177,12 +177,12 @@ bool CNoteKeywordModel::removeRows(int row, int count, const QModelIndex &zParen
 
 static bool ascendingLessThan(const QPair<CNoteKeywordModelItemData, int> &s1, const QPair<CNoteKeywordModelItemData, int> &s2)
 {
-	return (CSearchStringListModel::decompose(s1.first.m_strKeyword).compare(CSearchStringListModel::decompose(s2.first.m_strKeyword), Qt::CaseInsensitive) < 0);
+	return (CSearchStringListModel::decompose(s1.first.m_strKeyword, false).compare(CSearchStringListModel::decompose(s2.first.m_strKeyword, false), Qt::CaseInsensitive) < 0);
 }
 
 static bool decendingLessThan(const QPair<CNoteKeywordModelItemData, int> &s1, const QPair<CNoteKeywordModelItemData, int> &s2)
 {
-	return (CSearchStringListModel::decompose(s2.first.m_strKeyword).compare(CSearchStringListModel::decompose(s1.first.m_strKeyword), Qt::CaseInsensitive) < 0);
+	return (CSearchStringListModel::decompose(s2.first.m_strKeyword, false).compare(CSearchStringListModel::decompose(s1.first.m_strKeyword, false), Qt::CaseInsensitive) < 0);
 }
 
 void CNoteKeywordModel::sort(int /* column */, Qt::SortOrder order)
