@@ -132,7 +132,7 @@ macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Fon
 emscripten:DEFINES += USE_ASYNC_DIALOGS
 
 # Enable Gesture/TouchDevice processing:
-!macx:greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
