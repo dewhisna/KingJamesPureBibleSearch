@@ -191,6 +191,7 @@ DEPENDPATH += $$PWD
 SOURCES += \
 	main.cpp \
 	myApplication.cpp \
+	BibleDBListModel.cpp \
 	BusyCursor.cpp \
 	CSV.cpp \
 	dbDescriptors.cpp \
@@ -248,6 +249,7 @@ buildKJVDatabase:SOURCES += \
 
 HEADERS += \
 	myApplication.h \
+	BibleDBListModel.h \
 	BusyCursor.h \
 	CSV.h \
 	dbDescriptors.h \

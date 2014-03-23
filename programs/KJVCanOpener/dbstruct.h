@@ -729,7 +729,7 @@ private:
 #endif
 };
 
-
+Q_DECLARE_METATYPE(CBibleDatabase *)
 typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 
 typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
@@ -831,7 +831,7 @@ private:
 #endif
 };
 
-
+Q_DECLARE_METATYPE(CDictionaryDatabase *)
 typedef QSharedPointer<CDictionaryDatabase> CDictionaryDatabasePtr;
 
 typedef QList<CDictionaryDatabasePtr> TDictionaryDatabaseList;

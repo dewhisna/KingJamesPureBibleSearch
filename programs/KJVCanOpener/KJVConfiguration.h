@@ -45,6 +45,7 @@ class CDictionaryWidget;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 class QListWidgetItem;
+class CBibleDatabaseListModel;
 
 // ============================================================================
 
@@ -181,6 +182,8 @@ signals:
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+
+	CBibleDatabaseListModel *m_pBibleDatabaseListModel;
 
 // UI Private:
 private:

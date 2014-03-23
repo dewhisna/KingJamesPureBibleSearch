@@ -24,6 +24,7 @@
 #ifndef DB_DESCRIPTORS_H
 #define DB_DESCRIPTORS_H
 
+#include <QMetaType>
 #include <QString>
 
 // ============================================================================
@@ -46,6 +47,7 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_KJF2006 = 3,
 	BDE_KJVPCE = 4
 };
+Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
 typedef struct {
 	bool m_bAutoLoad;					// If true, the database will be autoloaded at application startup
@@ -63,6 +65,10 @@ enum DICTIONARY_DESCRIPTOR_ENUM {
 	DDE_SPECIAL_TEST = 0,
 	DDE_WEB1828 = 1
 };
+Q_DECLARE_METATYPE(DICTIONARY_DESCRIPTOR_ENUM)
+
+extern QString g_strBibleDatabasePath;
+extern QString g_strDictionaryDatabasePath;
 
 extern unsigned int bibleDescriptorCount();
 extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);

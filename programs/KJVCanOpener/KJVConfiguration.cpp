@@ -38,6 +38,7 @@
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "SaveFileDialog.h"
 #endif
+#include "BibleDBListModel.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1020,6 +1021,9 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 	assert(pBibleDatabase.data() != NULL);
 
 	ui.setupUi(this);
+
+	m_pBibleDatabaseListModel = new CBibleDatabaseListModel(ui.treeBibleDatabases);
+	ui.treeBibleDatabases->setModel(m_pBibleDatabaseListModel);
 
 	loadSettings();
 }
@@ -2176,7 +2180,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
-//	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
+	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
 	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));
@@ -2184,7 +2188,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
 #endif
-//	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
+	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
 
@@ -2204,8 +2208,8 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #endif
 			break;
 		case CPSE_BIBLE_DATABASE:
-//			pSelect = m_pBibleDatabaseConfig;
-//			break;
+			pSelect = m_pBibleDatabaseConfig;
+			break;
 		case CPSE_DEFAULT:
 			break;
 		default:
@@ -2221,7 +2225,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 #endif
-//	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
 CKJVConfiguration::~CKJVConfiguration()
@@ -2237,7 +2241,7 @@ void CKJVConfiguration::loadSettings()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig->loadSettings();
 #endif
-//	m_pBibleDatabaseConfig->loadSettings();
+	m_pBibleDatabaseConfig->loadSettings();
 }
 
 void CKJVConfiguration::saveSettings()
@@ -2248,7 +2252,7 @@ void CKJVConfiguration::saveSettings()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig->saveSettings();
 #endif
-//	m_pBibleDatabaseConfig->saveSettings();
+	m_pBibleDatabaseConfig->saveSettings();
 }
 
 bool CKJVConfiguration::isDirty() const
@@ -2258,8 +2262,8 @@ bool CKJVConfiguration::isDirty() const
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			m_pUserNotesDatabaseConfig->isDirty() ||
 #endif
-			m_pTextFormatConfig->isDirty());			// ||
-//			m_pBibleDatabaseConfig->isDirty());
+			m_pTextFormatConfig->isDirty() ||
+			m_pBibleDatabaseConfig->isDirty());
 }
 
 // ============================================================================

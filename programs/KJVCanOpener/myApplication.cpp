@@ -1004,6 +1004,7 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 							  "QComboBox QAbstractItemView { background-color:%1; color:%2; }\n"
 							  "QFontComboBox { background-color:%1; color:%2; }\n"
 							  "QListView { background-color:%1; color:%2; }\n"						// Completers and QwwConfigWidget
+							  "QTreeView { background-color:%1; color:%2; }\n"						// Bible Database List
 							  "QSpinBox { background-color:%1; color:%2; }\n"
 							  "QDoubleSpinBox { background-color:%1; color:%2; }\n"
 							).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
@@ -1174,11 +1175,10 @@ int CMyApplication::execute(bool bBuildDB)
 	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
 #ifndef EMSCRIPTEN
-	QString strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
-	QString strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
+	g_strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
+	g_strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
 #else
-	QString strBibleDatabasePath = g_constrBibleDatabasePath;
-	QString strDictionaryDatabasePath;
+	g_strBibleDatabasePath = g_constrBibleDatabasePath;
 #endif
 
 	// Read (and/or Build) our Databases:
@@ -1191,9 +1191,9 @@ int CMyApplication::execute(bool bBuildDB)
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
+			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
@@ -1211,7 +1211,7 @@ int CMyApplication::execute(bool bBuildDB)
 		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 			const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 			if ((!bblDesc.m_bAutoLoad) && (m_nSelectedMainBibleDB != static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx))) continue;
-			CReadDatabase rdbMain(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
+			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
 			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)))) {
@@ -1243,7 +1243,7 @@ int CMyApplication::execute(bool bBuildDB)
 			QDir dirDataFolder;
 			dirDataFolder.mkpath(strDataFolder);
 		}
-		CReadDatabase rdbUser(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
+		CReadDatabase rdbUser(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 		if (!fiUserDatabase.exists()) {
 			// If the user's database doesn't exist, see if the template one
 			//		does.  If so, read and use it:
@@ -1281,7 +1281,7 @@ int CMyApplication::execute(bool bBuildDB)
 			//if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
 			assert(g_pMainBibleDatabase.data() != NULL);
 			if (g_pMainBibleDatabase->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) != 0) continue;
-			CReadDatabase rdbDict(strBibleDatabasePath, strDictionaryDatabasePath, m_pSplash);
+			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
 			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (g_pMainDictionaryDatabase.data() == NULL))) {

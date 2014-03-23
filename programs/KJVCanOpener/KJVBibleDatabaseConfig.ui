@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0" >
-<comment>****************************************************************************
+<ui version="4.0">
+ <comment>****************************************************************************
 **
 ** Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
@@ -23,19 +23,128 @@
 **
 ****************************************************************************</comment>
  <class>CKJVBibleDatabaseConfig</class>
- <widget class="QWidget" name="CKJVBibleDatabaseConfig" >
-  <property name="geometry" >
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
-   </rect>
-  </property>
-  <property name="windowTitle" >
+ <widget class="QWidget" name="CKJVBibleDatabaseConfig">
+  <property name="windowTitle">
    <string>Bible Database</string>
   </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="lblBibleDatabases">
+       <property name="text">
+        <string>&amp;Bible Databases:</string>
+       </property>
+       <property name="buddy">
+        <cstring>treeBibleDatabases</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTreeView" name="treeBibleDatabases">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>List of available Bible Databases</string>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblMainBibleDatabaseSelect">
+       <property name="text">
+        <string>&amp;Main Bible Database:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxMainBibleDatabaseSelect</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxMainBibleDatabaseSelect">
+       <property name="toolTip">
+        <string>Select Main Bible Database to Load</string>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QLabel" name="lblBibleDatabaseOptions">
+       <property name="text">
+        <string>Options for Selected Database:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="checkBoxHideHyphens">
+          <property name="toolTip">
+           <string>When enabled, hyphens in words won't display or copy</string>
+          </property>
+          <property name="text">
+           <string>&amp;Hide Hyphens in Words</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHyphenSensitive">
+          <property name="toolTip">
+           <string>Search Phrases are Hyphen Sensitive when Enabled</string>
+          </property>
+          <property name="text">
+           <string>Hyphen &amp;Sensitive Search Phrases</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
+ <resources/>
  <connections/>
 </ui>
