@@ -44,6 +44,7 @@
 #endif
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
+#include "BibleDBListModel.h"
 
 #include <assert.h>
 
@@ -188,6 +189,12 @@ namespace {
 
 	// CrossRefsEditor Dialog:
 	const QString constrCrossRefsEditorGroup("CrossRefsEditor");
+
+	// Bible Database Settings:
+	const QString constrBibleDatabaseSettingsGroup("BibleDatabaseSettings");
+	const QString constrBibleDatabaseUUIDKey("UUID");
+	const QString constrHideHyphensKey("HideHyphens");
+	const QString constrHyphenSensitiveKey("HyphenSensitive");
 }
 
 // ============================================================================
@@ -971,6 +978,19 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 	settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 	settings.endGroup();
+
+	// Bible Database Settings:
+	settings.beginWriteArray(constrBibleDatabaseSettingsGroup);
+	CBibleDatabaseListModel mdlBibleDatabaseSettings;
+	QStringList lstBibleDatabaseUUIDs = mdlBibleDatabaseSettings.availableBibleDatabasesUUIDs();
+	for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
+		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
+		settings.setArrayIndex(ndxDB);
+		settings.setValue(constrBibleDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
+		settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
+		settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
+	}
+	settings.endArray();
 }
 
 void CKJVCanOpener::restorePersistentSettings()
@@ -1293,6 +1313,24 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();
+		}
+
+		// Bible Database Settings:
+		if (bIsFirstCanOpener) {
+			int nBDBSettings = settings.beginReadArray(constrBibleDatabaseSettingsGroup);
+			if (nBDBSettings != 0) {
+				for (int ndx = 0; ndx < nBDBSettings; ++ndx) {
+					TBibleDatabaseSettings bdbSettings;
+					settings.setArrayIndex(ndx);
+					QString strUUID = settings.value(constrBibleDatabaseUUIDKey, QString()).toString();
+					if (!strUUID.isEmpty()) {
+						bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toBool());
+						bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
+						CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
+					}
+				}
+			}
+			settings.endArray();
 		}
 	} else {
 		// If we aren't using Persistent Settings:

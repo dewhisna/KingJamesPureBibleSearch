@@ -1025,6 +1025,13 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 	m_pBibleDatabaseListModel = new CBibleDatabaseListModel(ui.treeBibleDatabases);
 	ui.treeBibleDatabases->setModel(m_pBibleDatabaseListModel);
 
+	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanges(const QModelIndex &, const QModelIndex &)));
+
+	connect(ui.checkBoxHideHyphens, SIGNAL(clicked(bool)), this, SLOT(en_changedHideHyphens(bool)));
+	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
+
+	setSettingControls(QString());
+
 	loadSettings();
 }
 
@@ -1037,13 +1044,78 @@ void CKJVBibleDatabaseConfig::loadSettings()
 {
 	m_bLoadingData = true;
 
+	ui.treeBibleDatabases->setCurrentIndex(ui.treeBibleDatabases->model()->index(0, 0));
+
 	m_bLoadingData = false;
 	m_bIsDirty = false;
 }
 
 void CKJVBibleDatabaseConfig::saveSettings()
 {
+	// We've already saved settings in the change notification slots.  Just reset our
+	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
+	m_bIsDirty = false;
+}
 
+void CKJVBibleDatabaseConfig::en_changedHideHyphens(bool bHideHyphens)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setHideHyphens(bHideHyphens);
+	if (bHideHyphens) bdbSettings.setHyphenSensitive(false);
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVBibleDatabaseConfig::en_changedHyphenSensitive(bool bHyphenSensitive)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setHyphenSensitive(bHyphenSensitive);
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVBibleDatabaseConfig::en_currentChanges(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
+{
+	Q_UNUSED(indexPrevious);
+	setSettingControls(m_pBibleDatabaseListModel->data(indexCurrent, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
+}
+
+void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
+{
+	bool bLoadingData = m_bLoadingData;
+	m_bLoadingData = true;
+
+	if (strUUID.isEmpty()) {
+		ui.checkBoxHideHyphens->setEnabled(false);
+		ui.checkBoxHideHyphens->setChecked(false);
+		ui.checkBoxHyphenSensitive->setEnabled(false);
+		ui.checkBoxHyphenSensitive->setChecked(false);
+	} else {
+		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
+		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens());
+		ui.checkBoxHyphenSensitive->setChecked(bdbSettings.hyphenSensitive());
+		if (bdbSettings.hideHyphens()) {
+			assert(bdbSettings.hyphenSensitive() == false);
+		}
+		ui.checkBoxHideHyphens->setEnabled(true);
+		ui.checkBoxHyphenSensitive->setEnabled(!bdbSettings.hideHyphens());
+	}
+
+	m_strSelectedDatabaseUUID = strUUID;
+
+	m_bLoadingData = bLoadingData;
 }
 
 // ============================================================================

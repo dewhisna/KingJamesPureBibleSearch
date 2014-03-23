@@ -25,12 +25,17 @@
 #define PERSISTENTSETTINGS_H
 
 #include <QObject>
+#include <QString>
 #include <QSettings>
 #include <QFont>
 #include <QColor>
 #include <QList>
+
+#include "dbstruct.h"
 #include "SearchCompleter.h"
 #include "PhraseEdit.h"
+
+// ============================================================================
 
 extern QString groupCombine(const QString &strSubgroup, const QString &strGroup);
 
@@ -39,6 +44,8 @@ enum CHAPTER_SCROLLBAR_MODE_ENUM {
 	CSME_LEFT = 1,
 	CSME_RIGHT = 2
 };
+
+// ============================================================================
 
 class CPersistentSettings : public QObject
 {
@@ -110,6 +117,10 @@ public:
 	bool showWrdNdxInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs; }
 	bool copyWrdNdxInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyWrdNdxInSearchResultsRefs; }
 
+	QStringList bibleDatabaseSettingsUUIDList() const;
+	TBibleDatabaseSettings bibleDatabaseSettings(const QString &strUUID) const;
+	void setBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
@@ -147,6 +158,8 @@ signals:
 
 	void changedShowOCntInSearchResultsRefs(bool bShow);
 	void changedShowWrdNdxInSearchResultsRefs(bool bShow);
+
+	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -256,11 +269,15 @@ private:
 		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
 		bool m_bShowWrdNdxInSearchResultsRefs;			// True if showing Word Indexes in Search Results References
 		bool m_bCopyWrdNdxInSearchResultsRefs;			// True if copying Word Indexes in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
+		// ----
+		TBibleDatabaseSettingsMap m_mapBibleDatabaseSettings;		// Map of Bible UUIDs to settings for saving/preserving
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;
 	bool m_bStealthMode;								// True if we're either writing to a special alternate file or not writing settings
 	CPhraseList m_lstUserPhrases;						// User-defined phrases read
 };
+
+// ============================================================================
 
 #endif // PERSISTENTSETTINGS_H

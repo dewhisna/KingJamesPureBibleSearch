@@ -179,6 +179,15 @@ public:
 signals:
 	void dataChanged(bool bNeedRestart);
 
+private slots:
+	void en_changedHideHyphens(bool bHideHyphens);
+	void en_changedHyphenSensitive(bool bHyphenSensitive);
+
+	void en_currentChanges(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);
+
+private:
+	void setSettingControls(const QString &strUUID);
+
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -189,6 +198,7 @@ private:
 private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
+	QString m_strSelectedDatabaseUUID;
 
 	Ui::CKJVBibleDatabaseConfig ui;
 };

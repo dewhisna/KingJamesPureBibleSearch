@@ -42,7 +42,8 @@ class CBibleDatabaseListModel : public QAbstractListModel
 public:
 	enum BIBLE_DATABASE_DATA_ROLES_ENUM {
 		BDDRE_BIBLE_DESCRIPTOR_ROLE = Qt::UserRole + 0,		// Data role for the BIBLE_DESCRIPTOR_ENUM
-		BDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 1		// CBibleDatabase* Role
+		BDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 1,		// CBibleDatabase* Role
+		BDDRE_UUID_ROLE = Qt::UserRole + 2					// Bible Database UUID
 	};
 
 	CBibleDatabaseListModel(QObject *parent = NULL);
@@ -54,6 +55,9 @@ public:
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+	void updateBibleDatabaseList();
+	QStringList availableBibleDatabasesUUIDs() const;			// List of UUIDs of available Bilbe Databases
 
 private:
 	QList<BIBLE_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Bible databases available

@@ -31,6 +31,19 @@
 CBibleDatabaseListModel::CBibleDatabaseListModel(QObject *parent)
 	:	QAbstractListModel(parent)
 {
+	updateBibleDatabaseList();
+}
+
+CBibleDatabaseListModel::~CBibleDatabaseListModel()
+{
+
+}
+
+void CBibleDatabaseListModel::updateBibleDatabaseList()
+{
+	beginResetModel();
+	m_lstAvailableDatabases.clear();
+	m_mapAvailableToLoadedIndex.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
@@ -49,11 +62,19 @@ CBibleDatabaseListModel::CBibleDatabaseListModel(QObject *parent)
 		}
 		if (!bFound) m_mapAvailableToLoadedIndex[ndxCurrent] = -1;
 	}
+	endResetModel();
 }
 
-CBibleDatabaseListModel::~CBibleDatabaseListModel()
+QStringList CBibleDatabaseListModel::availableBibleDatabasesUUIDs() const
 {
+	QStringList lstUUIDs;
 
+	lstUUIDs.reserve(m_lstAvailableDatabases.size());
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		lstUUIDs.append(bibleDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
+	}
+
+	return lstUUIDs;
 }
 
 int CBibleDatabaseListModel::rowCount(const QModelIndex &parent) const
@@ -83,7 +104,13 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 		int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);
 		if (nBibleDB != -1) {
 			return QVariant::fromValue(g_lstBibleDatabases.at(nBibleDB).data());
-		} else return QVariant::fromValue(static_cast<CBibleDatabase *>(NULL));
+		} else {
+			return QVariant::fromValue(static_cast<CBibleDatabase *>(NULL));
+		}
+	}
+
+	if (role == BDDRE_UUID_ROLE) {
+		return bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_strUUID;
 	}
 
 	if (role == Qt::CheckStateRole) {

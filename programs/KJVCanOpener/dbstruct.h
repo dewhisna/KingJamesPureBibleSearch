@@ -579,6 +579,38 @@ extern void setUserPhrases(const CPhraseList &lstUserPhrases);
 
 // ============================================================================
 
+class TBibleDatabaseSettings
+{
+public:
+	explicit TBibleDatabaseSettings(bool bHideHyphens = false, bool bHyphenSensitive = false)
+		:	m_bHideHyphens(bHideHyphens),
+			m_bHyphenSensitive(bHyphenSensitive)
+	{ }
+
+	bool isValid() const { return true; }
+
+	inline bool operator==(const TBibleDatabaseSettings &other) const {
+		return ((m_bHideHyphens == other.m_bHideHyphens) && (m_bHyphenSensitive == other.m_bHyphenSensitive));
+	}
+	inline bool operator!=(const TBibleDatabaseSettings &other) const {
+		return (!operator==(other));
+	}
+
+	bool hideHyphens() const { return m_bHideHyphens; }
+	void setHideHyphens(bool bHideHyphens) { m_bHideHyphens = bHideHyphens; }
+
+	bool hyphenSensitive() const { return m_bHyphenSensitive; }
+	void setHyphenSensitive(bool bHyphenSensitive) { m_bHyphenSensitive = bHyphenSensitive; }
+
+private:
+	bool m_bHideHyphens;
+	bool m_bHyphenSensitive;
+};
+
+typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map of Bible UUIDs to settings for saving/preserving
+
+// ============================================================================
+
 class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
@@ -594,6 +626,8 @@ private:
 	CBibleDatabase(const TBibleDescriptor &bblDesc);		// Creatable by CReadDatabase
 public:
 	~CBibleDatabase();
+
+	TBibleDatabaseSettings &settings() { return m_settings; }
 
 	QString language() const { return m_strLanguage; }
 	QString name() const { return m_strName; }
@@ -721,6 +755,8 @@ private:
 	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
 
 	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
+
+	TBibleDatabaseSettings m_settings;
 
 // Cache:
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE

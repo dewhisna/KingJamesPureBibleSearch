@@ -290,6 +290,14 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_bShowOCntInSearchResultsRefs != pTarget->m_bShowOCntInSearchResultsRefs) emit changedShowOCntInSearchResultsRefs(pTarget->m_bShowOCntInSearchResultsRefs);
 		if (pSource->m_bShowWrdNdxInSearchResultsRefs != pTarget->m_bShowWrdNdxInSearchResultsRefs) emit changedShowWrdNdxInSearchResultsRefs(pTarget->m_bShowWrdNdxInSearchResultsRefs);
+
+		if (pSource->m_mapBibleDatabaseSettings != pTarget->m_mapBibleDatabaseSettings) {
+			for (TBibleDatabaseSettingsMap::ConstIterator itrUUIDs = pTarget->m_mapBibleDatabaseSettings.constBegin();
+															itrUUIDs != pTarget->m_mapBibleDatabaseSettings.constEnd();
+															++itrUUIDs) {
+				emit changedBibleDatabaseSettings(itrUUIDs.key(), itrUUIDs.value());
+			}
+		}
 	}
 }
 
@@ -627,3 +635,34 @@ void CPersistentSettings::setCopyWrdNdxInSearchResultsRefs(bool bCopy)
 		emit changedCopyOptions();
 	}
 }
+
+// ----------------------------------------------------------------------------
+
+QStringList CPersistentSettings::bibleDatabaseSettingsUUIDList() const
+{
+	QStringList lstUUIDs;
+
+	lstUUIDs.reserve(m_pPersistentSettingData->m_mapBibleDatabaseSettings.size());
+	for (TBibleDatabaseSettingsMap::ConstIterator itrUUIDs = m_pPersistentSettingData->m_mapBibleDatabaseSettings.constBegin();
+													itrUUIDs != m_pPersistentSettingData->m_mapBibleDatabaseSettings.constEnd();
+													++itrUUIDs) {
+		lstUUIDs.append(itrUUIDs.key());
+	}
+
+	return lstUUIDs;
+}
+
+TBibleDatabaseSettings CPersistentSettings::bibleDatabaseSettings(const QString &strUUID) const
+{
+	return (m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings()));
+}
+
+void CPersistentSettings::setBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+{
+	bool bFound = m_pPersistentSettingData->m_mapBibleDatabaseSettings.contains(strUUID);
+	TBibleDatabaseSettings oldSettings = m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings());
+	m_pPersistentSettingData->m_mapBibleDatabaseSettings[strUUID] = aSettings;
+	if ((!bFound) || (oldSettings != aSettings)) emit changedBibleDatabaseSettings(strUUID, aSettings);
+}
+
+// ============================================================================
