@@ -68,7 +68,7 @@
      <item>
       <widget class="QLabel" name="lblMainBibleDatabaseSelect">
        <property name="text">
-        <string>&amp;Main Bible Database:</string>
+        <string>I&amp;nitial Bible Database:</string>
        </property>
        <property name="buddy">
         <cstring>comboBoxMainBibleDatabaseSelect</cstring>

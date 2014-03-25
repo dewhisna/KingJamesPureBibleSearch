@@ -101,6 +101,10 @@ namespace {
 	const QString constrTextBrightnessKey("TextBrightness");
 	const QString constrAdjustDialogElementBrightnessKey("AdjustDialogElementBrightness");
 
+	// Main Bible Database Settings:
+	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
+	const QString constrBibleDatabaseUUIDKey("UUID");
+
 	// Colors:
 	const QString constrColorsGroup("Colors");
 	const QString constrColorsHighlightersSubgroup("Highlighters");
@@ -192,7 +196,8 @@ namespace {
 
 	// Bible Database Settings:
 	const QString constrBibleDatabaseSettingsGroup("BibleDatabaseSettings");
-	const QString constrBibleDatabaseUUIDKey("UUID");
+	//const QString constrBibleDatabaseUUIDKey("UUID");
+	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
 }
@@ -839,6 +844,11 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
 	settings.endGroup();
 
+	// Main App Bible Database Settings:
+	settings.beginGroup(constrMainAppBibleDatabaseGroup);
+	settings.setValue(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID());
+	settings.endGroup();
+
 	// Colors:
 	settings.beginGroup(constrColorsGroup);
 	if (CPersistentSettings::instance()->colorWordsOfJesus().isValid()) {
@@ -987,6 +997,7 @@ void CKJVCanOpener::savePersistentSettings()
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
 		settings.setArrayIndex(ndxDB);
 		settings.setValue(constrBibleDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
+		settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
 		settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
 		settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
 	}
@@ -1313,24 +1324,6 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();
-		}
-
-		// Bible Database Settings:
-		if (bIsFirstCanOpener) {
-			int nBDBSettings = settings.beginReadArray(constrBibleDatabaseSettingsGroup);
-			if (nBDBSettings != 0) {
-				for (int ndx = 0; ndx < nBDBSettings; ++ndx) {
-					TBibleDatabaseSettings bdbSettings;
-					settings.setArrayIndex(ndx);
-					QString strUUID = settings.value(constrBibleDatabaseUUIDKey, QString()).toString();
-					if (!strUUID.isEmpty()) {
-						bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toBool());
-						bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
-						CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
-					}
-				}
-			}
-			settings.endArray();
 		}
 	} else {
 		// If we aren't using Persistent Settings:

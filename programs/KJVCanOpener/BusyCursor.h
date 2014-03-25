@@ -38,7 +38,8 @@ class CBusyCursor
 {
 public:
 	CBusyCursor(QWidget *pWidget)
-		:	m_pWidget(pWidget)
+		:	m_pWidget(pWidget),
+			m_bBusyActive(true)
 	{
 		if (m_pWidget) {
 			m_originalCursor = m_pWidget->cursor();
@@ -50,16 +51,26 @@ public:
 
 	~CBusyCursor()
 	{
-		if (m_pWidget) {
-			m_pWidget->setCursor(m_originalCursor);
-		} else {
-			QApplication::restoreOverrideCursor();
+		earlyRestore();
+	}
+
+	void earlyRestore()
+	{
+		if (m_bBusyActive) {
+			if (m_pWidget) {
+				m_pWidget->setCursor(m_originalCursor);
+			} else {
+				QApplication::restoreOverrideCursor();
+			}
+
+			m_bBusyActive = false;
 		}
 	}
 
 private:
 	QCursor m_originalCursor;
 	QWidget *m_pWidget;
+	bool m_bBusyActive;
 };
 
 // ============================================================================

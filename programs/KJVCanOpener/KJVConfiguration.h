@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "UserNotesDatabase.h"
+#include "BibleDBListModel.h"
 
 #include <QWidget>
 #include <QDialog>
@@ -45,7 +46,6 @@ class CDictionaryWidget;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 class QListWidgetItem;
-class CBibleDatabaseListModel;
 
 // ============================================================================
 
@@ -184,6 +184,8 @@ private slots:
 	void en_changedHyphenSensitive(bool bHyphenSensitive);
 
 	void en_currentChanges(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);
+	void en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB);
+	void en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
 
 private:
 	void setSettingControls(const QString &strUUID);

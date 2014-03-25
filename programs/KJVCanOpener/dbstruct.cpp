@@ -30,6 +30,7 @@
 #include "PhraseEdit.h"
 #include "ScriptureDocument.h"
 #include "ReadDB.h"
+#include "PersistentSettings.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -911,8 +912,13 @@ CRelIndex CBibleDatabase::calcRelIndex(
 CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
-	// Currently the descriptor is unused for Bible Databases as this info is simply read from the database itself (the more authoritative source):
-	Q_UNUSED(bblDesc);
+	// If this database is setup for auto-loading, preload the corresponding autoLoad flag in the persistent settings to match (i.e. force on):
+	//	Note: This has to use the TBibleDescriptor object because the other data hasn't been set yet!
+	if (bblDesc.m_bAutoLoad) {
+		TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
+		bblDBaseSettings.setLoadOnStart(true);
+		CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
+	}
 }
 
 CBibleDatabase::~CBibleDatabase()
@@ -921,6 +927,11 @@ CBibleDatabase::~CBibleDatabase()
 		delete m_pKJPBSWordScriptureObject;
 		m_pKJPBSWordScriptureObject = NULL;
 	}
+}
+
+TBibleDatabaseSettings CBibleDatabase::settings()
+{
+	return CPersistentSettings::instance()->bibleDatabaseSettings(m_strCompatibilityUUID);
 }
 
 void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)

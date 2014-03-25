@@ -25,6 +25,7 @@
 
 #include "dbstruct.h"
 #include "ReadDB.h"
+#include "PersistentSettings.h"
 
 // ============================================================================
 
@@ -50,20 +51,29 @@ void CBibleDatabaseListModel::updateBibleDatabaseList()
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 		int ndxCurrent = m_lstAvailableDatabases.size();
 		m_lstAvailableDatabases.append(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-		bool bFound = false;
-		for (int ndxLoaded = 0; ndxLoaded < g_lstBibleDatabases.size(); ++ndxLoaded) {
-			CBibleDatabasePtr pBibleDatabase = g_lstBibleDatabases.at(ndxLoaded);
-			assert(pBibleDatabase.data() != NULL);
-			if (pBibleDatabase.data() == NULL) continue;
-			if (pBibleDatabase->compatibilityUUID().compare(bblDesc.m_strUUID) == 0) {
-				m_mapAvailableToLoadedIndex[ndxCurrent] = ndxLoaded;
-				bFound = true;
-			}
-		}
-		if (!bFound) m_mapAvailableToLoadedIndex[ndxCurrent] = -1;
+		locateLoadedDatabase(ndxCurrent);
 	}
 	endResetModel();
 }
+
+void CBibleDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
+{
+	assert((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabases.size()));
+	const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(nAvailableDBIndex));
+
+	bool bFound = false;
+	for (int ndxLoaded = 0; ndxLoaded < g_lstBibleDatabases.size(); ++ndxLoaded) {
+		CBibleDatabasePtr pBibleDatabase = g_lstBibleDatabases.at(ndxLoaded);
+		assert(pBibleDatabase.data() != NULL);
+		if (pBibleDatabase.data() == NULL) continue;
+		if (pBibleDatabase->compatibilityUUID().compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
+			bFound = true;
+		}
+	}
+	if (!bFound) m_mapAvailableToLoadedIndex[nAvailableDBIndex] = -1;
+}
+
 
 QStringList CBibleDatabaseListModel::availableBibleDatabasesUUIDs() const
 {
@@ -93,9 +103,14 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 	if ((ndxDB < 0) || (ndxDB >= m_lstAvailableDatabases.size()))
 		return QVariant();
 
-	if ((role == Qt::DisplayRole) ||
-		(role == Qt::EditRole))
-		return bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_strDBDesc;
+	const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(ndxDB));
+
+	if (role == Qt::DisplayRole)
+		return QString("%1%2").arg(bblDesc.m_strDBDesc).arg(bblDesc.m_bAutoLoad ? QString("  [%1]").arg(tr("Cannot be unloaded")) : QString());
+
+	if (role == Qt::EditRole)
+		return bblDesc.m_strDBDesc;
+
 
 	if (role == BDDRE_BIBLE_DESCRIPTOR_ROLE)
 		return QVariant::fromValue(m_lstAvailableDatabases.at(ndxDB));
@@ -109,13 +124,11 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 		}
 	}
 
-	if (role == BDDRE_UUID_ROLE) {
-		return bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_strUUID;
-	}
+	if (role == BDDRE_UUID_ROLE) return bblDesc.m_strUUID;
 
 	if (role == Qt::CheckStateRole) {
-		int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);
-		return ((nBibleDB != -1) ? Qt::Checked : Qt::Unchecked);
+		bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || bblDesc.m_bAutoLoad);
+		return (bIsCurrentlyChecked ? Qt::Checked : Qt::Unchecked);
 	}
 
 	return QVariant();
@@ -123,9 +136,43 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 
 bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	Q_UNUSED(index);
-	Q_UNUSED(value);
-	Q_UNUSED(role);
+	if (!index.isValid()) return false;
+
+	int ndxDB = index.row();
+
+	if ((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size())) {
+		if (role == Qt::CheckStateRole) {
+			const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(ndxDB));
+			int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);		// Get mapping if it's really loaded
+			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || bblDesc.m_bAutoLoad);
+			bool bIsDBLoaded = (nBibleDB != -1);
+			bool bNewCheck = value.toBool();
+
+			if (bNewCheck) {
+				// If checked, make sure database is loaded and indexed:
+				if (!bIsDBLoaded) emit loadBibleDatabase(m_lstAvailableDatabases.at(ndxDB));
+				TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
+				bblDBaseSettings.setLoadOnStart(true);
+				CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
+				locateLoadedDatabase(ndxDB);
+			} else {
+				// "unload" it by unmapping it (unless it's a special autoLoad:
+				if (!bblDesc.m_bAutoLoad) {
+					TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
+					bblDBaseSettings.setLoadOnStart(false);
+					CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
+				} else {
+					bNewCheck = true;
+				}
+			}
+			if (bNewCheck != bIsCurrentlyChecked) emit changedAutoLoadStatus(bblDesc.m_strUUID, bNewCheck);
+
+			if (bIsCurrentlyChecked != bNewCheck) {
+				emit dataChanged(index, index);
+			}
+			return true;
+		}
+	}
 
 	return false;
 }

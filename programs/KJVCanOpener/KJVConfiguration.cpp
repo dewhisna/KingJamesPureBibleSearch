@@ -38,7 +38,8 @@
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "SaveFileDialog.h"
 #endif
-#include "BibleDBListModel.h"
+#include "ReadDB.h"
+#include "ReportError.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1026,6 +1027,8 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 	ui.treeBibleDatabases->setModel(m_pBibleDatabaseListModel);
 
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanges(const QModelIndex &, const QModelIndex &)));
+	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
+	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
 
 	connect(ui.checkBoxHideHyphens, SIGNAL(clicked(bool)), this, SLOT(en_changedHideHyphens(bool)));
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
@@ -1116,6 +1119,31 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 	m_strSelectedDatabaseUUID = strUUID;
 
 	m_bLoadingData = bLoadingData;
+}
+
+void CKJVBibleDatabaseConfig::en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB)
+{
+	CBusyCursor iAmBusy(this);
+	const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
+	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, this);
+	if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) {
+		assert(false);
+	} else {
+		if (!rdbMain.ReadBibleDatabase(bblDesc, false)) {
+			iAmBusy.earlyRestore();
+			displayWarning(this, tr("Bible Database Configuration"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
+		}
+	}
+}
+
+void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
+{
+	Q_UNUSED(strUUID);
+	Q_UNUSED(bAutoLoad);
+
+	assert(!m_bLoadingData);
+	m_bIsDirty = true;
+	emit dataChanged(false);
 }
 
 // ============================================================================

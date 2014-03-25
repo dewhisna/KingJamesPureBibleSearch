@@ -59,6 +59,13 @@ public:
 	void updateBibleDatabaseList();
 	QStringList availableBibleDatabasesUUIDs() const;			// List of UUIDs of available Bilbe Databases
 
+signals:
+	void loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB);
+	void changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
+
+private:
+	void locateLoadedDatabase(int nAvailableDBIndex);
+
 private:
 	QList<BIBLE_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Bible databases available
 	QMap<int, int> m_mapAvailableToLoadedIndex;					// Mapping of indexes in Available Database list (above) to the global Bible Database list index (-1 = database isn't loaded)

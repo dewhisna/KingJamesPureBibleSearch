@@ -159,7 +159,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bShowOCntInSearchResultsRefs(true),
 		m_bCopyOCntInSearchResultsRefs(true),
 		m_bShowWrdNdxInSearchResultsRefs(true),
-		m_bCopyWrdNdxInSearchResultsRefs(true)
+		m_bCopyWrdNdxInSearchResultsRefs(true),
+		// ----
+		m_strMainBibleDatabaseUUID(bibleDescriptor(BDE_KJV).m_strUUID)			// Default to reading KJV
 {
 
 }
@@ -298,6 +300,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 				emit changedBibleDatabaseSettings(itrUUIDs.key(), itrUUIDs.value());
 			}
 		}
+		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
 	}
 }
 
@@ -663,6 +666,14 @@ void CPersistentSettings::setBibleDatabaseSettings(const QString &strUUID, const
 	TBibleDatabaseSettings oldSettings = m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings());
 	m_pPersistentSettingData->m_mapBibleDatabaseSettings[strUUID] = aSettings;
 	if ((!bFound) || (oldSettings != aSettings)) emit changedBibleDatabaseSettings(strUUID, aSettings);
+}
+
+void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
+{
+	if (m_pPersistentSettingData->m_strMainBibleDatabaseUUID != strUUID) {
+		m_pPersistentSettingData->m_strMainBibleDatabaseUUID = strUUID;
+		emit changedMainBibleDatabaseSelection(strUUID);
+	}
 }
 
 // ============================================================================

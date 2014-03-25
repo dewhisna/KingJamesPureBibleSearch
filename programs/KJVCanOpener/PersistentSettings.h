@@ -120,6 +120,8 @@ public:
 	QStringList bibleDatabaseSettingsUUIDList() const;
 	TBibleDatabaseSettings bibleDatabaseSettings(const QString &strUUID) const;
 	void setBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void setMainBibleDatabaseUUID(const QString &strUUID);
+	QString mainBibleDatabaseUUID() const { return m_pPersistentSettingData->m_strMainBibleDatabaseUUID; }
 
 	void togglePersistentSettingData(bool bCopy);
 
@@ -160,6 +162,7 @@ signals:
 	void changedShowWrdNdxInSearchResultsRefs(bool bShow);
 
 	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void changedMainBibleDatabaseSelection(const QString &strUUID);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -270,7 +273,8 @@ private:
 		bool m_bShowWrdNdxInSearchResultsRefs;			// True if showing Word Indexes in Search Results References
 		bool m_bCopyWrdNdxInSearchResultsRefs;			// True if copying Word Indexes in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
 		// ----
-		TBibleDatabaseSettingsMap m_mapBibleDatabaseSettings;		// Map of Bible UUIDs to settings for saving/preserving
+		TBibleDatabaseSettingsMap m_mapBibleDatabaseSettings;		// Map of Bible UUIDs to settings for saving/preserving (written in KJVCanOpener shutdown, read in myApplication execute)
+		QString m_strMainBibleDatabaseUUID;				// UUID of Main Bible Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

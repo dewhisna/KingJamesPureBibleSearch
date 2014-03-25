@@ -96,6 +96,17 @@ namespace {
 	const QString constrFontNameKey("FontName");
 	const QString constrFontSizeKey("FontSize");
 
+	// Main Bible Database Settings:
+	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
+	const QString constrBibleDatabaseUUIDKey("UUID");
+
+	// Bible Database Settings:
+	const QString constrBibleDatabaseSettingsGroup("BibleDatabaseSettings");
+	//const QString constrBibleDatabaseUUIDKey("UUID");
+	const QString constrLoadOnStartKey("LoadOnStart");
+	const QString constrHideHyphensKey("HideHyphens");
+	const QString constrHyphenSensitiveKey("HyphenSensitive");
+
 	//////////////////////////////////////////////////////////////////////
 
 #ifdef SHOW_SPLASH_SCREEN
@@ -557,7 +568,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
 		m_pSplash(NULL),
-		m_nSelectedMainBibleDB(BDE_KJV)				// Default to KJV unless we're told otherwise
+		m_nSelectedMainBibleDB(static_cast<BIBLE_DESCRIPTOR_ENUM>(-1))
 {
 #ifdef Q_OS_ANDROID
 	m_strInitialAppDirPath = QDir::homePath();
@@ -1174,6 +1185,46 @@ int CMyApplication::execute(bool bBuildDB)
 
 	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
+	QString strMainDatabaseUUID;
+
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+
+		// Main Bible Database:
+		settings.beginGroup(constrMainAppBibleDatabaseGroup);
+		strMainDatabaseUUID = settings.value(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID()).toString();
+		CPersistentSettings::instance()->setMainBibleDatabaseUUID(strMainDatabaseUUID);
+		settings.endGroup();
+
+		// Bible Database Settings:
+		int nBDBSettings = settings.beginReadArray(constrBibleDatabaseSettingsGroup);
+		if (nBDBSettings != 0) {
+			for (int ndx = 0; ndx < nBDBSettings; ++ndx) {
+				TBibleDatabaseSettings bdbSettings;
+				settings.setArrayIndex(ndx);
+				QString strUUID = settings.value(constrBibleDatabaseUUIDKey, QString()).toString();
+				if (!strUUID.isEmpty()) {
+					bdbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, bdbSettings.loadOnStart()).toBool());
+					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toBool());
+					bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
+					CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
+				}
+			}
+		}
+		settings.endArray();
+	}
+
+	if (m_nSelectedMainBibleDB == -1) {
+		// If command-line override wasn't specified, see if a persistent settings was previously set:
+		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
+			if ((!strMainDatabaseUUID.isEmpty()) && (strMainDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
+				m_nSelectedMainBibleDB = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
+				break;
+			}
+		}
+		if (m_nSelectedMainBibleDB == -1) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise
+	}
+
 #ifndef EMSCRIPTEN
 	g_strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
 	g_strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
@@ -1210,7 +1261,9 @@ int CMyApplication::execute(bool bBuildDB)
 		// Read Main Database(s)
 		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 			const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-			if ((!bblDesc.m_bAutoLoad) && (m_nSelectedMainBibleDB != static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx))) continue;
+			if ((!bblDesc.m_bAutoLoad) &&
+				(m_nSelectedMainBibleDB != static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)) &&
+				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
