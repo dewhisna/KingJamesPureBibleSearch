@@ -23,7 +23,8 @@
 
 #include "VerseRichifier.h"
 #include "dbstruct.h"
-#include "../KJVCanOpener/ParseSymbols.h"
+#include "ParseSymbols.h"
+#include "SearchCompleter.h"
 
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
@@ -265,7 +266,9 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 #ifdef OSIS_PARSER_BUILD
 				QString strWord = m_pVerse->m_lstRichWords.at(i-1);
 #else
-				QString strWord = parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
+				QString strWord = (parseBaton.m_pBibleDatabase->settings().hideHyphens() ?
+									   CSearchStringListModel::deHyphen(parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i), true) :
+									   parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i));
 #endif
 				parseBaton.m_ndxCurrent.setWord(i);
 				if (parseBaton.m_bOutput) {

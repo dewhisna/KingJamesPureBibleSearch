@@ -929,7 +929,7 @@ CBibleDatabase::~CBibleDatabase()
 	}
 }
 
-TBibleDatabaseSettings CBibleDatabase::settings()
+TBibleDatabaseSettings CBibleDatabase::settings() const
 {
 	return CPersistentSettings::instance()->bibleDatabaseSettings(m_strCompatibilityUUID);
 }

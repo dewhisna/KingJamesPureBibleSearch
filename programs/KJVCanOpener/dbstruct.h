@@ -634,7 +634,7 @@ private:
 public:
 	~CBibleDatabase();
 
-	TBibleDatabaseSettings settings();
+	TBibleDatabaseSettings settings() const;
 
 	QString language() const { return m_strLanguage; }
 	QString name() const { return m_strName; }
