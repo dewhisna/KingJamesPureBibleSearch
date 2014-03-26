@@ -100,6 +100,8 @@ protected slots:
 	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 public slots:
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
+protected slots:
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
 
 protected:
 	bool haveUserDatabase() const { return m_bHaveUserDatabase; }

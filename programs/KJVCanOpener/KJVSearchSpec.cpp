@@ -91,6 +91,8 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	// Connect Pass-through:
 	connect(ui.widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SIGNAL(copySearchPhraseSummary()));
 
+	// -------------------- Bible Database Settings:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)));
 }
 
 CKJVSearchSpec::~CKJVSearchSpec()
@@ -525,6 +527,16 @@ void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 		m_pLastEditorActive = pEditor;
 	} else {
 		m_bDoneActivation = false;
+	}
+}
+
+void CKJVSearchSpec::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+{
+	Q_UNUSED(aSettings);
+	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
+		for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+			m_lstSearchPhraseEditors.at(ndx)->phraseEditor()->en_textChanged();
+		}
 	}
 }
 

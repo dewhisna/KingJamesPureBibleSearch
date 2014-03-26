@@ -596,7 +596,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 		if (subPhrase.m_lstWords.at(ndx).isEmpty()) continue;
 
 		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), true);
-		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx), true) : strCurWordDecomp);
+		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()) :
+													CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()));
+
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
 		int nPreRegExp = strCurWordWildKey.indexOf(QRegExp("[\\[\\]\\*\\?]"));
@@ -638,16 +640,16 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 
 					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
 
-					if ((!isCaseSensitive()) && (!isAccentSensitive())) {
+					if ((!isCaseSensitive()) && (!isAccentSensitive()) && (!m_pBibleDatabase->settings().hyphenSensitive())) {
 						subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(), wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end());
 					} else {
 						unsigned int nCount = 0;
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
 							QString strAltWord = wordEntry.m_lstAltWords.at(ndxAltWord);
 							if (!isAccentSensitive()) {
-								strAltWord = CSearchStringListModel::decompose(strAltWord, true);
+								strAltWord = CSearchStringListModel::decompose(strAltWord, !m_pBibleDatabase->settings().hyphenSensitive());
 							} else{
-								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord, true);
+								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord, !m_pBibleDatabase->settings().hyphenSensitive());
 							}
 							if (expCurWord.exactMatch(strAltWord)) {
 								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
@@ -666,8 +668,14 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 				TNormalizedIndexList lstNextMapping;
 				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
-					QString strNextWord = (!isAccentSensitive() ? m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1)
-																: CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), true));
+					QString strNextWord;
+					if ((!isAccentSensitive()) && (!m_pBibleDatabase->settings().hyphenSensitive())) {
+						strNextWord = m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
+					} else if (!isAccentSensitive()) {
+						strNextWord = CSearchStringListModel::decompose(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), !m_pBibleDatabase->settings().hyphenSensitive());
+					} else {
+						strNextWord = CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), !m_pBibleDatabase->settings().hyphenSensitive());
+					}
 					if (expCurWord.exactMatch(strNextWord)) {
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}

@@ -75,7 +75,7 @@ public:
 
 	void processPendingUpdateCompleter();
 
-protected slots:
+public slots:
 	virtual void en_textChanged();
 
 private slots:
