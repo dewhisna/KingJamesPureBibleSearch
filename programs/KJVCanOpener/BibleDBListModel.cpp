@@ -157,6 +157,17 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
+QVariant CBibleDatabaseListModel::data(BIBLE_DESCRIPTOR_ENUM nBDE, int role) const
+{
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		if (m_lstAvailableDatabases.at(ndx) == nBDE) {
+			return data(createIndex(ndx, 0), role);
+		}
+	}
+
+	return QVariant();
+}
+
 bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
 	if (!index.isValid()) return false;

@@ -1072,6 +1072,25 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	// We've already saved settings in the change notification slots.  Just reset our
 	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
 	m_bIsDirty = false;
+
+	m_bLoadingData = true;
+
+	// Unload unused Bible Databases:
+	for (int ndx = g_lstBibleDatabases.size()-1; ndx >= 0; --ndx) {
+		if (g_lstBibleDatabases.at(ndx).data() == NULL) {
+			g_lstBibleDatabases.removeAt(ndx);
+			continue;
+		}
+		if (m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(g_lstBibleDatabases.at(ndx)->compatibilityUUID()), Qt::CheckStateRole) == Qt::Unchecked) {
+			g_lstBibleDatabases.removeAt(ndx);
+			continue;
+		}
+	}
+	m_pBibleDatabaseListModel->updateBibleDatabaseList();
+
+	m_bLoadingData = false;
+
+	loadSettings();		// Reload page with new settings
 }
 
 void CKJVBibleDatabaseConfig::en_changedHideHyphens(bool bHideHyphens)
@@ -1137,7 +1156,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 
 void CKJVBibleDatabaseConfig::en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB)
 {
-	CBusyCursor iAmBusy(this);
+	CBusyCursor iAmBusy(NULL);
 	const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, this);
 	if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) {

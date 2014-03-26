@@ -53,6 +53,7 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(BIBLE_DESCRIPTOR_ENUM nBDE, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 	virtual bool setData(BIBLE_DESCRIPTOR_ENUM nBDE, const QVariant &value, int role = Qt::EditRole);
 
