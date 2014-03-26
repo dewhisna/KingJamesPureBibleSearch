@@ -84,8 +84,17 @@ unsigned int bibleDescriptorCount()
 
 const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex)
 {
+	assert(nIndex != BDE_UNKNOWN);
 	assert(static_cast<unsigned int>(nIndex) < _countof(constBibleDescriptors));
 	return constBibleDescriptors[nIndex];
+}
+
+BIBLE_DESCRIPTOR_ENUM bibleDescriptorFromUUID(const QString &strUUID)
+{
+	for (unsigned int ndx = 0; ndx < _countof(constBibleDescriptors); ++ndx) {
+		if (constBibleDescriptors[ndx].m_strUUID.compare(strUUID, Qt::CaseInsensitive) == 0) return static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
+	}
+	return BDE_UNKNOWN;
 }
 
 unsigned int dictionaryDescriptorCount()
@@ -95,8 +104,17 @@ unsigned int dictionaryDescriptorCount()
 
 const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex)
 {
+	assert(nIndex != DDE_UNKNOWN);
 	assert(static_cast<unsigned int>(nIndex) < _countof(constDictionaryDescriptors));
 	return constDictionaryDescriptors[nIndex];
+}
+
+DICTIONARY_DESCRIPTOR_ENUM dictionaryDescriptorFromUUID(const QString &strUUID)
+{
+	for (unsigned int ndx = 0; ndx < _countof(constDictionaryDescriptors); ++ndx) {
+		if (constDictionaryDescriptors[ndx].m_strUUID.compare(strUUID, Qt::CaseInsensitive) == 0) return static_cast<DICTIONARY_DESCRIPTOR_ENUM>(ndx);
+	}
+	return DDE_UNKNOWN;
 }
 
 // ============================================================================

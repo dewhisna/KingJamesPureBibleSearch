@@ -41,6 +41,7 @@ typedef struct {
 
 // Must match constBibleDescriptors[]!!  This is also the order we attempt to read/load them in:
 enum BIBLE_DESCRIPTOR_ENUM {
+	BDE_UNKNOWN = -1,
 	BDE_SPECIAL_TEST = 0,
 	BDE_KJV = 1,
 	BDE_RVG2010 = 2,
@@ -62,6 +63,7 @@ typedef struct {
 
 // Must match coonstDictionaryDescriptors[]!!  This is also the order we attempt to read/load them in:
 enum DICTIONARY_DESCRIPTOR_ENUM {
+	DDE_UNKNOWN = -1,
 	DDE_SPECIAL_TEST = 0,
 	DDE_WEB1828 = 1
 };
@@ -72,8 +74,10 @@ extern QString g_strDictionaryDatabasePath;
 
 extern unsigned int bibleDescriptorCount();
 extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);
+extern BIBLE_DESCRIPTOR_ENUM bibleDescriptorFromUUID(const QString &strUUID);
 extern unsigned int dictionaryDescriptorCount();
 extern const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex);
+extern DICTIONARY_DESCRIPTOR_ENUM dictionaryDescriptorFromUUID(const QString &strUUID);
 
 // ============================================================================
 

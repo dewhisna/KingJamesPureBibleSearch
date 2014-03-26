@@ -94,6 +94,13 @@ int CBibleDatabaseListModel::rowCount(const QModelIndex &parent) const
 	return m_lstAvailableDatabases.size();
 }
 
+int CBibleDatabaseListModel::columnCount(const QModelIndex &parent) const
+{
+	if (parent.isValid()) return 0;
+
+	return 2;
+}
+
 QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid()) return QVariant();
@@ -104,13 +111,34 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(ndxDB));
+	bool bLoadOnStart = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart();
 
-	if (role == Qt::DisplayRole)
-		return QString("%1%2").arg(bblDesc.m_strDBDesc).arg(bblDesc.m_bAutoLoad ? QString("  [%1]").arg(tr("Cannot be unloaded")) : QString());
+	if (index.column() == 0) {
+		if ((role == Qt::DisplayRole) ||
+			(role == Qt::EditRole))
+			return bblDesc.m_strDBDesc;
 
-	if (role == Qt::EditRole)
-		return bblDesc.m_strDBDesc;
-
+		if (role == Qt::CheckStateRole) {
+			bool bIsCurrentlyChecked = (bLoadOnStart || bblDesc.m_bAutoLoad);
+			return (bIsCurrentlyChecked ? Qt::Checked : Qt::Unchecked);
+		}
+	} else if (index.column() == 1) {
+		if ((role == Qt::DisplayRole) ||
+			(role == Qt::EditRole)) {
+			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
+			if (bblDesc.m_bAutoLoad) {
+				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded"));
+			} else if (bdeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
+				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database"));
+			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
+				return QString("[%1]").arg(tr("Loaded, Reload on startup"));
+			} else if (m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) {
+				return QString("[%1]").arg(tr("Loaded, Do Not Reload on startup"));
+			} else {
+				return QString("[%1]").arg(tr("Not Loaded"));
+			}
+		}
+	}
 
 	if (role == BDDRE_BIBLE_DESCRIPTOR_ROLE)
 		return QVariant::fromValue(m_lstAvailableDatabases.at(ndxDB));
@@ -126,11 +154,6 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 
 	if (role == BDDRE_UUID_ROLE) return bblDesc.m_strUUID;
 
-	if (role == Qt::CheckStateRole) {
-		bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || bblDesc.m_bAutoLoad);
-		return (bIsCurrentlyChecked ? Qt::Checked : Qt::Unchecked);
-	}
-
 	return QVariant();
 }
 
@@ -142,6 +165,7 @@ bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &
 
 	if ((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size())) {
 		if (role == Qt::CheckStateRole) {
+			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
 			const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(ndxDB));
 			int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);		// Get mapping if it's really loaded
 			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || bblDesc.m_bAutoLoad);
@@ -156,8 +180,8 @@ bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &
 				CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
 				locateLoadedDatabase(ndxDB);
 			} else {
-				// "unload" it by unmapping it (unless it's a special autoLoad:
-				if (!bblDesc.m_bAutoLoad) {
+				// "unload" it by unmapping it (unless it's a special autoLoad or our selected initial database):
+				if ((!bblDesc.m_bAutoLoad) && (bdeMainDB != m_lstAvailableDatabases.at(ndxDB))) {
 					TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
 					bblDBaseSettings.setLoadOnStart(false);
 					CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
@@ -167,10 +191,28 @@ bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &
 			}
 			if (bNewCheck != bIsCurrentlyChecked) emit changedAutoLoadStatus(bblDesc.m_strUUID, bNewCheck);
 
-			if (bIsCurrentlyChecked != bNewCheck) {
-				emit dataChanged(index, index);
+			// Always trigger a dataChange as most likely the status text in the second column is
+			//		changing even when the checkbox isn't.  And if our main database is also changing,
+			//		then its status text is changes, so trigger it too if it's different:
+			emit dataChanged(createIndex(index.row(), 0), createIndex(index.row(), 1));
+			for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+				if ((bdeMainDB == m_lstAvailableDatabases.at(ndx)) &&
+					(ndx != ndxDB)) {
+					emit dataChanged(createIndex(ndx, 0), createIndex(ndx, 1));
+				}
 			}
 			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CBibleDatabaseListModel::setData(BIBLE_DESCRIPTOR_ENUM nBDE, const QVariant &value, int role)
+{
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		if (m_lstAvailableDatabases.at(ndx) == nBDE) {
+			return setData(createIndex(ndx, 0), value, role);
 		}
 	}
 
@@ -186,7 +228,10 @@ Qt::ItemFlags CBibleDatabaseListModel::flags(const QModelIndex &index) const
 
 	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size()));
 
-	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_bAutoLoad ? Qt::NoItemFlags : Qt::ItemIsUserCheckable) | Qt::ItemIsSelectable;
+	BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
+	bool bCheckable = ((bdeMainDB != m_lstAvailableDatabases.at(ndxDB)) && (!bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_bAutoLoad));
+
+	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bCheckable ? Qt::ItemIsUserCheckable : Qt::NoItemFlags) | Qt::ItemIsSelectable;
 }
 
 // ============================================================================

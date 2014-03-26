@@ -1025,10 +1025,16 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 
 	m_pBibleDatabaseListModel = new CBibleDatabaseListModel(ui.treeBibleDatabases);
 	ui.treeBibleDatabases->setModel(m_pBibleDatabaseListModel);
+	ui.treeBibleDatabases->resizeColumnToContents(0);
+	ui.treeBibleDatabases->resizeColumnToContents(1);
 
-	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanges(const QModelIndex &, const QModelIndex &)));
+	ui.comboBoxMainBibleDatabaseSelect->setModel(m_pBibleDatabaseListModel);
+
+	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
+
+	connect(ui.comboBoxMainBibleDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
 
 	connect(ui.checkBoxHideHyphens, SIGNAL(clicked(bool)), this, SLOT(en_changedHideHyphens(bool)));
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
@@ -1048,6 +1054,14 @@ void CKJVBibleDatabaseConfig::loadSettings()
 	m_bLoadingData = true;
 
 	ui.treeBibleDatabases->setCurrentIndex(ui.treeBibleDatabases->model()->index(0, 0));
+	for (int ndx = 0; ndx < ui.comboBoxMainBibleDatabaseSelect->count(); ++ndx) {
+		BIBLE_DESCRIPTOR_ENUM nBibleDB = ui.comboBoxMainBibleDatabaseSelect->itemData(ndx, CBibleDatabaseListModel::BDDRE_BIBLE_DESCRIPTOR_ROLE).value<BIBLE_DESCRIPTOR_ENUM>();
+		const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
+		if (CPersistentSettings::instance()->mainBibleDatabaseUUID().compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+			ui.comboBoxMainBibleDatabaseSelect->setCurrentIndex(ndx);
+			break;
+		}
+	}
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -1089,7 +1103,7 @@ void CKJVBibleDatabaseConfig::en_changedHyphenSensitive(bool bHyphenSensitive)
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_currentChanges(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
+void CKJVBibleDatabaseConfig::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
 {
 	Q_UNUSED(indexPrevious);
 	setSettingControls(m_pBibleDatabaseListModel->data(indexCurrent, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
@@ -1142,6 +1156,21 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	Q_UNUSED(bAutoLoad);
 
 	assert(!m_bLoadingData);
+	ui.treeBibleDatabases->resizeColumnToContents(0);
+	ui.treeBibleDatabases->resizeColumnToContents(1);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
+{
+	if (m_bLoadingData) return;
+
+	if (index == -1) return;
+
+	BIBLE_DESCRIPTOR_ENUM nBibleDB = ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_BIBLE_DESCRIPTOR_ROLE).value<BIBLE_DESCRIPTOR_ENUM>();
+	m_pBibleDatabaseListModel->setData(nBibleDB, true, Qt::CheckStateRole);
+	CPersistentSettings::instance()->setMainBibleDatabaseUUID(ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

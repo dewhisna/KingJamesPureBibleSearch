@@ -568,7 +568,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
 		m_pSplash(NULL),
-		m_nSelectedMainBibleDB(static_cast<BIBLE_DESCRIPTOR_ENUM>(-1))
+		m_nSelectedMainBibleDB(BDE_UNKNOWN)
 {
 #ifdef Q_OS_ANDROID
 	m_strInitialAppDirPath = QDir::homePath();
@@ -1193,7 +1193,9 @@ int CMyApplication::execute(bool bBuildDB)
 		// Main Bible Database:
 		settings.beginGroup(constrMainAppBibleDatabaseGroup);
 		strMainDatabaseUUID = settings.value(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID()).toString();
-		CPersistentSettings::instance()->setMainBibleDatabaseUUID(strMainDatabaseUUID);
+		if (!strMainDatabaseUUID.isEmpty()) {
+			CPersistentSettings::instance()->setMainBibleDatabaseUUID(strMainDatabaseUUID);
+		}
 		settings.endGroup();
 
 		// Bible Database Settings:
@@ -1214,7 +1216,7 @@ int CMyApplication::execute(bool bBuildDB)
 		settings.endArray();
 	}
 
-	if (m_nSelectedMainBibleDB == -1) {
+	if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
 		// If command-line override wasn't specified, see if a persistent settings was previously set:
 		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 			if ((!strMainDatabaseUUID.isEmpty()) && (strMainDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
@@ -1222,7 +1224,7 @@ int CMyApplication::execute(bool bBuildDB)
 				break;
 			}
 		}
-		if (m_nSelectedMainBibleDB == -1) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise
+		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise
 	}
 
 #ifndef EMSCRIPTEN
