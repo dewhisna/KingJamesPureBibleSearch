@@ -1305,19 +1305,15 @@ int CMyApplication::execute(bool bBuildDB)
 		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
 			if (!dctDesc.m_bAutoLoad) continue;
-			// TODO : Switch single database check to this once we have completed a method to let user switch databases
-			//			or display multiple languages/databases:
-			//bool bHaveLanguageMatch = false;
-			//for (int nBBLNdx = 0; nBBLNdx < TBibleDatabaseList::instance()->size(); ++nBBLNdx) {
-			//	if ((TBibleDatabaseList::instance()->at(nBBLNdx).data() != NULL) &&
-			//		(TBibleDatabaseList::instance()->at(nBBLNdx)->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
-			//		bHaveLanguageMatch = true;
-			//		break;
-			//	}
-			//}
-			//if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
-			assert(TBibleDatabaseList::instance()->mainBibleDatabase().data() != NULL);
-			if (TBibleDatabaseList::instance()->mainBibleDatabase()->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) != 0) continue;
+			bool bHaveLanguageMatch = false;
+			for (int nBBLNdx = 0; nBBLNdx < TBibleDatabaseList::instance()->size(); ++nBBLNdx) {
+				if ((TBibleDatabaseList::instance()->at(nBBLNdx).data() != NULL) &&
+					(TBibleDatabaseList::instance()->at(nBBLNdx)->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
+					bHaveLanguageMatch = true;
+					break;
+				}
+			}
+			if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
 			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));

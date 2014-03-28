@@ -330,7 +330,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
 #ifndef EMSCRIPTEN
-	if (g_pMainDictionaryDatabase.data() != NULL) {
+	if ((g_pMainDictionaryDatabase.data() != NULL) && (g_pMainDictionaryDatabase->language().compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) == 0)) {
 		m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -873,7 +873,7 @@ void CKJVCanOpener::savePersistentSettings()
 	settings.endGroup();
 
 	// Splitter Dictionary:
-	if (g_pMainDictionaryDatabase.data() != NULL) {
+	if (m_pDictionaryWidget != NULL) {
 		settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
 		settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 		settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
