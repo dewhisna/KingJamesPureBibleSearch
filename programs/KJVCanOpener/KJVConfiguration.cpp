@@ -977,7 +977,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	}
 #endif
 
-	m_previewSearchPhrase.ParsePhrase("trumpet");
+	m_previewSearchPhrase.ParsePhrase(tr("trumpet", "ConfigurationSearchPreviewKeyword"));
 	m_previewSearchPhrase.FindWords();
 	TParsedPhrasesList lstPhrases;
 	lstPhrases.append(&m_previewSearchPhrase);

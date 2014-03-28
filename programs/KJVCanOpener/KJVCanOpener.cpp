@@ -2351,7 +2351,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pHighlighterButtons != NULL) pHighlighterButtons->enterConfigurationMode();
 	}
 
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, g_pMainDictionaryDatabase, this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, (m_pDictionaryWidget != NULL) ? g_pMainDictionaryDatabase : CDictionaryDatabasePtr(), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 	dlgConfigure.exec();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
