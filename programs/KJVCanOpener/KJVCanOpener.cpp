@@ -1722,7 +1722,7 @@ void CKJVCanOpener::en_updateSearchWindowList()
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 	for (int ndx = 0; ndx < lstCanOpeners.size(); ++ndx) {
-		QAction *pAction = new QAction(lstCanOpeners.at(ndx)->searchWindowDescription(), m_pActionGroupSearchWindowList);
+		QAction *pAction = new QAction(QString("%1 [%2]").arg(lstCanOpeners.at(ndx)->searchWindowDescription()).arg(lstCanOpeners.at(ndx)->m_pBibleDatabase->description()), m_pActionGroupSearchWindowList);
 		pAction->setData(ndx);
 		m_pActionSearchWindowList->menu()->addAction(pAction);
 	}

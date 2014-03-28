@@ -127,6 +127,8 @@ protected:
 
 	virtual void en_detailUpdate();
 
+	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+
 //public slots:
 public:
 	virtual void rerender();
@@ -239,6 +241,8 @@ protected slots:
 
 	virtual void en_detailUpdate() = 0;
 
+	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings) = 0;
+
 public slots:
 	virtual void rerender() = 0;
 	virtual void setFont(const QFont& aFont) = 0;
@@ -289,6 +293,8 @@ protected slots:
 	virtual void clearHighlighting() = 0;
 
 	virtual void en_detailUpdate() = 0;
+
+	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings) = 0;
 
 public slots:
 	virtual void rerender() = 0;
