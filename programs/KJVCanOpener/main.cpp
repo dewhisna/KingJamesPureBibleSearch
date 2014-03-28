@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 			if ((nRetVal != 0) || (!pApp->areRestarting())) {
 				bDone = true;
 			} else {
-				pApp->createKJVCanOpener(g_pMainBibleDatabase);
+				pApp->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 			}
 		}
 	}

@@ -62,8 +62,8 @@ void CBibleDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 	const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(nAvailableDBIndex));
 
 	bool bFound = false;
-	for (int ndxLoaded = 0; ndxLoaded < g_lstBibleDatabases.size(); ++ndxLoaded) {
-		CBibleDatabasePtr pBibleDatabase = g_lstBibleDatabases.at(ndxLoaded);
+	for (int ndxLoaded = 0; ndxLoaded < TBibleDatabaseList::instance()->size(); ++ndxLoaded) {
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->at(ndxLoaded);
 		assert(pBibleDatabase.data() != NULL);
 		if (pBibleDatabase.data() == NULL) continue;
 		if (pBibleDatabase->compatibilityUUID().compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
@@ -146,7 +146,7 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 	if (role == BDDRE_DATABASE_POINTER_ROLE) {
 		int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);
 		if (nBibleDB != -1) {
-			return QVariant::fromValue(g_lstBibleDatabases.at(nBibleDB).data());
+			return QVariant::fromValue(TBibleDatabaseList::instance()->at(nBibleDB).data());
 		} else {
 			return QVariant::fromValue(static_cast<CBibleDatabase *>(NULL));
 		}

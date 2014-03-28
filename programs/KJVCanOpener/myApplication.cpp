@@ -509,23 +509,6 @@ void CMyDaemon::handleSigUsr1()
 
 // ============================================================================
 
-CBibleDatabasePtr locateBibleDatabase(const QString &strUUID)
-{
-	QString strTargetUUID = strUUID;
-
-	if (strTargetUUID.isEmpty()) {
-		// Default database is KJV
-		strTargetUUID = bibleDescriptor(BDE_KJV).m_strUUID;
-	}
-
-	for (int ndx = 0; ndx < g_lstBibleDatabases.size(); ++ndx) {
-		if (g_lstBibleDatabases.at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
-			return g_lstBibleDatabases.at(ndx);
-	}
-
-	return CBibleDatabasePtr();
-}
-
 CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID)
 {
 	QString strTargetUUID = strUUID;
@@ -610,8 +593,7 @@ CMyApplication::~CMyApplication()
 	// We must clean up our databases and things before exiting or else
 	//		the destructor tear-down order might cause us to crash, particularly
 	//		with SQL Database things:
-	g_lstBibleDatabases.clear();
-	g_pMainBibleDatabase.clear();
+	TBibleDatabaseList::instance()->clear();
 	g_lstDictionaryDatabases.clear();
 	g_pMainDictionaryDatabase.clear();
 	g_pUserNotesDatabase.clear();
@@ -1129,8 +1111,8 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 			CKJVCanOpener *pCanOpener = NULL;
 			if ((bForceOpen) || (m_lstKJVCanOpeners.size() != 1)) {
 				// If we have more than one, just open a new window and launch the file:
-				CBibleDatabasePtr pBibleDatabase = locateBibleDatabase(strBibleUUID);
-				if (pBibleDatabase.data() == NULL) pBibleDatabase = g_pMainBibleDatabase;
+				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->locateBibleDatabase(strBibleUUID);
+				if (pBibleDatabase.data() == NULL) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
 				assert(pCanOpener != NULL);
 			} else {
@@ -1276,11 +1258,11 @@ int CMyApplication::execute(bool bBuildDB)
 		}
 		// If the specified database wasn't found, see if we loaded any database and if so, make the
 		//		first one loaded (from our priority list) the main database:
-		if ((g_pMainBibleDatabase.data() == NULL) &&
-			(g_lstBibleDatabases.size() > 0)) {
-			g_pMainBibleDatabase = g_lstBibleDatabases.at(0);
+		if ((TBibleDatabaseList::instance()->mainBibleDatabase().data() == NULL) &&
+			(TBibleDatabaseList::instance()->size() > 0)) {
+			TBibleDatabaseList::instance()->setMainBibleDatabase(TBibleDatabaseList::instance()->at(0)->compatibilityUUID());
 		}
-		if (g_pMainBibleDatabase.data() == NULL) {
+		if (TBibleDatabaseList::instance()->mainBibleDatabase().data() == NULL) {
 			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!"));
 			return -3;
 		}
@@ -1326,16 +1308,16 @@ int CMyApplication::execute(bool bBuildDB)
 			// TODO : Switch single database check to this once we have completed a method to let user switch databases
 			//			or display multiple languages/databases:
 			//bool bHaveLanguageMatch = false;
-			//for (int nBBLNdx = 0; nBBLNdx < g_lstBibleDatabases.size(); ++nBBLNdx) {
-			//	if ((g_lstBibleDatabases.at(nBBLNdx).data() != NULL) &&
-			//		(g_lstBibleDatabases.at(nBBLNdx)->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
+			//for (int nBBLNdx = 0; nBBLNdx < TBibleDatabaseList::instance()->size(); ++nBBLNdx) {
+			//	if ((TBibleDatabaseList::instance()->at(nBBLNdx).data() != NULL) &&
+			//		(TBibleDatabaseList::instance()->at(nBBLNdx)->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
 			//		bHaveLanguageMatch = true;
 			//		break;
 			//	}
 			//}
 			//if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
-			assert(g_pMainBibleDatabase.data() != NULL);
-			if (g_pMainBibleDatabase->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) != 0) continue;
+			assert(TBibleDatabaseList::instance()->mainBibleDatabase().data() != NULL);
+			if (TBibleDatabaseList::instance()->mainBibleDatabase()->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) != 0) continue;
 			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
@@ -1397,14 +1379,14 @@ int CMyApplication::execute(bool bBuildDB)
 	// Must have database read above before we create main or else the
 	//		data won't be available for the browser objects and such:
 #ifdef SHOW_SPLASH_SCREEN
-	CKJVCanOpener *pMain = createKJVCanOpener(g_pMainBibleDatabase);
+	CKJVCanOpener *pMain = createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 	if (m_pSplash != NULL) {
 		m_pSplash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
 		delete m_pSplash;
 		m_pSplash = NULL;
 	}
 #else
-	createKJVCanOpener(g_pMainBibleDatabase);
+	createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 #endif
 
 	return 0;

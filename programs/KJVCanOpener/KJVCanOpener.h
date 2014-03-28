@@ -144,6 +144,7 @@ public slots:
 	void setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode);
 	void setShowMissingLeafs(bool bShowMissing);
 
+	void en_updateBibleDatabasesList();
 	void en_updateSearchWindowList();
 
 protected slots:
@@ -197,7 +198,7 @@ protected slots:
 	void en_Configure(int nInitialPage = -1);
 	void en_LaunchUserNoteConfig();
 
-	void en_NewCanOpener();
+	void en_NewCanOpener(QAction *pAction);
 
 // Data Private:
 private:
@@ -234,8 +235,10 @@ private:
 	QAction *m_pActionJump;			// Jump to passage via Passage Navigator
 	QAction *m_pActionRefresh;		// Refresh Scripture Browser
 	// ----
+	QAction *m_pActionBibleDatabasesList;	// Action for Loaded Bible Databases list from which the user can open New KJVCanOpeners
+	QPointer<QActionGroup> m_pActionGroupBibleDatabasesList;	// Actual Bible Databases List items for the New Search Window List
 	QAction *m_pActionSearchWindowList;		// Action for Window list of KJVCanOpeners
-	QPointer<QActionGroup> m_pActionGroupSearchWindowLists;		// Actual Window List items for Search Window List
+	QPointer<QActionGroup> m_pActionGroupSearchWindowList;		// Actual Window List items for Search Window List
 	// ----
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)

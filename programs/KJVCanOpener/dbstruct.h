@@ -773,8 +773,38 @@ private:
 Q_DECLARE_METATYPE(CBibleDatabase *)
 typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 
-typedef QList<CBibleDatabasePtr> TBibleDatabaseList;
-extern CBibleDatabasePtr locateBibleDatabase(const QString &strUUID);
+class  TBibleDatabaseList : public QObject, protected QList<CBibleDatabasePtr>
+{
+	Q_OBJECT
+
+private:				// Enforce Singleton:
+	TBibleDatabaseList(QObject *pParent = NULL);
+
+public:
+	virtual ~TBibleDatabaseList();
+	static TBibleDatabaseList *instance();
+
+	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
+	void setMainBibleDatabase(const QString &strUUID);
+	void removeBibleDatabase(const QString &strUUID);
+	void clear();
+	int size() const { return QList<CBibleDatabasePtr>::size(); }
+	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
+	CBibleDatabasePtr locateBibleDatabase(const QString &strUUID);
+
+protected:
+	friend class CReadDatabase;
+	void addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain);			// Added via CReadDatabase
+
+signals:
+	void loadedBibleDatabase(CBibleDatabasePtr pBibleDatabase);
+	void removingBibleDatabase(CBibleDatabasePtr pBibleDatabase);
+	void changedMainBibleDatabase(CBibleDatabasePtr pBibleDatabase);
+	void changedBibleDatabaseList();
+
+private:
+	CBibleDatabasePtr m_pMainBibleDatabase;
+};
 
 // ============================================================================
 
@@ -1135,9 +1165,6 @@ struct TPassageTagListSortPredicate {
 // ============================================================================
 
 // Global Variables:
-
-extern CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
-extern TBibleDatabaseList g_lstBibleDatabases;
 
 extern CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
 extern TDictionaryDatabaseList g_lstDictionaryDatabases;

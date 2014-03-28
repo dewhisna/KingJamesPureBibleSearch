@@ -45,13 +45,94 @@
 
 // Global Variables:
 
-// Our Bible Databases:
-CBibleDatabasePtr g_pMainBibleDatabase;		// Main Database (database currently active for main navigation)
-TBibleDatabaseList g_lstBibleDatabases;
-
 // Our Dictionary Databases:
 CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
 TDictionaryDatabaseList g_lstDictionaryDatabases;
+
+// ============================================================================
+
+TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
+	:	QObject(pParent)
+{
+
+}
+
+TBibleDatabaseList::~TBibleDatabaseList()
+{
+
+}
+
+TBibleDatabaseList *TBibleDatabaseList::instance()
+{
+	static TBibleDatabaseList theBibleDatabaseList;
+	return &theBibleDatabaseList;
+}
+
+void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)
+{
+	QString strOldUUID = ((m_pMainBibleDatabase.data() != NULL) ? m_pMainBibleDatabase->compatibilityUUID() : QString());
+	CBibleDatabasePtr pBibleDatabase = locateBibleDatabase(strUUID);
+	if (pBibleDatabase.data() != NULL) {
+		m_pMainBibleDatabase = pBibleDatabase;
+		emit changedMainBibleDatabase(pBibleDatabase);
+	}
+}
+
+void TBibleDatabaseList::removeBibleDatabase(const QString &strUUID)
+{
+	for (int ndx = 0; ndx < size(); ++ndx) {
+		CBibleDatabasePtr pBibleDatabase = at(ndx);
+		if (pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
+			removeAt(ndx);
+			if (m_pMainBibleDatabase == pBibleDatabase) {
+				assert(false);				// Shouldn't allow removing of MainBibleDatabase -- call setMainBibleDatabase first
+			}
+			emit removeBibleDatabase(pBibleDatabase->compatibilityUUID());
+			emit changedBibleDatabaseList();
+		}
+	}
+}
+
+void TBibleDatabaseList::clear()
+{
+	for (int ndx = size()-1; ndx >= 0; --ndx) {
+		emit removingBibleDatabase(at(ndx));
+	}
+	QList<CBibleDatabasePtr>::clear();
+	m_pMainBibleDatabase.clear();
+	emit changedMainBibleDatabase(CBibleDatabasePtr());
+	emit changedBibleDatabaseList();
+}
+
+void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
+{
+	assert(pBibleDatabase.data() != NULL);
+	push_back(pBibleDatabase);
+	if (bSetAsMain) {
+		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
+		m_pMainBibleDatabase = pBibleDatabase;
+		if (pOldMain != m_pMainBibleDatabase) emit changedMainBibleDatabase(pBibleDatabase);
+	}
+	emit loadedBibleDatabase(pBibleDatabase);
+	emit changedBibleDatabaseList();
+}
+
+CBibleDatabasePtr TBibleDatabaseList::locateBibleDatabase(const QString &strUUID)
+{
+	QString strTargetUUID = strUUID;
+
+	if (strTargetUUID.isEmpty()) {
+		// Default database is KJV
+		strTargetUUID = bibleDescriptor(BDE_KJV).m_strUUID;
+	}
+
+	for (int ndx = 0; ndx < size(); ++ndx) {
+		if (at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
+			return at(ndx);
+	}
+
+	return CBibleDatabasePtr();
+}
 
 // ============================================================================
 

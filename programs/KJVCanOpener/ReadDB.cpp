@@ -1288,8 +1288,7 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 	}
 
 	if (bSuccess) {
-		g_lstBibleDatabases.push_back(m_pBibleDatabase);
-		if (bSetAsMain) g_pMainBibleDatabase = m_pBibleDatabase;
+		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
 	}
 
 	return bSuccess;

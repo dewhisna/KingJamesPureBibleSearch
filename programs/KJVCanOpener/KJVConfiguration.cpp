@@ -1076,13 +1076,10 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	m_bLoadingData = true;
 
 	// Unload unused Bible Databases:
-	for (int ndx = g_lstBibleDatabases.size()-1; ndx >= 0; --ndx) {
-		if (g_lstBibleDatabases.at(ndx).data() == NULL) {
-			g_lstBibleDatabases.removeAt(ndx);
-			continue;
-		}
-		if (m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(g_lstBibleDatabases.at(ndx)->compatibilityUUID()), Qt::CheckStateRole) == Qt::Unchecked) {
-			g_lstBibleDatabases.removeAt(ndx);
+	for (int ndx = TBibleDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
+		QString strUUID = TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID();
+		if (m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) {
+			TBibleDatabaseList::instance()->removeBibleDatabase(strUUID);
 			continue;
 		}
 	}
