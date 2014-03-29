@@ -672,9 +672,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 					if ((!isAccentSensitive()) && (!m_pBibleDatabase->settings().hyphenSensitive())) {
 						strNextWord = m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					} else if (!isAccentSensitive()) {
-						strNextWord = CSearchStringListModel::decompose(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), !m_pBibleDatabase->settings().hyphenSensitive());
+						strNextWord = CSearchStringListModel::decompose(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false), !m_pBibleDatabase->settings().hyphenSensitive());
 					} else {
-						strNextWord = CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1), !m_pBibleDatabase->settings().hyphenSensitive());
+						strNextWord = CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false), !m_pBibleDatabase->settings().hyphenSensitive());
 					}
 					if (expCurWord.exactMatch(strNextWord)) {
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
@@ -709,7 +709,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 					QStringList lstNextWords;
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-							lstNextWords.append(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1));
+							lstNextWords.append(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false));
 						}
 					}
 					lstNextWords.removeDuplicates();

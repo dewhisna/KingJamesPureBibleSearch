@@ -1119,18 +1119,22 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 	return &(word->second);
 }
 
-QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal) const
+QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
 {
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
 		return QString();
 
-	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
+	if (bAsRendered && settings().hideHyphens()) {
+		return CSearchStringListModel::deHyphen(m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word(), true);
+	} else {
+		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
+	}
 }
 
-QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex) const
+QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, bool bAsRendered) const
 {
 	if (!relIndex.isSet()) return QString();
-	return wordAtIndex(NormalizeIndex(relIndex));
+	return wordAtIndex(NormalizeIndex(relIndex), bAsRendered);
 }
 
 QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const
