@@ -42,6 +42,7 @@
 #define SPECIAL_BUILD				1
 #endif
 #define VER_BUILD_DATE_STR			__DATE__
+#define VER_BUILD_TIME_STR			__TIME__
 
 #define VER_APPNAME_STR_QT			"KingJamesPureBibleSearch\0"
 #define VER_ORGNAME_STR_QT			VER_COMPANYNAME_STR

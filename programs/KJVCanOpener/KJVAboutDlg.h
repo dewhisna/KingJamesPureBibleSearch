@@ -55,6 +55,7 @@ private:
 	QGraphicsTextItem *m_pAppTitle;
 	QGraphicsTextItem *m_pExtraVersionInfo;
 	QGraphicsTextItem *m_pAppSpecialVersion;
+	QGraphicsTextItem *m_pAppBuildDateTime;
 	QGraphicsTextItem *m_pQtVersion;
 	QGraphicsTextItem *m_pBroughtToYouBy;
 	QGraphicsTextItem *m_pBethelURL;

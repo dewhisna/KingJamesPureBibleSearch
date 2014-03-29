@@ -57,6 +57,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pAppTitle(NULL),
 	m_pExtraVersionInfo(NULL),
 	m_pAppSpecialVersion(NULL),
+	m_pAppBuildDateTime(NULL),
 	m_pQtVersion(NULL),
 	m_pBroughtToYouBy(NULL),
 	m_pBethelURL(NULL)
@@ -88,10 +89,14 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 #endif
 	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
 	if (!strSpecialVersion.isEmpty()) {
-		m_pAppSpecialVersion = scene->addText(QString("%1 : %2: %3").arg(strSpecialVersion).arg(tr("Build")).arg(VER_BUILD_DATE_STR), QFont("Times New Roman", 10));
+		m_pAppSpecialVersion = scene->addText(QString("%1").arg(strSpecialVersion), QFont("Times New Roman", 10));
 		m_pAppSpecialVersion->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	} else {
-		m_pAppSpecialVersion = NULL;
+	}
+	QString strBuildDate(VER_BUILD_DATE_STR);
+	QString strBuildTime(VER_BUILD_TIME_STR);
+	if (!strBuildDate.isEmpty()) {
+		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Build")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
+		m_pAppBuildDateTime->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	}
 	m_pQtVersion = scene->addText(tr("Based on Qt Version %1").arg(QT_VERSION_STR), QFont("Times New Roman", 10));
 	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
@@ -102,6 +107,8 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	// --------
 	qreal nXCenterLine = m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 2);
+	qreal nXoneFourth = m_pBethelChurch->pos().x() + (m_pBethelChurch->boundingRect().width() / 4);
+	qreal nXthreeFourth = m_pBethelChurch->pos().x() + ((m_pBethelChurch->boundingRect().width() * 3) / 4);
 	qreal nYPos = m_pBethelChurch->pos().y() + m_pBethelChurch->boundingRect().height();
 	m_pBethelURL->setPos(nXCenterLine - (m_pBethelURL->boundingRect().width() / 2), nYPos);
 	nYPos += m_pBethelURL->boundingRect().height();
@@ -115,10 +122,16 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 		m_pAppSpecialVersion->setPos(nXCenterLine - (m_pAppSpecialVersion->boundingRect().width() / 2), nYPos);
 		nYPos += m_pAppSpecialVersion->boundingRect().height();
 	}
-	if (m_pQtVersion) {
-		m_pQtVersion->setPos(nXCenterLine - (m_pQtVersion->boundingRect().width() / 2), nYPos);
-		nYPos += m_pQtVersion->boundingRect().height();
+	qreal nMaxVersionHeight = 0.0;
+	if (m_pAppBuildDateTime) {
+		m_pAppBuildDateTime->setPos(nXoneFourth - (m_pAppBuildDateTime->boundingRect().width() / 2), nYPos);
+		nMaxVersionHeight = qMax(nMaxVersionHeight, m_pAppBuildDateTime->boundingRect().height());
 	}
+	if (m_pQtVersion) {
+		m_pQtVersion->setPos(nXthreeFourth - (m_pQtVersion->boundingRect().width() / 2), nYPos);
+		nMaxVersionHeight = qMax(nMaxVersionHeight, m_pQtVersion->boundingRect().height());
+	}
+	nYPos += nMaxVersionHeight;
 	m_pBroughtToYouBy->setPos(nXCenterLine - (m_pBroughtToYouBy->boundingRect().width() / 2), nYPos);
 	nYPos += m_pBroughtToYouBy->boundingRect().height();
 	ui.graphicsView->setScene(scene);
