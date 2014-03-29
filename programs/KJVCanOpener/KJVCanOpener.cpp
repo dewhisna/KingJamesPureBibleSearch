@@ -329,8 +329,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
 #ifndef EMSCRIPTEN
-	if ((g_pMainDictionaryDatabase.data() != NULL) && (g_pMainDictionaryDatabase->language().compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) == 0)) {
-		m_pDictionaryWidget = new CDictionaryWidget(g_pMainDictionaryDatabase, m_pSplitterDictionary);
+	if ((TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() != NULL) && (TDictionaryDatabaseList::instance()->mainDictionaryDatabase()->language().compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) == 0)) {
+		m_pDictionaryWidget = new CDictionaryWidget(TDictionaryDatabaseList::instance()->mainDictionaryDatabase(), m_pSplitterDictionary);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		aSizePolicyDictionary.setHorizontalStretch(20);
@@ -2355,7 +2355,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pHighlighterButtons != NULL) pHighlighterButtons->enterConfigurationMode();
 	}
 
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, (m_pDictionaryWidget != NULL) ? g_pMainDictionaryDatabase : CDictionaryDatabasePtr(), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
+	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, ((m_pDictionaryWidget != NULL) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 	dlgConfigure.exec();
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {

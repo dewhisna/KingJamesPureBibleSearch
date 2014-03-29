@@ -84,6 +84,8 @@ public:
 	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);
 	~CDictionaryWidget();
 
+	CDictionaryDatabasePtr dictionaryDatabase() const { return m_pDictionaryDatabase; }
+
 	inline QMenu *getEditMenu(bool bWordEditor) { return (bWordEditor ? m_pEditMenuDictWord : m_pEditMenuDictionary); }
 
 	int dictionaryActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }

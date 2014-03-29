@@ -1438,8 +1438,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 	}
 
 	if (bSuccess) {
-		g_lstDictionaryDatabases.push_back(m_pDictionaryDatabase);
-		if (bSetAsMain) g_pMainDictionaryDatabase = m_pDictionaryDatabase;
+		TDictionaryDatabaseList::instance()->addDictionaryDatabase(m_pDictionaryDatabase, bSetAsMain);
 	}
 
 	return bSuccess;

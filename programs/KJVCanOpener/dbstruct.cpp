@@ -43,14 +43,6 @@
 
 // ============================================================================
 
-// Global Variables:
-
-// Our Dictionary Databases:
-CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
-TDictionaryDatabaseList g_lstDictionaryDatabases;
-
-// ============================================================================
-
 TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)
@@ -75,7 +67,7 @@ void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)
 	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
 	if (pBibleDatabase.data() != NULL) {
 		m_pMainBibleDatabase = pBibleDatabase;
-		emit changedMainBibleDatabase(pBibleDatabase);
+		if (strOldUUID.compare(strUUID, Qt::CaseInsensitive) != 0) emit changedMainBibleDatabase(pBibleDatabase);
 	}
 }
 
@@ -105,20 +97,7 @@ void TBibleDatabaseList::clear()
 	emit changedBibleDatabaseList();
 }
 
-void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
-{
-	assert(pBibleDatabase.data() != NULL);
-	push_back(pBibleDatabase);
-	if (bSetAsMain) {
-		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
-		m_pMainBibleDatabase = pBibleDatabase;
-		if (pOldMain != m_pMainBibleDatabase) emit changedMainBibleDatabase(pBibleDatabase);
-	}
-	emit loadedBibleDatabase(pBibleDatabase);
-	emit changedBibleDatabaseList();
-}
-
-CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID)
+CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID) const
 {
 	QString strTargetUUID = strUUID;
 
@@ -166,6 +145,138 @@ void TBibleDatabaseList::findBibleDatabases()
 	}
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableBibleDatabaseList();
+}
+
+void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
+{
+	assert(pBibleDatabase.data() != NULL);
+	push_back(pBibleDatabase);
+	if (bSetAsMain) {
+		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
+		m_pMainBibleDatabase = pBibleDatabase;
+		if (pOldMain != m_pMainBibleDatabase) emit changedMainBibleDatabase(pBibleDatabase);
+	}
+	emit loadedBibleDatabase(pBibleDatabase);
+	emit changedBibleDatabaseList();
+}
+
+// ============================================================================
+
+TDictionaryDatabaseList::TDictionaryDatabaseList(QObject *pParent)
+	:	QObject(pParent),
+		m_bHaveSearchedAvailableDatabases(false)
+{
+
+}
+
+TDictionaryDatabaseList::~TDictionaryDatabaseList()
+{
+
+}
+
+TDictionaryDatabaseList *TDictionaryDatabaseList::instance()
+{
+	static TDictionaryDatabaseList theDictionaryDatabaseList;
+	return &theDictionaryDatabaseList;
+}
+
+void TDictionaryDatabaseList::setMainDictionaryDatabase(const QString &strUUID)
+{
+	QString strOldUUID = ((m_pMainDictionaryDatabase.data() != NULL) ? m_pMainDictionaryDatabase->compatibilityUUID() : QString());
+	CDictionaryDatabasePtr pDictionaryDatabase = atUUID(strUUID);
+	if (pDictionaryDatabase.data() != NULL) {
+		m_pMainDictionaryDatabase = pDictionaryDatabase;
+		if (strOldUUID.compare(strUUID, Qt::CaseInsensitive) != 0) emit changedMainDictionaryDatabase(pDictionaryDatabase);
+	}
+}
+
+void TDictionaryDatabaseList::removeDictionaryDatabase(const QString &strUUID)
+{
+	for (int ndx = 0; ndx < size(); ++ndx) {
+		CDictionaryDatabasePtr pDictionaryDatabase = at(ndx);
+		if (pDictionaryDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
+			removeAt(ndx);
+			if (m_pMainDictionaryDatabase == pDictionaryDatabase) {
+				assert(false);				// Shouldn't allow removing of MainDictionaryDatabase -- call setMainDictionaryDatabase first
+			}
+			emit removeDictionaryDatabase(pDictionaryDatabase->compatibilityUUID());
+			emit changedDictionaryDatabaseList();
+		}
+	}
+}
+
+void TDictionaryDatabaseList::clear()
+{
+	for (int ndx = size()-1; ndx >= 0; --ndx) {
+		emit removingDictionaryDatabase(at(ndx));
+	}
+	QList<CDictionaryDatabasePtr>::clear();
+	m_pMainDictionaryDatabase.clear();
+	emit changedMainDictionaryDatabase(CDictionaryDatabasePtr());
+	emit changedDictionaryDatabaseList();
+}
+
+CDictionaryDatabasePtr TDictionaryDatabaseList::atUUID(const QString &strUUID) const
+{
+	QString strTargetUUID = strUUID;
+
+	if (strTargetUUID.isEmpty()) {
+		// Default database is WEB1828
+		strTargetUUID = dictionaryDescriptor(DDE_WEB1828).m_strUUID;
+	}
+
+	for (int ndx = 0; ndx < size(); ++ndx) {
+		if (at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
+			return at(ndx);
+	}
+
+	return CDictionaryDatabasePtr();
+}
+
+QList<DICTIONARY_DESCRIPTOR_ENUM> TDictionaryDatabaseList::availableDictionaryDatabases()
+{
+	if (!m_bHaveSearchedAvailableDatabases) findDictionaryDatabases();
+	return m_lstAvailableDatabases;
+}
+
+QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
+{
+	QStringList lstUUIDs;
+
+	if (!m_bHaveSearchedAvailableDatabases) findDictionaryDatabases();
+
+	lstUUIDs.reserve(m_lstAvailableDatabases.size());
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		lstUUIDs.append(dictionaryDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
+	}
+
+	return lstUUIDs;
+}
+
+void TDictionaryDatabaseList::findDictionaryDatabases()
+{
+	m_lstAvailableDatabases.clear();
+	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
+		const TDictionaryDescriptor &dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
+		if (!rdbMain.haveDictionaryDatabaseFiles(dictDesc)) continue;
+		m_lstAvailableDatabases.append(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+	}
+	m_bHaveSearchedAvailableDatabases = true;
+	emit changedAvailableDictionaryDatabaseList();
+}
+
+void TDictionaryDatabaseList::addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain)
+{
+	assert(pDictionaryDatabase.data() != NULL);
+	push_back(pDictionaryDatabase);
+	if (bSetAsMain) {
+		CDictionaryDatabasePtr pOldMain = m_pMainDictionaryDatabase;
+		m_pMainDictionaryDatabase = pDictionaryDatabase;
+		if (pOldMain != m_pMainDictionaryDatabase) emit changedMainDictionaryDatabase(pDictionaryDatabase);
+	}
+	emit loadedDictionaryDatabase(pDictionaryDatabase);
+	emit changedDictionaryDatabaseList();
 }
 
 // ============================================================================

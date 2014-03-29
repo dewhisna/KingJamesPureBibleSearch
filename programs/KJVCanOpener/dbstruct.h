@@ -790,7 +790,7 @@ public:
 	void clear();
 	int size() const { return QList<CBibleDatabasePtr>::size(); }
 	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
-	CBibleDatabasePtr atUUID(const QString &strUUID);
+	CBibleDatabasePtr atUUID(const QString &strUUID) const;
 
 	QList<BIBLE_DESCRIPTOR_ENUM> availableBibleDatabases();		// List of BDEs of available Bible Databases
 	QStringList availableBibleDatabasesUUIDs();					// List of UUIDs of available Bible Databases
@@ -912,8 +912,46 @@ private:
 Q_DECLARE_METATYPE(CDictionaryDatabase *)
 typedef QSharedPointer<CDictionaryDatabase> CDictionaryDatabasePtr;
 
-typedef QList<CDictionaryDatabasePtr> TDictionaryDatabaseList;
-extern CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID);
+class  TDictionaryDatabaseList : public QObject, protected QList<CDictionaryDatabasePtr>
+{
+	Q_OBJECT
+
+private:				// Enforce Singleton:
+	TDictionaryDatabaseList(QObject *pParent = NULL);
+
+public:
+	virtual ~TDictionaryDatabaseList();
+	static TDictionaryDatabaseList *instance();
+
+	CDictionaryDatabasePtr mainDictionaryDatabase() const { return m_pMainDictionaryDatabase; }
+	void setMainDictionaryDatabase(const QString &strUUID);
+	void removeDictionaryDatabase(const QString &strUUID);
+	void clear();
+	int size() const { return QList<CDictionaryDatabasePtr>::size(); }
+	CDictionaryDatabasePtr at(int i) const { return QList<CDictionaryDatabasePtr>::at(i); }
+	CDictionaryDatabasePtr atUUID(const QString &strUUID) const;
+
+	QList<DICTIONARY_DESCRIPTOR_ENUM> availableDictionaryDatabases();	// List of DDEs of available Dictionary Databases
+	QStringList availableDictionaryDatabasesUUIDs();					// List of UUIDs of available Dictionary Databases
+	void findDictionaryDatabases();
+
+protected:
+	friend class CReadDatabase;
+	void addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain);		// Added via CReadDatabase
+
+signals:
+	void loadedDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase);
+	void removingDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase);
+	void changedMainDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase);
+	void changedDictionaryDatabaseList();
+	void changedAvailableDictionaryDatabaseList();
+
+private:
+	CDictionaryDatabasePtr m_pMainDictionaryDatabase;
+	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
+	QList<DICTIONARY_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Dictionary databases available
+};
+
 
 // ============================================================================
 
@@ -1168,13 +1206,6 @@ struct TPassageTagListSortPredicate {
 		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
-
-// ============================================================================
-
-// Global Variables:
-
-extern CDictionaryDatabasePtr g_pMainDictionaryDatabase;	// Main Database (database currently active for word lookup)
-extern TDictionaryDatabaseList g_lstDictionaryDatabases;
 
 // ============================================================================
 

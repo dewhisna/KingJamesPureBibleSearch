@@ -509,24 +509,6 @@ void CMyDaemon::handleSigUsr1()
 
 // ============================================================================
 
-CDictionaryDatabasePtr locateDictionaryDatabase(const QString &strUUID)
-{
-	QString strTargetUUID = strUUID;
-
-	if (strTargetUUID.isEmpty()) {
-		// Default database is Web1828
-		strTargetUUID = dictionaryDescriptor(DDE_WEB1828).m_strUUID;
-	}
-	for (int ndx = 0; ndx < g_lstDictionaryDatabases.size(); ++ndx) {
-		if (g_lstDictionaryDatabases.at(ndx)->compatibilityUUID().compare(strTargetUUID, Qt::CaseInsensitive) == 0)
-			return g_lstDictionaryDatabases.at(ndx);
-	}
-
-	return CDictionaryDatabasePtr();
-}
-
-// ============================================================================
-
 class MyProxyStyle : public QProxyStyle
 {
 public:
@@ -594,8 +576,7 @@ CMyApplication::~CMyApplication()
 	//		the destructor tear-down order might cause us to crash, particularly
 	//		with SQL Database things:
 	TBibleDatabaseList::instance()->clear();
-	g_lstDictionaryDatabases.clear();
-	g_pMainDictionaryDatabase.clear();
+	TDictionaryDatabaseList::instance()->clear();
 	g_pUserNotesDatabase.clear();
 
 #ifdef LOAD_APPLICATION_FONTS
@@ -1318,7 +1299,7 @@ int CMyApplication::execute(bool bBuildDB)
 			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
-			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (g_pMainDictionaryDatabase.data() == NULL))) {
+			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() == NULL))) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!").arg(dctDesc.m_strDBDesc));
 				return -5;
 			}
