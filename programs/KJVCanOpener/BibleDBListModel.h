@@ -60,7 +60,6 @@ public:
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 	void updateBibleDatabaseList();
-	QStringList availableBibleDatabasesUUIDs() const;			// List of UUIDs of available Bilbe Databases
 
 signals:
 	void loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB);

@@ -1111,7 +1111,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 			CKJVCanOpener *pCanOpener = NULL;
 			if ((bForceOpen) || (m_lstKJVCanOpeners.size() != 1)) {
 				// If we have more than one, just open a new window and launch the file:
-				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->locateBibleDatabase(strBibleUUID);
+				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
 				if (pBibleDatabase.data() == NULL) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
 				assert(pCanOpener != NULL);
@@ -1243,15 +1243,16 @@ int CMyApplication::execute(bool bBuildDB)
 #endif
 
 		// Read Main Database(s)
-		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-			const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+		QList<BIBLE_DESCRIPTOR_ENUM> lstAvailableBDEs = TBibleDatabaseList::instance()->availableBibleDatabases();
+		for (int ndx = 0; ndx < lstAvailableBDEs.size(); ++ndx) {
+			const TBibleDescriptor &bblDesc = bibleDescriptor(lstAvailableBDEs.at(ndx));
 			if ((!bblDesc.m_bAutoLoad) &&
-				(m_nSelectedMainBibleDB != static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)) &&
+				(m_nSelectedMainBibleDB != lstAvailableBDEs.at(ndx)) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
-			if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
+			assert(rdbMain.haveBibleDatabaseFiles(bblDesc));
 			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
-			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)))) {
+			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == lstAvailableBDEs.at(ndx)))) {
 				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
 				return -3;
 			}

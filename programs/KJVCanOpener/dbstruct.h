@@ -790,7 +790,11 @@ public:
 	void clear();
 	int size() const { return QList<CBibleDatabasePtr>::size(); }
 	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
-	CBibleDatabasePtr locateBibleDatabase(const QString &strUUID);
+	CBibleDatabasePtr atUUID(const QString &strUUID);
+
+	QList<BIBLE_DESCRIPTOR_ENUM> availableBibleDatabases();		// List of BDEs of available Bible Databases
+	QStringList availableBibleDatabasesUUIDs();					// List of UUIDs of available Bible Databases
+	void findBibleDatabases();
 
 protected:
 	friend class CReadDatabase;
@@ -801,9 +805,12 @@ signals:
 	void removingBibleDatabase(CBibleDatabasePtr pBibleDatabase);
 	void changedMainBibleDatabase(CBibleDatabasePtr pBibleDatabase);
 	void changedBibleDatabaseList();
+	void changedAvailableBibleDatabaseList();
 
 private:
 	CBibleDatabasePtr m_pMainBibleDatabase;
+	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
+	QList<BIBLE_DESCRIPTOR_ENUM> m_lstAvailableDatabases;			// List of descriptor enums for Bible databases available
 };
 
 // ============================================================================

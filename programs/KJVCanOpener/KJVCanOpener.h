@@ -198,7 +198,7 @@ protected slots:
 	void en_Configure(int nInitialPage = -1);
 	void en_LaunchUserNoteConfig();
 
-	void en_NewCanOpener(QAction *pAction);
+	void en_NewCanOpener(QAction *pAction = NULL);
 
 // Data Private:
 private:

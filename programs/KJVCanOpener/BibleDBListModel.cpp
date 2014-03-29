@@ -43,15 +43,10 @@ CBibleDatabaseListModel::~CBibleDatabaseListModel()
 void CBibleDatabaseListModel::updateBibleDatabaseList()
 {
 	beginResetModel();
-	m_lstAvailableDatabases.clear();
+	m_lstAvailableDatabases = TBibleDatabaseList::instance()->availableBibleDatabases();
 	m_mapAvailableToLoadedIndex.clear();
-	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
-		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
-		int ndxCurrent = m_lstAvailableDatabases.size();
-		m_lstAvailableDatabases.append(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-		locateLoadedDatabase(ndxCurrent);
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		locateLoadedDatabase(ndx);
 	}
 	endResetModel();
 }
@@ -72,19 +67,6 @@ void CBibleDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 		}
 	}
 	if (!bFound) m_mapAvailableToLoadedIndex[nAvailableDBIndex] = -1;
-}
-
-
-QStringList CBibleDatabaseListModel::availableBibleDatabasesUUIDs() const
-{
-	QStringList lstUUIDs;
-
-	lstUUIDs.reserve(m_lstAvailableDatabases.size());
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-		lstUUIDs.append(bibleDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
-	}
-
-	return lstUUIDs;
 }
 
 int CBibleDatabaseListModel::rowCount(const QModelIndex &parent) const

@@ -44,7 +44,6 @@
 #endif
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
-#include "BibleDBListModel.h"
 
 #include <assert.h>
 
@@ -690,13 +689,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window"));
 
 	m_pActionBibleDatabasesList = new QAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window..."), this);
-	m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 	m_pActionBibleDatabasesList->setStatusTip(tr("Create a New King James Pure Bible Search Window"));
 	m_pActionBibleDatabasesList->setToolTip(tr("Create New Search Window"));
-	m_pActionBibleDatabasesList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
+	if (TBibleDatabaseList::instance()->availableBibleDatabases().size() == 1) {
+		// If we only have a single available database, treat it in the old fashion of a single "New Search Window" button:
+		m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+		connect(m_pActionBibleDatabasesList, SIGNAL(triggered()), this, SLOT(en_NewCanOpener()));
+	} else {
+		// Otherwise, we'll setup a submenu:
+		m_pActionBibleDatabasesList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
+		en_updateBibleDatabasesList();
+		connect(TBibleDatabaseList::instance(), SIGNAL(changedBibleDatabaseList()), this, SLOT(en_updateBibleDatabasesList()));
+	}
 	pWindowMenu->addAction(m_pActionBibleDatabasesList);
-	en_updateBibleDatabasesList();
-	connect(TBibleDatabaseList::instance(), SIGNAL(changedBibleDatabaseList()), this, SLOT(en_updateBibleDatabasesList()));
 
 	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
 	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window"));
@@ -997,8 +1002,7 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Bible Database Settings:
 	settings.beginWriteArray(constrBibleDatabaseSettingsGroup);
-	CBibleDatabaseListModel mdlBibleDatabaseSettings;
-	QStringList lstBibleDatabaseUUIDs = mdlBibleDatabaseSettings.availableBibleDatabasesUUIDs();
+	QStringList lstBibleDatabaseUUIDs = CPersistentSettings::instance()->bibleDatabaseSettingsUUIDList();
 	for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
 		settings.setArrayIndex(ndxDB);
@@ -2375,14 +2379,17 @@ void CKJVCanOpener::en_LaunchUserNoteConfig()
 void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 {
 	assert(g_pMyApplication.data() != NULL);
-	assert(pAction != NULL);
 
-	BIBLE_DESCRIPTOR_ENUM nBDE = pAction->data().value<BIBLE_DESCRIPTOR_ENUM>();
+	if (pAction != NULL) {
+		BIBLE_DESCRIPTOR_ENUM nBDE = pAction->data().value<BIBLE_DESCRIPTOR_ENUM>();
 
-	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->locateBibleDatabase(bibleDescriptor(nBDE).m_strUUID);
-	assert(pBibleDatabase.data() != NULL);
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(bibleDescriptor(nBDE).m_strUUID);
+		assert(pBibleDatabase.data() != NULL);
 
-	CKJVCanOpener *pNewCanOpener = g_pMyApplication->createKJVCanOpener(pBibleDatabase);
-	assert(pNewCanOpener != NULL);
+		g_pMyApplication->createKJVCanOpener(pBibleDatabase);
+	} else {
+		assert(TBibleDatabaseList::instance()->mainBibleDatabase().data() != NULL);
+		g_pMyApplication->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+	}
 }
 

@@ -52,7 +52,8 @@ TDictionaryDatabaseList g_lstDictionaryDatabases;
 // ============================================================================
 
 TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
-	:	QObject(pParent)
+	:	QObject(pParent),
+		m_bHaveSearchedAvailableDatabases(false)
 {
 
 }
@@ -71,7 +72,7 @@ TBibleDatabaseList *TBibleDatabaseList::instance()
 void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)
 {
 	QString strOldUUID = ((m_pMainBibleDatabase.data() != NULL) ? m_pMainBibleDatabase->compatibilityUUID() : QString());
-	CBibleDatabasePtr pBibleDatabase = locateBibleDatabase(strUUID);
+	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
 	if (pBibleDatabase.data() != NULL) {
 		m_pMainBibleDatabase = pBibleDatabase;
 		emit changedMainBibleDatabase(pBibleDatabase);
@@ -117,7 +118,7 @@ void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool
 	emit changedBibleDatabaseList();
 }
 
-CBibleDatabasePtr TBibleDatabaseList::locateBibleDatabase(const QString &strUUID)
+CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID)
 {
 	QString strTargetUUID = strUUID;
 
@@ -132,6 +133,39 @@ CBibleDatabasePtr TBibleDatabaseList::locateBibleDatabase(const QString &strUUID
 	}
 
 	return CBibleDatabasePtr();
+}
+
+QList<BIBLE_DESCRIPTOR_ENUM> TBibleDatabaseList::availableBibleDatabases()
+{
+	if (!m_bHaveSearchedAvailableDatabases) findBibleDatabases();
+	return m_lstAvailableDatabases;
+}
+
+QStringList TBibleDatabaseList::availableBibleDatabasesUUIDs()
+{
+	QStringList lstUUIDs;
+
+	if (!m_bHaveSearchedAvailableDatabases) findBibleDatabases();
+
+	lstUUIDs.reserve(m_lstAvailableDatabases.size());
+	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+		lstUUIDs.append(bibleDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
+	}
+
+	return lstUUIDs;
+}
+
+void TBibleDatabaseList::findBibleDatabases()
+{
+	m_lstAvailableDatabases.clear();
+	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
+		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
+		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
+		m_lstAvailableDatabases.append(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+	}
+	m_bHaveSearchedAvailableDatabases = true;
+	emit changedAvailableBibleDatabaseList();
 }
 
 // ============================================================================
