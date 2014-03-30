@@ -758,9 +758,15 @@ bool CReadDatabase::ReadWordsTable()
 		// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
+		bool bIsProperWord = true;
+		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+			if (!entryWord.m_lstAltWords.at(ndxAltWord).at(0).isUpper()) {
+				bIsProperWord = false;
+				break;
+			}
+		}
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
-			bool bIsProperWord = ((entryWord.m_lstAltWords.size() == 1) && (strAltWord.at(0).isUpper()));
 			CConcordanceEntry entryConcordance(strAltWord, bIsProperWord, ndxWord);
 			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);

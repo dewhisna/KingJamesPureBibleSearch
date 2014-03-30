@@ -435,7 +435,7 @@ public:
 private:
 	QString m_strWord;						// Composed Word (as in the actual text)
 	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
-	bool m_bIsProperWord;					// Proper words are determined in ReadDB and is set to True if a Word has NO Alternate Words and the Word begins with a character in the Letter_Uppercase category
+	bool m_bIsProperWord;					// Proper words are determined in ReadDB and is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category
 	int m_nIndex;							// Index used when sorting and keeping external reference intact
 };
 
