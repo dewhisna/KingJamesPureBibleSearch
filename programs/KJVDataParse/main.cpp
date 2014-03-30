@@ -248,7 +248,7 @@ const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse t
 
 static bool isSpecialWord(const QString &strLanguage, const QString &strWord)
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord);
+	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false);
 
 	if (strLanguage.compare("en", Qt::CaseInsensitive) == 0) {
 		if (strDecomposedWord.compare("abominations", Qt::CaseInsensitive) == 0) return true;
