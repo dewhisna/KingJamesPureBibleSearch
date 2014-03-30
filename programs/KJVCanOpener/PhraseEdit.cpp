@@ -709,14 +709,16 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 					QStringList lstNextWords;
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
-							lstNextWords.append(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false));
+							int nConcordanceIndex = m_pBibleDatabase->concordanceIndexForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
+							assert(nConcordanceIndex != -1);
+							lstNextWords.append(QString("%1").arg(nConcordanceIndex));
 						}
 					}
 					lstNextWords.removeDuplicates();
 
 					subPhrase.m_lstNextWords.reserve(lstNextWords.size());
 					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
-						const CConcordanceEntry &nextWordEntry(lstNextWords.at(ndxWord));
+						const CConcordanceEntry &nextWordEntry(m_pBibleDatabase->concordanceWordList().at(lstNextWords.at(ndxWord).toInt()));
 						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 

@@ -407,18 +407,20 @@ typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		
 class CConcordanceEntry
 {
 public:
-	CConcordanceEntry(const QString &strWord, int nIndex = 0);
+	CConcordanceEntry(const QString &strWord, bool bIsProperWord, int nIndex = 0);
 
 	CConcordanceEntry & operator=(const CConcordanceEntry &src)
 	{
 		m_strWord = src.m_strWord;
 		m_strDecomposedWord = src.m_strDecomposedWord;
+		m_bIsProperWord = src.m_bIsProperWord;
 		m_nIndex = src.m_nIndex;
 		return *this;
 	}
 
 	inline const QString &word() const { return m_strWord; }
 	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
+	inline bool isProperWord() const { return m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
 
 	inline bool operator==(const CConcordanceEntry &src) const
@@ -433,6 +435,7 @@ public:
 private:
 	QString m_strWord;						// Composed Word (as in the actual text)
 	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
+	bool m_bIsProperWord;					// Proper words are determined in ReadDB and is set to True if a Word has NO Alternate Words and the Word begins with a character in the Letter_Uppercase category
 	int m_nIndex;							// Index used when sorting and keeping external reference intact
 };
 
@@ -714,6 +717,8 @@ public:
 		return m_lstConcordanceWords;
 	}
 	QString renderedWord(const CConcordanceEntry &aConcordanceEntry) const;
+	int concordanceIndexForWordAtIndex(uint32_t ndxNormal) const;			// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
+	int concordanceIndexForWordAtIndex(const CRelIndex &relIndex) const;	// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
 	QString wordAtIndex(uint32_t ndxNormal, bool bAsRendered = true) const;				// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	QString wordAtIndex(const CRelIndex &relIndex, bool bAsRendered = true) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	QString decomposedWordAtIndex(uint32_t ndxNormal) const;			// Returns word of the Bible (decomposed) based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups

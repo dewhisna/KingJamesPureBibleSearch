@@ -760,7 +760,8 @@ bool CReadDatabase::ReadWordsTable()
 		//		the completer list and the FindWords sorting:
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
 			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
-			CConcordanceEntry entryConcordance(strAltWord, ndxWord);
+			bool bIsProperWord = ((entryWord.m_lstAltWords.size() == 1) && (strAltWord.at(0).isUpper()));
+			CConcordanceEntry entryConcordance(strAltWord, bIsProperWord, ndxWord);
 			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
 			ndxWord++;

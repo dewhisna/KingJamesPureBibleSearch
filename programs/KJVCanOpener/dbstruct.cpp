@@ -574,9 +574,10 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 
 // ============================================================================
 
-CConcordanceEntry::CConcordanceEntry(const QString &strWord, int nIndex)
+CConcordanceEntry::CConcordanceEntry(const QString &strWord, bool bIsProperWord, int nIndex)
 	:	m_strWord(strWord),
 		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, true)),
+		m_bIsProperWord(bIsProperWord),
 		m_nIndex(nIndex)
 {
 
@@ -1233,6 +1234,19 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 QString CBibleDatabase::renderedWord(const CConcordanceEntry &aConcordanceEntry) const
 {
 	return (settings().hideHyphens() ? CSearchStringListModel::deHyphen(aConcordanceEntry.word(), true) : aConcordanceEntry.word());
+}
+
+int CBibleDatabase::concordanceIndexForWordAtIndex(uint32_t ndxNormal) const
+{
+	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+		return -1;
+	return m_lstConcordanceMapping.at(ndxNormal);
+}
+
+int CBibleDatabase::concordanceIndexForWordAtIndex(const CRelIndex &relIndex) const
+{
+	if (!relIndex.isSet()) return -1;
+	return concordanceIndexForWordAtIndex(NormalizeIndex(relIndex));
 }
 
 QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
