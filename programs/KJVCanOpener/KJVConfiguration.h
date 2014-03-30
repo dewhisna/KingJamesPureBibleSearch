@@ -182,6 +182,7 @@ signals:
 
 private slots:
 	void en_changedHideHyphens(bool bHideHyphens);
+	void en_changedHyphenHideMode(int index);
 	void en_changedHyphenSensitive(bool bHyphenSensitive);
 
 	void en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);

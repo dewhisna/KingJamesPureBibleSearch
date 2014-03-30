@@ -35,7 +35,6 @@
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QPersistentModelIndex>
-#include <QMimeData>
 #include <QList>
 #include <QMap>
 #include <QStringList>

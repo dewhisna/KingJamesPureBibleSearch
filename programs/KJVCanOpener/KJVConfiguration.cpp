@@ -1031,6 +1031,12 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	m_pBibleWordDiffListModel = new CBibleWordDiffListModel(CBibleDatabasePtr(), ui.treeDatabaseWordChanges);
 	ui.treeDatabaseWordChanges->setModel(m_pBibleWordDiffListModel);
 
+	ui.comboBoxHyphenHideMode->clear();
+	ui.comboBoxHyphenHideMode->addItem(tr("None"), TBibleDatabaseSettings::HHO_None);
+	ui.comboBoxHyphenHideMode->addItem(tr("Proper Words"), TBibleDatabaseSettings::HHO_ProperWords);
+	ui.comboBoxHyphenHideMode->addItem(tr("Ordinary Words"), TBibleDatabaseSettings::HHO_OrdinaryWords);
+	ui.comboBoxHyphenHideMode->addItem(tr("Both"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
+
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
@@ -1038,6 +1044,7 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	connect(ui.comboBoxMainBibleDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
 
 	connect(ui.checkBoxHideHyphens, SIGNAL(clicked(bool)), this, SLOT(en_changedHideHyphens(bool)));
+	connect(ui.comboBoxHyphenHideMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedHyphenHideMode(int)));
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
 
 	setSettingControls(QString());
@@ -1097,8 +1104,31 @@ void CKJVBibleDatabaseConfig::en_changedHideHyphens(bool bHideHyphens)
 	if (m_strSelectedDatabaseUUID.isEmpty()) return;
 
 	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
-	bdbSettings.setHideHyphens(bHideHyphens);
-	if (bHideHyphens) bdbSettings.setHyphenSensitive(false);
+	if ((bHideHyphens) && (bdbSettings.hideHyphens() == TBibleDatabaseSettings::HHO_None)) {
+		bdbSettings.setHideHyphens(TBibleDatabaseSettings::HHO_ProperWords);
+	} else if ((!bHideHyphens) && (bdbSettings.hideHyphens() != TBibleDatabaseSettings::HHO_None)) {
+		bdbSettings.setHideHyphens(TBibleDatabaseSettings::HHO_None);
+	}
+	bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
+							  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
+	if (!bCanBeSensitive) bdbSettings.setHyphenSensitive(false);
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVBibleDatabaseConfig::en_changedHyphenHideMode(int index)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setHideHyphens(ui.comboBoxHyphenHideMode->itemData(index).toUInt());
+	bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
+							  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
+	if (!bCanBeSensitive) bdbSettings.setHyphenSensitive(false);
 	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
 	setSettingControls(m_strSelectedDatabaseUUID);
 
@@ -1134,18 +1164,24 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 	if (strUUID.isEmpty()) {
 		ui.checkBoxHideHyphens->setEnabled(false);
 		ui.checkBoxHideHyphens->setChecked(false);
+		ui.comboBoxHyphenHideMode->setEnabled(false);
+		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(TBibleDatabaseSettings::HHO_None));
 		ui.checkBoxHyphenSensitive->setEnabled(false);
 		ui.checkBoxHyphenSensitive->setChecked(false);
 		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
-		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens());
+		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens() != TBibleDatabaseSettings::HHO_None);
+		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(bdbSettings.hideHyphens()));
 		ui.checkBoxHyphenSensitive->setChecked(bdbSettings.hyphenSensitive());
-		if (bdbSettings.hideHyphens()) {
+		bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
+								  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
+		if (!bCanBeSensitive) {
 			assert(bdbSettings.hyphenSensitive() == false);
 		}
 		ui.checkBoxHideHyphens->setEnabled(true);
-		ui.checkBoxHyphenSensitive->setEnabled(!bdbSettings.hideHyphens());
+		ui.comboBoxHyphenHideMode->setEnabled(true);
+		ui.checkBoxHyphenSensitive->setEnabled(bCanBeSensitive);
 		m_pBibleWordDiffListModel->setBibleDatabase(TBibleDatabaseList::instance()->atUUID(strUUID));
 	}
 	ui.treeDatabaseWordChanges->resizeColumnToContents(0);
@@ -1179,6 +1215,7 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	assert(!m_bLoadingData);
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
+	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our word-diff preview to change
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

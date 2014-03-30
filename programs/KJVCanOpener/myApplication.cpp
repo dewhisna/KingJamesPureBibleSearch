@@ -1170,7 +1170,7 @@ int CMyApplication::execute(bool bBuildDB)
 				QString strUUID = settings.value(constrBibleDatabaseUUIDKey, QString()).toString();
 				if (!strUUID.isEmpty()) {
 					bdbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, bdbSettings.loadOnStart()).toBool());
-					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toBool());
+					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toUInt());
 					bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
 					CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
 				}

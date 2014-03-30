@@ -1233,7 +1233,15 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 
 QString CBibleDatabase::renderedWord(const CConcordanceEntry &aConcordanceEntry) const
 {
-	return (settings().hideHyphens() ? CSearchStringListModel::deHyphen(aConcordanceEntry.word(), true) : aConcordanceEntry.word());
+	bool bHideHyphens = false;
+
+	if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) && (aConcordanceEntry.isProperWord())) {
+		bHideHyphens = true;
+	} else if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords) && (!aConcordanceEntry.isProperWord())) {
+		bHideHyphens = true;
+	}
+
+	return (bHideHyphens ? CSearchStringListModel::deHyphen(aConcordanceEntry.word(), true) : aConcordanceEntry.word());
 }
 
 int CBibleDatabase::concordanceIndexForWordAtIndex(uint32_t ndxNormal) const

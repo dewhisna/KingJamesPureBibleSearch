@@ -45,6 +45,7 @@
 #ifndef NOT_USING_SQL
 #include <QSqlDatabase>
 #endif
+#include <QMetaType>
 
 #include <assert.h>
 
@@ -585,9 +586,15 @@ extern void setUserPhrases(const CPhraseList &lstUserPhrases);
 class TBibleDatabaseSettings
 {
 public:
+	enum HideHyphensOptions {					// <<Bitfields>>
+		HHO_None = 0x0,							// Default for no options (i.e. don't hide anything)
+		HHO_ProperWords = 0x1,					// Hide Hyphens in "Proper Words"
+		HHO_OrdinaryWords = 0x2					// Hide Hyphens in non-"Proper Words"
+	};
+
 	explicit TBibleDatabaseSettings()
 		:	m_bLoadOnStart(false),
-			m_bHideHyphens(false),
+			m_hhoHideHyphens(HHO_None),
 			m_bHyphenSensitive(false)
 	{ }
 
@@ -595,7 +602,7 @@ public:
 
 	inline bool operator==(const TBibleDatabaseSettings &other) const {
 		return ((m_bLoadOnStart == other.m_bLoadOnStart) &&
-				(m_bHideHyphens == other.m_bHideHyphens) &&
+				(m_hhoHideHyphens == other.m_hhoHideHyphens) &&
 				(m_bHyphenSensitive == other.m_bHyphenSensitive));
 	}
 	inline bool operator!=(const TBibleDatabaseSettings &other) const {
@@ -605,15 +612,15 @@ public:
 	bool loadOnStart() const { return m_bLoadOnStart; }
 	void setLoadOnStart(bool bLoadOnStart) { m_bLoadOnStart = bLoadOnStart; }
 
-	bool hideHyphens() const { return m_bHideHyphens; }
-	void setHideHyphens(bool bHideHyphens) { m_bHideHyphens = bHideHyphens; }
+	unsigned int hideHyphens() const { return m_hhoHideHyphens; }
+	void setHideHyphens(unsigned int nHHO) { m_hhoHideHyphens = nHHO; }
 
 	bool hyphenSensitive() const { return m_bHyphenSensitive; }
 	void setHyphenSensitive(bool bHyphenSensitive) { m_bHyphenSensitive = bHyphenSensitive; }
 
 private:
 	bool m_bLoadOnStart;
-	bool m_bHideHyphens;
+	unsigned int m_hhoHideHyphens;
 	bool m_bHyphenSensitive;
 };
 

@@ -1002,6 +1002,7 @@ void CKJVCanOpener::savePersistentSettings()
 
 	// Bible Database Settings:
 	settings.beginWriteArray(constrBibleDatabaseSettingsGroup);
+	settings.remove("");
 	QStringList lstBibleDatabaseUUIDs = CPersistentSettings::instance()->bibleDatabaseSettingsUUIDList();
 	for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
