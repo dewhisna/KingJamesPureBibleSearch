@@ -1230,13 +1230,18 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 	return &(word->second);
 }
 
+QString CBibleDatabase::renderedWord(const CConcordanceEntry &aConcordanceEntry) const
+{
+	return (settings().hideHyphens() ? CSearchStringListModel::deHyphen(aConcordanceEntry.word(), true) : aConcordanceEntry.word());
+}
+
 QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
 {
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
 		return QString();
 
-	if (bAsRendered && settings().hideHyphens()) {
-		return CSearchStringListModel::deHyphen(m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word(), true);
+	if (bAsRendered) {
+		return renderedWord(m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)));
 	} else {
 		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
 	}

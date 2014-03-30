@@ -716,7 +716,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 
 					subPhrase.m_lstNextWords.reserve(lstNextWords.size());
 					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
-						const CConcordanceEntry nextWordEntry(lstNextWords.at(ndxWord));
+						const CConcordanceEntry &nextWordEntry(lstNextWords.at(ndxWord));
 						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 

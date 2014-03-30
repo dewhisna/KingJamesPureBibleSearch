@@ -150,9 +150,7 @@ QVariant CSearchParsedPhraseListModel::data(const QModelIndex &index, int role) 
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return (m_parsedPhrase.bibleDatabase()->settings().hideHyphens() ?
-									deHyphen(m_parsedPhrase.nextWordsList().at(index.row()).word(), true) :
-									m_parsedPhrase.nextWordsList().at(index.row()).word());
+		return (m_parsedPhrase.bibleDatabase()->renderedWord(m_parsedPhrase.nextWordsList().at(index.row())));
 
 	if (role == Qt::EditRole)
 		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();

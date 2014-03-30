@@ -40,6 +40,7 @@
 #endif
 #include "ReadDB.h"
 #include "ReportError.h"
+#include "BibleWordDiffListModel.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1013,14 +1014,11 @@ void CKJVTextFormatConfig::en_userNotesChanged()
 // ============================================================================
 // ============================================================================
 
-CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	:	QWidget(parent),
-		m_pBibleDatabase(pBibleDatabase),
 		m_bIsDirty(false),
 		m_bLoadingData(false)
 {
-	assert(pBibleDatabase.data() != NULL);
-
 	ui.setupUi(this);
 
 	m_pBibleDatabaseListModel = new CBibleDatabaseListModel(ui.treeBibleDatabases);
@@ -1029,6 +1027,9 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabas
 	ui.treeBibleDatabases->resizeColumnToContents(1);
 
 	ui.comboBoxMainBibleDatabaseSelect->setModel(m_pBibleDatabaseListModel);
+
+	m_pBibleWordDiffListModel = new CBibleWordDiffListModel(CBibleDatabasePtr(), ui.treeDatabaseWordChanges);
+	ui.treeDatabaseWordChanges->setModel(m_pBibleWordDiffListModel);
 
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
@@ -1135,6 +1136,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.checkBoxHideHyphens->setChecked(false);
 		ui.checkBoxHyphenSensitive->setEnabled(false);
 		ui.checkBoxHyphenSensitive->setChecked(false);
+		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
 		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens());
@@ -1144,7 +1146,10 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		}
 		ui.checkBoxHideHyphens->setEnabled(true);
 		ui.checkBoxHyphenSensitive->setEnabled(!bdbSettings.hideHyphens());
+		m_pBibleWordDiffListModel->setBibleDatabase(TBibleDatabaseList::instance()->atUUID(strUUID));
 	}
+	ui.treeDatabaseWordChanges->resizeColumnToContents(0);
+	ui.treeDatabaseWordChanges->resizeColumnToContents(1);
 
 	m_strSelectedDatabaseUUID = strUUID;
 
@@ -2325,7 +2330,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
-	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(pBibleDatabase, this);
+	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
 	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));

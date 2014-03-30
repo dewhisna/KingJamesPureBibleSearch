@@ -46,6 +46,7 @@ class CDictionaryWidget;
 class QwwColorButton;
 class CKJVTextFormatConfig;
 class QListWidgetItem;
+class CBibleWordDiffListModel;
 
 // ============================================================================
 
@@ -168,7 +169,7 @@ class CKJVBibleDatabaseConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBibleDatabaseConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVBibleDatabaseConfig(QWidget *parent = 0);
 	~CKJVBibleDatabaseConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -194,9 +195,8 @@ private:
 
 // Data Private:
 private:
-	CBibleDatabasePtr m_pBibleDatabase;
-
 	CBibleDatabaseListModel *m_pBibleDatabaseListModel;
+	CBibleWordDiffListModel *m_pBibleWordDiffListModel;
 
 // UI Private:
 private:

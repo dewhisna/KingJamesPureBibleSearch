@@ -192,6 +192,7 @@ SOURCES += \
 	main.cpp \
 	myApplication.cpp \
 	BibleDBListModel.cpp \
+	BibleWordDiffListModel.cpp \
 	BusyCursor.cpp \
 	CSV.cpp \
 	dbDescriptors.cpp \
@@ -250,6 +251,7 @@ buildKJVDatabase:SOURCES += \
 HEADERS += \
 	myApplication.h \
 	BibleDBListModel.h \
+	BibleWordDiffListModel.h \
 	BusyCursor.h \
 	CSV.h \
 	dbDescriptors.h \
