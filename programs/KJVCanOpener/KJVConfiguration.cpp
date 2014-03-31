@@ -1033,7 +1033,7 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 
 	ui.comboBoxHyphenHideMode->clear();
 	ui.comboBoxHyphenHideMode->addItem(tr("None"), TBibleDatabaseSettings::HHO_None);
-	ui.comboBoxHyphenHideMode->addItem(tr("Proper Words"), TBibleDatabaseSettings::HHO_ProperWords);
+	ui.comboBoxHyphenHideMode->addItem(tr("Places/Names"), TBibleDatabaseSettings::HHO_ProperWords);
 	ui.comboBoxHyphenHideMode->addItem(tr("Ordinary Words"), TBibleDatabaseSettings::HHO_OrdinaryWords);
 	ui.comboBoxHyphenHideMode->addItem(tr("Both"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
 

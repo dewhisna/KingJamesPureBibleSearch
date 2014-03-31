@@ -380,12 +380,14 @@ class CWordEntry
 {
 public:
 	CWordEntry()
-	:	m_bCasePreserve(false)
+	:	m_bCasePreserve(false),
+		m_bIsProperWord(false)
 	{ }
 	~CWordEntry() { }
 
 	QString m_strWord;			// Word Text
 	bool m_bCasePreserve;		// Special Word Case Preserve
+	bool m_bIsProperWord;		// Proper words are determined in ReadDB and is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
@@ -408,35 +410,35 @@ typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		
 class CConcordanceEntry
 {
 public:
-	CConcordanceEntry(const QString &strWord, bool bIsProperWord, int nIndex = 0);
+	CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, int nAltWordIndex, int nIndex = 0);
 
 	CConcordanceEntry & operator=(const CConcordanceEntry &src)
 	{
-		m_strWord = src.m_strWord;
+		m_itrEntryWord = src.m_itrEntryWord;
+		m_nAltWordIndex = src.m_nAltWordIndex;
 		m_strDecomposedWord = src.m_strDecomposedWord;
-		m_bIsProperWord = src.m_bIsProperWord;
 		m_nIndex = src.m_nIndex;
 		return *this;
 	}
 
-	inline const QString &word() const { return m_strWord; }
+	inline const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
 	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
-	inline bool isProperWord() const { return m_bIsProperWord; }
+	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
 
 	inline bool operator==(const CConcordanceEntry &src) const
 	{
-		return (m_strWord.compare(src.m_strWord) == 0);
+		return (word().compare(src.word()) == 0);
 	}
 	inline bool operator!=(const CConcordanceEntry &src) const
 	{
-		return (m_strWord.compare(src.m_strWord) != 0);
+		return (word().compare(src.word()) != 0);
 	}
 
 private:
-	QString m_strWord;						// Composed Word (as in the actual text)
+	TWordListMap::const_iterator m_itrEntryWord;	// Bible Word Entry from which this was derived (used to lookup details)
+	int m_nAltWordIndex;					// Index of Composed Word in the reference CWordEntry (as in the actual text)
 	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
-	bool m_bIsProperWord;					// Proper words are determined in ReadDB and is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category
 	int m_nIndex;							// Index used when sorting and keeping external reference intact
 };
 

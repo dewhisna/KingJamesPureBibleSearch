@@ -705,10 +705,15 @@ bool CReadDatabase::ReadWordsTable()
 
 		QString strAltWords = lstFields.at(4);
 		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
+		entryWord.m_bIsProperWord = true;
 		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
-			if (!strTemp.isEmpty()) entryWord.m_lstAltWords.push_back(strTemp.normalized(QString::NormalizationForm_C));
+			if (!strTemp.isEmpty()) {
+				strTemp = strTemp.normalized(QString::NormalizationForm_C);
+				entryWord.m_lstAltWords.push_back(strTemp);
+				if (!strTemp.at(0).isUpper()) entryWord.m_bIsProperWord = false;
+			}
 		}
 		QString strAltWordCounts = lstFields.at(5);
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
@@ -758,16 +763,8 @@ bool CReadDatabase::ReadWordsTable()
 		// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
-		bool bIsProperWord = true;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			if (!entryWord.m_lstAltWords.at(ndxAltWord).at(0).isUpper()) {
-				bIsProperWord = false;
-				break;
-			}
-		}
-		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
-			CConcordanceEntry entryConcordance(strAltWord, bIsProperWord, ndxWord);
+			CConcordanceEntry entryConcordance(itrWordEntry, ndxAltWord, ndxWord);
 			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
 			ndxWord++;
