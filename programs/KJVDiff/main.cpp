@@ -106,6 +106,9 @@ int main(int argc, char *argv[])
 	bool bIgnoreTransChange = false;
 	bool bIgnorePilcrows = false;
 	bool bExactPilcrows = false;
+	bool bAllDiffs = true;
+	bool bTextDiffs = false;
+	bool bWordDiffs = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -126,6 +129,12 @@ int main(int argc, char *argv[])
 			bIgnorePilcrows = true;
 		} else if (strArg.compare("-e") == 0) {
 			bExactPilcrows = true;
+		} else if (strArg.compare("-t") == 0) {
+			bAllDiffs = false;
+			bTextDiffs = true;
+		} else if (strArg.compare("-w") == 0) {
+			bAllDiffs = false;
+			bWordDiffs = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -142,10 +151,12 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -t  =  Ignore Translation Change/Added Markup\n").toUtf8().data();
 		std::cerr << QString("  -p  =  Ignore Pilcrows\n").toUtf8().data();
 		std::cerr << QString("  -e  =  Match Exact Pilcrows (ignored if -p is set)\n\n").toUtf8().data();
+		std::cerr << QString("Diffs to run:\n").toUtf8().data();
+		std::cerr << QString("  -t  =  Text Diffs\n").toUtf8().data();
+		std::cerr << QString("  -w  =  Word Diffs\n").toUtf8().data();
+		std::cerr << QString("  (By default All Diffs are run, unless one or more specific diffs is specified)\n\n").toUtf8().data();
 //		std::cerr << QString("  -c  =  Case-Sensitive\n").toUtf8().data();
 //		std::cerr << QString("  -a  =  Accent-Sensitive\n").toUtf8().data();
-//		std::cerr << QString("  -h  =  Human readable reference text (default is normal index values)\n").toUtf8().data();
-//		std::cerr << QString("  -w  =  No word index (only when using '-h')\n").toUtf8().data();
 //		std::cerr << QString("  -b  =  Use Abbreviated Book names (only when using '-h')\n").toUtf8().data();
 //		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index Values:\n").toUtf8().data();
@@ -181,9 +192,9 @@ int main(int argc, char *argv[])
 	nReadStatus = readDatabase(bblDescriptor2, false);
 	if (nReadStatus != 0) return nReadStatus;
 
-	assert(g_lstBibleDatabases.size() == 2);
-	CBibleDatabasePtr pBible1 = g_lstBibleDatabases.at(0);
-	CBibleDatabasePtr pBible2 = g_lstBibleDatabases.at(1);
+	assert(TBibleDatabaseList::instance()->size() == 2);
+	CBibleDatabasePtr pBible1 = TBibleDatabaseList::instance()->at(0);
+	CBibleDatabasePtr pBible2 = TBibleDatabaseList::instance()->at(1);
 
 	// ------------------------------------------------------------------------
 
@@ -219,93 +230,144 @@ int main(int argc, char *argv[])
 	}
 	vtfTags.setShowPilcrowMarkers(false);
 
-	for (unsigned int nBk = 0; nBk < bblEntry1.m_nNumBk; ++nBk) {
-		const CBookEntry *pBook1 = pBible1->bookEntry(nBk+1);
-		const CBookEntry *pBook2 = pBible2->bookEntry(nBk+1);
-		unsigned int nChp1;
-		unsigned int nChp2;
-		for (nChp1=nChp2=0; ((nChp1 < pBook1->m_nNumChp) && (nChp2 < pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
-			CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
-			CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
-			const CChapterEntry *pChapter1 = pBible1->chapterEntry(ndxChapter1);
-			const CChapterEntry *pChapter2 = pBible2->chapterEntry(ndxChapter2);
-			unsigned int nVrs1;
-			unsigned int nVrs2;
-			for (nVrs1=nVrs2=0; ((nVrs1 < pChapter1->m_nNumVrs) && (nVrs2 < pChapter2->m_nNumVrs)); ++nVrs1, ++nVrs2) {
-				CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
-				CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
-				const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
-				const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
-				QString strRef1 = pBible1->PassageReferenceText(ndxVerse1);
-				QString strRef2 = pBible2->PassageReferenceText(ndxVerse2);
-				QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
-				bool bHaveDiff = false;
-				if (pVerse1->m_nNumWrd != pVerse2->m_nNumWrd) {
-					strDiffText += QString("    WordCount: %1 <=> %2\n").arg(pVerse1->m_nNumWrd).arg(pVerse2->m_nNumWrd);
-					bHaveDiff = true;
-				}
-				if ((!bIgnorePilcrows) && (pVerse1->m_nPilcrow != pVerse2->m_nPilcrow)) {
-					if ((bExactPilcrows) ||
-						(!(((pVerse1->m_nPilcrow == CVerseEntry::PTE_NONE) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_EXTRA)) ||
-						   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_EXTRA) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_NONE)) ||
-						   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_MARKER) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) ||
-						   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_MARKER))))) {
-						strDiffText += QString("    Pilcrows: %1 <=> %2\n").arg(pVerse1->m_nPilcrow).arg(pVerse2->m_nPilcrow);
+	if (bAllDiffs || bTextDiffs) {
+		for (unsigned int nBk = 0; nBk < bblEntry1.m_nNumBk; ++nBk) {
+			const CBookEntry *pBook1 = pBible1->bookEntry(nBk+1);
+			const CBookEntry *pBook2 = pBible2->bookEntry(nBk+1);
+			unsigned int nChp1;
+			unsigned int nChp2;
+			for (nChp1=nChp2=0; ((nChp1 < pBook1->m_nNumChp) && (nChp2 < pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
+				CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
+				CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
+				const CChapterEntry *pChapter1 = pBible1->chapterEntry(ndxChapter1);
+				const CChapterEntry *pChapter2 = pBible2->chapterEntry(ndxChapter2);
+				unsigned int nVrs1;
+				unsigned int nVrs2;
+				for (nVrs1=nVrs2=0; ((nVrs1 < pChapter1->m_nNumVrs) && (nVrs2 < pChapter2->m_nNumVrs)); ++nVrs1, ++nVrs2) {
+					CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
+					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
+					const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
+					const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
+					QString strRef1 = pBible1->PassageReferenceText(ndxVerse1);
+					QString strRef2 = pBible2->PassageReferenceText(ndxVerse2);
+					QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
+					bool bHaveDiff = false;
+					if (pVerse1->m_nNumWrd != pVerse2->m_nNumWrd) {
+						strDiffText += QString("    WordCount: %1 <=> %2\n").arg(pVerse1->m_nNumWrd).arg(pVerse2->m_nNumWrd);
 						bHaveDiff = true;
 					}
+					if ((!bIgnorePilcrows) && (pVerse1->m_nPilcrow != pVerse2->m_nPilcrow)) {
+						if ((bExactPilcrows) ||
+							(!(((pVerse1->m_nPilcrow == CVerseEntry::PTE_NONE) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_EXTRA)) ||
+							   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_EXTRA) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_NONE)) ||
+							   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_MARKER) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) ||
+							   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_MARKER))))) {
+							strDiffText += QString("    Pilcrows: %1 <=> %2\n").arg(pVerse1->m_nPilcrow).arg(pVerse2->m_nPilcrow);
+							bHaveDiff = true;
+						}
+					}
+					QString strTemplate1 = pVerse1->m_strTemplate;
+					QString strTemplate2 = pVerse2->m_strTemplate;
+					if (bIgnoreDivineNames) {
+						strTemplate1.remove(QRegExp("[Dd]"));
+						strTemplate2.remove(QRegExp("[Dd]"));
+					}
+					if (bIgnoreTransChange) {
+						strTemplate1.remove(QRegExp("[Tt]"));
+						strTemplate2.remove(QRegExp("[Tt]"));
+					}
+					if (bIgnoreWordsOfJesus) {
+						strTemplate1.remove(QRegExp("[Jj]"));
+						strTemplate2.remove(QRegExp("[Jj]"));
+					}
+					if (strTemplate1.compare(strTemplate2) != 0) {
+						strDiffText += QString("    Template1: %1\n").arg(strTemplate1);
+						strDiffText += QString("    Template2: %1\n").arg(strTemplate2);
+						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), pVerse1, vtfTags)).toUtf8().data();
+						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), pVerse2, vtfTags)).toUtf8().data();
+						bHaveDiff = true;
+					}
+					if (bHaveDiff) {
+						std::cout << QString("%1--------------------\n").arg(strDiffText).toUtf8().data();
+					}
 				}
-				QString strTemplate1 = pVerse1->m_strTemplate;
-				QString strTemplate2 = pVerse2->m_strTemplate;
-				if (bIgnoreDivineNames) {
-					strTemplate1.remove(QRegExp("[Dd]"));
-					strTemplate2.remove(QRegExp("[Dd]"));
-				}
-				if (bIgnoreTransChange) {
-					strTemplate1.remove(QRegExp("[Tt]"));
-					strTemplate2.remove(QRegExp("[Tt]"));
-				}
-				if (bIgnoreWordsOfJesus) {
-					strTemplate1.remove(QRegExp("[Jj]"));
-					strTemplate2.remove(QRegExp("[Jj]"));
-				}
-				if (strTemplate1.compare(strTemplate2) != 0) {
-					strDiffText += QString("    Template1: %1\n").arg(strTemplate1);
-					strDiffText += QString("    Template2: %1\n").arg(strTemplate2);
-					strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), pVerse1, vtfTags)).toUtf8().data();
-					strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), pVerse2, vtfTags)).toUtf8().data();
-					bHaveDiff = true;
-				}
-				if (bHaveDiff) {
-					std::cout << QString("%1--------------------\n").arg(strDiffText).toUtf8().data();
+				while ((nVrs1 < pChapter1->m_nNumVrs) || (nVrs2 < pChapter2->m_nNumVrs)) {
+					CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
+					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
+					if (nVrs1 >= pChapter1->m_nNumVrs) {
+						std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxVerse2)).toUtf8().data();
+						++nVrs2;
+					} else if (nVrs2 >= pChapter2->m_nNumVrs) {
+						std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxVerse1)).toUtf8().data();
+						++nVrs1;
+					} else {
+						assert(false);
+					}
 				}
 			}
-			while ((nVrs1 < pChapter1->m_nNumVrs) || (nVrs2 < pChapter2->m_nNumVrs)) {
-				CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
-				CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
-				if (nVrs1 >= pChapter1->m_nNumVrs) {
-					std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxVerse2)).toUtf8().data();
-					++nVrs2;
-				} else if (nVrs2 >= pChapter2->m_nNumVrs) {
-					std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxVerse1)).toUtf8().data();
-					++nVrs1;
+			while ((nChp1 < pBook1->m_nNumChp) || (nChp2 < pBook2->m_nNumChp)) {
+				CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
+				CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
+				if (nChp1 >= pBook1->m_nNumChp) {
+					std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxChapter2)).toUtf8().data();
+					++nChp2;
+				} else if (nChp2 >= pBook2->m_nNumChp) {
+					std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxChapter1)).toUtf8().data();
+					++nChp1;
 				} else {
 					assert(false);
 				}
 			}
 		}
-		while ((nChp1 < pBook1->m_nNumChp) || (nChp2 < pBook2->m_nNumChp)) {
-			CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
-			CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
-			if (nChp1 >= pBook1->m_nNumChp) {
-				std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxChapter2)).toUtf8().data();
-				++nChp2;
-			} else if (nChp2 >= pBook2->m_nNumChp) {
-				std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxChapter1)).toUtf8().data();
-				++nChp1;
-			} else {
-				assert(false);
+	}
+
+	if (bAllDiffs || bWordDiffs) {
+/*
+		TWordListMap mapWordList1;
+		TWordListMap mapWordList2;
+
+		for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
+			const CWordEntry &entryWord(itrWordEntry->second);
+			// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
+			//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
+			//		the completer list and the FindWords sorting:
+			for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+				QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
+				CConcordanceEntry entryConcordance(strAltWord, ndxWord);
+				m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
+				m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
+				ndxWord++;
 			}
 		}
+
+
+
+		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
+		// This check is needed because duplicates can happen from decomposed index keys.
+		//		Note: It's less computationally expensive to search the map for it than
+		//				to do a .contains() call on the m_lstWordList below, even though
+		//				it's the list we want to keep it out of.  Searching the list used
+		//				over 50% of the database load time!:
+		bool bIsNewWord = (m_pBibleDatabase->m_mapWordList.find(strKey) == m_pBibleDatabase->m_mapWordList.end());
+		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
+		if (bIsNewWord) m_pBibleDatabase->m_lstWordList.append(strKey);
+
+		if (entryWord.m_strWord.isEmpty()) {
+			entryWord.m_strWord = strKey;
+			entryWord.m_bCasePreserve = bCasePreserve;
+		} else {
+			// If folding duplicate words into single entry from decomposed indexes,
+			//		they better be the same exact word:
+			assert(entryWord.m_strWord.compare(strKey) == 0);
+			assert(entryWord.m_bCasePreserve == bCasePreserve);
+			if ((entryWord.m_strWord.compare(strKey) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
+				return false;
+			}
+		}
+*/
+
+
 	}
 
 //	return a.exec();
