@@ -1161,6 +1161,11 @@ TBibleDatabaseSettings CBibleDatabase::settings() const
 	return CPersistentSettings::instance()->bibleDatabaseSettings(m_strCompatibilityUUID);
 }
 
+void CBibleDatabase::setSettings(const TBibleDatabaseSettings &aSettings)
+{
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strCompatibilityUUID, aSettings);
+}
+
 void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
 {
 	assert(m_pKJPBSWordScriptureObject != NULL);

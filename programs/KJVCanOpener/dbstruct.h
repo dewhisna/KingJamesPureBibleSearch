@@ -645,6 +645,7 @@ public:
 	~CBibleDatabase();
 
 	TBibleDatabaseSettings settings() const;
+	void setSettings(const TBibleDatabaseSettings &aSettings);
 
 	QString language() const { return m_strLanguage; }
 	QString name() const { return m_strName; }

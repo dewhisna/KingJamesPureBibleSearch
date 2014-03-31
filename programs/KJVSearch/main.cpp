@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
 	bool bUnknownOption = false;
 	bool bCaseSensitive = false;
 	bool bAccentSensitive = false;
+	bool bHyphenSensitive = false;
 	bool bHumanReadable = false;
 	bool bNoWordIndex = false;
 	bool bUseAbbreviated = false;
@@ -102,6 +103,8 @@ int main(int argc, char *argv[])
 			bCaseSensitive = true;
 		} else if (strArg.compare("-a") == 0) {
 			bAccentSensitive = true;
+		} else if (strArg.compare("-y") == 0) {
+			bHyphenSensitive = true;
 		} else if (strArg.compare("-h") == 0) {
 			bHumanReadable = true;
 		} else if (strArg.compare("-w") == 0) {
@@ -123,6 +126,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -c  =  Case-Sensitive\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Accent-Sensitive\n").toUtf8().data();
+		std::cerr << QString("  -y  =  Hyphen-Sensitive\n").toUtf8().data();
 		std::cerr << QString("  -h  =  Human readable reference text (default is normal index values)\n").toUtf8().data();
 		std::cerr << QString("  -w  =  No word index (only when using '-h')\n").toUtf8().data();
 		std::cerr << QString("  -b  =  Use Abbreviated Book names (only when using '-h')\n").toUtf8().data();
@@ -163,8 +167,14 @@ int main(int argc, char *argv[])
 
 	std::cerr << QString("Searching for: \"%1\"\n").arg(strPhrase).toUtf8().data();
 
-	CParsedPhrase parsePhrase(TBibleDatabaseList::instance()->mainBibleDatabase(), bCaseSensitive, bAccentSensitive);
-	
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+
+	CParsedPhrase parsePhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive);
+
+	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
+	bdbSettings.setHyphenSensitive(bHyphenSensitive);
+	pBibleDatabase->setSettings(bdbSettings);
+
 	parsePhrase.ParsePhrase(strPhrase);
 	parsePhrase.FindWords();
 
@@ -179,9 +189,9 @@ int main(int argc, char *argv[])
 		} else {
 			if (bNoWordIndex) relIndex.setWord(0);
 			if (bUseAbbreviated) {
-				std::cout << TBibleDatabaseList::instance()->mainBibleDatabase()->PassageReferenceAbbrText(relIndex).toUtf8().data();
+				std::cout << pBibleDatabase->PassageReferenceAbbrText(relIndex).toUtf8().data();
 			} else {
-				std::cout << TBibleDatabaseList::instance()->mainBibleDatabase()->PassageReferenceText(relIndex).toUtf8().data();
+				std::cout << pBibleDatabase->PassageReferenceText(relIndex).toUtf8().data();
 			}
 		}
 		if (bSeparateLines) std::cout << "\n";
