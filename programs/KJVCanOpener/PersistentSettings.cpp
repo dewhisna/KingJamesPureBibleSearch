@@ -23,7 +23,9 @@
 
 #include "PersistentSettings.h"
 
+#if !defined(NO_PERSISTENT_SETTINGS) && !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 #include "version.h"
+#endif
 
 #include <QCoreApplication>
 #include <QApplication>
@@ -117,7 +119,11 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
+#ifndef IS_CONSOLE_APP
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nSearchActivationDelay(0),
+#endif
 #else
 		m_nSearchActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
@@ -125,7 +131,11 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bAutoExpandSearchResultsTree(false),
 		// Default Browser Options:
 #ifndef EMSCRIPTEN
+#ifndef IS_CONSOLE_APP
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nNavigationActivationDelay(0),
+#endif
 #else
 		m_nNavigationActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
@@ -137,7 +147,11 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
+#ifndef IS_CONSOLE_APP
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nDictionaryActivationDelay(0),
+#endif
 #else
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
@@ -174,10 +188,15 @@ CPersistentSettings::CPersistentSettings(QObject *parent)
 		m_pSettings(NULL),
 		m_bStealthMode(false)
 {
+#ifndef NO_PERSISTENT_SETTINGS
 	// Must set these in main() before caling settings!:
 	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationName().compare(VER_ORGNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationDomain().compare(VER_ORGDOMAIN_STR_QT) == 0);
+#else
+	// If running without Persistent Settings, use Stealth Mode:
+	setStealthMode(QString());
+#endif
 }
 
 CPersistentSettings::~CPersistentSettings()

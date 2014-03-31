@@ -29,10 +29,6 @@
 
 QT       += core gui xml
 
-DEFINES += NOT_USING_SQL
-DEFINES += NO_PERSISTENT_SETTINGS
-DEFINES += OSIS_PARSER_BUILD
-
 # Workaround QTBUG-30594 (was fixed in 4.8.5):
 equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
@@ -41,6 +37,11 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
+
+DEFINES += NOT_USING_SQL
+DEFINES += NO_PERSISTENT_SETTINGS
+DEFINES += OSIS_PARSER_BUILD
+console:DEFINES += IS_CONSOLE_APP
 
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)

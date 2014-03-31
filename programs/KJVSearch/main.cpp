@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
-			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBName).toUtf8().data();
+			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBDesc).toUtf8().data();
 		}
 		std::cerr << "\n";
 		std::cerr << QString("Phrase : Text phrase to search, supports all KJPBS notation\n\n").toUtf8().data();
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
 	std::cerr << QString("Searching for: \"%1\"\n").arg(strPhrase).toUtf8().data();
 
-	CParsedPhrase parsePhrase(g_pMainBibleDatabase, bCaseSensitive, bAccentSensitive);
+	CParsedPhrase parsePhrase(TBibleDatabaseList::instance()->mainBibleDatabase(), bCaseSensitive, bAccentSensitive);
 	
 	parsePhrase.ParsePhrase(strPhrase);
 	parsePhrase.FindWords();
@@ -179,9 +179,9 @@ int main(int argc, char *argv[])
 		} else {
 			if (bNoWordIndex) relIndex.setWord(0);
 			if (bUseAbbreviated) {
-				std::cout << g_pMainBibleDatabase->PassageReferenceAbbrText(relIndex).toUtf8().data();
+				std::cout << TBibleDatabaseList::instance()->mainBibleDatabase()->PassageReferenceAbbrText(relIndex).toUtf8().data();
 			} else {
-				std::cout << g_pMainBibleDatabase->PassageReferenceText(relIndex).toUtf8().data();
+				std::cout << TBibleDatabaseList::instance()->mainBibleDatabase()->PassageReferenceText(relIndex).toUtf8().data();
 			}
 		}
 		if (bSeparateLines) std::cout << "\n";
