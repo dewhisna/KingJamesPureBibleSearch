@@ -1026,6 +1026,10 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
 
+#if QT_VERSION >= 0x050000
+	ui.treeBibleDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+#endif
+
 	ui.comboBoxMainBibleDatabaseSelect->setModel(m_pBibleDatabaseListModel);
 
 	m_pBibleWordDiffListModel = new CBibleWordDiffListModel(CBibleDatabasePtr(), ui.treeDatabaseWordChanges);
@@ -1213,9 +1217,9 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	Q_UNUSED(bAutoLoad);
 
 	assert(!m_bLoadingData);
+	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our word-diff preview to change
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
-	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our word-diff preview to change
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
