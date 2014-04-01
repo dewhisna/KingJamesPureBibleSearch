@@ -52,7 +52,7 @@ namespace {
 		// Special Test Value:
 		{ false, QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
 		// KJV:
-		{ true, QString::fromUtf8("King James"), QString::fromUtf8("King James Version (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
+		{ true, QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
 		// RVG2010:
 		{ false, QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
 		// KJF2006:

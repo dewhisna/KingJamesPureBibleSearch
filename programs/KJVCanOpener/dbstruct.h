@@ -387,7 +387,7 @@ public:
 
 	QString m_strWord;			// Word Text
 	bool m_bCasePreserve;		// Special Word Case Preserve
-	bool m_bIsProperWord;		// Proper words are determined in ReadDB and is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category
+	bool m_bIsProperWord;		// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible

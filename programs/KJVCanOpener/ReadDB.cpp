@@ -671,6 +671,11 @@ bool CReadDatabase::ReadWordsTable()
 	m_pBibleDatabase->m_lstConcordanceMapping.resize(nNumWordsInText+1);			// Preallocate our concordance mapping as we know how many words the text contains (+1 for zero position)
 	int nConcordanceCount = 0;			// Count of words so we can preallocate our buffers
 
+	// NOTE: bIndexCasePreserve is no longer just the SpecialWord CasePreserve flag.  It's now a special word processing
+	//			bit-field.  For backward compatibility, the low-bit is still the boolean flag for SpecialWord CasePreserve.
+	//			The next to lsbit is the IsProperWord flag for words which have all alternate forms with initial uppercase,
+	//			excluding specialized hyphen formed "Ordinary Words", like "God-ward", as mapped out in the KJVDataParse tool.
+
 	dbParser.startQueryLoop("WrdNdx, Word, bIndexCasePreserve, NumTotal, AltWords, AltWordCounts, NormalMap");
 
 	while (dbParser.haveData()) {
@@ -678,7 +683,8 @@ bool CReadDatabase::ReadWordsTable()
 		if (!dbParser.readNextRecord(lstFields, 7, true)) return false;
 
 		QString strWord = lstFields.at(1);
-		bool bCasePreserve = ((lstFields.at(2).toInt()) ? true : false);
+		bool bCasePreserve = ((lstFields.at(2).toInt() & 0x01) ? true : false);
+		bool bIsProperWord = ((lstFields.at(2).toInt() & 0x02) ? true : false);
 		QString strKey = CSearchStringListModel::decompose(strWord, true).toLower();
 		// This check is needed because duplicates can happen from decomposed index keys.
 		//		Note: It's less computationally expensive to search the map for it than
@@ -692,12 +698,15 @@ bool CReadDatabase::ReadWordsTable()
 		if (entryWord.m_strWord.isEmpty()) {
 			entryWord.m_strWord = strKey;
 			entryWord.m_bCasePreserve = bCasePreserve;
+			entryWord.m_bIsProperWord = bIsProperWord;
 		} else {
 			// If folding duplicate words into single entry from decomposed indexes,
 			//		they better be the same exact word:
 			assert(entryWord.m_strWord.compare(strKey) == 0);
-			assert(entryWord.m_bCasePreserve == bCasePreserve);
-			if ((entryWord.m_strWord.compare(strKey) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
+			// Combine special flags to form overall logic:
+			if (entryWord.m_bCasePreserve != bCasePreserve) entryWord.m_bCasePreserve = true;		// Special word of either form is still the "special word"
+			if (entryWord.m_bIsProperWord != bIsProperWord) entryWord.m_bIsProperWord = false;		// If two words that are considered the same have different "proper" status, fold it into being "ordinary"
+			if (entryWord.m_strWord.compare(strKey) != 0) {
 				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
 				return false;
 			}
@@ -705,14 +714,12 @@ bool CReadDatabase::ReadWordsTable()
 
 		QString strAltWords = lstFields.at(4);
 		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
-		entryWord.m_bIsProperWord = true;
 		while (!csvWord.atEndOfStream()) {
 			QString strTemp;
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) {
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
 				entryWord.m_lstAltWords.push_back(strTemp);
-				if (!strTemp.at(0).isUpper()) entryWord.m_bIsProperWord = false;
 			}
 		}
 		QString strAltWordCounts = lstFields.at(5);

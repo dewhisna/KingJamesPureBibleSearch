@@ -246,95 +246,146 @@ const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse t
 // ============================================================================
 // ============================================================================
 
-static bool isSpecialWord(const QString &strLanguage, const QString &strWord)
+static bool isSpecialWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage, const CWordEntry &entryWord)
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false);
+	Q_UNUSED(nBDE);
 
 	if (strLanguage.compare("en", Qt::CaseInsensitive) == 0) {
-		if (strDecomposedWord.compare("abominations", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("am", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("amen", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("ancient", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("and", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("angel", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("Babylon", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("bishop", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("branch", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("cherub", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("comforter", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("creator", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("day", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("days", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("devil", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("dominion", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("duke", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("earth", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("elect", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("father", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("father's", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("fathers", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("ghost", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("God", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("gods", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("great", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("harlots", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("heaven", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("hell", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("highest", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("him", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("himself", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("his", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("holiness", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("holy", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("is", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("Jesus", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("Jews", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("judge", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("king", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("kings", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("kings'", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lamb", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("legion", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lion", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lord", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lord's", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lords", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("lot", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("man", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("man's", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("master", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("masters", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("men", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("men's", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("mighty", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("moon", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("mother", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("mystery", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("Nazareth", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("of", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("one", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("our", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("righteousness", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("sanctuary", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("saviour", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("sceptre", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("shepherd", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("son", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("spirit", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("spirits", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("sun", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("tabernacle", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("that", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("the", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("this", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("thy", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("unknown", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("unto", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("word", Qt::CaseInsensitive) == 0) return true;
-		if (strDecomposedWord.compare("wormwood", Qt::CaseInsensitive) == 0) return true;
+		for (int ndx = 0; ndx < entryWord.m_lstAltWords.size(); ++ndx) {
+			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+
+			if (strDecomposedWord.compare("abominations", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("am", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("amen", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("ancient", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("and", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("angel", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("Babylon", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("bishop", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("branch", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("cherub", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("comforter", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("creator", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("day", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("days", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("devil", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("dominion", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("duke", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("earth", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("elect", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("father", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("father's", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("fathers", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("ghost", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("God", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("gods", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("great", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("harlots", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("heaven", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("hell", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("highest", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("him", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("himself", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("his", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("holiness", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("holy", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("is", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("Jesus", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("Jews", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("judge", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("king", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("kings", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("kings'", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lamb", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("legion", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lion", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lord", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lord's", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lords", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("lot", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("man", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("man's", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("master", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("masters", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("men", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("men's", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("mighty", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("moon", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("mother", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("mystery", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("Nazareth", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("of", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("one", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("our", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("righteousness", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("sanctuary", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("saviour", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("sceptre", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("shepherd", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("son", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("spirit", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("spirits", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("sun", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("tabernacle", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("that", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("the", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("this", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("thy", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("unknown", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("unto", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("word", Qt::CaseInsensitive) == 0) return true;
+			if (strDecomposedWord.compare("wormwood", Qt::CaseInsensitive) == 0) return true;
+		}
 	}
 
 	return false;
+}
+
+static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage, const CWordEntry &entryWord)
+{
+	bool bIsProperWord = true;
+
+	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJVPCE)) {
+		assert(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
+
+		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
+			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+			if (!strDecomposedWord.at(0).isUpper()) {
+				bIsProperWord = false;
+			} else {
+				//	Lists of "Oridinary" words as extracted:
+				//
+				//	Sword 1769:				Sword PCE:
+				//	-----------				----------
+				//	Godward					Godward
+				//	jointheirs				jointheirs
+				//	theeward
+				//	usward					usward
+				//	youward					youward
+
+				if (strDecomposedWord.compare("Godward", Qt::CaseInsensitive) == 0) {
+					bIsProperWord = false;
+				} else if (strDecomposedWord.compare("jointheirs", Qt::CaseInsensitive) == 0) {
+					bIsProperWord = false;
+				} else if (strDecomposedWord.compare("theeward", Qt::CaseInsensitive) == 0) {
+					bIsProperWord = false;
+				} else if (strDecomposedWord.compare("usward", Qt::CaseInsensitive) == 0) {
+					bIsProperWord = false;
+				} else if (strDecomposedWord.compare("youward", Qt::CaseInsensitive) == 0) {
+					bIsProperWord = false;
+				}
+			}
+		}
+	} else {
+		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
+			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+			if (!strDecomposedWord.at(0).isUpper()) {
+				bIsProperWord = false;
+			}
+		}
+	}
+
+	return bIsProperWord;
 }
 
 // ============================================================================
@@ -1219,13 +1270,13 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	TBibleDescriptor bblDescriptor;
-	if (QString(argv[1]).toUInt() < bibleDescriptorCount()) {
-		bblDescriptor = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(QString(argv[1]).toUInt()));
-	} else {
+	if (QString(argv[1]).toUInt() >= bibleDescriptorCount()) {
 		std::cerr << "Unknown UUID-Index\n";
 		return -1;
 	}
+
+	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(QString(argv[1]).toUInt());
+	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
 
 	QDir dirOutput(argv[3]);
 	if (!dirOutput.exists()) {
@@ -1539,7 +1590,6 @@ int main(int argc, char *argv[])
 	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
 		const TAltWordSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
-		wordEntryDb.m_bCasePreserve = false;
 		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
 			TWordListMap::const_iterator itrWrd = mapWordList.find(*itrAltWrd);
 			if (itrWrd == mapWordList.end()) {
@@ -1550,8 +1600,9 @@ int main(int argc, char *argv[])
 			wordEntryDb.m_lstAltWordCount.push_back(itrWrd->second.m_ndxNormalizedMapping.size());
 			wordEntryDb.m_ndxNormalizedMapping.insert(wordEntryDb.m_ndxNormalizedMapping.end(), itrWrd->second.m_ndxNormalizedMapping.begin(), itrWrd->second.m_ndxNormalizedMapping.end());
 			wordEntryDb.m_strWord = WordFromWordSet(setAltWords);
-			if (isSpecialWord(xmlHandler.language(), *itrAltWrd)) wordEntryDb.m_bCasePreserve = true;
 		}
+		wordEntryDb.m_bCasePreserve = isSpecialWord(nBDE, xmlHandler.language(), wordEntryDb);
+		wordEntryDb.m_bIsProperWord = isProperWord(nBDE, xmlHandler.language(), wordEntryDb);
 
 		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
 		assert(wordEntryDb.m_lstAltWords.size() > 0);
@@ -1561,7 +1612,8 @@ int main(int argc, char *argv[])
 		// WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap
 
 		nWordIndex++;
-		fileWords.write(QString("%1,\"%2\",%3,%4,").arg(nWordIndex).arg(wordEntryDb.m_strWord).arg(wordEntryDb.m_bCasePreserve ? 1 :0).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
+		int nSpecFlags = (wordEntryDb.m_bCasePreserve ? 1 :0) + (wordEntryDb.m_bIsProperWord ? 2 :0);		// Setup sepcial bit-flags field
+		fileWords.write(QString("%1,\"%2\",%3,%4,").arg(nWordIndex).arg(wordEntryDb.m_strWord).arg(nSpecFlags).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
 		for (int i=0; i<wordEntryDb.m_lstAltWords.size(); ++i) {
 			fileWords.write(QString((i == 0) ? "\"" : ",").toUtf8());
 			fileWords.write(wordEntryDb.m_lstAltWords.at(i).toUtf8());

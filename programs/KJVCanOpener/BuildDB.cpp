@@ -951,6 +951,11 @@ bool CBuildDatabase::BuildWordsTable()
 			continue;
 		}
 
+		// NOTE: bIndexCasePreserve is no longer just the SpecialWord CasePreserve flag.  It's now a special word processing
+		//			bit-field.  For backward compatibility, the low-bit is still the boolean flag for SpecialWord CasePreserve.
+		//			The next to lsbit is the IsProperWord flag for words which have all alternate forms with initial uppercase,
+		//			excluding specialized hyphen formed "Ordinary Words", like "God-ward", as mapped out in the KJVDataParse tool.
+
 #ifndef NOT_USING_SQL
 		if (m_myDatabase.isOpen()) {
 			strCmd = QString("INSERT INTO WORDS "
