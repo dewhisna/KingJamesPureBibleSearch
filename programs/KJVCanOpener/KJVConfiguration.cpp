@@ -1090,7 +1090,8 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	// Unload unused Bible Databases:
 	for (int ndx = TBibleDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
 		QString strUUID = TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID();
-		if (m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) {
+		if ((m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
+			(TBibleDatabaseList::instance()->mainBibleDatabase() != TBibleDatabaseList::instance()->atUUID(strUUID))) {		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
 			TBibleDatabaseList::instance()->removeBibleDatabase(strUUID);
 			continue;
 		}
