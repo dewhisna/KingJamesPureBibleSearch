@@ -1188,7 +1188,6 @@ const CBookCategoryEntry *CBibleDatabase::bookCategoryEntry(uint32_t nCat) const
 
 const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 {
-	assert((nBk >= 1) && (nBk <= m_lstBooks.size()));
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return NULL;
 	return &m_lstBooks.at(nBk-1);
 }

@@ -125,8 +125,14 @@ public:
 	inline bool operator<(const CRelIndex &ndx) const {
 		return (index() < ndx.index());
 	}
+	inline bool operator<=(const CRelIndex &ndx) const {
+		return (index() <= ndx.index());
+	}
 	inline bool operator>(const CRelIndex &ndx) const {
 		return (index() > ndx.index());
+	}
+	inline bool operator>=(const CRelIndex &ndx) const {
+		return (index() >= ndx.index());
 	}
 	inline bool operator==(const CRelIndex &ndx) const {
 		return (index() == ndx.index());

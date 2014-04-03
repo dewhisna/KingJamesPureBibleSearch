@@ -817,7 +817,10 @@ void CKJVCanOpener::initialize()
 		// Read last location : Default initial location is Genesis 1
 		CRelIndex ndxLastRef = CRelIndex(settings.value(constrLastReferenceKey, tag.relIndex().asAnchor()).toString());
 		unsigned int nCount = settings.value(constrLastSelectionSizeKey, 0).toUInt();
-		if (ndxLastRef.isSet()) tag = TPhraseTag(ndxLastRef, nCount);
+		if ((ndxLastRef.isSet()) &&
+			(m_pBibleDatabase->NormalizeIndex(ndxLastRef) != 0)) {			// Make sure the reference is part of our database's versification/content
+			tag = TPhraseTag(ndxLastRef, nCount);
+		}
 		settings.endGroup();
 	} else {
 		setWindowTitle(windowTitle() + " (" + tr("Stealth Mode") + ")");

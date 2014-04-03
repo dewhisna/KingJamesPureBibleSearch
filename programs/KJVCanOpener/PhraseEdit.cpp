@@ -1057,6 +1057,8 @@ TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndx
 	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
 		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1);
 		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
+		// This can happen if the versification of the reference doesn't match the active database:
+		if (ndxNormalCurrent == 0) return TPhraseTag();
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
 		assert(pChapter != NULL);
 		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;

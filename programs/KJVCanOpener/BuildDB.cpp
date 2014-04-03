@@ -71,9 +71,10 @@ namespace {
 	// Book counts are here only on the building process as
 	//  the reading side gets this data entirely from the
 	//  database
-	#define NUM_BK 66
+	#define NUM_BK 80
 	#define NUM_BK_OT 39
 	#define NUM_BK_NT 27
+	#define NUM_BK_APOC1 14
 
 	const char *g_arrstrBkTblNames[NUM_BK] =
 			{	"GEN",
@@ -141,7 +142,21 @@ namespace {
 				"JOHN2",
 				"JOHN3",
 				"JUDE",
-				"REV"
+				"REV",
+				"ESD1",
+				"ESD2",
+				"TOB",
+				"JDT",
+				"ADDESTH",
+				"WIS",
+				"SIR",
+				"BAR",
+				"PRAZAR",
+				"SUS",
+				"BEL",
+				"PRMAN",
+				"MACC1",
+				"MACC2"
 			};
 
 }		// Namespace
@@ -717,7 +732,11 @@ bool CBuildDatabase::BuildVerseTables()
 {
 	// Build the Book Verses tables:
 
+	int nBooksProcessed = 0;
+
 	for (int i=0; i<NUM_BK; ++i) {
+		QFileInfo fiBook(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i]));
+
 #ifndef NOT_USING_SQL
 		QString strCmd;
 		if (m_myDatabase.isOpen()) {
@@ -741,6 +760,9 @@ bool CBuildDatabase::BuildVerseTables()
 				}
 			}
 
+			// Don't create the database if we don't have the datafile:
+			if ((!fiBook.exists()) || (!fiBook.isFile())) continue;
+
 			// Create the table in the database:
 			strCmd = QString("create table %1 "
 							"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT, TText TEXT)").arg(g_arrstrBkTblNames[i]);
@@ -754,7 +776,8 @@ bool CBuildDatabase::BuildVerseTables()
 #endif	// !NOT_USING_SQL
 
 		// Open the table data file:
-		QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i])).absoluteFilePath());
+		if ((!fiBook.exists()) || (!fiBook.isFile())) continue;
+		QFile fileBook(fiBook.absoluteFilePath());
 		while (1) {
 			if (!fileBook.open(QIODevice::ReadOnly)) {
 				if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -762,6 +785,7 @@ bool CBuildDatabase::BuildVerseTables()
 						QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 			} else break;
 		}
+		++nBooksProcessed;
 
 		// Read file and populate table:
 		CCSVStream csv(&fileBook);
@@ -855,6 +879,13 @@ bool CBuildDatabase::BuildVerseTables()
 		}
 
 		fileBook.close();
+	}
+
+	if ((nBooksProcessed != (NUM_BK_OT + NUM_BK_NT)) &&
+		(nBooksProcessed != (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC1))) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Processed %1 Books.  Expected either %2 or %3 books!")
+							.arg(nBooksProcessed).arg(NUM_BK_OT + NUM_BK_NT).arg(NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC1),
+							QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	}
 
 	return true;

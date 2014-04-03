@@ -58,7 +58,9 @@ namespace {
 		// KJF2006:
 		{ false, QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" },
 		// KJVPureCambridge:
-		{ false, QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" }
+		{ false, QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" },
+		// KJVA (KJV 1769 with Apocrypha):
+		{ false, QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), "B93D0E40-BA16-11E3-A5E2-0800200C9A66", "", "bbl-kjva.s3db", "bbl-kjva.ccdb" }
 	};
 
 	//////////////////////////////////////////////////////////////////////

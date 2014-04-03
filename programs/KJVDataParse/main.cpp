@@ -51,15 +51,17 @@
 QMainWindow *g_pMainWindow = NULL;
 QTranslator g_qtTranslator;
 
-#define NUM_BK 66u
-#define NUM_BK_OT 39u
-#define NUM_BK_NT 27u
-#define NUM_TST 2u
+#define NUM_BK 80u				// Total Books Defined
+#define NUM_BK_OT 39u			// Total Books in Old Testament
+#define NUM_BK_NT 27u			// Total Books in New Testament
+#define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
+#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
 typedef QList<QStringList> TChapterVerseCounts;
 
 const QString g_arrChapterVerseCounts[NUM_BK] =
 {
+	// ---- Begin Old Testament:
 	"31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26",
 	"22,25,22,31,23,30,25,32,35,29,10,51,22,31,27,36,16,27,25,26,36,31,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38",
 	"17,16,17,35,19,30,38,36,24,20,47,8,59,57,33,34,16,30,37,27,24,33,44,23,55,46,34",
@@ -99,6 +101,7 @@ const QString g_arrChapterVerseCounts[NUM_BK] =
 	"15,23",
 	"21,13,10,14,11,15,14,23,17,12,17,14,9,21",
 	"14,17,18,6",
+	// ---- Begin New Testament:
 	"25,23,17,25,48,34,29,34,38,42,30,50,58,36,39,28,27,35,30,34,46,46,39,51,46,75,66,20",
 	"45,28,35,41,43,56,37,38,50,52,33,44,37,72,47,20",
 	"80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,56,53",
@@ -125,10 +128,26 @@ const QString g_arrChapterVerseCounts[NUM_BK] =
 	"13",
 	"14",
 	"25",
-	"20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21"
+	"20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21",
+	// ---- Begin Apocrypha/Deuterocanon:
+	"58,30,24,63,73,34,15,96,55",
+	"40,48,36,52,56,59,70,63,47,59,46,51,58,48,63,78",
+	"22,14,17,21,22,17,18,21,6,12,19,22,18,15",
+	"16,28,10,15,24,21,32,36,14,23,23,20,20,19,13,25",
+	"0,0,0,0,0,0,0,0,0,13,12,6,18,19,16,24",			// 	AddEsth (starts at 4)
+	"16,24,19,20,23,25,30,21,18,21,26,27,19,31,19,29,21,25,22",
+	"30,18,31,31,15,37,36,19,18,31,34,18,26,27,20,30,32,33,30,32,28,27,28,34,26,29,30,26,28,25,31,24,31,26,20,26,31,34,35,30,24,25,33,22,26,20,25,25,16,29,30",
+	"22,35,37,37,9,73",
+	"68",
+	"64",
+	"42",
+	"1",
+	"64,70,60,61,68,63,50,32,73,89,74,53,53,49,41,24",
+	"36,32,40,50,27,31,42,36,29,38,38,45,26,46,39"
 };
 
 typedef struct {
+	CRelIndex m_ndxStartingChapterVerse;		// Chapter and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther)
 	QString m_strName;
 	QString m_strCommonAbbr;
 	QString m_strOsisAbbr;
@@ -150,72 +169,89 @@ static void g_setBooks()
 {
 	const TBook arrBooks[NUM_BK] =
 	{
-		{ QObject::tr("Genesis", "bookname"), QObject::tr("Gen;Gn", "bookabbr"), "Gen", "GEN", QObject::tr("Law", "bookcategory"), QObject::tr("The First Book of Moses", "bookdesc") },
-		{ QObject::tr("Exodus", "bookname"), QObject::tr("Exod;Exo;Ex", "bookabbr"), "Exod", "EXOD", QObject::tr("Law", "bookcategory"), QObject::tr("The Second Book of Moses", "bookdesc") },
-		{ QObject::tr("Leviticus", "bookname"), QObject::tr("Lev;Lv", "bookabbr"), "Lev", "LEV", QObject::tr("Law", "bookcategory"), QObject::tr("The Third Book of Moses", "bookdesc") },
-		{ QObject::tr("Numbers", "bookname"), QObject::tr("Num;Nm", "bookabbr"), "Num", "NUM", QObject::tr("Law", "bookcategory"), QObject::tr("The Fourth Book of Moses", "bookdesc") },
-		{ QObject::tr("Deuteronomy", "bookname"), QObject::tr("Deut;Deu;Dt", "bookabbr"), "Deut", "DEUT", QObject::tr("Law", "bookcategory"), QObject::tr("The Fifth Book of Moses", "bookdesc") },
-		{ QObject::tr("Joshua", "bookname"), QObject::tr("Josh;Jos;Jo", "bookabbr"), "Josh", "JOSH", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("Judges", "bookname"), QObject::tr("Judg;Jdg;Jgs", "bookabbr"), "Judg", "JUDG", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("Ruth", "bookname"), QObject::tr("Ruth;Rut;Ru", "bookabbr"), "Ruth", "RUTH", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("1 Samuel", "bookname"), QObject::tr("1Sam;1Sm", "bookabbr"), "1Sam", "SAM1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of Samuel Otherwise Called, The First Book of the Kings", "bookdesc") },
-		{ QObject::tr("2 Samuel", "bookname"), QObject::tr("2Sam;2Sm", "bookabbr"), "2Sam", "SAM2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of Samuel Otherwise Called, The Second Book of the Kings", "bookdesc") },
-		{ QObject::tr("1 Kings", "bookname"), QObject::tr("1Kgs", "bookabbr"), "1Kgs", "KGS1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of the Kings Commonly Called, The Third Book of the Kings", "bookdesc") },
-		{ QObject::tr("2 Kings", "bookname"), QObject::tr("2Kgs", "bookabbr"), "2Kgs", "KGS2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of the Kings Commonly Called, The Fourth Book of the Kings", "bookdesc") },
-		{ QObject::tr("1 Chronicles", "bookname"), QObject::tr("1Chr;1Chron;1Ch", "bookabbr"), "1Chr", "CHR1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of the Chronicles", "bookdesc") },
-		{ QObject::tr("2 Chronicles", "bookname"), QObject::tr("2Chr;2Chron;2Ch", "bookabbr"), "2Chr", "CHR2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of the Chronicles", "bookdesc") },
-		{ QObject::tr("Ezra", "bookname"), QObject::tr("Ezra;Ezr", "bookabbr"), "Ezra", "EZRA", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("Nehemiah", "bookname"), QObject::tr("Neh", "bookabbr"), "Neh", "NEH", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("Esther", "bookname"), QObject::tr("Est;Esth", "bookabbr"), "Esth", "ESTH", QObject::tr("OT Narative", "bookcategory"), "" },
-		{ QObject::tr("Job", "bookname"), QObject::tr("Job;Jb", "bookabbr"), "Job", "JOB", QObject::tr("Wisdom", "bookcategory"), "" },
-		{ QObject::tr("Psalms", "bookname"), QObject::tr("Ps;Pss", "bookabbr"), "Ps", "PS", QObject::tr("Wisdom", "bookcategory"), "" },
-		{ QObject::tr("Proverbs", "bookname"), QObject::tr("Prov;Prv;Pv", "bookabbr"), "Prov", "PROV", QObject::tr("Wisdom", "bookcategory"), "" },
-		{ QObject::tr("Ecclesiastes", "bookname"), QObject::tr("Eccl;Eccles", "bookabbr"), "Eccl", "ECCL", QObject::tr("Wisdom", "bookcategory"), QObject::tr("Ecclesiastes; Or, The Preacher", "bookdesc") },
-		{ QObject::tr("Song Of Solomon", "bookname"), QObject::tr("Song;Sg", "bookabbr"), "Song", "SONG", QObject::tr("Wisdom", "bookcategory"), "" },
-		{ QObject::tr("Isaiah", "bookname"), QObject::tr("Isa;Is", "bookabbr"), "Isa", "ISA", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Isaiah", "bookdesc") },
-		{ QObject::tr("Jeremiah", "bookname"), QObject::tr("Jer", "bookabbr"), "Jer", "JER", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Jeremiah", "bookdesc") },
-		{ QObject::tr("Lamentations", "bookname"), QObject::tr("Lam", "bookabbr"), "Lam", "LAM", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Lamentations of Jeremiah", "bookdesc") },
-		{ QObject::tr("Ezekiel", "bookname"), QObject::tr("Ezek;Eze;Ez", "bookabbr"), "Ezek", "EZEK", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Ezekiel", "bookdesc") },
-		{ QObject::tr("Daniel", "bookname"), QObject::tr("Dan;Dn", "bookabbr"), "Dan", "DAN", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of <i>the Prophet</i> Daniel", "bookdesc") },
-		{ QObject::tr("Hosea", "bookname"), QObject::tr("Hos", "bookabbr"), "Hos", "HOS", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Joel", "bookname"), QObject::tr("Joel;Joe;Jl", "bookabbr"), "Joel", "JOEL", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Amos", "bookname"), QObject::tr("Amos;Amo;Am", "bookabbr"), "Amos", "AMOS", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Obadiah", "bookname"), QObject::tr("Obad;Oba;Ob", "bookabbr"), "Obad", "OBAD", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Jonah", "bookname"), QObject::tr("Jonah;Jona;Jon", "bookabbr"), "Jonah", "JONAH", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Micah", "bookname"), QObject::tr("Mic;Mi", "bookabbr"), "Mic", "MIC", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Nahum", "bookname"), QObject::tr("Nah;Na", "bookabbr"), "Nah", "NAH", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Habakkuk", "bookname"), QObject::tr("Hab;Hb", "bookabbr"), "Hab", "HAB", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Zephaniah", "bookname"), QObject::tr("Zeph;Zep", "bookabbr"), "Zeph", "ZEPH", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Haggai", "bookname"), QObject::tr("Hag;Hg", "bookabbr"), "Hag", "HAG", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Zechariah", "bookname"), QObject::tr("Zech;Zec", "bookabbr"), "Zech", "ZECH", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Malachi", "bookname"), QObject::tr("Mal", "bookabbr"), "Mal", "MAL", QObject::tr("Minor Prophets", "bookcategory"), "" },
-		{ QObject::tr("Matthew", "bookname"), QObject::tr("Matt;Mt", "bookabbr"), "Matt", "MATT", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Matthew", "bookdesc") },
-		{ QObject::tr("Mark", "bookname"), QObject::tr("Mark;Mk", "bookabbr"), "Mark", "MARK", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Mark", "bookdesc") },
-		{ QObject::tr("Luke", "bookname"), QObject::tr("Luke;Lk", "bookabbr"), "Luke", "LUKE", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Luke", "bookdesc") },
-		{ QObject::tr("John", "bookname"), QObject::tr("John;Jhn;Jn", "bookabbr"), "John", "JOHN", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint John", "bookdesc") },
-		{ QObject::tr("Acts", "bookname"), QObject::tr("Acts", "bookabbr"), "Acts", "ACTS", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Acts of the Apostles", "bookdesc") },
-		{ QObject::tr("Romans", "bookname"), QObject::tr("Rom", "bookabbr"), "Rom", "ROM", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Romans", "bookdesc") },
-		{ QObject::tr("1 Corinthians", "bookname"), QObject::tr("1Cor", "bookabbr"), "1Cor", "COR1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
-		{ QObject::tr("2 Corinthians", "bookname"), QObject::tr("2Cor", "bookabbr"), "2Cor", "COR2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
-		{ QObject::tr("Galatians", "bookname"), QObject::tr("Gal", "bookabbr"), "Gal", "GAL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Galatians", "bookdesc") },
-		{ QObject::tr("Ephesians", "bookname"), QObject::tr("Eph", "bookabbr"), "Eph", "EPH", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Ephesians", "bookdesc") },
-		{ QObject::tr("Philippians", "bookname"), QObject::tr("Phil", "bookabbr"), "Phil", "PHIL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Philippians", "bookdesc") },
-		{ QObject::tr("Colossians", "bookname"), QObject::tr("Col", "bookabbr"), "Col", "COL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Colossians", "bookdesc") },
-		{ QObject::tr("1 Thessalonians", "bookname"), QObject::tr("1Thess;1Thes;1Th", "bookabbr"), "1Thess", "THESS1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to the Thessalonians", "bookdesc") },
-		{ QObject::tr("2 Thessalonians", "bookname"), QObject::tr("2Thess;2Thes;2Th", "bookabbr"), "2Thess", "THESS2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to the Thessalonains", "bookdesc") },
-		{ QObject::tr("1 Timothy", "bookname"), QObject::tr("1Tim;1Tm", "bookabbr"), "1Tim", "TIM1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to Timothy", "bookdesc") },
-		{ QObject::tr("2 Timothy", "bookname"), QObject::tr("2Tim;2Tm", "bookabbr"), "2Tim", "TIM2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to Timothy", "bookdesc") },
-		{ QObject::tr("Titus", "bookname"), QObject::tr("Titus;Ti", "bookabbr"), "Titus", "TITUS", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul to Titus", "bookdesc") },
-		{ QObject::tr("Philemon", "bookname"), QObject::tr("Phlm;Philem", "bookabbr"), "Phlm", "PHLM", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul to Philemon", "bookdesc") },
-		{ QObject::tr("Hebrews", "bookname"), QObject::tr("Heb", "bookabbr"), "Heb", "HEB", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews", "bookdesc") },
-		{ QObject::tr("James", "bookname"), QObject::tr("Jas", "bookabbr"), "Jas", "JAS", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The General Epistle of James", "bookdesc") },
-		{ QObject::tr("1 Peter", "bookname"), QObject::tr("1Pet;1Pt", "bookabbr"), "1Pet", "PET1", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The First General Epistle of Peter", "bookdesc") },
-		{ QObject::tr("2 Peter", "bookname"), QObject::tr("2Pet;2Pt", "bookabbr"), "2Pet", "PET2", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Second General Epistle of Peter", "bookdesc") },
-		{ QObject::tr("1 John", "bookname"), QObject::tr("1John;1Jn", "bookabbr"), "1John", "JOHN1", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The First General Epistle of John", "bookdesc") },
-		{ QObject::tr("2 John", "bookname"), QObject::tr("2John;2Jn", "bookabbr"), "2John", "JOHN2", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Second General Epistle of John", "bookdesc") },
-		{ QObject::tr("3 John", "bookname"), QObject::tr("3John;3Jn", "bookabbr"), "3John", "JOHN3", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Third General Epistle of John", "bookdesc") },
-		{ QObject::tr("Jude", "bookname"), QObject::tr("Jude", "bookabbr"), "Jude", "JUDE", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The General Epistle of Jude", "bookdesc") },
-		{ QObject::tr("Revelation", "bookname"), QObject::tr("Rev;Rv;Apoc", "bookabbr"), "Rev", "REV", QObject::tr("Apocalyptic Epistle", "bookcategory"), QObject::tr("The Revelation of Jesus Christ", "bookdesc") }
+		// ---- Begin Old Testament:
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Genesis", "bookname"), QObject::tr("Gen;Gn", "bookabbr"), "Gen", "GEN", QObject::tr("Law", "bookcategory"), QObject::tr("The First Book of Moses", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Exodus", "bookname"), QObject::tr("Exod;Exo;Ex", "bookabbr"), "Exod", "EXOD", QObject::tr("Law", "bookcategory"), QObject::tr("The Second Book of Moses", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Leviticus", "bookname"), QObject::tr("Lev;Lv", "bookabbr"), "Lev", "LEV", QObject::tr("Law", "bookcategory"), QObject::tr("The Third Book of Moses", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Numbers", "bookname"), QObject::tr("Num;Nm", "bookabbr"), "Num", "NUM", QObject::tr("Law", "bookcategory"), QObject::tr("The Fourth Book of Moses", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Deuteronomy", "bookname"), QObject::tr("Deut;Deu;Dt", "bookabbr"), "Deut", "DEUT", QObject::tr("Law", "bookcategory"), QObject::tr("The Fifth Book of Moses", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Joshua", "bookname"), QObject::tr("Josh;Jos;Jo", "bookabbr"), "Josh", "JOSH", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Judges", "bookname"), QObject::tr("Judg;Jdg;Jgs", "bookabbr"), "Judg", "JUDG", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Ruth", "bookname"), QObject::tr("Ruth;Rut;Ru", "bookabbr"), "Ruth", "RUTH", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Samuel", "bookname"), QObject::tr("1Sam;1Sm", "bookabbr"), "1Sam", "SAM1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of Samuel Otherwise Called, The First Book of the Kings", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Samuel", "bookname"), QObject::tr("2Sam;2Sm", "bookabbr"), "2Sam", "SAM2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of Samuel Otherwise Called, The Second Book of the Kings", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Kings", "bookname"), QObject::tr("1Kgs", "bookabbr"), "1Kgs", "KGS1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of the Kings Commonly Called, The Third Book of the Kings", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Kings", "bookname"), QObject::tr("2Kgs", "bookabbr"), "2Kgs", "KGS2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of the Kings Commonly Called, The Fourth Book of the Kings", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Chronicles", "bookname"), QObject::tr("1Chr;1Chron;1Ch", "bookabbr"), "1Chr", "CHR1", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The First Book of the Chronicles", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Chronicles", "bookname"), QObject::tr("2Chr;2Chron;2Ch", "bookabbr"), "2Chr", "CHR2", QObject::tr("OT Narative", "bookcategory"), QObject::tr("The Second Book of the Chronicles", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Ezra", "bookname"), QObject::tr("Ezra;Ezr", "bookabbr"), "Ezra", "EZRA", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Nehemiah", "bookname"), QObject::tr("Neh", "bookabbr"), "Neh", "NEH", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Esther", "bookname"), QObject::tr("Est;Esth", "bookabbr"), "Esth", "ESTH", QObject::tr("OT Narative", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Job", "bookname"), QObject::tr("Job;Jb", "bookabbr"), "Job", "JOB", QObject::tr("Wisdom", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Psalms", "bookname"), QObject::tr("Ps;Pss", "bookabbr"), "Ps", "PS", QObject::tr("Wisdom", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Proverbs", "bookname"), QObject::tr("Prov;Prv;Pv", "bookabbr"), "Prov", "PROV", QObject::tr("Wisdom", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Ecclesiastes", "bookname"), QObject::tr("Eccl;Eccles", "bookabbr"), "Eccl", "ECCL", QObject::tr("Wisdom", "bookcategory"), QObject::tr("Ecclesiastes; Or, The Preacher", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Song Of Solomon", "bookname"), QObject::tr("Song;Sg", "bookabbr"), "Song", "SONG", QObject::tr("Wisdom", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Isaiah", "bookname"), QObject::tr("Isa;Is", "bookabbr"), "Isa", "ISA", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Isaiah", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Jeremiah", "bookname"), QObject::tr("Jer", "bookabbr"), "Jer", "JER", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Jeremiah", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Lamentations", "bookname"), QObject::tr("Lam", "bookabbr"), "Lam", "LAM", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Lamentations of Jeremiah", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Ezekiel", "bookname"), QObject::tr("Ezek;Eze;Ez", "bookabbr"), "Ezek", "EZEK", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of the Prophet Ezekiel", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Daniel", "bookname"), QObject::tr("Dan;Dn", "bookabbr"), "Dan", "DAN", QObject::tr("Major Prophets", "bookcategory"), QObject::tr("The Book of <i>the Prophet</i> Daniel", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Hosea", "bookname"), QObject::tr("Hos", "bookabbr"), "Hos", "HOS", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Joel", "bookname"), QObject::tr("Joel;Joe;Jl", "bookabbr"), "Joel", "JOEL", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Amos", "bookname"), QObject::tr("Amos;Amo;Am", "bookabbr"), "Amos", "AMOS", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Obadiah", "bookname"), QObject::tr("Obad;Oba;Ob", "bookabbr"), "Obad", "OBAD", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Jonah", "bookname"), QObject::tr("Jonah;Jona;Jon", "bookabbr"), "Jonah", "JONAH", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Micah", "bookname"), QObject::tr("Mic;Mi", "bookabbr"), "Mic", "MIC", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Nahum", "bookname"), QObject::tr("Nah;Na", "bookabbr"), "Nah", "NAH", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Habakkuk", "bookname"), QObject::tr("Hab;Hb", "bookabbr"), "Hab", "HAB", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Zephaniah", "bookname"), QObject::tr("Zeph;Zep", "bookabbr"), "Zeph", "ZEPH", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Haggai", "bookname"), QObject::tr("Hag;Hg", "bookabbr"), "Hag", "HAG", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Zechariah", "bookname"), QObject::tr("Zech;Zec", "bookabbr"), "Zech", "ZECH", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Malachi", "bookname"), QObject::tr("Mal", "bookabbr"), "Mal", "MAL", QObject::tr("Minor Prophets", "bookcategory"), "" },
+		// ---- Begin New Testament:
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Matthew", "bookname"), QObject::tr("Matt;Mt", "bookabbr"), "Matt", "MATT", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Matthew", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Mark", "bookname"), QObject::tr("Mark;Mk", "bookabbr"), "Mark", "MARK", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Mark", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Luke", "bookname"), QObject::tr("Luke;Lk", "bookabbr"), "Luke", "LUKE", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint Luke", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("John", "bookname"), QObject::tr("John;Jhn;Jn", "bookabbr"), "John", "JOHN", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Gospel According to Saint John", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Acts", "bookname"), QObject::tr("Acts", "bookabbr"), "Acts", "ACTS", QObject::tr("NT Narative", "bookcategory"), QObject::tr("The Acts of the Apostles", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Romans", "bookname"), QObject::tr("Rom", "bookabbr"), "Rom", "ROM", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Romans", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Corinthians", "bookname"), QObject::tr("1Cor", "bookabbr"), "1Cor", "COR1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Corinthians", "bookname"), QObject::tr("2Cor", "bookabbr"), "2Cor", "COR2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Galatians", "bookname"), QObject::tr("Gal", "bookabbr"), "Gal", "GAL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Galatians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Ephesians", "bookname"), QObject::tr("Eph", "bookabbr"), "Eph", "EPH", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Ephesians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Philippians", "bookname"), QObject::tr("Phil", "bookabbr"), "Phil", "PHIL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Philippians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Colossians", "bookname"), QObject::tr("Col", "bookabbr"), "Col", "COL", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Colossians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Thessalonians", "bookname"), QObject::tr("1Thess;1Thes;1Th", "bookabbr"), "1Thess", "THESS1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to the Thessalonians", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Thessalonians", "bookname"), QObject::tr("2Thess;2Thes;2Th", "bookabbr"), "2Thess", "THESS2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to the Thessalonains", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Timothy", "bookname"), QObject::tr("1Tim;1Tm", "bookabbr"), "1Tim", "TIM1", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The First Epistle of Paul the Apostle to Timothy", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Timothy", "bookname"), QObject::tr("2Tim;2Tm", "bookabbr"), "2Tim", "TIM2", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Second Epistle of Paul the Apostle to Timothy", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Titus", "bookname"), QObject::tr("Titus;Ti", "bookabbr"), "Titus", "TITUS", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul to Titus", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Philemon", "bookname"), QObject::tr("Phlm;Philem", "bookabbr"), "Phlm", "PHLM", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul to Philemon", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Hebrews", "bookname"), QObject::tr("Heb", "bookabbr"), "Heb", "HEB", QObject::tr("Pauline Epistles", "bookcategory"), QObject::tr("The Epistle of Paul the Apostle to the Hebrews", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("James", "bookname"), QObject::tr("Jas", "bookabbr"), "Jas", "JAS", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The General Epistle of James", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Peter", "bookname"), QObject::tr("1Pet;1Pt", "bookabbr"), "1Pet", "PET1", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The First General Epistle of Peter", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Peter", "bookname"), QObject::tr("2Pet;2Pt", "bookabbr"), "2Pet", "PET2", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Second General Epistle of Peter", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 John", "bookname"), QObject::tr("1John;1Jn", "bookabbr"), "1John", "JOHN1", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The First General Epistle of John", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 John", "bookname"), QObject::tr("2John;2Jn", "bookabbr"), "2John", "JOHN2", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Second General Epistle of John", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("3 John", "bookname"), QObject::tr("3John;3Jn", "bookabbr"), "3John", "JOHN3", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The Third General Epistle of John", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Jude", "bookname"), QObject::tr("Jude", "bookabbr"), "Jude", "JUDE", QObject::tr("General Epistles", "bookcategory"), QObject::tr("The General Epistle of Jude", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Revelation", "bookname"), QObject::tr("Rev;Rv;Apoc", "bookabbr"), "Rev", "REV", QObject::tr("Apocalyptic Epistle", "bookcategory"), QObject::tr("The Revelation of Jesus Christ", "bookdesc") },
+		// ---- Begin Apocrypha/Deuterocanon:
+		{ CRelIndex(0, 1, 1, 0),  QObject::tr("1 Esdras", "bookname"), QObject::tr("1Esd;1Es", "bookabbr"), "1Esd", "ESD1", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The First Book of Esdras", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Esdras", "bookname"), QObject::tr("2Esd;2Es", "bookabbr"), "2Esd", "ESD2", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Second Book of Esdras", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Tobit", "bookname"), QObject::tr("Tob;Tb", "bookabbr"), "Tob", "TOB", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Book of Tobit", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Judith", "bookname"), QObject::tr("Jdt;Jth", "bookabbr"), "Jdt", "JDT", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Book of Judith", "bookdesc") },
+		{ CRelIndex(0, 10, 4, 0), QObject::tr("Additions to Esther", "bookname"), QObject::tr("AddEst;AddEsth", "bookabbr"), "AddEsth", "ADDESTH", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Rest of the Chapters of the Book of Esther", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Wisdom", "bookname"), QObject::tr("Wis;Ws", "bookabbr"), "Wis", "WIS", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Book of Wisdom or The Wisdom of Solomon", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Sirach", "bookname"), QObject::tr("Sir;Ecclus", "bookabbr"), "Sir", "SIR", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Baruch", "bookname"), QObject::tr("Bar;Ba", "bookabbr"), "Bar", "BAR", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Book of Baruch", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Prayer of Azariah", "bookname"), QObject::tr("PrAzar", "bookabbr"), "PrAzar", "PRAZAR", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Prayer of Azariah", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Susanna", "bookname"), QObject::tr("Sus", "bookabbr"), "Sus", "SUS", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The History of Susanna [in Daniel]", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Bel and the Dragon", "bookname"), QObject::tr("Bel", "bookabbr"), "Bel", "BEL", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Book of Bel and the Dragon [in Daniel]", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("Prayer of Manasses", "bookname"), QObject::tr("PrMan", "bookabbr"), "PrMan", "PRMAN", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("1 Maccabees", "bookname"), QObject::tr("1Macc;1Mc;1Ma", "bookabbr"), "1Macc", "MACC1", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The First Book of the Maccabees", "bookdesc") },
+		{ CRelIndex(0, 1, 1, 0), QObject::tr("2 Maccabees", "bookname"), QObject::tr("2Macc;2Mc;2Ma", "bookabbr"), "2Macc", "MACC2", QObject::tr("Apocrypha", "bookcategory"), QObject::tr("The Second Book of the Maccabees", "bookdesc") }
 	};
 
 	for (unsigned int i=0; i<NUM_BK; ++i) {
@@ -228,7 +264,8 @@ static void g_setTstNames()
 {
 	const QString arrstrTstNames[NUM_TST] =
 		{	QObject::tr("Old Testament", "testname"),
-			QObject::tr("New Testament", "testname")
+			QObject::tr("New Testament", "testname"),
+			QObject::tr("Apocrypha/Deuterocanon", "testname")
 		};
 
 	for (unsigned int i=0; i<NUM_TST; ++i) {
@@ -345,7 +382,7 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 {
 	bool bIsProperWord = true;
 
-	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJVPCE)) {
+	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJVPCE) || (nBDE == BDE_KJVA)) {
 		assert(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
 
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
@@ -527,6 +564,27 @@ private:
 	QStringList m_lstOsisBookList;
 };
 
+static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
+{
+	unsigned int nTst = 0;
+	if (nBk == 0) return 0;			// Special-case for "no book"
+
+	// note: Shift nBk to be an zero based since book indexes are normally one-based:
+	--nBk;
+	if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
+		nTst = 1;
+	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT)) {
+		nTst = 2;
+	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
+		nTst = 3;
+	} else {
+		nTst = 0;
+		assert(false);			// Can't happen if our NUM_BK_xx values are correct!
+	}
+
+	return nTst;
+}
+
 bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
 {
 	Q_UNUSED(namespaceURI);
@@ -556,7 +614,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 */
 
 	int ndx = -1;
-	unsigned int nTst = m_pBibleDatabase->m_lstTestaments.size();
+	unsigned int nTst = bookIndexToTestamentIndex(m_ndxCurrent.book());
 	int nBk = -1;
 
 	if (localName.compare("osisText", Qt::CaseInsensitive) == 0)  {
@@ -661,11 +719,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "type");
 		if ((ndx != -1) && (atts.value(ndx).compare("x-testament", Qt::CaseInsensitive) == 0)) {
-			CTestamentEntry aTestament((m_pBibleDatabase->m_lstTestaments.size() < NUM_TST) ? g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()] : QString());
-			m_pBibleDatabase->m_EntireBible.m_nNumTst++;
-			m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
-			nTst++;
-			std::cerr << "Testament: " << ((m_pBibleDatabase->m_lstTestaments.size() <= NUM_TST) ? aTestament.m_strTstName.toUtf8().data() : "<Unknown>") << "\n";
+//			std::cerr << "Testament Tag\n";
 		} else if ((ndx != -1) && (atts.value(ndx).compare("book", Qt::CaseInsensitive) == 0)) {
 			// Some OSIS files just have book tags and no x-testament tags, so we'll try to infer
 			//		testament here:
@@ -677,19 +731,12 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				} else {
 					std::cerr << "Book: " << lstOsisID.at(0).toUtf8().data() << "\n";
 					// note: nBk is index into array, not book number:
-					if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
-						nTst = 1;
-					} else if (static_cast<unsigned int>(nBk) < NUM_BK) {
-						nTst = 2;
-					} else {
-						nTst = 0;
-						assert(false);			// Can't happen if our NUM_BK_xx values are correct!
-					}
+					nTst = bookIndexToTestamentIndex(nBk+1);
 					while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
 						CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
 						m_pBibleDatabase->m_EntireBible.m_nNumTst++;
 						m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
-						std::cerr << "Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
+						std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
 					}
 				}
 			}
@@ -705,55 +752,61 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			}
 		}
 	} else if ((!m_ndxCurrent.isSet()) && (localName.compare("chapter", Qt::CaseInsensitive) == 0)) {
-		if (nTst == 0) {
-			std::cerr << "\n*** Found book/chapter before testament marker!\n";
-		} else {
-			ndx = findAttribute(atts, "osisID");
-			if (ndx != -1) {
-				QStringList lstOsisID = atts.value(ndx).split('.');
-				if ((lstOsisID.size() != 2) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
-					m_ndxCurrent = CRelIndex();
-					 std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
+		ndx = findAttribute(atts, "osisID");
+		if (ndx != -1) {
+			QStringList lstOsisID = atts.value(ndx).split('.');
+			if ((lstOsisID.size() != 2) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+				m_ndxCurrent = CRelIndex();
+				 std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
+			} else {
+				std::cerr << "Book: " << lstOsisID.at(0).toUtf8().data() << " Chapter: " << lstOsisID.at(1).toUtf8().data();
+				m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
+				nTst = bookIndexToTestamentIndex(nBk+1);
+				m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
+				if (lstOsisID.at(1).toUInt() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
+					m_pBibleDatabase->m_EntireBible.m_nNumBk++;
+					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk++;
+					m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
+					m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk;
+					m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
+					m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
+					m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
+					m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), QString::SkipEmptyParts));
+					m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
+
+					TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
+					while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
+						if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
+						++itrCat;
+					}
+					if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
+						m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
+						itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
+					}
+					itrCat->m_setBooksNum.insert(nBk+1);
+					m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
+
+					m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
+					m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
+				}
+				assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
+				if (lstOsisID.at(1).toUInt() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
+					for (CRelIndex ndxAddChp = CRelIndex(nBk+1, 1, 0, 0); ndxAddChp != m_ndxCurrent; ndxAddChp.setChapter(ndxAddChp.chapter()+1)) {
+						m_pBibleDatabase->m_mapChapters[ndxAddChp];			// Make sure the chapter entry is created for the empty chapters
+					}
+					m_pBibleDatabase->m_EntireBible.m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
+					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
+					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
 				} else {
-					std::cerr << "Book: " << lstOsisID.at(0).toUtf8().data() << " Chapter: " << lstOsisID.at(1).toUtf8().data();
-					m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
-					m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 					m_pBibleDatabase->m_EntireBible.m_nNumChp++;
 					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp++;
-					if (lstOsisID.at(1).toUInt() == 1) {
-						m_pBibleDatabase->m_EntireBible.m_nNumBk++;
-						m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk++;
-						m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
-						m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk;
-						m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
-						m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
-						m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
-						m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), QString::SkipEmptyParts));
-						m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
-
-						TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
-						while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
-							if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
-							++itrCat;
-						}
-						if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
-							m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
-							itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
-						}
-						itrCat->m_setBooksNum.insert(nBk+1);
-						m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
-
-						m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
-						m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
-					}
-					assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp++;
 				}
-			} else {
-				m_ndxCurrent = CRelIndex();
-				std::cerr << "\n*** Chapter with no osisID : ";
-				std::cerr << stringifyAttributes(atts).toUtf8().data() << "\n";
 			}
+		} else {
+			m_ndxCurrent = CRelIndex();
+			std::cerr << "\n*** Chapter with no osisID : ";
+			std::cerr << stringifyAttributes(atts).toUtf8().data() << "\n";
 		}
 	} else if ((m_ndxCurrent.isSet()) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) {
 		if (findAttribute(atts, "eID") != -1) {
@@ -803,6 +856,14 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					} else {
 						std::cerr << ".";
 					}
+
+					if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == g_arrBooks[nBk].m_ndxStartingChapterVerse) {
+						for (CRelIndex ndxAddVrs = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 0); ndxAddVrs != m_ndxCurrent; ndxAddVrs.setVerse(ndxAddVrs.verse()+1)) {
+							// Create all intentionally missing verses:
+							(m_pBibleDatabase->m_lstBookVerses[ndxAddVrs.book()-1])[CRelIndex(0, ndxAddVrs.chapter(), ndxAddVrs.verse(), 0)];
+						}
+					}
+
 					CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 
 					m_bInVerse = true;
@@ -839,12 +900,14 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					assert(m_bInDivineName == false);
 					if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
 					m_bInDivineName = false;
-					m_pBibleDatabase->m_EntireBible.m_nNumVrs++;
+					unsigned int nVerseOffset = 1;
+					if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == g_arrBooks[nBk].m_ndxStartingChapterVerse) nVerseOffset = g_arrBooks[nBk].m_ndxStartingChapterVerse.verse();
+					m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
 					assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
-					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs++;
+					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
 					assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
-					m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs++;
-					m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs++;
+					m_pBibleDatabase->m_lstBooks[nBk].m_nNumVrs += nVerseOffset;
+					m_pBibleDatabase->m_mapChapters[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
 					if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
 						verse.m_nPilcrow = m_nDelayedPilcrow;
 						m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
@@ -1375,11 +1438,17 @@ int main(int argc, char *argv[])
 	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase form of the Word
 
 	unsigned int nWordAccum = 0;
-	for (unsigned int nBk=1; nBk<=qMax(pBibleDatabase->bibleEntry().m_nNumBk, NUM_BK); ++nBk) {
-		if (nBk > NUM_BK) {
-			std::cerr << QString("\n*** ERROR: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
-			lstChapterVerseCounts.push_back(QStringList());
+	for (unsigned int nBk=1; nBk<=qMax(pBibleDatabase->bibleEntry().m_nNumBk, (NUM_BK_OT + NUM_BK_NT)); ++nBk) {
+		if (nBk > (NUM_BK_OT + NUM_BK_NT)) {
+			if (nBk > NUM_BK) {
+				std::cerr << QString("\n*** ERROR: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
+				lstChapterVerseCounts.push_back(QStringList());
+			} else {
+				// Apocrypha Books:
+				lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
+			}
 		} else {
+			// Normal OT/NT Books:
 			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
@@ -1426,7 +1495,9 @@ int main(int argc, char *argv[])
 			Q_UNUSED(bChapterMissing);
 			if (pChapter == NULL) {
 				bChapterMissing = true;
-				std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
+				if (nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) {
+					std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
+				}
 				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
 				if (pChapter == NULL) {
 					std::cerr << "*** Unable to create missing chapter\n";
@@ -1459,7 +1530,9 @@ int main(int argc, char *argv[])
 				bool bVerseMissing = false;
 				if (pVerse == NULL) {
 					bVerseMissing = true;
-					std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+					if (CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) {
+						std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+					}
 					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
 					if (pVerse == NULL) {
 						std::cerr << "*** Unable to create missing verse\n";
@@ -1649,14 +1722,18 @@ int main(int argc, char *argv[])
 	unsigned int arrTotalBookWordCounts[NUM_BK];
 	memset(arrTotalBookWordCounts, 0, sizeof(arrTotalBookWordCounts));
 
+	bool bHaveApoc = (pBibleDatabase->bibleEntry().m_nNumBk > (NUM_BK_OT + NUM_BK_NT));
+	unsigned int nRepTst = (bHaveApoc ? NUM_TST : (NUM_TST-1));
+	unsigned int nRepBk = (bHaveApoc ? NUM_BK : (NUM_BK_OT + NUM_BK_NT));
+
 	fileWordSummary.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 	fileWordSummary.write(QString("\"Word\",\"AltWords\",\"Entire\nBible\"").toUtf8());
-	for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
 		QString strTemp = g_arrstrTstNames[nTst];
 		strTemp.replace(' ', '\n');
 		fileWordSummary.write(QString(",\"%1\"").arg(strTemp).toUtf8());
 	}
-	for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+	for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
 		fileWordSummary.write(QString(",\"%1\"").arg(g_arrBooks[nBk].m_strName).toUtf8());
 	}
 	fileWordSummary.write(QString("\r\n").toUtf8());
@@ -1694,9 +1771,12 @@ int main(int argc, char *argv[])
 			if (ndx.book() <= NUM_BK_OT) {
 				arrTestamentWordCounts[0]++;
 				arrTotalTestamentWordCounts[0]++;
-			} else if (ndx.book() <= NUM_BK) {
+			} else if (ndx.book() <= (NUM_BK_OT + NUM_BK_NT)) {
 				arrTestamentWordCounts[1]++;
 				arrTotalTestamentWordCounts[1]++;
+			} else if (ndx.book() <= (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
+				arrTestamentWordCounts[2]++;
+				arrTotalTestamentWordCounts[2]++;
 			} else {
 				// Word in unknown Testament -- assert here??
 			}
@@ -1709,20 +1789,20 @@ int main(int argc, char *argv[])
 			nTotalWordCount++;
 		}
 
-		for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+		for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
 			fileWordSummary.write(QString(",%1").arg(arrTestamentWordCounts[nTst]).toUtf8());
 		}
-		for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+		for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
 			fileWordSummary.write(QString(",%1").arg(arrBookWordCounts[nBk]).toUtf8());
 		}
 
 		fileWordSummary.write(QString("\r\n").toUtf8());
 	}
 	fileWordSummary.write(QString("\"\",\"\",%1").arg(nTotalWordCount).toUtf8());
-	for (unsigned int nTst=0; nTst<NUM_TST; ++nTst) {
+	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
 		fileWordSummary.write(QString(",%1").arg(arrTotalTestamentWordCounts[nTst]).toUtf8());
 	}
-	for (unsigned int nBk=0; nBk<NUM_BK; ++nBk) {
+	for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
 		fileWordSummary.write(QString(",%1").arg(arrTotalBookWordCounts[nBk]).toUtf8());
 	}
 	fileWordSummary.write(QString("\r\n").toUtf8());

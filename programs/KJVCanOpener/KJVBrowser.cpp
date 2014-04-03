@@ -655,30 +655,34 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 	m_ndxCurrent.setIndex(ndx.book(), 0, 0, 0);
 
+	ui.comboBk->setCurrentIndex(ui.comboBk->findData(m_ndxCurrent.book()));
+	ui.comboBibleBk->setCurrentIndex(ui.comboBibleBk->findData(m_ndxCurrent.book()));
+
+	ui.comboTstBk->clear();
+	ui.comboBkChp->clear();
+	ui.comboTstChp->clear();
+
 	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		// This can happen if the versification of the navigation reference doesn't match the active database
+		m_pScriptureBrowser->clear();
 		end_update();
 		return;
 	}
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
 
-	ui.comboBk->setCurrentIndex(ui.comboBk->findData(m_ndxCurrent.book()));
-	ui.comboBibleBk->setCurrentIndex(ui.comboBibleBk->findData(m_ndxCurrent.book()));
-
 	unsigned int nTst = book.m_nTstNdx;
 	ui.lblTestament->setText(m_pBibleDatabase->testamentEntry(nTst)->m_strTstName + ":");
-	ui.comboTstBk->clear();
+
 	for (unsigned int ndxTstBk=1; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
 		ui.comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
 	}
 	ui.comboTstBk->setCurrentIndex(ui.comboTstBk->findData(book.m_nTstBkNdx));
 
-	ui.comboBkChp->clear();
 	for (unsigned int ndxBkChp=1; ndxBkChp<=book.m_nNumChp; ++ndxBkChp) {
 		ui.comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
 	}
-	ui.comboTstChp->clear();
+
 	for (unsigned int ndxTstChp=1; ndxTstChp<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumChp; ++ndxTstChp) {
 		ui.comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
 	}
@@ -703,6 +707,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);
 
 	ui.comboBkChp->setCurrentIndex(ui.comboBkChp->findData(ndx.chapter()));
+	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(0));
 
 	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) {
 		m_pScriptureBrowser->clear();
@@ -711,7 +716,8 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	}
 
 	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		// This can happen if the versification of the navigation reference doesn't match the active database
+		m_pScriptureBrowser->clear();
 		end_update();
 		return;
 	}
@@ -721,6 +727,8 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	unsigned int nBibleChp = 0;
 	for (unsigned int ndxBk=1; ndxBk<m_ndxCurrent.book(); ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
+		assert(pBook != NULL);
+		if (pBook == NULL) continue;
 		if (pBook->m_nTstNdx == book.m_nTstNdx)
 			nTstChp += pBook->m_nNumChp;
 		nBibleChp += pBook->m_nNumChp;
