@@ -201,14 +201,14 @@ int main(int argc, char *argv[])
 	const CBibleEntry &bblEntry1(pBible1->bibleEntry());
 	const CBibleEntry &bblEntry2(pBible2->bibleEntry());
 
-	if ((bblEntry1.m_nNumTst != bblEntry2.m_nNumTst)) {
-		std::cout << QString("Number of Testaments don't match can't compare!  %1 <=> %2\n").arg(bblEntry1.m_nNumTst).arg(bblEntry2.m_nNumTst).toUtf8().data();
-		return 1;
+	unsigned int nChkTst = qMin(bblEntry1.m_nNumTst, bblEntry2.m_nNumTst);
+	if (bblEntry1.m_nNumTst != bblEntry2.m_nNumTst) {
+		std::cout << QString("Number of Testaments don't match!  %1 <=> %2\nComparing only %3 Testaments\n").arg(bblEntry1.m_nNumTst).arg(bblEntry2.m_nNumTst).arg(nChkTst).toUtf8().data();
 	}
 
-	if ((bblEntry1.m_nNumBk != bblEntry2.m_nNumBk)) {
-		std::cout << QString("Number of Books don't match can't compare!  %1 <=> %2\n").arg(bblEntry1.m_nNumBk).arg(bblEntry2.m_nNumBk).toUtf8().data();
-		return 2;
+	unsigned int nChkBk = qMin(bblEntry1.m_nNumBk, bblEntry2.m_nNumBk);
+	if (bblEntry1.m_nNumBk != bblEntry2.m_nNumBk) {
+		std::cout << QString("Number of Books don't match!  %1 <=> %2\nComparing only %3 Books\n").arg(bblEntry1.m_nNumBk).arg(bblEntry2.m_nNumBk).arg(nChkBk).toUtf8().data();
 	}
 
 	CVerseTextRichifierTags vtfTags;
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 	vtfTags.setShowPilcrowMarkers(false);
 
 	if (bAllDiffs || bTextDiffs) {
-		for (unsigned int nBk = 0; nBk < bblEntry1.m_nNumBk; ++nBk) {
+		for (unsigned int nBk = 0; nBk < nChkBk; ++nBk) {
 			const CBookEntry *pBook1 = pBible1->bookEntry(nBk+1);
 			const CBookEntry *pBook2 = pBible2->bookEntry(nBk+1);
 			unsigned int nChp1;
