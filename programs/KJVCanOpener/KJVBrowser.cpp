@@ -367,7 +367,9 @@ void CKJVBrowser::setupChapterScrollbar()
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
 	// Note: Special case !tag->relIndex().isSet() means reload current index
-	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
+	// Note: Denormalize/Normalize allows us to automagically skip empty chapters (such as in the Additions to Esther in the Apocrypha)
+	TPhraseTag tagActual = (tag.relIndex().isSet() ? TPhraseTag(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex())), tag.count())
+												   : TPhraseTag(m_ndxCurrent, tag.count()));
 
 	begin_update();
 
@@ -633,7 +635,14 @@ void CKJVBrowser::en_ChapterBackward()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
+	if (ndx.isSet()) {
+		// The following sets are needed to handle the case of scrolling backward from a missing chapter/verse entry -- for example
+		//		the Additions to Esther in the Apocrypha.  The above calculation will normalize the current location to 10:4 in that
+		//		passage, causing us to goto the 4th verse of the preceding chapter:
+		ndx.setVerse(1);
+		ndx.setWord(1);
+		gotoIndex(TPhraseTag(ndx));
+	}
 }
 
 void CKJVBrowser::en_ChapterForward()
@@ -682,6 +691,9 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 	ui.comboTstBk->setCurrentIndex(ui.comboTstBk->findData(book.m_nTstBkNdx));
 
 	for (unsigned int ndxBkChp=1; ndxBkChp<=book.m_nNumChp; ++ndxBkChp) {
+		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(m_ndxCurrent.book(), ndxBkChp, 0, 0));
+		if (pChapter == NULL) continue;
+		if (pChapter->m_nNumVrs == 0) continue;			// Skip chapters that are empty (like additions of Esther in Apocrypha)
 		ui.comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
 	}
 

@@ -1331,7 +1331,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	}
 	scriptureHTML.endDiv();
 	// If this is the first chapter of the book:
-	if (ndx.chapter() == 1) {
+	if (m_pBibleDatabase->NormalizeIndex(ndxBook) == m_pBibleDatabase->NormalizeIndex(ndxBookChap)) {
 		// Print Book Descriptions:
 		if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
 			scriptureHTML.beginDiv("subtitle");
@@ -1388,6 +1388,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	bool bParagraph = false;
 	CRelIndex ndxVerse;
 	bool bVPLNeedsLineBreak = false;
+	bool bStartedText = false;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
 		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
 			(bParagraph)) bVPLNeedsLineBreak = true;
@@ -1398,6 +1399,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			assert(false);
 			continue;
 		}
+		if ((!bStartedText) && (pVerse->m_nNumWrd == 0)) continue;			// Don't print verses that are empty if we haven't started printing anything for the chapter yet
+		bStartedText = true;
+
 		if ((pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) &&
 			(CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) {
 			if (bParagraph) {
@@ -2216,7 +2220,9 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndxScroll = tag.relIndex();
-	if (ndxScroll.verse() == 1) ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+	if (m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxScroll.book(), ndxScroll.chapter(), 0, 0)) == m_pBibleDatabase->NormalizeIndex(ndxScroll)) {
+		ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+	}
 	ndxScroll.setWord(0);
 
 	m_TextEditor.scrollToAnchor(ndxScroll.asAnchor());

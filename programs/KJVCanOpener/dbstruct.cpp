@@ -500,7 +500,8 @@ uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 	}
 	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
+	// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
+	if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd)) return 0;
 
 	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
 }
@@ -521,9 +522,15 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 	if (nChp == 0) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
 	if (nVrs == 0) nVrs = 1;
-	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	if (nWrd == 0) nWrd = 1;
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd) return 0;
+	// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
+	if (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
+		if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nNumWrd)) return 0;
+	} else {
+		if ((nVrs != 1) || (nWrd != 1)) return 0;
+		return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+	}
 
 	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(0,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 }
