@@ -75,6 +75,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	assert(m_pScriptureBrowser != NULL);
 
+	ui.lblBibleDatabaseName->setText(m_pBibleDatabase->description());
+
 	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
 	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
 
