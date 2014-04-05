@@ -50,17 +50,17 @@ namespace {
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
+		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
 		// KJV:
-		{ true, QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
+		{ true, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
 		// RVG2010:
-		{ false, QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
+		{ false, "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
 		// KJF2006:
-		{ false, QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" },
+		{ false, "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" },
 		// KJVPureCambridge:
-		{ false, QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" },
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" },
 		// KJVA (KJV 1769 with Apocrypha):
-		{ false, QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), "B93D0E40-BA16-11E3-A5E2-0800200C9A66", "", "bbl-kjva.s3db", "bbl-kjva.ccdb" }
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), "B93D0E40-BA16-11E3-A5E2-0800200C9A66", "", "bbl-kjva.s3db", "bbl-kjva.ccdb" }
 	};
 
 	//////////////////////////////////////////////////////////////////////

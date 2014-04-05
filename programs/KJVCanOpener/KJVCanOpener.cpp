@@ -840,106 +840,108 @@ void CKJVCanOpener::initialize()
 	m_pBrowserWidget->gotoIndex(tag);
 }
 
-void CKJVCanOpener::savePersistentSettings()
+void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 {
 	if (CPersistentSettings::instance()->settings() == NULL) return;
 	QSettings &settings(*CPersistentSettings::instance()->settings());
 
-	// Main App and Toolbars RestoreState:
-	settings.beginGroup(constrMainAppRestoreStateGroup);
-	settings.setValue(constrGeometryKey, saveGeometry());
-	settings.setValue(constrWindowStateKey, saveState(KJVAPP_REGISTRY_VERSION));
-	settings.endGroup();
+	if (!bSaveLastSearchOnly) {
+		// Main App and Toolbars RestoreState:
+		settings.beginGroup(constrMainAppRestoreStateGroup);
+		settings.setValue(constrGeometryKey, saveGeometry());
+		settings.setValue(constrWindowStateKey, saveState(KJVAPP_REGISTRY_VERSION));
+		settings.endGroup();
 
-	// Main App General Settings:
-	settings.beginGroup(constrMainAppControlGroup);
-	settings.setValue(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness());
-	settings.setValue(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness());
-	settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
-	settings.endGroup();
+		// Main App General Settings:
+		settings.beginGroup(constrMainAppControlGroup);
+		settings.setValue(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness());
+		settings.setValue(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness());
+		settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
+		settings.endGroup();
 
-	// Main App Bible Database Settings:
-	settings.beginGroup(constrMainAppBibleDatabaseGroup);
-	settings.setValue(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID());
-	settings.endGroup();
+		// Main App Bible Database Settings:
+		settings.beginGroup(constrMainAppBibleDatabaseGroup);
+		settings.setValue(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID());
+		settings.endGroup();
 
-	// Colors:
-	settings.beginGroup(constrColorsGroup);
-	if (CPersistentSettings::instance()->colorWordsOfJesus().isValid()) {
-		settings.setValue(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name());
-	} else {
-		settings.setValue(constrWordsOfJesusColorKey, "");
-	}
-	settings.setValue(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name());
-	settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
-	settings.endGroup();
+		// Colors:
+		settings.beginGroup(constrColorsGroup);
+		if (CPersistentSettings::instance()->colorWordsOfJesus().isValid()) {
+			settings.setValue(constrWordsOfJesusColorKey, CPersistentSettings::instance()->colorWordsOfJesus().name());
+		} else {
+			settings.setValue(constrWordsOfJesusColorKey, "");
+		}
+		settings.setValue(constrSearchResultsColorKey, CPersistentSettings::instance()->colorSearchResults().name());
+		settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
+		settings.endGroup();
 
-	// Splitter:
-	settings.beginGroup(constrSplitterRestoreStateGroup);
-	settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
-	settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
-	settings.endGroup();
-
-	// Splitter Dictionary:
-	if (m_pDictionaryWidget != NULL) {
-		settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+		// Splitter:
+		settings.beginGroup(constrSplitterRestoreStateGroup);
 		settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
-		settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
+		settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
+		settings.endGroup();
+
+		// Splitter Dictionary:
+		if (m_pDictionaryWidget != NULL) {
+			settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+			settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
+			settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
+			settings.endGroup();
+		}
+
+		// User Notes Database:
+		assert(g_pUserNotesDatabase.data() != NULL);
+		settings.beginGroup(constrUserNotesDatabaseGroup);
+		settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
+		settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
+		settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
+		settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
+		settings.endGroup();
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
+		m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
+#endif
+
+		// Highlighter Tool Bar:
+		if (m_pHighlighterButtons != NULL) {
+			settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
+			settings.remove("");
+			for (int ndxColor = 0; ndxColor < m_pHighlighterButtons->count(); ++ndxColor) {
+				settings.setArrayIndex(ndxColor);
+				settings.setValue(constrHighlighterNameKey, m_pHighlighterButtons->highlighter(ndxColor));
+			}
+			settings.endArray();
+		}
+
+		// Search Results mode:
+		settings.beginGroup(constrSearchResultsViewGroup);
+		settings.setValue(constrResultsViewModeKey, m_pSearchResultWidget->viewMode());
+		settings.setValue(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode());
+		settings.setValue(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode());
+		settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
+		settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentVerseIndex().relIndex().asAnchor());
+		settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentVerseIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
+														(m_pSearchResultWidget->currentVerseIndex().specialIndex() == -1)) ? QString() :
+														m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentVerseIndex().specialIndex()).resultsName());
+		settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
+		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
+		settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
+		settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
+		settings.setValue(constrShowOCntInSearchResultsRefs, CPersistentSettings::instance()->showOCntInSearchResultsRefs());
+		settings.setValue(constrShowWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs());
+		settings.endGroup();
+
+		// Search Phrases Settings:
+		settings.beginGroup(constrSearchPhrasesGroup);
+		settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
+		settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
+		settings.setValue(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 		settings.endGroup();
 	}
 
-	// User Notes Database:
-	assert(g_pUserNotesDatabase.data() != NULL);
-	settings.beginGroup(constrUserNotesDatabaseGroup);
-	settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
-	settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
-	settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
-	settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
-	settings.endGroup();
-
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
-	m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
-#endif
-
-	// Highlighter Tool Bar:
-	if (m_pHighlighterButtons != NULL) {
-		settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
-		settings.remove("");
-		for (int ndxColor = 0; ndxColor < m_pHighlighterButtons->count(); ++ndxColor) {
-			settings.setArrayIndex(ndxColor);
-			settings.setValue(constrHighlighterNameKey, m_pHighlighterButtons->highlighter(ndxColor));
-		}
-		settings.endArray();
-	}
-
-	// Search Results mode:
-	settings.beginGroup(constrSearchResultsViewGroup);
-	settings.setValue(constrResultsViewModeKey, m_pSearchResultWidget->viewMode());
-	settings.setValue(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode());
-	settings.setValue(constrVerseTreeModeKey, m_pSearchResultWidget->treeMode());
-	settings.setValue(constrViewMissingNodesKey, m_pSearchResultWidget->showMissingLeafs());
-	settings.setValue(constrCurrentIndexKey, m_pSearchResultWidget->currentVerseIndex().relIndex().asAnchor());
-	settings.setValue(constrCurrentHighlighterKey, ((m_pSearchResultWidget->currentVerseIndex().resultsType() != VLMRTE_HIGHLIGHTERS) ||
-													(m_pSearchResultWidget->currentVerseIndex().specialIndex() == -1)) ? QString() :
-													m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentVerseIndex().specialIndex()).resultsName());
-	settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
-	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
-	settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
-	settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
-	settings.setValue(constrShowOCntInSearchResultsRefs, CPersistentSettings::instance()->showOCntInSearchResultsRefs());
-	settings.setValue(constrShowWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs());
-	settings.endGroup();
-
-	// Search Phrases Settings:
-	settings.beginGroup(constrSearchPhrasesGroup);
-	settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
-	settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
-	settings.setValue(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases());
-	settings.endGroup();
-
 	// Last Search:
-	m_pSearchSpecWidget->writeKJVSearchFile(settings, constrLastSearchGroup);
+	m_pSearchSpecWidget->writeKJVSearchFile(settings, groupCombine(m_pBibleDatabase->compatibilityUUID(), constrLastSearchGroup));
 
 	// User Search Phrases Settings:
 	CPhraseList phrases;
@@ -948,7 +950,7 @@ void CKJVCanOpener::savePersistentSettings()
 	mdlPhrases.sort(0, Qt::AscendingOrder);
 	phrases = mdlPhrases.phraseList();
 
-	settings.beginWriteArray(constrUserSearchPhrasesGroup);
+	settings.beginWriteArray(groupCombine(m_pBibleDatabase->compatibilityUUID(), constrUserSearchPhrasesGroup));
 	settings.remove("");
 	for (int ndx = 0; ndx < CPersistentSettings::instance()->userPhrases().size(); ++ndx) {
 		settings.setArrayIndex(ndx);
@@ -959,70 +961,77 @@ void CKJVCanOpener::savePersistentSettings()
 	}
 	settings.endArray();
 
-	// Current Browser Reference and Browser Settings:
-	settings.beginGroup(constrBrowserViewGroup);
-	TPhraseTag tag = m_pBrowserWidget->selection();
-	settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
-	settings.setValue(constrLastSelectionSizeKey, tag.count());
-	settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
-	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
-	settings.setValue(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay());
-	settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
-	settings.setValue(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
-	settings.setValue(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode());
-	settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode());
-	settings.setValue(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers());
-	settings.endGroup();
+	if (!bSaveLastSearchOnly) {
+		// Current Browser Reference and Browser Settings:
+		settings.beginGroup(constrBrowserViewGroup);
+		TPhraseTag tag = m_pBrowserWidget->selection();
+		settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
+		settings.setValue(constrLastSelectionSizeKey, tag.count());
+		settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
+		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
+		settings.setValue(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay());
+		settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
+		settings.setValue(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
+		settings.setValue(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode());
+		settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode());
+		settings.setValue(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers());
+		settings.endGroup();
 
-	// Browser Object (used for Subwindows: FindDialog, etc):
-	m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
+		// Browser Object (used for Subwindows: FindDialog, etc):
+		m_pBrowserWidget->savePersistentSettings(constrBrowserViewGroup);
 
-	// Dictionary Widget Settings:
-	settings.beginGroup(constrDictionaryGroup);
-	settings.setValue(constrFontKey, CPersistentSettings::instance()->fontDictionary().toString());
-	settings.setValue(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay());
-	settings.setValue(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode());
-	settings.endGroup();
+		// Dictionary Widget Settings:
+		settings.beginGroup(constrDictionaryGroup);
+		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontDictionary().toString());
+		settings.setValue(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay());
+		settings.setValue(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode());
+		settings.endGroup();
 
-	// Copy Options:
-	settings.beginGroup(constrCopyOptionsGroup);
-	settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
-	settings.setValue(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
-	settings.setValue(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold());
-	settings.setValue(constrReferencesAtEndKey, CPersistentSettings::instance()->referencesAtEnd());
-	settings.setValue(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode());
-	settings.setValue(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
-	settings.setValue(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold());
-	settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
-	settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
-	settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying());
-	settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
-	settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
-	settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
-	settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
-	settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
-	settings.endGroup();
+		// Copy Options:
+		settings.beginGroup(constrCopyOptionsGroup);
+		settings.setValue(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode());
+		settings.setValue(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames());
+		settings.setValue(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold());
+		settings.setValue(constrReferencesAtEndKey, CPersistentSettings::instance()->referencesAtEnd());
+		settings.setValue(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode());
+		settings.setValue(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames());
+		settings.setValue(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold());
+		settings.setValue(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse());
+		settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
+		settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying());
+		settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
+		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
+		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
+		settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
+		settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
+		settings.endGroup();
 
-	// Bible Database Settings:
-	settings.beginWriteArray(constrBibleDatabaseSettingsGroup);
-	settings.remove("");
-	QStringList lstBibleDatabaseUUIDs = CPersistentSettings::instance()->bibleDatabaseSettingsUUIDList();
-	for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
-		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
-		settings.setArrayIndex(ndxDB);
-		settings.setValue(constrBibleDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
-		settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
-		settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
-		settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
+		// Bible Database Settings:
+		settings.beginWriteArray(constrBibleDatabaseSettingsGroup);
+		settings.remove("");
+		QStringList lstBibleDatabaseUUIDs = CPersistentSettings::instance()->bibleDatabaseSettingsUUIDList();
+		for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
+			const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
+			settings.setArrayIndex(ndxDB);
+			settings.setValue(constrBibleDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
+			settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
+			settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
+			settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
+		}
+		settings.endArray();
 	}
-	settings.endArray();
 }
 
 void CKJVCanOpener::restorePersistentSettings()
 {
 	assert(g_pMyApplication.data() != NULL);
+	assert(m_pBibleDatabase.data() != NULL);
 
 	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
+	bool bIsFirstCanOpenerForThisBibleDB = g_pMyApplication->isFirstCanOpener(false, m_pBibleDatabase->compatibilityUUID());
+	if (bIsFirstCanOpener) {
+		assert(bIsFirstCanOpenerForThisBibleDB);
+	}
 
 	bool bFocusSearchResults = false;
 	bool bFocusBrowser = false;
@@ -1174,7 +1183,9 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 			CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
 			settings.endGroup();
+		}
 
+		if ((bIsFirstCanOpener) || (bIsFirstCanOpenerForThisBibleDB) || (!g_pMyApplication->fileToLoad().isEmpty())) {
 			// Read Last Search before setting Search Results mode or else the last settings
 			//	won't get restored -- they will be overriden by the loading of the Last Search...
 			//	But, we first need to disable our SearchActivationDelay so that the updates
@@ -1184,31 +1195,36 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setSearchActivationDelay(-1);
 
 			// Last Search or passed KJS file:
-			if (g_pMyApplication->fileToLoad().isEmpty()) {
-				m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
-			} else {
+			if (!g_pMyApplication->fileToLoad().isEmpty()) {
 				openKJVSearchFile(g_pMyApplication->fileToLoad());
 				g_pMyApplication->setFileToLoad(QString());
+			} else if (bIsFirstCanOpenerForThisBibleDB) {
+				m_pSearchSpecWidget->readKJVSearchFile(settings, groupCombine(m_pBibleDatabase->compatibilityUUID(), constrLastSearchGroup));
+			} else {
+				assert(false);			// Should never end up here...
+				m_pSearchSpecWidget->readKJVSearchFile(settings, constrLastSearchGroup);
 			}
 
-			// User Search Phrases Settings:
-			int nPhrases = settings.beginReadArray(constrUserSearchPhrasesGroup);
-			if (nPhrases != 0) {
-				CPhraseList lstUserPhrases;
-				lstUserPhrases.reserve(nPhrases);
-				for (int ndx = 0; ndx < nPhrases; ++ndx) {
-					CPhraseEntry phrase;
-					settings.setArrayIndex(ndx);
-					phrase.setText(settings.value("Phrase", QString()).toString());
-					phrase.setCaseSensitive(settings.value("CaseSensitive", false).toBool());
-					phrase.setAccentSensitive(settings.value("AccentSensitive", false).toBool());
-					phrase.setExclude(settings.value("Exclude", false).toBool());
-					if (phrase.text().isEmpty()) continue;
-					lstUserPhrases.append(phrase);
+			if ((bIsFirstCanOpener) || (bIsFirstCanOpenerForThisBibleDB)) {
+				// User Search Phrases Settings:
+				int nPhrases = settings.beginReadArray(bIsFirstCanOpenerForThisBibleDB ? groupCombine(m_pBibleDatabase->compatibilityUUID(), constrUserSearchPhrasesGroup) : constrUserSearchPhrasesGroup);
+				if (nPhrases != 0) {
+					CPhraseList lstUserPhrases;
+					lstUserPhrases.reserve(nPhrases);
+					for (int ndx = 0; ndx < nPhrases; ++ndx) {
+						CPhraseEntry phrase;
+						settings.setArrayIndex(ndx);
+						phrase.setText(settings.value("Phrase", QString()).toString());
+						phrase.setCaseSensitive(settings.value("CaseSensitive", false).toBool());
+						phrase.setAccentSensitive(settings.value("AccentSensitive", false).toBool());
+						phrase.setExclude(settings.value("Exclude", false).toBool());
+						if (phrase.text().isEmpty()) continue;
+						lstUserPhrases.append(phrase);
+					}
+					setUserPhrases(lstUserPhrases);
 				}
-				setUserPhrases(lstUserPhrases);
+				settings.endArray();
 			}
-			settings.endArray();
 
 			// Restore our activation delay:
 			CPersistentSettings::instance()->setSearchActivationDelay(nSaveSearchActivationDelay);
@@ -1356,8 +1372,13 @@ void CKJVCanOpener::restorePersistentSettings()
 			}
 		}
 
-		// Reset our search phrases
-		m_pSearchSpecWidget->reset();
+		// Reset our search phrases or load file if we are supposed to:
+		if (!g_pMyApplication->fileToLoad().isEmpty()) {
+			openKJVSearchFile(g_pMyApplication->fileToLoad());
+			g_pMyApplication->setFileToLoad(QString());
+		} else {
+			m_pSearchSpecWidget->reset();
+		}
 	}
 
 	show();			// Now that we've restored our settings and geometry, show our window...
@@ -1472,7 +1493,9 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		}	//	(or we didn't have an updated file to save)...
 #endif
 
-		savePersistentSettings();
+		savePersistentSettings(false);
+	} else if ((m_pBibleDatabase.data() != NULL) && (g_pMyApplication->isLastCanOpener(m_pBibleDatabase->compatibilityUUID()))) {
+		savePersistentSettings(true);
 	}
 
 	m_bIsClosing = true;
@@ -1605,18 +1628,43 @@ void CKJVCanOpener::en_ClearSearchPhrases()
 	if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();
 }
 
+QString CKJVCanOpener::determineBibleUUIDForKJVSearchFile(const QString &strFilePathName)
+{
+	if (strFilePathName.isEmpty()) return QString();
+
+	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
+	if (kjsFile.status() != QSettings::NoError) return QString();
+
+	QString strBblUUID;
+	kjsFile.beginGroup("KJVPureBibleSearch");
+	strBblUUID = kjsFile.value("BibleDatabase/UUID", bibleDescriptor(BDE_KJV).m_strUUID).toString();	// Read Bible UUID for this file (default to KJV if not specified since early files didn't)
+	kjsFile.endGroup();
+
+	return strBblUUID;
+}
+
 bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 {
 	if (strFilePathName.isEmpty()) return true;						// Empty is no-file-selected (cancel), treat it as "OK"
+
+	assert(m_pBibleDatabase.data() != NULL);
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
 
 	unsigned int nFileVersion = 0;
+	QString strBblUUID;
+	QString strBblLang;
 
 	kjsFile.beginGroup("KJVPureBibleSearch");
-	nFileVersion = kjsFile.value("KJSFileVersion").toUInt();
+	nFileVersion = kjsFile.value("KJSFileVersion", 0).toUInt();
+	strBblUUID = kjsFile.value("BibleDatabase/UUID", bibleDescriptor(BDE_KJV).m_strUUID).toString();	// Read Bible UUID for this file (default to KJV if not specified since early files didn't)
 	kjsFile.endGroup();
+
+	// Determine Bible Language for this file (default to KJV if not specified since early files didn't specify)
+	BIBLE_DESCRIPTOR_ENUM bdeFile = bibleDescriptorFromUUID(strBblUUID);
+	if (bdeFile == BDE_UNKNOWN) bdeFile = BDE_KJV;
+	strBblLang = bibleDescriptor(bdeFile).m_strLanguage;
 
 	if (nFileVersion < KJS_FILE_VERSION) {
 		show();		// Make sure we are visible if this was during construction
@@ -1633,6 +1681,18 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 									"ignored."));
 	}
 
+	if (strBblLang.compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) != 0) {
+		show();		// Make sure we are visible if this was during construction
+		QMessageBox::warning(this, tr("Opening King James Search File"), tr("Warning: The file you are opening is for a "
+									"different language Bible Database and will most likely not display the Search Results "
+									"that were intended to have been saved in the KJS file."));
+	} else if (strBblUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) != 0) {
+		show();		// Make sure we are visible if this was during construction
+		QMessageBox::warning(this, tr("Opening King James Search File"), tr("Warning: The file you are opening was created with "
+									"a different Bible Database and might have incompatible Search Specification options, potentially yielding "
+									"different Search Results from that which was intended to have been saved in the KJS file."));
+	}
+
 	m_pSearchSpecWidget->readKJVSearchFile(kjsFile);
 
 	return (kjsFile.status() == QSettings::NoError);
@@ -1640,6 +1700,8 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 {
+	assert(m_pBibleDatabase.data() != NULL);
+
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
 
@@ -1648,6 +1710,7 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 	kjsFile.beginGroup("KJVPureBibleSearch");
 	kjsFile.setValue("AppVersion", VER_QT);
 	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
+	kjsFile.setValue("BibleDatabase/UUID", m_pBibleDatabase->compatibilityUUID());
 	kjsFile.endGroup();
 
 	m_pSearchSpecWidget->writeKJVSearchFile(kjsFile);

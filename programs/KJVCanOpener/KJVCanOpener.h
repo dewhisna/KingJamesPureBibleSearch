@@ -66,6 +66,8 @@ public:
 	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVCanOpener();
 
+	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
+
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
 	bool isPhraseEditorActive() const { return m_bPhraseEditorActive; }
@@ -106,7 +108,7 @@ public:
 	};
 
 protected slots:
-	void savePersistentSettings();
+	void savePersistentSettings(bool bSaveLastSearchOnly = false);
 	void restorePersistentSettings();
 
 	void setCanClose(bool bCanClose)
@@ -134,6 +136,9 @@ signals:
 	void windowActivated(CKJVCanOpener *pCanOpener);
 	void canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 	void isClosing(CKJVCanOpener *pCanOpener);
+
+public:
+	static QString determineBibleUUIDForKJVSearchFile(const QString &strFilePathName);
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);

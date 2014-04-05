@@ -806,8 +806,11 @@ public:
 	virtual ~TBibleDatabaseList();
 	static TBibleDatabaseList *instance();
 
+	static bool loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
+	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
 	void setMainBibleDatabase(const QString &strUUID);
+	bool haveMainBibleDatabase() const { return (m_pMainBibleDatabase.data() != NULL); }
 	void removeBibleDatabase(const QString &strUUID);
 	void clear();
 	int size() const { return QList<CBibleDatabasePtr>::size(); }

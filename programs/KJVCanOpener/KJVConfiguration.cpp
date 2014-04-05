@@ -38,8 +38,6 @@
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "SaveFileDialog.h"
 #endif
-#include "ReadDB.h"
-#include "ReportError.h"
 #include "BibleWordDiffListModel.h"
 
 #include <QIcon>
@@ -1199,17 +1197,8 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 
 void CKJVBibleDatabaseConfig::en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB)
 {
-	CBusyCursor iAmBusy(NULL);
-	const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
-	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, this);
-	if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) {
-		assert(false);
-	} else {
-		if (!rdbMain.ReadBibleDatabase(bblDesc, false)) {
-			iAmBusy.earlyRestore();
-			displayWarning(this, tr("Bible Database Configuration"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
-		}
-	}
+	assert(nBibleDB != BDE_UNKNOWN);
+	TBibleDatabaseList::loadBibleDatabase(nBibleDB, false, this);
 }
 
 void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)

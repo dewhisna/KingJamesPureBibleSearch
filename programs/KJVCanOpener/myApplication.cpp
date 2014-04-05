@@ -810,6 +810,44 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	return pCanOpener;
 }
 
+bool CMyApplication::isFirstCanOpener(bool bInCanOpenerConstructor, const QString &strBblUUID) const
+{
+	if (strBblUUID.isEmpty()) {
+		if (bInCanOpenerConstructor) {
+			return (m_lstKJVCanOpeners.size() == 0);
+		} else {
+			return (m_lstKJVCanOpeners.size() <= 1);
+		}
+	} else {
+		int nCount = 0;
+		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
+			CBibleDatabasePtr pBibleDatabase = m_lstKJVCanOpeners.at(ndx)->bibleDatabase();
+			if (pBibleDatabase.data() == NULL) continue;
+			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
+		}
+		if ( (nCount == 0) ||
+			((nCount == 1) && (!bInCanOpenerConstructor))) return true;
+		return false;
+	}
+}
+
+bool CMyApplication::isLastCanOpener(const QString &strBblUUID) const
+{
+	if (strBblUUID.isEmpty()) {
+		return (m_lstKJVCanOpeners.size() <= 1);
+	} else {
+		int nCount = 0;
+		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
+			CBibleDatabasePtr pBibleDatabase = m_lstKJVCanOpeners.at(ndx)->bibleDatabase();
+			if (pBibleDatabase.data() == NULL) continue;
+			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
+		}
+		return (nCount <= 1);
+	}
+}
+
 void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 {
 	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pKJVCanOpener);
@@ -1088,19 +1126,35 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 		case KAMCE_NEW_CANOPENER:
 		case KAMCE_NEW_CANOPENER_OPEN_KJS:
 		{
+			bool bNeedDB = false;
+			if ((strBibleUUID.isEmpty()) &&  (!strKJSFileName.isEmpty())) {
+				// If no UUID was specified and we have a KJS file to open, try to determine the correct
+				//		Bible Database from the KJS file itself:
+				strBibleUUID = CKJVCanOpener::determineBibleUUIDForKJVSearchFile(strKJSFileName);
+				if (!strBibleUUID.isEmpty()) {
+					if (TBibleDatabaseList::instance()->atUUID(strBibleUUID).data() == NULL) bNeedDB = true;
+				}
+			}
 			bool bForceOpen = ((nCommand == KAMCE_NEW_CANOPENER_OPEN_KJS) || (nCommand == KAMCE_NEW_CANOPENER));
+			if ((m_lstKJVCanOpeners.size() == 1) && (m_lstKJVCanOpeners.at(0)->bibleDatabase()->compatibilityUUID().compare(strBibleUUID, Qt::CaseInsensitive) != 0)) bForceOpen = true;
 			CKJVCanOpener *pCanOpener = NULL;
-			if ((bForceOpen) || (m_lstKJVCanOpeners.size() != 1)) {
+			if ((bForceOpen) || (bNeedDB) || (m_lstKJVCanOpeners.size() != 1)) {
 				// If we have more than one, just open a new window and launch the file:
 				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
+				if ((pBibleDatabase.data() == NULL) && (!strBibleUUID.isEmpty())) {
+					if (TBibleDatabaseList::loadBibleDatabase(strBibleUUID, true, NULL)) {
+						pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
+					}
+				}
 				if (pBibleDatabase.data() == NULL) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+				setFileToLoad(strKJSFileName);
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
 				assert(pCanOpener != NULL);
 			} else {
 				pCanOpener = m_lstKJVCanOpeners.at(0);
+				if (!strKJSFileName.isEmpty()) pCanOpener->openKJVSearchFile(strKJSFileName);
 			}
 			activateCanOpener(pCanOpener);
-			if (!strKJSFileName.isEmpty()) pCanOpener->openKJVSearchFile(strKJSFileName);
 			break;
 		}
 		default:
@@ -1180,11 +1234,18 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 
 	if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
-		// If command-line override wasn't specified, see if a persistent settings was previously set:
-		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-			if ((!strMainDatabaseUUID.isEmpty()) && (strMainDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
-				m_nSelectedMainBibleDB = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
-				break;
+		// If command-line override wasn't specified, first see if we will be loading a KJS file.
+		//		If so, try and determine it's Bible Database:
+		if (!fileToLoad().isEmpty()) {
+			m_nSelectedMainBibleDB = bibleDescriptorFromUUID(CKJVCanOpener::determineBibleUUIDForKJVSearchFile(fileToLoad()));
+		}
+		// Else, see if a persistent settings was previously set:
+		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
+			for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
+				if ((!strMainDatabaseUUID.isEmpty()) && (strMainDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
+					m_nSelectedMainBibleDB = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
+					break;
+				}
 			}
 		}
 		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise

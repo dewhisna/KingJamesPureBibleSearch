@@ -30,7 +30,9 @@
 #include "PhraseEdit.h"
 #include "ScriptureDocument.h"
 #include "ReadDB.h"
+#include "ReportError.h"
 #include "PersistentSettings.h"
+#include "BusyCursor.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -59,6 +61,25 @@ TBibleDatabaseList *TBibleDatabaseList::instance()
 {
 	static TBibleDatabaseList theBibleDatabaseList;
 	return &theBibleDatabaseList;
+}
+
+bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain, QWidget *pParent)
+{
+	if (nBibleDB == BDE_UNKNOWN) return false;
+	const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
+	CBusyCursor iAmBusy(NULL);
+	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
+	if ((!rdbMain.haveBibleDatabaseFiles(bblDesc)) || (!rdbMain.ReadBibleDatabase(bblDesc, (bAutoSetAsMain && !TBibleDatabaseList::instance()->haveMainBibleDatabase())))) {
+		iAmBusy.earlyRestore();
+		displayWarning(pParent, tr("Load Bible Database"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
+		return false;
+	}
+	return true;
+}
+
+bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
+{
+	return loadBibleDatabase(bibleDescriptorFromUUID(strUUID), bAutoSetAsMain, pParent);
 }
 
 void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)

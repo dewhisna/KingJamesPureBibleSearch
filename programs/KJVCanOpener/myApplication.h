@@ -143,15 +143,8 @@ public:
 	void setFileToLoad(const QString &strFilename) { m_strFileToLoad = strFilename; }
 
 	CKJVCanOpener *createKJVCanOpener(CBibleDatabasePtr pBibleDatabase);
-	bool isFirstCanOpener(bool bInCanOpenerConstructor = false) const
-	{
-		if (bInCanOpenerConstructor) {
-			return (m_lstKJVCanOpeners.size() == 0);
-		} else {
-			return (m_lstKJVCanOpeners.size() <= 1);
-		}
-	}
-	bool isLastCanOpener() const { return (m_lstKJVCanOpeners.size() <= 1); }
+	bool isFirstCanOpener(bool bInCanOpenerConstructor = false, const QString &strBblUUID = QString()) const;		// If strBblUUID.isEmpty(), returns overall "first" status, otherwise, it's the first of the specified Bible Database
+	bool isLastCanOpener(const QString &strBblUUID = QString()) const;		// If strBblUUID.isEmpty(), returns overall "last" status, otherwise, it's the last of the specified Bible Database
 
 	CKJVCanOpener *activeCanOpener() const;
 	template<class T>

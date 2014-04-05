@@ -31,6 +31,7 @@
 
 typedef struct {
 	bool m_bAutoLoad;					// If true, the database will be autoloaded at application startup
+	QString m_strLanguage;
 	QString m_strDBName;
 	QString m_strDBDesc;
 	QString m_strUUID;
