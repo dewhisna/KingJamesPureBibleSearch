@@ -1778,6 +1778,9 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 		if (TBibleDatabaseList::instance()->at(ndx).data() == NULL) continue;
 		QAction *pAction = new QAction(TBibleDatabaseList::instance()->at(ndx)->description(), m_pActionGroupBibleDatabasesList);
 		pAction->setData(QVariant::fromValue(bibleDescriptorFromUUID(TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID())));
+		if (TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+			pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+		}
 		m_pActionBibleDatabasesList->menu()->addAction(pAction);
 	}
 	connect(m_pActionGroupBibleDatabasesList.data(), SIGNAL(triggered(QAction*)), this, SLOT(en_NewCanOpener(QAction*)));
