@@ -126,19 +126,16 @@ namespace {
 
 	const char *g_constrBibleDatabasePath = "KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "KJVCanOpener/db/";
-	const char *g_constrUserDatabaseTemplateFilename = "KJVCanOpener/db/kjvuser.s3db";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
 	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
-	const char *g_constrUserDatabaseTemplateFilename = "./assets/KJVCanOpener/db/kjvuser.s3db";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrBibleDatabasePath = "../Resources/db/";
 	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
-	const char *g_constrUserDatabaseTemplateFilename = "../Resources/db/kjvuser.s3db";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	#ifdef EMSCRIPTEN_NATIVE
@@ -151,15 +148,12 @@ namespace {
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrUserDatabaseTemplateFilename = "../../KJVCanOpener/db/kjvuser.s3db";
 #endif
-	const char *g_constrUserDatabaseFilename = "kjvuser.s3db";
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -1311,39 +1305,6 @@ int CMyApplication::execute(bool bBuildDB)
 		}
 
 #ifndef EMSCRIPTEN
-		// Read User Database:
-		QFileInfo fiUserDatabaseTemplate(initialAppDirPath(), g_constrUserDatabaseTemplateFilename);
-	#if QT_VERSION < 0x050000
-		QString strDataFolder = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-	#else
-		QString strDataFolder = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-	#endif
-		QFileInfo fiUserDatabase(strDataFolder, g_constrUserDatabaseFilename);
-		if (CPersistentSettings::instance()->settings() == NULL) {			// Will be NULL if we are in stealth mode
-			QDir dirDataFolder;
-			dirDataFolder.mkpath(strDataFolder);
-		}
-		CReadDatabase rdbUser(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
-		if (!fiUserDatabase.exists()) {
-			// If the user's database doesn't exist, see if the template one
-			//		does.  If so, read and use it:
-			if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
-				rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabaseTemplate.absoluteFilePath(), true);
-			}
-		} else {
-			// If the user's database does exist, read it. But if it isn't a proper file
-			//		or if the read fails, try reading the template if it exists:
-			if ((!fiUserDatabase.isFile()) || (!rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabase.absoluteFilePath(), true))) {
-				if ((fiUserDatabaseTemplate.exists()) && (fiUserDatabaseTemplate.isFile())) {
-					rdbUser.ReadUserDatabase(CReadDatabase::DTE_SQL, fiUserDatabaseTemplate.absoluteFilePath(), true);
-				}
-			}
-		}
-		// At this point, userPhrases() will either be the:
-		//		- User Database if it existed
-		//		- Else, the Template Database if it existed
-		//		- Else, empty
-
 		// Read Dictionary Database:
 		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));

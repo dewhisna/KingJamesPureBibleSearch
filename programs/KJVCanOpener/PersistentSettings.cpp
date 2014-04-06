@@ -34,29 +34,6 @@
 
 // ============================================================================
 
-#if defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD) || defined(KJV_DIFF_BUILD)
-static CPhraseList g_lstUserPhrases;
-const CPhraseList &userPhrases()
-{
-	return g_lstUserPhrases;
-}
-void setUserPhrases(const CPhraseList &lstUserPhrases)
-{
-	g_lstUserPhrases = lstUserPhrases;
-}
-#else
-const CPhraseList &userPhrases()
-{
-	return CPersistentSettings::instance()->userPhrases();
-}
-void setUserPhrases(const CPhraseList &lstUserPhrases)
-{
-	return CPersistentSettings::instance()->setUserPhrases(lstUserPhrases);
-}
-#endif
-
-// ============================================================================
-
 namespace
 {
 	//////////////////////////////////////////////////////////////////////
@@ -227,30 +204,29 @@ QSettings *CPersistentSettings::settings()
 	return m_pSettings;
 }
 
-const CPhraseList &CPersistentSettings::userPhrases() const
+const CPhraseList CPersistentSettings::userPhrases(const QString &strUUID) const
 {
-	return m_lstUserPhrases;
+	return m_mapUserPhrases.value(strUUID);
 }
 
-void CPersistentSettings::setUserPhrases(const CPhraseList &lstUserPhrases)
+void CPersistentSettings::setUserPhrases(const QString &strUUID, const CPhraseList &lstUserPhrases)
 {
-	m_lstUserPhrases = lstUserPhrases;
-	emit changedUserPhrases();
+	m_mapUserPhrases[strUUID] = lstUserPhrases;
+	emit changedUserPhrases(strUUID);
 }
 
-void CPersistentSettings::addUserPhrase(const CPhraseEntry &aPhraseEntry)
+void CPersistentSettings::addUserPhrase(const QString &strUUID, const CPhraseEntry &aPhraseEntry)
 {
-	if (m_lstUserPhrases.contains(aPhraseEntry)) return;
-	m_lstUserPhrases.append(aPhraseEntry);
-	emit changedUserPhrases();
+	if (userPhrases(strUUID).contains(aPhraseEntry)) return;
+	m_mapUserPhrases[strUUID].append(aPhraseEntry);
+	emit changedUserPhrases(strUUID);
 }
 
-void CPersistentSettings::removeUserPhrase(const CPhraseEntry &aPhraseEntry)
+void CPersistentSettings::removeUserPhrase(const QString &strUUID, const CPhraseEntry &aPhraseEntry)
 {
-	int ndx = m_lstUserPhrases.indexOf(aPhraseEntry);
-	if (ndx < 0) return;
-	m_lstUserPhrases.removeAt(ndx);
-	emit changedUserPhrases();
+	if (!userPhrases(strUUID).contains(aPhraseEntry)) return;
+	m_mapUserPhrases[strUUID].removeAll(aPhraseEntry);
+	emit changedUserPhrases(strUUID);
 }
 
 void CPersistentSettings::togglePersistentSettingData(bool bCopy)

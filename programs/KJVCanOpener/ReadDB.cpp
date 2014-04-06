@@ -910,11 +910,9 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 	return true;
 }
 
-bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
+bool CReadDatabase::ReadPHRASESTable()
 {
-	if (!bUserPhrases) {
-		assert(m_pBibleDatabase.data() != NULL);
-	}
+	assert(m_pBibleDatabase.data() != NULL);
 
 	// Read the Phrases table:
 
@@ -926,10 +924,7 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 
 	if (!dbParser.findTable("PHRASES")) return false;
 
-	CPhraseList lstUserPhrases;
-	if (!bUserPhrases) {
-		m_pBibleDatabase->m_lstCommonPhrases.clear();
-	}
+	m_pBibleDatabase->m_lstCommonPhrases.clear();
 
 	dbParser.startQueryLoop("Ndx, Phrase, CaseSensitive, AccentSensitive, Exclude");
 
@@ -943,17 +938,11 @@ bool CReadDatabase::ReadPHRASESTable(bool bUserPhrases)
 		phrase.setAccentSensitive((lstFields.at(3).toInt() != 0) ? true : false);
 		phrase.setExclude((lstFields.at(4).toInt() != 0) ? true : false);
 		if (!phrase.text().isEmpty()) {
-			if (bUserPhrases) {
-				lstUserPhrases.append(phrase);
-			} else {
-				m_pBibleDatabase->m_lstCommonPhrases.push_back(phrase);
-			}
+			m_pBibleDatabase->m_lstCommonPhrases.push_back(phrase);
 		}
 	}
 
 	dbParser.endQueryLoop();
-
-	if (bUserPhrases) setUserPhrases(lstUserPhrases);
 
 	return true;
 }
@@ -1237,7 +1226,7 @@ bool CReadDatabase::readBibleStub()
 		(!ReadVerseTables()) ||
 		(!ReadWordsTable()) ||
 		(!ReadFOOTNOTESTable()) ||
-		(!ReadPHRASESTable(false)) ||
+		(!ReadPHRASESTable()) ||
 		(!ValidateData())) return false;
 	return true;
 }
@@ -1305,74 +1294,7 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 	return bSuccess;
 }
 
-bool CReadDatabase::readUserStub()
-{
-	if (!ReadPHRASESTable(true)) return false;
-	return true;
-}
-
-bool CReadDatabase::ReadUserDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bHideWarnings)
-{
-	bool bSuccess = true;
-
-	if (nDatabaseType == DTE_SQL) {
-#ifndef NOT_USING_SQL
-		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserReadConnection);
-		m_myDatabase.setDatabaseName(strDatabaseFilename);
-		m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
-
-		if (!m_myDatabase.open()) {
-#ifdef Q_OS_ANDROID
-			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()).toUtf8().data());
-#endif
-			if (!bHideWarnings)
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open database file \"%1\".\n\n%2").arg(strDatabaseFilename).arg(m_myDatabase.lastError().text()));
-			bSuccess = false;
-		}
-
-		if (bSuccess) {
-			if (!readUserStub()) bSuccess = false;
-			m_myDatabase.close();
-		}
-
-		m_myDatabase = QSqlDatabase();
-		QSqlDatabase::removeDatabase(g_constrUserReadConnection);
-#else
-		return false;
-#endif	// !NOT_USING_SQL
-	} else if (nDatabaseType == DTE_CC) {
-		QFile fileCCDB;
-		if ((bSuccess) && (!strDatabaseFilename.isEmpty())) {
-			fileCCDB.setFileName(strDatabaseFilename);
-			if (!fileCCDB.open(QIODevice::ReadOnly)) {
-				if (!bHideWarnings)
-					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		QtIOCompressor compCCDB(&fileCCDB);
-		if ((bSuccess) && (fileCCDB.isOpen())) {
-			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
-			if (!compCCDB.open(QIODevice::ReadOnly)) {
-				if (!bHideWarnings)
-					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(strDatabaseFilename));
-				bSuccess = false;
-			}
-		}
-
-		CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : NULL));
-
-		if (bSuccess) {
-			if (!readUserStub()) bSuccess = false;
-		}
-	} else {
-		assert(false);
-		return false;
-	}
-
-	return bSuccess;
-}
+// ============================================================================
 
 bool CReadDatabase::readDictionaryStub(bool bLiveDB)
 {

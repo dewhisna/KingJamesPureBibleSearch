@@ -1169,7 +1169,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 	return true;
 }
 
-bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
+bool CBuildDatabase::BuildPhrasesTable()
 {
 	// Build the Phrases table:
 
@@ -1209,64 +1209,59 @@ bool CBuildDatabase::BuildPhrasesTable(bool bUserPhrases)
 
 	CPhraseList phrases;
 
-	if (!bUserPhrases) {
-		// If this is the main phrases table, open our data file for populating it:
-		QFile filePhrases(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/PHRASES.csv")).absoluteFilePath());
-		while (1) {
-			if (!filePhrases.open(QIODevice::ReadOnly)) {
-				if (displayWarning(m_pParent, g_constrBuildDatabase,
-						QObject::tr("Failed to open %1 for reading.").arg(filePhrases.fileName()),
-						QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
-			} else break;
+	// If this is the main phrases table, open our data file for populating it:
+	QFile filePhrases(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/PHRASES.csv")).absoluteFilePath());
+	while (1) {
+		if (!filePhrases.open(QIODevice::ReadOnly)) {
+			if (displayWarning(m_pParent, g_constrBuildDatabase,
+					QObject::tr("Failed to open %1 for reading.").arg(filePhrases.fileName()),
+					QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+		} else break;
+	}
+
+	// Read file and populate phrase list:
+	CCSVStream csv(&filePhrases);
+
+	QStringList slHeaders;
+	csv >> slHeaders;              // Read Headers (verify and discard)
+
+	if ((slHeaders.size()!=5) ||
+		(slHeaders.at(0).compare("Ndx") != 0) ||
+		(slHeaders.at(1).compare("Phrase") != 0) ||
+		(slHeaders.at(2).compare("CaseSensitive") != 0) ||
+		(slHeaders.at(3).compare("AccentSensitive") != 0) ||
+		(slHeaders.at(4).compare("Exclude") != 0)) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for PHRASES data file!"),
+							QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
+			filePhrases.close();
+			return false;
 		}
+	}
 
-		// Read file and populate phrase list:
-		CCSVStream csv(&filePhrases);
+	while (!csv.atEndOfStream()) {
+		QStringList sl;
+		csv >> sl;
 
-		QStringList slHeaders;
-		csv >> slHeaders;              // Read Headers (verify and discard)
-
-		if ((slHeaders.size()!=5) ||
-			(slHeaders.at(0).compare("Ndx") != 0) ||
-			(slHeaders.at(1).compare("Phrase") != 0) ||
-			(slHeaders.at(2).compare("CaseSensitive") != 0) ||
-			(slHeaders.at(3).compare("AccentSensitive") != 0) ||
-			(slHeaders.at(4).compare("Exclude") != 0)) {
-			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for PHRASES data file!"),
+		if (sl.count() != 5) {
+			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in PHRASES data file!"),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 				filePhrases.close();
 				return false;
 			}
+			continue;
 		}
 
-		while (!csv.atEndOfStream()) {
-			QStringList sl;
-			csv >> sl;
-
-			if (sl.count() != 5) {
-				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in PHRASES data file!"),
-									QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
-					filePhrases.close();
-					return false;
-				}
-				continue;
-			}
-
-			CPhraseEntry phrase;
-			phrase.setText(sl.at(1));
-			phrase.setCaseSensitive((sl.at(2).toInt() != 0) ? true : false);
-			phrase.setAccentSensitive((sl.at(3).toInt() != 0) ? true : false);
-			phrase.setExclude((sl.at(4).toInt() != 0) ? true: false);
-			if (!phrase.text().isEmpty()) {
-				phrases.push_back(phrase);
-			}
+		CPhraseEntry phrase;
+		phrase.setText(sl.at(1));
+		phrase.setCaseSensitive((sl.at(2).toInt() != 0) ? true : false);
+		phrase.setAccentSensitive((sl.at(3).toInt() != 0) ? true : false);
+		phrase.setExclude((sl.at(4).toInt() != 0) ? true: false);
+		if (!phrase.text().isEmpty()) {
+			phrases.push_back(phrase);
 		}
-
-		filePhrases.close();
-	} else {
-		// If this is the User Database, get it from the global list:
-		phrases.append(userPhrases());
 	}
+
+	filePhrases.close();
 
 	// Use the CPhraseListModel to sort it (since that will be displaying it later):
 	CPhraseListModel mdlPhrases(phrases);
@@ -1383,7 +1378,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 			(!BuildVerseTables()) ||
 			(!BuildWordsTable()) ||
 			(!BuildFootnotesTables()) ||
-			(!BuildPhrasesTable(false))) bSuccess = false;
+			(!BuildPhrasesTable())) bSuccess = false;
 	}
 
 #ifndef NOT_USING_SQL
@@ -1393,36 +1388,6 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 #endif
 
 	if (bSuccess) displayInformation(m_pParent, g_constrBuildDatabase, QObject::tr("Build Complete!"));
-	return bSuccess;
-}
-
-bool CBuildDatabase::BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings)
-{
-	bool bSuccess = true;
-
-#ifndef NOT_USING_SQL
-	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrUserBuildConnection);
-	m_myDatabase.setDatabaseName(strDatabaseFilename);
-
-	if (!m_myDatabase.open()) {
-		if (!bHideWarnings)
-			displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Error: Couldn't open database file \"%1\".").arg(strDatabaseFilename));
-		bSuccess = false;
-	}
-
-	if (bSuccess) {
-		if (!BuildPhrasesTable(true)) bSuccess = false;
-		m_myDatabase.close();
-	}
-
-	m_myDatabase = QSqlDatabase();
-	QSqlDatabase::removeDatabase(g_constrUserBuildConnection);
-#else
-	Q_UNUSED(strDatabaseFilename);
-	Q_UNUSED(bHideWarnings);
-	bSuccess = false;
-#endif
-
 	return bSuccess;
 }
 

@@ -30,6 +30,7 @@
 #include <QFont>
 #include <QColor>
 #include <QList>
+#include <QMap>
 
 #include "dbstruct.h"
 #include "SearchCompleter.h"
@@ -58,10 +59,11 @@ public:
 	void setStealthMode(const QString &strFilename);
 	static CPersistentSettings *instance();
 	QSettings *settings();
-	const CPhraseList &userPhrases() const;
-	void setUserPhrases(const CPhraseList &lstUserPhrases);
-	void addUserPhrase(const CPhraseEntry &aPhraseEntry);
-	void removeUserPhrase(const CPhraseEntry &aPhraseEntry);
+
+	const CPhraseList userPhrases(const QString &strUUID) const;
+	void setUserPhrases(const QString &strUUID, const CPhraseList &lstUserPhrases);
+	void addUserPhrase(const QString &strUUID, const CPhraseEntry &aPhraseEntry);
+	void removeUserPhrase(const QString &strUUID, const CPhraseEntry &aPhraseEntry);
 
 	QFont fontScriptureBrowser() const { return m_pPersistentSettingData->m_fntScriptureBrowser; }
 	QFont fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
@@ -126,7 +128,7 @@ public:
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
-	void changedUserPhrases();
+	void changedUserPhrases(const QString &strUUID);
 
 	void fontChangedScriptureBrowser(const QFont &aFont);
 	void fontChangedSearchResults(const QFont &aFont);
@@ -279,7 +281,7 @@ private:
 
 	QSettings *m_pSettings;
 	bool m_bStealthMode;								// True if we're either writing to a special alternate file or not writing settings
-	CPhraseList m_lstUserPhrases;						// User-defined phrases read
+	QMap<QString, CPhraseList> m_mapUserPhrases;		// User-defined phrases read per Bible Database
 };
 
 // ============================================================================

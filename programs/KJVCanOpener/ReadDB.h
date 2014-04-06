@@ -57,7 +57,6 @@ public:
 	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
 	bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
 	bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
-	bool ReadUserDatabase(DATABASE_TYPE_ENUM nDatabaseType, const QString &strDatabaseFilename, bool bHideWarnings = false);
 	bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
 
 	// ------------------------------------------------------------------------
@@ -74,7 +73,7 @@ protected:
 	bool ReadVerseTables();
 	bool ReadWordsTable();
 	bool ReadFOOTNOTESTable();
-	bool ReadPHRASESTable(bool bUserPhrases = false);
+	bool ReadPHRASESTable();
 	bool ValidateData();
 
 	// ------------------------------------------------------------------------
@@ -91,7 +90,6 @@ protected:
 
 private:
 	bool readBibleStub();
-	bool readUserStub();
 	bool readDictionaryStub(bool bLiveDB);
 
 private:

@@ -945,14 +945,14 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 	// User Search Phrases Settings:
 	CPhraseList phrases;
-	phrases.append(CPersistentSettings::instance()->userPhrases());
+	phrases.append(CPersistentSettings::instance()->userPhrases(m_pBibleDatabase->compatibilityUUID()));
 	CPhraseListModel mdlPhrases(phrases);
 	mdlPhrases.sort(0, Qt::AscendingOrder);
 	phrases = mdlPhrases.phraseList();
 
 	settings.beginWriteArray(groupCombine(m_pBibleDatabase->compatibilityUUID(), constrUserSearchPhrasesGroup));
 	settings.remove("");
-	for (int ndx = 0; ndx < CPersistentSettings::instance()->userPhrases().size(); ++ndx) {
+	for (int ndx = 0; ndx < phrases.size(); ++ndx) {
 		settings.setArrayIndex(ndx);
 		settings.setValue("Phrase", phrases.at(ndx).text());
 		settings.setValue("CaseSensitive", phrases.at(ndx).caseSensitive());
@@ -1221,7 +1221,7 @@ void CKJVCanOpener::restorePersistentSettings()
 						if (phrase.text().isEmpty()) continue;
 						lstUserPhrases.append(phrase);
 					}
-					setUserPhrases(lstUserPhrases);
+					CPersistentSettings::instance()->setUserPhrases(m_pBibleDatabase->compatibilityUUID(), lstUserPhrases);
 				}
 				settings.endArray();
 			}

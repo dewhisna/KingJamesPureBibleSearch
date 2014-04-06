@@ -48,7 +48,6 @@ public:
 	~CBuildDatabase();
 
 	bool BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename);
-	bool BuildUserDatabase(const QString &strDatabaseFilename, bool bHideWarnings = false);
 
 protected:
 	bool BuildDBInfoTable();
@@ -58,7 +57,7 @@ protected:
 	bool BuildVerseTables();
 	bool BuildWordsTable();
 	bool BuildFootnotesTables();
-	bool BuildPhrasesTable(bool bUserPhrases);
+	bool BuildPhrasesTable();
 
 private:
 	QWidget *m_pParent;

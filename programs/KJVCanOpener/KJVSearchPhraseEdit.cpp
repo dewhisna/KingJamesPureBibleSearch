@@ -425,7 +425,7 @@ void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 	if (pModel == NULL) return;
 
 	CPhraseList phrases = m_pBibleDatabase->phraseList();
-	phrases.append(userPhrases());
+	phrases.append(CPersistentSettings::instance()->userPhrases(m_pBibleDatabase->compatibilityUUID()));
 	phrases.removeDuplicates();
 	pModel->setPhraseList(phrases);
 	pModel->sort(0, Qt::AscendingOrder);
@@ -501,7 +501,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchActivationDelay(int)));
 
-	connect(CPersistentSettings::instance(), SIGNAL(changedUserPhrases()), this, SLOT(setPhraseButtonEnables()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedUserPhrases(const QString &)), this, SLOT(setPhraseButtonEnables(const QString &)));
 
 	connect(ui.chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui.editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
@@ -652,13 +652,13 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 
 void CKJVSearchPhraseEdit::en_phraseAdd()
 {
-	CPersistentSettings::instance()->addUserPhrase(m_phraseEntry);
+	CPersistentSettings::instance()->addUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
 }
 
 void CKJVSearchPhraseEdit::en_phraseDel()
 {
-	CPersistentSettings::instance()->removeUserPhrase(m_phraseEntry);
+	CPersistentSettings::instance()->removeUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
 }
 
@@ -673,12 +673,14 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 	setDisabled(false);
 }
 
-void CKJVSearchPhraseEdit::setPhraseButtonEnables()
+void CKJVSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
 {
-	bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
-	bool bUserFound = CPersistentSettings::instance()->userPhrases().contains(m_phraseEntry);
-	bool bHaveText = (!m_phraseEntry.text().isEmpty());
-	ui.buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
-	ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
-//	ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
+	if ((strUUID.isEmpty()) || (strUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0)) {
+		bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
+		bool bUserFound = CPersistentSettings::instance()->userPhrases(m_pBibleDatabase->compatibilityUUID()).contains(m_phraseEntry);
+		bool bHaveText = (!m_phraseEntry.text().isEmpty());
+		ui.buttonAddPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && !bUserFound && !bCommonFound);
+		ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
+//		ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
+	}
 }

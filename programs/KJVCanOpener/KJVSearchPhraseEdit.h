@@ -163,7 +163,7 @@ protected slots:
 	void en_phraseAdd();
 	void en_phraseDel();
 	void en_phraseClear();
-	void setPhraseButtonEnables();
+	void setPhraseButtonEnables(const QString &strUUID = QString());
 
 // Data Private:
 private:

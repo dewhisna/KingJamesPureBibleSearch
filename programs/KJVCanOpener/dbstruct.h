@@ -586,9 +586,6 @@ inline uint qHash(const CPhraseEntry &key)
 	return nHash;
 }
 
-extern const CPhraseList &userPhrases();			// User-defined phrases
-extern void setUserPhrases(const CPhraseList &lstUserPhrases);
-
 // ============================================================================
 
 class TBibleDatabaseSettings
