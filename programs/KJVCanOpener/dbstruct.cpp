@@ -1163,6 +1163,28 @@ CRelIndex CBibleDatabase::calcRelIndex(
 
 // ============================================================================
 
+TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBibleDatabase) const
+{
+	assert(pBibleDatabase != NULL);
+	if (pBibleDatabase == NULL) return TCrossReferenceMap(*this);
+
+	TCrossReferenceMap mapScoped;
+
+	for (const_iterator itrMap = begin(); itrMap != end(); ++itrMap) {
+		if (pBibleDatabase->NormalizeIndex(itrMap->first) == 0) continue;
+
+		TRelativeIndexSet setRefs;
+		for (TRelativeIndexSet::const_iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
+			if (pBibleDatabase->NormalizeIndex(*itrSet) != 0) setRefs.insert(*itrSet);
+		}
+		if (!setRefs.empty()) mapScoped[itrMap->first] = setRefs;
+	}
+
+	return mapScoped;
+}
+
+// ============================================================================
+
 
 CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))

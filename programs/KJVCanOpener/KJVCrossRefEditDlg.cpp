@@ -315,7 +315,7 @@ void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 		if (ndxTarget.isSet()) {
 			if (m_tagSourcePassage.relIndex() == ndxTarget) {
 				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself."));
-			} else if (m_pWorkingUserNotesDatabase->haveCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
 				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists."));
 			} else if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
 				m_bIsDirty = true;

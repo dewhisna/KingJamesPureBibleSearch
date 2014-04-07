@@ -605,6 +605,8 @@ public:
 			:	TVerseListModelResults(priv, tr("Cross References"), VLMRTE_CROSS_REFS, VLMNTE_CROSS_REFERENCE_SOURCE_NODE)
 		{ }
 
+		TCrossReferenceMap m_mapCrossRefs;		// Created from UserNotesDatabase CrossRefsMap by buildCrossRefsResults, scoped to the current database (i.e. references not part of the database are excluded, like Apocrypha references with non-Apocrypha database)
+
 		// --------------------------------------
 	};
 
@@ -766,8 +768,8 @@ private:
 	TVerseListModelCrossRefsResults m_crossRefsResults;	// VerseListModelResults for Cross References
 	QStringList m_lstUserNoteKeywordFilter;				// User Note filter set by Search Results view via call to setUserNoteKeywordFilter().  Note: An empty string is a special "show notes without keywords" entry
 // ---
-	// Special static needed for sorting (mutexed in sorting function to be thread-safe):
-	static CUserNotesDatabase *ms_pUserNotesDatabase;
+	// Special statics needed for sorting (mutexed in sorting function to be thread-safe):
+	static const TCrossReferenceMap *ms_pCrossRefsMap;
 };
 
 // ============================================================================

@@ -1024,7 +1024,7 @@ bool CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRel
 	if (ndxFirst == ndxSecond) return false;							// Don't allow cross references to ourselves (that's just stupid, and can lead to weird consequences)
 
 	// Since they are cross-linked, it doesn't matter which way we do this check:
-	TRelativeIndexSet sCrossRef = crossReferencesFor(ndxFirst);
+	TRelativeIndexSet sCrossRef = crossRefsMap().crossReferencesFor(ndxFirst);
 	if (sCrossRef.find(ndxSecond) != sCrossRef.end()) return false;		// Don't add it if it already exists
 
 	m_mapCrossReference[ndxFirst].insert(ndxSecond);

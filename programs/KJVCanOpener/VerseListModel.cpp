@@ -151,8 +151,8 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 	if (bHighlighterNode) {
 		return m_vlmrListHighlighters.size();
 	} else if (bSingleCrossRefNode) {
-		if (!m_private.m_pUserNotesDatabase->haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return 0;
-		return m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
+		if (!m_crossRefsResults.m_mapCrossRefs.haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return 0;
+		return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -162,7 +162,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -177,7 +177,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -190,7 +190,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				if (nLevel == 3) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
 				}
 				return 0;
 			}
@@ -328,9 +328,9 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 		}
 	} else if (bSingleCrossRefNode) {
-		if (!m_private.m_pUserNotesDatabase->haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return QModelIndex();
+		if (!m_crossRefsResults.m_mapCrossRefs.haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return QModelIndex();
 		// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-		assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
+		assert(static_cast<unsigned int>(row) < m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
 		return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(m_private.m_ndxSingleCrossRefSource, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -341,7 +341,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				assert(row < zResults.m_mapVerses.size());
@@ -358,7 +358,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				CRelIndex ndxRel(toVerseIndex(zParent)->m_nRelIndex);
@@ -380,7 +380,7 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
 					// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-					assert(static_cast<unsigned int>(row) < m_private.m_pUserNotesDatabase->crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
+					assert(static_cast<unsigned int>(row) < m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 					return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(toVerseIndex(zParent)->m_nRelIndex, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 				}
 				CVerseMap::const_iterator itrVerse = zResults.GetVerse(row, ndxRel.book(), ndxRel.chapter());
@@ -531,7 +531,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
 			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
 			// For Cross-Ref targets, swapout the RelIndexes (which will be the Cross-Ref source) for the target:
-			const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+			const TRelativeIndexSet setCrossRefs = m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(pVerseIndex->relIndex());
 			assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 			TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
 			for (int i = index.row(); i > 0; ++itrRef, --i) { }
@@ -769,7 +769,7 @@ CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index
 
 	if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
 		(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
-		const TRelativeIndexSet setCrossRefs = m_private.m_pUserNotesDatabase->crossReferencesFor(pVerseIndex->relIndex());
+		const TRelativeIndexSet setCrossRefs = m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(pVerseIndex->relIndex());
 		assert((index.row() >= 0) && (static_cast<unsigned int>(index.row()) < setCrossRefs.size()));
 		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
 		for (int i = index.row(); i > 0; ++itrRef, --i) { }
@@ -841,7 +841,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 
 	CRelIndex ndxRel1(toVerseIndex(ndx1)->relIndex());
 	if (vi1->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
-		const TRelativeIndexSet setCrossRefs1 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel1);
+		const TRelativeIndexSet setCrossRefs1 = ms_pCrossRefsMap->crossReferencesFor(ndxRel1);
 		assert((ndx1.row() >= 0) && (static_cast<unsigned int>(ndx1.row()) < setCrossRefs1.size()));
 		TRelativeIndexSet::const_iterator itrRef1 = setCrossRefs1.begin();
 		for (int i = ndx1.row(); i > 0; ++itrRef1, --i) { }
@@ -849,7 +849,7 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 	}
 	CRelIndex ndxRel2(toVerseIndex(ndx2)->relIndex());
 	if (vi2->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
-		const TRelativeIndexSet setCrossRefs2 = ms_pUserNotesDatabase->crossReferencesFor(ndxRel2);
+		const TRelativeIndexSet setCrossRefs2 = ms_pCrossRefsMap->crossReferencesFor(ndxRel2);
 		assert((ndx2.row() >= 0) && (static_cast<unsigned int>(ndx2.row()) < setCrossRefs2.size()));
 		TRelativeIndexSet::const_iterator itrRef2 = setCrossRefs2.begin();
 		for (int i = ndx2.row(); i > 0; ++itrRef2, --i) { }
@@ -859,19 +859,20 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 }
 
 // Static thread-locked data, locked in sortModelIndexList:
-CUserNotesDatabase *CVerseListModel::ms_pUserNotesDatabase = NULL;
+const TCrossReferenceMap *CVerseListModel::ms_pCrossRefsMap = NULL;
 
 void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes) const
 {
 	static QAtomicInt nThreadLock(0);
 	while (!nThreadLock.testAndSetRelaxed(0, 1)) { }	// Mutex wait for thread if someone is currently running this function
-	ms_pUserNotesDatabase = m_private.m_pUserNotesDatabase.data();
+	assert(ms_pCrossRefsMap == NULL);					// Thread-safeguard check
+	ms_pCrossRefsMap = &m_crossRefsResults.m_mapCrossRefs;
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
 	} else {
 		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
 	}
-	ms_pUserNotesDatabase = NULL;
+	ms_pCrossRefsMap = NULL;
 	nThreadLock = 0;
 }
 
@@ -1412,6 +1413,8 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 		assert(ndxNote.isSet());
 		ndxNote.setWord(0);			// Whole verses only
 
+		if (m_private.m_pBibleDatabase->NormalizeIndex(ndxNote) == 0) continue;		// Don't include notes for references outside our database (like Aprocrypha notes outside on database without Apocrypha)
+
 		const QStringList &noteKeywordList = (itrNote->second).keywordList();
 
 		bool bInclude = false;
@@ -1476,10 +1479,11 @@ void CVerseListModel::buildCrossRefsResults()
 	zResults.m_mapExtraVerseIndexes.clear();
 	zResults.m_mapSizeHints.clear();
 
-	const TCrossReferenceMap &mapCrossRefs = m_private.m_pUserNotesDatabase->crossRefsMap();
+	zResults.m_mapCrossRefs.clear();
+	zResults.m_mapCrossRefs = m_private.m_pUserNotesDatabase->crossRefsMap().createScopedMap(m_private.m_pBibleDatabase.data());
 
-	zResults.m_lstVerseIndexes.reserve(mapCrossRefs.size());
-	for (TCrossReferenceMap::const_iterator itrCrossRef = mapCrossRefs.begin(); itrCrossRef != mapCrossRefs.end(); ++itrCrossRef) {
+	zResults.m_lstVerseIndexes.reserve(zResults.m_mapCrossRefs.size());
+	for (TCrossReferenceMap::const_iterator itrCrossRef = zResults.m_mapCrossRefs.begin(); itrCrossRef != zResults.m_mapCrossRefs.end(); ++itrCrossRef) {
 		CRelIndex ndxCrossRef = (itrCrossRef->first);
 		assert(ndxCrossRef.isSet());
 		ndxCrossRef.setWord(0);			// Whole verses only
@@ -1834,9 +1838,19 @@ int CVerseListModel::TVerseListModelResults::IndexByVerse(const CRelIndex &ndxRe
 		case VTME_LIST:
 			return m_lstVerseIndexes.indexOf(ndxRel);
 		case VTME_TREE_BOOKS:
-			return std::distance(GetVerse(0, IndexByBook(ndxRel.book()), -1), itrVerseMap);
+		{
+			CVerseMap::const_iterator itrFirstVerse = GetVerse(0, ndxRel.book(), -1);
+			assert(itrFirstVerse != m_mapVerses.end());
+			if (itrFirstVerse == m_mapVerses.end()) return -1;
+			return std::distance(itrFirstVerse, itrVerseMap);
+		}
 		case VTME_TREE_CHAPTERS:
-			return std::distance(GetVerse(0, IndexByBook(ndxRel.book()), IndexByChapter(ndxRel.book(), ndxRel.chapter())), itrVerseMap);
+		{
+			CVerseMap::const_iterator itrFirstVerse = GetVerse(0, ndxRel.book(),  ndxRel.chapter());
+			assert(itrFirstVerse != m_mapVerses.end());
+			if (itrFirstVerse == m_mapVerses.end()) return -1;
+			return std::distance(itrFirstVerse, itrVerseMap);
+		}
 		default:
 			assert(false);
 			break;

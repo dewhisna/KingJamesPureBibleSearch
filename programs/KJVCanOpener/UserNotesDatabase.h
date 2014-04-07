@@ -263,22 +263,6 @@ public:
 
 	// --------------------
 
-	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
-	{
-		return (m_mapCrossReference.find(ndx) != m_mapCrossReference.end());
-	}
-	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
-	{
-		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
-		TRelativeIndexSet::const_iterator itr = refs.find(ndxSecond);
-		return (itr != refs.end());
-	}
-	inline const TRelativeIndexSet crossReferencesFor(const CRelIndex &ndx) const
-	{
-		TCrossReferenceMap::const_iterator itr = m_mapCrossReference.find(ndx);
-		if (itr == m_mapCrossReference.end()) return TRelativeIndexSet();
-		return (itr->second);
-	}
 	bool setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);			// Returns true if it was set or false if it was already set or can't be set
 	bool removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Returns true if it was removed or false if it wasn't there or can't be removed
 	bool removeCrossReferencesFor(const CRelIndex &ndx);									// Returns true if it was removed or false if it wasn't there or can't be removed

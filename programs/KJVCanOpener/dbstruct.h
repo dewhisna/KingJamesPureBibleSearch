@@ -63,6 +63,11 @@
 
 // ============================================================================
 
+// Forward declarations:
+class CBibleDatabase;
+
+// ============================================================================
+
 // CRelIndex Masks:
 #define RIMASK_HEADING	0x10
 #define RIMASK_BOOK		0x08
@@ -223,7 +228,39 @@ struct XformLower {
 typedef std::vector<uint32_t> TNormalizedIndexList;			// Normalized Index List for words into book/chapter/verse/word
 typedef std::vector<CRelIndex> TRelativeIndexList;			// Relative Index List for words into book/chapter/verse/word
 typedef std::set<CRelIndex, RelativeIndexSortPredicate> TRelativeIndexSet;		// Relative Index Set for words into book/chapter/verse/word
-typedef std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate> TCrossReferenceMap;		// Map of Relative Index to Relative Index Set, used for cross-references (such as User Notes Database cross-reference, etc)
+class TCrossReferenceMap : public std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>		// Map of Relative Index to Relative Index Set, used for cross-references (such as User Notes Database cross-reference, etc)
+{
+public:
+	TCrossReferenceMap()
+		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>()
+	{
+
+	}
+
+	TCrossReferenceMap(const TCrossReferenceMap &aMap)
+		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(aMap)
+	{
+
+	}
+
+	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
+	{
+		return (find(ndx) != end());
+	}
+	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
+	{
+		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
+		TRelativeIndexSet::const_iterator itr = refs.find(ndxSecond);
+		return (itr != refs.end());
+	}
+	inline const TRelativeIndexSet crossReferencesFor(const CRelIndex &ndx) const
+	{
+		TCrossReferenceMap::const_iterator itr = find(ndx);
+		if (itr == end()) return TRelativeIndexSet();
+		return (itr->second);
+	}
+	TCrossReferenceMap createScopedMap(const CBibleDatabase *pBibleDatabase) const;
+};
 
 // ============================================================================
 
