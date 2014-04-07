@@ -495,12 +495,20 @@ typedef std::map<QString, QString> TSoundExMap;			// Mapping of Composed Word to
 struct TConcordanceListSortPredicate {
 	static bool ascendingLessThanWordCaseInsensitive(const CConcordanceEntry &s1, const CConcordanceEntry &s2)
 	{
-		return (s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseInsensitive) < 0);
+		int nDecompCompare = s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseInsensitive);
+		if (nDecompCompare == 0) {
+			return (s1.word().compare(s2.word(), Qt::CaseSensitive) < 0);				// Localized case-sensitive within overall case-insensitive
+		}
+		return (nDecompCompare < 0);
 	}
 
 	static bool ascendingLessThanWordCaseSensitive(const CConcordanceEntry &s1, const CConcordanceEntry &s2)
 	{
-		return (s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseSensitive) < 0);
+		int nDecompCompare = s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseSensitive);
+		if (nDecompCompare == 0) {
+			return (s1.word().compare(s2.word(), Qt::CaseSensitive) < 0);
+		}
+		return (nDecompCompare < 0);
 	}
 };
 
