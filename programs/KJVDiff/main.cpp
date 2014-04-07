@@ -85,6 +85,15 @@ static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 	return 0;
 }
 
+static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, const CRelIndex &relIndex)
+{
+	if (bAbbrev) {
+		return pBibleDatabase->PassageReferenceAbbrText(relIndex);
+	} else {
+		return pBibleDatabase->PassageReferenceText(relIndex);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -106,6 +115,14 @@ int main(int argc, char *argv[])
 	bool bIgnoreTransChange = false;
 	bool bIgnorePilcrows = false;
 	bool bExactPilcrows = false;
+	bool bIgnoreLemmas = false;
+	bool bIgnoreHebrewPs119 = false;
+	bool bIgnoreRendering = false;
+	bool bIgnoreVerseText = false;
+	bool bCaseInsensitive = false;
+	bool bAccentInsensitive = false;
+	bool bHyphenInsensitive = false;
+	bool bUseAbbrevRefs = false;
 	bool bAllDiffs = true;
 	bool bTextDiffs = false;
 	bool bWordDiffs = false;
@@ -129,7 +146,23 @@ int main(int argc, char *argv[])
 			bIgnorePilcrows = true;
 		} else if (strArg.compare("-e") == 0) {
 			bExactPilcrows = true;
-		} else if (strArg.compare("-t") == 0) {
+		} else if (strArg.compare("-l") == 0) {
+			bIgnoreLemmas = true;
+		} else if (strArg.compare("-s") == 0) {
+			bIgnoreHebrewPs119 = true;
+		} else if (strArg.compare("-r") == 0) {
+			bIgnoreRendering = true;
+		} else if (strArg.compare("-v") == 0) {
+			bIgnoreVerseText = true;
+		} else if (strArg.compare("-c") == 0) {
+			bCaseInsensitive = true;
+		} else if (strArg.compare("-a") == 0) {
+			bAccentInsensitive = true;
+		} else if (strArg.compare("-h") == 0) {
+			bHyphenInsensitive = true;
+		} else if (strArg.compare("-b") == 0) {
+			bUseAbbrevRefs = true;
+		} else if (strArg.compare("-m") == 0) {
 			bAllDiffs = false;
 			bTextDiffs = true;
 		} else if (strArg.compare("-w") == 0) {
@@ -144,21 +177,28 @@ int main(int argc, char *argv[])
 		std::cerr << QString("%1 Version %2\n\n").arg(a.applicationName()).arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index-1> <UUID-Index-2>\n\n").arg(a.applicationName()).toUtf8().data();
 		std::cerr << QString("Reads the specified databases and does a comparison for pertinent differences\n").toUtf8().data();
-		std::cerr << QString("    and outputs the diff results...\n\n").toUtf8().data();
+		std::cerr << QString("    and outputs the diff results...\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
+		std::cerr << QString("------------\n").toUtf8().data();
 		std::cerr << QString("  -j  =  Ignore Words of Jesus\n").toUtf8().data();
 		std::cerr << QString("  -d  =  Ignore Divine Names Markup\n").toUtf8().data();
 		std::cerr << QString("  -t  =  Ignore Translation Change/Added Markup\n").toUtf8().data();
 		std::cerr << QString("  -p  =  Ignore Pilcrows\n").toUtf8().data();
-		std::cerr << QString("  -e  =  Match Exact Pilcrows (ignored if -p is set)\n\n").toUtf8().data();
+		std::cerr << QString("  -e  =  Match Exact Pilcrows (ignored if -p is set)\n").toUtf8().data();
+		std::cerr << QString("  -l  =  Ignore Lemma Tags\n").toUtf8().data();
+		std::cerr << QString("  -s  =  Ignore Psalm 119 Hebrew Letter Tags\n").toUtf8().data();
+		std::cerr << QString("  -r  =  Ignore rendering differences of punctuation, spaces, etc\n").toUtf8().data();
+		std::cerr << QString("  -v  =  Ignore verse text diffs (Verses where words are different)\n").toUtf8().data();
+		std::cerr << QString("  -c  =  Case-Insensitive (i.e. Discard case rather than compare them)\n").toUtf8().data();
+		std::cerr << QString("  -a  =  Accent-Insensitive (i.e. Discard accents rather than compare them)\n").toUtf8().data();
+		std::cerr << QString("  -h  =  Hyphen-Insensitive (i.e. Discard hyphens rather than compare them)\n").toUtf8().data();
+		std::cerr << QString("  -b  =  Use Abbreviated Book names when outputting references\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Diffs to run:\n").toUtf8().data();
-		std::cerr << QString("  -t  =  Text Diffs\n").toUtf8().data();
-		std::cerr << QString("  -w  =  Word Diffs\n").toUtf8().data();
+		std::cerr << QString("  -m  =  Text Markup Diffs\n").toUtf8().data();
+		std::cerr << QString("  -w  =  Word List Diffs\n").toUtf8().data();
 		std::cerr << QString("  (By default All Diffs are run, unless one or more specific diffs is specified)\n\n").toUtf8().data();
-//		std::cerr << QString("  -c  =  Case-Sensitive\n").toUtf8().data();
-//		std::cerr << QString("  -a  =  Accent-Sensitive\n").toUtf8().data();
-//		std::cerr << QString("  -b  =  Use Abbreviated Book names (only when using '-h')\n").toUtf8().data();
-//		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index Values:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
 			const TBibleDescriptor &bblDesc(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)));
@@ -248,8 +288,8 @@ int main(int argc, char *argv[])
 					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
 					const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
 					const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
-					QString strRef1 = pBible1->PassageReferenceText(ndxVerse1);
-					QString strRef2 = pBible2->PassageReferenceText(ndxVerse2);
+					QString strRef1 = passageReference(pBible1, bUseAbbrevRefs, ndxVerse1);
+					QString strRef2 = passageReference(pBible2, bUseAbbrevRefs, ndxVerse2);
 					QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
 					bool bHaveDiff = false;
 					if (pVerse1->m_nNumWrd != pVerse2->m_nNumWrd) {
@@ -268,6 +308,7 @@ int main(int argc, char *argv[])
 					}
 					QString strTemplate1 = pVerse1->m_strTemplate;
 					QString strTemplate2 = pVerse2->m_strTemplate;
+					bool bHaveTextDiff = false;
 					if (bIgnoreDivineNames) {
 						strTemplate1.remove(QRegExp("[Dd]"));
 						strTemplate2.remove(QRegExp("[Dd]"));
@@ -280,11 +321,83 @@ int main(int argc, char *argv[])
 						strTemplate1.remove(QRegExp("[Jj]"));
 						strTemplate2.remove(QRegExp("[Jj]"));
 					}
-					if (strTemplate1.compare(strTemplate2) != 0) {
-						strDiffText += QString("    Template1: %1\n").arg(strTemplate1);
-						strDiffText += QString("    Template2: %1\n").arg(strTemplate2);
-						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), pVerse1, vtfTags)).toUtf8().data();
-						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), pVerse2, vtfTags)).toUtf8().data();
+					if (bIgnoreLemmas) {
+						strTemplate1.remove(QRegExp("[Ll]"));
+						strTemplate2.remove(QRegExp("[Ll]"));
+					}
+					if (bIgnoreHebrewPs119) {
+						strTemplate1.remove(QRegExp("[M]"));
+						strTemplate2.remove(QRegExp("[M]"));
+					}
+					if (bIgnoreVerseText) {
+						// Leave the "w" in place so that rendering checks will work correctly!
+						// strTemplate1.remove(QRegExp("[w]"));
+						// strTemplate2.remove(QRegExp("[w]"));
+					} else {
+						CVerseEntry veNewVerseWords1(*pVerse1);
+						QString strWordTemplate1;
+						for (unsigned int nWrd = 0; nWrd < veNewVerseWords1.m_nNumWrd; ++nWrd) {
+							if (nWrd != 0) {
+								strWordTemplate1 += " w";
+							} else {
+								strWordTemplate1 += "w";
+							}
+						}
+						veNewVerseWords1.m_strTemplate = strWordTemplate1;
+
+						CVerseEntry veNewVerseWords2(*pVerse2);
+						QString strWordTemplate2;
+						for (unsigned int nWrd = 0; nWrd < veNewVerseWords2.m_nNumWrd; ++nWrd) {
+							if (nWrd != 0) {
+								strWordTemplate2 += " w";
+							} else {
+								strWordTemplate2 += "w";
+							}
+						}
+						veNewVerseWords2.m_strTemplate = strWordTemplate2;
+
+						QString strVerseText1 = CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerseWords1, vtfTags);
+						QString strVerseText2 = CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerseWords2, vtfTags);
+						if (bAccentInsensitive) {
+							strVerseText1 = CSearchStringListModel::decompose(strVerseText1, bHyphenInsensitive);
+							strVerseText2 = CSearchStringListModel::decompose(strVerseText2, bHyphenInsensitive);
+						} else {
+							strVerseText1 = CSearchStringListModel::deApostrHyphen(strVerseText1, bHyphenInsensitive);
+							strVerseText2 = CSearchStringListModel::deApostrHyphen(strVerseText2, bHyphenInsensitive);
+						}
+						if (bCaseInsensitive) {
+							strVerseText1 = strVerseText1.toLower();
+							strVerseText2 = strVerseText2.toLower();
+						}
+						if (strVerseText1 != strVerseText2) bHaveTextDiff = true;
+					}
+					if (bIgnoreRendering) {
+						strTemplate1.remove(QRegExp("[^DdTtJjLlMw]"));
+						strTemplate2.remove(QRegExp("[^DdTtJjLlMw]"));
+					}
+					CVerseEntry veNewVerse1(*pVerse1);
+					veNewVerse1.m_strTemplate = strTemplate1;
+					CVerseEntry veNewVerse2(*pVerse2);
+					veNewVerse2.m_strTemplate = strTemplate2;
+					// Note: deApostrHyphen is used here so that hyphen and apostrophy differences in the rendering markup (like the weird extra hyphen
+					//			that exists in Exodus 32:32 doesn't trigger unsubstantiated diffs):
+					if (CSearchStringListModel::deApostrHyphen(strTemplate1, false) != CSearchStringListModel::deApostrHyphen(strTemplate2, false)) {
+						if (pVerse1->m_strTemplate != strTemplate1) {
+							strDiffText += QString("    Template1: \"%1\" <= \"%2\"\n").arg(strTemplate1).arg(pVerse1->m_strTemplate);
+						} else {
+							strDiffText += QString("    Template1: \"%1\"\n").arg(strTemplate1);
+						}
+						if (pVerse2->m_strTemplate != strTemplate2) {
+							strDiffText += QString("    Template2: \"%1\" <= \"%2\"\n").arg(strTemplate2).arg(pVerse2->m_strTemplate);
+						} else {
+							strDiffText += QString("    Template2: \"%1\"\n").arg(strTemplate2);
+						}
+						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
+						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
+						bHaveDiff = true;
+					} else if (bHaveTextDiff) {
+						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
+						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
 						bHaveDiff = true;
 					}
 					if (bHaveDiff) {
@@ -295,10 +408,10 @@ int main(int argc, char *argv[])
 					CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
 					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
 					if (nVrs1 >= pChapter1->m_nNumVrs) {
-						std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxVerse2)).toUtf8().data();
+						std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxVerse2)).toUtf8().data();
 						++nVrs2;
 					} else if (nVrs2 >= pChapter2->m_nNumVrs) {
-						std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxVerse1)).toUtf8().data();
+						std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxVerse1)).toUtf8().data();
 						++nVrs1;
 					} else {
 						assert(false);
@@ -309,10 +422,10 @@ int main(int argc, char *argv[])
 				CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
 				CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
 				if (nChp1 >= pBook1->m_nNumChp) {
-					std::cout << QString("<<missing>> : %1\n").arg(pBible2->PassageReferenceText(ndxChapter2)).toUtf8().data();
+					std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxChapter2)).toUtf8().data();
 					++nChp2;
 				} else if (nChp2 >= pBook2->m_nNumChp) {
-					std::cout << QString("%1 : <<missing>>\n").arg(pBible1->PassageReferenceText(ndxChapter1)).toUtf8().data();
+					std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxChapter1)).toUtf8().data();
 					++nChp1;
 				} else {
 					assert(false);
@@ -323,6 +436,22 @@ int main(int argc, char *argv[])
 
 	if (bAllDiffs || bWordDiffs) {
 /*
+		TConcordanceList lstConcWords1;			// Concordance Words from Database 1 that misdiff
+		TConcordanceList lstConcWords2;			// Concordance Words from Database 2 that misdiff
+
+		int ndxConc1 = 0;
+		int ndxConc2 = 0;
+
+		while ((ndxConc1 < pBible1->concordanceWordList().size()) || (ndxConc2 < pBible2->concordanceWordList().size())) {
+			QString strWord1 = ((ndxConc1 < pBible1->concordanceWordList().size()) ? pBible1->concordanceWordList().at(ndxConc1).word() : QString());
+			QString strWord2 = ((ndxConc2 < pBible2->concordanceWordList().size()) ? pBible2->concordanceWordList().at(ndxConc2).word() : QString());
+
+			if (strWord1)
+		}
+
+
+
+
 		TWordListMap mapWordList1;
 		TWordListMap mapWordList2;
 
