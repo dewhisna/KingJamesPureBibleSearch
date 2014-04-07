@@ -270,6 +270,8 @@ int main(int argc, char *argv[])
 	}
 	vtfTags.setShowPilcrowMarkers(false);
 
+	bool bOutputedTextDiffs = false;
+
 	if (bAllDiffs || bTextDiffs) {
 		for (unsigned int nBk = 0; nBk < nChkBk; ++nBk) {
 			const CBookEntry *pBook1 = pBible1->bookEntry(nBk+1);
@@ -401,7 +403,8 @@ int main(int argc, char *argv[])
 						bHaveDiff = true;
 					}
 					if (bHaveDiff) {
-						std::cout << QString("%1--------------------\n").arg(strDiffText).toUtf8().data();
+						std::cout << QString("%1%2\n").arg(bOutputedTextDiffs ? QString("--------------------") : QString()).arg(strDiffText).toUtf8().data();
+						bOutputedTextDiffs = true;
 					}
 				}
 				while ((nVrs1 < pChapter1->m_nNumVrs) || (nVrs2 < pChapter2->m_nNumVrs)) {
@@ -435,6 +438,65 @@ int main(int argc, char *argv[])
 	}
 
 	if (bAllDiffs || bWordDiffs) {
+#define COLUMN_SPACE 2
+		int nMaxWordSize = 0;
+		for (TWordListMap::const_iterator itr = pBible1->mapWordList().begin(); itr != pBible1->mapWordList().end(); ++itr) {
+			nMaxWordSize = qMax(nMaxWordSize, (itr->second).m_strWord.size());
+		}
+
+		QString strWordDiffOutput;
+
+		TWordListMap::const_iterator itrWordEntry1 = pBible1->mapWordList().begin();
+		TWordListMap::const_iterator itrWordEntry2 = pBible2->mapWordList().begin();
+		while ((itrWordEntry1 != pBible1->mapWordList().end()) || (itrWordEntry2 != pBible2->mapWordList().end())) {
+			bool bEOL1 = (itrWordEntry1 == pBible1->mapWordList().end());
+			bool bEOL2 = (itrWordEntry2 == pBible2->mapWordList().end());
+			QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->first) : QString());
+			QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->first) : QString());
+
+			int nComp = strKeyWord1.compare(strKeyWord2);
+			if (nComp == 0) {
+				assert(!strKeyWord1.isEmpty() && strKeyWord2.isEmpty());
+				QString strDecomp1 = (itrWordEntry1->second).m_strWord;
+				QString strDecomp2 = (itrWordEntry2->second).m_strWord;
+				if (bAccentInsensitive) {
+					strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
+					strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
+				} else {
+					strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
+					strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
+				}
+				if (bCaseInsensitive) {
+					strDecomp1 = strDecomp1.toLower();
+					strDecomp2 = strDecomp2.toLower();
+				}
+				if (strDecomp1 != strDecomp2) {
+					strWordDiffOutput += (itrWordEntry1->second).m_strWord + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - (itrWordEntry1->second).m_strWord.size()) + (itrWordEntry2->second).m_strWord + "\n";
+				}
+				if (!bEOL1) ++itrWordEntry1;
+				if (!bEOL2) ++itrWordEntry2;
+			} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
+				strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+				if (!bEOL1) ++itrWordEntry1;
+			} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
+				strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+				if (!bEOL2) ++itrWordEntry2;
+			} else {
+				// We can only be here if nothing is greater than something or we
+				//		ran out of input on both sides and yet didn't exit the loop:
+				assert(false);
+			}
+		}
+
+		if (!strWordDiffOutput.isEmpty()) {
+			if (bOutputedTextDiffs) {
+				std::cout << QString("============================================================\n").toUtf8().data();
+			}
+			std::cout << strWordDiffOutput.toUtf8().data();
+		}
+
+
+
 /*
 		TConcordanceList lstConcWords1;			// Concordance Words from Database 1 that misdiff
 		TConcordanceList lstConcWords2;			// Concordance Words from Database 2 that misdiff
