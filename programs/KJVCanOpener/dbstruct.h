@@ -100,18 +100,22 @@ public:
 		return QString("%1").arg(m_ndx);
 	}
 
+	static uint32_t maxBookCount() { return 0xFF; }
 	inline uint32_t book() const { return ((m_ndx >> 24) & 0xFF); }
 	inline void setBook(uint32_t nBk) {
 		m_ndx = ((m_ndx & 0x00FFFFFF) | ((nBk & 0xFF) << 24));
 	}
+	static uint32_t maxChapterCount() { return 0xFF; }
 	inline uint32_t chapter() const { return ((m_ndx >> 16) & 0xFF); }
 	inline void setChapter(uint32_t nChp) {
 		m_ndx = ((m_ndx & 0xFF00FFFF) | ((nChp & 0xFF) << 16));
 	}
+	static uint32_t maxVerseCount() { return 0xFF; }
 	inline uint32_t verse() const { return ((m_ndx >> 8) & 0xFF); }
 	inline void setVerse(uint32_t nVrs) {
 		m_ndx = ((m_ndx & 0xFFFF00FF) | ((nVrs & 0xFF) << 8));
 	}
+	static uint32_t maxWordCount() { return 0xFF; }
 	inline uint32_t word() const { return (m_ndx & 0xFF); }
 	inline void setWord(uint32_t nWrd) {
 		m_ndx = ((m_ndx & 0xFFFFFF00) | (nWrd & 0xFF));

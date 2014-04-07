@@ -1221,8 +1221,10 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 //std::cout << verse..m_strText.toUtf8().data() << "\n" << verse.m_strTemplate.toUtf8().data << "\n" << verse.m_lstWords.join(",").toUtf8().data() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toUtf8().data();
 
 		assert(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
-		if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd)
+		if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd) {
+			std::cerr << "\n" << m_pBibleDatabase->PassageReferenceText(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)).toUtf8().data();
 			std::cerr << "\n*** Error: Verse word count doesn't match template word count!!!\n";
+		}
 
 		m_ndxCurrent.setVerse(0);
 		m_ndxCurrent.setWord(0);
@@ -1553,7 +1555,7 @@ int main(int argc, char *argv[])
 					assert(pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1) == CRelIndex(nBk, nChp, nVrs, 1).index());
 				} else {
 					if (!bVerseMissing)
-						std::cerr << QString("\n*** ERROR: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+						std::cerr << QString("\n*** Warning: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 
 //				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
@@ -1614,6 +1616,11 @@ int main(int argc, char *argv[])
 					wordSet.insert(strRichWord);
 					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum+nWrd);
 				}
+
+				if (pVerse->m_nNumWrd > CRelIndex::maxWordCount()) {
+					std::cerr << QString("\n*** Warning: Verse word count (%1) exceeds maximum allowed (%2) : ").arg(pVerse->m_nNumWrd).arg(CRelIndex::maxWordCount()).toUtf8().data()
+							  << pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0)).toUtf8().data() << "\n";
+				}
 			}
 			if (nVerseWordAccum != pChapter->m_nNumWrd) {
 				std::cerr << QString("\n*** Error: %1 Chapter Word Count (%2) doesn't match sum of Verse Word Counts (%3)!\n")
@@ -1623,6 +1630,11 @@ int main(int argc, char *argv[])
 												.toUtf8().data();
 			}
 			nChapterWordAccum += pChapter->m_nNumWrd;
+
+			if (pChapter->m_nNumVrs > CRelIndex::maxVerseCount()) {
+				std::cerr << QString("\n*** Warning: Chapter verse count (%1) exceeds maximum allowed (%2) : ").arg(pChapter->m_nNumVrs).arg(CRelIndex::maxVerseCount()).toUtf8().data()
+						  << pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0)).toUtf8().data() << "\n";
+			}
 		}
 		if (nChapterWordAccum != pBook->m_nNumWrd) {
 			std::cerr << QString("\n*** Error: %1 Book Word Count (%2) doesn't match sum of Chapter Word Counts (%3)!\n")
@@ -1631,10 +1643,17 @@ int main(int argc, char *argv[])
 												.arg(nChapterWordAccum)
 												.toUtf8().data();
 		}
+		if (pBook->m_nNumChp > CRelIndex::maxChapterCount()) {
+			std::cerr << QString("\n*** Warning: Book chapter count (%1) exceeds maximum allowed (%2) : ").arg(pBook->m_nNumChp).arg(CRelIndex::maxChapterCount()).toUtf8().data()
+					  << pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0)).toUtf8().data() << "\n";
+		}
 
 		fileVerses.close();
 
 		std::cerr << "\n";
+	}
+	if (pBibleDatabase->bibleEntry().m_nNumBk > CRelIndex::maxBookCount()) {
+		std::cerr << QString("\n*** Warning: Total book count (%1) exceeds maximum allowed (%2)!\n").arg(pBibleDatabase->bibleEntry().m_nNumBk).arg(CRelIndex::maxBookCount()).toUtf8().data();
 	}
 
 	std::cerr << QFileInfo(fileChapters).fileName().toUtf8().data() << "\n";
