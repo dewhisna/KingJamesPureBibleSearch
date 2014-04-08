@@ -46,7 +46,13 @@
 #include "PhraseListModel.h"
 
 #include <assert.h>
+
+#if __cplusplus > 199711L
+#include <random>
+#define USE_STD_RANDOM						// Use std::default_random_engine instead of stdlib rand() functions
+#else
 #include <stdlib.h>
+#endif
 
 #include <QMenu>
 #include <QIcon>
@@ -2292,14 +2298,65 @@ void CKJVCanOpener::en_gotoRandomPassage()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	CRelIndex ndxPassage;
+
+#ifdef USE_STD_RANDOM
+	static std::default_random_engine generator;
+#endif
+
 	bool bDone = false;
 	while (!bDone) {
-		unsigned int nRnd = static_cast<unsigned int>(rand());
-		unsigned int nPassage = (nRnd % m_pBibleDatabase->bibleEntry().m_nNumWrd) + 1;
-		CRelIndex ndxPassage = m_pBibleDatabase->DenormalizeIndex(nPassage);
+#if defined(RANDOM_PASSAGE_VERSE_WEIGHT)
+		// The following version creates random passage evenly weighting all verses, which causes
+		//		books with more verses to be weighted higher than those with less:
+#ifdef USE_STD_RANDOM
+		std::uniform_int_distribution<unsigned int> distributionPassage(1, m_pBibleDatabase->bibleEntry().m_nNumWrd);
+		unsigned int nPassage = distributionPassage(generator);
+#else
+		unsigned int nPassage = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumWrd * 2)) / 2) + 1;
+#endif
+		ndxPassage = m_pBibleDatabase->DenormalizeIndex(nPassage);
 		if (!ndxPassage.isSet()) continue;
 		ndxPassage.setWord(0);
+#elif defined(RANDOM_PASSAGE_EVEN_WEIGHT)
+		// Create Random Passage by even distribution of book, chapter, verse:
+#ifdef USE_STD_RANDOM
+		std::uniform_int_distribution<unsigned int> distributionBook(1, m_pBibleDatabase->bibleEntry().m_nNumBk);
+		unsigned int nBook = distributionBook(generator);
+#else
+		unsigned int nBook = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumBk * 2)) / 2) + 1;
+#endif
+		ndxPassage.setBook(nBook);
+		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(nBook);
+		if (pBook == NULL) continue;
+
+#ifdef USE_STD_RANDOM
+		std::uniform_int_distribution<unsigned int> distributionChapter(1, pBook->m_nNumChp);
+		unsigned int nChapter = distributionChapter(generator);
+#else
+		unsigned int nChapter = ((static_cast<unsigned int>(rand()) % (pBook->m_nNumChp * 2)) / 2) + 1;
+#endif
+		ndxPassage.setChapter(nChapter);
+		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxPassage);
+		if (pChapter == NULL) continue;
+
+#ifdef USE_STD_RANDOM
+		std::uniform_int_distribution<unsigned int> distributionVerse(1, pChapter->m_nNumVrs);
+		unsigned int nVerse = distributionVerse(generator);
+#else
+		unsigned int nVerse = ((static_cast<unsigned int>(rand()) % (pChapter->m_nNumVrs * 2)) / 2) + 1;
+#endif
+		ndxPassage.setVerse(nVerse);
+		if (m_pBibleDatabase->NormalizeIndex(ndxPassage) == 0) continue;
+#else
+		// Didn't set RANDOM_PASSAGE mode in .pro file
+		assert(false);
+#endif
+
 		bDone = true;
+	}
+
+	if (ndxPassage.isSet()) {
 		m_pBrowserWidget->gotoIndex(TPhraseTag(ndxPassage, 0));
 		m_pBrowserWidget->setFocusBrowser();
 	}

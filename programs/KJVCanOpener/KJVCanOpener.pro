@@ -124,6 +124,11 @@ macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Fon
 # Enable Splash Screen:
 !vnc:DEFINES += SHOW_SPLASH_SCREEN
 
+# Enabled desired random passage mode:
+# (Pick only one of RANDOM_PASSAGE entries)
+#DEFINES += RANDOM_PASSAGE_VERSE_WEIGHT			# Weigh passages evenly by verses (books with more verses picked more often)
+DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
+
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
 
