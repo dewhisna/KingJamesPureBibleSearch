@@ -46,6 +46,7 @@
 #include "PhraseListModel.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 #include <QMenu>
 #include <QIcon>
@@ -54,6 +55,7 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
+#include <QTime>
 #include <QTimer>
 #include <QFileDialog>
 #include <QSettings>
@@ -263,6 +265,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	assert(m_pBibleDatabase.data() != NULL);
 
 	ui.setupUi(this);
+
+	// Seed our random number generator for launching random passages:
+	srand(QTime::currentTime().elapsed());
 
 	QAction *pAction;
 
@@ -671,6 +676,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.browserNavigationToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
 	pNavMenu->addAction(m_pActionJump);
+
+//	pAction = pNavMenu->addAction(QIcon(":/res/Games-icon-dice-128.png"), tr("Goto Ran&dom Passage"));
+	pAction = pNavMenu->addAction(QIcon(":/res/random_128.png"), tr("Goto Ran&dom Passage"));
+	pAction->setStatusTip(tr("Goto a Random Bible Passage"));
+	pAction->setToolTip(tr("Goto Random Passage"));
+	ui.browserNavigationToolBar->addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_gotoRandomPassage()));
 
 	ui.browserNavigationToolBar->addSeparator();
 	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
@@ -2273,6 +2285,23 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(setFocusBrowser()));
 		pDlg->show();
 #endif
+	}
+}
+
+void CKJVCanOpener::en_gotoRandomPassage()
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	bool bDone = false;
+	while (!bDone) {
+		unsigned int nRnd = static_cast<unsigned int>(rand());
+		unsigned int nPassage = (nRnd % m_pBibleDatabase->bibleEntry().m_nNumWrd) + 1;
+		CRelIndex ndxPassage = m_pBibleDatabase->DenormalizeIndex(nPassage);
+		if (!ndxPassage.isSet()) continue;
+		ndxPassage.setWord(0);
+		bDone = true;
+		m_pBrowserWidget->gotoIndex(TPhraseTag(ndxPassage, 0));
+		m_pBrowserWidget->setFocusBrowser();
 	}
 }
 

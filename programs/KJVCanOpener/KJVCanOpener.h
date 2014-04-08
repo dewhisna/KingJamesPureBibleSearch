@@ -187,6 +187,7 @@ protected slots:
 	void en_SearchResultActivated(const QModelIndex &index);		// Enter or double-click activated
 
 	void en_PassageNavigatorTriggered();
+	void en_gotoRandomPassage();
 
 	void en_userNoteEditorTriggered();
 	void en_crossRefsEditorTriggered();

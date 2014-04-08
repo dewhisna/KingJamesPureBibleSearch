@@ -92,5 +92,7 @@
 		<file>res/applications_internet-128.png</file>
 		<file>res/package_network-128.png</file>
 		<file>res/copy_128.png</file>
+		<file>res/Games-icon-dice-128.png</file>
+		<file>res/random_128.png</file>
 	</qresource>
 </RCC>
