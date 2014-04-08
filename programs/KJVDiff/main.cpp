@@ -38,6 +38,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
+#include <QList>
+#include <QMap>
+#include <QSet>
 //#include <QtXml>
 #include <QStringList>
 #include <QtGlobal>
@@ -49,6 +52,8 @@
 
 #include <iostream>
 #include <set>
+
+// ============================================================================
 
 QMainWindow *g_pMainWindow = NULL;
 QTranslator g_qtTranslator;
@@ -65,6 +70,56 @@ namespace {
 
 }	// namespace
 
+// ============================================================================
+
+class CWordDiffEntry
+{
+public:
+	CWordDiffEntry(const QString &strWord)			// Created with a partially decomposed word
+		:	m_strWord(strWord),
+			m_strDecomposedWord(CSearchStringListModel::decompose(strWord, true).toLower())
+	{
+	}
+
+	QString word() const { return m_strWord; }
+	QString decomposedWord() const { return m_strDecomposedWord; }
+
+private:
+	QString m_strWord;
+	QString m_strDecomposedWord;
+};
+
+typedef QList<CWordDiffEntry> TWordDiffEntryList;
+
+static int TWordDiffEntryList_removeDuplicates(TWordDiffEntryList &aList)
+{
+	int n = aList.size();
+	int j = 0;
+	QSet<QString> seen;
+	seen.reserve(n);
+	for (int i = 0; i < n; ++i) {
+		const CWordDiffEntry &s = aList.at(i);
+		if (seen.contains(s.word())) continue;
+		seen.insert(s.word());
+		if (j != i) aList[j] = s;
+		++j;
+	}
+	if (n != j) aList.erase(aList.begin() + j, aList.end());
+	return (n - j);
+}
+
+struct TWordDiffEntryListSortPredicate {
+	static bool ascendingLessThanWordCaseInsensitive(const CWordDiffEntry &s1, const CWordDiffEntry &s2)
+	{
+		int nDecompCompare = s1.decomposedWord().compare(s2.decomposedWord(), Qt::CaseInsensitive);
+		if (nDecompCompare == 0) {
+			return (s1.word().compare(s2.word(), Qt::CaseSensitive) < 0);				// Localized case-sensitive within overall case-insensitive
+		}
+		return (nDecompCompare < 0);
+	}
+};
+
+// ============================================================================
 
 static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
@@ -93,6 +148,8 @@ static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, 
 		return pBibleDatabase->PassageReferenceText(relIndex);
 	}
 }
+
+// ============================================================================
 
 int main(int argc, char *argv[])
 {
@@ -451,35 +508,58 @@ int main(int argc, char *argv[])
 		QString strWordDiffOutput;
 
 		if (bUseConcordanceWords) {
-			TConcordanceList::const_iterator itrWordEntry1 = pBible1->concordanceWordList().constBegin();
-			TConcordanceList::const_iterator itrWordEntry2 = pBible2->concordanceWordList().constBegin();
-			while ((itrWordEntry1 != pBible1->concordanceWordList().constEnd()) || (itrWordEntry2 != pBible2->concordanceWordList().constEnd())) {
-				bool bEOL1 = (itrWordEntry1 == pBible1->concordanceWordList().constEnd());
-				bool bEOL2 = (itrWordEntry2 == pBible2->concordanceWordList().constEnd());
+			TWordDiffEntryList lstWordDiffs1;
+			lstWordDiffs1.reserve(pBible1->concordanceWordList().size());
+			for (TConcordanceList::const_iterator itr = pBible1->concordanceWordList().constBegin(); itr != pBible1->concordanceWordList().constEnd(); ++itr) {
+				QString strWord = itr->word();
+				if (bAccentInsensitive) {
+					strWord = CSearchStringListModel::decompose(strWord, bHyphenInsensitive);
+				} else {
+					strWord = CSearchStringListModel::deApostrHyphen(strWord, bHyphenInsensitive);
+				}
+				if (bCaseInsensitive) {
+					strWord = strWord.toLower();
+				}
+				lstWordDiffs1.append(strWord);
+			}
+			qSort(lstWordDiffs1.begin(), lstWordDiffs1.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
+			TWordDiffEntryList_removeDuplicates(lstWordDiffs1);
+
+			TWordDiffEntryList lstWordDiffs2;
+			lstWordDiffs2.reserve(pBible2->concordanceWordList().size());
+			for (TConcordanceList::const_iterator itr = pBible2->concordanceWordList().constBegin(); itr != pBible2->concordanceWordList().constEnd(); ++itr) {
+				QString strWord = itr->word();
+				if (bAccentInsensitive) {
+					strWord = CSearchStringListModel::decompose(strWord, bHyphenInsensitive);
+				} else {
+					strWord = CSearchStringListModel::deApostrHyphen(strWord, bHyphenInsensitive);
+				}
+				if (bCaseInsensitive) {
+					strWord = strWord.toLower();
+				}
+				lstWordDiffs2.append(strWord);
+			}
+			qSort(lstWordDiffs2.begin(), lstWordDiffs2.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
+			TWordDiffEntryList_removeDuplicates(lstWordDiffs2);
+
+			TWordDiffEntryList::const_iterator itrWordEntry1 = lstWordDiffs1.constBegin();
+			TWordDiffEntryList::const_iterator itrWordEntry2 = lstWordDiffs2.constBegin();
+			while ((itrWordEntry1 != lstWordDiffs1.constEnd()) || (itrWordEntry2 != lstWordDiffs2.constEnd())) {
+				bool bEOL1 = (itrWordEntry1 == lstWordDiffs1.constEnd());
+				bool bEOL2 = (itrWordEntry2 == lstWordDiffs2.constEnd());
 				QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->decomposedWord()) : QString());
 				QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->decomposedWord()) : QString());
+				QString strLookAhead1 = ((!bEOL1 && ((itrWordEntry1+1) != lstWordDiffs1.constEnd())) ? (itrWordEntry1+1)->decomposedWord() : QString());
+				QString strLookAhead2 = ((!bEOL2 && ((itrWordEntry2+1) != lstWordDiffs2.constEnd())) ? (itrWordEntry2+1)->decomposedWord() : QString());
 
 				int nComp = strKeyWord1.compare(strKeyWord2);
 				if (nComp == 0) {
 					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
-					QString strDecomp1 = itrWordEntry1->word();
-					QString strDecomp2 = itrWordEntry2->word();
-					if (bAccentInsensitive) {
-						strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
-						strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
-					} else {
-						strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
-						strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
-					}
-					if (bCaseInsensitive) {
-						strDecomp1 = strDecomp1.toLower();
-						strDecomp2 = strDecomp2.toLower();
-					}
-					if (strDecomp1 != strDecomp2) {
+					if (itrWordEntry1->word() != itrWordEntry2->word()) {
 						strWordDiffOutput += itrWordEntry1->word() + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - itrWordEntry1->word().size()) + itrWordEntry2->word() + "\n";
 					}
-					if (!bEOL1) ++itrWordEntry1;
-					if (!bEOL2) ++itrWordEntry2;
+					if ((!bEOL1) && ((strKeyWord1 != strLookAhead2) || (strLookAhead1 == strLookAhead2))) ++itrWordEntry1;
+					if ((!bEOL2) && ((strKeyWord2 != strLookAhead1) || (strLookAhead1 == strLookAhead2))) ++itrWordEntry2;
 				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
 					strWordDiffOutput += itrWordEntry1->word() + "\n";
 					if (!bEOL1) ++itrWordEntry1;
@@ -504,22 +584,6 @@ int main(int argc, char *argv[])
 				int nComp = strKeyWord1.compare(strKeyWord2);
 				if (nComp == 0) {
 					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
-					QString strDecomp1 = (itrWordEntry1->second).m_strWord;
-					QString strDecomp2 = (itrWordEntry2->second).m_strWord;
-					if (bAccentInsensitive) {
-						strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
-						strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
-					} else {
-						strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
-						strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
-					}
-					if (bCaseInsensitive) {
-						strDecomp1 = strDecomp1.toLower();
-						strDecomp2 = strDecomp2.toLower();
-					}
-					if (strDecomp1 != strDecomp2) {
-						strWordDiffOutput += (itrWordEntry1->second).m_strWord + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - (itrWordEntry1->second).m_strWord.size()) + (itrWordEntry2->second).m_strWord + "\n";
-					}
 					if (!bEOL1) ++itrWordEntry1;
 					if (!bEOL2) ++itrWordEntry2;
 				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
