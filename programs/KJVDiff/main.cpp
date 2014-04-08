@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
 	bool bAccentInsensitive = false;
 	bool bHyphenInsensitive = false;
 	bool bUseAbbrevRefs = false;
+	bool bUseConcordanceWords = false;
 	bool bAllDiffs = true;
 	bool bTextDiffs = false;
 	bool bWordDiffs = false;
@@ -162,6 +163,8 @@ int main(int argc, char *argv[])
 			bHyphenInsensitive = true;
 		} else if (strArg.compare("-b") == 0) {
 			bUseAbbrevRefs = true;
+		} else if (strArg.compare("-n") == 0) {
+			bUseConcordanceWords = true;
 		} else if (strArg.compare("-m") == 0) {
 			bAllDiffs = false;
 			bTextDiffs = true;
@@ -194,6 +197,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -a  =  Accent-Insensitive (i.e. Discard accents rather than compare them)\n").toUtf8().data();
 		std::cerr << QString("  -h  =  Hyphen-Insensitive (i.e. Discard hyphens rather than compare them)\n").toUtf8().data();
 		std::cerr << QString("  -b  =  Use Abbreviated Book names when outputting references\n").toUtf8().data();
+		std::cerr << QString("  -n  =  Use Concordance Word List instead of General Word List (Word Diffs Only)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Diffs to run:\n").toUtf8().data();
 		std::cerr << QString("  -m  =  Text Markup Diffs\n").toUtf8().data();
@@ -440,51 +444,95 @@ int main(int argc, char *argv[])
 	if (bAllDiffs || bWordDiffs) {
 #define COLUMN_SPACE 2
 		int nMaxWordSize = 0;
-		for (TWordListMap::const_iterator itr = pBible1->mapWordList().begin(); itr != pBible1->mapWordList().end(); ++itr) {
-			nMaxWordSize = qMax(nMaxWordSize, (itr->second).m_strWord.size());
+		for (TConcordanceList::const_iterator itr = pBible1->concordanceWordList().constBegin(); itr != pBible1->concordanceWordList().constEnd(); ++itr) {
+			nMaxWordSize = qMax(nMaxWordSize, itr->word().size());
 		}
 
 		QString strWordDiffOutput;
 
-		TWordListMap::const_iterator itrWordEntry1 = pBible1->mapWordList().begin();
-		TWordListMap::const_iterator itrWordEntry2 = pBible2->mapWordList().begin();
-		while ((itrWordEntry1 != pBible1->mapWordList().end()) || (itrWordEntry2 != pBible2->mapWordList().end())) {
-			bool bEOL1 = (itrWordEntry1 == pBible1->mapWordList().end());
-			bool bEOL2 = (itrWordEntry2 == pBible2->mapWordList().end());
-			QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->first) : QString());
-			QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->first) : QString());
+		if (bUseConcordanceWords) {
+			TConcordanceList::const_iterator itrWordEntry1 = pBible1->concordanceWordList().constBegin();
+			TConcordanceList::const_iterator itrWordEntry2 = pBible2->concordanceWordList().constBegin();
+			while ((itrWordEntry1 != pBible1->concordanceWordList().constEnd()) || (itrWordEntry2 != pBible2->concordanceWordList().constEnd())) {
+				bool bEOL1 = (itrWordEntry1 == pBible1->concordanceWordList().constEnd());
+				bool bEOL2 = (itrWordEntry2 == pBible2->concordanceWordList().constEnd());
+				QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->decomposedWord()) : QString());
+				QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->decomposedWord()) : QString());
 
-			int nComp = strKeyWord1.compare(strKeyWord2);
-			if (nComp == 0) {
-				assert(!strKeyWord1.isEmpty() && strKeyWord2.isEmpty());
-				QString strDecomp1 = (itrWordEntry1->second).m_strWord;
-				QString strDecomp2 = (itrWordEntry2->second).m_strWord;
-				if (bAccentInsensitive) {
-					strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
-					strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
+				int nComp = strKeyWord1.compare(strKeyWord2);
+				if (nComp == 0) {
+					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
+					QString strDecomp1 = itrWordEntry1->word();
+					QString strDecomp2 = itrWordEntry2->word();
+					if (bAccentInsensitive) {
+						strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
+						strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
+					} else {
+						strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
+						strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
+					}
+					if (bCaseInsensitive) {
+						strDecomp1 = strDecomp1.toLower();
+						strDecomp2 = strDecomp2.toLower();
+					}
+					if (strDecomp1 != strDecomp2) {
+						strWordDiffOutput += itrWordEntry1->word() + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - itrWordEntry1->word().size()) + itrWordEntry2->word() + "\n";
+					}
+					if (!bEOL1) ++itrWordEntry1;
+					if (!bEOL2) ++itrWordEntry2;
+				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
+					strWordDiffOutput += itrWordEntry1->word() + "\n";
+					if (!bEOL1) ++itrWordEntry1;
+				} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
+					strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + itrWordEntry2->word() + "\n";
+					if (!bEOL2) ++itrWordEntry2;
 				} else {
-					strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
-					strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
+					// We can only be here if nothing is greater than something or we
+					//		ran out of input on both sides and yet didn't exit the loop:
+					assert(false);
 				}
-				if (bCaseInsensitive) {
-					strDecomp1 = strDecomp1.toLower();
-					strDecomp2 = strDecomp2.toLower();
+			}
+		} else {
+			TWordListMap::const_iterator itrWordEntry1 = pBible1->mapWordList().begin();
+			TWordListMap::const_iterator itrWordEntry2 = pBible2->mapWordList().begin();
+			while ((itrWordEntry1 != pBible1->mapWordList().end()) || (itrWordEntry2 != pBible2->mapWordList().end())) {
+				bool bEOL1 = (itrWordEntry1 == pBible1->mapWordList().end());
+				bool bEOL2 = (itrWordEntry2 == pBible2->mapWordList().end());
+				QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->first) : QString());
+				QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->first) : QString());
+
+				int nComp = strKeyWord1.compare(strKeyWord2);
+				if (nComp == 0) {
+					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
+					QString strDecomp1 = (itrWordEntry1->second).m_strWord;
+					QString strDecomp2 = (itrWordEntry2->second).m_strWord;
+					if (bAccentInsensitive) {
+						strDecomp1 = CSearchStringListModel::decompose(strDecomp1, bHyphenInsensitive);
+						strDecomp2 = CSearchStringListModel::decompose(strDecomp2, bHyphenInsensitive);
+					} else {
+						strDecomp1 = CSearchStringListModel::deApostrHyphen(strDecomp1, bHyphenInsensitive);
+						strDecomp2 = CSearchStringListModel::deApostrHyphen(strDecomp2, bHyphenInsensitive);
+					}
+					if (bCaseInsensitive) {
+						strDecomp1 = strDecomp1.toLower();
+						strDecomp2 = strDecomp2.toLower();
+					}
+					if (strDecomp1 != strDecomp2) {
+						strWordDiffOutput += (itrWordEntry1->second).m_strWord + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - (itrWordEntry1->second).m_strWord.size()) + (itrWordEntry2->second).m_strWord + "\n";
+					}
+					if (!bEOL1) ++itrWordEntry1;
+					if (!bEOL2) ++itrWordEntry2;
+				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
+					strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+					if (!bEOL1) ++itrWordEntry1;
+				} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
+					strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+					if (!bEOL2) ++itrWordEntry2;
+				} else {
+					// We can only be here if nothing is greater than something or we
+					//		ran out of input on both sides and yet didn't exit the loop:
+					assert(false);
 				}
-				if (strDecomp1 != strDecomp2) {
-					strWordDiffOutput += (itrWordEntry1->second).m_strWord + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - (itrWordEntry1->second).m_strWord.size()) + (itrWordEntry2->second).m_strWord + "\n";
-				}
-				if (!bEOL1) ++itrWordEntry1;
-				if (!bEOL2) ++itrWordEntry2;
-			} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
-				strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
-				if (!bEOL1) ++itrWordEntry1;
-			} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
-				strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
-				if (!bEOL2) ++itrWordEntry2;
-			} else {
-				// We can only be here if nothing is greater than something or we
-				//		ran out of input on both sides and yet didn't exit the loop:
-				assert(false);
 			}
 		}
 
@@ -494,71 +542,6 @@ int main(int argc, char *argv[])
 			}
 			std::cout << strWordDiffOutput.toUtf8().data();
 		}
-
-
-
-/*
-		TConcordanceList lstConcWords1;			// Concordance Words from Database 1 that misdiff
-		TConcordanceList lstConcWords2;			// Concordance Words from Database 2 that misdiff
-
-		int ndxConc1 = 0;
-		int ndxConc2 = 0;
-
-		while ((ndxConc1 < pBible1->concordanceWordList().size()) || (ndxConc2 < pBible2->concordanceWordList().size())) {
-			QString strWord1 = ((ndxConc1 < pBible1->concordanceWordList().size()) ? pBible1->concordanceWordList().at(ndxConc1).word() : QString());
-			QString strWord2 = ((ndxConc2 < pBible2->concordanceWordList().size()) ? pBible2->concordanceWordList().at(ndxConc2).word() : QString());
-
-			if (strWord1)
-		}
-
-
-
-
-		TWordListMap mapWordList1;
-		TWordListMap mapWordList2;
-
-		for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
-			const CWordEntry &entryWord(itrWordEntry->second);
-			// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
-			//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
-			//		the completer list and the FindWords sorting:
-			for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-				QString strAltWord = entryWord.m_lstAltWords.at(ndxAltWord);
-				CConcordanceEntry entryConcordance(strAltWord, ndxWord);
-				m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
-				m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);
-				ndxWord++;
-			}
-		}
-
-
-
-		QString strKey = CSearchStringListModel::decompose(strWord).toLower();
-		// This check is needed because duplicates can happen from decomposed index keys.
-		//		Note: It's less computationally expensive to search the map for it than
-		//				to do a .contains() call on the m_lstWordList below, even though
-		//				it's the list we want to keep it out of.  Searching the list used
-		//				over 50% of the database load time!:
-		bool bIsNewWord = (m_pBibleDatabase->m_mapWordList.find(strKey) == m_pBibleDatabase->m_mapWordList.end());
-		CWordEntry &entryWord = m_pBibleDatabase->m_mapWordList[strKey];
-		if (bIsNewWord) m_pBibleDatabase->m_lstWordList.append(strKey);
-
-		if (entryWord.m_strWord.isEmpty()) {
-			entryWord.m_strWord = strKey;
-			entryWord.m_bCasePreserve = bCasePreserve;
-		} else {
-			// If folding duplicate words into single entry from decomposed indexes,
-			//		they better be the same exact word:
-			assert(entryWord.m_strWord.compare(strKey) == 0);
-			assert(entryWord.m_bCasePreserve == bCasePreserve);
-			if ((entryWord.m_strWord.compare(strKey) != 0) || (entryWord.m_bCasePreserve != bCasePreserve)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Non-unique decomposed word entry error in WORDS table!\n\nWord: \"%1\" with Word: \"%2\"").arg(strWord).arg(entryWord.m_strWord));
-				return false;
-			}
-		}
-*/
-
-
 	}
 
 //	return a.exec();
