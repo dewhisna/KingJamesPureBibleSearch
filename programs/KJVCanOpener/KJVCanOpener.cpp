@@ -941,6 +941,16 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 	}
 
 	// Last Search:
+	if (m_pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJV).m_strUUID, Qt::CaseInsensitive) == 0) {
+		// Remove old top-level, if this is the KJV:
+		settings.beginWriteArray(constrUserSearchPhrasesGroup);
+		settings.remove("");
+		settings.endArray();
+		settings.remove(constrUserSearchPhrasesGroup);
+
+		settings.remove(constrLastSearchGroup);
+	}
+
 	m_pSearchSpecWidget->writeKJVSearchFile(settings, groupCombine(m_pBibleDatabase->compatibilityUUID(), constrLastSearchGroup));
 
 	// User Search Phrases Settings:
@@ -1207,10 +1217,29 @@ void CKJVCanOpener::restorePersistentSettings()
 
 			if ((bIsFirstCanOpener) || (bIsFirstCanOpenerForThisBibleDB)) {
 				// User Search Phrases Settings:
-				int nPhrases = settings.beginReadArray(bIsFirstCanOpenerForThisBibleDB ? groupCombine(m_pBibleDatabase->compatibilityUUID(), constrUserSearchPhrasesGroup) : constrUserSearchPhrasesGroup);
+				CPhraseList lstUserPhrases;
+				int nPhrases;
+				if (m_pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJV).m_strUUID, Qt::CaseInsensitive) == 0) {
+					// Move old Bible Database settings to new UUID;
+					nPhrases = settings.beginReadArray(constrUserSearchPhrasesGroup);
+					if (nPhrases != 0) {
+						lstUserPhrases.reserve(lstUserPhrases.size() + nPhrases);
+						for (int ndx = 0; ndx < nPhrases; ++ndx) {
+							CPhraseEntry phrase;
+							settings.setArrayIndex(ndx);
+							phrase.setText(settings.value("Phrase", QString()).toString());
+							phrase.setCaseSensitive(settings.value("CaseSensitive", false).toBool());
+							phrase.setAccentSensitive(settings.value("AccentSensitive", false).toBool());
+							phrase.setExclude(settings.value("Exclude", false).toBool());
+							if (phrase.text().isEmpty()) continue;
+							lstUserPhrases.append(phrase);
+						}
+					}
+					settings.endArray();
+				}
+				nPhrases = settings.beginReadArray(groupCombine(m_pBibleDatabase->compatibilityUUID(), constrUserSearchPhrasesGroup));
 				if (nPhrases != 0) {
-					CPhraseList lstUserPhrases;
-					lstUserPhrases.reserve(nPhrases);
+					lstUserPhrases.reserve(lstUserPhrases.size() + nPhrases);
 					for (int ndx = 0; ndx < nPhrases; ++ndx) {
 						CPhraseEntry phrase;
 						settings.setArrayIndex(ndx);
@@ -1221,9 +1250,9 @@ void CKJVCanOpener::restorePersistentSettings()
 						if (phrase.text().isEmpty()) continue;
 						lstUserPhrases.append(phrase);
 					}
-					CPersistentSettings::instance()->setUserPhrases(m_pBibleDatabase->compatibilityUUID(), lstUserPhrases);
 				}
 				settings.endArray();
+				if (lstUserPhrases.size()) CPersistentSettings::instance()->setUserPhrases(m_pBibleDatabase->compatibilityUUID(), lstUserPhrases);
 			}
 
 			// Restore our activation delay:
