@@ -47,20 +47,49 @@ namespace {
 
 	// Bible Database Descriptor Constants:
 	// ------------------------------------
+	const char *constUUID_SPECIAL_TEST =	"00000000-0000-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJV =				"85D8A6B0-E670-11E2-A28F-0800200C9A66";
+	const char *constUUID_RVG2010 =			"9233CB60-141A-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJF2006 =			"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJVPCE =			"C9BA8970-A114-11E3-A5E2-0800200C9A66";
+	const char *constUUID_KJVA =			"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
+
+	const char *constKJVCompatUUID[] = {
+		constUUID_KJV,
+		constUUID_KJVPCE,
+		constUUID_KJVA,
+		NULL
+	};
+
+	class TStringListGen : public QStringList
+	{
+	public:
+		TStringListGen(const char **pList = NULL)
+		{
+			if (pList) {
+				int i = 0;
+				while (pList[i]) {
+					append(pList[i]);
+					++i;
+				}
+			}
+		}
+	};
+
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), "00000000-0000-11E3-8FFD-0800200C9A66", "", "bbl-specTest.s3db", "bbl-specTest.ccdb" },
+		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "", "bbl-specTest.s3db", "bbl-specTest.ccdb", QStringList() },
 		// KJV:
-		{ true, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), "85D8A6B0-E670-11E2-A28F-0800200C9A66", "", "kjvtext.s3db", "kjvtext.ccdb" },
+		{ true, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "", "kjvtext.s3db", "kjvtext.ccdb", TStringListGen(constKJVCompatUUID) },
 		// RVG2010:
-		{ false, "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), "9233CB60-141A-11E3-8FFD-0800200C9A66", "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb" },
+		{ false, "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), constUUID_RVG2010, "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb", QStringList() },
 		// KJF2006:
-		{ false, "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), "31FC2ED0-141B-11E3-8FFD-0800200C9A66", "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb" },
+		{ false, "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", QStringList() },
 		// KJVPureCambridge:
-		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), "C9BA8970-A114-11E3-A5E2-0800200C9A66", "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb" },
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", TStringListGen(constKJVCompatUUID) },
 		// KJVA (KJV 1769 with Apocrypha):
-		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), "B93D0E40-BA16-11E3-A5E2-0800200C9A66", "", "bbl-kjva.s3db", "bbl-kjva.ccdb" }
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "", "bbl-kjva.s3db", "bbl-kjva.ccdb", TStringListGen(constKJVCompatUUID) }
 	};
 
 	//////////////////////////////////////////////////////////////////////
