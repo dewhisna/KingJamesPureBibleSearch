@@ -1329,6 +1329,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 			nWordCount += ((ndxNextRelative.word() != 0) ? (ndxNextRelative.word() - 1) : 0);					// Calculate back to start of verse to figure out how many verses this tag encompasses
 			ndxNextRelative.setWord(0);
 			uint32_t ndxNormalNext = m_private.m_pBibleDatabase->NormalizeIndex(ndxNextRelative);
+			if (ndxNormalNext == 0) continue;												// Handle cases for higlighters from other databases that extend beyond this one (and highlighter isn't part of this)
 			while (nWordCount > 0) {
 				// Mask the highlighter tags for this verse and just insert the tags corresponding to this verse:
 				unsigned int nNumWordsInVerse = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative)->m_nNumWrd;
@@ -1345,7 +1346,9 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 					// Add number of words in verse to find start of next verse:
 					ndxNormalNext += nNumWordsInVerse;
 					ndxNextRelative = CRelIndex(m_private.m_pBibleDatabase->DenormalizeIndex(ndxNormalNext));
-					assert(ndxNextRelative.word() == 1);		// We better end up at the first word of the next verse, or something bad happened
+					assert((ndxNextRelative.word() == 1) ||
+						   (!ndxNextRelative.isSet()));			// We better end up at the first word of the next verse (or out of our text, in cases of cross-database highlighter sharing), or something bad happened
+					if (!ndxNextRelative.isSet()) nWordCount = 0;
 					ndxNextRelative.setWord(0);					// But, add as whole verse
 				}
 			}
