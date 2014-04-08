@@ -57,6 +57,7 @@ public:
 	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
 	bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
 	bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
+	bool ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain = false);		// If an absolute path is given, it's used, else the path is considered relative to m_strBibleDatabasePath
 	bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
 
 	// ------------------------------------------------------------------------
@@ -91,6 +92,9 @@ protected:
 private:
 	bool readBibleStub();
 	bool readDictionaryStub(bool bLiveDB);
+
+	bool readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiCCDB, bool bSetAsMain = false);
+	bool readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiS3DB, bool bSetAsMain = false);
 
 private:
 	QWidget *m_pParent;

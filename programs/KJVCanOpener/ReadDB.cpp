@@ -1235,26 +1235,45 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 {
 	bool bSuccess = false;
 
-	m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-	assert(m_pBibleDatabase.data() != NULL);
-
-	QFileInfo fiSQL(bibleDBFileInfo(DTE_SQL, bblDesc));
-	QFileInfo fiCC(bibleDBFileInfo(DTE_CC, bblDesc));
-
 	// Prefer CC database over SQL in our search order:
-	if (!bSuccess && fiCC.exists() && fiCC.isFile()) {
+	if (!bSuccess) {
+		bSuccess = readCCDBBibleDatabase(bblDesc, bibleDBFileInfo(DTE_CC, bblDesc), bSetAsMain);
+	}
+
+	// Try SQL secondarily if we support SQL:
+	if (!bSuccess) {
+		bSuccess = readS3DBBibleDatabase(bblDesc, bibleDBFileInfo(DTE_SQL, bblDesc), bSetAsMain);
+	}
+
+	return bSuccess;
+}
+
+bool CReadDatabase::ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain)
+{
+	QFileInfo fiCCDB(QDir(m_strBibleDatabasePath), strCCDBPathFilename);
+	return readCCDBBibleDatabase(bibleDescriptor(BDE_SPECIAL_TEST), fiCCDB, bSetAsMain);
+}
+
+bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiCCDB, bool bSetAsMain)
+{
+	bool bSuccess = false;
+
+	if (fiCCDB.exists() && fiCCDB.isFile()) {
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
+		assert(m_pBibleDatabase.data() != NULL);
+
 		QFile fileCCDB;
-		fileCCDB.setFileName(fiCC.absoluteFilePath());
+		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
 		if (!fileCCDB.open(QIODevice::ReadOnly)) {
 #ifdef Q_OS_ANDROID
-			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()).toUtf8().data());
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCCDB.absoluteFilePath()).toUtf8().data());
 #endif
-			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCC.absoluteFilePath()));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open CC database file \"%1\".").arg(fiCCDB.absoluteFilePath()));
 		} else {
 			QtIOCompressor compCCDB(&fileCCDB);
 			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
 			if (!compCCDB.open(QIODevice::ReadOnly)) {
-				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(fiCC.absoluteFilePath()));
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Failed to open i/o compressor for file \"%1\".").arg(fiCCDB.absoluteFilePath()));
 			} else {
 				CScopedCSVStream ccdb(m_pCCDatabase, new CCSVStream(&compCCDB));
 				if (readBibleStub()) bSuccess = true;
@@ -1262,20 +1281,35 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 		}
 	}
 
-	// Try SQL secondarily if we support SQL:
-	if (!bSuccess && fiSQL.exists() && fiSQL.isFile()) {
+	if (bSuccess) {
+		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
+	} else {
+		m_pBibleDatabase.clear();
+	}
+
+	return bSuccess;
+}
+
+bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiS3DB, bool bSetAsMain)
+{
+	bool bSuccess = false;
+
+	if (fiS3DB.exists() && fiS3DB.isFile()) {
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
+		assert(m_pBibleDatabase.data() != NULL);
+
 #ifndef NOT_USING_SQL
 		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
-		m_myDatabase.setDatabaseName(fiSQL.absoluteFilePath());
+		m_myDatabase.setDatabaseName(fiS3DB.absoluteFilePath());
 		m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 //		displayInformation(m_pParent, g_constrReadDatabase, m_myDatabase.databaseName());
 
 		if (!m_myDatabase.open()) {
 #ifdef Q_OS_ANDROID
-			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_myDatabase.lastError().text()).toUtf8().data());
+			__android_log_print(ANDROID_LOG_FATAL, "KJPBS", QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiS3DB.absoluteFilePath()).arg(m_myDatabase.lastError().text()).toUtf8().data());
 #endif
-			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiSQL.absoluteFilePath()).arg(m_myDatabase.lastError().text()));
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Couldn't open SQL database file \"%1\".\n\n%2").arg(fiS3DB.absoluteFilePath()).arg(m_myDatabase.lastError().text()));
 		} else {
 			if (readBibleStub()) bSuccess = true;
 			m_myDatabase.close();
@@ -1289,6 +1323,8 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
+	} else {
+		m_pBibleDatabase.clear();
 	}
 
 	return bSuccess;

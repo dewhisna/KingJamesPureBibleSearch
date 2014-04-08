@@ -1189,12 +1189,16 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
-	// If this database is setup for auto-loading, preload the corresponding autoLoad flag in the persistent settings to match (i.e. force on):
-	//	Note: This has to use the TBibleDescriptor object because the other data hasn't been set yet!
-	if (bblDesc.m_bAutoLoad) {
-		TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
-		bblDBaseSettings.setLoadOnStart(true);
-		CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
+	// Note: For ReadSpecialBibleDatabase() to work correctly (command-line tools), this function must be
+	//	able to work with the BDE_SPECIAL_TEST descriptor:
+	if (bblDesc.m_strUUID.compare(bibleDescriptor(BDE_SPECIAL_TEST).m_strUUID, Qt::CaseInsensitive) != 0) {
+		// If this database is setup for auto-loading, preload the corresponding autoLoad flag in the persistent settings to match (i.e. force on):
+		//	Note: This has to use the TBibleDescriptor object because the other data hasn't been set yet!
+		if (bblDesc.m_bAutoLoad) {
+			TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
+			bblDBaseSettings.setLoadOnStart(true);
+			CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
+		}
 	}
 }
 

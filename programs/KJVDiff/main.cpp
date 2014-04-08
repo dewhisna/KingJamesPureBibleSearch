@@ -140,6 +140,26 @@ static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 	return 0;
 }
 
+static int readDatabaseByFilename(const QString &strFilename, bool bSetAsMain)
+{
+	QFileInfo fiDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
+	QFileInfo fiFile(QDir(fiDBPath.absoluteFilePath()), strFilename);
+
+	std::cerr << QString::fromUtf8("Reading database: %1\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
+
+	CReadDatabase rdbMain(fiDBPath.absoluteFilePath(), QString(), NULL);
+	if (!fiFile.exists() || !fiFile.isFile()) {
+		std::cerr << QString::fromUtf8("\n*** ERROR: Unable to locate Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
+		return -2;
+	}
+	if (!rdbMain.ReadSpecialBibleDatabase(strFilename, bSetAsMain)) {
+		std::cerr << QString::fromUtf8("\n*** ERROR: Failed to Read Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
+		return -3;
+	}
+
+	return 0;
+}
+
 static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, const CRelIndex &relIndex)
 {
 	if (bAbbrev) {
@@ -163,6 +183,8 @@ int main(int argc, char *argv[])
 
 	int nDescriptor1 = -1;
 	int nDescriptor2 = -1;
+	QString strFilePathname1;
+	QString strFilePathname2;
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor1;
 	TBibleDescriptor bblDescriptor2;
@@ -191,8 +213,10 @@ int main(int argc, char *argv[])
 			++nArgsFound;
 			if (nArgsFound == 1) {
 				nDescriptor1 = strArg.toInt();
+				strFilePathname1 = strArg;
 			} else if (nArgsFound == 2) {
 				nDescriptor2 = strArg.toInt();
+				strFilePathname2 = strArg;
 			}
 		} else if (strArg.compare("-j") == 0) {
 			bIgnoreWordsOfJesus = true;
@@ -235,9 +259,11 @@ int main(int argc, char *argv[])
 
 	if ((nArgsFound != 2) || (bUnknownOption)) {
 		std::cerr << QString("%1 Version %2\n\n").arg(a.applicationName()).arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index-1> <UUID-Index-2>\n\n").arg(a.applicationName()).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <File/UUID-Index-1> <File/UUID-Index-2>\n\n").arg(a.applicationName()).toUtf8().data();
 		std::cerr << QString("Reads the specified databases and does a comparison for pertinent differences\n").toUtf8().data();
 		std::cerr << QString("    and outputs the diff results...\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Databases may be specified by either a file pathname and/or UUID-Index\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("------------\n").toUtf8().data();
@@ -261,7 +287,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -w  =  Word List Diffs\n").toUtf8().data();
 		std::cerr << QString("  (By default All Diffs are run, unless one or more specific diffs is specified)\n\n").toUtf8().data();
 		std::cerr << QString("UUID-Index Values:\n").toUtf8().data();
-		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
+		for (unsigned int ndx = 1; ndx < bibleDescriptorCount(); ++ndx) {
 			const TBibleDescriptor &bblDesc(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)));
 			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bblDesc.m_strDBDesc).toUtf8().data();
 		}
@@ -269,28 +295,40 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	if ((nDescriptor1 >= 0) && (static_cast<unsigned int>(nDescriptor1) < bibleDescriptorCount())) {
+	if ((nDescriptor1 > 0) && (static_cast<unsigned int>(nDescriptor1) < bibleDescriptorCount())) {
 		bblDescriptor1 = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor1));
 	} else {
-		std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor1).toUtf8().data();
-		return -1;
+		if (nDescriptor1 != 0) {
+			std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor1).toUtf8().data();
+			return -1;
+		}
 	}
 
-	if ((nDescriptor2 >= 0) && (static_cast<unsigned int>(nDescriptor2) < bibleDescriptorCount())) {
+	if ((nDescriptor2 > 0) && (static_cast<unsigned int>(nDescriptor2) < bibleDescriptorCount())) {
 		bblDescriptor2 = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor2));
 	} else {
-		std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor2).toUtf8().data();
-		return -1;
+		if (nDescriptor2 != 0) {
+			std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor2).toUtf8().data();
+			return -1;
+		}
 	}
 
 	// ------------------------------------------------------------------------
 
 	int nReadStatus;
 
-	nReadStatus = readDatabase(bblDescriptor1, true);
+	if (nDescriptor1 != 0) {
+		nReadStatus = readDatabase(bblDescriptor1, true);
+	} else {
+		nReadStatus = readDatabaseByFilename(strFilePathname1, true);
+	}
 	if (nReadStatus != 0) return nReadStatus;
 
-	nReadStatus = readDatabase(bblDescriptor2, false);
+	if (nDescriptor2 != 0) {
+		nReadStatus = readDatabase(bblDescriptor2, false);
+	} else {
+		nReadStatus = readDatabaseByFilename(strFilePathname2, false);
+	}
 	if (nReadStatus != 0) return nReadStatus;
 
 	assert(TBibleDatabaseList::instance()->size() == 2);
