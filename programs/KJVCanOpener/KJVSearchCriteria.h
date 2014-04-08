@@ -44,13 +44,16 @@ class CSearchWithinModel;
 // ============================================================================
 
 // Set these to the minimum and maximum Search Scope Modes (used for limits bounds checking)
-#define SSME_MINIMUM CSearchCriteria::SSME_WHOLE_BIBLE
+#define SSME_MINIMUM CSearchCriteria::SSME_UNSCOPED
 #define SSME_MAXIMUM CSearchCriteria::SSME_CATEGORY
 
 class CSearchCriteria
 {
 public:
+	// Note: These values can't be changed without breaking KJS files! (not to mention
+	//			persistent settings)
 	enum SEARCH_SCOPE_MODE_ENUM {
+		SSME_UNSCOPED = -1,
 		SSME_WHOLE_BIBLE = 0,
 		SSME_TESTAMENT = 1,
 		SSME_BOOK = 2,
@@ -60,7 +63,7 @@ public:
 	};
 
 	CSearchCriteria()
-		:	m_nSearchScopeMode(SSME_WHOLE_BIBLE) { }
+		:	m_nSearchScopeMode(SSME_UNSCOPED) { }
 
 	virtual ~CSearchCriteria() { }
 

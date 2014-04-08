@@ -2077,6 +2077,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 	bool bDone = (nNumPhrases == 0);		// We're done if we have no phrases (or phrases with results)
 	while (!bDone) {
 		uint32_t nMaxScope = 0;
+		bool bDoneAll = true;
 		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
 			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
 			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
@@ -2094,22 +2095,32 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 			}
 
 			if (lstItrStart[ndx] == lstSearchResultsPhraseTags.constEnd()) {
-				bDone = true;
-				break;
+				if (zResults.m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
+					bDone = true;
+					break;
+				}
+				// For unscoped, keep going and process other phrases when this one is done (no short-circuit like scoped)
+			} else {
+				bDoneAll = false;
 			}
 
 			lstHitExclusion[ndx] = false;
-			lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria);
-			for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
-				CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
-				if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
+			if (lstItrStart[ndx] != lstSearchResultsPhraseTags.constEnd()) {
+				lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria);
+				for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
+					CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
+					if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
 
-				// Check for exclusion, but don't advance and count exclusions as we'll need to do
-				//		that when we come back through the loop via our start index:
-				if (checkExclusion(lstItrExclNext, *lstItrEnd[ndx], true)) {
-					lstHitExclusion[ndx] = true;
-					break;
+					// Check for exclusion, but don't advance and count exclusions as we'll need to do
+					//		that when we come back through the loop via our start index:
+					if (checkExclusion(lstItrExclNext, *lstItrEnd[ndx], true)) {
+						lstHitExclusion[ndx] = true;
+						break;
+					}
 				}
+			} else {
+				lstScopedRefs[ndx] = ScopeIndex(CRelIndex(1, 0, 0, 0), zResults.m_SearchCriteria);
+				lstItrEnd[ndx] = lstSearchResultsPhraseTags.constEnd();
 			}
 			// Here lstItrEnd will be one more than the number of matching, either the next index
 			//		off the end of the array, an exclusion, or the first non-matching entry.  So the scoped
@@ -2117,7 +2128,15 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 			nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
 			lstNeedScope[ndx] = false;
 		}
-		if (bDone) continue;		// If we run out of phrase matches on any phrase, we're done
+		if (zResults.m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
+			if (bDone) continue;		// For scoped, if we run out of phrase matches on any phrase, we're done
+		} else {
+			// For unscoped, if we run out of matches on all phrases, we're done
+			if (bDoneAll) {
+				bDone = true;
+				continue;
+			}
+		}
 		// Now, check the scoped references.  If they match for all indexes, we'll push the
 		//	results to our output and set flags to get all new scopes.  Otherwise, compare them
 		//	all against our maximum scope value and tag any that's less than that as needing a
@@ -2244,8 +2263,9 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, const CSearchCrite
 	CRelIndex indexScoped;
 
 	switch (searchCriteria.searchScopeMode()) {
+		case (CSearchCriteria::SSME_UNSCOPED):
 		case (CSearchCriteria::SSME_WHOLE_BIBLE):
-			// For Whole Bible, we'll set the Book to 1 so that anything in the Bible matches:
+			// For Whole Bible and Unscoped, we'll set the Book to 1 so that anything in the Bible matches:
 			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
 			break;
 		case (CSearchCriteria::SSME_TESTAMENT):
@@ -2288,6 +2308,7 @@ CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, const CSearchCrite
 			indexScoped = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
 			break;
 		default:
+			assert(false);
 			break;
 	}
 

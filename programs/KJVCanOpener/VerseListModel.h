@@ -232,7 +232,7 @@ public:
 					}
 					if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope");
 					if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
-						(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE) &&
+						(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) &&
 						(!strSearchScopeDescription.isEmpty())) {
 						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4")
 											.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)

@@ -144,7 +144,7 @@ void CKJVSearchSpec::reset()
 	closeAllSearchPhrases();
 	for (int nCount = 0; nCount < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++nCount)
 		addSearchPhrase();
-	ui.widgetSearchCriteria->setSearchScopeMode(CSearchCriteria::SSME_WHOLE_BIBLE);
+	ui.widgetSearchCriteria->setSearchScopeMode(CSearchCriteria::SSME_UNSCOPED);
 	ui.widgetSearchCriteria->setSearchWithin(QString());
 }
 
@@ -157,17 +157,17 @@ void CKJVSearchSpec::clearAllSearchPhrases()
 
 void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
 {
-	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
+	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_UNSCOPED;
 	QString strSearchWithin;
 
 	closeAllSearchPhrases();
 
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
-	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_WHOLE_BIBLE).toInt());
+	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_UNSCOPED).toInt());
 	strSearchWithin = kjsFile.value("SearchWithin", QString()).toString();
 	if ((nSearchScope < SSME_MINIMUM) ||
 		(nSearchScope > SSME_MAXIMUM))
-		nSearchScope = CSearchCriteria::SSME_WHOLE_BIBLE;
+		nSearchScope = CSearchCriteria::SSME_UNSCOPED;
 	kjsFile.endGroup();
 
 	ui.widgetSearchCriteria->setSearchScopeMode(nSearchScope);
@@ -413,7 +413,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 		if (nNumPhrases > 1) {
 			if (!aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_bExclude) {
 				if (!bExclude) {
-					if (nScope != CSearchCriteria::SSME_WHOLE_BIBLE) {
+					if (nScope != CSearchCriteria::SSME_UNSCOPED) {
 						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
 										tr("(Found %n Time(s), %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
 											.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";

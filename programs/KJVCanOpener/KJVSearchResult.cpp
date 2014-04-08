@@ -1561,9 +1561,9 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastSearchBooks) + "\n";
 		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 			strSummary += "\n";
-			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_WHOLE_BIBLE)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
 		} else {
 			QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 			if (!strSearchWithinDescription.isEmpty()) {

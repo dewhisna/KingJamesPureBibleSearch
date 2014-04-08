@@ -46,8 +46,11 @@ QString CSearchCriteria::searchScopeDescription() const
 	QString strScope;
 
 	switch (m_nSearchScopeMode) {
-		case (SSME_WHOLE_BIBLE):
+		case (SSME_UNSCOPED):
 			strScope = QObject::tr("anywhere");
+			break;
+		case (SSME_WHOLE_BIBLE):
+			strScope = QObject::tr("together");
 			break;
 		case (SSME_TESTAMENT):
 			strScope = QObject::tr("in the same Testament");
@@ -342,7 +345,8 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	ui.buttonAdd->setToolTip(tr("Add Phrase to Search Criteria"));
 	ui.buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria"));
 
-	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text"), CSearchCriteria::SSME_WHOLE_BIBLE);
+	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text (Unscoped)"), CSearchCriteria::SSME_UNSCOPED);
+	ui.comboSearchScope->addItem(tr("Together in Selected Search Text"), CSearchCriteria::SSME_WHOLE_BIBLE);
 	ui.comboSearchScope->addItem(tr("Same Testament"), CSearchCriteria::SSME_TESTAMENT);
 	ui.comboSearchScope->addItem(tr("Same Category"), CSearchCriteria::SSME_CATEGORY);
 	ui.comboSearchScope->addItem(tr("Same Book"), CSearchCriteria::SSME_BOOK);
