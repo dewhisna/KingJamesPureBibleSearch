@@ -458,16 +458,20 @@ void CKJVBrowser::en_SearchResultsVerseListChanged()
 
 void CKJVBrowser::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	Q_UNUSED(pBibleDatabase);
 	Q_UNUSED(strUserDefinedHighlighterName);
-	doHighlighting(true);				// Remove existing highlighting
+	if ((pBibleDatabase.data() == NULL) ||
+		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
+		doHighlighting(true);				// Remove existing highlighting
+	}
 }
 
 void CKJVBrowser::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	Q_UNUSED(pBibleDatabase);
 	Q_UNUSED(strUserDefinedHighlighterName);
-	doHighlighting();					// Highlight using new tags
+	if ((pBibleDatabase.data() == NULL) ||
+		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
+		doHighlighting();					// Highlight using new tags
+	}
 }
 
 void CKJVBrowser::en_highlightersAboutToChange()

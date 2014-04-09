@@ -706,6 +706,7 @@ public:
 	QString description() const { return m_strDescription; }
 	QString info() const { return m_strInfo; }
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
+	QString highlighterUUID() const { return m_strHighlighterUUID; }
 
 	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
@@ -828,6 +829,7 @@ private:
 	QString m_strDescription;				// Database description
 	QString m_strInfo;						// Information about this database (copyright details, etc)
 	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
+	QString m_strHighlighterUUID;			// Master Highlighter UUID for which this database is compatible with
 
 	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
 

@@ -1200,6 +1200,11 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 			CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
 		}
 	}
+
+	// Even though the main compatibility UUID is always derived from the Bible Database in ReadDB,
+	//		we are the current the one to determine cross-database compatibility.  Perhaps this would
+	//		best be kept in the database as well, but it's almost a toss-up.
+	m_strHighlighterUUID = bblDesc.m_strHighlighterUUID;
 }
 
 CBibleDatabase::~CBibleDatabase()

@@ -1249,8 +1249,8 @@ void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, c
 
 void CVerseListModel::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	if ((pBibleDatabase == NULL) ||
-		(pBibleDatabase->compatibilityUUID().compare(m_private.m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0)) {
+	if ((pBibleDatabase.data() == NULL) ||
+		(pBibleDatabase->highlighterUUID().compare(m_private.m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		if (strUserDefinedHighlighterName.isEmpty()) {
 			// Rebuild all highlighters if this is a broadcast for all highlighters
 			buildHighlighterResults();

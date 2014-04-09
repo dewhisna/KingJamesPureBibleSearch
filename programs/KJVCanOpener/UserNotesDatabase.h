@@ -159,7 +159,7 @@ typedef std::map<CRelIndex, CUserNoteEntry, RelativeIndexSortPredicate> CUserNot
 
 //
 // User highlighter data is stored as:
-//			Map of BibleDatabaseUUID -> Map of HighlighterName -> TPhraseTagList
+//			Map of BibleDatabaseUUID (Highlighter) -> Map of HighlighterName -> TPhraseTagList
 //
 //	This way we can find all of the highlightations that are for the specific
 //		database being rendered, and then find the highlighter name for which
@@ -217,7 +217,7 @@ public:
 	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
 	{
 		assert(pBibleDatabase.data() != NULL);
-		return highlighterTagsFor(pBibleDatabase->compatibilityUUID());
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
 	}
 	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
 	{
@@ -228,7 +228,7 @@ public:
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
 		assert(pBibleDatabase.data() != NULL);
-		return highlighterTagsFor(pBibleDatabase->compatibilityUUID(), strUserDefinedHighlighterName);
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
 	}
 	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
 	{

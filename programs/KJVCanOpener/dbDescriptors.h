@@ -35,11 +35,11 @@ typedef struct {
 	QString m_strLanguage;
 	QString m_strDBName;
 	QString m_strDBDesc;
-	QString m_strUUID;
+	QString m_strUUID;					// Bible Database UUID
 	QString m_strDBInfoFilename;		// Database Information filename (used during build process)
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
-	QStringList m_lstCompatUUID;		// List of UUIDs for databases with compatible versification
+	QString m_strHighlighterUUID;		// Master Highlighter UUID for databases with compatible versification to point to their master
 } TBibleDescriptor;
 
 // Must match constBibleDescriptors[]!!  This is also the order we attempt to read/load them in:
