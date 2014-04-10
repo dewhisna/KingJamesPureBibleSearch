@@ -1333,7 +1333,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 			while (nWordCount > 0) {
 				// Mask the highlighter tags for this verse and just insert the tags corresponding to this verse:
 				unsigned int nNumWordsInVerse = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative)->m_nNumWrd;
-				TPhraseTag tagMasked = itrTags->mask(m_private.m_pBibleDatabase, TPhraseTag(ndxNextRelative, nNumWordsInVerse));
+				TPhraseTag tagMasked = itrTags->mask(m_private.m_pBibleDatabase.data(), TPhraseTag(ndxNextRelative, nNumWordsInVerse));
 				if (zResults.m_mapVerses.contains(ndxNextRelative)) {
 					zResults.m_mapVerses[ndxNextRelative].addPhraseTag(tagMasked);
 				} else {
@@ -2209,13 +2209,13 @@ bool CVerseListModel::checkExclusion(QList<TPhraseTagList::const_iterator> &lstI
 	TVerseListModelSearchResults &zExcludedResults = m_searchResultsExcluded;
 	bool bExclude = false;
 
-	TTagBoundsPair tbpTag(tag, m_private.m_pBibleDatabase);
+	TTagBoundsPair tbpTag(tag, m_private.m_pBibleDatabase.data());
 
 	for (int ndx=0; ndx<lstItrExclNext.size(); ++ndx) {
 		// If inclusion tag is less than exclusion target, it can't possibly be completely contained in exclusion:
 		while ((lstItrExclNext.at(ndx) != zExcludedResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults().constEnd()) &&
 			   (tbpTag.lo() >= m_private.m_pBibleDatabase->NormalizeIndex(lstItrExclNext.at(ndx)->relIndex()))) {
-			if (lstItrExclNext.at(ndx)->bounds(m_private.m_pBibleDatabase).completelyContains(tbpTag)) {
+			if (lstItrExclNext.at(ndx)->bounds(m_private.m_pBibleDatabase.data()).completelyContains(tbpTag)) {
 				bExclude = true;
 				if (!bPreserveLastItr) {
 					zExcludedResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst().append(tag);

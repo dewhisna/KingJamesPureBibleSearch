@@ -649,7 +649,7 @@ void CScriptureText<T,U>::updateSelection()
 	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0));
 	QString strStatusText;
 	if (haveSelection()) {
-		strStatusText = m_selectedPhrase.tag().PassageReferenceRangeText(m_pBibleDatabase);
+		strStatusText = m_selectedPhrase.tag().PassageReferenceRangeText(m_pBibleDatabase.data());
 	} else if (m_tagLast.relIndex().isSet()) {
 		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.relIndex());
 	}
@@ -888,7 +888,7 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	CBusyCursor iAmBusy(NULL);
 
 	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
-	if ((plstHighlighterTags != NULL) && (plstHighlighterTags->completelyContains(m_pBibleDatabase, tagSel))) {
+	if ((plstHighlighterTags != NULL) && (plstHighlighterTags->completelyContains(m_pBibleDatabase.data(), tagSel))) {
 		g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
 	} else {
 		if (tagSel.haveSelection()) {

@@ -920,7 +920,7 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	for (TPhraseTagList::const_iterator itrTags = lstTags.constBegin(); itrTags != lstTags.constEnd(); ++itrTags) {
-		(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, *itrTags);
+		(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), *itrTags);
 	}
 	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
@@ -937,7 +937,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
-	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, aTag);
+	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), aTag);
 	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
@@ -954,7 +954,7 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	THighlighterTagMap::iterator itrTags = (itrBibleDB->second).find(strUserDefinedHighlighterName);
 	if (itrTags == (itrBibleDB->second).end()) return;
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
-	(itrTags->second).removeIntersection(pBibleDatabase, aTag);
+	(itrTags->second).removeIntersection(pBibleDatabase.data(), aTag);
 	if ((itrTags->second).empty()) (itrBibleDB->second).erase(itrTags);
 	if ((itrBibleDB->second).empty()) m_mapHighlighterTags.erase(itrBibleDB);
 	m_bIsDirty = true;
@@ -973,7 +973,7 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	if (itrTags == (itrBibleDB->second).end()) return;
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	for (int ndx = 0; ndx < lstTags.size(); ++ndx) {
-		(itrTags->second).removeIntersection(pBibleDatabase, lstTags.at(ndx));
+		(itrTags->second).removeIntersection(pBibleDatabase.data(), lstTags.at(ndx));
 		if ((itrTags->second).empty()) {
 			(itrBibleDB->second).erase(itrTags);
 			if ((itrBibleDB->second).empty()) m_mapHighlighterTags.erase(itrBibleDB);

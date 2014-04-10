@@ -518,7 +518,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
 	if (plstHighlighterTags != NULL) {
 		for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase(), item.getWholeVersePhraseTag())) {
+			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), item.getWholeVersePhraseTag())) {
 				bAllAlreadyHighlighted = false;
 				break;
 			}

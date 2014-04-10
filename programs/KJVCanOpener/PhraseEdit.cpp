@@ -331,7 +331,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 		}
 		qSort(lstSubPhraseTags.begin(), lstSubPhraseTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
-		m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase, lstSubPhraseTags);
+		m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase.data(), lstSubPhraseTags);
 	}
 
 	// Note: Results of the intersectingInsert are already sorted
@@ -977,7 +977,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		Check for intersection of the highlight tag with our display:
-		if ((tagCurrent.isSet()) && (!tag.intersects(m_pBibleDatabase, tagCurrent))) continue;
+		if ((tagCurrent.isSet()) && (!tag.intersects(m_pBibleDatabase.data(), tagCurrent))) continue;
 
 		unsigned int nTagCount = tag.count();
 		if (nTagCount) --nTagCount;					// Make nTagCount the number of positions to move, not number words
@@ -1709,7 +1709,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 QString CPhraseNavigator::setDocumentToFormattedVerses(const TPhraseTag &tagPhrase)
 {
-	return setDocumentToFormattedVerses(TPassageTag::fromPhraseTag(m_pBibleDatabase, tagPhrase));
+	return setDocumentToFormattedVerses(TPassageTag::fromPhraseTag(m_pBibleDatabase.data(), tagPhrase));
 }
 
 QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPassage)
@@ -1772,7 +1772,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 								".book { font-size:xx-large; font-weight:bold; }\n"
 								".chapter { font-size:x-large; font-weight:bold; }\n"
 								"</style></head><body>\n")
-								.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase)))			// Document Title
+								.arg(scriptureHTML.escape(tagPassage.PassageReferenceRangeText(m_pBibleDatabase.data())))	// Document Title
 								.arg(strCopyFont));																			// Copy Font
 
 	QString strReference;

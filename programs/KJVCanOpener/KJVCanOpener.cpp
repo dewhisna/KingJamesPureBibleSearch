@@ -2406,7 +2406,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	TPassageTag tagCrossRef;
 
 	if (isBrowserFocusedOrActive()) {
-		tagCrossRef.setFromPhraseTag(m_pBibleDatabase, m_pBrowserWidget->selection());
+		tagCrossRef.setFromPhraseTag(m_pBibleDatabase.data(), m_pBrowserWidget->selection());
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		// Unlike editing notes and passage navigation, editing cross-references should bring up the "Source" Cross-Reference:
 		tagCrossRef = TPassageTag(m_pSearchResultWidget->currentVerseIndex().relIndex());

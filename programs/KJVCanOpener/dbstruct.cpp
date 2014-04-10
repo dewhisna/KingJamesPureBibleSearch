@@ -1225,6 +1225,16 @@ void CBibleDatabase::setSettings(const TBibleDatabaseSettings &aSettings)
 	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strCompatibilityUUID, aSettings);
 }
 
+bool CBibleDatabase::completelyContains(const TPhraseTag &aPhraseTag) const
+{
+	return bounds().completelyContains(aPhraseTag.bounds(this));
+}
+
+TTagBoundsPair CBibleDatabase::bounds() const
+{
+	return TTagBoundsPair(1, m_EntireBible.m_nNumWrd);
+}
+
 void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
 {
 	assert(m_pKJPBSWordScriptureObject != NULL);
@@ -1500,7 +1510,7 @@ TTagBoundsPair::TTagBoundsPair(const TTagBoundsPair &tbpSrc)
 
 }
 
-TTagBoundsPair::TTagBoundsPair(const TPhraseTag &aTag, CBibleDatabasePtr pBibleDatabase)
+TTagBoundsPair::TTagBoundsPair(const TPhraseTag &aTag, const CBibleDatabase *pBibleDatabase)
 {
 	uint32_t nNormalRefLo = pBibleDatabase->NormalizeIndex(aTag.relIndex());
 	uint32_t nNormalRefHi = nNormalRefLo + aTag.count() - ((aTag.count() != 0) ? 1 : 0);
@@ -1531,22 +1541,32 @@ bool TTagBoundsPair::intersectingInsert(const TTagBoundsPair &tbpSrc)
 	return false;
 }
 
+bool TTagBoundsPair::intersectingTrim(const TTagBoundsPair &tbpSrc)
+{
+	if (intersects(tbpSrc)) {
+		m_pairNormals = TNormalPair(qMax(lo(), tbpSrc.lo()), qMin(hi(), tbpSrc.hi()));
+		m_bHadCount = m_bHadCount || tbpSrc.hadCount();
+		return true;
+	}
+	return false;
+}
+
 // ============================================================================
 
-TPhraseTag::TPhraseTag(CBibleDatabasePtr pBibleDatabase, const TTagBoundsPair &tbpSrc)
+TPhraseTag::TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc)
 {
 	m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.lo()));
 	m_nCount = (tbpSrc.hi() - tbpSrc.lo() + 1);
 	if ((m_nCount == 1) && (!tbpSrc.hadCount())) m_nCount = 0;
 }
 
-void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage)
+void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage)
 {
 	if (!tagPassage.isSet()) {
 		m_RelIndex = CRelIndex();
 		m_nCount = 0;
 	} else {
-		assert(pBibleDatabase.data() != NULL);
+		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPassage.relIndex();
 		CRelIndex ndxStart = tagPassage.relIndex();
 		ndxStart.setWord(1);
@@ -1560,30 +1580,30 @@ void TPhraseTag::setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPass
 	}
 }
 
-TTagBoundsPair TPhraseTag::bounds(CBibleDatabasePtr pBibleDatabase) const
+TTagBoundsPair TPhraseTag::bounds(const CBibleDatabase *pBibleDatabase) const
 {
 	return TTagBoundsPair(*this, pBibleDatabase);
 }
 
-bool TPhraseTag::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+bool TPhraseTag::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 	return bounds(pBibleDatabase).completelyContains(aTag.bounds(pBibleDatabase));
 }
 
-bool TPhraseTag::intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+bool TPhraseTag::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 	return bounds(pBibleDatabase).intersects(aTag.bounds(pBibleDatabase));
 }
 
-bool TPhraseTag::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+bool TPhraseTag::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
 
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 
 	TTagBoundsPair tbpRef = bounds(pBibleDatabase);
 
@@ -1595,7 +1615,7 @@ bool TPhraseTag::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhr
 	return false;
 }
 
-TPhraseTag TPhraseTag::mask(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+TPhraseTag TPhraseTag::mask(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if (!isSet() || !aTag.isSet()) return TPhraseTag();
 
@@ -1625,9 +1645,9 @@ TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
 
 }
 
-bool TPhraseTagList::completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const
+bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 
 	if (!aTag.relIndex().isSet()) return false;
 
@@ -1653,9 +1673,9 @@ bool TPhraseTagList::completelyContains(CBibleDatabasePtr pBibleDatabase, const 
 	return bContained;
 }
 
-void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 
 	if (!aTag.relIndex().isSet()) return;
 
@@ -1689,9 +1709,9 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 	if (!bFoundFirst) append(aTag);			// If we didn't find it anywhere, add the new one on the end
 }
 
-void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList)
+void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 	if (aTagList.isEmpty()) return;
 
 	const_iterator itrNewTags = aTagList.constBegin();
@@ -1774,24 +1794,25 @@ void TPhraseTagList::intersectingInsert(CBibleDatabasePtr pBibleDatabase, const 
 	}
 }
 
-bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag)
+bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 
 	bool bRemovedIntersection = false;
 
 	if (!aTag.relIndex().isSet()) return false;
 
 	for (iterator itrTags = begin(); itrTags != end(); /* increment in loop */) {
-		if (!aTag.haveSelection()) {
+		if ((!aTag.haveSelection()) && (pBibleDatabase->completelyContains(*itrTags))) {
 			// If there is no selection and the tag in the list contains the specified
-			//		reference, remove it:
+			//		reference and the tag is completely inside this Bible Database, remove it:
 			if (itrTags->completelyContains(pBibleDatabase, aTag)) {
 				itrTags = erase(itrTags);
 				bRemovedIntersection = true;
 				continue;
 			}
 		} else if (aTag.completelyContains(pBibleDatabase, *itrTags)) {
+			assert(aTag.haveSelection());
 			// If the passed tag completely contains the one in the list, remove the one in the list:
 			itrTags = erase(itrTags);
 			bRemovedIntersection = true;
@@ -1801,8 +1822,13 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 			//		but we don't know if it's the first part, last part, or some part in the middle.
 			//		If it's some part in the middle, we have to split it in half (yuck):
 
+			// Note: Check special case for no-selection (i.e. a "remove") but where the tag isn't entirely
+			//		inside our Bible Database, in which case we should treat it like a trim for the
+			//		part that's actually inside our database rather than remove it all:
+
 			TTagBoundsPair tbpRef = itrTags->bounds(pBibleDatabase);
-			TTagBoundsPair tbpSrc = aTag.bounds(pBibleDatabase);
+			TTagBoundsPair tbpSrc = (aTag.haveSelection() ? aTag.bounds(pBibleDatabase) : pBibleDatabase->bounds());
+			if (!aTag.haveSelection()) tbpSrc.intersectingTrim(tbpRef);
 			TTagBoundsPair tbpNew = tbpRef;
 			tbpNew.setHadCount(tbpRef.hadCount() || tbpSrc.hadCount());			// If we end up with a single word, this will tell us if we have that word selected or not
 			bool bSingle = false;
@@ -1820,13 +1846,51 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 			// if bSingle, trim to nNormalNew, else nNormalSrc is in the middle of nNormalRef and needs a split:
 			if (bSingle) {
 				*itrTags = TPhraseTag(pBibleDatabase, tbpNew);
+				if (!(*itrTags).isSet()) {
+					// Special case for dealing with Highlighters that run off the end of the Bible Database text.
+					//		This can happen in the case of the KJVA Apocrypha text if you highlight the end of
+					//		Revelation and extend into 1 Esdras of the Apocrypha.  Then, you edit the highlighters
+					//		using the non-Apocrypha database and delete the portion (or part of the portion) of
+					//		the highlighter in Revelation.  While the other database is compatible, you are
+					//		editing a highlighter that extends outside the text of the current database and so
+					//		the DenormalizeIndex() function will return 0, rather than the first word of the book
+					//		just after this database.  That breaks the highlighter by setting the tag to "0" rather
+					//		than the first word of the next book.  This "work-around" checks for that and manually
+					//		sets it to the next word.  It does make the assumption (and asserts if it fails) that
+					//		the last word of the tbpSrc boundary is still in this database:
+					assert(tbpNew.lo() == (tbpSrc.hi() + 1));		// If we "ran off the database", make sure it's the upper half we are keeping
+					if (tbpNew.lo() == (tbpSrc.hi() + 1)) {
+						CRelIndex ndxUpper = (*itrTags).relIndex();
+						ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi()));
+						assert(ndxUpper.isSet());
+						ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
+						*itrTags = TPhraseTag(ndxUpper, (*itrTags).count());
+					}
+				}
 			} else {
 				// For the split, make the current be the low half:
 				itrTags->m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(tbpRef.lo()));
 				itrTags->m_nCount = (tbpSrc.lo() - tbpRef.lo());		// Note, don't include first of cut section
 				int nDistTags = std::distance(begin(), itrTags);		// Save where our iterator is at, since we're about to nuke it
 				// And insert the upper half:
-				append(TPhraseTag(CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi() + 1)), tbpRef.hi() - tbpSrc.hi()));
+				CRelIndex ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi() + 1));
+				if (!ndxUpper.isSet()) {
+					// Special case for dealing with Highlighters that run off the end of the Bible Database text.
+					//		This can happen in the case of the KJVA Apocrypha text if you highlight the end of
+					//		Revelation and extend into 1 Esdras of the Apocrypha.  Then, you edit the highlighters
+					//		using the non-Apocrypha database and delete the portion (or part of the portion) of
+					//		the highlighter in Revelation.  While the other database is compatible, you are
+					//		editing a highlighter that extends outside the text of the current database and so
+					//		the DenormalizeIndex() function will return 0, rather than the first word of the book
+					//		just after this database.  That breaks the highlighter by setting the tag to "0" rather
+					//		than the first word of the next book.  This "work-around" checks for that and manually
+					//		sets it to the next word.  It does make the assumption (and asserts if it fails) that
+					//		the last word of the tbpSrc boundary is still in this database:
+					ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi()));
+					assert(ndxUpper.isSet());
+					ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
+				}
+				append(TPhraseTag(ndxUpper, tbpRef.hi() - tbpSrc.hi()));
 				// Fix the iterator we just nuked:
 				itrTags = begin() + nDistTags;
 			}
@@ -1837,9 +1901,9 @@ bool TPhraseTagList::removeIntersection(CBibleDatabasePtr pBibleDatabase, const 
 	return bRemovedIntersection;
 }
 
-int TPhraseTagList::findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, int nStartIndex) const
+int TPhraseTagList::findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex) const
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase != NULL);
 	if (nStartIndex < 0) return -1;
 	if (!aTag.isSet()) return -1;
 
@@ -1853,21 +1917,21 @@ int TPhraseTagList::findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, cons
 
 // ============================================================================
 
-void TPassageTag::setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase)
+void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase)
 {
 	if (!tagPhrase.isSet()) {
 		m_RelIndex = CRelIndex();
 		m_nVerseCount = 0;
 	} else {
-		assert(pBibleDatabase.data() != NULL);
+		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPhrase.relIndex();
 		m_RelIndex.setWord(1);
 		CRelIndex ndxTarget = tagPhrase.relIndex();
 		if (tagPhrase.count() > 1) {
 			ndxTarget = pBibleDatabase->calcRelIndex(tagPhrase.count()-1, 0, 0, 0, 0, tagPhrase.relIndex());
 		}
-		m_nVerseCount = (CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
-						CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
+		m_nVerseCount = (CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
+						CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
 	}
 }
 

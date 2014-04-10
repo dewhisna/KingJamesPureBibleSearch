@@ -637,6 +637,46 @@ inline uint qHash(const CPhraseEntry &key)
 
 // ============================================================================
 
+// Forward declarations:
+class TPhraseTag;
+class TPassageTag;
+
+// Class to hold the Normalized Lo and Hi indexes covered by a tag
+//		with basic manipulations:
+class TTagBoundsPair
+{
+public:
+	TTagBoundsPair(uint32_t nNormalLo, uint32_t nNormalHi, bool bHadCount = true);
+	TTagBoundsPair(const TTagBoundsPair &tbpSrc);
+	TTagBoundsPair(const TPhraseTag &aTag, const CBibleDatabase *pBibleDatabase);
+
+	TTagBoundsPair & operator=(const TTagBoundsPair &src)
+	{
+		m_pairNormals = src.m_pairNormals;
+		m_bHadCount = src.m_bHadCount;
+		return *this;
+	}
+
+	inline uint32_t lo() const { return m_pairNormals.first; }
+	void setLo(uint32_t nNormal) { m_pairNormals.first = nNormal; }
+	inline uint32_t hi() const { return m_pairNormals.second; }
+	void setHi(uint32_t nNormal) { m_pairNormals.second = nNormal; }
+	inline bool hadCount() const { return m_bHadCount; }
+	void setHadCount(bool bHadCount) { m_bHadCount = bHadCount; }
+
+	bool completelyContains(const TTagBoundsPair &tbpSrc) const;
+	bool intersects(const TTagBoundsPair &tbpSrc) const;
+	bool intersectingInsert(const TTagBoundsPair &tbpSrc);
+	bool intersectingTrim(const TTagBoundsPair &tbpSrc);
+
+private:
+	typedef QPair<uint32_t, uint32_t> TNormalPair;
+	TNormalPair m_pairNormals;
+	bool m_bHadCount;							// True if the range had a count of words rather than being a reference to a location without any content
+};
+
+// ============================================================================
+
 class TBibleDatabaseSettings
 {
 public:
@@ -686,7 +726,6 @@ class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
 class CVerseTextRichifierTags;
-class TPhraseTag;
 class CKJPBSWordScriptureObject;
 class QAbstractTextDocumentLayout;
 
@@ -707,6 +746,9 @@ public:
 	QString info() const { return m_strInfo; }
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
 	QString highlighterUUID() const { return m_strHighlighterUUID; }
+
+	bool completelyContains(const TPhraseTag &aPhraseTag) const;		// Returns true if this Bible database completely contains the specified tag (i.e. none of it lies outside the database text)
+	TTagBoundsPair bounds() const;
 
 	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
@@ -1028,45 +1070,6 @@ private:
 
 // ============================================================================
 
-// Forward declarations:
-class TPhraseTag;
-class TPassageTag;
-
-// Class to hold the Normalized Lo and Hi indexes covered by a tag
-//		with basic manipulations:
-class TTagBoundsPair
-{
-public:
-	TTagBoundsPair(uint32_t nNormalLo, uint32_t nNormalHi, bool bHadCount = true);
-	TTagBoundsPair(const TTagBoundsPair &tbpSrc);
-	TTagBoundsPair(const TPhraseTag &aTag, CBibleDatabasePtr pBibleDatabase);
-
-	TTagBoundsPair & operator=(const TTagBoundsPair &src)
-	{
-		m_pairNormals = src.m_pairNormals;
-		m_bHadCount = src.m_bHadCount;
-		return *this;
-	}
-
-	inline uint32_t lo() const { return m_pairNormals.first; }
-	void setLo(uint32_t nNormal) { m_pairNormals.first = nNormal; }
-	inline uint32_t hi() const { return m_pairNormals.second; }
-	void setHi(uint32_t nNormal) { m_pairNormals.second = nNormal; }
-	inline bool hadCount() const { return m_bHadCount; }
-	void setHadCount(bool bHadCount) { m_bHadCount = bHadCount; }
-
-	bool completelyContains(const TTagBoundsPair &tbpSrc) const;
-	bool intersects(const TTagBoundsPair &tbpSrc) const;
-	bool intersectingInsert(const TTagBoundsPair &tbpSrc);
-
-private:
-	typedef QPair<uint32_t, uint32_t> TNormalPair;
-	TNormalPair m_pairNormals;
-	bool m_bHadCount;							// True if the range had a count of words rather than being a reference to a location without any content
-};
-
-// ----------------------------------------------------------------------------
-
 // Relative Index and Word Count pair used for highlighting phrases:
 class TPhraseTag
 {
@@ -1076,24 +1079,24 @@ public:
 			m_nCount(nCount)
 	{ }
 
-	TPhraseTag(CBibleDatabasePtr pBibleDatabase, const TTagBoundsPair &tbpSrc);
+	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc);
 
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
 	inline CRelIndex &relIndex() { return m_RelIndex; }
 	inline const unsigned int &count() const { return m_nCount; }
 	inline unsigned int &count() { return m_nCount; }
 
-	void setFromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage);
-	static TPhraseTag fromPassageTag(CBibleDatabasePtr pBibleDatabase, const TPassageTag &tagPassage) {
+	void setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage);
+	static TPhraseTag fromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage) {
 		TPhraseTag tagPhrase;
 		tagPhrase.setFromPassageTag(pBibleDatabase, tagPassage);
 		return tagPhrase;
 	}
 
-	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
-		assert(pBibleDatabase.data() != NULL);
+	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+		assert(pBibleDatabase != NULL);
 
-		if (pBibleDatabase.data() == NULL) return QString();
+		if (pBibleDatabase == NULL) return QString();
 		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
 		if (m_nCount > 1) {
 			uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
@@ -1120,12 +1123,12 @@ public:
 				(m_nCount != otherTag.count()));
 	}
 
-	TTagBoundsPair bounds(CBibleDatabasePtr pBibleDatabase) const;			// Returns a pair containing the Normalized Lo and Hi indexes covered by this tag
+	TTagBoundsPair bounds(const CBibleDatabase *pBibleDatabase) const;			// Returns a pair containing the Normalized Lo and Hi indexes covered by this tag
 
-	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
-	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
-	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
-	TPhraseTag mask(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;		// Creates a new tag that's the content of this tag masked by the specified aTag.
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	TPhraseTag mask(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;		// Creates a new tag that's the content of this tag masked by the specified aTag.
 	friend class TPhraseTagList;
 
 private:
@@ -1154,11 +1157,11 @@ public:
 	TPhraseTagList();
 	TPhraseTagList(const TPhraseTagList &src);
 
-	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag) const;
-	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
-	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
-	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag);
-	int findIntersectingIndex(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
+	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	int findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
 };
 
 typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases
@@ -1195,17 +1198,17 @@ public:
 	inline const unsigned int &verseCount() const { return m_nVerseCount; }
 	inline unsigned int &verseCount() { return m_nVerseCount; }
 
-	void setFromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase);
-	static TPassageTag fromPhraseTag(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tagPhrase) {
+	void setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase);
+	static TPassageTag fromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase) {
 		TPassageTag tagPassage;
 		tagPassage.setFromPhraseTag(pBibleDatabase, tagPhrase);
 		return tagPassage;
 	}
 
-	QString PassageReferenceRangeText(CBibleDatabasePtr pBibleDatabase) const {
-		assert(pBibleDatabase.data() != NULL);
+	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+		assert(pBibleDatabase != NULL);
 
-		if (pBibleDatabase.data() == NULL) return QString();
+		if (pBibleDatabase == NULL) return QString();
 		CRelIndex ndxFirst(m_RelIndex);
 		ndxFirst.setWord(0);
 		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(ndxFirst);
@@ -1235,9 +1238,9 @@ public:
 				(m_nVerseCount != otherTag.verseCount()));
 	}
 
-//	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
-//	bool intersects(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
-//	bool intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
+//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersects(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
 	friend class TPassageTagList;
 
 private:
@@ -1268,9 +1271,9 @@ public:
 		:	QList<TPassageTag>(src)
 	{ }
 
-//	bool completelyContains(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag) const;
-//	void intersectingInsert(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
-//	bool removeIntersection(CBibleDatabasePtr pBibleDatabase, const TPassageTag &aTag);
+//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
+//	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
 };
 
 struct TPassageTagListSortPredicate {
