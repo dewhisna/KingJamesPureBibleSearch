@@ -1805,8 +1805,11 @@ void CKJVCanOpener::en_copySearchPhraseSummary()
 
 void CKJVCanOpener::en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex)
 {
-	if (m_pBrowserWidget) {
+	assert(m_pBibleDatabase.data() != NULL);
+
+	if ((m_pBrowserWidget != NULL) && (relIndex.isSet())) {
 		m_pBrowserWidget->gotoIndex(TPhraseTag(relIndex));
+		m_pBrowserWidget->setFocusBrowser();
 	}
 }
 
