@@ -377,6 +377,9 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	ui.comboChapterDirect->clear();
 	for (unsigned int ndxChp=1; ndxChp<=book.m_nNumChp; ++ndxChp) {
+		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(ndx.book(), ndxChp, 0, 0));
+		if (pChapter == NULL) continue;
+		if (pChapter->m_nNumVrs == 0) continue;			// Skip chapters that are empty (like additions of Esther in Apocrypha)
 		ui.comboChapterDirect->addItem(QString("%1").arg(ndxChp), ndxChp);
 	}
 	ui.comboChapterDirect->setCurrentIndex(ui.comboChapterDirect->findData(ndx.chapter()));
@@ -391,6 +394,9 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	ui.comboVerseDirect->clear();
 	for (unsigned int ndxVrs=1; ndxVrs<=chapter.m_nNumVrs; ++ndxVrs) {
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs, 0));
+		if (pVerse == NULL) continue;
+		if (pVerse->m_nNumWrd == 0) continue;		// Skip verses that are empty (like additions of Esther in Apocrypha)
 		ui.comboVerseDirect->addItem(QString("%1").arg(ndxVrs), ndxVrs);
 	}
 	ui.comboVerseDirect->setCurrentIndex(ui.comboVerseDirect->findData(ndx.verse()));
