@@ -772,6 +772,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
 	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(en_copySearchPhraseSummary()));
+	connect(m_pSearchSpecWidget, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)), this, SLOT(en_triggeredSearchWithinGotoIndex(const CRelIndex &)));
 
 	// -------------------- Search Spec:
 
@@ -1800,6 +1801,13 @@ void CKJVCanOpener::en_copySearchPhraseSummary()
 	mime->setText(strSummary);
 	mime->setHtml("<qt><pre>\n" + strSummary + "</pre></qt>\n");
 	QApplication::clipboard()->setMimeData(mime);
+}
+
+void CKJVCanOpener::en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex)
+{
+	if (m_pBrowserWidget) {
+		m_pBrowserWidget->gotoIndex(TPhraseTag(relIndex));
+	}
 }
 
 void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)

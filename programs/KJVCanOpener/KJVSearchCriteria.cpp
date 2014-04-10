@@ -258,6 +258,20 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 		return pSearchWithinModelIndex->checkState();
 	}
 
+	if (role == SWMDRE_REL_INDEX_ROLE) {
+		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
+		switch (pSearchWithinModelIndex->ssme()) {
+			case CSearchCriteria::SSME_BOOK:
+			{
+				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);
+				assert(pBookEntry != NULL);
+				return QVariant::fromValue(CRelIndex(nItem, 0, 0, 0));
+			}
+			default:
+				return QVariant::fromValue(CRelIndex());
+		}
+	}
+
 	return QVariant();
 }
 
@@ -362,6 +376,8 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	connect(ui.buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
 	connect(ui.buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
+	connect(ui.treeViewSearchWithin, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(en_SearchWithinItemActivated(const QModelIndex &)));
+
 	// Setup Default TextBrightness:
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
@@ -427,6 +443,16 @@ void CKJVSearchCriteriaWidget::en_changedSearchWithin()
 	emit changedSearchCriteria();
 
 	end_update();
+}
+
+void CKJVSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &index)
+{
+	if (index.isValid()) {
+		CRelIndex ndxReference = m_pSearchWithinModel->data(index, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
+		if (ndxReference.isSet()) {
+			emit gotoIndex(ndxReference);
+		}
+	}
 }
 
 void CKJVSearchCriteriaWidget::enableCopySearchPhraseSummary(bool bEnable)

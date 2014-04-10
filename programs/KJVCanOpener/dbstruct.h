@@ -163,6 +163,7 @@ inline QDataStream& operator>>(QDataStream &in, CRelIndex &ndx) {
 	ndx.setIndex(anIndex);
 	return in;
 }
+Q_DECLARE_METATYPE(CRelIndex)
 
 // ============================================================================
 

@@ -74,6 +74,7 @@ signals:				// Outgoing Pass-Through:
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 	void copySearchPhraseSummary();
+	void triggeredSearchWithinGotoIndex(const CRelIndex &relIndex);
 
 public slots:
 	void reset();

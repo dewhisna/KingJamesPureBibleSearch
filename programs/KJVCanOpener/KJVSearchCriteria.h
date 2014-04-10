@@ -143,6 +143,7 @@ signals:
 	void changedSearchCriteria();
 	void addSearchPhraseClicked();
 	void copySearchPhraseSummary();
+	void gotoIndex(const CRelIndex &relIndex);
 
 public slots:
 	void enableCopySearchPhraseSummary(bool bEnable);
@@ -157,6 +158,7 @@ public slots:
 private slots:
 	void en_changedSearchScopeMode(int ndx);
 	void en_changedSearchWithin();
+	void en_SearchWithinItemActivated(const QModelIndex &index);		// Triggered on Activate or DoubleClick to handle enter or double-click of search-within item (emits gotoIndex() signal)
 
 // Data Private:
 private:
@@ -263,6 +265,10 @@ class CSearchWithinModel : public QAbstractItemModel
 	Q_OBJECT
 
 public:
+	enum SEARCH_WITHIN_MODEL_DATA_ROLES_ENUM {
+		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0		// Data role for CRelIndex() for the corresponding item relative index
+	};
+
 	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin, QObject *pParent = 0);
 	virtual ~CSearchWithinModel();
 
