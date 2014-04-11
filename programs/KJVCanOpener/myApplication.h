@@ -134,6 +134,9 @@ public:
 	static void restoreApplicationFontSettings();
 	void setupTextBrightnessStyleHooks();
 
+	static void saveApplicationLanguage();
+	static void restoreApplicationLanguage();
+
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
 

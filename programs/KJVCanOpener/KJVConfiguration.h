@@ -472,6 +472,9 @@ public:
 signals:
 	void dataChanged(bool bNeedRestart);
 
+private slots:
+	void en_changeApplicationLanguage(int nIndex);
+
 // Data Private:
 private:
 

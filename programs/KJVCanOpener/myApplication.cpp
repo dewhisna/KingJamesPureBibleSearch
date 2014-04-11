@@ -66,6 +66,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "DelayedExecutionTimer.h"
+#include "Translator.h"
 
 #ifdef BUILD_KJV_DATABASE
 #include "BuildDB.h"
@@ -95,6 +96,7 @@ namespace {
 	const QString constrMainAppControlGroup("MainApp/Controls");
 	const QString constrFontNameKey("FontName");
 	const QString constrFontSizeKey("FontSize");
+	const QString constrLanguageKey("Language");
 
 	// Main Bible Database Settings:
 	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
@@ -118,6 +120,8 @@ namespace {
 
 	//////////////////////////////////////////////////////////////////////
 
+	const char *g_constrTranslationFilenamePrefix = "kjpbs";
+
 #ifdef Q_OS_ANDROID
 	// --------------------------------------------------------------------------------------------------------- Android ------------------------
 // Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
@@ -126,33 +130,40 @@ namespace {
 
 	const char *g_constrBibleDatabasePath = "KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "KJVCanOpener/db/";
+	const char *g_constrTranslationsPath = "KJVCanOpener/translations/";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
 	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
+	const char *g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrBibleDatabasePath = "../Resources/db/";
 	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
+	const char *g_constrTranslationsPath = "../Resources/translations/";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	#ifdef EMSCRIPTEN_NATIVE
 		const char *g_constrBibleDatabasePath = "./data/";
+		const char *g_constrTranslationsPath = "./data/";
 	#else
 		const char *g_constrBibleDatabasePath = "data/";
+		const char *g_constrTranslationsPath = "data/";
 	#endif
 #elif defined(VNCSERVER)
 	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
+	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
 	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
+	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
 #endif
 
 	//////////////////////////////////////////////////////////////////////
@@ -552,6 +563,9 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 
 	setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
 
+	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+
 	// Setup our SQL/Image Plugin paths:
 #if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
 	QFileInfo fiPlugins(initialAppDirPath(), g_constrPluginsPath);
@@ -693,6 +707,29 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
+}
+
+// ============================================================================
+
+void CMyApplication::saveApplicationLanguage()
+{
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrMainAppControlGroup);
+		settings.setValue(constrLanguageKey, CPersistentSettings::instance()->applicationLanguage());
+		settings.endGroup();
+	}
+}
+
+void CMyApplication::restoreApplicationLanguage()
+{
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrMainAppControlGroup);
+		CPersistentSettings::instance()->setApplicationLanguage(settings.value(constrLanguageKey, CPersistentSettings::instance()->applicationLanguage()).toString());
+		settings.endGroup();
+	}
+	CTranslatorList::instance()->setApplicationLanguage(CPersistentSettings::instance()->applicationLanguage());
 }
 
 // ============================================================================
@@ -1148,6 +1185,10 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 
 int CMyApplication::execute(bool bBuildDB)
 {
+	// Restore Locale Language Setting (and save for next time):
+	restoreApplicationLanguage();
+	saveApplicationLanguage();
+
 	// Setup our Fonts:
 #ifdef LOAD_APPLICATION_FONTS
 	//	Note: As of Qt 5.2, iOS doesn't currently load fonts correctly and causes:

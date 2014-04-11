@@ -39,6 +39,7 @@
 #include "SaveFileDialog.h"
 #endif
 #include "BibleWordDiffListModel.h"
+#include "Translator.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -2350,7 +2351,16 @@ CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	// TODO : Do Connections here
+	ui.comboBoxLanguageList->clear();
+	QList<CTranslatorList::TLanguageName> lstLanguages = CTranslatorList::instance()->languageList();
+	ui.comboBoxLanguageList->addItem(tr("< System Locale >"), QString());
+	for (int ndx = 0; ndx < lstLanguages.size(); ++ndx) {
+		assert(!lstLanguages.at(ndx).first.isEmpty());
+		if (lstLanguages.at(ndx).first.isEmpty()) continue;
+		ui.comboBoxLanguageList->addItem(lstLanguages.at(ndx).second, lstLanguages.at(ndx).first);
+	}
+
+	connect(ui.comboBoxLanguageList, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changeApplicationLanguage(int)));
 
 	loadSettings();
 }
@@ -2364,7 +2374,12 @@ void CKJVLocaleConfig::loadSettings()
 {
 	m_bLoadingData = true;
 
-	// TODO : Load
+	int nIndex = ui.comboBoxLanguageList->findData(CPersistentSettings::instance()->applicationLanguage());
+	if (nIndex == -1) {
+		nIndex = ui.comboBoxLanguageList->findData(QString());
+		assert(nIndex != -1);
+	}
+	ui.comboBoxLanguageList->setCurrentIndex(nIndex);
 
 	m_bLoadingData = false;
 	m_bIsDirty = false;
@@ -2372,12 +2387,24 @@ void CKJVLocaleConfig::loadSettings()
 
 void CKJVLocaleConfig::saveSettings()
 {
-	// TODO : Save
-
-	// We've already saved settings in the change notification slots.  Just reset our
-	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
+	CMyApplication::saveApplicationLanguage();
+	CTranslatorList::instance()->setApplicationLanguage(CPersistentSettings::instance()->applicationLanguage());
 
 	m_bIsDirty = false;
+}
+
+void CKJVLocaleConfig::en_changeApplicationLanguage(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	assert(nIndex != -1);
+	if (nIndex == -1) return;
+
+	QString strLangName = ui.comboBoxLanguageList->itemData(nIndex).toString();
+	CPersistentSettings::instance()->setApplicationLanguage(strLangName);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);			// <<< TODO : This will probably need to be True so we can instruct user to restart for new language
 }
 
 // ============================================================================

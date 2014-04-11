@@ -125,6 +125,8 @@ public:
 	void setMainBibleDatabaseUUID(const QString &strUUID);
 	QString mainBibleDatabaseUUID() const { return m_pPersistentSettingData->m_strMainBibleDatabaseUUID; }
 
+	QString applicationLanguage() const { return m_pPersistentSettingData->m_strApplicationLanguage; }
+
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
@@ -165,6 +167,8 @@ signals:
 
 	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
 	void changedMainBibleDatabaseSelection(const QString &strUUID);
+
+	void changedApplicationLanguage(const QString &strLangName);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -213,6 +217,8 @@ public slots:
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
 	void setShowWrdNdxInSearchResultsRefs(bool bShow);
 	void setCopyWrdNdxInSearchResultsRefs(bool bCopy);
+
+	void setApplicationLanguage(const QString &strLangName);
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -277,6 +283,8 @@ private:
 		// ----
 		TBibleDatabaseSettingsMap m_mapBibleDatabaseSettings;		// Map of Bible UUIDs to settings for saving/preserving (written in KJVCanOpener shutdown, read in myApplication execute)
 		QString m_strMainBibleDatabaseUUID;				// UUID of Main Bible Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
+		// ----
+		QString m_strApplicationLanguage;				// Language to use for the application.  Empty string to use the system locale.
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

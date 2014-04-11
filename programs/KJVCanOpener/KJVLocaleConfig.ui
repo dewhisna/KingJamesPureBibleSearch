@@ -32,35 +32,24 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLabel" name="lblLanguage">
-         <property name="text">
-          <string>Application &amp;Language:</string>
-         </property>
-         <property name="buddy">
-          <cstring>comboBox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox">
-         <property name="insertPolicy">
-          <enum>QComboBox::NoInsert</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToContents</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QLabel" name="lblLanguageList">
+       <property name="text">
+        <string>Application &amp;Language:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxLanguageList</cstring>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBoxUseBibleLanguage">
-       <property name="text">
-        <string>Use Language of Selected &amp;Bible for Application</string>
+      <widget class="QComboBox" name="comboBoxLanguageList">
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
        </property>
       </widget>
      </item>
@@ -94,6 +83,9 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBoxLanguageList</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

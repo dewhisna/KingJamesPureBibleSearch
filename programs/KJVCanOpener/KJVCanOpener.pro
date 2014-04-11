@@ -198,10 +198,10 @@ DEPENDPATH += $$PWD
 
 
 TRANSLATIONS += \
-	kjpbs_en.ts \
-	kjpbs_fr.ts \
-	kjpbs_es.ts \
-	kjpbs_de.ts
+	translations/kjpbs.en.ts \
+	translations/kjpbs.fr.ts \
+	translations/kjpbs.es.ts \
+	translations/kjpbs.de.ts
 
 
 SOURCES += \
@@ -245,6 +245,7 @@ SOURCES += \
 	SearchPhraseListModel.cpp \
 	SubControls.cpp \
 	ToolTipEdit.cpp \
+	Translator.cpp \
 	UserNotesDatabase.cpp \
 	VerseListModel.cpp \
 	VerseListDelegate.cpp \
@@ -306,6 +307,7 @@ HEADERS += \
 	SearchPhraseListModel.h \
 	SubControls.h \
 	ToolTipEdit.h \
+	Translator.h \
 	UserNotesDatabase.h \
 	VerseListModel.h \
 	VerseListDelegate.h \

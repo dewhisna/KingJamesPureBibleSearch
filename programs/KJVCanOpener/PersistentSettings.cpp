@@ -75,13 +75,13 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_fntSearchResults("Times New Roman", 12),
 		m_fntDictionary("Times New Roman", 12),
 #elif defined(VNCSERVER)
-	  m_fntScriptureBrowser("DejaVu Serif", 12),
-	  m_fntSearchResults("DejaVu Serif", 12),
-	  m_fntDictionary("DejaVu Serif", 12),
+		m_fntScriptureBrowser("DejaVu Serif", 12),
+		m_fntSearchResults("DejaVu Serif", 12),
+		m_fntDictionary("DejaVu Serif", 12),
 #else
-	  m_fntScriptureBrowser("DejaVu Serif", 12),
-	  m_fntSearchResults("DejaVu Serif", 12),
-	  m_fntDictionary("DejaVu Serif", 12),
+		m_fntScriptureBrowser("DejaVu Serif", 12),
+		m_fntSearchResults("DejaVu Serif", 12),
+		m_fntDictionary("DejaVu Serif", 12),
 #endif
 		// Default Text Brightness Options:
 		m_bInvertTextBrightness(false),
@@ -152,7 +152,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bShowWrdNdxInSearchResultsRefs(true),
 		m_bCopyWrdNdxInSearchResultsRefs(true),
 		// ----
-		m_strMainBibleDatabaseUUID(bibleDescriptor(BDE_KJV).m_strUUID)			// Default to reading KJV
+		m_strMainBibleDatabaseUUID(bibleDescriptor(BDE_KJV).m_strUUID),			// Default to reading KJV
+		// ----
+		m_strApplicationLanguage(QString())				// Default to System Locale language
 {
 
 }
@@ -296,6 +298,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			}
 		}
 		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
+		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
 	}
 }
 
@@ -668,6 +671,14 @@ void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
 	if (m_pPersistentSettingData->m_strMainBibleDatabaseUUID != strUUID) {
 		m_pPersistentSettingData->m_strMainBibleDatabaseUUID = strUUID;
 		emit changedMainBibleDatabaseSelection(strUUID);
+	}
+}
+
+void CPersistentSettings::setApplicationLanguage(const QString &strLangName)
+{
+	if (m_pPersistentSettingData->m_strApplicationLanguage != strLangName) {
+		m_pPersistentSettingData->m_strApplicationLanguage = strLangName;
+		emit changedApplicationLanguage(strLangName);
 	}
 }
 

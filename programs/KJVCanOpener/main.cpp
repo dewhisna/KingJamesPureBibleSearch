@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
 
-	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+//	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 	QString strKJSFile;
 	bool bBuildDB = false;
 	bool bStealthMode = false;
