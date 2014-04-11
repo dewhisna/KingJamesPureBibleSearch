@@ -806,30 +806,18 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 
 bool CMyApplication::isFirstCanOpener(bool bInCanOpenerConstructor, const QString &strBblUUID) const
 {
-	if (strBblUUID.isEmpty()) {
-		if (bInCanOpenerConstructor) {
-			return (m_lstKJVCanOpeners.size() == 0);
-		} else {
-			return (m_lstKJVCanOpeners.size() <= 1);
-		}
-	} else {
-		int nCount = 0;
-		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
-			CBibleDatabasePtr pBibleDatabase = m_lstKJVCanOpeners.at(ndx)->bibleDatabase();
-			if (pBibleDatabase.data() == NULL) continue;
-			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
-		}
-		if ( (nCount == 0) ||
-			((nCount == 1) && (!bInCanOpenerConstructor))) return true;
-		return false;
-	}
+	return (bInCanOpenerConstructor ? (bibleDatabaseCanOpenerRefCount(strBblUUID) == 0) : (bibleDatabaseCanOpenerRefCount(strBblUUID) <= 1));
 }
 
 bool CMyApplication::isLastCanOpener(const QString &strBblUUID) const
 {
+	return (bibleDatabaseCanOpenerRefCount(strBblUUID) <= 1);
+}
+
+int CMyApplication::bibleDatabaseCanOpenerRefCount(const QString &strBblUUID) const
+{
 	if (strBblUUID.isEmpty()) {
-		return (m_lstKJVCanOpeners.size() <= 1);
+		return m_lstKJVCanOpeners.size();
 	} else {
 		int nCount = 0;
 		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
@@ -838,7 +826,7 @@ bool CMyApplication::isLastCanOpener(const QString &strBblUUID) const
 			if (pBibleDatabase.data() == NULL) continue;
 			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
 		}
-		return (nCount <= 1);
+		return nCount;
 	}
 }
 

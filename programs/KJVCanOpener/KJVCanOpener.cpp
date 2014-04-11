@@ -1832,15 +1832,39 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 	if (m_pActionGroupBibleDatabasesList != NULL) delete m_pActionGroupBibleDatabasesList;
 	m_pActionGroupBibleDatabasesList = new QActionGroup(this);
 
+#ifdef ENABLE_ONLY_LOADED_BIBLE_DATABASES
 	for (int ndx = 0; ndx < TBibleDatabaseList::instance()->size(); ++ndx) {
 		if (TBibleDatabaseList::instance()->at(ndx).data() == NULL) continue;
 		QAction *pAction = new QAction(TBibleDatabaseList::instance()->at(ndx)->description(), m_pActionGroupBibleDatabasesList);
-		pAction->setData(QVariant::fromValue(bibleDescriptorFromUUID(TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID())));
+		pAction->setData(TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID());
 		if (TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
 			pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 		}
 		m_pActionBibleDatabasesList->menu()->addAction(pAction);
 	}
+#else
+	QStringList lstAvailableDatabases = TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs();
+	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+
+		if (pBibleDatabase.data() != NULL) {
+			QAction *pAction = new QAction(pBibleDatabase->description(), m_pActionGroupBibleDatabasesList);
+			pAction->setData(pBibleDatabase->compatibilityUUID());
+			if (pBibleDatabase->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+				pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+			}
+			m_pActionBibleDatabasesList->menu()->addAction(pAction);
+		} else {
+			BIBLE_DESCRIPTOR_ENUM nBDE = bibleDescriptorFromUUID(lstAvailableDatabases.at(ndx));
+			assert(nBDE != BDE_UNKNOWN);
+			const TBibleDescriptor &bblDesc = bibleDescriptor(nBDE);
+			QAction *pAction = new QAction(bblDesc.m_strDBDesc, m_pActionGroupBibleDatabasesList);
+			pAction->setData(bblDesc.m_strUUID);
+			m_pActionBibleDatabasesList->menu()->addAction(pAction);
+		}
+	}
+#endif
+
 	connect(m_pActionGroupBibleDatabasesList.data(), SIGNAL(triggered(QAction*)), this, SLOT(en_NewCanOpener(QAction*)));
 }
 
@@ -2577,10 +2601,21 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 	assert(g_pMyApplication.data() != NULL);
 
 	if (pAction != NULL) {
-		BIBLE_DESCRIPTOR_ENUM nBDE = pAction->data().value<BIBLE_DESCRIPTOR_ENUM>();
+		QString strUUID = pAction->data().toString();
 
-		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(bibleDescriptor(nBDE).m_strUUID);
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+#ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
+		if (pBibleDatabase.data() == NULL) {
+			if (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false, this)) {
+				pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+				assert(pBibleDatabase.data() != NULL);
+			} else {
+				return;
+			}
+		}
+#else
 		assert(pBibleDatabase.data() != NULL);
+#endif
 
 		g_pMyApplication->createKJVCanOpener(pBibleDatabase);
 	} else {

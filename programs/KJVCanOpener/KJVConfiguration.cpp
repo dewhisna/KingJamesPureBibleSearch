@@ -1089,7 +1089,8 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	for (int ndx = TBibleDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
 		QString strUUID = TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID();
 		if ((m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
-			(TBibleDatabaseList::instance()->mainBibleDatabase() != TBibleDatabaseList::instance()->atUUID(strUUID))) {		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
+			(TBibleDatabaseList::instance()->mainBibleDatabase() != TBibleDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
+			(g_pMyApplication.data() != NULL) && (g_pMyApplication->bibleDatabaseCanOpenerRefCount(strUUID) == 0)) {
 			TBibleDatabaseList::instance()->removeBibleDatabase(strUUID);
 			continue;
 		}

@@ -129,6 +129,9 @@ macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Fon
 #DEFINES += RANDOM_PASSAGE_VERSE_WEIGHT			# Weigh passages evenly by verses (books with more verses picked more often)
 DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
 
+# Enable to only show loaded Bible Databases in New Search Window action:
+#DEFINES += ENABLE_ONLY_LOADED_BIBLE_DATABASES
+
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
 

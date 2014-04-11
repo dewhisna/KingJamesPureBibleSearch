@@ -113,9 +113,9 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 			} else if (bdeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
 				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database"));
 			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
-				return QString("[%1]").arg(tr("Loaded, Reload on startup"));
+				return QString("[%1]").arg(tr("Loaded, Auto-Reloaded at startup"));
 			} else if (m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) {
-				return QString("[%1]").arg(tr("Loaded, Do Not Reload on startup"));
+				return QString("[%1]").arg(tr("Loaded, Will Not Auto-Reload at startup"));
 			} else {
 				return QString("[%1]").arg(tr("Not Loaded"));
 			}
