@@ -366,9 +366,11 @@ void CKJVBrowser::setupChapterScrollbar()
 
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
+	unsigned int nWordCount = ((tag.relIndex().word() != 0) ? tag.count() : 0);
+
 	// Note: Special case !tag->relIndex().isSet() means reload current index
 	// Note: Denormalize/Normalize allows us to automagically skip empty chapters (such as in the Additions to Esther in the Apocrypha)
-	TPhraseTag tagActual = (tag.relIndex().isSet() ? TPhraseTag(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex())), tag.count())
+	TPhraseTag tagActual = (tag.relIndex().isSet() ? TPhraseTag(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex())), nWordCount)
 												   : TPhraseTag(m_ndxCurrent, tag.count()));
 
 	begin_update();
