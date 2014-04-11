@@ -205,7 +205,7 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 	return (!strWordAt.isEmpty());
 }
 
-bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
+bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
 	assert(g_pUserNotesDatabase.data() != NULL);
 
@@ -231,12 +231,13 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 			appendRawText(userNote.htmlText());
 		} else {
 			if (bAddExpandAnchor) {
+				if (bAddLeadInSpace) appendLiteralText(" ");
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[+]"));
 				endAnchor();
 			}
 		}
-		return (userNote.isVisible());
+		return (bForceVisible | userNote.isVisible());
 	} else {
 		return false;
 	}
@@ -259,7 +260,7 @@ bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatab
 	}
 }
 
-bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
@@ -268,6 +269,7 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
 		bool bNext = false;
+		if (bAddLeadInSpace) appendLiteralText(" ");
 		appendLiteralText("[");
 		for (TRelativeIndexSet::const_iterator itrRefs = refs.begin(); itrRefs != refs.end(); ++itrRefs) {
 			if (bNext) appendLiteralText(", ");
@@ -283,10 +285,11 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 	}
 }
 
-void CScriptureTextHtmlBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+void CScriptureTextHtmlBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
 
+	if (bAddLeadInSpace) appendLiteralText(" ");
 	appendLiteralText("[");
 	if (bAddAnchors) beginAnchor(QString("R%1").arg(relNdx.asAnchor()));
 	appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(relNdx));
@@ -330,7 +333,7 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 	return (!strWordAt.isEmpty());
 }
 
-bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible)
+bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
 	assert(g_pUserNotesDatabase.data() != NULL);
 
@@ -356,12 +359,13 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 			appendRawText(userNote.plainText());
 		} else {
 			if (bAddExpandAnchor) {
+				if (bAddLeadInSpace) appendLiteralText(" ");
 				beginAnchor(QString("N%1").arg(relNdx.asAnchor()));
 				appendLiteralText(QString::fromLatin1("[+]"));
 				endAnchor();
 			}
 		}
-		return (userNote.isVisible());
+		return (bForceVisible | userNote.isVisible());
 	} else {
 		return false;
 	}
@@ -384,7 +388,7 @@ bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleData
 	}
 }
 
-bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
@@ -393,6 +397,7 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
 		bool bNext = false;
+		if (bAddLeadInSpace) appendLiteralText(" ");
 		appendLiteralText("[");
 		for (TRelativeIndexSet::const_iterator itrRefs = refs.begin(); itrRefs != refs.end(); ++itrRefs) {
 			if (bNext) appendLiteralText(", ");
@@ -409,10 +414,11 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 }
 
 
-void CScripturePlainTextBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
+void CScripturePlainTextBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
 
+	if (bAddLeadInSpace) appendLiteralText(" ");
 	appendLiteralText("[");
 	if (bAddAnchors) beginAnchor(QString("R%1").arg(relNdx.asAnchor()));
 	appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(relNdx));

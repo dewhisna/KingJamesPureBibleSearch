@@ -335,7 +335,7 @@ void CKJVNoteEditDlg::en_clickedInsertReferenceLink()
 		m_ndxLastRefLink = ndxTarget;
 
 		CScriptureTextHtmlBuilder refHTML;
-		refHTML.addRefLinkFor(m_pBibleDatabase.data(), ndxTarget, true);
+		refHTML.addRefLinkFor(m_pBibleDatabase.data(), ndxTarget, true, true);
 
 		m_pRichTextEdit->insertHtml(refHTML.getResult());
 		m_bIsDirty = true;

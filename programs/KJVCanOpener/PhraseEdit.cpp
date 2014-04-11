@@ -1273,19 +1273,21 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.beginParagraph();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
-		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relPrev.verse()));
+		scriptureHTML.appendLiteralText(QString("%1 ").arg(relPrev.verse()));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
-			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relPrev, !(flagsTRO & TRO_NoAnchors));
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relPrev, !(flagsTRO & TRO_NoAnchors), true);
 		}
-		scriptureHTML.endParagraph();
-
+		// And Notes:
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
+			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
+
+		scriptureHTML.endParagraph();
 
 		// If we have a footnote or user note for this book and this is the end of the last chapter,
 		//		print it too:
@@ -1400,7 +1402,6 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			continue;
 		}
 		if ((!bStartedText) && (pVerse->m_nNumWrd == 0)) continue;			// Don't print verses that are empty if we haven't started printing anything for the chapter yet
-		bStartedText = true;
 
 		if ((pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) &&
 			(CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) {
@@ -1422,21 +1423,24 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 
 		scriptureHTML.beginBold();
-		scriptureHTML.appendLiteralText(QString(" %1 ").arg(ndxVrs+1));
+		if ((bStartedText) && (CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) scriptureHTML.appendLiteralText(" ");
+		scriptureHTML.appendLiteralText(QString("%1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 
+		bStartedText = true;
+
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
-			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors));
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors), true);
 		}
 
 		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
 		scriptureHTML.startBuffered();
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible)))) {
+			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true))) {
 			if (bParagraph) {
 				scriptureHTML.stopBuffered();	// Switch to direct output to end the paragraph ahead of the note
 				scriptureHTML.endParagraph();
@@ -1561,7 +1565,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.beginParagraph();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
-		scriptureHTML.appendLiteralText(QString(" %1 ").arg(relNext.verse()));
+		scriptureHTML.appendLiteralText(QString("%1 ").arg(relNext.verse()));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
@@ -1569,13 +1573,13 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
-			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relNext, !(flagsTRO & TRO_NoAnchors));
+			scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), relNext, !(flagsTRO & TRO_NoAnchors), true);
 		}
+		// And Notes:
+		if (flagsTRO & TRO_UserNotes)
+			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
 		scriptureHTML.endParagraph();
-
-		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 	}
 
 	scriptureHTML.appendRawText("</body></html>");
@@ -1692,7 +1696,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	// Add CrossRefs:
 	if (flagsTRO & TRO_CrossRefs) {
-		scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors));
+		scriptureHTML.addCrossRefsFor(m_pBibleDatabase.data(), ndxVerse, !(flagsTRO & TRO_NoAnchors), true);
 	}
 
 	scriptureHTML.endParagraph();
