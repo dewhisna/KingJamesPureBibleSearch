@@ -341,6 +341,7 @@ FORMS += \
 	DictionaryWidget.ui \
 	KJVBibleDatabaseConfig.ui \
 	KJVGeneralSettingsConfig.ui \
+	KJVLocaleConfig.ui \
 	KJVTextFormatConfig.ui \
 	RenameHighlighterDlg.ui
 

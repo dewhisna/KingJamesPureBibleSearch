@@ -2343,6 +2343,46 @@ bool CKJVGeneralSettingsConfig::isDirty() const
 // ============================================================================
 // ============================================================================
 
+CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		m_bLoadingData(false)
+{
+	ui.setupUi(this);
+
+	// TODO : Do Connections here
+
+	loadSettings();
+}
+
+CKJVLocaleConfig::~CKJVLocaleConfig()
+{
+
+}
+
+void CKJVLocaleConfig::loadSettings()
+{
+	m_bLoadingData = true;
+
+	// TODO : Load
+
+	m_bLoadingData = false;
+	m_bIsDirty = false;
+}
+
+void CKJVLocaleConfig::saveSettings()
+{
+	// TODO : Save
+
+	// We've already saved settings in the change notification slots.  Just reset our
+	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
+
+	m_bIsDirty = false;
+}
+
+// ============================================================================
+// ============================================================================
+
 CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(NULL),
@@ -2351,7 +2391,8 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pUserNotesDatabaseConfig(NULL),
 #endif
-		m_pBibleDatabaseConfig(NULL)
+		m_pBibleDatabaseConfig(NULL),
+		m_pLocaleConfig(NULL)
 {
 	assert(pBibleDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
@@ -2363,6 +2404,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
+	m_pLocaleConfig = new CKJVLocaleConfig(this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
 	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));
@@ -2371,6 +2413,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
 #endif
 	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
+	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings"));
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
 
@@ -2392,6 +2435,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_BIBLE_DATABASE:
 			pSelect = m_pBibleDatabaseConfig;
 			break;
+		case CPSE_LOCALE:
+			pSelect = m_pLocaleConfig;
+			break;
 		case CPSE_DEFAULT:
 			break;
 		default:
@@ -2408,6 +2454,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 #endif
 	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pLocaleConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
 CKJVConfiguration::~CKJVConfiguration()
@@ -2424,6 +2471,7 @@ void CKJVConfiguration::loadSettings()
 	m_pUserNotesDatabaseConfig->loadSettings();
 #endif
 	m_pBibleDatabaseConfig->loadSettings();
+	m_pLocaleConfig->loadSettings();
 }
 
 void CKJVConfiguration::saveSettings()
@@ -2435,6 +2483,7 @@ void CKJVConfiguration::saveSettings()
 	m_pUserNotesDatabaseConfig->saveSettings();
 #endif
 	m_pBibleDatabaseConfig->saveSettings();
+	m_pLocaleConfig->saveSettings();
 }
 
 bool CKJVConfiguration::isDirty() const
@@ -2445,7 +2494,8 @@ bool CKJVConfiguration::isDirty() const
 			m_pUserNotesDatabaseConfig->isDirty() ||
 #endif
 			m_pTextFormatConfig->isDirty() ||
-			m_pBibleDatabaseConfig->isDirty());
+			m_pBibleDatabaseConfig->isDirty() ||
+			m_pLocaleConfig->isDirty());
 }
 
 // ============================================================================

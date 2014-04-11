@@ -454,13 +454,45 @@ private:
 
 // ============================================================================
 
+#include "ui_KJVLocaleConfig.h"
+
+class CKJVLocaleConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVLocaleConfig(QWidget *parent = 0);
+	~CKJVLocaleConfig();
+
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged(bool bNeedRestart);
+
+// Data Private:
+private:
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+	bool m_bLoadingData;
+
+	Ui::CKJVLocaleConfig ui;
+};
+
+// ============================================================================
+
 enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_DEFAULT = -1,
 	CPSE_GENERAL_SETTINGS = 0,
 	CPSE_COPY_OPTIONS = 1,
 	CPSE_TEXT_FORMAT = 2,
 	CPSE_USER_NOTES_DATABASE = 3,
-	CPSE_BIBLE_DATABASE = 4
+	CPSE_BIBLE_DATABASE = 4,
+	CPSE_LOCALE = 5
 };
 
 class CKJVConfiguration : public QwwConfigWidget
@@ -486,6 +518,7 @@ private:
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 #endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
+	CKJVLocaleConfig *m_pLocaleConfig;
 };
 
 // ============================================================================

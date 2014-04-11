@@ -94,5 +94,12 @@
 		<file>res/copy_128.png</file>
 		<file>res/Games-icon-dice-128.png</file>
 		<file>res/random_128.png</file>
+		<!--
+			language_256.png:
+			http://www.limpa.net/
+			Björn Lindberg
+			Creative Commons : Attribution, No Derivative, Free for Non-Commercial
+		-->
+		<file>res/language_256.png</file>
 	</qresource>
 </RCC>
