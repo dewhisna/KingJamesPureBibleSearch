@@ -196,6 +196,14 @@ RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+
+TRANSLATIONS += \
+	kjpbs_en.ts \
+	kjpbs_fr.ts \
+	kjpbs_es.ts \
+	kjpbs_de.ts
+
+
 SOURCES += \
 	main.cpp \
 	myApplication.cpp \
