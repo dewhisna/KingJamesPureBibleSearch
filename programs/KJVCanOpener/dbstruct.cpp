@@ -71,7 +71,7 @@ bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool 
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
 	if ((!rdbMain.haveBibleDatabaseFiles(bblDesc)) || (!rdbMain.ReadBibleDatabase(bblDesc, (bAutoSetAsMain && !TBibleDatabaseList::instance()->haveMainBibleDatabase())))) {
 		iAmBusy.earlyRestore();
-		displayWarning(pParent, tr("Load Bible Database"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
+		displayWarning(pParent, tr("Load Bible Database", "Errors"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
 		return false;
 	}
 	return true;
@@ -684,7 +684,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += PassageReferenceText(nRelIndex);
 			strTemp += " - ";
 			strTemp += PassageReferenceText(CRelIndex(DenormalizeIndex(NormalizeIndex(nRelIndex) + nSelectionSize - 1)));
-			strTemp += " " + QObject::tr("(%1 Words)").arg(nSelectionSize);
+			strTemp += " " + QObject::tr("(%1 Words)", "Statistics").arg(nSelectionSize);
 			strTemp += "\n\n";
 		} else {
 			strTemp += PassageReferenceText(nRelIndex);
@@ -695,12 +695,12 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 	if ((nRIMask & RIMASK_BOOK) &&
 		((Bk.ofBible().first != 0) ||
 		 (Bk.ofTestament().first != 0))) {
-		strTemp += QObject::tr("Book:") + "\n";
+		strTemp += QObject::tr("Book:", "Statistics") + "\n";
 		if (Bk.ofBible().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Bk.ofBible().first).arg(Bk.ofBible().second) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Bk.ofBible().first).arg(Bk.ofBible().second) + "\n";
 		}
 		if (Bk.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 	}
 
@@ -709,15 +709,15 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		((Chp.ofBible().first != 0) ||
 		 (Chp.ofTestament().first != 0) ||
 		 (Chp.ofBook().first != 0))) {
-		strTemp += QObject::tr("Chapter:") + "\n";
+		strTemp += QObject::tr("Chapter:", "Statistics") + "\n";
 		if (Chp.ofBible().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Chp.ofBible().first).arg(Chp.ofBible().second) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Chp.ofBible().first).arg(Chp.ofBible().second) + "\n";
 		}
 		if (Chp.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Chp.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 	}
 
@@ -727,18 +727,18 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		 (Vrs.ofTestament().first != 0) ||
 		 (Vrs.ofBook().first != 0) ||
 		 (Vrs.ofChapter().first != 0))) {
-		strTemp += QObject::tr("Verse:") + "\n";
+		strTemp += QObject::tr("Verse:", "Statistics") + "\n";
 		if (Vrs.ofBible().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second) + "\n";
 		}
 		if (Vrs.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Vrs.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 		if (Vrs.ofChapter().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4", "Statistics").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
 		}
 	}
 
@@ -749,21 +749,21 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		 (Wrd.ofBook().first != 0) ||
 		 (Wrd.ofChapter().first != 0) ||
 		 (Wrd.ofVerse().first != 0))) {
-		strTemp += QObject::tr("Word/Phrase:") + "\n";
+		strTemp += QObject::tr("Word/Phrase:", "Statistics") + "\n";
 		if (Wrd.ofBible().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of Bible").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second) + "\n";
 		}
 		if (Wrd.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Wrd.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex)) + "\n";
 		}
 		if (Wrd.ofChapter().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4", "Statistics").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
 		}
 		if (Wrd.ofVerse().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4:%5").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4:%5", "Statistics").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()) + "\n";
 		}
 	}
 
@@ -772,7 +772,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 {
-	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>");
+	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>", "Statistics");
 	if (nRelIndex.chapter() == 0) {
 		return QString("%1").arg(bookName(nRelIndex));
 	}
@@ -787,7 +787,7 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 
 QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex) const
 {
-	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>");
+	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>", "Statistics");
 	if (nRelIndex.chapter() == 0) {
 		return QString("%1").arg(bookNameAbbr(nRelIndex));
 	}

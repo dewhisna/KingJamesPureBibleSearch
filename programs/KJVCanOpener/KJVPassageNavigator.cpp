@@ -140,7 +140,7 @@ void CKJVPassageNavigator::initialize()
 	ui.comboTestament->clear();
 	for (unsigned int ndx=0; ndx<=m_pBibleDatabase->bibleEntry().m_nNumTst; ++ndx){
 		if (ndx == 0) {
-			ui.comboTestament->addItem(tr("Entire Bible"), ndx);
+			ui.comboTestament->addItem(tr("Entire Bible", "Scope"), ndx);
 		} else {
 			ui.comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
 			nBooks += m_pBibleDatabase->testamentEntry(ndx)->m_nNumBk;
@@ -157,10 +157,10 @@ void CKJVPassageNavigator::initialize()
 
 	bool bAllTypes = (m_flagsRefTypes == NRTO_Default);
 	ui.comboRefType->clear();
-	if ((m_flagsRefTypes & NRTO_Word) || (bAllTypes)) ui.comboRefType->addItem(tr("Word"), static_cast<int>(NRTE_WORD));
-	if ((m_flagsRefTypes & NRTO_Verse) || (bAllTypes)) ui.comboRefType->addItem(tr("Verse"), static_cast<int>(NRTE_VERSE));
-	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui.comboRefType->addItem(tr("Chapter"), static_cast<int>(NRTE_CHAPTER));
-	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui.comboRefType->addItem(tr("Book"), static_cast<int>(NRTE_BOOK));
+	if ((m_flagsRefTypes & NRTO_Word) || (bAllTypes)) ui.comboRefType->addItem(tr("Word", "Scope"), static_cast<int>(NRTE_WORD));
+	if ((m_flagsRefTypes & NRTO_Verse) || (bAllTypes)) ui.comboRefType->addItem(tr("Verse", "Scope"), static_cast<int>(NRTE_VERSE));
+	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui.comboRefType->addItem(tr("Chapter", "Scope"), static_cast<int>(NRTE_CHAPTER));
+	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui.comboRefType->addItem(tr("Book", "Scope"), static_cast<int>(NRTE_BOOK));
 	int nTypeIndex = ui.comboRefType->findData(static_cast<int>(m_nRefType));
 	assert(nTypeIndex != -1);
 	ui.comboRefType->setCurrentIndex(nTypeIndex);
@@ -556,10 +556,10 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui.editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.relIndex()));
 	ui.chkboxReverse->setChecked(bReverse);
 
-	ui.lblBook->setText(tr("&Books:"));
-	ui.lblChapter->setText(tr("C&hapters:"));
-	ui.lblVerse->setText(tr("&Verses:"));
-	ui.lblWord->setText(tr("&Words:"));
+	ui.lblBook->setText(tr("&Books:", "CKJVPassageNavigator"));
+	ui.lblChapter->setText(tr("C&hapters:", "CKJVPassageNavigator"));
+	ui.lblVerse->setText(tr("&Verses:", "CKJVPassageNavigator"));
+	ui.lblWord->setText(tr("&Words:", "CKJVPassageNavigator"));
 
 	ui.lblBookDirect->setVisible(false);
 	ui.comboBookDirect->setVisible(false);
@@ -602,10 +602,10 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui.lblTestament->show();
 	ui.comboTestament->show();
 
-	ui.lblBook->setText(tr("&Book:"));
-	ui.lblChapter->setText(tr("C&hapter:"));
-	ui.lblVerse->setText(tr("&Verse:"));
-	ui.lblWord->setText(tr("&Word:"));
+	ui.lblBook->setText(tr("&Book:", "CKJVPassageNavigator"));
+	ui.lblChapter->setText(tr("C&hapter:", "CKJVPassageNavigator"));
+	ui.lblVerse->setText(tr("&Verse:", "CKJVPassageNavigator"));
+	ui.lblWord->setText(tr("&Word:", "CKJVPassageNavigator"));
 
 	ui.spinBook->setPrefix("");
 	ui.spinChapter->setPrefix("");

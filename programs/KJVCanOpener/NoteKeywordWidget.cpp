@@ -37,11 +37,11 @@ CNoteKeywordModel::CNoteKeywordModel(QObject *pParent)
 		m_pActionClearKeywordSelection(NULL)
 
 {
-	m_pActionSelectAllKeywords = m_keywordContextMenu.addAction(tr("Select &All"), this, SLOT(en_selectAllKeywords()));
-	m_pActionSelectAllKeywords->setStatusTip(tr("Select all keywords"));
+	m_pActionSelectAllKeywords = m_keywordContextMenu.addAction(tr("Select &All", "MainMenu"), this, SLOT(en_selectAllKeywords()));
+	m_pActionSelectAllKeywords->setStatusTip(tr("Select all keywords", "MainMenu"));
 	m_pActionSelectAllKeywords->setEnabled(false);
-	m_pActionClearKeywordSelection = m_keywordContextMenu.addAction(tr("&Clear Selection"), this, SLOT(en_clearKeywordSelection()));
-	m_pActionClearKeywordSelection->setStatusTip(tr("Clear keyword selection"));
+	m_pActionClearKeywordSelection = m_keywordContextMenu.addAction(tr("&Clear Selection", "MainMenu"), this, SLOT(en_clearKeywordSelection()));
+	m_pActionClearKeywordSelection->setStatusTip(tr("Clear keyword selection", "MainMenu"));
 	m_pActionClearKeywordSelection->setEnabled(false);
 }
 
@@ -64,7 +64,7 @@ QVariant CNoteKeywordModel::data(const QModelIndex &index, int role) const
 	if (index.row() < 0 || index.row() >= m_lstKeywordData.size()) return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		if ((role == Qt::DisplayRole) && (m_lstKeywordData.at(index.row()).m_strKeyword.isEmpty())) return tr("<Notes without Keywords>");
+		if ((role == Qt::DisplayRole) && (m_lstKeywordData.at(index.row()).m_strKeyword.isEmpty())) return tr("<Notes without Keywords>", "MainMenu");
 		return m_lstKeywordData.at(index.row()).m_strKeyword;
 	}
 
@@ -371,8 +371,8 @@ void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 			QLineEdit *pLineEdit = new QLineEdit(ui.comboKeywords);
 			ui.comboKeywords->setLineEdit(pLineEdit);
 			ui.comboKeywords->setEditText(QString());
-			ui.comboKeywords->setToolTip(tr("Enter new keywords here"));
-			ui.comboKeywords->setStatusTip(tr("Enter new keywords here for this note."));
+			ui.comboKeywords->setToolTip(tr("Enter new keywords here", "MainMenu"));
+			ui.comboKeywords->setStatusTip(tr("Enter new keywords here for this note.", "MainMenu"));
 			ui.comboKeywords->setContextMenuPolicy(Qt::DefaultContextMenu);
 			break;
 		}
@@ -385,9 +385,9 @@ void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 			pLineEdit->setFrame(false);
 			pLineEdit->setAttribute(Qt::WA_TransparentForMouseEvents);
 			ui.comboKeywords->setLineEdit(pLineEdit);
-			ui.comboKeywords->setEditText(tr("<Select Keywords to Filter>"));
-			ui.comboKeywords->setToolTip(tr("Select Keywords to Filter"));
-			ui.comboKeywords->setStatusTip(tr("Select the keywords for notes to display"));
+			ui.comboKeywords->setEditText(tr("<Select Keywords to Filter>", "MainMenu"));
+			ui.comboKeywords->setToolTip(tr("Select Keywords to Filter", "MainMenu"));
+			ui.comboKeywords->setStatusTip(tr("Select the keywords for notes to display", "MainMenu"));
 			ui.comboKeywords->setContextMenuPolicy(Qt::CustomContextMenu);
 			break;
 		}
@@ -493,7 +493,7 @@ void CNoteKeywordWidget::setKeywordListPreview()
 	}
 	QString strKeywordList;
 	if ((m_nMode == KWME_SELECTOR) && (bAllSelected || bNoneSelected)) {
-		strKeywordList += tr("<All Keywords>");
+		strKeywordList += tr("<All Keywords>", "MainMenu");
 	} else {
 		strKeywordList += lstKeywords.join(", ");
 	}
@@ -501,7 +501,7 @@ void CNoteKeywordWidget::setKeywordListPreview()
 	ui.lblKeywordsPreview->setText(strKeywordList);
 	// Have to do this here because model reset clears our lineEdit:
 	if (m_nMode == KWME_SELECTOR)
-		ui.comboKeywords->lineEdit()->setText(tr("<Select Keywords to Filter>"));
+		ui.comboKeywords->lineEdit()->setText(tr("<Select Keywords to Filter>", "MainMenu"));
 }
 
 void CNoteKeywordWidget::en_keywordCurrentIndexChanged(const QString &text)

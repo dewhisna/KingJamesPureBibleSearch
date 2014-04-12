@@ -109,15 +109,15 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 			(role == Qt::EditRole)) {
 			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
 			if (bblDesc.m_bAutoLoad) {
-				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded"));
+				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded"), "BibleDBStatus");
 			} else if (bdeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
-				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database"));
+				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "BibleDBStatus"));
 			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
-				return QString("[%1]").arg(tr("Loaded, Auto-Reloaded at startup"));
+				return QString("[%1]").arg(tr("Loaded, Auto-Reloaded at startup", "BibleDBStatus"));
 			} else if (m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) {
-				return QString("[%1]").arg(tr("Loaded, Will Not Auto-Reload at startup"));
+				return QString("[%1]").arg(tr("Loaded, Will Not Auto-Reload at startup", "BibleDBStatus"));
 			} else {
-				return QString("[%1]").arg(tr("Not Loaded"));
+				return QString("[%1]").arg(tr("Not Loaded", "BibleDBStatus"));
 			}
 		}
 	}

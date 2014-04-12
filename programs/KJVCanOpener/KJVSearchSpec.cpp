@@ -118,7 +118,7 @@ QString CKJVSearchSpec::searchWindowDescription() const
 	}
 
 	if (strDescription.isEmpty()) {
-		strDescription = tr("<Empty Search Window>");
+		strDescription = tr("<Empty Search Window>", "MainMenu");
 	} else {
 		strDescription = QString("\"%1\"").arg(strDescription);
 	}
@@ -397,15 +397,15 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	QString strSearchWithinDescription = ui.widgetSearchCriteria->searchCriteria().searchWithinDescription(m_pBibleDatabase);
 	if (!strSearchWithinDescription.isEmpty()) {
 		if (nNumPhrases != 1) {
-			strSummary += tr("Search of %n Phrase(s) %1 within %2\n", NULL, nNumPhrases).arg(strScope).arg(strSearchWithinDescription);
+			strSummary += tr("Search of %n Phrase(s) %1 within %2", "Statistics", nNumPhrases).arg(strScope).arg(strSearchWithinDescription) + QString("\n");
 		} else {
-			strSummary += tr("Search within %1 of:").arg(strSearchWithinDescription) + " ";
+			strSummary += tr("Search within %1 of:", "Statistics").arg(strSearchWithinDescription) + " ";
 		}
 	} else {
 		if (nNumPhrases != 1) {
-			strSummary += tr("Search of %n Phrase(s) %1\n", NULL, nNumPhrases).arg(strScope);
+			strSummary += tr("Search of %n Phrase(s) %1", "Statistics", nNumPhrases).arg(strScope) + QString("\n");
 		} else {
-			strSummary += tr("Search of:") + " ";
+			strSummary += tr("Search of:", "Statistics") + " ";
 		}
 	}
 	if (nNumPhrases > 1) strSummary += "\n";
@@ -416,24 +416,24 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 				if (!bExclude) {
 					if (nScope != CSearchCriteria::SSME_UNSCOPED) {
 						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-										tr("(Found %n Time(s), %1 in Scope)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
+										tr("(Found %n Time(s), %1 in Scope)", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
 											.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 					} else {
 						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-										tr("(Found %n Time(s))", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
+										tr("(Found %n Time(s))", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
 						assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 					}
 				} else {
 					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
-									tr("(Found %n Time(s), %1 in Scope and not removed by exclusions)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
+									tr("(Found %n Time(s), %1 in Scope and not removed by exclusions)", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin)
 										.arg(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) + "\n";
 				}
 			} else {
 				strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
 								"(" +
-								tr("Found %n Time(s)", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) +
+								tr("Found %n Time(s)", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) +
 								", " +
-								tr("Removed %n matching exclusion(s) from Scope", NULL, aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) +
+								tr("Removed %n matching exclusion(s) from Scope", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches) +
 								")\n";
 			}
 		} else {
@@ -443,13 +443,13 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	if (bCaseSensitive || bAccentSensitive || bExclude) {
 		if (nNumPhrases > 1) strSummary += "\n";
 		if (bCaseSensitive) {
-			strSummary += "    " + tr("(%1 = Case Sensitive)").arg(CPhraseEntry::encCharCaseSensitive()) + "\n";
+			strSummary += "    " + tr("(%1 = Case Sensitive)", "Statistics").arg(CPhraseEntry::encCharCaseSensitive()) + "\n";
 		}
 		if (bAccentSensitive) {
-			strSummary += "    " + tr("(%1 = Accent Sensitive)").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
+			strSummary += "    " + tr("(%1 = Accent Sensitive)", "Statistics").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
 		}
 		if (bExclude) {
-			strSummary += "    " + tr("(%1 = Excluding Results From)").arg(CPhraseEntry::encCharExclude()) + "\n";
+			strSummary += "    " + tr("(%1 = Excluding Results From)", "Statistics").arg(CPhraseEntry::encCharExclude()) + "\n";
 		}
 
 	}

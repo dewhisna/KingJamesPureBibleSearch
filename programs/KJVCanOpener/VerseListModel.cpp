@@ -83,7 +83,7 @@ CVerseListModel::TVerseListModelPrivate::TVerseListModelPrivate(CBibleDatabasePt
 CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
 	:	QAbstractItemModel(pParent),
 		m_private(pBibleDatabase, pUserNotesDatabase),
-		m_undefinedResults(&m_private, tr("Undefined"), VLMRTE_UNDEFINED),
+		m_undefinedResults(&m_private, tr("Undefined", "Scope"), VLMRTE_UNDEFINED),
 		m_searchResults(&m_private, false),
 		m_searchResultsExcluded(&m_private, true),
 		m_userNotesResults(&m_private),
@@ -697,13 +697,13 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				if (nResultsIndexes.first != nResultsIndexes.second) {
 					if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
 						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-									tr("Search Results %1-%2 of %3 phrase occurrences")
+									tr("Search Results %1-%2 of %3 phrase occurrences", "Statistics")
 												.arg(nResultsIndexes.first)
 												.arg(nResultsIndexes.second)
 												.arg(zSearchResults.GetResultsCount()) + "\n";
 					} else {
 						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-									tr("Excluded Search Results %1-%2 of %3 phrase occurrences")
+									tr("Excluded Search Results %1-%2 of %3 phrase occurrences", "Statistics")
 												.arg(nResultsIndexes.first)
 												.arg(nResultsIndexes.second)
 												.arg(zSearchResults.GetResultsCount()) + "\n";
@@ -712,36 +712,36 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					assert(nResultsIndexes.first != 0);		// This will assert if the row was beyond those defined in our list
 					if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
 						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-									tr("Search Result %1 of %2 phrase occurrences")
+									tr("Search Result %1 of %2 phrase occurrences", "Statistics")
 												.arg(nResultsIndexes.first)
 												.arg(zSearchResults.GetResultsCount()) + "\n";
 					} else {
 						strToolTip += QString("%1").arg(bHeading ? "    " : "") +
-									tr("Excluded Search Result %1 of %2 phrase occurrences")
+									tr("Excluded Search Result %1 of %2 phrase occurrences", "Statistics")
 												.arg(nResultsIndexes.first)
 												.arg(zSearchResults.GetResultsCount()) + "\n";
 					}
 				}
 				QPair<int, int> nVerseResult = zSearchResults.GetVerseIndexAndCount(itrVerse);
-				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope", "Statistics").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
 				QPair<int, int> nChapterResult = zSearchResults.GetChapterIndexAndCount(itrVerse);
-				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope", "Statistics").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 				QPair<int, int> nBookResult = zSearchResults.GetBookIndexAndCount(itrVerse);
-				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope").arg(nBookResult.first).arg(nBookResult.second) + "\n";
+				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope", "Statistics").arg(nBookResult.first).arg(nBookResult.second) + "\n";
 				QString strSearchScopeDescription = zSearchResults.m_SearchCriteria.searchScopeDescription();
 				if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
 					if (!strSearchScopeDescription.isEmpty()) {
 						QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 						if (!strSearchWithinDescription.isEmpty()) {
-							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
+							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2", "Statistics").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
 						} else {
-							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1").arg(strSearchScopeDescription) + "\n";
+							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: anywhere within %1", "Statistics").arg(strSearchScopeDescription) + "\n";
 						}
 					}
 				} else {
 					QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 					if (!strSearchWithinDescription.isEmpty()) {
-						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Selected Search Text is: %1").arg(strSearchWithinDescription) + "\n";
+						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Selected Search Text is: %1", "Statistics").arg(strSearchWithinDescription) + "\n";
 					}
 				}
 				strToolTip += itrVerse->getToolTip(zSearchResults.m_SearchCriteria, zSearchResults.m_lstParsedPhrases);
@@ -1113,11 +1113,11 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	assert(pCanOpener != NULL);
 
-	int nResult = QMessageBox::information(pCanOpener, tr("Moving Highlighter Tags"),
+	int nResult = QMessageBox::information(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
 										   tr("You are about to move the selected verse highlighting to the \"%1\" highlighter.  This will "
 											  "merge those passages into this target highlighter, changing their color to match the target "
 											  "highlighter.  This operation cannot be undone!\n\n"
-											  "Are you sure you wish to move the selected verse highlighting to \"%1\"?").arg(strTargetHighlighter),
+											  "Are you sure you wish to move the selected verse highlighting to \"%1\"?", "Errors").arg(strTargetHighlighter),
 									QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 	if (nResult != QMessageBox::Yes) return false;
 

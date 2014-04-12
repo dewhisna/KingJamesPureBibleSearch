@@ -47,25 +47,25 @@ QString CSearchCriteria::searchScopeDescription() const
 
 	switch (m_nSearchScopeMode) {
 		case (SSME_UNSCOPED):
-			strScope = QObject::tr("anywhere");
+			strScope = QObject::tr("anywhere", "Scope");
 			break;
 		case (SSME_WHOLE_BIBLE):
-			strScope = QObject::tr("together");
+			strScope = QObject::tr("together", "Scope");
 			break;
 		case (SSME_TESTAMENT):
-			strScope = QObject::tr("in the same Testament");
+			strScope = QObject::tr("in the same Testament", "Scope");
 			break;
 		case (SSME_CATEGORY):
-			strScope = QObject::tr("in the same Category");
+			strScope = QObject::tr("in the same Category", "Scope");
 			break;
 		case (SSME_BOOK):
-			strScope = QObject::tr("in the same Book");
+			strScope = QObject::tr("in the same Book", "Scope");
 			break;
 		case (SSME_CHAPTER):
-			strScope = QObject::tr("in the same Chapter");
+			strScope = QObject::tr("in the same Chapter", "Scope");
 			break;
 		case (SSME_VERSE):
-			strScope = QObject::tr("in the same Verse");
+			strScope = QObject::tr("in the same Verse", "Scope");
 			break;
 		default:
 			break;
@@ -223,7 +223,7 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_WHOLE_BIBLE:
-				return tr("Entire Bible");
+				return tr("Entire Bible", "Scope");
 			case CSearchCriteria::SSME_TESTAMENT:
 				assert(m_pBibleDatabase->testamentEntry(nItem) != NULL);
 				return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
@@ -356,18 +356,18 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 {
 	ui.setupUi(this);
 
-	ui.buttonAdd->setToolTip(tr("Add Phrase to Search Criteria"));
-	ui.buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria"));
+	ui.buttonAdd->setToolTip(tr("Add Phrase to Search Criteria", "MainMenu"));
+	ui.buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria", "MainMenu"));
 
-	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text (Unscoped)"), CSearchCriteria::SSME_UNSCOPED);
-	ui.comboSearchScope->addItem(tr("Together in Selected Search Text"), CSearchCriteria::SSME_WHOLE_BIBLE);
-	ui.comboSearchScope->addItem(tr("Same Testament"), CSearchCriteria::SSME_TESTAMENT);
-	ui.comboSearchScope->addItem(tr("Same Category"), CSearchCriteria::SSME_CATEGORY);
-	ui.comboSearchScope->addItem(tr("Same Book"), CSearchCriteria::SSME_BOOK);
-	ui.comboSearchScope->addItem(tr("Same Chapter"), CSearchCriteria::SSME_CHAPTER);
-	ui.comboSearchScope->addItem(tr("Same Verse"), CSearchCriteria::SSME_VERSE);
-	ui.comboSearchScope->setToolTip(tr("Select Search Scope"));
-	ui.comboSearchScope->setStatusTip(tr("Set Search Scope Mode for phrase searches"));
+	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text (Unscoped)", "ScopeMenu"), CSearchCriteria::SSME_UNSCOPED);
+	ui.comboSearchScope->addItem(tr("Together in Selected Search Text", "ScopeMenu"), CSearchCriteria::SSME_WHOLE_BIBLE);
+	ui.comboSearchScope->addItem(tr("Same Testament", "ScopeMenu"), CSearchCriteria::SSME_TESTAMENT);
+	ui.comboSearchScope->addItem(tr("Same Category", "ScopeMenu"), CSearchCriteria::SSME_CATEGORY);
+	ui.comboSearchScope->addItem(tr("Same Book", "ScopeMenu"), CSearchCriteria::SSME_BOOK);
+	ui.comboSearchScope->addItem(tr("Same Chapter", "ScopeMenu"), CSearchCriteria::SSME_CHAPTER);
+	ui.comboSearchScope->addItem(tr("Same Verse", "ScopeMenu"), CSearchCriteria::SSME_VERSE);
+	ui.comboSearchScope->setToolTip(tr("Select Search Scope", "MainMenu"));
+	ui.comboSearchScope->setStatusTip(tr("Set Search Scope Mode for phrase searches", "MainMenu"));
 
 	// Set Initial Mode:
 	ui.comboSearchScope->setCurrentIndex(ui.comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));

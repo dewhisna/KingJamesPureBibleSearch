@@ -103,14 +103,14 @@ CUserNotesDatabase::TUserNotesDatabaseData::TUserNotesDatabaseData()
 	:	m_bIsDirty(false)
 {
 	// Set Default Highlighters:
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #1")] = TUserDefinedColor(QColor(255, 255, 170));			// "yellow" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #2")] = TUserDefinedColor(QColor(170, 255, 255));			// "blue" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #3")] = TUserDefinedColor(QColor(170, 255, 170));			// "green" highligher
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #4")] = TUserDefinedColor(QColor(255, 170, 255));			// "pink" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #5")] = TUserDefinedColor(QColor(255, 200, 0));			// "orange" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #6")] = TUserDefinedColor(QColor(230, 200, 255));			// "purple" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #7")] = TUserDefinedColor(QColor(255, 230, 230));			// "apricot" highlighter
-	m_mapHighlighterDefinitions[tr("Basic Highlighter #8")] = TUserDefinedColor(QColor(255, 70, 200));			// "hot pink" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #1", "MainMenu")] = TUserDefinedColor(QColor(255, 255, 170));			// "yellow" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #2", "MainMenu")] = TUserDefinedColor(QColor(170, 255, 255));			// "blue" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #3", "MainMenu")] = TUserDefinedColor(QColor(170, 255, 170));			// "green" highligher
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #4", "MainMenu")] = TUserDefinedColor(QColor(255, 170, 255));			// "pink" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #5", "MainMenu")] = TUserDefinedColor(QColor(255, 200, 0));			// "orange" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #6", "MainMenu")] = TUserDefinedColor(QColor(230, 200, 255));			// "purple" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #7", "MainMenu")] = TUserDefinedColor(QColor(255, 230, 230));			// "apricot" highlighter
+	m_mapHighlighterDefinitions[tr("Basic Highlighter #8", "MainMenu")] = TUserDefinedColor(QColor(255, 70, 200));			// "hot pink" highlighter
 }
 
 // ============================================================================
@@ -296,14 +296,14 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		//			instead just not setting m_bInKJNDocument, then we could daisychain
 		//			XML documents:
 		if (namespaceURI.compare(constrKJNNameSpaceURI, Qt::CaseInsensitive) != 0) {
-			m_strLastError = tr("Unexpected Namespace URI: \"%1\"").arg(namespaceURI);
+			m_strLastError = tr("Unexpected Namespace URI: \"%1\"", "KJNErrors").arg(namespaceURI);
 			return false;
 		}
 		m_bInKJNDocument = true;
 	} else if ((m_bInKJNDocument) && (!m_bInKJNDocumentText) && (localName.compare(constrKJNDocumentTextTag, Qt::CaseInsensitive) == 0)) {
 		int ndxVersion = findAttribute(attr, constrVersionAttr);
 		if (ndxVersion == -1) {
-			m_strLastError = tr("Missing Version Identifier");
+			m_strLastError = tr("Missing Version Identifier", "KJNErrors");
 			return false;
 		}
 		m_nVersion = attr.value(ndxVersion).toInt();
@@ -323,12 +323,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInNotes) && (!m_bInNote) && (localName.compare(constrNoteTag, Qt::CaseInsensitive) == 0)) {
 		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
 		if (ndxRelIndex == -1) {
-			m_strLastError = tr("Missing RelIndex on Note Declaration");
+			m_strLastError = tr("Missing RelIndex on Note Declaration", "KJNErrors");
 			return false;
 		}
 		m_ndxRelIndex = CRelIndex(attr.value(ndxRelIndex));
 		if (!m_ndxRelIndex.isSet()) {
-			m_strLastError = tr("RelIndex for Note Declaration specifies a Null Destination");
+			m_strLastError = tr("RelIndex for Note Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
 		int ndxCountIndex = findAttribute(attr, constrCountAttr);
@@ -341,7 +341,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		} else {
 			m_bVisible = (attr.value(ndxVisible).compare("True", Qt::CaseInsensitive) == 0);
 			if ((!m_bVisible) && (attr.value(ndxVisible).compare("False", Qt::CaseInsensitive) != 0)) {
-				m_strLastError = tr("Invalid Visible Attribute Value in Notes Declaration");
+				m_strLastError = tr("Invalid Visible Attribute Value in Notes Declaration", "KJNErrors");
 				return false;
 			}
 		}
@@ -374,12 +374,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (!m_bInHighlighterDB) && (localName.compare(constrHighlighterDBTag, Qt::CaseInsensitive) == 0)) {
 		int ndxUUID = findAttribute(attr, constrUUIDAttr);
 		if (ndxUUID == -1) {
-			m_strLastError = tr("Missing DatabaseUUID on HighlighterDB Declaration");
+			m_strLastError = tr("Missing DatabaseUUID on HighlighterDB Declaration", "KJNErrors");
 			return false;
 		}
 		m_strDatabaseUUID = attr.value(ndxUUID);
 		if (m_strDatabaseUUID.isEmpty()) {
-			m_strLastError = tr("DatabaseUUID on HighlighterDB is Empty");
+			m_strLastError = tr("DatabaseUUID on HighlighterDB is Empty", "KJNErrors");
 			return false;
 		}
 		// Workaround bugfix for our UUID problem with the KJV where we were writing "en" instead
@@ -400,12 +400,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (m_bInHighlighterDB) && (!m_bInHighlighterTags) && (localName.compare(constrHighlighterTagsTag, Qt::CaseInsensitive) == 0)) {
 		int ndxHighlighterName = findAttribute(attr, constrHighlighterNameAttr);
 		if (ndxHighlighterName == -1) {
-			m_strLastError = tr("Missing HighlighterName on HighlighterTags Declaration");
+			m_strLastError = tr("Missing HighlighterName on HighlighterTags Declaration", "KJNErrors");
 			return false;
 		}
 		m_strHighlighterName = attr.value(ndxHighlighterName);
 		if (m_strHighlighterName.isEmpty()) {
-			m_strLastError = tr("HighligherName on HighlighterTags Declaration is Empty");
+			m_strLastError = tr("HighligherName on HighlighterTags Declaration is Empty", "KJNErrors");
 			return false;
 		}
 		int ndxSize = findAttribute(attr, constrSizeAttr);
@@ -424,12 +424,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (m_bInHighlighterDB) && (m_bInHighlighterTags) && (!m_bInPhraseTag) && (localName.compare(constrPhraseTagTag, Qt::CaseInsensitive) == 0)) {
 		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
 		if (ndxRelIndex == -1) {
-			m_strLastError = tr("Missing RelIndex on PhraseTag Declaration in HighlighterTag Declaration");
+			m_strLastError = tr("Missing RelIndex on PhraseTag Declaration in HighlighterTag Declaration", "KJNErrors");
 			return false;
 		}
 		m_ndxRelIndex = CRelIndex(attr.value(ndxRelIndex));
 		if (!m_ndxRelIndex.isSet()) {
-			m_strLastError = tr("RelIndex for PhraseTag Declaration in HighlighterTag Declaration specifies a Null Destination");
+			m_strLastError = tr("RelIndex for PhraseTag Declaration in HighlighterTag Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
 		int ndxCountIndex = findAttribute(attr, constrCountAttr);
@@ -450,12 +450,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInCrossReferences) && (!m_bInCrossRef) && (localName.compare(constrCrossRefTag, Qt::CaseInsensitive) == 0)) {
 		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
 		if (ndxRelIndex == -1) {
-			m_strLastError = tr("Missing RelIndex on CrossRef Declaration");
+			m_strLastError = tr("Missing RelIndex on CrossRef Declaration", "KJNErrors");
 			return false;
 		}
 		m_ndxRelIndex = CRelIndex(attr.value(ndxRelIndex));
 		if (!m_ndxRelIndex.isSet()) {
-			m_strLastError = tr("RelIndex for CrossRef Declaration specifies a Null Destination");
+			m_strLastError = tr("RelIndex for CrossRef Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
 #ifdef DEBUG_KJN_XML_READ
@@ -469,12 +469,12 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInCrossReferences) && (m_bInCrossRef) && (!m_bInRelIndex) && (localName.compare(constrRelIndexTag, Qt::CaseInsensitive) == 0)) {
 		int ndxValue = findAttribute(attr, constrValueAttr);
 		if (ndxValue == -1) {
-			m_strLastError = tr("Missing Value on RelIndex Declaration in CrossRef Declaration");
+			m_strLastError = tr("Missing Value on RelIndex Declaration in CrossRef Declaration", "KJNErrors");
 			return false;
 		}
 		m_ndxRelIndexTag = CRelIndex(attr.value(ndxValue));
 		if (!m_ndxRelIndexTag.isSet()) {
-			m_strLastError = tr("Value for RelIndex Declaration Declaration in CrossRef Declaration specifies a Null Destination");
+			m_strLastError = tr("Value for RelIndex Declaration Declaration in CrossRef Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
 #ifdef DEBUG_KJN_XML_READ
@@ -493,17 +493,17 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighterDefinitions) && (!m_bInHighlighterDef) && (localName.compare(constrHighlighterDefTag, Qt::CaseInsensitive) == 0)) {
 		int ndxHighlighterName = findAttribute(attr, constrHighlighterNameAttr);
 		if (ndxHighlighterName == -1) {
-			m_strLastError = tr("Missing HighlighterName on HighlighterDef Declaration");
+			m_strLastError = tr("Missing HighlighterName on HighlighterDef Declaration", "KJNErrors");
 			return false;
 		}
 		m_strHighlighterName = attr.value(ndxHighlighterName);
 		if (m_strHighlighterName.isEmpty()) {
-			m_strLastError = tr("HighligherName on HighlighterDef Declaration is Empty");
+			m_strLastError = tr("HighligherName on HighlighterDef Declaration is Empty", "KJNErrors");
 			return false;
 		}
 		int ndxColor = findAttribute(attr, constrColorAttr);
 		if (ndxColor == -1) {
-			m_strLastError = tr("Missing Color on HighligherDef Declaration");
+			m_strLastError = tr("Missing Color on HighligherDef Declaration", "KJNErrors");
 			return false;
 		}
 		m_strColor = attr.value(ndxColor);
@@ -513,7 +513,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		} else {
 			m_bEnabled = (attr.value(ndxEnabled).compare("True", Qt::CaseInsensitive) == 0);
 			if ((!m_bEnabled) && (attr.value(ndxEnabled).compare("False", Qt::CaseInsensitive) != 0)) {
-				m_strLastError = tr("Invalid Enable Attribute Value in HighlighterDef Declaration");
+				m_strLastError = tr("Invalid Enable Attribute Value in HighlighterDef Declaration", "KJNErrors");
 				return false;
 			}
 		}
@@ -613,7 +613,7 @@ bool CUserNotesDatabase::load()
 {
 	m_bIsDirty = true;				// Leave isDirty set until we've finished loading it
 	if (m_strFilePathName.isEmpty()) {
-		m_strLastError = tr("King James Notes File Path Name not set");
+		m_strLastError = tr("King James Notes File Path Name not set", "KJNErrors");
 		return false;
 	}
 
@@ -621,12 +621,12 @@ bool CUserNotesDatabase::load()
 
 	fileUND.setFileName(m_strFilePathName);
 	if (!fileUND.open(QIODevice::ReadOnly)) {
-		m_strLastError = tr("Failed to open King James Notes File \"%1\" for reading.").arg(m_strFilePathName);
+		m_strLastError = tr("Failed to open King James Notes File \"%1\" for reading.", "KJNErrors").arg(m_strFilePathName);
 		return false;
 	}
 
 	if (!load(&fileUND)) {
-		m_strLastError = tr("Failed to read King James Notes File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		m_strLastError = tr("Failed to read King James Notes File \"%1\".", "KJNErrors").arg(m_strFilePathName) + QString("\\n\n") + m_strLastError;
 		fileUND.close();
 		return false;
 	}
@@ -650,7 +650,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	QtIOCompressor inUND(pIODevice);
 	inUND.setStreamFormat(QtIOCompressor::ZlibFormat);
 	if  (!inUND.open(QIODevice::ReadOnly)) {
-		m_strLastError = tr("Failed to open the I/O compressor");
+		m_strLastError = tr("Failed to open the I/O compressor", "KJNErrors");
 		return false;
 	}
 
@@ -664,7 +664,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	clearXMLVars();
 
 	if (!xmlReader.parse(xmlInput)) {
-		m_strLastError = tr("Failed to read and parse King James User Notes Database File\n\n%1").arg(errorString());
+		m_strLastError = tr("Failed to read and parse King James User Notes Database File!", "KJNErrors") + QString("\n\n") + errorString();
 		inUND.close();
 		return false;
 	}
@@ -689,7 +689,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 bool CUserNotesDatabase::save()
 {
 	if (m_strFilePathName.isEmpty()) {
-		m_strLastError = tr("User Notes File Path Name not set");
+		m_strLastError = tr("User Notes File Path Name not set", "KJNErrors");
 		return false;
 	}
 
@@ -704,18 +704,18 @@ bool CUserNotesDatabase::save()
 		QFileInfo fiBackup(fiKJN.dir(), fiKJN.fileName() + m_strBackupFilenamePostfix);
 		if (fiBackup.exists()) QFile::remove(fiBackup.absoluteFilePath());
 		if (!QFile::copy(fiKJN.absoluteFilePath(), fiBackup.absoluteFilePath())) {
-			m_strLastError = tr("Failed to create Backup File.");
+			m_strLastError = tr("Failed to create Backup File.", "KJNErrors");
 			return false;
 		}
 	}
 
 	if (!fileUND.open(QIODevice::WriteOnly)) {
-		m_strLastError = tr("Failed to open King James Notes File \"%1\" for writing.").arg(m_strFilePathName);
+		m_strLastError = tr("Failed to open King James Notes File \"%1\" for writing.", "KJNErrors").arg(m_strFilePathName);
 		return false;
 	}
 
 	if (!save(&fileUND)) {
-		m_strLastError = tr("Failed to write King James Notes File \"%1\".\n\n").arg(m_strFilePathName) + m_strLastError;
+		m_strLastError = tr("Failed to write King James Notes File \"%1\".", "KJNErrors").arg(m_strFilePathName) + QString("\n\n") + m_strLastError;
 		fileUND.close();
 		return false;
 	}
@@ -733,7 +733,7 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	QtIOCompressor outUND(pIODevice);
 	outUND.setStreamFormat(QtIOCompressor::ZlibFormat);
 	if  (!outUND.open(QIODevice::WriteOnly)) {
-		m_strLastError = tr("Failed to open the I/O compressor.");
+		m_strLastError = tr("Failed to open the I/O compressor.", "KJNErrors");
 		return false;
 	}
 

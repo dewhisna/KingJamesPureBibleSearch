@@ -343,12 +343,12 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	m_lstButtons.clear();
 	m_lstActionGroups.clear();
 	for (int ndx = 0; ndx < NUM_HIGHLIGHTER_TOOLBAR_BUTTONS; ++ndx) {
-		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1").arg(ndx+1));
+		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1", "MainMenu").arg(ndx+1));
 		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
 		m_lstButtons.append(pButtonHighlighter);
 		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
-		pActionToolButton->setToolTip(tr("Highlighter Tool #%1").arg(ndx+1));
-		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1").arg(ndx+1));
+		pActionToolButton->setToolTip(tr("Highlighter Tool #%1", "MainMenu").arg(ndx+1));
+		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1", "MainMenu").arg(ndx+1));
 		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 #ifndef Q_OS_MAC
 		switch (ndx) {

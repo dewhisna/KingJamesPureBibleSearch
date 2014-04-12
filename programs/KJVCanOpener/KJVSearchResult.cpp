@@ -172,46 +172,46 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 	// Setup our Context Menu:
-	m_pEditMenu = new QMenu(tr("&Edit"), this);
-	m_pEditMenuLocal = new QMenu(tr("&Edit"), this);
-	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations"));
+	m_pEditMenu = new QMenu(tr("&Edit", "MainMenu"), this);
+	m_pEditMenuLocal = new QMenu(tr("&Edit", "MainMenu"), this);
+	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations", "MainMenu"));
 	// ----
-	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text"), this, SLOT(en_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard"));
+	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text", "MainMenu"), this, SLOT(en_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
-	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
-	m_pActionCopyRaw->setStatusTip(tr("Copy selected Search Results as raw phrase words to the clipboard"));
+	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw->setStatusTip(tr("Copy selected Search Results as raw phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(tr("Copy Very Ra&w Verse Text (No punctuation)"), this, SLOT(en_copyVeryRaw()));
-	m_pActionCopyVeryRaw->setStatusTip(tr("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard"));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(tr("Copy Very Ra&w Verse Text (No punctuation)", "MainMenu"), this, SLOT(en_copyVeryRaw()));
+	m_pActionCopyVeryRaw->setStatusTip(tr("Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVeryRaw);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References"), this, SLOT(en_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopyVerseHeadings->setStatusTip(tr("Copy Verse References for the selected Search Results to the clipboard"));
+	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References", "MainMenu"), this, SLOT(en_copyVerseHeadings()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopyVerseHeadings->setStatusTip(tr("Copy Verse References for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseHeadings->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(tr("Copy Reference Detai&ls (Word/Phrase Counts)"), this, SLOT(en_copyReferenceDetails()));
-	m_pActionCopyReferenceDetails->setStatusTip(tr("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard"));
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(tr("Copy Reference Detai&ls (Word/Phrase Counts)", "MainMenu"), this, SLOT(en_copyReferenceDetails()));
+	m_pActionCopyReferenceDetails->setStatusTip(tr("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
-	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details"), this, SLOT(en_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_B));
-	m_pActionCopyComplete->setStatusTip(tr("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard"));
+	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details", "MainMenu"), this, SLOT(en_copyComplete()), QKeySequence(Qt::CTRL + Qt::Key_B));
+	m_pActionCopyComplete->setStatusTip(tr("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyComplete->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip(tr("Select all Search Results"));
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(tr("Select all Search Results", "MainMenu"));
 	m_pActionSelectAll->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionSelectAll);
-	m_pActionClearSelection = m_pEditMenu->addAction(tr("C&lear Selection"), this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
-	m_pActionClearSelection->setStatusTip(tr("Clear Search Results Selection"));
+	m_pActionClearSelection = m_pEditMenu->addAction(tr("C&lear Selection", "MainMenu"), this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
+	m_pActionClearSelection->setStatusTip(tr("Clear Search Results Selection", "MainMenu"));
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);
 	// ----
@@ -222,7 +222,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	QTimer::singleShot(1, this, SLOT(en_findParentCanOpener()));
 	// ----
 	m_pMenuUserNotesInsertionPoint = m_pEditMenuLocal->addSeparator();
-	m_pActionNavigator = m_pEditMenuLocal->addAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator..."));
+	m_pActionNavigator = m_pEditMenuLocal->addAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator...", "MainMenu"));
 	m_pActionNavigator->setEnabled(false);
 	connect(m_pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 	m_pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
@@ -496,7 +496,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 
 void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 {
-	new CNotificationToolTip(1000, m_ptLastTrackPosition, tr("Text Copied to Clipboard"), viewport());
+	new CNotificationToolTip(1000, m_ptLastTrackPosition, tr("Text Copied to Clipboard", "MainMenu"), viewport());
 }
 
 // ----------------------------------------------------------------------------
@@ -534,7 +534,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
 
 	if (bAllAlreadyHighlighted) {
 		int nResult = QMessageBox::information(this, windowTitle(), tr("All of the verses you have selected are already highlighted with that highlighter!\n\n"
-																	   "Do you wish to unhighlight all of them instead??"),
+																	   "Do you wish to unhighlight all of them instead??", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 		if (nResult != QMessageBox::Yes) return;
 		CBusyCursor iAmBusy(NULL);
@@ -976,19 +976,19 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 	switch (viewMode()) {
 		case CVerseListModel::VVME_SEARCH_RESULTS:
-			strStatusText = tr("%n Search Result(s) Selected", NULL, nNumResultsSelected);
+			strStatusText = tr("%n Search Result(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
-			strStatusText = tr("%n Excluded Search Result(s) Selected", NULL, nNumResultsSelected);
+			strStatusText = tr("%n Excluded Search Result(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		case CVerseListModel::VVME_HIGHLIGHTERS:
-			strStatusText = tr("%n Highlighted Verse(s) Selected", NULL, nNumResultsSelected);
+			strStatusText = tr("%n Highlighted Verse(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		case CVerseListModel::VVME_USERNOTES:
-			strStatusText = tr("%n Note(s) Selected", NULL, nNumResultsSelected);
+			strStatusText = tr("%n Note(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		case CVerseListModel::VVME_CROSSREFS:
-			strStatusText = tr("%n Cross-Reference(s) Selected", NULL, nNumResultsSelected);
+			strStatusText = tr("%n Cross-Reference(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		default:
 			assert(false);
@@ -1261,15 +1261,15 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pSearchResultsCount = new QLabel(this);
 	m_pSearchResultsCount->setObjectName(QString::fromUtf8("SearchResultsCount"));
 	m_pSearchResultsCount->setWordWrap(true);
-	m_pSearchResultsCount->setText(tr("Found 0 Occurrences") + "\n"
-									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
+	m_pSearchResultsCount->setText(tr("Found 0 Occurrences", "Statistics") + "\n"
+									  "    " + tr("in 0 Verses in 0 Chapters in 0 Books", "Statistics"));
 	pLayout->addWidget(m_pSearchResultsCount);
 
 	m_pExcludedSearchResultsCount = new QLabel(this);
 	m_pExcludedSearchResultsCount->setObjectName(QString::fromUtf8("ExcludedSearchResultsCount"));
 	m_pExcludedSearchResultsCount->setWordWrap(true);
-	m_pExcludedSearchResultsCount->setText(tr("Excluded 0 Occurrences") + "\n"
-											  "    " + tr("in 0 Verses in 0 Chapters in 0 Books"));
+	m_pExcludedSearchResultsCount->setText(tr("Excluded 0 Occurrences", "Statistics") + "\n"
+											  "    " + tr("in 0 Verses in 0 Chapters in 0 Books", "Statistics"));
 	pLayout->addWidget(m_pExcludedSearchResultsCount);
 
 	// --------------------------------
@@ -1277,7 +1277,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pShowHighlightersInSearchResults = new QCheckBox(this);
 	m_pShowHighlightersInSearchResults->setObjectName(QString::fromUtf8("checkBoxShowHighlightersInSearchResults"));
-	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results"));
+	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results", "MainMenu"));
 	pLayout->addWidget(m_pShowHighlightersInSearchResults);
 #endif
 
@@ -1411,19 +1411,19 @@ void CKJVSearchResult::setSearchResultsType()
 
 	switch (m_pSearchResultsTreeView->viewMode()) {
 		case CVerseListModel::VVME_SEARCH_RESULTS:
-			strResultsType = tr("Search Results");
+			strResultsType = tr("Search Results", "MainMenu");
 			break;
 		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
-			strResultsType = tr("Excluded Search Results");
+			strResultsType = tr("Excluded Search Results", "MainMenu");
 			break;
 		case CVerseListModel::VVME_HIGHLIGHTERS:
-			strResultsType = tr("Highlighters");
+			strResultsType = tr("Highlighters", "MainMenu");
 			break;
 		case CVerseListModel::VVME_USERNOTES:
-			strResultsType = tr("Notes");
+			strResultsType = tr("Notes", "MainMenu");
 			break;
 		case CVerseListModel::VVME_CROSSREFS:
-			strResultsType = tr("Cross References");
+			strResultsType = tr("Cross References", "MainMenu");
 			break;
 		default:
 			assert(false);
@@ -1497,21 +1497,21 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 
 	strResults.clear();
 
-	strResults += tr("Found %n Occurrence(s)", NULL, nResults) + "\n";
-	strResults += "    " + tr("in %n Verse(s)", NULL, nVerses) +
-					" " + tr("in %n Chapter(s)", NULL, nChapters) +
-					" " + tr("in %n Book(s)", NULL, nBooks);
+	strResults += tr("Found %n Occurrence(s)", "Statistics", nResults) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", "Statistics", nVerses) +
+					" " + tr("in %n Chapter(s)", "Statistics", nChapters) +
+					" " + tr("in %n Book(s)", "Statistics", nBooks);
 	if (aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 		if (nResults > 0) {
 			strResults += "\n";
-			strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
-			strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
-			strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
+			strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
+			strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
+			strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
 		}
 	} else {
 		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 		if (!strSearchWithinDescription.isEmpty()) {
-			strResults += " " + tr("within") + " " + strSearchWithinDescription;
+			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
 		}
 	}
 
@@ -1521,14 +1521,14 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 
 	strResults.clear();
 
-	strResults += tr("Excluded %n Occurrence(s)", NULL, nExcludedResults) + "\n";
-	strResults += "    " + tr("in %n Verse(s)", NULL, nExcludedVerses) +
-					" " + tr("in %n Chapter(s)", NULL, nExcludedChapters) +
-					" " + tr("in %n Book(s)", NULL, nExcludedBooks);
+	strResults += tr("Excluded %n Occurrence(s)", "Statistics", nExcludedResults) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", "Statistics", nExcludedVerses) +
+					" " + tr("in %n Chapter(s)", "Statistics", nExcludedChapters) +
+					" " + tr("in %n Book(s)", "Statistics", nExcludedBooks);
 	if (!aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 		if (!strSearchWithinDescription.isEmpty()) {
-			strResults += " " + tr("within") + " " + strSearchWithinDescription;
+			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
 		}
 	}
 
@@ -1554,37 +1554,37 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	QString strSummary;
 
 	if (m_bLastCalcSuccess) {
-		strSummary += tr("Found %n %1Occurrence(s)%2", NULL, m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "")
-						.arg(m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text"))) + "\n";
-		strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastSearchVerses) + "\n";
-		strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastSearchChapters) + "\n";
-		strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastSearchBooks) + "\n";
+		strSummary += tr("Found %n %1Occurrence(s)%2", "Statistics", m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics") + " ") : "")
+						.arg(m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text", "Statistics"))) + "\n";
+		strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) + "\n";
+		strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) + "\n";
+		strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastSearchBooks) + "\n";
 		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 			strSummary += "\n";
-			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", NULL, m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
+			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
 		} else {
 			QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 			if (!strSearchWithinDescription.isEmpty()) {
-				strSummary += "    " + tr("within") + " " + strSearchWithinDescription + "\n";
+				strSummary += "    " + tr("within", "Statistics") + " " + strSearchWithinDescription + "\n";
 			}
 		}
 		if (m_nLastExcludedSearchOccurrences > 0) {
 			strSummary += "\n";
-			strSummary += tr("Excluded %n %1Occurrence(s)", NULL, m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined") + " ") : "") + "\n";
-			strSummary += "    " + tr("in %n Verse(s)", NULL, m_nLastExcludedSearchVerses) + "\n";
-			strSummary += "    " + tr("in %n Chapter(s)", NULL, m_nLastExcludedSearchChapters) + "\n";
-			strSummary += "    " + tr("in %n Book(s)", NULL, m_nLastExcludedSearchBooks) + "\n";
+			strSummary += tr("Excluded %n %1Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics") + " ") : "") + "\n";
+			strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastExcludedSearchVerses) + "\n";
+			strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastExcludedSearchChapters) + "\n";
+			strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastExcludedSearchBooks) + "\n";
 			if (!m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 				QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 				if (!strSearchWithinDescription.isEmpty()) {
-					strSummary += "    " + tr("within") + " " + strSearchWithinDescription + "\n";
+					strSummary += "    " + tr("within", "Statistics") + " " + strSearchWithinDescription + "\n";
 				}
 			}
 		}
 	} else {
-		strSummary += tr("Search was incomplete -- too many possible matches") + "\n";
+		strSummary += tr("Search was incomplete -- too many possible matches", "Statistics") + "\n";
 	}
 
 	return strSummary;

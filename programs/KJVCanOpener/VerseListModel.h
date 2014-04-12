@@ -203,9 +203,9 @@ public:
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
 			const CRelIndex &ndxTag(phraseTags().at(ndx).relIndex());
 			if (phraseTags().size() > 1) {
-				strToolTip += QString("(%1)[%2] \"%3\" %4 ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is"));
+				strToolTip += QString("(%1)[%2] \"%3\" %4 ").arg(ndx+1).arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is", "Statistics"));
 			} else {
-				strToolTip += QString("[%1] \"%2\" %3 ").arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is"));
+				strToolTip += QString("[%1] \"%2\" %3 ").arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is", "Statistics"));
 			}
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
@@ -216,7 +216,7 @@ public:
 					QString strSearchWithinDescription = searchCriteria.searchWithinDescription(m_pBibleDatabase);
 					QString strSearchScopeDescription = searchCriteria.searchScopeDescription();
 					if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
-						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible")
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible", "Statistics")
 											.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 											.arg(pPhrase->GetPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase()) + "\n";
@@ -224,17 +224,17 @@ public:
 					if ((!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
 						(!strSearchWithinDescription.isEmpty()) &&
 						(pPhrase->GetWithinPhraseTagSearchResults().contains(phraseTags().at(ndx)))) {
-						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4")
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4", "Statistics")
 											.arg(pPhrase->GetWithinPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 											.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase())
 											.arg(strSearchWithinDescription) + "\n";
 					}
-					if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope");
+					if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope", "Statistics");
 					if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
 						(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) &&
 						(!strSearchScopeDescription.isEmpty())) {
-						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4")
+						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4", "Statistics")
 											.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 											.arg(pPhrase->GetScopedPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase())
@@ -243,7 +243,7 @@ public:
 				} else {
 					int nResultsIndex = pPhrase->GetPhraseTagSearchResults().findIntersectingIndex(m_pBibleDatabase.data(), phraseTags().at(ndx));
 					if (nResultsIndex != -1) {
-						strToolTip += "    " + QObject::tr("%1 of %2 of Excluded Search Phrase \"%3\" Results in Entire Bible")
+						strToolTip += "    " + QObject::tr("%1 of %2 of Excluded Search Phrase \"%3\" Results in Entire Bible", "Statistics")
 											.arg(nResultsIndex + 1)
 											.arg(pPhrase->GetPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase()) + "\n";
@@ -251,7 +251,7 @@ public:
 					if (!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 						int nResultsWithinIndex = pPhrase->GetWithinPhraseTagSearchResults().findIntersectingIndex(m_pBibleDatabase.data(), phraseTags().at(ndx));
 						if (nResultsWithinIndex != -1) {
-							strToolTip += "    " + QObject::tr("%1 of %2 of Excluded Search Phrase \"%3\" Results in Selected Search Text")
+							strToolTip += "    " + QObject::tr("%1 of %2 of Excluded Search Phrase \"%3\" Results in Selected Search Text", "Statistics")
 												.arg(nResultsWithinIndex + 1)
 												.arg(pPhrase->GetWithinPhraseTagSearchResults().size())
 												.arg(pPhrase->phrase()) + "\n";
@@ -566,7 +566,7 @@ public:
 		friend class CVerseListModel;
 
 		TVerseListModelSearchResults(TVerseListModelPrivate *priv, bool bExcluded)
-			:	TVerseListModelResults(priv, (!bExcluded ? tr("Search Results") : tr("Excluded Search Results")), (!bExcluded ? VLMRTE_SEARCH_RESULTS : VLMRTE_SEARCH_RESULTS_EXCLUDED))
+			:	TVerseListModelResults(priv, (!bExcluded ? tr("Search Results", "MainMenu") : tr("Excluded Search Results", "MainMenu")), (!bExcluded ? VLMRTE_SEARCH_RESULTS : VLMRTE_SEARCH_RESULTS_EXCLUDED))
 		{ }
 
 		// For SearchResults, this list will be the Included phrases.  For
@@ -591,7 +591,7 @@ public:
 		friend class CVerseListModel;
 
 		TVerseListModelNotesResults(TVerseListModelPrivate *priv)
-			:	TVerseListModelResults(priv, tr("Notes"), VLMRTE_USER_NOTES)
+			:	TVerseListModelResults(priv, tr("Notes", "MainMenu"), VLMRTE_USER_NOTES)
 		{ }
 
 		// --------------------------------------
@@ -602,7 +602,7 @@ public:
 		friend class CVerseListModel;
 
 		TVerseListModelCrossRefsResults(TVerseListModelPrivate *priv)
-			:	TVerseListModelResults(priv, tr("Cross References"), VLMRTE_CROSS_REFS, VLMNTE_CROSS_REFERENCE_SOURCE_NODE)
+			:	TVerseListModelResults(priv, tr("Cross References", "MainMenu"), VLMRTE_CROSS_REFS, VLMNTE_CROSS_REFERENCE_SOURCE_NODE)
 		{ }
 
 		TCrossReferenceMap m_mapCrossRefs;		// Created from UserNotesDatabase CrossRefsMap by buildCrossRefsResults, scoped to the current database (i.e. references not part of the database are excluded, like Apocrypha references with non-Apocrypha database)

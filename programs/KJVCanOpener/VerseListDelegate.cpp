@@ -379,12 +379,12 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 //						return true;
 //					}
 
-					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
+					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details", "MainMenu").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
 					return true;
 				}
 			} else if (pSearchResultsView->viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
 				QToolTip::showText(event->globalPos(), tr("To Edit Highlighted Phrase Associations: Select verses to move,\n"
-														  "drag them to the desired highlighter, and drop them."), view);
+														  "drag them to the desired highlighter, and drop them.", "MainMenu"), view);
 				return true;
 			}
 			break;

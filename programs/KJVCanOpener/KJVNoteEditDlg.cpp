@@ -116,7 +116,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pBackgroundColorButton = new QwwColorButton(this);
 	m_pBackgroundColorButton->setObjectName(QString::fromUtf8("buttonBackgroundColor"));
 	m_pBackgroundColorButton->setShowName(false);			// Must do this before setting our real text
-	m_pBackgroundColorButton->setText(tr("Note Background Color"));
+	m_pBackgroundColorButton->setText(tr("Note Background Color", "MainMenu"));
 	m_pBackgroundColorButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	delete ui.buttonBackgroundColor;
@@ -141,7 +141,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
 	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != NULL);
 	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
-	m_pDeleteNoteButton = ui.buttonBox->addButton(tr("Delete Note"), QDialogButtonBox::ActionRole);
+	m_pDeleteNoteButton = ui.buttonBox->addButton(tr("Delete Note", "MainMenu"), QDialogButtonBox::ActionRole);
 	m_pDeleteNoteButton->setIcon(QIcon(":/res/deletered1-24.png"));
 	connect(ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(en_ButtonClicked(QAbstractButton*)));
 
@@ -229,7 +229,7 @@ void CKJVNoteEditDlg::accept()
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
 																   "haven't yet entered them to where they will take effect.\n\n"
-																   "Do you wish to set them as valid keywords for this note?"),
+																   "Do you wish to set them as valid keywords for this note?", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
 		if (nResult == QMessageBox::Yes) ui.widgetNoteKeywords->enterKeywords();
 	}
@@ -245,7 +245,7 @@ void CKJVNoteEditDlg::accept()
 void CKJVNoteEditDlg::reject()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this note.  Do you wish to discard them??"),
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this note.  Do you wish to discard them??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 	}
@@ -288,7 +288,7 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 	QPoint ptPos = pos();
 	ptPos.setX(ptPos.x() + (size().width() / 2));
 	ptPos.setY(ptPos.y() + (size().height() / 2));
-	QToolTip::showText(ptPos, tr("Default Note Background Color Has Been Set"), this);
+	QToolTip::showText(ptPos, tr("Default Note Background Color Has Been Set", "MainMenu"), this);
 }
 
 // ============================================================================
@@ -299,7 +299,7 @@ void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 	assert(m_pUserNotesDatabase.data() != NULL);
 
 	if (button == m_pDeleteNoteButton) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??"),
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 		m_bIsDirty = false;
@@ -349,7 +349,7 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
 
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
-	pDlg->setGotoButtonText(tr("&OK"));
+	pDlg->setGotoButtonText(tr("&OK", "MainMenu"));
 	TPhraseTag tagNav(ndxStart);
 	pDlg->navigator().startAbsoluteMode(tagNav);
 	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();

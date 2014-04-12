@@ -165,8 +165,8 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 	m_pEnableCheckbox->setCheckable(true);
 	m_pEnableCheckbox->setChecked(g_pUserNotesDatabase->highlighterEnabled(strUserDefinedHighlighterName));
 	m_pEnableCheckbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	m_pEnableCheckbox->setText(tr("Enable"));
-	m_pEnableCheckbox->setToolTip(tr("Enable/Disable this highlighter"));
+	m_pEnableCheckbox->setText(tr("Enable", "MainMenu"));
+	m_pEnableCheckbox->setToolTip(tr("Enable/Disable this highlighter", "MainMenu"));
 	m_pEnableCheckbox->updateGeometry();
 	m_pHorzLayout->addWidget(m_pEnableCheckbox);
 
@@ -285,7 +285,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	sizePolicy1.setHeightForWidth(m_pSearchResultsTreeView->sizePolicy().hasHeightForWidth());
 	m_pSearchResultsTreeView->setSizePolicy(sizePolicy1);
 	m_pSearchResultsTreeView->setContextMenuPolicy(Qt::NoContextMenu);
-	m_pSearchResultsTreeView->setToolTip(tr("Search Results Preview"));
+	m_pSearchResultsTreeView->setToolTip(tr("Search Results Preview", "MainMenu"));
 
 	delete ui.treeViewSearchResultsPreview;
 	ui.treeViewSearchResultsPreview = NULL;
@@ -314,7 +314,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 	m_pScriptureBrowser->setOpenLinks(false);
 	m_pScriptureBrowser->setContextMenuPolicy(Qt::DefaultContextMenu);
-	m_pScriptureBrowser->setToolTip(tr("Scripture Browser Preview"));			// Note:  Also disables the "Press Ctrl-D" tooltip, since that mode isn't enable in the configurator
+	m_pScriptureBrowser->setToolTip(tr("Scripture Browser Preview", "MainMenu"));			// Note:  Also disables the "Press Ctrl-D" tooltip, since that mode isn't enable in the configurator
 
 	delete ui.textScriptureBrowserPreview;
 	ui.textScriptureBrowserPreview = NULL;
@@ -339,7 +339,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 		aSizePolicyDictionary.setVerticalStretch(0);
 		aSizePolicyDictionary.setHeightForWidth(m_pDictionaryWidget->sizePolicy().hasHeightForWidth());
 		m_pDictionaryWidget->setSizePolicy(aSizePolicyDictionary);
-		m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview"));
+		m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview", "MainMenu"));
 
 		delete ui.widgetDictionary;
 		ui.widgetDictionary = NULL;
@@ -363,21 +363,21 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	ui.buttonWordsOfJesusColor = new QwwColorButton(this);
 	ui.buttonWordsOfJesusColor->setObjectName(QString::fromUtf8("buttonWordsOfJesusColor"));
 	toQwwColorButton(ui.buttonWordsOfJesusColor)->setShowName(false);			// Must do this before setting our real text
-	ui.buttonWordsOfJesusColor->setText(tr("Words of Jesus"));
+	ui.buttonWordsOfJesusColor->setText(tr("Words of Jesus", "MainMenu"));
 	ui.buttonWordsOfJesusColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.horzLayoutWordsOfJesusColor->insertWidget(0, ui.buttonWordsOfJesusColor, 10);
 
 	ui.buttonSearchResultsColor = new QwwColorButton(this);
 	ui.buttonSearchResultsColor->setObjectName(QString::fromUtf8("buttonSearchResultsColor"));
 	toQwwColorButton(ui.buttonSearchResultsColor)->setShowName(false);			// Must do this before setting our real text
-	ui.buttonSearchResultsColor->setText(tr("Search Results"));
+	ui.buttonSearchResultsColor->setText(tr("Search Results", "MainMenu"));
 	ui.buttonSearchResultsColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.vertLayoutColorOptions->addWidget(ui.buttonSearchResultsColor);
 
 	ui.buttonCursorFollowColor = new QwwColorButton(this);
 	ui.buttonCursorFollowColor->setObjectName(QString::fromUtf8("buttonCursorFollowColor"));
 	toQwwColorButton(ui.buttonCursorFollowColor)->setShowName(false);			// Must do this before setting our real text
-	ui.buttonCursorFollowColor->setText(tr("Cursor Tracker"));
+	ui.buttonCursorFollowColor->setText(tr("Cursor Tracker", "MainMenu"));
 	ui.buttonCursorFollowColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.vertLayoutColorOptions->addWidget(ui.buttonCursorFollowColor);
 
@@ -428,9 +428,9 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() == NULL) {
 		ui.fontComboBoxApplication->setEnabled(false);
-		ui.fontComboBoxApplication->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
+		ui.fontComboBoxApplication->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead.", "MainMenu"));
 		ui.dblSpinBoxApplicationFontSize->setEnabled(false);
-		ui.dblSpinBoxApplicationFontSize->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead."));
+		ui.dblSpinBoxApplicationFontSize->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead.", "MainMenu"));
 	}
 #endif
 
@@ -835,7 +835,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 																			   "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																			   "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																			   "this highlighter.  Or, open a new King James Notes file.\n\n"
-																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??"),
+																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??", "Errors"),
 																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
 				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
 			} else {
@@ -843,7 +843,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 																 "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																 "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																 "this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text "
-																 "highlighted with this Highlighter will be visible."), QMessageBox::Ok, QMessageBox::Ok);
+																 "highlighted with this Highlighter will be visible.", "Errors"), QMessageBox::Ok, QMessageBox::Ok);
 			}
 			return;		// Note: the setEnabled() call above will take care of updating our demo text and marking us dirty, etc, and nothing should have changed size...
 		}
@@ -875,7 +875,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 			QMessageBox::warning(this, windowTitle(), tr("That highlighter name already exists and can't be used as a new name for this highlighter. "
 														 "To try again, click the rename button again. Or, to combine highlighter tags, use the "
 														 "\"View Highlighters\" mode to display the highlighted passages, select the passages "
-														 "associated with the desired highlighters, and drag them to a different highlighter."));
+														 "associated with the desired highlighters, and drag them to a different highlighter.", "Errors"));
 			return;
 		}
 
@@ -916,7 +916,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 		QMessageBox::warning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
 													 "To rename it, create a new highlighter with the desired name.  Then, use the \"View Highlighters\" "
 													 "mode to display the highlighted passages, select the passages associated with this highlighter, "
-													 "and drag them to the new highlighter.  And then you can return here and remove this highlighter."));
+													 "and drag them to the new highlighter.  And then you can return here and remove this highlighter.", "Errors"));
 	}
 }
 
@@ -1035,10 +1035,10 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	ui.treeDatabaseWordChanges->setModel(m_pBibleWordDiffListModel);
 
 	ui.comboBoxHyphenHideMode->clear();
-	ui.comboBoxHyphenHideMode->addItem(tr("None"), TBibleDatabaseSettings::HHO_None);
-	ui.comboBoxHyphenHideMode->addItem(tr("Places/Names"), TBibleDatabaseSettings::HHO_ProperWords);
-	ui.comboBoxHyphenHideMode->addItem(tr("Ordinary Words"), TBibleDatabaseSettings::HHO_OrdinaryWords);
-	ui.comboBoxHyphenHideMode->addItem(tr("Both"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
+	ui.comboBoxHyphenHideMode->addItem(tr("None", "HyphenModes"), TBibleDatabaseSettings::HHO_None);
+	ui.comboBoxHyphenHideMode->addItem(tr("Places/Names", "HyphenModes"), TBibleDatabaseSettings::HHO_ProperWords);
+	ui.comboBoxHyphenHideMode->addItem(tr("Ordinary Words", "HyphenModes"), TBibleDatabaseSettings::HHO_OrdinaryWords);
+	ui.comboBoxHyphenHideMode->addItem(tr("Both", "HyphenModes"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
 
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
@@ -1252,8 +1252,8 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 	ui.buttonDefaultNoteBackgroundColor = new QwwColorButton(this);
 	ui.buttonDefaultNoteBackgroundColor->setObjectName(QString::fromUtf8("buttonDefaultNoteBackgroundColor"));
 	toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->setShowName(false);		// Must do this before setting our real text
-	ui.buttonDefaultNoteBackgroundColor->setText(tr("Default Note Background &Color"));
-	ui.buttonDefaultNoteBackgroundColor->setToolTip(tr("Set the Default Background Color for New Notes"));
+	ui.buttonDefaultNoteBackgroundColor->setText(tr("Default Note Background &Color", "MainMenu"));
+	ui.buttonDefaultNoteBackgroundColor->setToolTip(tr("Set the Default Background Color for New Notes", "MainMenu"));
 	ui.buttonDefaultNoteBackgroundColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.horizontalLayoutNoteBackgroundColor->insertWidget(ndx, ui.buttonDefaultNoteBackgroundColor);
 
@@ -1314,7 +1314,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			if (m_pUserNotesDatabase->errorFilePathName().isEmpty()) {
 				// If we don't have a filename at all, prompt for new setup:
 				nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
-																		 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost."),
+																		 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost.", "Errors"),
 														(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 			} else {
 				// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
@@ -1326,7 +1326,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 																	   "recommended that you save it to a new file.\n\n"
 																	   "Click 'Yes' to enter a filename and save your new changes, or\n"
 																	   "Click 'No' to lose your changes and continue on to Select a Notes File to Load (recommended if you haven't really done any editing), or\n"
-																	   "Click 'Cancel' to return to King James Pure Bible Search..."),
+																	   "Click 'Cancel' to return to King James Pure Bible Search...", "Errors"),
 														(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 			}
 			// If the user cancelled, return:
@@ -1343,7 +1343,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			bDone = false;
 			do {
 				if (bPromptFilename) {
-					QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)"), "kjn", NULL, 0);
+					QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
 					if (!strFilePathName.isEmpty()) {
 						m_pUserNotesDatabase->setFilePathName(strFilePathName);
 						ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
@@ -1354,11 +1354,11 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 				}
 
 				if (!m_pUserNotesDatabase->save()) {
-					nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError() +
-														tr("\n\nUnable to save the King James Notes File!\n\n"
+					nResult = QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
+														tr("Unable to save the King James Notes File!\n\n"
 														   "Click 'Yes' to try again, or\n"
 														   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
-														   "Click 'Cancel' to return to King James Pure Bible Search..."),
+														   "Click 'Cancel' to return to King James Pure Bible Search...", "Errors"),
 												   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 					// If the user cancelled, return back to the app:
 					if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
@@ -1385,7 +1385,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 	while (!bDone) {
 		QString strNewFilePathName = m_pUserNotesDatabase->errorFilePathName();
 		if (strNewFilePathName.isEmpty()) strNewFilePathName = m_pUserNotesDatabase->filePathName();
-		strNewFilePathName = QFileDialog::getOpenFileName(this, tr("Load King James Notes File"), strNewFilePathName, tr("King James Notes File (*.kjn)"), NULL, 0);
+		strNewFilePathName = QFileDialog::getOpenFileName(this, tr("Load King James Notes File", "FileFilters"), strNewFilePathName, tr("King James Notes File (*.kjn)", "FileFilters"), NULL, 0);
 		if (strNewFilePathName.isEmpty()) {		// Empty if user cancels
 			if (bLoadFailed) {
 				// If our previous load failed, we now have an uninitalized notes file.  So,
@@ -1401,7 +1401,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 		ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
 
 		if (!loadUserNotesDatabase()) {
-			QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError());
+			QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError());
 			// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 			//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
 			//		the time we exit.  But save a reference to it so we can get the user navigated back there:
@@ -1412,17 +1412,17 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			continue;
 		} else {
 			if (m_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
-				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was last saved on "
+				QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was last saved on "
 											"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
 											"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
-											"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"").arg(m_pUserNotesDatabase->filePathName()));
+											"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"", "Errors").arg(m_pUserNotesDatabase->filePathName()));
 			} else if (m_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
-				QMessageBox::warning(this, tr("Loading King James Notes File"), tr("Warning: The King James Notes File being loaded was created on "
+				QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was created on "
 											"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
 											"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
 											"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
 											"risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!"
-											"\n\nFilename: \"%1\"").arg(m_pUserNotesDatabase->filePathName()));
+											"\n\nFilename: \"%1\"", "Errors").arg(m_pUserNotesDatabase->filePathName()));
 			}
 			bDone = true;
 		}
@@ -1444,11 +1444,11 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 	bool bDone = false;
 	while (!bDone) {
 		if ((m_pUserNotesDatabase->isDirty()) && (!m_pUserNotesDatabase->save())) {
-			int nResult = QMessageBox::warning(this, tr("King James Notes File Error"),  m_pUserNotesDatabase->lastLoadSaveError() +
-													tr("\n\nUnable to save the current King James Notes File!\n\n"
+			int nResult = QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
+													tr("Unable to save the current King James Notes File!\n\n"
 													   "Click 'Yes' to try again, or\n"
 													   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
-													   "Click 'Cancel' to return to King James Pure Bible Search..."),
+													   "Click 'Cancel' to return to King James Pure Bible Search...", "Errors"),
 											   (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 			// If the user cancelled, return back to the app:
 			if ((nResult != QMessageBox::Yes) && (nResult != QMessageBox::No)) {
@@ -1514,9 +1514,9 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.comboSearchPhraseCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
-	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
-	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), CSearchCompleter::SCFME_NORMAL);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), CSearchCompleter::SCFME_SOUNDEX);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), CSearchCompleter::SCFME_UNFILTERED);
 
 	connect(ui.comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
 	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
@@ -1608,12 +1608,12 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.comboBoxChapterScrollbarMode->addItem(tr("None"), CSME_NONE);
-	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side"), CSME_LEFT);
-	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side"), CSME_RIGHT);
+	ui.comboBoxChapterScrollbarMode->addItem(tr("None", "ScrollbarModes"), CSME_NONE);
+	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side", "ScrollbarModes"), CSME_LEFT);
+	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side", "ScrollbarModes"), CSME_RIGHT);
 
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line"), CPhraseNavigator::VRME_VPL);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph"), CPhraseNavigator::VRME_FF);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
@@ -1743,9 +1743,9 @@ CConfigDictionaryOptions::CConfigDictionaryOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.comboDictionaryCompleterMode->addItem(tr("Normal Filter"), CSearchCompleter::SCFME_NORMAL);
-	ui.comboDictionaryCompleterMode->addItem(tr("SoundEx Filter"), CSearchCompleter::SCFME_SOUNDEX);
-	ui.comboDictionaryCompleterMode->addItem(tr("Unfiltered"), CSearchCompleter::SCFME_UNFILTERED);
+	ui.comboDictionaryCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), CSearchCompleter::SCFME_NORMAL);
+	ui.comboDictionaryCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), CSearchCompleter::SCFME_SOUNDEX);
+	ui.comboDictionaryCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), CSearchCompleter::SCFME_UNFILTERED);
 
 	connect(ui.comboDictionaryCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedDictionaryCompleterFilterMode(int)));
 	connect(ui.spinDictionaryActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedDictionaryActivationDelay(int)));
@@ -1822,10 +1822,10 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboReferenceDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui.comboReferenceDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui.comboReferenceDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui.comboReferenceDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
+	ui.comboReferenceDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui.comboReferenceDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui.comboReferenceDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui.comboReferenceDelimiterMode->addItem(tr("Parentheses", "Delimiters"), CPhraseNavigator::RDME_PARENTHESES);
 
 	connect(ui.comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
 
@@ -1843,12 +1843,12 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboVerseNumberDelimiterMode->addItem(tr("No Numbers"), CPhraseNavigator::RDME_NO_NUMBER);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("No Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Square Brackets"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses"), CPhraseNavigator::RDME_PARENTHESES);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript"), CPhraseNavigator::RDME_SUPERSCRIPT);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Numbers", "Delimiters"), CPhraseNavigator::RDME_NO_NUMBER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), CPhraseNavigator::RDME_CURLY_BRACES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses", "Delimiters"), CPhraseNavigator::RDME_PARENTHESES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript", "Delimiters"), CPhraseNavigator::RDME_SUPERSCRIPT);
 
 	connect(ui.comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
 
@@ -1866,16 +1866,16 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboTransChangeAddedMode->addItem(tr("No Marking"), CPhraseNavigator::TCAWME_NO_MARKING);
-	ui.comboTransChangeAddedMode->addItem(tr("Italics"), CPhraseNavigator::TCAWME_ITALICS);
-	ui.comboTransChangeAddedMode->addItem(tr("Brackets"), CPhraseNavigator::TCAWME_BRACKETS);
+	ui.comboTransChangeAddedMode->addItem(tr("No Marking", "Delimiters"), CPhraseNavigator::TCAWME_NO_MARKING);
+	ui.comboTransChangeAddedMode->addItem(tr("Italics", "Delimiters"), CPhraseNavigator::TCAWME_ITALICS);
+	ui.comboTransChangeAddedMode->addItem(tr("Brackets", "Delimiters"), CPhraseNavigator::TCAWME_BRACKETS);
 
 	connect(ui.comboTransChangeAddedMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTransChangeAddWordMode(int)));
 
 	// ----------
 
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line"), CPhraseNavigator::VRME_VPL);
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph"), CPhraseNavigator::VRME_FF);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.comboBoxVerseRenderingModeCopying, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingModeCopying(int)));
 
@@ -1885,10 +1885,10 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint"), CPhraseNavigator::CFSE_NONE);
-	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font"), CPhraseNavigator::CFSE_COPY_FONT);
-	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font"), CPhraseNavigator::CFSE_SCRIPTURE_BROWSER);
-	ui.comboBoxCopyFontSelection->addItem(tr("Search Results Font"), CPhraseNavigator::CFSE_SEARCH_RESULTS);
+	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint", "CopyFontModes"), CPhraseNavigator::CFSE_NONE);
+	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font", "CopyFontModes"), CPhraseNavigator::CFSE_COPY_FONT);
+	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font", "CopyFontModes"), CPhraseNavigator::CFSE_SCRIPTURE_BROWSER);
+	ui.comboBoxCopyFontSelection->addItem(tr("Search Results Font", "CopyFontModes"), CPhraseNavigator::CFSE_SEARCH_RESULTS);
 
 	connect(ui.comboBoxCopyFontSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyFontSelection(int)));
 
@@ -2353,7 +2353,7 @@ CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
 
 	ui.comboBoxLanguageList->clear();
 	QList<CTranslatorList::TLanguageName> lstLanguages = CTranslatorList::instance()->languageList();
-	ui.comboBoxLanguageList->addItem(tr("< System Locale >"), QString());
+	ui.comboBoxLanguageList->addItem(tr("< System Locale >", "languageNames"), QString());
 	for (int ndx = 0; ndx < lstLanguages.size(); ++ndx) {
 		assert(!lstLanguages.at(ndx).first.isEmpty());
 		if (lstLanguages.at(ndx).first.isEmpty()) continue;
@@ -2433,14 +2433,14 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
 	m_pLocaleConfig = new CKJVLocaleConfig(this);
 
-	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings"));
-	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options"));
-	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts"));
+	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings", "MainMenu"));
+	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options", "MainMenu"));
+	addGroup(m_pTextFormatConfig, QIcon(":/res/Font_Graphics_Color_Icon_128.png"), tr("Text Color and Fonts", "MainMenu"));
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings"));
+	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings", "MainMenu"));
 #endif
-	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database"));
-	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings"));
+	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database", "MainMenu"));
+	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings", "MainMenu"));
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
 
@@ -2603,7 +2603,7 @@ void CKJVConfigurationDialog::reject()
 	if (m_pConfiguration->isDirty()) {
 		int nResult = QMessageBox::information(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
 																	   "Click 'OK' to discard the changes and close this configuration window.\n"
-																	   "Click 'Cancel' to stay here in the configuration window."),
+																	   "Click 'Cancel' to stay here in the configuration window.", "Errors"),
 																  (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult == QMessageBox::Cancel) return;
 	}
@@ -2672,7 +2672,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 	int nResult = QMessageBox::information(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
 																   "Click 'Yes' to apply the setting changes and continue.\n"
 																   "Click 'No' to discard those setting changes and continue.\n"
-																   "Click 'Cancel' to stay on this settings page."),
+																   "Click 'Cancel' to stay on this settings page.", "Errors"),
 															  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 	if (nResult == QMessageBox::Yes) {
 		apply();
@@ -2705,7 +2705,7 @@ bool CKJVConfigurationDialog::promptRestart()
 	int nResult = QMessageBox::information(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
 																   "Doing so will close all Search Windows just like exiting the program.  "
 																   "If you choose not to exit, they will be applied the next time you run the program.\n\n"
-																   "Do you wish to restart the app??"),
+																   "Do you wish to restart the app??", "Errors"),
 																(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 	return (nResult == QMessageBox::Yes);
 }

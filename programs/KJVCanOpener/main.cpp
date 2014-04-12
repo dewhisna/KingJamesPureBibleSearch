@@ -57,7 +57,7 @@ namespace {
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
-	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
+	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization", "Errors");
 
 
 }	// namespace
@@ -162,12 +162,12 @@ int main(int argc, char *argv[])
 				if (strArg.toUInt() < bibleDescriptorCount()) {
 					pApp->setSelectedMainBibleDB(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt()));
 				} else {
-					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"").arg(strArg));
+					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"", "Errors").arg(strArg));
 				}
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
-				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"").arg(strArg));
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"", "Errors").arg(strArg));
 			}
 		} else if (!bLookingForSettings) {
 			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
@@ -180,11 +180,11 @@ int main(int argc, char *argv[])
 				bStealthMode = true;
 				bLookingForSettings = true;
 			} else {
-				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"").arg(strArg));
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}
 		} else {
 			if (bLookingForSettings) {
-				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead").arg(strArg));
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForSettings = false;
 			}
 		}
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 	// Check for existing KJPBS and have it handle this launch request:
 	if (instance.isRunning()) {
 		if (bBuildDB) {
-			displayWarning(pSplash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!"));
+			displayWarning(pSplash, g_constrInitialization, QObject::tr("Can't Build Database while app is already running!", "Errors"));
 			delete pApp;
 			return -2;
 		}
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 			return 0;
 		} else {
 			displayWarning(pSplash, g_constrInitialization, QObject::tr("There appears to be another copy of King James Pure Bible Search running, but it is not responding. "
-																		 "Please check the running copy to see if it's functioning and revive it and/or reboot."));
+																		 "Please check the running copy to see if it's functioning and revive it and/or reboot.", "Errors"));
 			delete pApp;
 			return -1;
 		}

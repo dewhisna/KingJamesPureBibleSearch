@@ -221,7 +221,7 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 			if (!userNote.keywordList().isEmpty()) {
 				beginParagraph();
 				beginFontRelativeSize("xx-small");
-				appendLiteralText(QObject::tr("Keywords:") + " ");
+				appendLiteralText(QObject::tr("Keywords:", "Scope") + " ");
 				beginItalics();
 				appendLiteralText(userNote.keywordList().join(", "));
 				endItalics();
@@ -349,7 +349,7 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 			if (!userNote.keywordList().isEmpty()) {
 				beginParagraph();
 				beginFontRelativeSize("xx-small");
-				appendLiteralText(QObject::tr("Keywords:") + " ");
+				appendLiteralText(QObject::tr("Keywords:", "Scope") + " ");
 				beginItalics();
 				appendLiteralText(userNote.keywordList().join(", "));
 				endItalics();

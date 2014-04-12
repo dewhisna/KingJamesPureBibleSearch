@@ -73,18 +73,18 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	assert(m_pNavigator != NULL);
 
-	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location"), QDialogButtonBox::ApplyRole);
+	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));
 
-	m_pModeButton = ui.buttonBox->addButton(tr("&Switch Mode"), QDialogButtonBox::ActionRole);
+	m_pModeButton = ui.buttonBox->addButton(tr("&Switch Mode", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ActionRole);
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(en_ModeClicked()));
 
-	m_pResetButton = ui.buttonBox->addButton(tr("&Reset"), QDialogButtonBox::ResetRole);
+	m_pResetButton = ui.buttonBox->addButton(tr("&Reset", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ResetRole);
 	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
 
-	m_pOKButton = ui.buttonBox->addButton(tr("&Goto"), QDialogButtonBox::AcceptRole);
+	m_pOKButton = ui.buttonBox->addButton(tr("&Goto", "CKJVPassageNavigatorDlg"), QDialogButtonBox::AcceptRole);
 
-	m_pCancelButton = ui.buttonBox->addButton(tr("&Cancel"), QDialogButtonBox::RejectRole);
+	m_pCancelButton = ui.buttonBox->addButton(tr("&Cancel", "CKJVPassageNavigatorDlg"), QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
 	en_modeChanged(m_pNavigator->isRelative());
@@ -137,13 +137,13 @@ void CKJVPassageNavigatorDlg::setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYP
 void CKJVPassageNavigatorDlg::en_modeChanged(bool bRelative)
 {
 	if (bRelative) {
-		setWindowTitle(tr("Passage Navigator - Relative Mode"));
+		setWindowTitle(tr("Passage Navigator - Relative Mode", "CKJVPassageNavigatorDlg"));
 		m_pApplyButton->show();
-		m_pModeButton->setText(tr("&Switch to Absolute Mode"));
+		m_pModeButton->setText(tr("&Switch to Absolute Mode", "CKJVPassageNavigatorDlg"));
 	} else {
-		setWindowTitle(tr("Passage Navigator - Absolute Mode"));
+		setWindowTitle(tr("Passage Navigator - Absolute Mode", "CKJVPassageNavigatorDlg"));
 		m_pApplyButton->hide();
-		m_pModeButton->setText(tr("&Switch to Relative Mode"));
+		m_pModeButton->setText(tr("&Switch to Relative Mode", "CKJVPassageNavigatorDlg"));
 	}
 	// It's sometimes confusing knowing which mode you are
 	//	in, so we'll resize back to our minimum size each

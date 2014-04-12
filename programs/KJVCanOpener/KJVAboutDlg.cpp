@@ -68,7 +68,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 #endif
 
-	QPushButton *pLicenseButton = ui.buttonBox->addButton(tr("&License"), QDialogButtonBox::ActionRole);
+	QPushButton *pLicenseButton = ui.buttonBox->addButton(tr("&License", "AboutBox"), QDialogButtonBox::ActionRole);
 	connect(pLicenseButton, SIGNAL(clicked()), this, SLOT(en_licenseDisplay()));
 	QPushButton *pCloseButton = ui.buttonBox->button(QDialogButtonBox::Close);
 	if (pCloseButton) pCloseButton->setDefault(true);
@@ -76,13 +76,13 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QGraphicsScene *scene = new QGraphicsScene(this);
 
 	m_pBethelChurch = scene->addPixmap(QPixmap(":/res/church02-e.jpg") /* .scaledToWidth(665) */ );
-	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ") + qApp->applicationVersion(), QFont("Times New Roman", 21));
+	m_pAppTitle = scene->addText(tr("King James Pure Bible Search - Version: ", "AboutBox") + qApp->applicationVersion(), QFont("Times New Roman", 21));
 	m_pAppTitle->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #if defined(EMSCRIPTEN)
-	m_pExtraVersionInfo = scene->addText(tr("Lite Version"), QFont("Times New Roman", 10));
+	m_pExtraVersionInfo = scene->addText(tr("Lite Version", "AboutBox"), QFont("Times New Roman", 10));
 	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #elif defined(VNCSERVER)
-	m_pExtraVersionInfo = scene->addText(tr("Lite Version"), QFont("Times New Roman", 10));
+	m_pExtraVersionInfo = scene->addText(tr("Lite Version", "AboutBox"), QFont("Times New Roman", 10));
 	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #else
 	m_pExtraVersionInfo = NULL;
@@ -95,14 +95,14 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QString strBuildDate(VER_BUILD_DATE_STR);
 	QString strBuildTime(VER_BUILD_TIME_STR);
 	if (!strBuildDate.isEmpty()) {
-		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Build")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
+		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Build", "AboutBox")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
 		m_pAppBuildDateTime->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	}
-	m_pQtVersion = scene->addText(tr("Based on Qt Version %1").arg(QT_VERSION_STR), QFont("Times New Roman", 10));
-	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO"), QFont("Script MT Bold", 12));
+	m_pQtVersion = scene->addText(tr("Based on Qt Version %1", "AboutBox").arg(QT_VERSION_STR), QFont("Times New Roman", 10));
+	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO", "AboutBox"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
-	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + htmlEscape(tr("Click Here to Visit Bethel Church")) + QString("</a></body></html>"));
+	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + htmlEscape(tr("Click Here to Visit Bethel Church", "AboutBox")) + QString("</a></body></html>"));
 	m_pBethelURL->setOpenExternalLinks(true);
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	// --------
@@ -183,8 +183,8 @@ void CKJVAboutDlg::en_licenseDisplay()
 			"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
 			"Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.\n"
 			"Contact: http://www.dewtronics.com/\n"
-			"Written and Developed for Bethel Church, Festus, MO.");
-	const QString strTitle = tr("About King James Pure Bible Search License");
+			"Written and Developed for Bethel Church, Festus, MO.", "AboutBox");
+	const QString strTitle = tr("About King James Pure Bible Search License", "AboutBox");
 
 #ifndef USE_ASYNC_DIALOGS
 	QMessageBox::information(this, strTitle, strLicenseInfo);

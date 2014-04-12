@@ -53,37 +53,37 @@ CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 
 	// ------------------------------------------------------------------------
 
-	m_pEditMenu = new QMenu(tr("&Edit"), ui.editPassageReference);
-	m_pEditMenu->setStatusTip(tr("Passage Reference Editor Operations"));
+	m_pEditMenu = new QMenu(tr("&Edit", "MainMenu"), ui.editPassageReference);
+	m_pEditMenu->setStatusTip(tr("Passage Reference Editor Operations", "MainMenu"));
 
-	m_pActionUndo = m_pEditMenu->addAction(tr("&Undo"), ui.editPassageReference, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
-	m_pActionUndo->setStatusTip(tr("Undo last operation to the Passage Reference Editor"));
+	m_pActionUndo = m_pEditMenu->addAction(tr("&Undo", "MainMenu"), ui.editPassageReference, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
+	m_pActionUndo->setStatusTip(tr("Undo last operation to the Passage Reference Editor", "MainMenu"));
 	m_pActionUndo->setEnabled(false);
 //	connect(m_pActionUndo, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionRedo = m_pEditMenu->addAction(tr("&Redo"), ui.editPassageReference, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z));
-	m_pActionRedo->setStatusTip(tr("Redo last operation on the Passage Reference Editor"));
+	m_pActionRedo = m_pEditMenu->addAction(tr("&Redo", "MainMenu"), ui.editPassageReference, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z));
+	m_pActionRedo->setStatusTip(tr("Redo last operation on the Passage Reference Editor", "MainMenu"));
 	m_pActionRedo->setEnabled(false);
 //	connect(m_pActionRedo, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionCut = m_pEditMenu->addAction(tr("Cu&t"), ui.editPassageReference, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
-	m_pActionCut->setStatusTip(tr("Cut selected text from the Passage Reference Editor to the clipboard"));
+	m_pActionCut = m_pEditMenu->addAction(tr("Cu&t", "MainMenu"), ui.editPassageReference, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
+	m_pActionCut->setStatusTip(tr("Cut selected text from the Passage Reference Editor to the clipboard", "MainMenu"));
 	m_pActionCut->setEnabled(false);
 //	connect(m_pActionCut, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionCopy = m_pEditMenu->addAction(tr("&Copy"), ui.editPassageReference, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopy->setStatusTip(tr("Copy selected text from the Passage Reference Editor to the clipboard"));
+	m_pActionCopy = m_pEditMenu->addAction(tr("&Copy", "MainMenu"), ui.editPassageReference, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy->setStatusTip(tr("Copy selected text from the Passage Reference Editor to the clipboard", "MainMenu"));
 	m_pActionCopy->setEnabled(false);
 //	connect(m_pActionCopy, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionPaste = m_pEditMenu->addAction(tr("&Paste"), ui.editPassageReference, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	m_pActionPaste->setStatusTip(tr("Paste text on clipboard into the Passage Reference Editor"));
+	m_pActionPaste = m_pEditMenu->addAction(tr("&Paste", "MainMenu"), ui.editPassageReference, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionPaste->setStatusTip(tr("Paste text on clipboard into the Passage Reference Editor", "MainMenu"));
 	m_pActionPaste->setEnabled(true);
 //	connect(m_pActionPaste, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionDelete = m_pEditMenu->addAction(tr("&Delete"), ui.editPassageReference, SLOT(clear()), QKeySequence(Qt::Key_Delete));
-	m_pActionDelete->setStatusTip(tr("Delete selected text from the Passage Reference Editor"));
+	m_pActionDelete = m_pEditMenu->addAction(tr("&Delete", "MainMenu"), ui.editPassageReference, SLOT(clear()), QKeySequence(Qt::Key_Delete));
+	m_pActionDelete->setStatusTip(tr("Delete selected text from the Passage Reference Editor", "MainMenu"));
 	m_pActionDelete->setEnabled(false);
 //	connect(m_pActionDelete, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All"), ui.editPassageReference, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip(tr("Select All Text in the Passage Reference Editor"));
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), ui.editPassageReference, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(tr("Select All Text in the Passage Reference Editor", "MainMenu"));
 	m_pActionSelectAll->setEnabled(false);
 //	connect(m_pActionSelectAll, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 

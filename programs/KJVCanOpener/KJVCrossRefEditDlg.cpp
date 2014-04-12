@@ -101,7 +101,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pEditSourcePassage->setTabChangesFocus(true);
 	m_pEditSourcePassage->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 	m_pEditSourcePassage->setContextMenuPolicy(Qt::DefaultContextMenu);
-	m_pEditSourcePassage->setToolTip(tr("Source Passage for Reference"));
+	m_pEditSourcePassage->setToolTip(tr("Source Passage for Reference", "MainMenu"));
 
 	delete ui.editSourcePassage;
 	ui.editSourcePassage = NULL;
@@ -125,7 +125,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	sizePolicy2.setHeightForWidth(m_pCrossRefTreeView->sizePolicy().hasHeightForWidth());
 	m_pCrossRefTreeView->setSizePolicy(sizePolicy2);
 	m_pCrossRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-	m_pCrossRefTreeView->setToolTip(tr("Cross Reference Passages Linked to the Source Reference"));
+	m_pCrossRefTreeView->setToolTip(tr("Cross Reference Passages Linked to the Source Reference", "MainMenu"));
 	m_pCrossRefTreeView->setViewMode(CVerseListModel::VVME_CROSSREFS);
 	m_pCrossRefTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 
@@ -226,7 +226,7 @@ void CKJVCrossRefEditDlg::accept()
 void CKJVCrossRefEditDlg::reject()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Do you wish to discard them??"),
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Do you wish to discard them??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 	}
@@ -276,7 +276,7 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
 
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
-	pDlg->setGotoButtonText(tr("&OK"));
+	pDlg->setGotoButtonText(tr("&OK", "MainMenu"));
 	TPhraseTag tagNav(ndxStart);
 	pDlg->navigator().startAbsoluteMode(tagNav);
 	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
@@ -294,7 +294,7 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??"),
+		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
 		if (nResult == QMessageBox::Yes) saveCrossRefs();
 	}
@@ -314,9 +314,9 @@ void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 		ndxTarget = navigateCrossRef(ndxTarget);
 		if (ndxTarget.isSet()) {
 			if (m_tagSourcePassage.relIndex() == ndxTarget) {
-				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself."));
+				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself.", "Errors"));
 			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
-				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists."));
+				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists.", "Errors"));
 			} else if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
 				m_bIsDirty = true;
 				bRefSet = true;

@@ -297,7 +297,7 @@ class CBibleEntry : public CTestamentEntry
 {
 public:
 	CBibleEntry()
-	:	CTestamentEntry(QObject::tr("Entire Bible")),
+	:	CTestamentEntry(QObject::tr("Entire Bible", "Scope")),
 		m_nNumTst(0)
 	{ }
 	~CBibleEntry() { }

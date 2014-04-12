@@ -116,7 +116,7 @@ namespace {
 	const int g_connInterAppSplashTimeMS = 2000;	// Splash Time for Inter-Application communications
 #endif
 
-	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization");
+	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization", "Errors");
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -505,7 +505,7 @@ void CMyDaemon::handleSigUsr1()
 	if (m_pMyApplication.data() != NULL) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
-	QMessageBox::warning(pParent, tr("King James Pure Bible Search"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes."));
+	QMessageBox::warning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
 
 	m_psnUsr1->setEnabled(true);
 }
@@ -643,7 +643,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 		QString strStatus;
 		if (!strMessage.isEmpty()) strStatus += "<br>\n" + strOffsetSpace + strMessage;
 		m_pSplash->showMessage(QString("<html><body><table height=375 width=500><tr><td>&nbsp;</td></tr></table><div align=\"center\"><font size=+1 color=#FFFFFF><b>") +
-										strOffsetSpace + QObject::tr("Please Wait...") +
+										strOffsetSpace + QObject::tr("Please Wait...", "Errors") +
 										strSpecialVersion +
 										strStatus +
 										QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
@@ -1207,7 +1207,7 @@ int CMyApplication::execute(bool bBuildDB)
 		int nFontStatus = QFontDatabase::addApplicationFont(strFontFileName);
 		if (nFontStatus == -1) {
 #ifdef QT_DEBUG
-			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"").arg(strFontFileName));
+			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to load font file:\n\"%1\"", "Errors").arg(strFontFileName));
 #endif	// QT_DEBUG
 		}
 	}
@@ -1296,13 +1296,13 @@ int CMyApplication::execute(bool bBuildDB)
 			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
-				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting..."));
+				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Build Bible Database!\nAborting...", "Errors"));
 				return -2;
 			}
 		}
 #else
 		if (bBuildDB) {
-			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Database building isn't supported on this platform/build..."));
+			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Database building isn't supported on this platform/build...", "Errors"));
 			return -2;
 		}
 #endif
@@ -1316,9 +1316,9 @@ int CMyApplication::execute(bool bBuildDB)
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			assert(rdbMain.haveBibleDatabaseFiles(bblDesc));
-			setSplashMessage(QString("Reading: %1 Bible").arg(bblDesc.m_strDBName));
+			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 Bible").arg(bblDesc.m_strDBName));
 			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == lstAvailableBDEs.at(ndx)))) {
-				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!").arg(bblDesc.m_strDBDesc));
+				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
 				return -3;
 			}
 		}
@@ -1329,7 +1329,7 @@ int CMyApplication::execute(bool bBuildDB)
 			TBibleDatabaseList::instance()->setMainBibleDatabase(TBibleDatabaseList::instance()->at(0)->compatibilityUUID());
 		}
 		if (TBibleDatabaseList::instance()->mainBibleDatabase().data() == NULL) {
-			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!"));
+			displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to find and load a Bible Database!  Check Installation!", "Errors"));
 			return -3;
 		}
 
@@ -1351,7 +1351,7 @@ int CMyApplication::execute(bool bBuildDB)
 			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
 			setSplashMessage(QString("Reading: %1 Dictionary").arg(dctDesc.m_strDBName));
 			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() == NULL))) {
-				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!").arg(dctDesc.m_strDBDesc));
+				displayWarning(m_pSplash, g_constrInitialization, QObject::tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
 				return -5;
 			}
 		}

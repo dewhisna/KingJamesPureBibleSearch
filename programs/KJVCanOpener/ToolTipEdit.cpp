@@ -121,7 +121,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard /* Qt::NoTextInteraction */);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	setWindowTitle(tr("Details : King James Pure Bible Search"));
+	setWindowTitle(tr("Details : King James Pure Bible Search", "MainMenu"));
 
 	assert(m_pParentCanOpener != NULL);
 
