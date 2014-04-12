@@ -7,6 +7,7 @@
     <message>
         <location filename="../BibleDBListModel.cpp" line="112"/>
         <source>Loaded - Cannot be unloaded</source>
+        <comment>BibleDBStatus</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -109,7 +109,7 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 			(role == Qt::EditRole)) {
 			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
 			if (bblDesc.m_bAutoLoad) {
-				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded"), "BibleDBStatus");
+				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded", "BibleDBStatus"));
 			} else if (bdeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
 				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "BibleDBStatus"));
 			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
