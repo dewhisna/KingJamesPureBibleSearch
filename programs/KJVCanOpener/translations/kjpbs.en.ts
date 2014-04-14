@@ -442,7 +442,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="102"/>
         <source>Word History Backword</source>
-        <translation>Word History Backword</translation>
+        <translation>Word History Backward</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="105"/>
@@ -2458,8 +2458,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Found %n Occurrence(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Found %n Occurrence(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Found %n Occurrence</numerusform>
+            <numerusform>Found %n Occurrences</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2470,8 +2470,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>in %n Verse(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>in %n Verse(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>in %n Verse</numerusform>
+            <numerusform>in %n Verses</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2482,8 +2482,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>in %n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>in %n Chapter(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>in %n Chapter</numerusform>
+            <numerusform>in %n Chapters</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2494,8 +2494,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>in %n Book(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>in %n Book(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>in %n Book</numerusform>
+            <numerusform>in %n Books</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2503,8 +2503,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found at all in %n Verse(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found at all in %n Verse of the Bible</numerusform>
+            <numerusform>Not found at all in %n Verses of the Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2512,8 +2512,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found at all in %n Chapter(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found at all in %n Chapter(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found at all in %n Chapter of the Bible</numerusform>
+            <numerusform>Not found at all in %n Chapters of the Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2521,8 +2521,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found at all in %n Book(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found at all in %n Book of the Bible</numerusform>
+            <numerusform>Not found at all in %n Books of the Bible</numerusform>
         </translation>
     </message>
     <message>
@@ -2539,8 +2539,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Excluded %n Occurrence(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Excluded %n Occurrence(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Excluded %n Occurrence</numerusform>
+            <numerusform>Excluded %n Occurrences</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2548,8 +2548,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Found %n %1Occurrence(s)%2</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Found %n %1Occurrence(s)%2</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Found %n %1Occurrence%2</numerusform>
+            <numerusform>Found %n %1Occurrences%2</numerusform>
         </translation>
     </message>
     <message>
@@ -2570,8 +2570,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found%1 at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found%1 at all in %n Verse(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found%1 at all in %n Verse of the Bible</numerusform>
+            <numerusform>Not found%1 at all in %n Verses of the Bible</numerusform>
         </translation>
     </message>
     <message>
@@ -2587,8 +2587,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found%1 at all in %n Chapter(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found%1 at all in %n Chapter(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found%1 at all in %n Chapters of the Bible</numerusform>
+            <numerusform>Not found%1 at all in %n Chapters of the Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2596,8 +2596,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Not found%1 at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found%1 at all in %n Book(s) of the Bible</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Not found%1 at all in %n Book of the Bible</numerusform>
+            <numerusform>Not found%1 at all in %n Books of the Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2605,8 +2605,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Excluded %n %1Occurrence(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Excluded %n %1Occurrence(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Excluded %n %1Occurrence</numerusform>
+            <numerusform>Excluded %n %1Occurrences</numerusform>
         </translation>
     </message>
     <message>
@@ -2634,8 +2634,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Search of %n Phrase(s) %1 within %2</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Search of %n Phrase(s) %1 within %2</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Search of %n Phrase %1 within %2</numerusform>
+            <numerusform>Search of %n Phrases %1 within %2</numerusform>
         </translation>
     </message>
     <message>
@@ -2649,8 +2649,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Search of %n Phrase(s) %1</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Search of %n Phrase %1</numerusform>
+            <numerusform>Search of %n Phrases %1</numerusform>
         </translation>
     </message>
     <message>
@@ -2664,8 +2664,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>(Found %n Time(s), %1 in Scope)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>(Found %n Time(s), %1 in Scope)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>(Found %n Time, %1 in Scope)</numerusform>
+            <numerusform>(Found %n Times, %1 in Scope)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2673,8 +2673,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>(Found %n Time(s))</numerusform>
-            <numerusform></numerusform>
+            <numerusform>(Found %n Time)</numerusform>
+            <numerusform>(Found %n Times)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2682,8 +2682,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>(Found %n Time(s), %1 in Scope and not removed by exclusions)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>(Found %n Time(s), %1 in Scope and not removed by exclusions)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>(Found %n Time, %1 in Scope and not removed by exclusions)</numerusform>
+            <numerusform>(Found %n Times, %1 in Scope and not removed by exclusions)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2691,8 +2691,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Found %n Time(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Found %n Time(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Found %n Time</numerusform>
+            <numerusform>Found %n Times</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2700,8 +2700,8 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Removed %n matching exclusion(s) from Scope</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Removed %n matching exclusion from Scope</numerusform>
+            <numerusform>Removed %n matching exclusions from Scope</numerusform>
         </translation>
     </message>
     <message>
@@ -3411,8 +3411,8 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</translati
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Chapter(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Chapter</numerusform>
+            <numerusform>%n Chapters</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3421,8 +3421,8 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</translati
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Verse(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Verse</numerusform>
+            <numerusform>%n Verses</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3432,8 +3432,8 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</translati
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Word(s)</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Word</numerusform>
+            <numerusform>%n Words</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3441,8 +3441,8 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</translati
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Word(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Word Selected</numerusform>
+            <numerusform>%n Words Selected</numerusform>
         </translation>
     </message>
 </context>
@@ -3707,8 +3707,8 @@ Do you wish to unhighlight all of them instead??</translation>
         <source>%n Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Search Result(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Search Result Selected</numerusform>
+            <numerusform>%n Search Results Selected</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3716,8 +3716,8 @@ Do you wish to unhighlight all of them instead??</translation>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Excluded Search Result(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Excluded Search Result Selected</numerusform>
+            <numerusform>%n Excluded Search Results Selected</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3725,8 +3725,8 @@ Do you wish to unhighlight all of them instead??</translation>
         <source>%n Highlighted Verse(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Highlighted Verse(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Highlighted Verse Selected</numerusform>
+            <numerusform>%n Highlighted Verses Selected</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3734,8 +3734,8 @@ Do you wish to unhighlight all of them instead??</translation>
         <source>%n Note(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Note(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Note Selected</numerusform>
+            <numerusform>%n Notes Selected</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3743,8 +3743,8 @@ Do you wish to unhighlight all of them instead??</translation>
         <source>%n Cross-Reference(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Cross-Reference(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Cross-Reference Selected</numerusform>
+            <numerusform>%n Cross-References Selected</numerusform>
         </translation>
     </message>
 </context>
@@ -5453,8 +5453,8 @@ Check Installation!</translation>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Word(s) Selected</numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n Word Selected</numerusform>
+            <numerusform>%n Words Selected</numerusform>
         </translation>
     </message>
     <message>
