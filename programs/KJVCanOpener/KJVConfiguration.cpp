@@ -165,8 +165,8 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 	m_pEnableCheckbox->setCheckable(true);
 	m_pEnableCheckbox->setChecked(g_pUserNotesDatabase->highlighterEnabled(strUserDefinedHighlighterName));
 	m_pEnableCheckbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	m_pEnableCheckbox->setText(tr("Enable", "MainMenu"));
-	m_pEnableCheckbox->setToolTip(tr("Enable/Disable this highlighter", "MainMenu"));
+	m_pEnableCheckbox->setText(CHighlighterColorButtonSignalReflector::tr("Enable", "MainMenu"));
+	m_pEnableCheckbox->setToolTip(CHighlighterColorButtonSignalReflector::tr("Enable/Disable this highlighter", "MainMenu"));
 	m_pEnableCheckbox->updateGeometry();
 	m_pHorzLayout->addWidget(m_pEnableCheckbox);
 
@@ -977,7 +977,14 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	}
 #endif
 
-	m_previewSearchPhrase.ParsePhrase(tr("trumpet", "ConfigurationSearchPreviewKeyword"));
+	// Search for "trumpet".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strTrumpet = tr("trumpet", "ConfigurationSearchPreviewKeyword");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language());
+	if (pTranslator.data() != NULL) {
+		strTrumpet = pTranslator->translator().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
+	}
+	m_previewSearchPhrase.ParsePhrase(strTrumpet);
 	m_previewSearchPhrase.FindWords();
 	TParsedPhrasesList lstPhrases;
 	lstPhrases.append(&m_previewSearchPhrase);
@@ -2404,7 +2411,7 @@ void CKJVLocaleConfig::en_changeApplicationLanguage(int nIndex)
 	CPersistentSettings::instance()->setApplicationLanguage(strLangName);
 
 	m_bIsDirty = true;
-	emit dataChanged(false);			// <<< TODO : This will probably need to be True so we can instruct user to restart for new language
+	emit dataChanged(true);
 }
 
 // ============================================================================

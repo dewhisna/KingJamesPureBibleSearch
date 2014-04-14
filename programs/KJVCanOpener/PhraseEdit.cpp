@@ -32,6 +32,7 @@
 #include "ToolTipEdit.h"
 #include "myApplication.h"
 #endif
+#include "Translator.h"
 
 #include <QStringListModel>
 #include <QTextCharFormat>
@@ -1098,6 +1099,14 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
+	// Search for "Category:".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strCategory = tr("Category:", "Scope");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	if (pTranslator.data() != NULL) {
+		strCategory = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+	}
+
 	CScriptureTextHtmlBuilder scriptureHTML;
 
 	QString strCopyFont= "font-size:medium;";
@@ -1170,7 +1179,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
 		scriptureHTML.beginDiv("category");
 		scriptureHTML.beginBold();
-		scriptureHTML.appendLiteralText(tr("Category:", "Scope"));
+		scriptureHTML.appendLiteralText(strCategory);
 		scriptureHTML.endBold();
 		scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
 		scriptureHTML.endDiv();
@@ -1219,6 +1228,22 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		assert(false);
 		emit changedDocumentText();
 		return QString();
+	}
+
+	// Search for "Category:".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strCategory = tr("Category:", "Scope");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	if (pTranslator.data() != NULL) {
+		strCategory = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+	}
+
+	// Search for "Chapter".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strChapter = tr("Chapter", "Scope");
+	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	if (pTranslator.data() != NULL) {
+		strChapter = pTranslator->translator().translate("CPhraseNavigator", "Chapter", "Scope");
 	}
 
 	CScriptureTextHtmlBuilder scriptureHTML;
@@ -1344,7 +1369,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
 			scriptureHTML.beginDiv("category");
 			scriptureHTML.beginBold();
-			scriptureHTML.appendLiteralText(tr("Category:", "Scope"));
+			scriptureHTML.appendLiteralText(strCategory);
 			scriptureHTML.endBold();
 			scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBook)));
 			scriptureHTML.endDiv();
@@ -1362,7 +1387,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// Print Heading for this Chapter:
 	scriptureHTML.beginDiv("chapter");
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
-	scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter", "Scope")).arg(ndx.chapter()));
+	scriptureHTML.appendLiteralText(QString("%1 %2").arg(strChapter).arg(ndx.chapter()));
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If we have a chapter Footnote for this chapter, print it too:
@@ -1520,7 +1545,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			if ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBookNext).isEmpty()) && (relNext.chapter() == 1)) {
 				scriptureHTML.beginDiv("category");
 				scriptureHTML.beginBold();
-				scriptureHTML.appendLiteralText(tr("Category:", "Scope"));
+				scriptureHTML.appendLiteralText(strCategory);
 				scriptureHTML.endBold();
 				scriptureHTML.appendRawText(QString(" %1").arg(m_pBibleDatabase->bookCategoryName(ndxBookNext)));
 				scriptureHTML.endDiv();
@@ -1537,7 +1562,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// Print Heading for this Chapter:
 		scriptureHTML.beginDiv("chapter");
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxBookChapNext.asAnchor());
-		scriptureHTML.appendLiteralText(QString("%1 %2").arg(tr("Chapter", "Scope")).arg(relNext.chapter()));
+		scriptureHTML.appendLiteralText(QString("%1 %2").arg(strChapter).arg(relNext.chapter()));
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 		scriptureHTML.endDiv();
 

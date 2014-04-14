@@ -1554,7 +1554,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	QString strSummary;
 
 	if (m_bLastCalcSuccess) {
-		strSummary += tr("Found %n %1Occurrence(s)%2", "Statistics", m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics") + " ") : "")
+		strSummary += tr("Found %n %1Occurrence(s)%2", "Statistics", m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : "")
 						.arg(m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text", "Statistics"))) + "\n";
 		strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) + "\n";
 		strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) + "\n";
@@ -1572,7 +1572,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		}
 		if (m_nLastExcludedSearchOccurrences > 0) {
 			strSummary += "\n";
-			strSummary += tr("Excluded %n %1Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics") + " ") : "") + "\n";
+			strSummary += tr("Excluded %n %1Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : "") + "\n";
 			strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastExcludedSearchVerses) + "\n";
 			strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastExcludedSearchChapters) + "\n";
 			strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastExcludedSearchBooks) + "\n";

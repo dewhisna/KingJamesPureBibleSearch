@@ -131,54 +131,54 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
 	T::connect(&m_dlyDetailUpdate, SIGNAL(triggered()), this, SLOT(en_detailUpdate()));
 
-	m_pEditMenu = new QMenu(T::tr("&Edit", "MainMenu"), this);
-	m_pEditMenu->setStatusTip(T::tr("Scripture Text Edit Operations", "MainMenu"));
-	m_pActionCopy = m_pEditMenu->addAction(T::tr("&Copy as shown", "MainMenu"), this, SLOT(en_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
-	m_pActionCopy->setStatusTip(T::tr("Copy selected passage browser text, as shown, to the clipboard", "MainMenu"));
+	m_pEditMenu = new QMenu(QObject::tr("&Edit", "MainMenu"), this);
+	m_pEditMenu->setStatusTip(QObject::tr("Scripture Text Edit Operations", "MainMenu"));
+	m_pActionCopy = m_pEditMenu->addAction(QObject::tr("&Copy as shown", "MainMenu"), this, SLOT(en_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy->setStatusTip(QObject::tr("Copy selected passage browser text, as shown, to the clipboard", "MainMenu"));
 	m_pActionCopy->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
-	m_pActionCopyPlain = m_pEditMenu->addAction(T::tr("Copy as shown (&plain)", "MainMenu"), this, SLOT(en_copyPlain()));
-	m_pActionCopyPlain->setStatusTip(T::tr("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard", "MainMenu"));
+	m_pActionCopyPlain = m_pEditMenu->addAction(QObject::tr("Copy as shown (&plain)", "MainMenu"), this, SLOT(en_copyPlain()));
+	m_pActionCopyPlain->setStatusTip(QObject::tr("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard", "MainMenu"));
 	m_pActionCopyPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyRaw = m_pEditMenu->addAction(T::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
-	m_pActionCopyRaw->setStatusTip(T::tr("Copy selected passage browser text as raw phrase words to the clipboard", "MainMenu"));
+	m_pActionCopyRaw = m_pEditMenu->addAction(QObject::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw->setStatusTip(QObject::tr("Copy selected passage browser text as raw phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(T::tr("Copy Very Ra&w Verse Text (No punctuation)", "MainMenu"), this, SLOT(en_copyVeryRaw()));
-	m_pActionCopyVeryRaw->setStatusTip(T::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard", "MainMenu"));
+	m_pActionCopyVeryRaw = m_pEditMenu->addAction(QObject::tr("Copy Very Ra&w Verse Text (No punctuation)", "MainMenu"), this, SLOT(en_copyVeryRaw()));
+	m_pActionCopyVeryRaw->setStatusTip(QObject::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction(T::tr("Copy as &Verses", "MainMenu"), this, SLOT(en_copyVerses()), QKeySequence(Qt::CTRL + Qt::Key_V));
-	m_pActionCopyVerses->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses to the clipboard", "MainMenu"));
+	m_pActionCopyVerses = m_pEditMenu->addAction(QObject::tr("Copy as &Verses", "MainMenu"), this, SLOT(en_copyVerses()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerses->setStatusTip(QObject::tr("Copy selected passage browser text as Formatted Verses to the clipboard", "MainMenu"));
 	m_pActionCopyVerses->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
-	m_pActionCopyVersesPlain = m_pEditMenu->addAction(T::tr("Copy as Verses (plai&n)", "MainMenu"), this, SLOT(en_copyVersesPlain()));
-	m_pActionCopyVersesPlain->setStatusTip(T::tr("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard", "MainMenu"));
+	m_pActionCopyVersesPlain = m_pEditMenu->addAction(QObject::tr("Copy as Verses (plai&n)", "MainMenu"), this, SLOT(en_copyVersesPlain()));
+	m_pActionCopyVersesPlain->setStatusTip(QObject::tr("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard", "MainMenu"));
 	m_pActionCopyVersesPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(T::tr("Copy &Reference Details (Word/Phrase)", "MainMenu"), this, SLOT(en_copyReferenceDetails()));
-	m_pActionCopyReferenceDetails->setStatusTip(T::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard", "MainMenu"));
-	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(T::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this, SLOT(en_copyPassageStatistics()));
-	m_pActionCopyPassageStatistics->setStatusTip(T::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard", "MainMenu"));
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(T::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_B));
-	m_pActionCopyEntirePassageDetails->setStatusTip(T::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(QObject::tr("Copy &Reference Details (Word/Phrase)", "MainMenu"), this, SLOT(en_copyReferenceDetails()));
+	m_pActionCopyReferenceDetails->setStatusTip(QObject::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(QObject::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this, SLOT(en_copyPassageStatistics()));
+	m_pActionCopyPassageStatistics->setStatusTip(QObject::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_B));
+	m_pActionCopyEntirePassageDetails->setStatusTip(QObject::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard", "MainMenu"));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(T::tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
-	m_pActionSelectAll->setStatusTip(T::tr("Select all current passage browser text", "MainMenu"));
+	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll->setStatusTip(QObject::tr("Select all current passage browser text", "MainMenu"));
 	m_pEditMenu->addSeparator();
 	if (m_pFindDialog != NULL) {
-		m_pActionFind = m_pEditMenu->addAction(T::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
-		m_pActionFind->setStatusTip(T::tr("Find text within the passage browser", "MainMenu"));
+		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+		m_pActionFind->setStatusTip(QObject::tr("Find text within the passage browser", "MainMenu"));
 		m_pActionFind->setEnabled(T::useFindDialog());
-		m_pActionFindNext = m_pEditMenu->addAction(T::tr("Find &Next", "MainMenu"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
-		m_pActionFindNext->setStatusTip(T::tr("Find next occurrence of text within the passage browser", "MainMenu"));
+		m_pActionFindNext = m_pEditMenu->addAction(QObject::tr("Find &Next", "MainMenu"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
+		m_pActionFindNext->setStatusTip(QObject::tr("Find next occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindNext->setEnabled(T::useFindDialog());
-		m_pActionFindPrev = m_pEditMenu->addAction(T::tr("Find &Previous", "MainMenu"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
-		m_pActionFindPrev->setStatusTip(T::tr("Find previous occurrence of text within the passage browser", "MainMenu"));
+		m_pActionFindPrev = m_pEditMenu->addAction(QObject::tr("Find &Previous", "MainMenu"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
+		m_pActionFindPrev->setStatusTip(QObject::tr("Find previous occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindPrev->setEnabled(T::useFindDialog());
 	}
 
@@ -194,7 +194,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
-	U::setToolTip(QString(T::tr("Press %1 to see Passage Details", "MainMenu")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
+	U::setToolTip(QString(QObject::tr("Press %1 to see Passage Details", "MainMenu")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
 
 	m_pStatusAction = new QAction(this);
 }
@@ -234,10 +234,10 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
-		m_pActionShowAllNotes = m_pEditMenu->addAction(T::tr("Show All Notes", "MainMenu"), this, SLOT(en_showAllNotes()));
-		m_pActionShowAllNotes->setStatusTip(T::tr("Expand all notes in the Scripture Browser, making them visible", "MainMenu"));
-		m_pActionHideAllNotes = m_pEditMenu->addAction(T::tr("Hide All Notes", "MainMenu"), this, SLOT(en_hideAllNotes()));
-		m_pActionHideAllNotes->setStatusTip(T::tr("Collapse all notes in the Scripture Browser, making them hidden", "MainMenu"));
+		m_pActionShowAllNotes = m_pEditMenu->addAction(QObject::tr("Show All Notes", "MainMenu"), this, SLOT(en_showAllNotes()));
+		m_pActionShowAllNotes->setStatusTip(QObject::tr("Expand all notes in the Scripture Browser, making them visible", "MainMenu"));
+		m_pActionHideAllNotes = m_pEditMenu->addAction(QObject::tr("Hide All Notes", "MainMenu"), this, SLOT(en_hideAllNotes()));
+		m_pActionHideAllNotes->setStatusTip(QObject::tr("Collapse all notes in the Scripture Browser, making them hidden", "MainMenu"));
 
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
@@ -565,13 +565,13 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 #endif
 		}
 		menu->addSeparator();
-		QAction *pActionNavigator = menu->addAction(QIcon(":/res/green_arrow.png"), T::tr("Passage &Navigator...", "MainMenu"));
+		QAction *pActionNavigator = menu->addAction(QIcon(":/res/green_arrow.png"), QObject::tr("Passage &Navigator...", "MainMenu"));
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 		pActionNavigator->setEnabled(true);
 		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 	}
 	menu->addSeparator();
-	QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), T::tr("View &Details...", "MainMenu"));
+	QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), QObject::tr("View &Details...", "MainMenu"));
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
@@ -656,7 +656,7 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (m_selectedPhrase.tag().count() > 0) {
 		if (!strStatusText.isEmpty()) strStatusText += " : ";
-		strStatusText += T::tr("%n Word(s) Selected", "Statistics", m_selectedPhrase.tag().count());
+		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", m_selectedPhrase.tag().count());
 	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
@@ -855,7 +855,7 @@ template<class T, class U>
 void CScriptureText<T,U>::displayCopyCompleteToolTip() const
 {
 	QPoint ptPos = T::mapToGlobal(m_ptLastTrackPosition);
-	new CNotificationToolTip(1000, ptPos, T::tr("Text Copied to Clipboard", "MainMenu"), T::viewport());
+	new CNotificationToolTip(1000, ptPos, QObject::tr("Text Copied to Clipboard", "MainMenu"), T::viewport());
 }
 
 // ----------------------------------------------------------------------------
