@@ -134,7 +134,7 @@
         <location filename="../ConfigCopyOptions.ui" line="71"/>
         <location filename="../ConfigCopyOptions.ui" line="146"/>
         <source>Use &amp;Abbreviated Book Names</source>
-        <translation>Utilisez &amp;Abrégées Livre des Noms</translation>
+        <translation>Utiliser &amp;Abrégées Livre des Noms</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="78"/>
@@ -180,12 +180,12 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="276"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Name for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It&apos;s up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Réglez désiré Nom de la police pour la Copier-police allusion.&lt;/p&gt;&lt;p&gt;Remarque: Astuce Copie-police est prévue dans le presse-papiers comme une allusion à la police souhaitée. C&apos;est à votre application cible faire le collage de décider comment l&apos;interpréter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Régler désiré Nom de la police pour la Copier-police allusion.&lt;/p&gt;&lt;p&gt;Remarque: Astuce Copie-police est prévue dans le presse-papiers comme une allusion à la police souhaitée. C&apos;est à votre application cible faire le collage de décider comment l&apos;interpréter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="283"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Point Size for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It&apos;s up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Réglez désiré taille de point de la police pour la Copier-police allusion.&lt;/p&gt;&lt;p&gt;Remarque: Astuce Copie-police est prévue dans le presse-papiers comme une allusion à la police souhaitée. C&apos;est à votre application cible faire le collage de décider comment l&apos;interpréter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Régler désiré taille de point de la police pour la Copier-police allusion.&lt;/p&gt;&lt;p&gt;Remarque: Astuce Copie-police est prévue dans le presse-papiers comme une allusion à la police souhaitée. C&apos;est à votre application cible faire le collage de décider comment l&apos;interpréter.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="290"/>
@@ -431,7 +431,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="69"/>
         <source>Enter word to search in the Dictionary</source>
-        <translation>Entrez le mot à rechercher dans le Dictionnaire</translation>
+        <translation>Entrer le mot à rechercher dans le Dictionnaire</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="88"/>
@@ -487,7 +487,7 @@
         <location filename="../DictionaryWidget.cpp" line="208"/>
         <source>Cut selected text from the Dictionary Word Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Couper le texte sélectionné dans le Dictionnaire Mot Editor pour le presse-papiers</translation>
+        <translation>Couper le texte sélectionné dans le Dictionnaire Mot Editor au presse-papiers</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="212"/>
@@ -500,7 +500,7 @@
         <location filename="../DictionaryWidget.cpp" line="213"/>
         <source>Copy selected text from the Dictionary Word Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte sélectionné dans le Dictionnaire Mot Editor pour le presse-papiers</translation>
+        <translation>Copier le texte sélectionné dans le Dictionnaire Mot Editor au presse-papiers</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="217"/>
@@ -549,7 +549,7 @@
         <location filename="../DictionaryWidget.cpp" line="238"/>
         <source>Copy selected text from the Dictionary Definition to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte sélectionné à partir de la Définition Dictionnaire à le presse-papiers</translation>
+        <translation>Copier le texte sélectionné à partir de la Définition Dictionnaire au presse-papiers</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="244"/>
@@ -1420,7 +1420,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="747"/>
         <source>Open a Web Browser and Navigate to www.PureBibleSearch.com</source>
         <comment>MainMenu</comment>
-        <translation>Ouvrez un Navigateur Web et accédez à www.PureBibleSearch.com</translation>
+        <translation>Ouvrir un Navigateur Web et accéder à www.PureBibleSearch.com</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="748"/>
@@ -1558,7 +1558,7 @@ Cliquez sur «Annuler» pour revenir à King James Pur Bible Recherche...</trans
         <location filename="../KJVCanOpener.cpp" line="1635"/>
         <source>Open KJV Search File</source>
         <comment>FileFilters</comment>
-        <translation>Ouvrez un King James Recherche Fichier</translation>
+        <translation>Ouvrir un King James Recherche Fichier</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1635"/>
@@ -1639,7 +1639,7 @@ Pour éviter ce message lors de l&apos;ouverture de ce fichier dans le futur, pu
         <location filename="../KJVCanOpener.cpp" line="2272"/>
         <source>Go to: %1</source>
         <comment>MainMenu</comment>
-        <translation>Allez à: %1</translation>
+        <translation>Aller à: %1</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="2497"/>
@@ -1891,12 +1891,12 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="155"/>
         <source>Set this as the Default Background Color for New Notes</source>
-        <translation>Définissez ce que la couleur de fond par défaut pour les nouveaux Notes</translation>
+        <translation>Définir ce que la couleur de fond par défaut pour les nouveaux Notes</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="158"/>
         <source>Set this background color as the Default Background Color for New Notes</source>
-        <translation>Réglez cette couleur de fond comme la couleur par défaut de fond pour de nouveaux Notes</translation>
+        <translation>Régler cette couleur de fond comme la couleur par défaut de fond pour de nouveaux Notes</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="161"/>
@@ -1911,7 +1911,7 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="194"/>
         <source>Insert Scripture Reference Link</source>
-        <translation>Insérez Écriture Référence Lien</translation>
+        <translation>Insérer Écriture Référence Lien</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.cpp" line="119"/>
@@ -2177,7 +2177,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchCriteria.ui" line="131"/>
         <source>&amp;Copy Search Phrase Summary to Clipboard</source>
-        <translation>&amp;Copie Recherche Phrase Résumé de Presse-papiers</translation>
+        <translation>&amp;Copier Recherche Phrase Résumé au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.ui" line="157"/>
@@ -2311,7 +2311,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="255"/>
         <source>Enter Word or Phrase to Search</source>
-        <translation>Entrez Mot ou Phrase à la recherche</translation>
+        <translation>Entrer Mot ou Phrase à la recherche</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="303"/>
@@ -2371,12 +2371,12 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="408"/>
         <source>Disable this Search Phrase</source>
-        <translation>Désactivez cette Recherche Phrase</translation>
+        <translation>Désactiver cette Recherche Phrase</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="411"/>
         <source>Disable the Results of this Search Phrase</source>
-        <translation>Désactivez les résultats de cette Recherche Phrase</translation>
+        <translation>Désactiver les résultats de cette Recherche Phrase</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="414"/>
@@ -2521,8 +2521,8 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Not found at all in %n Livre of the Bible</numerusform>
-            <numerusform>Not found at all in %n Livres of the Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Livre of the Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Livres of the Bible</numerusform>
         </translation>
     </message>
     <message>
@@ -2746,7 +2746,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="61"/>
         <source>Slide to desired control text brightness</source>
-        <translation>Réglez la luminosité souhaitée pour le texte des contrôles</translation>
+        <translation>Régler la luminosité souhaitée pour le texte des contrôles</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="86"/>
@@ -2761,7 +2761,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="100"/>
         <source>Set to Desired Font Name for the Scripture Browser</source>
-        <translation>Réglez sur désiré Nom de la Police pour le Navigateur Écriture</translation>
+        <translation>Régler sur désiré Nom de la Police pour le Navigateur Écriture</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="107"/>
@@ -2771,17 +2771,17 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="120"/>
         <source>Set to Desired Font Point Size for the Search Results List</source>
-        <translation>Réglez à la police désiré taille de point pour la liste des Résultats de la Recherche</translation>
+        <translation>Régler à la police désiré taille de point pour la liste des Résultats de la Recherche</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="127"/>
         <source>Set to Desired Font Point Size for the Dictionary Window</source>
-        <translation>Réglez à la police désiré taille de point pour la fenêtre Dictionnaire</translation>
+        <translation>Régler à la police désiré taille de point pour la fenêtre Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="134"/>
         <source>Set to Desired Font Point Size for the Application Controls and Menus (Requires Restart)</source>
-        <translation>Réglez à la police désiré taille de point pour les contrôles des applications et menus (nécessite un redémarrage)</translation>
+        <translation>Régler à la police désiré taille de point pour les contrôles des applications et menus (nécessite un redémarrage)</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="141"/>
@@ -2801,17 +2801,17 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="174"/>
         <source>Set to Desired Font Point Size for the Scripture Browser</source>
-        <translation>Réglez à la police désiré taille de point pour le Navigateur Écriture</translation>
+        <translation>Régler à la police désiré taille de point pour le Navigateur Écriture</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="181"/>
         <source>Set to Desired Font Name for the Applcation Controls and Menus (Requires Restart)</source>
-        <translation>Réglez désiré Nom de la police pour les contrôles applcation et menus (nécessite un redémarrage)</translation>
+        <translation>Régler désiré Nom de la police pour les contrôles applcation et menus (nécessite un redémarrage)</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="188"/>
         <source>Set to Desired Font Name for the Dictionary Window</source>
-        <translation>Réglez désiré Nom de la police pour la fenêtre Dictionnaire</translation>
+        <translation>Régler désiré Nom de la police pour la fenêtre Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="195"/>
@@ -2831,7 +2831,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="276"/>
         <source>Enter Custom Text Highlighter Name</source>
-        <translation>Entrez le texte fait surligneur personnalisée Nom</translation>
+        <translation>Entrer le texte fait surligneur personnalisée Nom</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="289"/>
@@ -2841,17 +2841,17 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="306"/>
         <source>Remove the specified Custom Highlighter</source>
-        <translation>Retirez le surligneur personnalisée spécifiée</translation>
+        <translation>Retirer le surligneur personnalisée spécifiée</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="323"/>
         <source>Rename the specified Custom Highlighter</source>
-        <translation>Renommez le surligneur personnalisée spécifiée</translation>
+        <translation>Renommer le surligneur personnalisée spécifiée</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="363"/>
         <source>Set the Color for the Words of Jesus</source>
-        <translation>Définissez la couleur pour les paroles de Jésus</translation>
+        <translation>Définir la couleur pour les paroles de Jésus</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="366"/>
@@ -2866,7 +2866,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="382"/>
         <source>Set the Color for the Search Results</source>
-        <translation>Définissez la couleur pour les Résultats de la Recherche</translation>
+        <translation>Définir la couleur pour les Résultats de la Recherche</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="385"/>
@@ -2876,7 +2876,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="392"/>
         <source>Set the Color for the Underlining Cursor Tracker in the Scripture Browser</source>
-        <translation>Définissez la couleur pour le Curseur Traqueur soulignement dans le Navigateur Écriture</translation>
+        <translation>Définir la couleur pour le Curseur Traqueur soulignement dans le Navigateur Écriture</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="395"/>
@@ -2999,7 +2999,7 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
-        <translation>Fermez le fichier Notes actuel primaires et de commencer une nouvelle fichier Notes vides</translation>
+        <translation>Fermer le fichier Notes actuel primaires et de commencer une nouvelle fichier Notes vides</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
@@ -3030,7 +3030,7 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
-        <translation>Saisissez l&apos;extension à ajouter aux sauvegardes de fichiers Notes</translation>
+        <translation>Entrer l&apos;extension à ajouter aux sauvegardes de fichiers Notes</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
@@ -3047,7 +3047,7 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
         <location filename="../KJVConfiguration.cpp" line="1263"/>
         <source>Set the Default Background Color for New Notes</source>
         <comment>MainMenu</comment>
-        <translation>Réglez la couleur par défaut de fond pour de nouveaux Notes</translation>
+        <translation>Régler la couleur par défaut de fond pour de nouveaux Notes</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1323"/>
@@ -3356,7 +3356,7 @@ Vérification de l&apos;installation!</translation>
     <message>
         <location filename="../PassageReferenceWidget.ui" line="37"/>
         <source>Enter &amp;Passage Reference:</source>
-        <translation>Entrez &amp;Passage Référence:</translation>
+        <translation>Entrer &amp;Passage Référence:</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="56"/>
@@ -3541,7 +3541,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchPhraseEdit.cpp" line="115"/>
         <source>Cut selected text from the Search Phrase Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Couper le texte sélectionné à partir de l&apos;éditeur de Recherche Phrase pour le presse-papiers</translation>
+        <translation>Couper le texte sélectionné à partir de l&apos;éditeur de Recherche Phrase au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="119"/>
@@ -3553,7 +3553,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchPhraseEdit.cpp" line="120"/>
         <source>Copy selected text from the Search Phrase Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte sélectionné à partir de l&apos;éditeur de Recherche Phrase pour le presse-papiers</translation>
+        <translation>Copier le texte sélectionné à partir de l&apos;éditeur de Recherche Phrase au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="124"/>
@@ -3666,31 +3666,31 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="180"/>
         <source>Copy Verse Text for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verset Texte pour les sélectionnés Résultats de la Recherche pour le presse-papiers</translation>
+        <translation>Copier Verset Texte pour les sélectionnés Résultats de la Recherche au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="183"/>
         <source>Copy Raw Verse &amp;Text (No headings)</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verset Cru &amp;Texte (Pas de rubriques)</translation>
+        <translation>Copier Verset &amp;Texte brut (Pas de rubriques)</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="184"/>
         <source>Copy selected Search Results as raw phrase words to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier sélectionné Résultats de la Recherche comme un phrase avec mots crus à le presse-papiers</translation>
+        <translation>Copier sélectionné Résultats de la Recherche comme un phrase avec mots bruts au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="187"/>
         <source>Copy Very Ra&amp;w Verse Text (No punctuation)</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verset Texte trè&amp;s crus (Pas de ponctuation)</translation>
+        <translation>Copier Verset Texte trè&amp;s brut (Pas de ponctuation)</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="188"/>
         <source>Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier sélectionné Résultats de la Recherche comme phrase mots très crus (pas de ponctuation) aux presse-papiers</translation>
+        <translation>Copier sélectionné Résultats de la Recherche comme phrase mots très bruts (pas de ponctuation) au presse-papier</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="194"/>
@@ -3702,7 +3702,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="195"/>
         <source>Copy Verse References for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verse Références pour les sélectionnés Résultats de la Recherche aux presse-papiers</translation>
+        <translation>Copier Verse Références pour les sélectionnés Résultats de la Recherche au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="198"/>
@@ -3714,19 +3714,19 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="199"/>
         <source>Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copiez le Mot / Phrase Référence Détails (Comptages) pour les Résultats de Recherche sélectionnés dans le presse papier</translation>
+        <translation>Copier le Mot / Phrase Référence Détails (Comptages) pour les Résultats de Recherche sélectionnés au presse papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="202"/>
         <source>Copy &amp;Complete Verse Text and Reference Details</source>
         <comment>MainMenu</comment>
-        <translation>Copie Verset Texte et Référence Détails &amp;Complet</translation>
+        <translation>Copier Verset Texte et Référence Détails &amp;Complet</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="203"/>
         <source>Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copiez Verset Texte et de Référence Détails (Comptages) complet pour les Résultats de Recherche sélectionnés dans le presse papier</translation>
+        <translation>Copier Verset Texte et de Référence Détails (Comptages) complet pour les Résultats de Recherche sélectionnés au presse papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="209"/>
@@ -3762,7 +3762,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="499"/>
         <source>Text Copied to Clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Texte copié dans le Presse-papiers</translation>
+        <translation>Texte copié au Presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="536"/>
@@ -5178,7 +5178,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="137"/>
         <source>Copy selected passage browser text, as shown, to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte de passage navigateur sélectionné, comme indiqué, le presse-papiers</translation>
+        <translation>Copier le texte de passage navigateur sélectionné, comme indiqué, au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="140"/>
@@ -5190,31 +5190,31 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="141"/>
         <source>Copy selected passage browser text, as shown but without colors and fonts, to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte de passage navigateur sélectionné, comme indiqué, mais sans les couleurs et les polices, le presse-papiers</translation>
+        <translation>Copier le texte de passage navigateur sélectionné, comme indiqué, mais sans les couleurs et les polices, au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="145"/>
         <source>Copy Raw Verse &amp;Text (No headings)</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verset Cru &amp;Texte (Pas de rubriques)</translation>
+        <translation>Copier Verset &amp;Texte brut (Pas de rubriques)</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="146"/>
         <source>Copy selected passage browser text as raw phrase words to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte de passage navigateur sélectionné comme un phrase avec mots crus à le presse-papiers</translation>
+        <translation>Copier le texte de passage navigateur sélectionné comme un phrase avec mots bruts au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="149"/>
         <source>Copy Very Ra&amp;w Verse Text (No punctuation)</source>
         <comment>MainMenu</comment>
-        <translation>Copier Verset Texte trè&amp;s crus (Pas de ponctuation)</translation>
+        <translation>Copier Verset Texte trè&amp;s brut (Pas de ponctuation)</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="150"/>
         <source>Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte de passage navigateur sélectionné comme phrase mots très crus (pas de ponctuation) aux presse-papiers</translation>
+        <translation>Copier le texte de passage navigateur sélectionné comme phrase mots très bruts (pas de ponctuation) au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="154"/>
@@ -5226,7 +5226,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="155"/>
         <source>Copy selected passage browser text as Formatted Verses to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le passage du texte du navigateur sélectionné comme formatés Versets le presse-papiers</translation>
+        <translation>Copier le passage du texte du navigateur sélectionné comme formatés Versets au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="158"/>
@@ -5238,7 +5238,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="159"/>
         <source>Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le passage du texte du navigateur sélectionné comme formatés versets, mais sans les couleurs et les polices, le presse-papiers</translation>
+        <translation>Copier le passage du texte du navigateur sélectionné comme formatés versets, mais sans les couleurs et les polices, au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="163"/>
@@ -5250,7 +5250,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="164"/>
         <source>Copy the Word/Phrase Reference Details in the passage browser to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le Mot / Phrase Référence Détails pour le passage du texte du navigateur sélectionné dans le presse papier</translation>
+        <translation>Copier le Mot / Phrase Référence Détails pour le passage du texte du navigateur sélectionné au presse papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="165"/>
@@ -5379,7 +5379,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="858"/>
         <source>Text Copied to Clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Texte copié dans le Presse-papiers</translation>
+        <translation>Texte copié au Presse-papiers</translation>
     </message>
 </context>
 <context>
