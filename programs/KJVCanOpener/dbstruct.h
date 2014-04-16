@@ -658,6 +658,8 @@ public:
 		return *this;
 	}
 
+	bool isValid() const { return ((m_pairNormals.first != 0) && (m_pairNormals.second != 0)); }
+
 	inline uint32_t lo() const { return m_pairNormals.first; }
 	void setLo(uint32_t nNormal) { m_pairNormals.first = nNormal; }
 	inline uint32_t hi() const { return m_pairNormals.second; }

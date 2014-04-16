@@ -1520,11 +1520,13 @@ TTagBoundsPair::TTagBoundsPair(const TPhraseTag &aTag, const CBibleDatabase *pBi
 
 bool TTagBoundsPair::completelyContains(const TTagBoundsPair &tbpSrc) const
 {
+	if (!isValid() || !tbpSrc.isValid()) return false;
 	return ((tbpSrc.lo() >= lo()) && (tbpSrc.hi() <= hi()));
 }
 
 bool TTagBoundsPair::intersects(const TTagBoundsPair &tbpSrc) const
 {
+	if (!isValid() || !tbpSrc.isValid()) return false;
 	return (((tbpSrc.lo() >= lo()) && (tbpSrc.lo() <= hi())) ||			// Front end of Src starts somewhere in This range
 			((tbpSrc.hi() >= lo()) && (tbpSrc.hi() <= hi())) ||			// Tail end of Src ends somewhere in This range
 			((lo() >= tbpSrc.lo()) && (lo() <= tbpSrc.hi())) ||			// Front end of This starts somewhere in Src range
