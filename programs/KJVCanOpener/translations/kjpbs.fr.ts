@@ -576,7 +576,7 @@
         <location filename="../Highlighter.cpp" line="351"/>
         <source>Highlight/Unhighlight the selected passage with Highlighter Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation>Mettez en surbrillance ou pas surligner le passage sélectionné avec Outil Surligneur #%1</translation>
+        <translation>Mettez en surbrillance ou hors surbrillance le passage sélectionné avec Outil Surligneur #%1</translation>
     </message>
 </context>
 <context>
@@ -1044,13 +1044,13 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="522"/>
         <source>View as Tree by &amp;Book</source>
         <comment>MainMenu</comment>
-        <translation>Voir comme un arbre par le Li&amp;vre</translation>
+        <translation>Voir comme un arbre par Li&amp;vre</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="525"/>
         <source>Show Search Results in a Tree by Book</source>
         <comment>MainMenu</comment>
-        <translation>Afficher Résultats de la Recherche dans un arbre par le livre</translation>
+        <translation>Afficher Résultats de la Recherche dans un arbre par Livre</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="530"/>
@@ -1062,7 +1062,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="533"/>
         <source>Show Search Results in a Tree by Book and Chapter</source>
         <comment>MainMenu</comment>
-        <translation>Afficher Résultats de la Recherche dans un arbre par le livre et le chapitre</translation>
+        <translation>Afficher Résultats de la Recherche dans un arbre par Livre et Chapitre</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="548"/>
@@ -2924,7 +2924,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVConfiguration.cpp" line="433"/>
         <source>Application Font can&apos;t be changed in Stealth Mode.  Launch app with -stylesheet to change it instead.</source>
         <comment>MainMenu</comment>
-        <translation>La police de l&apos;application ne peut pas être changé en Mode discrète. Lancez l&apos;application avec l&apos;option &quot;-stylesheet&quot; pour changer.</translation>
+        <translation>La police de l&apos;application ne peut être pas changé en Mode discrète. Lancez l&apos;application avec l&apos;option &quot;-stylesheet&quot; pour changer.</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="834"/>
@@ -2932,7 +2932,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
 
 So instead, would you like to disable it so that text highlighted with this Highlighter isn&apos;t visible??</source>
         <comment>Errors</comment>
-        <translation>Ce surligneur a actuellement en surbrillance le texte qui lui est associé et ne peut pas être supprimé. Pour l&apos;enlever, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionner les passages associés à ce surligneur, et faites-les glisser à un surligneur différente. Et puis vous pouvez revenir ici et supprimer ce surligneur. Ou, ouvrir un nouveau fichier King James Notes.
+        <translation>Ce surligneur a actuellement de texte en surbrillance qui lui est associé et ne peut être pas supprimé. Pour l&apos;enlever, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionnez les passages associés à ce surligneur, et faites-les glisser à un surligneur différente. Et puis vous pouvez revenir ici et supprimer ce surligneur. Ou, ouvrez un nouveau fichier King James Notes.
 
 Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis en évidence avec ce surligneur n&apos;est pas visible??</translation>
     </message>
@@ -2940,19 +2940,19 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
         <location filename="../KJVConfiguration.cpp" line="842"/>
         <source>That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with this highlighter, and drag them to a different highlighter.  And then you can return here and remove this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text highlighted with this Highlighter will be visible.</source>
         <comment>Errors</comment>
-        <translation>Ce surligneur a actuellement en surbrillance le texte qui lui est associé et ne peut pas être supprimé. Pour l&apos;enlever, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionner les passages associés à ce surligneur, et faites-les glisser à un surligneur différente. Et puis vous pouvez revenir ici et supprimer ce surligneur. Ou, ouvrir un nouveau fichier King James Notes. Le surligneur est déjà désactivé si aucun texte mis en évidence avec ce surligneur sera visible.</translation>
+        <translation>Ce surligneur a actuellement de texte en surbrillance qui lui est associé et ne peut être pas supprimé. Pour l&apos;enlever, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionnez les passages associés à ce surligneur, et faites-les glisser à un surligneur différente. Et puis vous pouvez revenir ici et supprimer ce surligneur. Ou, ouvrez un nouveau fichier King James Notes. Le surligneur est déjà désactivé si aucun texte mis en évidence avec ce surligneur sera visible.</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="875"/>
         <source>That highlighter name already exists and can&apos;t be used as a new name for this highlighter. To try again, click the rename button again. Or, to combine highlighter tags, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with the desired highlighters, and drag them to a different highlighter.</source>
         <comment>Errors</comment>
-        <translation>Ce nom de surligneur existe déjà et ne peut pas être utilisé comme un nouveau nom pour ce surligneur. Pour réessayer, cliquez à nouveau sur le bouton de changement de nom. Ou, à combiner les balises de surligneur, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionner les passages associés aux surligneurs souhaités, et les faire glisser vers un surligneur différente.</translation>
+        <translation>Ce nom de surligneur existe déjà et ne peut être pas utilisé comme un nouveau nom pour ce surligneur. Pour réessayer, cliquez sur le bouton de changement de nom. Ou, à combiner les balises de surligneur, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionnez les passages associés aux surligneurs souhaités, et faites-les glisser vers un surligneur différente.</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="916"/>
         <source>That highlighter currently has highlighted text associated with it and cannot be renamed.  To rename it, create a new highlighter with the desired name.  Then, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with this highlighter, and drag them to the new highlighter.  And then you can return here and remove this highlighter.</source>
         <comment>Errors</comment>
-        <translation>Ce surligneur a actuellement en surbrillance le texte qui lui est associé et ne peut pas être renommé. Pour renommer, créer un nouveau surligneur avec le nom souhaité. Ensuite, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionner les passages associés à ce surligneur, et faites-les glisser sur le nouveau surligneur. Et puis vous pouvez revenir ici et supprimer ce surligneur.</translation>
+        <translation>Ce surligneur a actuellement en surbrillance le texte qui lui est associé et ne peut être pas renommé. Pour renommer, créez un nouveau surligneur avec le nom souhaité. Ensuite, utilisez le mode &quot;Afficher Surligneurs&quot; pour afficher les passages en surbrillance, sélectionnez les passages associés à ce surligneur, et faites-les glisser sur le nouveau surligneur. Et puis vous pouvez revenir ici et supprimer ce surligneur.</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="982"/>
@@ -4139,9 +4139,9 @@ faites-les glisser au surligneur désiré, et déposez-les.</translation>
 
 Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?</source>
         <comment>Errors</comment>
-        <translation>Vous êtes sur le point de déplacer le verset souligné sélectionné pour le surligneur &quot;%1&quot;. Cela fusionner ces passages dans cette cible surligneur, changer leur couleur en fonction du surligneur cible. Cette opération ne peut être annulée!
+        <translation>Vous êtes sur le point de déplacer le verset surlignage sélectionné pour le surligneur &quot;%1&quot;. Cela fusionner ces passages dans cette cible surligneur, changer leur couleur en fonction du surligneur cible. Cette opération ne peut être annulée!
 
-Etes-vous sûr que vous voulez déplacer la surbrillance de verset sélectionné pour &quot;%1&quot;?</translation>
+Etes-vous sûr que vous voulez déplacer le verset surlignage sélectionné pour &quot;%1&quot;?</translation>
     </message>
     <message>
         <location filename="../VerseListModel.h" line="569"/>
