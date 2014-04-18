@@ -27,9 +27,9 @@
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/SearchCompleter.h"
+#include "../KJVCanOpener/Translator.h"
 
 #include <QCoreApplication>
-#include <QTranslator>
 #include <QLibraryInfo>
 #include <QObject>
 #include <QMainWindow>
@@ -48,8 +48,9 @@
 #include <iostream>
 #include <set>
 
+const unsigned int VERSION = 10000;		// Version 1.0.0
+
 QMainWindow *g_pMainWindow = NULL;
-QTranslator g_qtTranslator;
 
 #define NUM_BK 80u				// Total Books Defined
 #define NUM_BK_OT 39u			// Total Books in Old Testament
@@ -279,6 +280,12 @@ static void g_setTstNames()
 // Note: Other Parse Symbols are in ParseSymbols.cpp:
 
 const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse text to mark parse tags -- must NOT exist in the text
+
+// ============================================================================
+// ============================================================================
+
+const char *g_constrTranslationsPath = "../../KJVDataParse/translations/";
+const char *g_constrTranslationFilenamePrefix = "kjvdataparse";
 
 // ============================================================================
 // ============================================================================
@@ -625,9 +632,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		if  (ndx != -1) {
 			m_strLanguage = atts.value(ndx);
 			std::cerr << "Language: " << m_strLanguage.toUtf8().data();
-			QFileInfo fiTranslation(QCoreApplication::applicationDirPath(), "kjvdataparse_" + m_strLanguage);
-			if (g_qtTranslator.load(fiTranslation.absoluteFilePath())) {
-				QCoreApplication::installTranslator(&g_qtTranslator);
+			if (CTranslatorList::instance()->setApplicationLanguage(m_strLanguage)) {
 				g_setBooks();
 				g_setTstNames();
 				std::cerr << " (Loaded Translations)\n";
@@ -1316,13 +1321,21 @@ bool COSISXmlHandler::error(const QXmlParseException &exception)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
+	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
 	const char *pstrFilename = NULL;
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
 
+	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+
+	// Load translations and set main application based on our locale:
+	CTranslatorList::instance()->setApplicationLanguage();
+
 	if (argc < 4) {
+		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 <UUID-Index> <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
 		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
