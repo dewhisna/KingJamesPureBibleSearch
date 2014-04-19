@@ -51,7 +51,6 @@
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -60,7 +59,6 @@
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -72,7 +70,6 @@
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -80,7 +77,6 @@
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1639,7 +1635,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="206"/>
         <source>Obad;Oba;Ob</source>
         <comment>bookabbr</comment>
-        <translation>Obad;Oba;Ob</translation>
+        <translation>Obad;Obd;Oba;Ob</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="207"/>
@@ -2016,7 +2012,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="229"/>
         <source>The Second Epistle of Paul the Apostle to the Thessalonains</source>
         <comment>bookdesc</comment>
-        <translation>The Second Epistle of Paul the Apostle to the Thessalonains</translation>
+        <translation>The Second Epistle of Paul the Apostle to the Thessalonians</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="230"/>
@@ -2100,7 +2096,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="234"/>
         <source>Heb</source>
         <comment>bookabbr</comment>
-        <translation>Heb</translation>
+        <translation>Heb;Hebr</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="234"/>
