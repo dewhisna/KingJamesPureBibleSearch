@@ -29,6 +29,8 @@
 #include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/Translator.h"
 
+#include "xc_KJVDataParse.h"
+
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
@@ -156,14 +158,6 @@ typedef struct {
 	QString m_strCategory;
 	QString m_strDescription;
 } TBook;
-
-
-// Translation Context for KJVDataParse:
-class xc_KJVDataParse : public QObject
-{
-	Q_GADGET
-};
-
 
 // Note: When writing the book TOC, the abbreviation field will now be a semicolon separated list.  The FIRST entry will
 //			always be the untranslated OSIS Abbreviation!  The rest will be translated "Common Abbreviation" values.  There

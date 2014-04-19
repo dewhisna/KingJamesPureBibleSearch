@@ -76,6 +76,7 @@ SOURCES += main.cpp \
 	../KJVCanOpener/VerseRichifier.cpp
 
 HEADERS += \
+	xc_KJVDataParse.h \
 	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/dbDescriptors.h \
