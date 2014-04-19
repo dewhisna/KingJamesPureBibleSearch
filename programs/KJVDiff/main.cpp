@@ -28,9 +28,9 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/PhraseEdit.h"
+#include "../KJVCanOpener/Translator.h"
 
 #include <QCoreApplication>
-#include <QTranslator>
 #include <QLibraryInfo>
 #include <QObject>
 #include <QMainWindow>
@@ -56,7 +56,6 @@
 // ============================================================================
 
 QMainWindow *g_pMainWindow = NULL;
-QTranslator g_qtTranslator;
 
 namespace {
 	//////////////////////////////////////////////////////////////////////
@@ -65,8 +64,11 @@ namespace {
 
 	const unsigned int VERSION = 10000;		// Version 1.0.0
 
-
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
+
+	// Use translations from the main app:
+	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
+	const char *g_constrTranslationFilenamePrefix = "kjpbs";
 
 }	// namespace
 
@@ -180,6 +182,12 @@ int main(int argc, char *argv[])
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
+
+	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+
+	// Load translations and set main application based on our locale:
+	CTranslatorList::instance()->setApplicationLanguage();
 
 	int nDescriptor1 = -1;
 	int nDescriptor2 = -1;

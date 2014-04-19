@@ -53,6 +53,8 @@ include(../grantlee/textdocument/textdocument.pri)
 CODECFORSRC = UTF-8
 CODECFORTR  = UTF-8
 
+###############################################################################
+
 SOURCES += main.cpp \
 	../KJVCanOpener/BuildDB.cpp \
 	../KJVCanOpener/CSV.cpp \
@@ -67,6 +69,7 @@ SOURCES += main.cpp \
 	../KJVCanOpener/ReportError.cpp \
 	../KJVCanOpener/ScriptureDocument.cpp \
 	../KJVCanOpener/SearchCompleter.cpp \
+	../KJVCanOpener/Translator.cpp \
 	../KJVCanOpener/UserNotesDatabase.cpp \
 	../KJVCanOpener/VerseRichifier.cpp
 
@@ -85,24 +88,39 @@ HEADERS += \
 	../KJVCanOpener/ReportError.h \
 	../KJVCanOpener/ScriptureDocument.h \
 	../KJVCanOpener/SearchCompleter.h \
+	../KJVCanOpener/Translator.h \
 	../KJVCanOpener/UserNotesDatabase.h \
 	../KJVCanOpener/VerseRichifier.h
+
+###############################################################################
 
 # Build Translations:
 !isEmpty(TRANSLATIONS) {
 	DEFINES+=HAVE_TRANSLATIONS
 	for(f, TRANSLATIONS):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
+	for(f, TRANSLATIONS):translation_source.files += $$quote($${PWD}/$$f)
 	exists($$[QT_INSTALL_BINS]/lrelease) {
+		translation_build.output = $$translationDeploy.files
+		translation_build.target = $$translationDeploy.files
+		translation_build.input = $$translation_source.files
+		translation_build.depends = $$translation_source.files
+		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+		translation_build.CONFIG = no_link
+		QMAKE_EXTRA_TARGETS += translation_build $$translation_source.files
+		QMAKE_EXTRA_COMPILERS += translation_build
+		POST_TARGETDEPS +=  $$translation_source.files
 		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
 	} else {
 		message("Can't build translations!  Using previously built translations if possible")
 	}
 	unix:!mac {
 		translationDeploy.path = .
-		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
+#		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
 	}
 	#INSTALLS += translationDeploy
 	message("Deploying translations:" $$TRANSLATIONS$$escape_expand(\\n))
 }
+
+###############################################################################
 
 message($$CONFIG$$escape_expand(\\n))
