@@ -51,7 +51,6 @@
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -60,7 +59,6 @@
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -72,7 +70,6 @@
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -80,7 +77,6 @@
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -315,1460 +311,944 @@
         <translation type="obsolete">Toda la Biblia</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="174"/>
         <source>Genesis</source>
         <comment>bookname</comment>
-        <translation>Génesis</translation>
+        <translation type="obsolete">Génesis</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="174"/>
         <source>Gen;Gn</source>
         <comment>bookabbr</comment>
-        <translation>Gén;Gn</translation>
+        <translation type="obsolete">Gén;Gn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="174"/>
-        <location filename="../main.cpp" line="175"/>
-        <location filename="../main.cpp" line="176"/>
-        <location filename="../main.cpp" line="177"/>
-        <location filename="../main.cpp" line="178"/>
         <source>Law</source>
         <comment>bookcategory</comment>
-        <translation>Ley</translation>
+        <translation type="obsolete">Ley</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="174"/>
         <source>The First Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation>Libro Primero de Moisés</translation>
+        <translation type="obsolete">Libro Primero de Moisés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="175"/>
         <source>Exodus</source>
         <comment>bookname</comment>
-        <translation>Éxodo</translation>
+        <translation type="obsolete">Éxodo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="175"/>
         <source>Exod;Exo;Ex</source>
         <comment>bookabbr</comment>
-        <translation>Éxod;Éxo;Éx</translation>
+        <translation type="obsolete">Éxod;Éxo;Éx</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="175"/>
         <source>The Second Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation>Libro Segundo de Moisés</translation>
+        <translation type="obsolete">Libro Segundo de Moisés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="176"/>
         <source>Leviticus</source>
         <comment>bookname</comment>
-        <translation>Levítico</translation>
+        <translation type="obsolete">Levítico</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="176"/>
         <source>Lev;Lv</source>
         <comment>bookabbr</comment>
-        <translation>Lev;Lv</translation>
+        <translation type="obsolete">Lev;Lv</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="176"/>
         <source>The Third Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation>Libro Tercero de Moisés</translation>
+        <translation type="obsolete">Libro Tercero de Moisés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="177"/>
         <source>Numbers</source>
         <comment>bookname</comment>
-        <translation>Números</translation>
+        <translation type="obsolete">Números</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="177"/>
         <source>Num;Nm</source>
         <comment>bookabbr</comment>
-        <translation>Núm;Nm</translation>
+        <translation type="obsolete">Núm;Nm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="177"/>
         <source>The Fourth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation>Libro Cuarto de Moisés</translation>
+        <translation type="obsolete">Libro Cuarto de Moisés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="178"/>
         <source>Deuteronomy</source>
         <comment>bookname</comment>
-        <translation>Deuteronomio</translation>
+        <translation type="obsolete">Deuteronomio</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="178"/>
         <source>Deut;Deu;Dt</source>
         <comment>bookabbr</comment>
-        <translation>Deut;Deu;Dt</translation>
+        <translation type="obsolete">Deut;Deu;Dt</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="178"/>
         <source>The Fifth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation>Libro Quinto de Moisés</translation>
+        <translation type="obsolete">Libro Quinto de Moisés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="179"/>
         <source>Joshua</source>
         <comment>bookname</comment>
-        <translation>Josué</translation>
+        <translation type="obsolete">Josué</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="179"/>
         <source>Josh;Jos;Jo</source>
         <comment>bookabbr</comment>
-        <translation>Jos;Jo</translation>
+        <translation type="obsolete">Jos;Jo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="179"/>
-        <location filename="../main.cpp" line="180"/>
-        <location filename="../main.cpp" line="181"/>
-        <location filename="../main.cpp" line="182"/>
-        <location filename="../main.cpp" line="183"/>
-        <location filename="../main.cpp" line="184"/>
-        <location filename="../main.cpp" line="185"/>
-        <location filename="../main.cpp" line="186"/>
-        <location filename="../main.cpp" line="187"/>
-        <location filename="../main.cpp" line="188"/>
-        <location filename="../main.cpp" line="189"/>
-        <location filename="../main.cpp" line="190"/>
         <source>OT Narative</source>
         <comment>bookcategory</comment>
-        <translation>Las narrativas del Antiguo Testamento</translation>
+        <translation type="obsolete">Las narrativas del Antiguo Testamento</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="180"/>
         <source>Judges</source>
         <comment>bookname</comment>
-        <translation>Jueces</translation>
+        <translation type="obsolete">Jueces</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="180"/>
         <source>Judg;Jdg;Jgs</source>
         <comment>bookabbr</comment>
-        <translation>Jue;Jc</translation>
+        <translation type="obsolete">Jue;Jc</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="181"/>
         <source>Ruth</source>
         <comment>bookname</comment>
-        <translation>Ruth</translation>
+        <translation type="obsolete">Ruth</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="181"/>
         <source>Ruth;Rut;Ru</source>
         <comment>bookabbr</comment>
-        <translation>Ruth;Rut;Ru</translation>
+        <translation type="obsolete">Ruth;Rut;Ru</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="182"/>
         <source>1 Samuel</source>
         <comment>bookname</comment>
-        <translation>1 Samuel</translation>
+        <translation type="obsolete">1 Samuel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="182"/>
         <source>1Sam;1Sm</source>
         <comment>bookabbr</comment>
-        <translation>1Sam;1Sm</translation>
+        <translation type="obsolete">1Sam;1Sm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="182"/>
         <source>The First Book of Samuel Otherwise Called, The First Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation>Libro Primero de Samuel</translation>
+        <translation type="obsolete">Libro Primero de Samuel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="183"/>
         <source>2 Samuel</source>
         <comment>bookname</comment>
-        <translation>2 Samuel</translation>
+        <translation type="obsolete">2 Samuel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="183"/>
         <source>2Sam;2Sm</source>
         <comment>bookabbr</comment>
-        <translation>2Sam;2Sm</translation>
+        <translation type="obsolete">2Sam;2Sm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="183"/>
         <source>The Second Book of Samuel Otherwise Called, The Second Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation>Libro Segundo de Samuel</translation>
+        <translation type="obsolete">Libro Segundo de Samuel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="184"/>
         <source>1 Kings</source>
         <comment>bookname</comment>
-        <translation>1 Reyes</translation>
+        <translation type="obsolete">1 Reyes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="184"/>
         <source>1Kgs</source>
         <comment>bookabbr</comment>
-        <translation>1Re;1Rey</translation>
+        <translation type="obsolete">1Re;1Rey</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="184"/>
         <source>The First Book of the Kings Commonly Called, The Third Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation>Libro Primero de Reyes</translation>
+        <translation type="obsolete">Libro Primero de Reyes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="185"/>
         <source>2 Kings</source>
         <comment>bookname</comment>
-        <translation>2 Reyes</translation>
+        <translation type="obsolete">2 Reyes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="185"/>
         <source>2Kgs</source>
         <comment>bookabbr</comment>
-        <translation>2Re;2Rey</translation>
+        <translation type="obsolete">2Re;2Rey</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="185"/>
         <source>The Second Book of the Kings Commonly Called, The Fourth Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation>Libro Segundo de Reyes</translation>
+        <translation type="obsolete">Libro Segundo de Reyes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="186"/>
         <source>1 Chronicles</source>
         <comment>bookname</comment>
-        <translation>1 Crónicas</translation>
+        <translation type="obsolete">1 Crónicas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="186"/>
         <source>1Chr;1Chron;1Ch</source>
         <comment>bookabbr</comment>
-        <translation>1Cró;1Cr</translation>
+        <translation type="obsolete">1Cró;1Cr</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="186"/>
         <source>The First Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation>Libro Primero de Crónicas</translation>
+        <translation type="obsolete">Libro Primero de Crónicas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="187"/>
         <source>2 Chronicles</source>
         <comment>bookname</comment>
-        <translation>2 Crónicas</translation>
+        <translation type="obsolete">2 Crónicas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="187"/>
         <source>2Chr;2Chron;2Ch</source>
         <comment>bookabbr</comment>
-        <translation>2Cró;2Cr</translation>
+        <translation type="obsolete">2Cró;2Cr</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="187"/>
         <source>The Second Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation>Libro Segundo de Crónicas</translation>
+        <translation type="obsolete">Libro Segundo de Crónicas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="188"/>
         <source>Ezra</source>
         <comment>bookname</comment>
-        <translation>Esdras</translation>
+        <translation type="obsolete">Esdras</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="188"/>
         <source>Ezra;Ezr</source>
         <comment>bookabbr</comment>
-        <translation>Ezra;Ezr</translation>
+        <translation type="obsolete">Ezra;Ezr</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="189"/>
         <source>Nehemiah</source>
         <comment>bookname</comment>
-        <translation>Nehemías</translation>
+        <translation type="obsolete">Nehemías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="189"/>
         <source>Neh</source>
         <comment>bookabbr</comment>
-        <translation>Neh</translation>
+        <translation type="obsolete">Neh</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="190"/>
         <source>Esther</source>
         <comment>bookname</comment>
-        <translation>Esther</translation>
+        <translation type="obsolete">Esther</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="190"/>
         <source>Est;Esth</source>
         <comment>bookabbr</comment>
-        <translation>Est;Esth</translation>
+        <translation type="obsolete">Est;Esth</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="191"/>
         <source>Job</source>
         <comment>bookname</comment>
-        <translation>Job</translation>
+        <translation type="obsolete">Job</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="191"/>
         <source>Job;Jb</source>
         <comment>bookabbr</comment>
-        <translation>Job;Jb</translation>
+        <translation type="obsolete">Job;Jb</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="191"/>
-        <location filename="../main.cpp" line="192"/>
-        <location filename="../main.cpp" line="193"/>
-        <location filename="../main.cpp" line="194"/>
-        <location filename="../main.cpp" line="195"/>
         <source>Wisdom</source>
         <comment>bookcategory</comment>
-        <translation>Sabiduría</translation>
+        <translation type="obsolete">Sabiduría</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="192"/>
         <source>Psalms</source>
         <comment>bookname</comment>
-        <translation>Salmos</translation>
+        <translation type="obsolete">Salmos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="192"/>
         <source>Ps;Pss</source>
         <comment>bookabbr</comment>
-        <translation>Sal</translation>
+        <translation type="obsolete">Sal</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="193"/>
         <source>Proverbs</source>
         <comment>bookname</comment>
-        <translation>Proverbios</translation>
+        <translation type="obsolete">Proverbios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="193"/>
         <source>Prov;Prv;Pv</source>
         <comment>bookabbr</comment>
-        <translation>Prov;Prv;Pv;Pro;Pr</translation>
+        <translation type="obsolete">Prov;Prv;Pv;Pro;Pr</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="194"/>
         <source>Ecclesiastes</source>
         <comment>bookname</comment>
-        <translation>Eclesiastés</translation>
+        <translation type="obsolete">Eclesiastés</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="194"/>
         <source>Eccl;Eccles</source>
         <comment>bookabbr</comment>
-        <translation>Ecl;Ec</translation>
+        <translation type="obsolete">Ecl;Ec</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="194"/>
         <source>Ecclesiastes; Or, The Preacher</source>
         <comment>bookdesc</comment>
-        <translation>Libro de Eclesiastés; O El Predicador</translation>
+        <translation type="obsolete">Libro de Eclesiastés; O El Predicador</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="195"/>
         <source>Song Of Solomon</source>
         <comment>bookname</comment>
-        <translation>Cantar de los Cantares</translation>
+        <translation type="obsolete">Cantar de los Cantares</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="195"/>
         <source>Song;Sg</source>
         <comment>bookabbr</comment>
-        <translation>Cant;Ct</translation>
+        <translation type="obsolete">Cant;Ct</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="196"/>
         <source>Isaiah</source>
         <comment>bookname</comment>
-        <translation>Isaias</translation>
+        <translation type="obsolete">Isaias</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="196"/>
         <source>Isa;Is</source>
         <comment>bookabbr</comment>
-        <translation>Isa;Is</translation>
+        <translation type="obsolete">Isa;Is</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="196"/>
-        <location filename="../main.cpp" line="197"/>
-        <location filename="../main.cpp" line="198"/>
-        <location filename="../main.cpp" line="199"/>
-        <location filename="../main.cpp" line="200"/>
         <source>Major Prophets</source>
         <comment>bookcategory</comment>
-        <translation>Profetas Mayores</translation>
+        <translation type="obsolete">Profetas Mayores</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="196"/>
         <source>The Book of the Prophet Isaiah</source>
         <comment>bookdesc</comment>
-        <translation>El Libro de Isaías el Profeta</translation>
+        <translation type="obsolete">El Libro de Isaías el Profeta</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="197"/>
         <source>Jeremiah</source>
         <comment>bookname</comment>
-        <translation>Jeremías</translation>
+        <translation type="obsolete">Jeremías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="197"/>
         <source>Jer</source>
         <comment>bookabbr</comment>
-        <translation>Jer</translation>
+        <translation type="obsolete">Jer</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="197"/>
         <source>The Book of the Prophet Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation>El Libro de Jeremías el Profeta</translation>
+        <translation type="obsolete">El Libro de Jeremías el Profeta</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="198"/>
         <source>Lamentations</source>
         <comment>bookname</comment>
-        <translation>Lamentaciones</translation>
+        <translation type="obsolete">Lamentaciones</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="198"/>
         <source>Lam</source>
         <comment>bookabbr</comment>
-        <translation>Lam</translation>
+        <translation type="obsolete">Lam</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="198"/>
         <source>The Lamentations of Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation>Las Lamentaciones de Jeremías</translation>
+        <translation type="obsolete">Las Lamentaciones de Jeremías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="199"/>
         <source>Ezekiel</source>
         <comment>bookname</comment>
-        <translation>Ezequiel</translation>
+        <translation type="obsolete">Ezequiel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="199"/>
         <source>Ezek;Eze;Ez</source>
         <comment>bookabbr</comment>
-        <translation>Ez;Eze;Ezeq</translation>
+        <translation type="obsolete">Ez;Eze;Ezeq</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="199"/>
         <source>The Book of the Prophet Ezekiel</source>
         <comment>bookdesc</comment>
-        <translation>El Libro de Ezequiel el Profeta</translation>
+        <translation type="obsolete">El Libro de Ezequiel el Profeta</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="200"/>
         <source>Daniel</source>
         <comment>bookname</comment>
-        <translation>Daniel</translation>
+        <translation type="obsolete">Daniel</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="200"/>
         <source>Dan;Dn</source>
         <comment>bookabbr</comment>
-        <translation>Dan;Dn</translation>
+        <translation type="obsolete">Dan;Dn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="200"/>
         <source>The Book of &lt;i&gt;the Prophet&lt;/i&gt; Daniel</source>
         <comment>bookdesc</comment>
-        <translation>El Libro de Daniel el Profeta</translation>
+        <translation type="obsolete">El Libro de Daniel el Profeta</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="201"/>
         <source>Hosea</source>
         <comment>bookname</comment>
-        <translation>Oseas</translation>
+        <translation type="obsolete">Oseas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="201"/>
         <source>Hos</source>
         <comment>bookabbr</comment>
-        <translation>Os</translation>
+        <translation type="obsolete">Os</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="201"/>
-        <location filename="../main.cpp" line="202"/>
-        <location filename="../main.cpp" line="203"/>
-        <location filename="../main.cpp" line="204"/>
-        <location filename="../main.cpp" line="205"/>
-        <location filename="../main.cpp" line="206"/>
-        <location filename="../main.cpp" line="207"/>
-        <location filename="../main.cpp" line="208"/>
-        <location filename="../main.cpp" line="209"/>
-        <location filename="../main.cpp" line="210"/>
-        <location filename="../main.cpp" line="211"/>
-        <location filename="../main.cpp" line="212"/>
         <source>Minor Prophets</source>
         <comment>bookcategory</comment>
-        <translation>Profetas Menores</translation>
+        <translation type="obsolete">Profetas Menores</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="202"/>
         <source>Joel</source>
         <comment>bookname</comment>
-        <translation>Joél</translation>
+        <translation type="obsolete">Joél</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="202"/>
         <source>Joel;Joe;Jl</source>
         <comment>bookabbr</comment>
-        <translation>Joél;Joé;Jl</translation>
+        <translation type="obsolete">Joél;Joé;Jl</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="203"/>
         <source>Amos</source>
         <comment>bookname</comment>
-        <translation>Amós</translation>
+        <translation type="obsolete">Amós</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="203"/>
         <source>Amos;Amo;Am</source>
         <comment>bookabbr</comment>
-        <translation>Amós;Amó;Am</translation>
+        <translation type="obsolete">Amós;Amó;Am</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="204"/>
         <source>Obadiah</source>
         <comment>bookname</comment>
-        <translation>Abdías</translation>
+        <translation type="obsolete">Abdías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="204"/>
         <source>Obad;Oba;Ob</source>
         <comment>bookabbr</comment>
-        <translation>Abd</translation>
+        <translation type="obsolete">Abd</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="205"/>
         <source>Jonah</source>
         <comment>bookname</comment>
-        <translation>Jonás</translation>
+        <translation type="obsolete">Jonás</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="205"/>
         <source>Jonah;Jona;Jon</source>
         <comment>bookabbr</comment>
-        <translation>Jon;Jonás;Joná</translation>
+        <translation type="obsolete">Jon;Jonás;Joná</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="206"/>
         <source>Micah</source>
         <comment>bookname</comment>
-        <translation>Miqueas</translation>
+        <translation type="obsolete">Miqueas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="206"/>
         <source>Mic;Mi</source>
         <comment>bookabbr</comment>
-        <translation>Miq;Mi</translation>
+        <translation type="obsolete">Miq;Mi</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="207"/>
         <source>Nahum</source>
         <comment>bookname</comment>
-        <translation>Nahúm</translation>
+        <translation type="obsolete">Nahúm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="207"/>
         <source>Nah;Na</source>
         <comment>bookabbr</comment>
-        <translation>Nah;Na</translation>
+        <translation type="obsolete">Nah;Na</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="208"/>
         <source>Habakkuk</source>
         <comment>bookname</comment>
-        <translation>Habacuc</translation>
+        <translation type="obsolete">Habacuc</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="208"/>
         <source>Hab;Hb</source>
         <comment>bookabbr</comment>
-        <translation>Hab;Hb</translation>
+        <translation type="obsolete">Hab;Hb</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="209"/>
         <source>Zephaniah</source>
         <comment>bookname</comment>
-        <translation>Sofonías</translation>
+        <translation type="obsolete">Sofonías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="209"/>
         <source>Zeph;Zep</source>
         <comment>bookabbr</comment>
-        <translation>Sof;So</translation>
+        <translation type="obsolete">Sof;So</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="210"/>
         <source>Haggai</source>
         <comment>bookname</comment>
-        <translation>Hageo</translation>
+        <translation type="obsolete">Hageo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="210"/>
         <source>Hag;Hg</source>
         <comment>bookabbr</comment>
-        <translation>Ag;Hag;Hg</translation>
+        <translation type="obsolete">Ag;Hag;Hg</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="211"/>
         <source>Zechariah</source>
         <comment>bookname</comment>
-        <translation>Zacarías</translation>
+        <translation type="obsolete">Zacarías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="211"/>
         <source>Zech;Zec</source>
         <comment>bookabbr</comment>
-        <translation>Zac;Za</translation>
+        <translation type="obsolete">Zac;Za</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="212"/>
         <source>Malachi</source>
         <comment>bookname</comment>
-        <translation>Malaquías</translation>
+        <translation type="obsolete">Malaquías</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="212"/>
         <source>Mal</source>
         <comment>bookabbr</comment>
-        <translation>Mal</translation>
+        <translation type="obsolete">Mal</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="214"/>
         <source>Matthew</source>
         <comment>bookname</comment>
-        <translation>Mateo</translation>
+        <translation type="obsolete">Mateo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="214"/>
         <source>Matt;Mt</source>
         <comment>bookabbr</comment>
-        <translation>Mat;Mt</translation>
+        <translation type="obsolete">Mat;Mt</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="214"/>
-        <location filename="../main.cpp" line="215"/>
-        <location filename="../main.cpp" line="216"/>
-        <location filename="../main.cpp" line="217"/>
-        <location filename="../main.cpp" line="218"/>
         <source>NT Narative</source>
         <comment>bookcategory</comment>
-        <translation>Las Narrativas del Nuevo Testamento</translation>
+        <translation type="obsolete">Las Narrativas del Nuevo Testamento</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="214"/>
         <source>The Gospel According to Saint Matthew</source>
         <comment>bookdesc</comment>
-        <translation>El Santo Evangelio según San Mateo</translation>
+        <translation type="obsolete">El Santo Evangelio según San Mateo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="215"/>
         <source>Mark</source>
         <comment>bookname</comment>
-        <translation>Marcos</translation>
+        <translation type="obsolete">Marcos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="215"/>
         <source>Mark;Mk</source>
         <comment>bookabbr</comment>
-        <translation>Marc;Mc</translation>
+        <translation type="obsolete">Marc;Mc</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="215"/>
         <source>The Gospel According to Saint Mark</source>
         <comment>bookdesc</comment>
-        <translation>El Santo Evangelio según San Marcos</translation>
+        <translation type="obsolete">El Santo Evangelio según San Marcos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="216"/>
         <source>Luke</source>
         <comment>bookname</comment>
-        <translation>Lucas</translation>
+        <translation type="obsolete">Lucas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="216"/>
         <source>Luke;Lk</source>
         <comment>bookabbr</comment>
-        <translation>Luc;Lc</translation>
+        <translation type="obsolete">Luc;Lc</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="216"/>
         <source>The Gospel According to Saint Luke</source>
         <comment>bookdesc</comment>
-        <translation>El Santo Evangelio según San Lucas</translation>
+        <translation type="obsolete">El Santo Evangelio según San Lucas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="217"/>
         <source>John</source>
         <comment>bookname</comment>
-        <translation>Juan</translation>
+        <translation type="obsolete">Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="217"/>
         <source>John;Jhn;Jn</source>
         <comment>bookabbr</comment>
-        <translation>Juan;Jn</translation>
+        <translation type="obsolete">Juan;Jn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="217"/>
         <source>The Gospel According to Saint John</source>
         <comment>bookdesc</comment>
-        <translation>El Santo Evangelio según San Juan</translation>
+        <translation type="obsolete">El Santo Evangelio según San Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="218"/>
         <source>Acts</source>
         <comment>bookname</comment>
-        <translation>Hechos</translation>
+        <translation type="obsolete">Hechos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="218"/>
         <source>Acts</source>
         <comment>bookabbr</comment>
-        <translation>Hech;Hch;He</translation>
+        <translation type="obsolete">Hech;Hch;He</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="218"/>
         <source>The Acts of the Apostles</source>
         <comment>bookdesc</comment>
-        <translation>Hechos de los Apóstoles</translation>
+        <translation type="obsolete">Hechos de los Apóstoles</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="219"/>
         <source>Romans</source>
         <comment>bookname</comment>
-        <translation>Romanos</translation>
+        <translation type="obsolete">Romanos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="219"/>
         <source>Rom</source>
         <comment>bookabbr</comment>
-        <translation>Rom</translation>
+        <translation type="obsolete">Rom</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="219"/>
-        <location filename="../main.cpp" line="220"/>
-        <location filename="../main.cpp" line="221"/>
-        <location filename="../main.cpp" line="222"/>
-        <location filename="../main.cpp" line="223"/>
-        <location filename="../main.cpp" line="224"/>
-        <location filename="../main.cpp" line="225"/>
-        <location filename="../main.cpp" line="226"/>
-        <location filename="../main.cpp" line="227"/>
-        <location filename="../main.cpp" line="228"/>
-        <location filename="../main.cpp" line="229"/>
-        <location filename="../main.cpp" line="230"/>
-        <location filename="../main.cpp" line="231"/>
-        <location filename="../main.cpp" line="232"/>
         <source>Pauline Epistles</source>
         <comment>bookcategory</comment>
-        <translation>Epístolas Paulinas</translation>
+        <translation type="obsolete">Epístolas Paulinas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="219"/>
         <source>The Epistle of Paul the Apostle to the Romans</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Romanos</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Romanos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="220"/>
         <source>1 Corinthians</source>
         <comment>bookname</comment>
-        <translation>1 Corintios</translation>
+        <translation type="obsolete">1 Corintios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="220"/>
         <source>1Cor</source>
         <comment>bookabbr</comment>
-        <translation>1Cor;1Co</translation>
+        <translation type="obsolete">1Cor;1Co</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="220"/>
         <source>The First Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation>La Primera Epístola del Apóstol San Pablo a los Corintios</translation>
+        <translation type="obsolete">La Primera Epístola del Apóstol San Pablo a los Corintios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="221"/>
         <source>2 Corinthians</source>
         <comment>bookname</comment>
-        <translation>2 Corintios</translation>
+        <translation type="obsolete">2 Corintios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="221"/>
         <source>2Cor</source>
         <comment>bookabbr</comment>
-        <translation>2Cor;2Co</translation>
+        <translation type="obsolete">2Cor;2Co</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="221"/>
         <source>The Second Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation>La Segunda Epístola del Apóstol San Pablo a los Corintios</translation>
+        <translation type="obsolete">La Segunda Epístola del Apóstol San Pablo a los Corintios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="222"/>
         <source>Galatians</source>
         <comment>bookname</comment>
-        <translation>Gálatas</translation>
+        <translation type="obsolete">Gálatas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="222"/>
         <source>Gal</source>
         <comment>bookabbr</comment>
-        <translation>Gál</translation>
+        <translation type="obsolete">Gál</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="222"/>
         <source>The Epistle of Paul the Apostle to the Galatians</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Gálatas</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Gálatas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="223"/>
         <source>Ephesians</source>
         <comment>bookname</comment>
-        <translation>Efesios</translation>
+        <translation type="obsolete">Efesios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="223"/>
         <source>Eph</source>
         <comment>bookabbr</comment>
-        <translation>Ef;Efes</translation>
+        <translation type="obsolete">Ef;Efes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="223"/>
         <source>The Epistle of Paul the Apostle to the Ephesians</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Efesios</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Efesios</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="224"/>
         <source>Philippians</source>
         <comment>bookname</comment>
-        <translation>Filipenses</translation>
+        <translation type="obsolete">Filipenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="224"/>
         <source>Phil</source>
         <comment>bookabbr</comment>
-        <translation>Fil;Flp</translation>
+        <translation type="obsolete">Fil;Flp</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="224"/>
         <source>The Epistle of Paul the Apostle to the Philippians</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Filipenses</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Filipenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="225"/>
         <source>Colossians</source>
         <comment>bookname</comment>
-        <translation>Colosenses</translation>
+        <translation type="obsolete">Colosenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="225"/>
         <source>Col</source>
         <comment>bookabbr</comment>
-        <translation>Col</translation>
+        <translation type="obsolete">Col</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="225"/>
         <source>The Epistle of Paul the Apostle to the Colossians</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Colosenses</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Colosenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="226"/>
         <source>1 Thessalonians</source>
         <comment>bookname</comment>
-        <translation>1 Tesalonicenses</translation>
+        <translation type="obsolete">1 Tesalonicenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="226"/>
         <source>1Thess;1Thes;1Th</source>
         <comment>bookabbr</comment>
-        <translation>1Tes</translation>
+        <translation type="obsolete">1Tes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="226"/>
         <source>The First Epistle of Paul the Apostle to the Thessalonians</source>
         <comment>bookdesc</comment>
-        <translation>La Primera Epístola del Apóstol San Pablo a los Tesalonicenses</translation>
+        <translation type="obsolete">La Primera Epístola del Apóstol San Pablo a los Tesalonicenses</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="227"/>
         <source>2 Thessalonians</source>
         <comment>bookname</comment>
-        <translation>2 Tesalonicences</translation>
+        <translation type="obsolete">2 Tesalonicences</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="227"/>
         <source>2Thess;2Thes;2Th</source>
         <comment>bookabbr</comment>
-        <translation>2Tes</translation>
+        <translation type="obsolete">2Tes</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="227"/>
         <source>The Second Epistle of Paul the Apostle to the Thessalonains</source>
         <comment>bookdesc</comment>
-        <translation>La Segunda Epístola del Apóstol San Pablo a los Thessalonains</translation>
+        <translation type="obsolete">La Segunda Epístola del Apóstol San Pablo a los Thessalonains</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="228"/>
         <source>1 Timothy</source>
         <comment>bookname</comment>
-        <translation>1 Timoteo</translation>
+        <translation type="obsolete">1 Timoteo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="228"/>
         <source>1Tim;1Tm</source>
         <comment>bookabbr</comment>
-        <translation>1Tim;1Tm</translation>
+        <translation type="obsolete">1Tim;1Tm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="228"/>
         <source>The First Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation>La Primera Epístola del Apóstol San Pablo a Timoteo</translation>
+        <translation type="obsolete">La Primera Epístola del Apóstol San Pablo a Timoteo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="229"/>
         <source>2 Timothy</source>
         <comment>bookname</comment>
-        <translation>2 Timoteo</translation>
+        <translation type="obsolete">2 Timoteo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="229"/>
         <source>2Tim;2Tm</source>
         <comment>bookabbr</comment>
-        <translation>2Tim;2Tm</translation>
+        <translation type="obsolete">2Tim;2Tm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="229"/>
         <source>The Second Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation>La Segunda Epístola del Apóstol San Pablo a Timoteo</translation>
+        <translation type="obsolete">La Segunda Epístola del Apóstol San Pablo a Timoteo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="230"/>
         <source>Titus</source>
         <comment>bookname</comment>
-        <translation>Tito</translation>
+        <translation type="obsolete">Tito</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="230"/>
         <source>Titus;Ti</source>
         <comment>bookabbr</comment>
-        <translation>Tito;Tit;Ti</translation>
+        <translation type="obsolete">Tito;Tit;Ti</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="230"/>
         <source>The Epistle of Paul to Titus</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol Pablo a Tito</translation>
+        <translation type="obsolete">La Epístola del Apóstol Pablo a Tito</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="231"/>
         <source>Philemon</source>
         <comment>bookname</comment>
-        <translation>Filemón</translation>
+        <translation type="obsolete">Filemón</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="231"/>
         <source>Phlm;Philem</source>
         <comment>bookabbr</comment>
-        <translation>Filem;Flm</translation>
+        <translation type="obsolete">Filem;Flm</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="231"/>
         <source>The Epistle of Paul to Philemon</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol Pablo a Filemón</translation>
+        <translation type="obsolete">La Epístola del Apóstol Pablo a Filemón</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="232"/>
         <source>Hebrews</source>
         <comment>bookname</comment>
-        <translation>Hebreos</translation>
+        <translation type="obsolete">Hebreos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="232"/>
         <source>Heb</source>
         <comment>bookabbr</comment>
-        <translation>Heb</translation>
+        <translation type="obsolete">Heb</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="232"/>
         <source>The Epistle of Paul the Apostle to the Hebrews</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola del Apóstol San Pablo a los Hebreos</translation>
+        <translation type="obsolete">La Epístola del Apóstol San Pablo a los Hebreos</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="233"/>
         <source>James</source>
         <comment>bookname</comment>
-        <translation>Santiago</translation>
+        <translation type="obsolete">Santiago</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="233"/>
         <source>Jas</source>
         <comment>bookabbr</comment>
-        <translation>Sant;Stgo;St</translation>
+        <translation type="obsolete">Sant;Stgo;St</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="233"/>
-        <location filename="../main.cpp" line="234"/>
-        <location filename="../main.cpp" line="235"/>
-        <location filename="../main.cpp" line="236"/>
-        <location filename="../main.cpp" line="237"/>
-        <location filename="../main.cpp" line="238"/>
-        <location filename="../main.cpp" line="239"/>
         <source>General Epistles</source>
         <comment>bookcategory</comment>
-        <translation>Epístolas Generales</translation>
+        <translation type="obsolete">Epístolas Generales</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="233"/>
         <source>The General Epistle of James</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola Universal de Santiago</translation>
+        <translation type="obsolete">La Epístola Universal de Santiago</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="234"/>
         <source>1 Peter</source>
         <comment>bookname</comment>
-        <translation>1 Pedro</translation>
+        <translation type="obsolete">1 Pedro</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="234"/>
         <source>1Pet;1Pt</source>
         <comment>bookabbr</comment>
-        <translation>1Pe</translation>
+        <translation type="obsolete">1Pe</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="234"/>
         <source>The First General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation>La Primera Epístola Universal de Pedro</translation>
+        <translation type="obsolete">La Primera Epístola Universal de Pedro</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="235"/>
         <source>2 Peter</source>
         <comment>bookname</comment>
-        <translation>2 Pedro</translation>
+        <translation type="obsolete">2 Pedro</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="235"/>
         <source>2Pet;2Pt</source>
         <comment>bookabbr</comment>
-        <translation>2Pe</translation>
+        <translation type="obsolete">2Pe</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="235"/>
         <source>The Second General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation>La Segunda Epístola Universal de Pedro</translation>
+        <translation type="obsolete">La Segunda Epístola Universal de Pedro</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="236"/>
         <source>1 John</source>
         <comment>bookname</comment>
-        <translation>1 Juan</translation>
+        <translation type="obsolete">1 Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="236"/>
         <source>1John;1Jn</source>
         <comment>bookabbr</comment>
-        <translation>1Juan;1Jn</translation>
+        <translation type="obsolete">1Juan;1Jn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="236"/>
         <source>The First General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation>La Primera Epístola del Apóstol Juan</translation>
+        <translation type="obsolete">La Primera Epístola del Apóstol Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="237"/>
         <source>2 John</source>
         <comment>bookname</comment>
-        <translation>2 Juan</translation>
+        <translation type="obsolete">2 Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="237"/>
         <source>2John;2Jn</source>
         <comment>bookabbr</comment>
-        <translation>2Juan;2Jn</translation>
+        <translation type="obsolete">2Juan;2Jn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="237"/>
         <source>The Second General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation>La Segunda Epístola del Apóstol Juan</translation>
+        <translation type="obsolete">La Segunda Epístola del Apóstol Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="238"/>
         <source>3 John</source>
         <comment>bookname</comment>
-        <translation>3 Juan</translation>
+        <translation type="obsolete">3 Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="238"/>
         <source>3John;3Jn</source>
         <comment>bookabbr</comment>
-        <translation>3Juan;3Jn</translation>
+        <translation type="obsolete">3Juan;3Jn</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="238"/>
         <source>The Third General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation>La Tercera Epístola del Apóstol Juan</translation>
+        <translation type="obsolete">La Tercera Epístola del Apóstol Juan</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="239"/>
         <source>Jude</source>
         <comment>bookname</comment>
-        <translation>Judas</translation>
+        <translation type="obsolete">Judas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="239"/>
         <source>Jude</source>
         <comment>bookabbr</comment>
-        <translation>Jud</translation>
+        <translation type="obsolete">Jud</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="239"/>
         <source>The General Epistle of Jude</source>
         <comment>bookdesc</comment>
-        <translation>La Epístola de Judas</translation>
+        <translation type="obsolete">La Epístola de Judas</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="240"/>
         <source>Revelation</source>
         <comment>bookname</comment>
-        <translation>Apocalipsis</translation>
+        <translation type="obsolete">Apocalipsis</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="240"/>
         <source>Rev;Rv;Apoc</source>
         <comment>bookabbr</comment>
-        <translation>Apoc;Ap;Rev;Rv</translation>
+        <translation type="obsolete">Apoc;Ap;Rev;Rv</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="240"/>
         <source>Apocalyptic Epistle</source>
         <comment>bookcategory</comment>
-        <translation>Epístola Apocalíptica</translation>
+        <translation type="obsolete">Epístola Apocalíptica</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="240"/>
         <source>The Revelation of Jesus Christ</source>
         <comment>bookdesc</comment>
-        <translation>La Revelación de Jesucristo</translation>
+        <translation type="obsolete">La Revelación de Jesucristo</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="242"/>
-        <source>1 Esdras</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="242"/>
-        <source>1Esd;1Es</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="242"/>
-        <location filename="../main.cpp" line="243"/>
-        <location filename="../main.cpp" line="244"/>
-        <location filename="../main.cpp" line="245"/>
-        <location filename="../main.cpp" line="246"/>
-        <location filename="../main.cpp" line="247"/>
-        <location filename="../main.cpp" line="248"/>
-        <location filename="../main.cpp" line="249"/>
-        <location filename="../main.cpp" line="250"/>
-        <location filename="../main.cpp" line="251"/>
-        <location filename="../main.cpp" line="252"/>
-        <location filename="../main.cpp" line="253"/>
-        <location filename="../main.cpp" line="254"/>
-        <location filename="../main.cpp" line="255"/>
-        <source>Apocrypha</source>
-        <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="242"/>
-        <source>The First Book of Esdras</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="243"/>
-        <source>2 Esdras</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="243"/>
-        <source>2Esd;2Es</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="243"/>
-        <source>The Second Book of Esdras</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="244"/>
-        <source>Tobit</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="244"/>
-        <source>Tob;Tb</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="244"/>
-        <source>The Book of Tobit</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="245"/>
-        <source>Judith</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="245"/>
-        <source>Jdt;Jth</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="245"/>
-        <source>The Book of Judith</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="246"/>
-        <source>Additions to Esther</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="246"/>
-        <source>AddEst;AddEsth</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="246"/>
-        <source>The Rest of the Chapters of the Book of Esther</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="247"/>
         <source>Wisdom</source>
         <comment>bookname</comment>
-        <translation type="unfinished">Sabiduría</translation>
+        <translation type="obsolete">Sabiduría</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="247"/>
-        <source>Wis;Ws</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="247"/>
-        <source>The Book of Wisdom or The Wisdom of Solomon</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="248"/>
-        <source>Sirach</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="248"/>
-        <source>Sir;Ecclus</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="248"/>
-        <source>The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="249"/>
-        <source>Baruch</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="249"/>
-        <source>Bar;Ba</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="249"/>
-        <source>The Book of Baruch</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="250"/>
-        <source>Prayer of Azariah</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="250"/>
-        <source>PrAzar</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="250"/>
-        <source>The Prayer of Azariah</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="251"/>
-        <source>Susanna</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="251"/>
-        <source>Sus</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="251"/>
-        <source>The History of Susanna [in Daniel]</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="252"/>
-        <source>Bel and the Dragon</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="252"/>
-        <source>Bel</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="252"/>
-        <source>The Book of Bel and the Dragon [in Daniel]</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="253"/>
-        <source>Prayer of Manasses</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="253"/>
-        <source>PrMan</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="253"/>
-        <source>The Prayer of Manasseh, or, The Prayer of Manasses King of Judah</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="254"/>
-        <source>1 Maccabees</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="254"/>
-        <source>1Macc;1Mc;1Ma</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="254"/>
-        <source>The First Book of the Maccabees</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="255"/>
-        <source>2 Maccabees</source>
-        <comment>bookname</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="255"/>
-        <source>2Macc;2Mc;2Ma</source>
-        <comment>bookabbr</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="255"/>
-        <source>The Second Book of the Maccabees</source>
-        <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="267"/>
         <source>Old Testament</source>
         <comment>testname</comment>
-        <translation>Antiguo Testamento</translation>
+        <translation type="obsolete">Antiguo Testamento</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="268"/>
         <source>New Testament</source>
         <comment>testname</comment>
-        <translation>Nuevo Testamento</translation>
-    </message>
-    <message>
-        <location filename="../main.cpp" line="269"/>
-        <source>Apocrypha/Deuterocanon</source>
-        <comment>testname</comment>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Nuevo Testamento</translation>
     </message>
     <message>
         <location filename="../../KJVCanOpener/BuildDB.cpp" line="63"/>
@@ -2499,7 +1979,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../../KJVCanOpener/dbstruct.h" line="300"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation type="unfinished">Toda la Biblia</translation>
+        <translation>Toda la Biblia</translation>
     </message>
 </context>
 <context>
@@ -2559,6 +2039,1465 @@ Normal-&gt;Relative-&gt;Normal:
 Check Installation!</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>xc_KJVDataParse</name>
+    <message>
+        <location filename="../main.cpp" line="182"/>
+        <source>Genesis</source>
+        <comment>bookname</comment>
+        <translation>Génesis</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="182"/>
+        <source>Gen;Gn</source>
+        <comment>bookabbr</comment>
+        <translation>Gén;Gn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="182"/>
+        <location filename="../main.cpp" line="183"/>
+        <location filename="../main.cpp" line="184"/>
+        <location filename="../main.cpp" line="185"/>
+        <location filename="../main.cpp" line="186"/>
+        <source>Law</source>
+        <comment>bookcategory</comment>
+        <translation>Ley</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="182"/>
+        <source>The First Book of Moses</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Primero de Moisés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="183"/>
+        <source>Exodus</source>
+        <comment>bookname</comment>
+        <translation>Éxodo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="183"/>
+        <source>Exod;Exo;Ex</source>
+        <comment>bookabbr</comment>
+        <translation>Éxod;Éxo;Éx</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="183"/>
+        <source>The Second Book of Moses</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Segundo de Moisés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="184"/>
+        <source>Leviticus</source>
+        <comment>bookname</comment>
+        <translation>Levítico</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="184"/>
+        <source>Lev;Lv</source>
+        <comment>bookabbr</comment>
+        <translation>Lev;Lv</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="184"/>
+        <source>The Third Book of Moses</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Tercero de Moisés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="185"/>
+        <source>Numbers</source>
+        <comment>bookname</comment>
+        <translation>Números</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="185"/>
+        <source>Num;Nm</source>
+        <comment>bookabbr</comment>
+        <translation>Núm;Nm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="185"/>
+        <source>The Fourth Book of Moses</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Cuarto de Moisés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="186"/>
+        <source>Deuteronomy</source>
+        <comment>bookname</comment>
+        <translation>Deuteronomio</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="186"/>
+        <source>Deut;Deu;Dt</source>
+        <comment>bookabbr</comment>
+        <translation>Deut;Deu;Dt</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="186"/>
+        <source>The Fifth Book of Moses</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Quinto de Moisés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="187"/>
+        <source>Joshua</source>
+        <comment>bookname</comment>
+        <translation>Josué</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="187"/>
+        <source>Josh;Jos;Jo</source>
+        <comment>bookabbr</comment>
+        <translation>Jos;Jo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="187"/>
+        <location filename="../main.cpp" line="188"/>
+        <location filename="../main.cpp" line="189"/>
+        <location filename="../main.cpp" line="190"/>
+        <location filename="../main.cpp" line="191"/>
+        <location filename="../main.cpp" line="192"/>
+        <location filename="../main.cpp" line="193"/>
+        <location filename="../main.cpp" line="194"/>
+        <location filename="../main.cpp" line="195"/>
+        <location filename="../main.cpp" line="196"/>
+        <location filename="../main.cpp" line="197"/>
+        <location filename="../main.cpp" line="198"/>
+        <source>OT Narative</source>
+        <comment>bookcategory</comment>
+        <translation>Las narrativas del Antiguo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="188"/>
+        <source>Judges</source>
+        <comment>bookname</comment>
+        <translation>Jueces</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="188"/>
+        <source>Judg;Jdg;Jgs</source>
+        <comment>bookabbr</comment>
+        <translation>Jue;Jc</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="189"/>
+        <source>Ruth</source>
+        <comment>bookname</comment>
+        <translation>Ruth</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="189"/>
+        <source>Ruth;Rut;Ru</source>
+        <comment>bookabbr</comment>
+        <translation>Ruth;Rut;Ru</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="190"/>
+        <source>1 Samuel</source>
+        <comment>bookname</comment>
+        <translation>1 Samuel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="190"/>
+        <source>1Sam;1Sm</source>
+        <comment>bookabbr</comment>
+        <translation>1Sam;1Sm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="190"/>
+        <source>The First Book of Samuel Otherwise Called, The First Book of the Kings</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Primero de Samuel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="191"/>
+        <source>2 Samuel</source>
+        <comment>bookname</comment>
+        <translation>2 Samuel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="191"/>
+        <source>2Sam;2Sm</source>
+        <comment>bookabbr</comment>
+        <translation>2Sam;2Sm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="191"/>
+        <source>The Second Book of Samuel Otherwise Called, The Second Book of the Kings</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Segundo de Samuel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="192"/>
+        <source>1 Kings</source>
+        <comment>bookname</comment>
+        <translation>1 Reyes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="192"/>
+        <source>1Kgs</source>
+        <comment>bookabbr</comment>
+        <translation>1Re;1Rey</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="192"/>
+        <source>The First Book of the Kings Commonly Called, The Third Book of the Kings</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Primero de Reyes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="193"/>
+        <source>2 Kings</source>
+        <comment>bookname</comment>
+        <translation>2 Reyes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="193"/>
+        <source>2Kgs</source>
+        <comment>bookabbr</comment>
+        <translation>2Re;2Rey</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="193"/>
+        <source>The Second Book of the Kings Commonly Called, The Fourth Book of the Kings</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Segundo de Reyes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="194"/>
+        <source>1 Chronicles</source>
+        <comment>bookname</comment>
+        <translation>1 Crónicas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="194"/>
+        <source>1Chr;1Chron;1Ch</source>
+        <comment>bookabbr</comment>
+        <translation>1Cró;1Cr</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="194"/>
+        <source>The First Book of the Chronicles</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Primero de Crónicas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="195"/>
+        <source>2 Chronicles</source>
+        <comment>bookname</comment>
+        <translation>2 Crónicas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="195"/>
+        <source>2Chr;2Chron;2Ch</source>
+        <comment>bookabbr</comment>
+        <translation>2Cró;2Cr</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="195"/>
+        <source>The Second Book of the Chronicles</source>
+        <comment>bookdesc</comment>
+        <translation>Libro Segundo de Crónicas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="196"/>
+        <source>Ezra</source>
+        <comment>bookname</comment>
+        <translation>Esdras</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="196"/>
+        <source>Ezra;Ezr</source>
+        <comment>bookabbr</comment>
+        <translation>Ezra;Ezr</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="197"/>
+        <source>Nehemiah</source>
+        <comment>bookname</comment>
+        <translation>Nehemías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="197"/>
+        <source>Neh</source>
+        <comment>bookabbr</comment>
+        <translation>Neh</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="198"/>
+        <source>Esther</source>
+        <comment>bookname</comment>
+        <translation>Esther</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="198"/>
+        <source>Est;Esth</source>
+        <comment>bookabbr</comment>
+        <translation>Est;Esth</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="199"/>
+        <source>Job</source>
+        <comment>bookname</comment>
+        <translation>Job</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="199"/>
+        <source>Job;Jb</source>
+        <comment>bookabbr</comment>
+        <translation>Job;Jb</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="199"/>
+        <location filename="../main.cpp" line="200"/>
+        <location filename="../main.cpp" line="201"/>
+        <location filename="../main.cpp" line="202"/>
+        <location filename="../main.cpp" line="203"/>
+        <source>Wisdom</source>
+        <comment>bookcategory</comment>
+        <translation>Sabiduría</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="200"/>
+        <source>Psalms</source>
+        <comment>bookname</comment>
+        <translation>Salmos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="200"/>
+        <source>Ps;Pss</source>
+        <comment>bookabbr</comment>
+        <translation>Sal</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="201"/>
+        <source>Proverbs</source>
+        <comment>bookname</comment>
+        <translation>Proverbios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="201"/>
+        <source>Prov;Prv;Pv</source>
+        <comment>bookabbr</comment>
+        <translation>Prov;Prv;Pv;Pro;Pr</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="202"/>
+        <source>Ecclesiastes</source>
+        <comment>bookname</comment>
+        <translation>Eclesiastés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="202"/>
+        <source>Eccl;Eccles</source>
+        <comment>bookabbr</comment>
+        <translation>Ecl;Ec</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="202"/>
+        <source>Ecclesiastes; Or, The Preacher</source>
+        <comment>bookdesc</comment>
+        <translation>Libro de Eclesiastés; O El Predicador</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="203"/>
+        <source>Song Of Solomon</source>
+        <comment>bookname</comment>
+        <translation>Cantar de los Cantares</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="203"/>
+        <source>Song;Sg</source>
+        <comment>bookabbr</comment>
+        <translation>Cant;Ct</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="204"/>
+        <source>Isaiah</source>
+        <comment>bookname</comment>
+        <translation>Isaias</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="204"/>
+        <source>Isa;Is</source>
+        <comment>bookabbr</comment>
+        <translation>Isa;Is</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="204"/>
+        <location filename="../main.cpp" line="205"/>
+        <location filename="../main.cpp" line="206"/>
+        <location filename="../main.cpp" line="207"/>
+        <location filename="../main.cpp" line="208"/>
+        <source>Major Prophets</source>
+        <comment>bookcategory</comment>
+        <translation>Profetas Mayores</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="204"/>
+        <source>The Book of the Prophet Isaiah</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Isaías el Profeta</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="205"/>
+        <source>Jeremiah</source>
+        <comment>bookname</comment>
+        <translation>Jeremías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="205"/>
+        <source>Jer</source>
+        <comment>bookabbr</comment>
+        <translation>Jer</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="205"/>
+        <source>The Book of the Prophet Jeremiah</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Jeremías el Profeta</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="206"/>
+        <source>Lamentations</source>
+        <comment>bookname</comment>
+        <translation>Lamentaciones</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="206"/>
+        <source>Lam</source>
+        <comment>bookabbr</comment>
+        <translation>Lam</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="206"/>
+        <source>The Lamentations of Jeremiah</source>
+        <comment>bookdesc</comment>
+        <translation>Las Lamentaciones de Jeremías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="207"/>
+        <source>Ezekiel</source>
+        <comment>bookname</comment>
+        <translation>Ezequiel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="207"/>
+        <source>Ezek;Eze;Ez</source>
+        <comment>bookabbr</comment>
+        <translation>Ez;Eze;Ezeq</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="207"/>
+        <source>The Book of the Prophet Ezekiel</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Ezequiel el Profeta</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="208"/>
+        <source>Daniel</source>
+        <comment>bookname</comment>
+        <translation>Daniel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="208"/>
+        <source>Dan;Dn</source>
+        <comment>bookabbr</comment>
+        <translation>Dan;Dn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="208"/>
+        <source>The Book of &lt;i&gt;the Prophet&lt;/i&gt; Daniel</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Daniel el Profeta</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="209"/>
+        <source>Hosea</source>
+        <comment>bookname</comment>
+        <translation>Oseas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="209"/>
+        <source>Hos</source>
+        <comment>bookabbr</comment>
+        <translation>Os</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="209"/>
+        <location filename="../main.cpp" line="210"/>
+        <location filename="../main.cpp" line="211"/>
+        <location filename="../main.cpp" line="212"/>
+        <location filename="../main.cpp" line="213"/>
+        <location filename="../main.cpp" line="214"/>
+        <location filename="../main.cpp" line="215"/>
+        <location filename="../main.cpp" line="216"/>
+        <location filename="../main.cpp" line="217"/>
+        <location filename="../main.cpp" line="218"/>
+        <location filename="../main.cpp" line="219"/>
+        <location filename="../main.cpp" line="220"/>
+        <source>Minor Prophets</source>
+        <comment>bookcategory</comment>
+        <translation>Profetas Menores</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="210"/>
+        <source>Joel</source>
+        <comment>bookname</comment>
+        <translation>Joél</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="210"/>
+        <source>Joel;Joe;Jl</source>
+        <comment>bookabbr</comment>
+        <translation>Joél;Joé;Jl</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="211"/>
+        <source>Amos</source>
+        <comment>bookname</comment>
+        <translation>Amós</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="211"/>
+        <source>Amos;Amo;Am</source>
+        <comment>bookabbr</comment>
+        <translation>Amós;Amó;Am</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="212"/>
+        <source>Obadiah</source>
+        <comment>bookname</comment>
+        <translation>Abdías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="212"/>
+        <source>Obad;Oba;Ob</source>
+        <comment>bookabbr</comment>
+        <translation>Abd</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="213"/>
+        <source>Jonah</source>
+        <comment>bookname</comment>
+        <translation>Jonás</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="213"/>
+        <source>Jonah;Jona;Jon</source>
+        <comment>bookabbr</comment>
+        <translation>Jon;Jonás;Joná</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="214"/>
+        <source>Micah</source>
+        <comment>bookname</comment>
+        <translation>Miqueas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="214"/>
+        <source>Mic;Mi</source>
+        <comment>bookabbr</comment>
+        <translation>Miq;Mi</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="215"/>
+        <source>Nahum</source>
+        <comment>bookname</comment>
+        <translation>Nahúm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="215"/>
+        <source>Nah;Na</source>
+        <comment>bookabbr</comment>
+        <translation>Nah;Na</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="216"/>
+        <source>Habakkuk</source>
+        <comment>bookname</comment>
+        <translation>Habacuc</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="216"/>
+        <source>Hab;Hb</source>
+        <comment>bookabbr</comment>
+        <translation>Hab;Hb</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="217"/>
+        <source>Zephaniah</source>
+        <comment>bookname</comment>
+        <translation>Sofonías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="217"/>
+        <source>Zeph;Zep</source>
+        <comment>bookabbr</comment>
+        <translation>Sof;So</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="218"/>
+        <source>Haggai</source>
+        <comment>bookname</comment>
+        <translation>Hageo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="218"/>
+        <source>Hag;Hg</source>
+        <comment>bookabbr</comment>
+        <translation>Ag;Hag;Hg</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="219"/>
+        <source>Zechariah</source>
+        <comment>bookname</comment>
+        <translation>Zacarías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="219"/>
+        <source>Zech;Zec</source>
+        <comment>bookabbr</comment>
+        <translation>Zac;Za</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="220"/>
+        <source>Malachi</source>
+        <comment>bookname</comment>
+        <translation>Malaquías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="220"/>
+        <source>Mal</source>
+        <comment>bookabbr</comment>
+        <translation>Mal</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="222"/>
+        <source>Matthew</source>
+        <comment>bookname</comment>
+        <translation>Mateo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="222"/>
+        <source>Matt;Mt</source>
+        <comment>bookabbr</comment>
+        <translation>Mat;Mt</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="222"/>
+        <location filename="../main.cpp" line="223"/>
+        <location filename="../main.cpp" line="224"/>
+        <location filename="../main.cpp" line="225"/>
+        <location filename="../main.cpp" line="226"/>
+        <source>NT Narative</source>
+        <comment>bookcategory</comment>
+        <translation>Las Narrativas del Nuevo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="222"/>
+        <source>The Gospel According to Saint Matthew</source>
+        <comment>bookdesc</comment>
+        <translation>El Santo Evangelio según San Mateo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="223"/>
+        <source>Mark</source>
+        <comment>bookname</comment>
+        <translation>Marcos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="223"/>
+        <source>Mark;Mk</source>
+        <comment>bookabbr</comment>
+        <translation>Marc;Mc</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="223"/>
+        <source>The Gospel According to Saint Mark</source>
+        <comment>bookdesc</comment>
+        <translation>El Santo Evangelio según San Marcos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="224"/>
+        <source>Luke</source>
+        <comment>bookname</comment>
+        <translation>Lucas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="224"/>
+        <source>Luke;Lk</source>
+        <comment>bookabbr</comment>
+        <translation>Luc;Lc</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="224"/>
+        <source>The Gospel According to Saint Luke</source>
+        <comment>bookdesc</comment>
+        <translation>El Santo Evangelio según San Lucas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="225"/>
+        <source>John</source>
+        <comment>bookname</comment>
+        <translation>Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="225"/>
+        <source>John;Jhn;Jn</source>
+        <comment>bookabbr</comment>
+        <translation>Juan;Jn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="225"/>
+        <source>The Gospel According to Saint John</source>
+        <comment>bookdesc</comment>
+        <translation>El Santo Evangelio según San Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="226"/>
+        <source>Acts</source>
+        <comment>bookname</comment>
+        <translation>Hechos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="226"/>
+        <source>Acts</source>
+        <comment>bookabbr</comment>
+        <translation>Hech;Hch;He</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="226"/>
+        <source>The Acts of the Apostles</source>
+        <comment>bookdesc</comment>
+        <translation>Hechos de los Apóstoles</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="227"/>
+        <source>Romans</source>
+        <comment>bookname</comment>
+        <translation>Romanos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="227"/>
+        <source>Rom</source>
+        <comment>bookabbr</comment>
+        <translation>Rom</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="227"/>
+        <location filename="../main.cpp" line="228"/>
+        <location filename="../main.cpp" line="229"/>
+        <location filename="../main.cpp" line="230"/>
+        <location filename="../main.cpp" line="231"/>
+        <location filename="../main.cpp" line="232"/>
+        <location filename="../main.cpp" line="233"/>
+        <location filename="../main.cpp" line="234"/>
+        <location filename="../main.cpp" line="235"/>
+        <location filename="../main.cpp" line="236"/>
+        <location filename="../main.cpp" line="237"/>
+        <location filename="../main.cpp" line="238"/>
+        <location filename="../main.cpp" line="239"/>
+        <location filename="../main.cpp" line="240"/>
+        <source>Pauline Epistles</source>
+        <comment>bookcategory</comment>
+        <translation>Epístolas Paulinas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="227"/>
+        <source>The Epistle of Paul the Apostle to the Romans</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Romanos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="228"/>
+        <source>1 Corinthians</source>
+        <comment>bookname</comment>
+        <translation>1 Corintios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="228"/>
+        <source>1Cor</source>
+        <comment>bookabbr</comment>
+        <translation>1Cor;1Co</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="228"/>
+        <source>The First Epistle of Paul the Apostle to the Corinthians</source>
+        <comment>bookdesc</comment>
+        <translation>La Primera Epístola del Apóstol San Pablo a los Corintios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="229"/>
+        <source>2 Corinthians</source>
+        <comment>bookname</comment>
+        <translation>2 Corintios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="229"/>
+        <source>2Cor</source>
+        <comment>bookabbr</comment>
+        <translation>2Cor;2Co</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="229"/>
+        <source>The Second Epistle of Paul the Apostle to the Corinthians</source>
+        <comment>bookdesc</comment>
+        <translation>La Segunda Epístola del Apóstol San Pablo a los Corintios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="230"/>
+        <source>Galatians</source>
+        <comment>bookname</comment>
+        <translation>Gálatas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="230"/>
+        <source>Gal</source>
+        <comment>bookabbr</comment>
+        <translation>Gál</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="230"/>
+        <source>The Epistle of Paul the Apostle to the Galatians</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Gálatas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="231"/>
+        <source>Ephesians</source>
+        <comment>bookname</comment>
+        <translation>Efesios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="231"/>
+        <source>Eph</source>
+        <comment>bookabbr</comment>
+        <translation>Ef;Efes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="231"/>
+        <source>The Epistle of Paul the Apostle to the Ephesians</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Efesios</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="232"/>
+        <source>Philippians</source>
+        <comment>bookname</comment>
+        <translation>Filipenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="232"/>
+        <source>Phil</source>
+        <comment>bookabbr</comment>
+        <translation>Fil;Flp</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="232"/>
+        <source>The Epistle of Paul the Apostle to the Philippians</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Filipenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="233"/>
+        <source>Colossians</source>
+        <comment>bookname</comment>
+        <translation>Colosenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="233"/>
+        <source>Col</source>
+        <comment>bookabbr</comment>
+        <translation>Col</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="233"/>
+        <source>The Epistle of Paul the Apostle to the Colossians</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Colosenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="234"/>
+        <source>1 Thessalonians</source>
+        <comment>bookname</comment>
+        <translation>1 Tesalonicenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="234"/>
+        <source>1Thess;1Thes;1Th</source>
+        <comment>bookabbr</comment>
+        <translation>1Tes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="234"/>
+        <source>The First Epistle of Paul the Apostle to the Thessalonians</source>
+        <comment>bookdesc</comment>
+        <translation>La Primera Epístola del Apóstol San Pablo a los Tesalonicenses</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="235"/>
+        <source>2 Thessalonians</source>
+        <comment>bookname</comment>
+        <translation>2 Tesalonicences</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="235"/>
+        <source>2Thess;2Thes;2Th</source>
+        <comment>bookabbr</comment>
+        <translation>2Tes</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="235"/>
+        <source>The Second Epistle of Paul the Apostle to the Thessalonains</source>
+        <comment>bookdesc</comment>
+        <translation>La Segunda Epístola del Apóstol San Pablo a los Thessalonains</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="236"/>
+        <source>1 Timothy</source>
+        <comment>bookname</comment>
+        <translation>1 Timoteo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="236"/>
+        <source>1Tim;1Tm</source>
+        <comment>bookabbr</comment>
+        <translation>1Tim;1Tm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="236"/>
+        <source>The First Epistle of Paul the Apostle to Timothy</source>
+        <comment>bookdesc</comment>
+        <translation>La Primera Epístola del Apóstol San Pablo a Timoteo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="237"/>
+        <source>2 Timothy</source>
+        <comment>bookname</comment>
+        <translation>2 Timoteo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="237"/>
+        <source>2Tim;2Tm</source>
+        <comment>bookabbr</comment>
+        <translation>2Tim;2Tm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="237"/>
+        <source>The Second Epistle of Paul the Apostle to Timothy</source>
+        <comment>bookdesc</comment>
+        <translation>La Segunda Epístola del Apóstol San Pablo a Timoteo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="238"/>
+        <source>Titus</source>
+        <comment>bookname</comment>
+        <translation>Tito</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="238"/>
+        <source>Titus;Ti</source>
+        <comment>bookabbr</comment>
+        <translation>Tito;Tit;Ti</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="238"/>
+        <source>The Epistle of Paul to Titus</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol Pablo a Tito</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="239"/>
+        <source>Philemon</source>
+        <comment>bookname</comment>
+        <translation>Filemón</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="239"/>
+        <source>Phlm;Philem</source>
+        <comment>bookabbr</comment>
+        <translation>Filem;Flm</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="239"/>
+        <source>The Epistle of Paul to Philemon</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol Pablo a Filemón</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="240"/>
+        <source>Hebrews</source>
+        <comment>bookname</comment>
+        <translation>Hebreos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="240"/>
+        <source>Heb</source>
+        <comment>bookabbr</comment>
+        <translation>Heb</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="240"/>
+        <source>The Epistle of Paul the Apostle to the Hebrews</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola del Apóstol San Pablo a los Hebreos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="241"/>
+        <source>James</source>
+        <comment>bookname</comment>
+        <translation>Santiago</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="241"/>
+        <source>Jas</source>
+        <comment>bookabbr</comment>
+        <translation>Sant;Stgo;St</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="241"/>
+        <location filename="../main.cpp" line="242"/>
+        <location filename="../main.cpp" line="243"/>
+        <location filename="../main.cpp" line="244"/>
+        <location filename="../main.cpp" line="245"/>
+        <location filename="../main.cpp" line="246"/>
+        <location filename="../main.cpp" line="247"/>
+        <source>General Epistles</source>
+        <comment>bookcategory</comment>
+        <translation>Epístolas Generales</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="241"/>
+        <source>The General Epistle of James</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola Universal de Santiago</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="242"/>
+        <source>1 Peter</source>
+        <comment>bookname</comment>
+        <translation>1 Pedro</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="242"/>
+        <source>1Pet;1Pt</source>
+        <comment>bookabbr</comment>
+        <translation>1Pe</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="242"/>
+        <source>The First General Epistle of Peter</source>
+        <comment>bookdesc</comment>
+        <translation>La Primera Epístola Universal de Pedro</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="243"/>
+        <source>2 Peter</source>
+        <comment>bookname</comment>
+        <translation>2 Pedro</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="243"/>
+        <source>2Pet;2Pt</source>
+        <comment>bookabbr</comment>
+        <translation>2Pe</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="243"/>
+        <source>The Second General Epistle of Peter</source>
+        <comment>bookdesc</comment>
+        <translation>La Segunda Epístola Universal de Pedro</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="244"/>
+        <source>1 John</source>
+        <comment>bookname</comment>
+        <translation>1 Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="244"/>
+        <source>1John;1Jn</source>
+        <comment>bookabbr</comment>
+        <translation>1Juan;1Jn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="244"/>
+        <source>The First General Epistle of John</source>
+        <comment>bookdesc</comment>
+        <translation>La Primera Epístola del Apóstol Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="245"/>
+        <source>2 John</source>
+        <comment>bookname</comment>
+        <translation>2 Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="245"/>
+        <source>2John;2Jn</source>
+        <comment>bookabbr</comment>
+        <translation>2Juan;2Jn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="245"/>
+        <source>The Second General Epistle of John</source>
+        <comment>bookdesc</comment>
+        <translation>La Segunda Epístola del Apóstol Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="246"/>
+        <source>3 John</source>
+        <comment>bookname</comment>
+        <translation>3 Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="246"/>
+        <source>3John;3Jn</source>
+        <comment>bookabbr</comment>
+        <translation>3Juan;3Jn</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="246"/>
+        <source>The Third General Epistle of John</source>
+        <comment>bookdesc</comment>
+        <translation>La Tercera Epístola del Apóstol Juan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="247"/>
+        <source>Jude</source>
+        <comment>bookname</comment>
+        <translation>Judas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="247"/>
+        <source>Jude</source>
+        <comment>bookabbr</comment>
+        <translation>Jud</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="247"/>
+        <source>The General Epistle of Jude</source>
+        <comment>bookdesc</comment>
+        <translation>La Epístola de Judas</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="248"/>
+        <source>Revelation</source>
+        <comment>bookname</comment>
+        <translation>Apocalipsis</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="248"/>
+        <source>Rev;Rv;Apoc</source>
+        <comment>bookabbr</comment>
+        <translation>Apoc;Ap;Rev;Rv</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="248"/>
+        <source>Apocalyptic Epistle</source>
+        <comment>bookcategory</comment>
+        <translation>Epístola Apocalíptica</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="248"/>
+        <source>The Revelation of Jesus Christ</source>
+        <comment>bookdesc</comment>
+        <translation>La Revelación de Jesucristo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="250"/>
+        <source>1 Esdras</source>
+        <comment>bookname</comment>
+        <translation>1 Esdras</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="250"/>
+        <source>1Esd;1Es</source>
+        <comment>bookabbr</comment>
+        <translation>1Esd;1Es</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="250"/>
+        <location filename="../main.cpp" line="251"/>
+        <location filename="../main.cpp" line="252"/>
+        <location filename="../main.cpp" line="253"/>
+        <location filename="../main.cpp" line="254"/>
+        <location filename="../main.cpp" line="255"/>
+        <location filename="../main.cpp" line="256"/>
+        <location filename="../main.cpp" line="257"/>
+        <location filename="../main.cpp" line="258"/>
+        <location filename="../main.cpp" line="259"/>
+        <location filename="../main.cpp" line="260"/>
+        <location filename="../main.cpp" line="261"/>
+        <location filename="../main.cpp" line="262"/>
+        <location filename="../main.cpp" line="263"/>
+        <source>Apocrypha</source>
+        <comment>bookcategory</comment>
+        <translation>Libros Apócrifos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="250"/>
+        <source>The First Book of Esdras</source>
+        <comment>bookdesc</comment>
+        <translation>El primer libro de Esdras</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="251"/>
+        <source>2 Esdras</source>
+        <comment>bookname</comment>
+        <translation>2 Esdras</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="251"/>
+        <source>2Esd;2Es</source>
+        <comment>bookabbr</comment>
+        <translation>2Esd;2Es</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="251"/>
+        <source>The Second Book of Esdras</source>
+        <comment>bookdesc</comment>
+        <translation>El segundo libro de Esdras</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="252"/>
+        <source>Tobit</source>
+        <comment>bookname</comment>
+        <translation>Tobias</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="252"/>
+        <source>Tob;Tb</source>
+        <comment>bookabbr</comment>
+        <translation>Tob;Tb</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="252"/>
+        <source>The Book of Tobit</source>
+        <comment>bookdesc</comment>
+        <translation>El libro de Tobías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="253"/>
+        <source>Judith</source>
+        <comment>bookname</comment>
+        <translation>Judith</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="253"/>
+        <source>Jdt;Jth</source>
+        <comment>bookabbr</comment>
+        <translation>Jdt;Jth</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="253"/>
+        <source>The Book of Judith</source>
+        <comment>bookdesc</comment>
+        <translation>El libro de Judith</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="254"/>
+        <source>Additions to Esther</source>
+        <comment>bookname</comment>
+        <translation>Adiciones a Esther</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="254"/>
+        <source>AddEst;AddEsth</source>
+        <comment>bookabbr</comment>
+        <translation>AdEst;AdEsth</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="254"/>
+        <source>The Rest of the Chapters of the Book of Esther</source>
+        <comment>bookdesc</comment>
+        <translation>El resto de los capítulos del libro de Ester</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="255"/>
+        <source>Wisdom</source>
+        <comment>bookname</comment>
+        <translation>Sabiduría</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="255"/>
+        <source>Wis;Ws</source>
+        <comment>bookabbr</comment>
+        <translation>Sab</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="255"/>
+        <source>The Book of Wisdom or The Wisdom of Solomon</source>
+        <comment>bookdesc</comment>
+        <translation>El libro de la Sabiduría o la Sabiduría de Salomón</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="256"/>
+        <source>Sirach</source>
+        <comment>bookname</comment>
+        <translation>Sirácides</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="256"/>
+        <source>Sir;Ecclus</source>
+        <comment>bookabbr</comment>
+        <translation>Sir;Si;Eclo</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="256"/>
+        <source>The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus</source>
+        <comment>bookdesc</comment>
+        <translation>La sabiduría de Jesús el Hijo de Sirácides, o Eclesiástico</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="257"/>
+        <source>Baruch</source>
+        <comment>bookname</comment>
+        <translation>Baruch</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="257"/>
+        <source>Bar;Ba</source>
+        <comment>bookabbr</comment>
+        <translation>Bar;Ba</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="257"/>
+        <source>The Book of Baruch</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Baruch</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="258"/>
+        <source>Prayer of Azariah</source>
+        <comment>bookname</comment>
+        <translation>Oración de Azarías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="258"/>
+        <source>PrAzar</source>
+        <comment>bookabbr</comment>
+        <translation>OrAzar</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="258"/>
+        <source>The Prayer of Azariah</source>
+        <comment>bookdesc</comment>
+        <translation>La oración de Azarías</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="259"/>
+        <source>Susanna</source>
+        <comment>bookname</comment>
+        <translation>Susanna</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="259"/>
+        <source>Sus</source>
+        <comment>bookabbr</comment>
+        <translation>Sus</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="259"/>
+        <source>The History of Susanna [in Daniel]</source>
+        <comment>bookdesc</comment>
+        <translation>La historia de Susanna [en Daniel]</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="260"/>
+        <source>Bel and the Dragon</source>
+        <comment>bookname</comment>
+        <translation>Bel y el Dragón</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="260"/>
+        <source>Bel</source>
+        <comment>bookabbr</comment>
+        <translation>Bel</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="260"/>
+        <source>The Book of Bel and the Dragon [in Daniel]</source>
+        <comment>bookdesc</comment>
+        <translation>El Libro de Bel y el Dragón [en Daniel]</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="261"/>
+        <source>Prayer of Manasses</source>
+        <comment>bookname</comment>
+        <translation>Oración de Manasés</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="261"/>
+        <source>PrMan</source>
+        <comment>bookabbr</comment>
+        <translation>OrMan</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="261"/>
+        <source>The Prayer of Manasseh, or, The Prayer of Manasses King of Judah</source>
+        <comment>bookdesc</comment>
+        <translation>La Oración de Manasés, o, La Oración de Manasés, rey de Judá</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="262"/>
+        <source>1 Maccabees</source>
+        <comment>bookname</comment>
+        <translation>1 Macabeos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="262"/>
+        <source>1Macc;1Mc;1Ma</source>
+        <comment>bookabbr</comment>
+        <translation>1Macc;1Mc;1Ma</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="262"/>
+        <source>The First Book of the Maccabees</source>
+        <comment>bookdesc</comment>
+        <translation>El Primer Libro de los Macabeos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="263"/>
+        <source>2 Maccabees</source>
+        <comment>bookname</comment>
+        <translation>2 Macabeos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="263"/>
+        <source>2Macc;2Mc;2Ma</source>
+        <comment>bookabbr</comment>
+        <translation>2Macc;2Mc;2Ma</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="263"/>
+        <source>The Second Book of the Maccabees</source>
+        <comment>bookdesc</comment>
+        <translation>El segundo libro de los Macabeos</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="275"/>
+        <source>Old Testament</source>
+        <comment>testname</comment>
+        <translation>Antiguo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="276"/>
+        <source>New Testament</source>
+        <comment>testname</comment>
+        <translation>Nuevo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="277"/>
+        <source>Apocrypha/Deuterocanon</source>
+        <comment>testname</comment>
+        <translation>Libros Apócrifos/Deuterocanónicos</translation>
     </message>
 </context>
 </TS>

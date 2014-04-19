@@ -53,6 +53,8 @@ namespace {
 	const char *constUUID_KJF2006 =			"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
 	const char *constUUID_KJVPCE =			"C9BA8970-A114-11E3-A5E2-0800200C9A66";
 	const char *constUUID_KJVA =			"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
+	const char *constUUID_UKJV =			"BA852FE0-C762-11E3-9C1A-0800200C9A66";
+	const char *constUUID_GERLUT1545 =		"D7376840-C75F-11E3-9C1A-0800200C9A66";
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -67,7 +69,11 @@ namespace {
 		// KJVPureCambridge:
 		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", constUUID_KJV },
 		// KJVA (KJV 1769 with Apocrypha):
-		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "", "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV }
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "", "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV },
+		// UKJV (Updated King James Version):
+		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "", "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
+		// GERLUT1545 (German Luther 1545):
+		{ false, "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "", "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 }
 	};
 
 	//////////////////////////////////////////////////////////////////////
