@@ -68,97 +68,6 @@ namespace {
 	const QString g_constrUserBuildConnection = "UserBuildConnection";
 #endif
 
-	// Book counts are here only on the building process as
-	//  the reading side gets this data entirely from the
-	//  database
-	#define NUM_BK 80
-	#define NUM_BK_OT 39
-	#define NUM_BK_NT 27
-	#define NUM_BK_APOC1 14
-
-	const char *g_arrstrBkTblNames[NUM_BK] =
-			{	"GEN",
-				"EXOD",
-				"LEV",
-				"NUM",
-				"DEUT",
-				"JOSH",
-				"JUDG",
-				"RUTH",
-				"SAM1",
-				"SAM2",
-				"KGS1",
-				"KGS2",
-				"CHR1",
-				"CHR2",
-				"EZRA",
-				"NEH",
-				"ESTH",
-				"JOB",
-				"PS",
-				"PROV",
-				"ECCL",
-				"SONG",
-				"ISA",
-				"JER",
-				"LAM",
-				"EZEK",
-				"DAN",
-				"HOS",
-				"JOEL",
-				"AMOS",
-				"OBAD",
-				"JONAH",
-				"MIC",
-				"NAH",
-				"HAB",
-				"ZEPH",
-				"HAG",
-				"ZECH",
-				"MAL",
-				"MATT",
-				"MARK",
-				"LUKE",
-				"JOHN",
-				"ACTS",
-				"ROM",
-				"COR1",
-				"COR2",
-				"GAL",
-				"EPH",
-				"PHIL",
-				"COL",
-				"THESS1",
-				"THESS2",
-				"TIM1",
-				"TIM2",
-				"TITUS",
-				"PHLM",
-				"HEB",
-				"JAS",
-				"PET1",
-				"PET2",
-				"JOHN1",
-				"JOHN2",
-				"JOHN3",
-				"JUDE",
-				"REV",
-				"ESD1",
-				"ESD2",
-				"TOB",
-				"JDT",
-				"ADDESTH",
-				"WIS",
-				"SIR",
-				"BAR",
-				"PRAZAR",
-				"SUS",
-				"BEL",
-				"PRMAN",
-				"MACC1",
-				"MACC2"
-			};
-
 }		// Namespace
 
 // ============================================================================
@@ -450,6 +359,8 @@ bool CBuildDatabase::BuildBooksTable()
 {
 	// Build the Books table:
 
+	m_lststrBkTblNames.clear();
+
 #ifndef NOT_USING_SQL
 	QString strCmd;
 
@@ -574,6 +485,16 @@ bool CBuildDatabase::BuildBooksTable()
 
 		// Format:  bkNdx, tstBkNdx, tstNdx, bkName, bkAbbr, tblName, numChp, numVrs, numWrd, cat, desc
 		lstArrCCData.append(sl);
+
+		unsigned int nBk = sl.at(0).toUInt();	// nBk will be 1-originated
+		if (nBk != 0) {
+			// Make sure our list contains at least nBk books:
+			for (unsigned int ndxBk = m_lststrBkTblNames.size(); ndxBk < nBk; ++ndxBk) {
+				m_lststrBkTblNames.append(QString());
+			}
+			// Set this book's table name:
+			m_lststrBkTblNames[nBk-1] = sl.at(5);	// (TblName)
+		}
 	}
 
 #ifndef NOT_USING_SQL
@@ -733,9 +654,13 @@ bool CBuildDatabase::BuildVerseTables()
 	// Build the Book Verses tables:
 
 	int nBooksProcessed = 0;
+	int nBooksExpected = 0;
 
-	for (int i=0; i<NUM_BK; ++i) {
-		QFileInfo fiBook(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(g_arrstrBkTblNames[i]));
+	for (int i=0; i<m_lststrBkTblNames.size(); ++i) {
+		if (m_lststrBkTblNames.at(i).isEmpty()) continue;
+		++nBooksExpected;
+
+		QFileInfo fiBook(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(m_lststrBkTblNames.at(i)));
 
 #ifndef NOT_USING_SQL
 		QString strCmd;
@@ -744,17 +669,17 @@ bool CBuildDatabase::BuildVerseTables()
 
 			// Check to see if the table exists already:
 			queryCreate.prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=:table_name");
-			queryCreate.bindValue(":table_name", g_arrstrBkTblNames[i]);
+			queryCreate.bindValue(":table_name", m_lststrBkTblNames.at(i));
 			if (!queryCreate.exec()) {
-				displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2", "BuildDB").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
+				displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Table Lookup for \"%1\" Failed!\n%2", "BuildDB").arg(m_lststrBkTblNames.at(i)).arg(queryCreate.lastError().text()),
 								QMessageBox::Ok);
 				return false;
 			}
 			queryCreate.next();
 			if (queryCreate.value(0).toInt()) {
 				// If we found it, drop it so we can recreate it:
-				if (!queryCreate.exec(QString("DROP TABLE %1").arg(g_arrstrBkTblNames[i]))) {
-					displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to drop old \"%1\" table from database!\n%2", "BuildDB").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
+				if (!queryCreate.exec(QString("DROP TABLE %1").arg(m_lststrBkTblNames.at(i)))) {
+					displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to drop old \"%1\" table from database!\n%2", "BuildDB").arg(m_lststrBkTblNames.at(i)).arg(queryCreate.lastError().text()),
 									QMessageBox::Ok);
 					return false;
 				}
@@ -765,10 +690,10 @@ bool CBuildDatabase::BuildVerseTables()
 
 			// Create the table in the database:
 			strCmd = QString("create table %1 "
-							"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT, TText TEXT)").arg(g_arrstrBkTblNames[i]);
+							"(ChpVrsNdx INTEGER PRIMARY KEY, NumWrd NUMERIC, nPilcrow NUMERIC, PText TEXT, RText TEXT, TText TEXT)").arg(m_lststrBkTblNames.at(i));
 
 			if (!queryCreate.exec(strCmd)) {
-				displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to create table for %1\n%2", "BuildDB").arg(g_arrstrBkTblNames[i]).arg(queryCreate.lastError().text()),
+				displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to create table for %1\n%2", "BuildDB").arg(m_lststrBkTblNames.at(i)).arg(queryCreate.lastError().text()),
 								QMessageBox::Ok);
 				return false;
 			}
@@ -800,7 +725,7 @@ bool CBuildDatabase::BuildVerseTables()
 			(slHeaders.at(3).compare("PText") != 0) ||
 			(slHeaders.at(4).compare("RText") != 0) ||
 			(slHeaders.at(5).compare("TText") != 0)) {
-			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for %1 data file!", "BuildDB").arg(g_arrstrBkTblNames[i]),
+			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for %1 data file!", "BuildDB").arg(m_lststrBkTblNames.at(i)),
 								QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 				fileBook.close();
 				return false;
@@ -823,7 +748,7 @@ bool CBuildDatabase::BuildVerseTables()
 			csv >> sl;
 
 			if (sl.count() != 6) {
-				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in %1 data file!", "BuildDB").arg(g_arrstrBkTblNames[i]),
+				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in %1 data file!", "BuildDB").arg(m_lststrBkTblNames.at(i)),
 									QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) {
 					fileBook.close();
 					return false;
@@ -843,7 +768,7 @@ bool CBuildDatabase::BuildVerseTables()
 			if (m_myDatabase.isOpen()) {
 				strCmd = QString("INSERT INTO %1 "
 							"(ChpVrsNdx, NumWrd, nPilcrow, PText, RText, TText) "
-							"VALUES (:ChpVrsNdx, :NumWrd, :nPilcrow, :PText, :RText, :TText)").arg(g_arrstrBkTblNames[i]);
+							"VALUES (:ChpVrsNdx, :NumWrd, :nPilcrow, :PText, :RText, :TText)").arg(m_lststrBkTblNames.at(i));
 
 				queryInsert.prepare(strCmd);
 				queryInsert.bindValue(":ChpVrsNdx", sl.at(0).toUInt());
@@ -872,7 +797,7 @@ bool CBuildDatabase::BuildVerseTables()
 		if (m_pCCDatabase.data() != NULL) {
 			// Format:  tblName,count
 			QStringList arrCCData;
-			arrCCData.append(QString("%1").arg(g_arrstrBkTblNames[i]));
+			arrCCData.append(QString("%1").arg(m_lststrBkTblNames.at(i)));
 			arrCCData.append(QString("%1").arg(lstArrCCData.size()));
 			(*m_pCCDatabase) << arrCCData;
 			m_pCCDatabase->writeAll(lstArrCCData);
@@ -881,10 +806,9 @@ bool CBuildDatabase::BuildVerseTables()
 		fileBook.close();
 	}
 
-	if ((nBooksProcessed != (NUM_BK_OT + NUM_BK_NT)) &&
-		(nBooksProcessed != (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC1))) {
-		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Processed %1 Books.  Expected either %2 or %3 books!", "BuildDB")
-							.arg(nBooksProcessed).arg(NUM_BK_OT + NUM_BK_NT).arg(NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC1),
+	if (nBooksProcessed != nBooksExpected) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Processed %1 Books.  Expected %2 books!", "BuildDB")
+							.arg(nBooksProcessed).arg(nBooksExpected),
 							QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 	}
 

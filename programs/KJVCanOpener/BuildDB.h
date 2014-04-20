@@ -31,6 +31,7 @@
 #include <QWidget>
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
 #include <QScopedPointer>
 #include "dbstruct.h"
 
@@ -61,6 +62,7 @@ protected:
 
 private:
 	QWidget *m_pParent;
+	QStringList m_lststrBkTblNames;							// List of Book Table names read during BuildBooksTable() (reading TOC) and used for BuildVerseTables() to build the individual book table files
 #ifndef NOT_USING_SQL
 	QSqlDatabase m_myDatabase;
 #endif

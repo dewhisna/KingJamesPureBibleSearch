@@ -439,6 +439,7 @@ bool CReadDatabase::ReadBooksTable()
 		if (!dbParser.readNextRecord(lstFields, 11)) return false;
 
 		unsigned int nBkNdx = lstFields.at(0).toUInt();
+		if (nBkNdx == 0) continue;
 		if (nBkNdx > m_pBibleDatabase->m_lstBooks.size()) m_pBibleDatabase->m_lstBooks.resize(nBkNdx);
 		CBookEntry &entryBook = m_pBibleDatabase->m_lstBooks[nBkNdx-1];
 		entryBook.m_nTstBkNdx = lstFields.at(1).toUInt();
@@ -576,6 +577,7 @@ bool CReadDatabase::ReadVerseTables()
 	m_pBibleDatabase->m_lstBookVerses.resize(m_pBibleDatabase->m_lstBooks.size());
 
 	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
+		if (m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName.isEmpty()) continue;
 
 #ifndef NOT_USING_SQL
 		CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
