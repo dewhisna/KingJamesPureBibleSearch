@@ -27,6 +27,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
+#include <QObject>
 
 // ============================================================================
 
@@ -81,9 +82,20 @@ extern QString g_strDictionaryDatabasePath;
 extern unsigned int bibleDescriptorCount();
 extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);
 extern BIBLE_DESCRIPTOR_ENUM bibleDescriptorFromUUID(const QString &strUUID);
+
 extern unsigned int dictionaryDescriptorCount();
 extern const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex);
 extern DICTIONARY_DESCRIPTOR_ENUM dictionaryDescriptorFromUUID(const QString &strUUID);
+
+// ============================================================================
+
+// Translation Context for dbDescriptors:
+class xc_dbDescriptors : public QObject
+{
+	Q_OBJECT
+public:
+	static QString translatedBibleTestamentName(const QString &strUUID, unsigned int nTst);
+};
 
 // ============================================================================
 

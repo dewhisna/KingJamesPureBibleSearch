@@ -27,6 +27,7 @@
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 #include "BusyCursor.h"
+#include "Translator.h"
 
 #include <QTextCursor>
 
@@ -140,7 +141,15 @@ void CKJVPassageNavigator::initialize()
 	ui.comboTestament->clear();
 	for (unsigned int ndx=0; ndx<=m_pBibleDatabase->bibleEntry().m_nNumTst; ++ndx){
 		if (ndx == 0) {
-			ui.comboTestament->addItem(tr("Entire Bible", "Scope"), ndx);
+			// Search for "Entire Bible".  First try and see if we can translate it in the language of the selected Bible,
+			//		but if not, try in the current language setting
+			QString strEntireBible = tr("Entire Bible", "Scope");
+			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+			if (pTranslator.data() != NULL) {
+				QString strTemp = pTranslator->translator().translate("CKJVPassageNavigator", "Entire Bible", "Scope");
+				if (!strTemp.isEmpty()) strEntireBible = strTemp;
+			}
+			ui.comboTestament->addItem(strEntireBible, ndx);
 		} else {
 			ui.comboTestament->addItem(m_pBibleDatabase->testamentEntry(ndx)->m_strTstName, ndx);
 			nBooks += m_pBibleDatabase->testamentEntry(ndx)->m_nNumBk;

@@ -25,6 +25,7 @@
 #include "VerseListModel.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
+#include "dbDescriptors.h"
 
 #include "BusyCursor.h"
 
@@ -689,7 +690,9 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
 
 	unsigned int nTst = book.m_nTstNdx;
-	ui.lblTestament->setText(m_pBibleDatabase->testamentEntry(nTst)->m_strTstName + ":");
+	QString strTemp = xc_dbDescriptors::translatedBibleTestamentName(m_pBibleDatabase->compatibilityUUID(), nTst);
+	if (strTemp.isEmpty()) strTemp = m_pBibleDatabase->testamentEntry(nTst)->m_strTstName;
+	ui.lblTestament->setText(strTemp + ":");
 
 	for (unsigned int ndxTstBk=1; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
 		ui.comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);

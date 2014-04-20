@@ -88,31 +88,31 @@
         <translation>Zeige &amp;Pilcrow (¶) Symbol (Absatzmarken)</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1618"/>
+        <location filename="../KJVConfiguration.cpp" line="1619"/>
         <source>None</source>
         <comment>ScrollbarModes</comment>
         <translation>Keine</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1619"/>
+        <location filename="../KJVConfiguration.cpp" line="1620"/>
         <source>Left-Side</source>
         <comment>ScrollbarModes</comment>
         <translation>Links</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1620"/>
+        <location filename="../KJVConfiguration.cpp" line="1621"/>
         <source>Right-Side</source>
         <comment>ScrollbarModes</comment>
         <translation>Rechts</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1622"/>
+        <location filename="../KJVConfiguration.cpp" line="1623"/>
         <source>Verse-Per-Line</source>
         <comment>VerseRenderingModes</comment>
         <translation>Vers-pro-Zeile</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1623"/>
+        <location filename="../KJVConfiguration.cpp" line="1624"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
         <translation>Fließend/Paragraph</translation>
@@ -240,95 +240,95 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1832"/>
-        <location filename="../KJVConfiguration.cpp" line="1854"/>
-        <source>No Delimiters</source>
-        <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../KJVConfiguration.cpp" line="1833"/>
         <location filename="../KJVConfiguration.cpp" line="1855"/>
-        <source>Square Brackets</source>
+        <source>No Delimiters</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1834"/>
         <location filename="../KJVConfiguration.cpp" line="1856"/>
-        <source>Curly Braces</source>
+        <source>Square Brackets</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1835"/>
         <location filename="../KJVConfiguration.cpp" line="1857"/>
+        <source>Curly Braces</source>
+        <comment>Delimiters</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1836"/>
+        <location filename="../KJVConfiguration.cpp" line="1858"/>
         <source>Parentheses</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1853"/>
+        <location filename="../KJVConfiguration.cpp" line="1854"/>
         <source>No Numbers</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1858"/>
+        <location filename="../KJVConfiguration.cpp" line="1859"/>
         <source>Superscript</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1876"/>
+        <location filename="../KJVConfiguration.cpp" line="1877"/>
         <source>No Marking</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1877"/>
+        <location filename="../KJVConfiguration.cpp" line="1878"/>
         <source>Italics</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1878"/>
+        <location filename="../KJVConfiguration.cpp" line="1879"/>
         <source>Brackets</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1884"/>
+        <location filename="../KJVConfiguration.cpp" line="1885"/>
         <source>Verse-Per-Line</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vers-pro-Zeile</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1885"/>
+        <location filename="../KJVConfiguration.cpp" line="1886"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fließend/Paragraph</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1895"/>
+        <location filename="../KJVConfiguration.cpp" line="1896"/>
         <source>No Font Hint</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1896"/>
+        <location filename="../KJVConfiguration.cpp" line="1897"/>
         <source>Copy Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1897"/>
+        <location filename="../KJVConfiguration.cpp" line="1898"/>
         <source>Scripture Browser Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1898"/>
+        <location filename="../KJVConfiguration.cpp" line="1899"/>
         <source>Search Results Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
@@ -352,19 +352,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1753"/>
+        <location filename="../KJVConfiguration.cpp" line="1754"/>
         <source>Normal Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1754"/>
+        <location filename="../KJVConfiguration.cpp" line="1755"/>
         <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1755"/>
+        <location filename="../KJVConfiguration.cpp" line="1756"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
@@ -398,19 +398,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1524"/>
+        <location filename="../KJVConfiguration.cpp" line="1525"/>
         <source>Normal Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1525"/>
+        <location filename="../KJVConfiguration.cpp" line="1526"/>
         <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1526"/>
+        <location filename="../KJVConfiguration.cpp" line="1527"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
@@ -678,7 +678,7 @@ Written and Developed for Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
         <source>Bible Database</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bibel Datenbank</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
@@ -736,25 +736,25 @@ Written and Developed for Bethel Church, Festus, MO.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1045"/>
+        <location filename="../KJVConfiguration.cpp" line="1046"/>
         <source>None</source>
         <comment>HyphenModes</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keine</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1046"/>
+        <location filename="../KJVConfiguration.cpp" line="1047"/>
         <source>Places/Names</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1047"/>
+        <location filename="../KJVConfiguration.cpp" line="1048"/>
         <source>Ordinary Words</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1048"/>
+        <location filename="../KJVConfiguration.cpp" line="1049"/>
         <source>Both</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
@@ -797,7 +797,7 @@ Written and Developed for Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBrowser.ui" line="193"/>
         <source>Entire Bible:</source>
-        <translation>Gesammte Bibel:</translation>
+        <translation>Gesamte Bibel:</translation>
     </message>
 </context>
 <context>
@@ -1671,37 +1671,37 @@ http://www.PureBibleSearch.com/</translation>
 <context>
     <name>CKJVConfiguration</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2443"/>
+        <location filename="../KJVConfiguration.cpp" line="2444"/>
         <source>General Settings</source>
         <comment>MainMenu</comment>
         <translation>Generelle Einstellungen</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2444"/>
+        <location filename="../KJVConfiguration.cpp" line="2445"/>
         <source>Copy Options</source>
         <comment>MainMenu</comment>
         <translation>Kopieroptionen</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2445"/>
+        <location filename="../KJVConfiguration.cpp" line="2446"/>
         <source>Text Color and Fonts</source>
         <comment>MainMenu</comment>
         <translation>Textfarben und -zeichensätze</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2447"/>
+        <location filename="../KJVConfiguration.cpp" line="2448"/>
         <source>Notes File Settings</source>
         <comment>MainMenu</comment>
         <translation>Notizdatei-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2449"/>
+        <location filename="../KJVConfiguration.cpp" line="2450"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
         <translation>Bibel Datenbank</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2450"/>
+        <location filename="../KJVConfiguration.cpp" line="2451"/>
         <source>Locale Settings</source>
         <comment>MainMenu</comment>
         <translation>Lokale Einstellungen</translation>
@@ -1710,7 +1710,7 @@ http://www.PureBibleSearch.com/</translation>
 <context>
     <name>CKJVConfigurationDialog</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2611"/>
+        <location filename="../KJVConfiguration.cpp" line="2612"/>
         <source>You still have unapplied changes.  Do you wish to discard these changes??
 
 Click &apos;OK&apos; to discard the changes and close this configuration window.
@@ -1719,7 +1719,7 @@ Click &apos;Cancel&apos; to stay here in the configuration window.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2679"/>
+        <location filename="../KJVConfiguration.cpp" line="2680"/>
         <source>You have changed some settings on the previous page.  Do you wish to apply those settings??
 
 Click &apos;Yes&apos; to apply the setting changes and continue.
@@ -1729,7 +1729,7 @@ Click &apos;Cancel&apos; to stay on this settings page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2712"/>
+        <location filename="../KJVConfiguration.cpp" line="2713"/>
         <source>The changes you have made require that the program be restarted before they take affect.  Doing so will close all Search Windows just like exiting the program.  If you choose not to exit, they will be applied the next time you run the program.
 
 Do you wish to restart the app??</source>
@@ -1827,7 +1827,7 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVGeneralSettingsConfig.ui" line="28"/>
         <source>General Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generelle Einstellungen</translation>
     </message>
     <message>
         <location filename="../KJVGeneralSettingsConfig.ui" line="44"/>
@@ -1850,7 +1850,7 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVLocaleConfig.ui" line="28"/>
         <source>Locale Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lokale Einstellungen</translation>
     </message>
     <message>
         <location filename="../KJVLocaleConfig.ui" line="39"/>
@@ -1858,7 +1858,7 @@ Do you wish to restart the app??</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2363"/>
+        <location filename="../KJVConfiguration.cpp" line="2364"/>
         <source>&lt; System Locale &gt;</source>
         <comment>languageNames</comment>
         <translation type="unfinished"></translation>
@@ -2008,79 +2008,79 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="143"/>
+        <location filename="../KJVPassageNavigator.cpp" line="144"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gesamte Bibel</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="160"/>
+        <location filename="../KJVPassageNavigator.cpp" line="163"/>
         <source>Word</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="161"/>
+        <location filename="../KJVPassageNavigator.cpp" line="164"/>
         <source>Verse</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="162"/>
+        <location filename="../KJVPassageNavigator.cpp" line="165"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="163"/>
+        <location filename="../KJVPassageNavigator.cpp" line="166"/>
         <source>Book</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="559"/>
+        <location filename="../KJVPassageNavigator.cpp" line="562"/>
         <source>&amp;Books:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="560"/>
+        <location filename="../KJVPassageNavigator.cpp" line="563"/>
         <source>C&amp;hapters:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="561"/>
+        <location filename="../KJVPassageNavigator.cpp" line="564"/>
         <source>&amp;Verses:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="562"/>
+        <location filename="../KJVPassageNavigator.cpp" line="565"/>
         <source>&amp;Words:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="605"/>
+        <location filename="../KJVPassageNavigator.cpp" line="608"/>
         <source>&amp;Book:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="606"/>
+        <location filename="../KJVPassageNavigator.cpp" line="609"/>
         <source>C&amp;hapter:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="607"/>
+        <location filename="../KJVPassageNavigator.cpp" line="610"/>
         <source>&amp;Verse:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="608"/>
+        <location filename="../KJVPassageNavigator.cpp" line="611"/>
         <source>&amp;Word:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
@@ -3006,28 +3006,31 @@ So instead, would you like to disable it so that text highlighted with this High
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1262"/>
+        <location filename="../KJVConfiguration.cpp" line="1263"/>
         <source>Default Note Background &amp;Color</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1263"/>
+        <location filename="../KJVConfiguration.cpp" line="1264"/>
         <source>Set the Default Background Color for New Notes</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1323"/>
+        <location filename="../KJVConfiguration.cpp" line="1324"/>
         <source>You have edited Notes, Highlighters, and/or References, but don&apos;t yet have a King James Notes File setup.
 
 Do you wish to setup a Notes File and save your changes??
 Warning: If you select &apos;No&apos;, then your changes will be lost.</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sie haben Notizen, Hervorhebungen und/oder Referenzen editiert aber noch keine King James Notizdatei erstellt.
+
+Wollen sie eine Notizdatei erstellen und ihre Änderungen darin speichern?
+Warnung: Wenn sie nun &apos;nein&apos; wählen, gehen ihre Änderungen verloren!</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1329"/>
+        <location filename="../KJVConfiguration.cpp" line="1330"/>
         <source>The previous attempt to load your King James Notes File failed.
 Do you wish to save the changes you&apos;ve made?
 Warning, if you save this file overtop of your original file, you will lose all ability to recover the remaining data in your original file.  It&apos;s recommended that you save it to a new file.
@@ -3039,27 +3042,27 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1353"/>
+        <location filename="../KJVConfiguration.cpp" line="1354"/>
         <source>Save King James Notes File</source>
         <comment>FileFilters</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Speichere King James Notizdaei</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1353"/>
+        <location filename="../KJVConfiguration.cpp" line="1354"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1364"/>
-        <location filename="../KJVConfiguration.cpp" line="1411"/>
-        <location filename="../KJVConfiguration.cpp" line="1454"/>
-        <source>King James Notes File Error</source>
-        <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">King Jams Notizdateien (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1365"/>
+        <location filename="../KJVConfiguration.cpp" line="1412"/>
+        <location filename="../KJVConfiguration.cpp" line="1455"/>
+        <source>King James Notes File Error</source>
+        <comment>Errors</comment>
+        <translation type="unfinished">King James Notizdatei-Fehler</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1366"/>
         <source>Unable to save the King James Notes File!
 
 Click &apos;Yes&apos; to try again, or
@@ -3069,42 +3072,46 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1395"/>
+        <location filename="../KJVConfiguration.cpp" line="1396"/>
         <source>Load King James Notes File</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1395"/>
+        <location filename="../KJVConfiguration.cpp" line="1396"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1422"/>
-        <location filename="../KJVConfiguration.cpp" line="1427"/>
+        <location filename="../KJVConfiguration.cpp" line="1423"/>
+        <location filename="../KJVConfiguration.cpp" line="1428"/>
         <source>Loading King James Notes File</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lade King James Notizdatei</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1422"/>
+        <location filename="../KJVConfiguration.cpp" line="1423"/>
         <source>Warning: The King James Notes File being loaded was last saved on an older version of King James Pure Bible Search.  It will automatically be updated to this version of King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Warnung: Die soeben gewählte King James Notizdatei wurde auf einer älteren Version der King James Pure Bible Search erzeugt. Sie wird automatisch auf die aktuelle Version der King James Pure Bible Search aktualisiert. Wenn sie trotzdem eine Kopie der Notizdatei in der alten Version behalten wollen, müssen sie diese manuell kopieren BEVOR sie nun fortsetzen!
+
+Dateiname: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1427"/>
+        <location filename="../KJVConfiguration.cpp" line="1428"/>
         <source>Warning: The King James Notes File being loaded was created on a newer version of King James Pure Bible Search.  It may contain data or settings for things not supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Warnung: Die soeben gewählte King James Notizdatei wurde auf einer neueren Version der King James Pure Bible Search erzeugt. Sie kann Daten und Einstellungen enthaölten die in dieser Version der King James Pure Bible Search nicht unterstützt werden. Ist dies der Fall gehen diese Dinge bei der nächsten Speicherung der Notizdatei VERLOREN. Wenn sie eine Kopie der Notizdatei in der neueren Version behalten wollen um nicht zu riskieren etwas zu verlieren, müssen sie diese manuell kopieren BEVOR sie nun fortsetzen!
+
+Dateiname: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1455"/>
+        <location filename="../KJVConfiguration.cpp" line="1456"/>
         <source>Unable to save the current King James Notes File!
 
 Click &apos;Yes&apos; to try again, or
@@ -3190,7 +3197,7 @@ Check Installation!</source>
         <location filename="../myApplication.cpp" line="508"/>
         <source>King James Pure Bible Search</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">King James Pure Bible Search</translation>
     </message>
     <message>
         <location filename="../myApplication.cpp" line="508"/>
@@ -3399,27 +3406,27 @@ Check Installation!</source>
 <context>
     <name>CPhraseEditNavigator</name>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2392"/>
+        <location filename="../PhraseEdit.cpp" line="2395"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2397"/>
+        <location filename="../PhraseEdit.cpp" line="2400"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2426"/>
-        <location filename="../PhraseEdit.cpp" line="2433"/>
-        <location filename="../PhraseEdit.cpp" line="2439"/>
+        <location filename="../PhraseEdit.cpp" line="2429"/>
+        <location filename="../PhraseEdit.cpp" line="2436"/>
+        <location filename="../PhraseEdit.cpp" line="2442"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2427"/>
+        <location filename="../PhraseEdit.cpp" line="2430"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -3427,8 +3434,8 @@ Check Installation!</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2428"/>
-        <location filename="../PhraseEdit.cpp" line="2434"/>
+        <location filename="../PhraseEdit.cpp" line="2431"/>
+        <location filename="../PhraseEdit.cpp" line="2437"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -3436,9 +3443,9 @@ Check Installation!</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2429"/>
-        <location filename="../PhraseEdit.cpp" line="2435"/>
-        <location filename="../PhraseEdit.cpp" line="2440"/>
+        <location filename="../PhraseEdit.cpp" line="2432"/>
+        <location filename="../PhraseEdit.cpp" line="2438"/>
+        <location filename="../PhraseEdit.cpp" line="2443"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -3446,7 +3453,7 @@ Check Installation!</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2448"/>
+        <location filename="../PhraseEdit.cpp" line="2451"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -3546,15 +3553,15 @@ Check Installation!</source>
     <message>
         <location filename="../PhraseEdit.cpp" line="1104"/>
         <location filename="../PhraseEdit.cpp" line="1107"/>
-        <location filename="../PhraseEdit.cpp" line="1235"/>
-        <location filename="../PhraseEdit.cpp" line="1238"/>
+        <location filename="../PhraseEdit.cpp" line="1236"/>
+        <location filename="../PhraseEdit.cpp" line="1239"/>
         <source>Category:</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="1243"/>
-        <location filename="../PhraseEdit.cpp" line="1246"/>
+        <location filename="../PhraseEdit.cpp" line="1245"/>
+        <location filename="../PhraseEdit.cpp" line="1248"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
@@ -3756,7 +3763,7 @@ Do you wish to unhighlight all of them instead??</source>
         <location filename="../KJVSearchCriteria.cpp" line="226"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gesamte Bibel</translation>
     </message>
 </context>
 <context>
@@ -4223,81 +4230,81 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="225"/>
+        <location filename="../BuildDB.cpp" line="134"/>
         <source>Table Lookup for &quot;DBInfo&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="233"/>
+        <location filename="../BuildDB.cpp" line="142"/>
         <source>Failed to drop old &quot;DBInfo&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="245"/>
+        <location filename="../BuildDB.cpp" line="154"/>
         <source>Failed to create table for &apos;DBInfo&apos;
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="268"/>
-        <location filename="../BuildDB.cpp" line="363"/>
-        <location filename="../BuildDB.cpp" line="496"/>
-        <location filename="../BuildDB.cpp" line="642"/>
-        <location filename="../BuildDB.cpp" line="784"/>
-        <location filename="../BuildDB.cpp" line="937"/>
-        <location filename="../BuildDB.cpp" line="1078"/>
-        <location filename="../BuildDB.cpp" line="1217"/>
+        <location filename="../BuildDB.cpp" line="177"/>
+        <location filename="../BuildDB.cpp" line="272"/>
+        <location filename="../BuildDB.cpp" line="407"/>
+        <location filename="../BuildDB.cpp" line="563"/>
+        <location filename="../BuildDB.cpp" line="709"/>
+        <location filename="../BuildDB.cpp" line="861"/>
+        <location filename="../BuildDB.cpp" line="1002"/>
+        <location filename="../BuildDB.cpp" line="1141"/>
         <source>Failed to open %1 for reading.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="293"/>
+        <location filename="../BuildDB.cpp" line="202"/>
         <source>Insert Failed for &apos;DBInfo&apos;!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="331"/>
+        <location filename="../BuildDB.cpp" line="240"/>
         <source>Table Lookup for &quot;TESTAMENT&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="339"/>
+        <location filename="../BuildDB.cpp" line="248"/>
         <source>Failed to drop old &quot;TESTAMENT&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="351"/>
+        <location filename="../BuildDB.cpp" line="260"/>
         <source>Failed to create table for TESTAMENT
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="377"/>
+        <location filename="../BuildDB.cpp" line="286"/>
         <source>Unexpected Header Layout for TESTAMENT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="398"/>
+        <location filename="../BuildDB.cpp" line="307"/>
         <source>Bad table data in TESTAMENT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="416"/>
+        <location filename="../BuildDB.cpp" line="325"/>
         <source>Insert Failed for TESTAMENT!
 %1
   %2  %3</source>
@@ -4305,40 +4312,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="461"/>
+        <location filename="../BuildDB.cpp" line="372"/>
         <source>Table Lookup for &quot;TOC&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="469"/>
+        <location filename="../BuildDB.cpp" line="380"/>
         <source>Failed to drop old &quot;TOC&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="484"/>
+        <location filename="../BuildDB.cpp" line="395"/>
         <source>Failed to create table for TOC
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="519"/>
+        <location filename="../BuildDB.cpp" line="430"/>
         <source>Unexpected Header Layout for TOC data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="540"/>
+        <location filename="../BuildDB.cpp" line="451"/>
         <source>Bad table data in TOC data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="569"/>
+        <location filename="../BuildDB.cpp" line="480"/>
         <source>Insert Failed for TOC!
 %1
   %2  %3</source>
@@ -4346,40 +4353,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="610"/>
+        <location filename="../BuildDB.cpp" line="531"/>
         <source>Table Lookup for &quot;LAYOUT&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="618"/>
+        <location filename="../BuildDB.cpp" line="539"/>
         <source>Failed to drop old &quot;LAYOUT&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="630"/>
+        <location filename="../BuildDB.cpp" line="551"/>
         <source>Failed to create table for LAYOUT
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="659"/>
+        <location filename="../BuildDB.cpp" line="580"/>
         <source>Unexpected Header Layout for LAYOUT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="680"/>
+        <location filename="../BuildDB.cpp" line="601"/>
         <source>Bad table data in LAYOUT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="701"/>
+        <location filename="../BuildDB.cpp" line="622"/>
         <source>Insert Failed for LAYOUT!
 %1
   %2  %3</source>
@@ -4387,40 +4394,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="749"/>
+        <location filename="../BuildDB.cpp" line="674"/>
         <source>Table Lookup for &quot;%1&quot; Failed!
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="757"/>
+        <location filename="../BuildDB.cpp" line="682"/>
         <source>Failed to drop old &quot;%1&quot; table from database!
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="771"/>
+        <location filename="../BuildDB.cpp" line="696"/>
         <source>Failed to create table for %1
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="803"/>
+        <location filename="../BuildDB.cpp" line="728"/>
         <source>Unexpected Header Layout for %1 data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="826"/>
+        <location filename="../BuildDB.cpp" line="751"/>
         <source>Bad table data in %1 data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="856"/>
+        <location filename="../BuildDB.cpp" line="781"/>
         <source>Insert Failed!
 %1
   %2  %3</source>
@@ -4428,46 +4435,46 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="886"/>
-        <source>Processed %1 Books.  Expected either %2 or %3 books!</source>
+        <location filename="../BuildDB.cpp" line="810"/>
+        <source>Processed %1 Books.  Expected %2 books!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="905"/>
+        <location filename="../BuildDB.cpp" line="829"/>
         <source>Table Lookup for &quot;WORDS&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="913"/>
+        <location filename="../BuildDB.cpp" line="837"/>
         <source>Failed to drop old &quot;WORDS&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="925"/>
+        <location filename="../BuildDB.cpp" line="849"/>
         <source>Failed to create table for WORDS
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="956"/>
+        <location filename="../BuildDB.cpp" line="880"/>
         <source>Unexpected Header Layout for WORDS data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="977"/>
+        <location filename="../BuildDB.cpp" line="901"/>
         <source>Bad table data in WORDS data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1005"/>
+        <location filename="../BuildDB.cpp" line="929"/>
         <source>Insert Failed for WORDS!
 %1
   %2  (%3)</source>
@@ -4475,40 +4482,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1046"/>
+        <location filename="../BuildDB.cpp" line="970"/>
         <source>Table Lookup for &quot;FOOTNOTES&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1054"/>
+        <location filename="../BuildDB.cpp" line="978"/>
         <source>Failed to drop old &quot;FOOTNOTES&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1066"/>
+        <location filename="../BuildDB.cpp" line="990"/>
         <source>Failed to create table for FOOTNOTES
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1093"/>
+        <location filename="../BuildDB.cpp" line="1017"/>
         <source>Unexpected Header Layout for FOOTNOTES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1114"/>
+        <location filename="../BuildDB.cpp" line="1038"/>
         <source>Bad table data in FOOTNOTES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1142"/>
+        <location filename="../BuildDB.cpp" line="1066"/>
         <source>Insert Failed for FOOTNOTES!
 %1
 %2
@@ -4518,40 +4525,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1183"/>
+        <location filename="../BuildDB.cpp" line="1107"/>
         <source>Table Lookup for &quot;PHRASES&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1191"/>
+        <location filename="../BuildDB.cpp" line="1115"/>
         <source>Failed to drop old &quot;PHRASES&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1202"/>
+        <location filename="../BuildDB.cpp" line="1126"/>
         <source>Failed to create table for PHRASES
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1234"/>
+        <location filename="../BuildDB.cpp" line="1158"/>
         <source>Unexpected Header Layout for PHRASES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1246"/>
+        <location filename="../BuildDB.cpp" line="1170"/>
         <source>Bad table data in PHRASES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1301"/>
+        <location filename="../BuildDB.cpp" line="1225"/>
         <source>Insert Failed for PHRASES!
 %1
   %2  (%3)  (%4)  (%5)</source>
@@ -4559,61 +4566,61 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1304"/>
+        <location filename="../BuildDB.cpp" line="1228"/>
         <source>Case</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1304"/>
+        <location filename="../BuildDB.cpp" line="1228"/>
         <source>NoCase</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1305"/>
+        <location filename="../BuildDB.cpp" line="1229"/>
         <source>Accent</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1305"/>
+        <location filename="../BuildDB.cpp" line="1229"/>
         <source>NoAccent</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1306"/>
+        <location filename="../BuildDB.cpp" line="1230"/>
         <source>Exclude</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1306"/>
+        <location filename="../BuildDB.cpp" line="1230"/>
         <source>Include</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1348"/>
+        <location filename="../BuildDB.cpp" line="1272"/>
         <source>Error: Couldn&apos;t open SQL database file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1357"/>
+        <location filename="../BuildDB.cpp" line="1281"/>
         <source>Error: Couldn&apos;t open CC database file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1366"/>
+        <location filename="../BuildDB.cpp" line="1290"/>
         <source>Error: Failed to open i/o compressor for file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1390"/>
+        <location filename="../BuildDB.cpp" line="1314"/>
         <source>Build Complete!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
@@ -4763,7 +4770,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="710"/>
+        <location filename="../ReadDB.cpp" line="712"/>
         <source>Non-unique decomposed word entry error in WORDS table!
 
 Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
@@ -4771,31 +4778,31 @@ Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="737"/>
+        <location filename="../ReadDB.cpp" line="739"/>
         <source>Mismatch Word Counts for &quot;%1&quot; AltWords=%2, AltWordCounts=%3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="742"/>
+        <location filename="../ReadDB.cpp" line="744"/>
         <source>Bad AltWordCounts for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="748"/>
+        <location filename="../ReadDB.cpp" line="750"/>
         <source>Bad word indexes for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="754"/>
+        <location filename="../ReadDB.cpp" line="756"/>
         <source>Index/Count consistency error in WORDS table!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="806"/>
+        <location filename="../ReadDB.cpp" line="808"/>
         <source>Invalid WORDS mapping.  Check database integrity!
 
 Word: &quot;%1&quot;  Index: %2</source>
@@ -4803,68 +4810,68 @@ Word: &quot;%1&quot;  Index: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="970"/>
+        <location filename="../ReadDB.cpp" line="972"/>
         <source>Error: Book List and Table of Contents have different sizes!
 Check the database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="977"/>
+        <location filename="../ReadDB.cpp" line="979"/>
         <source>Error: Book &quot;%1&quot; (%2) References Invalid Testament %3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1006"/>
+        <location filename="../ReadDB.cpp" line="1008"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Verses, expected %5 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1011"/>
+        <location filename="../ReadDB.cpp" line="1013"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Words, expected %5 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1017"/>
+        <location filename="../ReadDB.cpp" line="1019"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Chapters, expected %4 Chapters!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1022"/>
+        <location filename="../ReadDB.cpp" line="1024"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Verses, expected %4 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1027"/>
+        <location filename="../ReadDB.cpp" line="1029"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Words, expected %4 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1038"/>
+        <location filename="../ReadDB.cpp" line="1040"/>
         <source>Error: Word List contains %1 indexes, expected %2!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1044"/>
+        <location filename="../ReadDB.cpp" line="1046"/>
         <source>Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1054"/>
+        <location filename="../ReadDB.cpp" line="1056"/>
         <source>Error: Overall Bible Entry Data Counts are inconsistent!  Check database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1063"/>
+        <location filename="../ReadDB.cpp" line="1065"/>
         <source>Normalize/Denormalize Index Check Failed!
 
 Normal-&gt;Relative-&gt;Normal:
@@ -4873,32 +4880,32 @@ Normal-&gt;Relative-&gt;Normal:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1103"/>
+        <location filename="../ReadDB.cpp" line="1105"/>
         <source>Unable to find Dictionary information record!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1269"/>
         <location filename="../ReadDB.cpp" line="1271"/>
-        <location filename="../ReadDB.cpp" line="1360"/>
+        <location filename="../ReadDB.cpp" line="1273"/>
         <location filename="../ReadDB.cpp" line="1362"/>
+        <location filename="../ReadDB.cpp" line="1364"/>
         <source>Error: Couldn&apos;t open CC database file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1276"/>
-        <location filename="../ReadDB.cpp" line="1367"/>
+        <location filename="../ReadDB.cpp" line="1278"/>
+        <location filename="../ReadDB.cpp" line="1369"/>
         <source>Error: Failed to open i/o compressor for file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1310"/>
         <location filename="../ReadDB.cpp" line="1312"/>
-        <location filename="../ReadDB.cpp" line="1389"/>
+        <location filename="../ReadDB.cpp" line="1314"/>
         <location filename="../ReadDB.cpp" line="1391"/>
+        <location filename="../ReadDB.cpp" line="1393"/>
         <source>Error: Couldn&apos;t open SQL database file &quot;%1&quot;.
 
 %2</source>
@@ -4965,7 +4972,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="698"/>
         <source>Book:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Buch:</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="700"/>
@@ -4992,7 +4999,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="712"/>
         <source>Chapter:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kapitel:</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="730"/>
@@ -5283,7 +5290,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="574"/>
         <source>View &amp;Details...</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Details anzeigen</translation>
     </message>
     <message numerus="yes">
         <location filename="../ScriptureEdit.cpp" line="659"/>
@@ -5357,6 +5364,27 @@ Normal-&gt;Relative-&gt;Normal:
 Check Installation!</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>xc_dbDescriptors</name>
+    <message>
+        <location filename="../dbDescriptors.cpp" line="147"/>
+        <source>Old Testament</source>
+        <comment>testament_names</comment>
+        <translation>Alte Testament</translation>
+    </message>
+    <message>
+        <location filename="../dbDescriptors.cpp" line="148"/>
+        <source>New Testament</source>
+        <comment>testament_names</comment>
+        <translation>Neues Testament</translation>
+    </message>
+    <message>
+        <location filename="../dbDescriptors.cpp" line="149"/>
+        <source>Apocrypha/Deuterocanon</source>
+        <comment>testament_names</comment>
+        <translation>Apokryphen/Deuterocanon</translation>
     </message>
 </context>
 </TS>

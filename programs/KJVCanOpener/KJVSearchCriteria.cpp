@@ -25,6 +25,7 @@
 #include "PersistentSettings.h"
 #include "ModelRowForwardIterator.h"
 #include "ScriptureDocument.h"
+#include "Translator.h"
 
 #include "BusyCursor.h"
 
@@ -223,7 +224,17 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_WHOLE_BIBLE:
-				return tr("Entire Bible", "Scope");
+			{
+				// Search for "Entire Bible".  First try and see if we can translate it in the language of the selected Bible,
+				//		but if not, try in the current language setting
+				QString strEntireBible = tr("Entire Bible", "Scope");
+				TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+				if (pTranslator.data() != NULL) {
+					QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Entire Bible", "Scope");
+					if (!strTemp.isEmpty()) strEntireBible = strTemp;
+				}
+				return strEntireBible;
+			}
 			case CSearchCriteria::SSME_TESTAMENT:
 				assert(m_pBibleDatabase->testamentEntry(nItem) != NULL);
 				return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
