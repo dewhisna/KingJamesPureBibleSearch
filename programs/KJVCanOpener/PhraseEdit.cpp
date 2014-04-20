@@ -1104,7 +1104,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	QString strCategory = tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 	if (pTranslator.data() != NULL) {
-		strCategory = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+		QString strTemp = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
 
 	CScriptureTextHtmlBuilder scriptureHTML;
@@ -1235,7 +1236,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	QString strCategory = tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 	if (pTranslator.data() != NULL) {
-		strCategory = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+		QString strTemp = pTranslator->translator().translate("CPhraseNavigator", "Category:", "Scope");
+		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
 
 	// Search for "Chapter".  First try and see if we can translate it in the language of the selected Bible,
@@ -1243,7 +1245,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	QString strChapter = tr("Chapter", "Scope");
 	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 	if (pTranslator.data() != NULL) {
-		strChapter = pTranslator->translator().translate("CPhraseNavigator", "Chapter", "Scope");
+		QString strTemp = pTranslator->translator().translate("CPhraseNavigator", "Chapter", "Scope");
+		if (!strTemp.isEmpty()) strChapter = strTemp;
 	}
 
 	CScriptureTextHtmlBuilder scriptureHTML;
