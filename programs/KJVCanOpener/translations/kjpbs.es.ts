@@ -1973,79 +1973,80 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="144"/>
+        <location filename="../KJVPassageNavigator.cpp" line="146"/>
+        <location filename="../KJVPassageNavigator.cpp" line="149"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Toda la Biblia</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="163"/>
+        <location filename="../KJVPassageNavigator.cpp" line="169"/>
         <source>Word</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="164"/>
+        <location filename="../KJVPassageNavigator.cpp" line="170"/>
         <source>Verse</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="165"/>
+        <location filename="../KJVPassageNavigator.cpp" line="171"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="166"/>
+        <location filename="../KJVPassageNavigator.cpp" line="172"/>
         <source>Book</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="562"/>
+        <location filename="../KJVPassageNavigator.cpp" line="568"/>
         <source>&amp;Books:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="563"/>
+        <location filename="../KJVPassageNavigator.cpp" line="569"/>
         <source>C&amp;hapters:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="564"/>
+        <location filename="../KJVPassageNavigator.cpp" line="570"/>
         <source>&amp;Verses:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="565"/>
+        <location filename="../KJVPassageNavigator.cpp" line="571"/>
         <source>&amp;Words:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="608"/>
+        <location filename="../KJVPassageNavigator.cpp" line="614"/>
         <source>&amp;Book:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="609"/>
+        <location filename="../KJVPassageNavigator.cpp" line="615"/>
         <source>C&amp;hapter:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="610"/>
+        <location filename="../KJVPassageNavigator.cpp" line="616"/>
         <source>&amp;Verse:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="611"/>
+        <location filename="../KJVPassageNavigator.cpp" line="617"/>
         <source>&amp;Word:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
@@ -2141,67 +2142,67 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="359"/>
+        <location filename="../KJVSearchCriteria.cpp" line="370"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="360"/>
+        <location filename="../KJVSearchCriteria.cpp" line="371"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="362"/>
+        <location filename="../KJVSearchCriteria.cpp" line="373"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="363"/>
+        <location filename="../KJVSearchCriteria.cpp" line="374"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="364"/>
+        <location filename="../KJVSearchCriteria.cpp" line="375"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="365"/>
+        <location filename="../KJVSearchCriteria.cpp" line="376"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="366"/>
+        <location filename="../KJVSearchCriteria.cpp" line="377"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="367"/>
+        <location filename="../KJVSearchCriteria.cpp" line="378"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="368"/>
+        <location filename="../KJVSearchCriteria.cpp" line="379"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="369"/>
+        <location filename="../KJVSearchCriteria.cpp" line="380"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="370"/>
+        <location filename="../KJVSearchCriteria.cpp" line="381"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -2415,6 +2416,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2425,6 +2427,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>in %n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2437,6 +2440,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2448,6 +2452,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2455,6 +2460,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2464,6 +2470,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2471,6 +2478,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2489,13 +2497,42 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1557"/>
-        <source>Found %n %1Occurrence(s)%2</source>
+        <location filename="../KJVSearchResult.cpp" line="1564"/>
+        <source>Not found%1at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1565"/>
+        <source>Not found%1at all in %n Chapter(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1566"/>
+        <source>Not found%1at all in %n Book(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1575"/>
+        <source>Excluded %n%1Occurrence(s)</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2506,6 +2543,16 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1557"/>
+        <source>Found %n%1Occurrence(s)</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2514,14 +2561,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1564"/>
-        <source>Not found%1 at all in %n Verse(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1564"/>
         <location filename="../KJVSearchResult.cpp" line="1565"/>
@@ -2529,30 +2568,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>together</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1565"/>
-        <source>Not found%1 at all in %n Chapter(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1566"/>
-        <source>Not found%1 at all in %n Book(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1575"/>
-        <source>Excluded %n %1Occurrence(s)</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1587"/>
@@ -2580,6 +2595,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2593,6 +2609,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2608,6 +2625,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2615,6 +2633,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2624,6 +2643,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2632,6 +2652,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2639,6 +2660,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3389,6 +3411,7 @@ Check Installation!</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3397,6 +3420,7 @@ Check Installation!</source>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3408,6 +3432,7 @@ Check Installation!</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3415,6 +3440,7 @@ Check Installation!</source>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3680,6 +3706,7 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3687,6 +3714,7 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3696,6 +3724,7 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3703,6 +3732,7 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Note(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3712,13 +3742,15 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
 <context>
     <name>CSearchWithinModel</name>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="226"/>
+        <location filename="../KJVSearchCriteria.cpp" line="230"/>
+        <location filename="../KJVSearchCriteria.cpp" line="233"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Toda la Biblia</translation>
@@ -4584,43 +4616,43 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="50"/>
+        <location filename="../KJVSearchCriteria.cpp" line="51"/>
         <source>anywhere</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="53"/>
+        <location filename="../KJVSearchCriteria.cpp" line="54"/>
         <source>together</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="56"/>
+        <location filename="../KJVSearchCriteria.cpp" line="57"/>
         <source>in the same Testament</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="59"/>
+        <location filename="../KJVSearchCriteria.cpp" line="60"/>
         <source>in the same Category</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="62"/>
+        <location filename="../KJVSearchCriteria.cpp" line="63"/>
         <source>in the same Book</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="65"/>
+        <location filename="../KJVSearchCriteria.cpp" line="66"/>
         <source>in the same Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="68"/>
+        <location filename="../KJVSearchCriteria.cpp" line="69"/>
         <source>in the same Verse</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
@@ -4995,7 +5027,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.h" line="300"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Toda la Biblia</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="60"/>
@@ -5255,6 +5287,7 @@ Normal-&gt;Relative-&gt;Normal:
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>

@@ -2017,79 +2017,80 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <translation>T&amp;ype:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="144"/>
+        <location filename="../KJVPassageNavigator.cpp" line="146"/>
+        <location filename="../KJVPassageNavigator.cpp" line="149"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Toute la Bible</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="163"/>
+        <location filename="../KJVPassageNavigator.cpp" line="169"/>
         <source>Word</source>
         <comment>Scope</comment>
         <translation>Mot</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="164"/>
+        <location filename="../KJVPassageNavigator.cpp" line="170"/>
         <source>Verse</source>
         <comment>Scope</comment>
         <translation>Verset</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="165"/>
+        <location filename="../KJVPassageNavigator.cpp" line="171"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation>Chapitre</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="166"/>
+        <location filename="../KJVPassageNavigator.cpp" line="172"/>
         <source>Book</source>
         <comment>Scope</comment>
         <translation>Livre</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="562"/>
+        <location filename="../KJVPassageNavigator.cpp" line="568"/>
         <source>&amp;Books:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Livres:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="563"/>
+        <location filename="../KJVPassageNavigator.cpp" line="569"/>
         <source>C&amp;hapters:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>C&amp;hapitres:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="564"/>
+        <location filename="../KJVPassageNavigator.cpp" line="570"/>
         <source>&amp;Verses:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Versets:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="565"/>
+        <location filename="../KJVPassageNavigator.cpp" line="571"/>
         <source>&amp;Words:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Mots:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="608"/>
+        <location filename="../KJVPassageNavigator.cpp" line="614"/>
         <source>&amp;Book:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Livre:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="609"/>
+        <location filename="../KJVPassageNavigator.cpp" line="615"/>
         <source>C&amp;hapter:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>C&amp;hapitre:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="610"/>
+        <location filename="../KJVPassageNavigator.cpp" line="616"/>
         <source>&amp;Verse:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Verset:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="611"/>
+        <location filename="../KJVPassageNavigator.cpp" line="617"/>
         <source>&amp;Word:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation>&amp;Mot:</translation>
@@ -2185,67 +2186,67 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="359"/>
+        <location filename="../KJVSearchCriteria.cpp" line="370"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation>Ajouter une expression à Rechercher Critères</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="360"/>
+        <location filename="../KJVSearchCriteria.cpp" line="371"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation>Ajouter une Phrase à la Recherche en cours Critères</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="362"/>
+        <location filename="../KJVSearchCriteria.cpp" line="373"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation>Partout dans la Sélection Recherche Texte (non portée)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="363"/>
+        <location filename="../KJVSearchCriteria.cpp" line="374"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation>Ensemble, dans la Sélection Recherche Texte</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="364"/>
+        <location filename="../KJVSearchCriteria.cpp" line="375"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation>Même Testament</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="365"/>
+        <location filename="../KJVSearchCriteria.cpp" line="376"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation>Même Catégorie</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="366"/>
+        <location filename="../KJVSearchCriteria.cpp" line="377"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation>Même Livre</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="367"/>
+        <location filename="../KJVSearchCriteria.cpp" line="378"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation>Même Chapitre</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="368"/>
+        <location filename="../KJVSearchCriteria.cpp" line="379"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation>Même Verset</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="369"/>
+        <location filename="../KJVSearchCriteria.cpp" line="380"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation>Sélectionner Recherche Portée</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="370"/>
+        <location filename="../KJVSearchCriteria.cpp" line="381"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation>Sélectionner Mode Portée de Recherche pour les Phrases Recherches</translation>
@@ -2544,12 +2545,39 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1557"/>
-        <source>Found %n %1Occurrence(s)%2</source>
+        <location filename="../KJVSearchResult.cpp" line="1564"/>
+        <source>Not found%1at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Trouvé %n Occurrence %1 %2</numerusform>
-            <numerusform>Trouvé %n Occurrences %1 %2</numerusform>
+            <numerusform>Pas trouvé du tout%1dans %n Verset de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout%1dans %n Versets de la Bible</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1565"/>
+        <source>Not found%1at all in %n Chapter(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation>
+            <numerusform>Pas trouvé du tout%1dans %n Chapitre de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout%1dans %n Chapitres de la Bible</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1566"/>
+        <source>Not found%1at all in %n Book(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation>
+            <numerusform>Pas trouvé du tout%1dans %n Livre de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout%1dans %n Livres de la Bible</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1575"/>
+        <source>Excluded %n%1Occurrence(s)</source>
+        <comment>Statistics</comment>
+        <translation>
+            <numerusform>Exclus %n Occurrence%1</numerusform>
+            <numerusform>Exclus %n Occurrences%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2562,20 +2590,20 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
             <numerusform>Combinés</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1557"/>
+        <source>Found %n%1Occurrence(s)</source>
+        <comment>Statistics</comment>
+        <translation>
+            <numerusform>Trouvé %n Occurrence%1</numerusform>
+            <numerusform>Trouvé %n Occurrences%1</numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1558"/>
         <source>in the Selected Search Text</source>
         <comment>Statistics</comment>
         <translation>dans la Recherche Texte Sélectionné</translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1564"/>
-        <source>Not found%1 at all in %n Verse(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation>
-            <numerusform>Pas trouvé du tout%1 dans %n Verset de la Bible</numerusform>
-            <numerusform>Pas trouvé du tout%1 dans %n Versets de la Bible</numerusform>
-        </translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1564"/>
@@ -2584,33 +2612,6 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <source>together</source>
         <comment>Statistics</comment>
         <translation>ensemble</translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1565"/>
-        <source>Not found%1 at all in %n Chapter(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation>
-            <numerusform>Pas trouvé du tout%1 dans %n Chapitre de la Bible</numerusform>
-            <numerusform>Pas trouvé du tout%1 dans %n Chapitres de la Bible</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1566"/>
-        <source>Not found%1 at all in %n Book(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation>
-            <numerusform>Pas trouvé du tout%1 dans %n Livre de la Bible</numerusform>
-            <numerusform>Pas trouvé du tout%1 dans %n Livres de la Bible</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1575"/>
-        <source>Excluded %n %1Occurrence(s)</source>
-        <comment>Statistics</comment>
-        <translation>
-            <numerusform>Exclus %n Occurrence %1</numerusform>
-            <numerusform>Exclus %n Occurrences %1</numerusform>
-        </translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1587"/>
@@ -3823,7 +3824,8 @@ Voulez-vous mettre hors surbrillance tous à la place??</translation>
 <context>
     <name>CSearchWithinModel</name>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="226"/>
+        <location filename="../KJVSearchCriteria.cpp" line="230"/>
+        <location filename="../KJVSearchCriteria.cpp" line="233"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Toute la Bible</translation>
@@ -4700,43 +4702,43 @@ Vous voudrez peut-être jeter un oeil à la syntaxe des expressions régulières
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="50"/>
+        <location filename="../KJVSearchCriteria.cpp" line="51"/>
         <source>anywhere</source>
         <comment>Scope</comment>
         <translation>n&apos;importe où</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="53"/>
+        <location filename="../KJVSearchCriteria.cpp" line="54"/>
         <source>together</source>
         <comment>Scope</comment>
         <translation>ensemble</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="56"/>
+        <location filename="../KJVSearchCriteria.cpp" line="57"/>
         <source>in the same Testament</source>
         <comment>Scope</comment>
         <translation>dans le même Testament</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="59"/>
+        <location filename="../KJVSearchCriteria.cpp" line="60"/>
         <source>in the same Category</source>
         <comment>Scope</comment>
         <translation>dans la même Catégorie</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="62"/>
+        <location filename="../KJVSearchCriteria.cpp" line="63"/>
         <source>in the same Book</source>
         <comment>Scope</comment>
         <translation>dans le même Livre</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="65"/>
+        <location filename="../KJVSearchCriteria.cpp" line="66"/>
         <source>in the same Chapter</source>
         <comment>Scope</comment>
         <translation>dans le même Chapitre</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="68"/>
+        <location filename="../KJVSearchCriteria.cpp" line="69"/>
         <source>in the same Verse</source>
         <comment>Scope</comment>
         <translation>dans le même Verset</translation>
@@ -5086,7 +5088,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="763"/>
         <source>%1 of %2 of %3 %4</source>
         <comment>Statistics</comment>
-        <translation>%1 de %2 de %3 de %4</translation>
+        <translation>%1 de %2 de %3 %4</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="752"/>

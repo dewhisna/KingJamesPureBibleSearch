@@ -1554,16 +1554,16 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 	QString strSummary;
 
 	if (m_bLastCalcSuccess) {
-		strSummary += tr("Found %n %1Occurrence(s)%2", "Statistics", m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : "")
-						.arg(m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text", "Statistics"))) + "\n";
+		strSummary += tr("Found %n%1Occurrence(s)", "Statistics", m_nLastSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (" " + tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : " ").trimmed();
+		strSummary += (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase) ? "" : (" " + tr("in the Selected Search Text", "Statistics"))) + "\n";
 		strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) + "\n";
 		strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) + "\n";
 		strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastSearchBooks) + "\n";
 		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 			strSummary += "\n";
-			strSummary += tr("Not found%1 at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
-			strSummary += tr("Not found%1 at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics")) : "") + "\n";
+			strSummary += tr("Not found%1at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics") + " ") : " ") + "\n";
+			strSummary += tr("Not found%1at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics") + " ") : " ") + "\n";
+			strSummary += tr("Not found%1at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics") + " ") : " ") + "\n";
 		} else {
 			QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
 			if (!strSearchWithinDescription.isEmpty()) {
@@ -1572,7 +1572,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		}
 		if (m_nLastExcludedSearchOccurrences > 0) {
 			strSummary += "\n";
-			strSummary += tr("Excluded %n %1Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : "") + "\n";
+			strSummary += tr("Excluded %n%1Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences).arg((m_nLastSearchNumPhrases > 1) ? (" " + tr("Combined", "Statistics", m_nLastSearchOccurrences) + " ") : " ").trimmed() + "\n";
 			strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastExcludedSearchVerses) + "\n";
 			strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastExcludedSearchChapters) + "\n";
 			strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastExcludedSearchBooks) + "\n";
