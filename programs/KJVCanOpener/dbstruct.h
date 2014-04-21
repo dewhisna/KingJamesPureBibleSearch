@@ -411,7 +411,7 @@ public:
 
 };
 
-typedef std::map<CRelIndex, CVerseEntry, RelativeIndexSortPredicate> TVerseEntryMap;		// Index by [0|nChp|nVrs|0]
+typedef std::map<CRelIndex, CVerseEntry, RelativeIndexSortPredicate> TVerseEntryMap;		// Index by [nBk|nChp|nVrs|0]
 
 typedef std::vector<TVerseEntryMap> TBookVerseList;		// Index by nBk-1
 
@@ -859,7 +859,7 @@ private:
 	TBookCategoryList m_lstBookCategories;	// Category List: List(nCat-1)
 	TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
 	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
-	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[0 | nChp | nVrs | 0])
+	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)

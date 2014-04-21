@@ -598,7 +598,7 @@ bool CReadDatabase::ReadVerseTables()
 
 			QString strVerseText;
 			uint32_t nChpVrsNdx = lstFields.at(0).toUInt();
-			CVerseEntry &entryVerse = mapVerses[CRelIndex(nChpVrsNdx << 8)];
+			CVerseEntry &entryVerse = mapVerses[CRelIndex((nChpVrsNdx << 8) | (nBk << 24))];
 			entryVerse.m_nNumWrd = lstFields.at(1).toUInt();
 			entryVerse.m_nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(lstFields.at(2).toInt());
 			strVerseText = lstFields.at(4);
@@ -613,8 +613,8 @@ bool CReadDatabase::ReadVerseTables()
 		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {
 			unsigned int nNumVerses = m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nNumVrs;
 			for (unsigned int nVrs = 1; nVrs <= nNumVerses; ++nVrs) {
-				mapVerses[CRelIndex(0, nChp, nVrs, 0)].m_nWrdAccum = nWrdAccum;
-				nWrdAccum += mapVerses[CRelIndex(0, nChp, nVrs, 0)].m_nNumWrd;
+				mapVerses[CRelIndex(nBk, nChp, nVrs, 0)].m_nWrdAccum = nWrdAccum;
+				nWrdAccum += mapVerses[CRelIndex(nBk, nChp, nVrs, 0)].m_nNumWrd;
 			}
 		}
 
@@ -994,7 +994,7 @@ bool CReadDatabase::ValidateData()
 			for (unsigned int nVrs=0; nVrs<itrChapters->second.m_nNumVrs; ++nVrs) {	// Verses
 				ncntWrd_Vrs = 0;
 				const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_lstBookVerses[nBk];
-				TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(0,nChp+1,nVrs+1,0));
+				TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(nBk+1,nChp+1,nVrs+1,0));
 				if (itrBook == aBookVerses.end()) continue;
 				ncntVrsTot++;
 				ncntVrs_Chp++;
