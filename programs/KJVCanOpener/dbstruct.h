@@ -336,7 +336,8 @@ public:
 		m_nNumChp(0),
 		m_nNumVrs(0),
 		m_nNumWrd(0),
-		m_nWrdAccum(0)
+		m_nWrdAccum(0),
+		m_bHaveColophon(false)
 	{ }
 	~CBookEntry() { }
 
@@ -351,6 +352,8 @@ public:
 	unsigned int m_nNumWrd;		// Number of words in this book
 	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this book
 	QString m_strDesc;			// Description (subtitle)
+
+	bool m_bHaveColophon;		// True if this book has a Colophon pseudo-verse (will be indexed as [nBk|0|0|0] in the TVerseEntryMap, ie. nChp==0, nVrs==0)
 };
 
 typedef std::vector<CBookEntry> TBookList;	// Index by nBk-1
@@ -365,13 +368,16 @@ public:
 	CChapterEntry()
 	:   m_nNumVrs(0),
 		m_nNumWrd(0),
-		m_nWrdAccum(0)
+		m_nWrdAccum(0),
+		m_bHaveSuperscription(false)
 	{ }
 	~CChapterEntry() { }
 
 	unsigned int m_nNumVrs;		// Number of verses in this chapter
 	unsigned int m_nNumWrd;		// Number of words in this chapter
 	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this chapter
+
+	bool m_bHaveSuperscription;	// True if this chapter has a Superscription pseudo-verse (will be indexed as [nBk|nChp|0|0] in the TVerseEntryMap, ie. nVrs==0)
 };
 
 typedef std::map<CRelIndex, CChapterEntry, RelativeIndexSortPredicate> TChapterMap;	// Index by [nBk|nChp|0|0]

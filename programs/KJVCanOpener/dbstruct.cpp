@@ -468,22 +468,27 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
 	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
-		nNormalIndex += m_lstBooks[ndxBk-1].m_nNumWrd;
+		nNormalIndex += m_lstBooks.at(ndxBk-1).m_nNumWrd;
 	}
 	// Add the number of words for all chapters in this book prior to the target chapter:
-	if (nChp == 0) nChp = 1;
-	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+
+	if (nChp > m_lstBooks.at(nBk-1).m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
 		nNormalIndex += m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
 	}
 	// Add the number of words for all verses in this book prior to the target verse:
-	if (nVrs == 0) nVrs = 0;
-	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
-	for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
-		nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,ndxVrs,0)).m_nNumWrd;
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if (nChp > 0) {
+		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
+			nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,ndxVrs,0)).m_nNumWrd;
+		}
+	} else {
+		if (nVrs != 0) return 0;
 	}
 	// Add the target word:
-	if (nWrd == 0) nWrd = 0;
+	if (nWrd == 0) nWrd = 1;
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 	nNormalIndex += nWrd;
 
@@ -493,8 +498,6 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 {
 	unsigned int nBk = 0;
-	unsigned int nChp = 1;
-	unsigned int nVrs = 1;
 	unsigned int nWrd = nNormalIndex;
 
 	if (nNormalIndex == 0) return 0;
@@ -507,19 +510,30 @@ uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 	if (nBk >= m_lstBooks.size()) return 0;
 	nBk++;
 
+	unsigned int nChp = (m_lstBooks.at(nBk-1).m_bHaveColophon ? 0 : 1);
+
 	while (nChp <= m_lstBooks.at(nBk-1).m_nNumChp) {
-		if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
-		nWrd -= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		if (nChp > 0) {
+			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		} else {
+			// Handle Colophon:
+			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd >= nWrd) break;
+		}
 		nChp++;
 	}
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
 
-	while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
-		if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
-		nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd;
-		nVrs++;
+	unsigned int nVrs = (((nChp == 0) || (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) ? 0 : 1);
+	if (nChp > 0) {
+		while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+			// Note: Superscription is handle implicitly:
+			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd;
+			nVrs++;
+		}
+		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	}
-	if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 
 	// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 	if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd)) return 0;
@@ -540,18 +554,21 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 
 	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
-	if (nChp == 0) nChp = 1;
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
-	if (nVrs == 0) nVrs = 1;
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nWrd == 0) nWrd = 1;
-	// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
-	if (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+	if (nChp > 0) {
+		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
 		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
-		if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd)) return 0;
+		if ((nVrs == 1) && (nWrd == 1)) {
+			return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+		}
+		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	} else {
-		if ((nVrs != 1) || (nWrd != 1)) return 0;
-		return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+		if (nVrs != 0) return 0;
 	}
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 
 	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 }
@@ -575,16 +592,16 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 	while ((nChp > 0) && (nWrd <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum)) {
 		nChp--;
 	}
-	if (nChp == 0) {
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		assert(false);
 		return 0;
 	}
 
-	unsigned int nVrs = m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs;
+	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
 	while ((nVrs > 0) && (nWrd <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum)) {
 		nVrs--;
 	}
-	if (nVrs == 0) {
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
 		assert(false);
 		return 0;
 	}

@@ -577,7 +577,8 @@ bool CReadDatabase::ReadVerseTables()
 	m_pBibleDatabase->m_lstBookVerses.resize(m_pBibleDatabase->m_lstBooks.size());
 
 	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		if (m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName.isEmpty()) continue;
+		CBookEntry &theBook = m_pBibleDatabase->m_lstBooks[nBk-1];
+		if (theBook.m_strTblName.isEmpty()) continue;
 
 #ifndef NOT_USING_SQL
 		CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
@@ -585,7 +586,7 @@ bool CReadDatabase::ReadVerseTables()
 		CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
 #endif
 
-		if (!dbParser.findTable(m_pBibleDatabase->m_lstBooks[nBk-1].m_strTblName)) return false;
+		if (!dbParser.findTable(theBook.m_strTblName)) return false;
 
 		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
 		mapVerses.clear();
@@ -598,23 +599,48 @@ bool CReadDatabase::ReadVerseTables()
 
 			QString strVerseText;
 			uint32_t nChpVrsNdx = lstFields.at(0).toUInt();
-			CVerseEntry &entryVerse = mapVerses[CRelIndex((nChpVrsNdx << 8) | (nBk << 24))];
+			CRelIndex ndxVerse(CRelIndex((nChpVrsNdx << 8) | (nBk << 24)));
+			CVerseEntry &entryVerse = mapVerses[ndxVerse];
 			entryVerse.m_nNumWrd = lstFields.at(1).toUInt();
 			entryVerse.m_nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(lstFields.at(2).toInt());
 			strVerseText = lstFields.at(4);
 			if (strVerseText.isEmpty()) strVerseText = lstFields.at(3);
 			entryVerse.m_strTemplate = lstFields.at(5);
+			if ((entryVerse.m_nNumWrd > 0) && (ndxVerse.verse() == 0)) {
+				if (ndxVerse.chapter() == 0) {
+					theBook.m_bHaveColophon = true;
+				} else {
+					CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxVerse];
+					theChapter.m_bHaveSuperscription = true;
+				}
+			}
 		}
 
 		dbParser.endQueryLoop();
 
 		// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
 		//		came to us out of order:
-		for (unsigned int nChp = 1; nChp <= m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {
-			unsigned int nNumVerses = m_pBibleDatabase->m_mapChapters[CRelIndex(nBk, nChp, 0, 0)].m_nNumVrs;
-			for (unsigned int nVrs = 1; nVrs <= nNumVerses; ++nVrs) {
-				mapVerses[CRelIndex(nBk, nChp, nVrs, 0)].m_nWrdAccum = nWrdAccum;
-				nWrdAccum += mapVerses[CRelIndex(nBk, nChp, nVrs, 0)].m_nNumWrd;
+		if (theBook.m_bHaveColophon) {
+			// Colophons before book chapters -- even though it will be rendered after all chapters
+			//		and verses, the index values are numerically less-than all other chapter data!
+			//		We must insert it here so that normalize/denormalize works correctly:
+			CVerseEntry &entryVerse = mapVerses[CRelIndex(nBk, 0, 0, 0)];
+			entryVerse.m_nNumWrd = nWrdAccum;
+			nWrdAccum += entryVerse.m_nNumWrd;
+		}
+		for (unsigned int nChp = 1; nChp <= theBook.m_nNumChp; ++nChp) {
+			CRelIndex ndxChapter(nBk, nChp, 0, 0);
+			CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxChapter];
+			if (theChapter.m_bHaveSuperscription) {
+				// Superscriptions before chapter verses:
+				CVerseEntry &entryVerse = mapVerses[ndxChapter];
+				entryVerse.m_nWrdAccum = nWrdAccum;
+				nWrdAccum += entryVerse.m_nNumWrd;
+			}
+			for (unsigned int nVrs = 1; nVrs <= theChapter.m_nNumVrs; ++nVrs) {
+				CVerseEntry &entryVerse = mapVerses[CRelIndex(nBk, nChp, nVrs, 0)];
+				entryVerse.m_nWrdAccum = nWrdAccum;
+				nWrdAccum += entryVerse.m_nNumWrd;
 			}
 		}
 
