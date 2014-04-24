@@ -789,6 +789,8 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex) const
 {
+	// TODO : Handle Colophons and Superscriptions
+
 	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>", "Statistics");
 	if (nRelIndex.chapter() == 0) {
 		return QString("%1").arg(bookName(nRelIndex));
