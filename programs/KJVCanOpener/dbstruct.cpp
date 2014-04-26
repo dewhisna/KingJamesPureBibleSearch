@@ -473,6 +473,10 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 	// Add the number of words for all chapters in this book prior to the target chapter:
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
 
+	if ((nChp != 0) && (m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+		nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
+	}
+
 	if (nChp > m_lstBooks.at(nBk-1).m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
 		nNormalIndex += m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
@@ -480,6 +484,9 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 	// Add the number of words for all verses in this book prior to the target verse:
 	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nChp > 0) {
+		if ((nVrs != 0) && (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+			nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		}
 		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 		for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
 			nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,ndxVrs,0)).m_nNumWrd;
@@ -519,6 +526,7 @@ uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 		} else {
 			// Handle Colophon:
 			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
 		}
 		nChp++;
 	}
@@ -527,7 +535,7 @@ uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 	unsigned int nVrs = (((nChp == 0) || (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) ? 0 : 1);
 	if (nChp > 0) {
 		while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
-			// Note: Superscription is handle implicitly:
+			// Note: Superscription is handled implicitly:
 			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
 			nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd;
 			nVrs++;
@@ -562,6 +570,10 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
 		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 		if ((nVrs == 1) && (nWrd == 1)) {
+			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
+				return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
+						(m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
+			}
 			return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
 		}
 		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
