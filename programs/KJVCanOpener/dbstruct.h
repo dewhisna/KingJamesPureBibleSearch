@@ -522,8 +522,9 @@ struct TConcordanceListSortPredicate {
 // ============================================================================
 
 // Footnotes -- Footnote List and Mapping
-//		Note: This works consistently for book-only footnotes, chapter footnotes,
-//		verse footnotes, and even word footnotes if we wish.  The index into the
+//		Note: This works consistently for book-only footnotes or colophons,
+//		chapter footnotes or superscriptions, verse footnotes, and even word
+//		footnotes (or translation lemmas) if we wish.  The index into the
 //		map is the complete CRelIndex style.  For book-only, for example, the
 //		chapter, verse, and word will be 0.  For a chapter note, the verse and
 //		word will be 0, etc.  This allows us to easily and quickly query for the

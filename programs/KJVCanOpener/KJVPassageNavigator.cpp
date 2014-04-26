@@ -511,7 +511,7 @@ void CKJVPassageNavigator::CalcPassage()
 			navigator.setDocumentToVerse(ndxVerse, defaultDocumentToVerseFlags);
 			break;
 		case NRTE_CHAPTER:
-			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
+			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Superscriptions | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
 			txtCursor = m_pEditVersePreview->textCursor();
 			txtCursor.movePosition(QTextCursor::Start);
 			m_pEditVersePreview->setTextCursor(txtCursor);

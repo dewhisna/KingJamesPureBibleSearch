@@ -86,6 +86,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
+										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n"));
 

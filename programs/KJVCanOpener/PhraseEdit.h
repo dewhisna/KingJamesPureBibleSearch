@@ -257,16 +257,17 @@ public:
 		TRO_None = 0x0,								// Default for no options
 		TRO_NoAnchors = 0x1,						// Suppresses internal navigation anchors
 		TRO_AddDividerLineBefore = 0x2,				// Add <hr> line before (Verse output only)
-		TRO_Subtitles = 0x4,						// Add chapter titles
-		TRO_Colophons = 0x8,						// Add chapter colophons
-		TRO_UserNotes = 0x10,						// Displays active/visible user notes
-		TRO_UserNotesForceVisible = 0x20,			// Force show user notes (Force only flag)
-		TRO_AllUserNotesVisible = 0x30,				// Force show all user notes (Combines with UserNotes for setting both)
-		TRO_UserNoteExpandAnchors = 0x40,			// Add navigation anchors to expand/collapse User Notes
-		TRO_CrossRefs = 0x80,						// Add navigation anchors/text for cross-references
-		TRO_Category = 0x100,						// Add book category
-		TRO_SuppressPrePostChapters = 0x200,		// Suppress adding pre/post chapter displays
-		TRO_Copying = 0x400							// Text Copying mode (i.e. add selected font from copy option, etc)
+		TRO_Subtitles = 0x4,						// Add book subtitles (descriptions)
+		TRO_Colophons = 0x8,						// Add book colophons (at end)
+		TRO_Superscriptions = 0x10,					// Add chapter superscriptions
+		TRO_UserNotes = 0x20,						// Displays active/visible user notes
+		TRO_UserNotesForceVisible = 0x40,			// Force show user notes (Force only flag)
+		TRO_AllUserNotesVisible = 0x60,				// Force show all user notes (Combines with UserNotes for setting both)
+		TRO_UserNoteExpandAnchors = 0x80,			// Add navigation anchors to expand/collapse User Notes
+		TRO_CrossRefs = 0x100,						// Add navigation anchors/text for cross-references
+		TRO_Category = 0x200,						// Add book category
+		TRO_SuppressPrePostChapters = 0x400,		// Suppress adding pre/post chapter displays
+		TRO_Copying = 0x800							// Text Copying mode (i.e. add selected font from copy option, etc)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
@@ -324,6 +325,7 @@ public:
 										 CPhraseNavigator::TRO_CrossRefs | \
 										 CPhraseNavigator::TRO_Subtitles | \
 										 CPhraseNavigator::TRO_Colophons | \
+										 CPhraseNavigator::TRO_Superscriptions | \
 										 CPhraseNavigator::TRO_Category)
 #define defaultDocumentToVerseFlags		(CPhraseNavigator::TRO_None)
 	// Returns unaltered raw-HTML text (as opposed to the QTextEdit changes to the HTML):

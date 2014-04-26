@@ -1142,6 +1142,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
+										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
@@ -1283,6 +1284,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
+										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
@@ -1394,11 +1396,11 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If we have a chapter Footnote for this chapter, print it too:
-	scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
-	if ((flagsTRO & TRO_Subtitles) &&
+	scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
+	if ((flagsTRO & TRO_Superscriptions) &&
 		(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !(flagsTRO & TRO_NoAnchors)))) {
-		scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
-		scriptureHTML.beginDiv("subtitle");
+		scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+		scriptureHTML.beginDiv("superscription");
 		scriptureHTML.flushBuffer();
 		scriptureHTML.endDiv();
 	}
@@ -1570,11 +1572,11 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endDiv();
 
 		// If we have a chapter note for this chapter, print it too:
-		scriptureHTML.startBuffered();			// Start buffering so we can insert subtitle division if there is a footnote
-		if ((flagsTRO & TRO_Subtitles) &&
+		scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
+		if ((flagsTRO & TRO_Superscriptions) &&
 			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !(flagsTRO & TRO_NoAnchors)))) {
-			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the subtitle divison ahead of footnote
-			scriptureHTML.beginDiv("subtitle");
+			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+			scriptureHTML.beginDiv("superscription");
 			scriptureHTML.flushBuffer();
 			scriptureHTML.endDiv();
 		}
@@ -1692,6 +1694,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".category { font-size:medium; font-weight:normal; }\n"
+										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
