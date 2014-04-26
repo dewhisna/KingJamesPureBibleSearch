@@ -145,7 +145,7 @@ static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 static int readDatabaseByFilename(const QString &strFilename, bool bSetAsMain)
 {
 	QFileInfo fiDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-	QFileInfo fiFile(QDir(fiDBPath.absoluteFilePath()), strFilename);
+	QFileInfo fiFile(strFilename);
 
 	std::cerr << QString::fromUtf8("Reading database: %1\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 
@@ -154,7 +154,7 @@ static int readDatabaseByFilename(const QString &strFilename, bool bSetAsMain)
 		std::cerr << QString::fromUtf8("\n*** ERROR: Unable to locate Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 		return -2;
 	}
-	if (!rdbMain.ReadSpecialBibleDatabase(strFilename, bSetAsMain)) {
+	if (!rdbMain.ReadSpecialBibleDatabase(fiFile.absoluteFilePath(), bSetAsMain)) {
 		std::cerr << QString::fromUtf8("\n*** ERROR: Failed to Read Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 		return -3;
 	}
