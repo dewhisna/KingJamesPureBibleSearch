@@ -764,8 +764,8 @@ public:
 
 	// CRelIndex Name/Report Functions:
 	QString SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
-	QString PassageReferenceText(const CRelIndex &nRelIndex) const;		// Creates a reference text string like "Genesis 1:1 [5]"
-	QString PassageReferenceAbbrText(const CRelIndex &nRelIndex) const;	// Creates a reference abbreviated text string like "Gen 1:1 [5]"
+	QString PassageReferenceText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse = false) const;		// Creates a reference text string like "Genesis 1:1 [5]"
+	QString PassageReferenceAbbrText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse = false) const;	// Creates a reference abbreviated text string like "Gen 1:1 [5]"
 
 	QString testamentName(const CRelIndex &nRelIndex) const;
 	uint32_t testament(const CRelIndex &nRelIndex) const;

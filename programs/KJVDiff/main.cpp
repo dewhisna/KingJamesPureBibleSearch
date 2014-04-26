@@ -162,12 +162,12 @@ static int readDatabaseByFilename(const QString &strFilename, bool bSetAsMain)
 	return 0;
 }
 
-static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, const CRelIndex &relIndex)
+static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, const CRelIndex &relIndex, bool bSuppressWordOnPseudoVerse)
 {
 	if (bAbbrev) {
-		return pBibleDatabase->PassageReferenceAbbrText(relIndex);
+		return pBibleDatabase->PassageReferenceAbbrText(relIndex, bSuppressWordOnPseudoVerse);
 	} else {
-		return pBibleDatabase->PassageReferenceText(relIndex);
+		return pBibleDatabase->PassageReferenceText(relIndex, bSuppressWordOnPseudoVerse);
 	}
 }
 
@@ -353,11 +353,6 @@ int main(int argc, char *argv[])
 		std::cout << QString("Number of Testaments don't match!  %1 <=> %2\nComparing only %3 Testaments\n").arg(bblEntry1.m_nNumTst).arg(bblEntry2.m_nNumTst).arg(nChkTst).toUtf8().data();
 	}
 
-	unsigned int nChkBk = qMin(bblEntry1.m_nNumBk, bblEntry2.m_nNumBk);
-	if (bblEntry1.m_nNumBk != bblEntry2.m_nNumBk) {
-		std::cout << QString("Number of Books don't match!  %1 <=> %2\nComparing only %3 Books\n").arg(bblEntry1.m_nNumBk).arg(bblEntry2.m_nNumBk).arg(nChkBk).toUtf8().data();
-	}
-
 	CVerseTextRichifierTags vtfTags;
 	vtfTags.setAddRichPs119HebrewPrefix(false);
 	if (!bIgnoreTransChange) {
@@ -380,32 +375,64 @@ int main(int argc, char *argv[])
 	bool bOutputedTextDiffs = false;
 
 	if (bAllDiffs || bTextDiffs) {
+		unsigned int nChkBk = qMax(bblEntry1.m_nNumBk, bblEntry2.m_nNumBk);
 		for (unsigned int nBk = 1; nBk <= nChkBk; ++nBk) {
+			CRelIndex ndxBook = CRelIndex(nBk, 0, 0, 0);
 			const CBookEntry *pBook1 = pBible1->bookEntry(nBk);
 			const CBookEntry *pBook2 = pBible2->bookEntry(nBk);
-			unsigned int nChp1;
-			unsigned int nChp2;
-			for (nChp1=nChp2=1; ((nChp1 <= pBook1->m_nNumChp) && (nChp2 <= pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
+			if ((pBook1 == NULL) || (pBook2 == NULL)) {
+				assert((pBook1 != NULL) || (pBook2 != NULL));		// Must have one or the other!
+				std::cout << "\nBook: ";
+				std::cout << ((pBook1 != NULL) ? passageReference(pBible1, bUseAbbrevRefs, ndxBook, true).toUtf8().data() : "<<missing>>");
+				std::cout << " : ";
+				std::cout << ((pBook2 != NULL) ? passageReference(pBible2, bUseAbbrevRefs, ndxBook, true).toUtf8().data() : "<<missing>>");
+				std::cout << "\n\n";
+				continue;
+			}
+			unsigned int nChp1 = ((pBook1->m_bHaveColophon) ? 0 : 1);
+			unsigned int nChp2 = ((pBook2->m_bHaveColophon) ? 0 : 1);
+			nChp1 = nChp2 = qMin(nChp1, nChp2);
+			for (/* Initializers Above */; ((nChp1 <= pBook1->m_nNumChp) || (nChp2 <= pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
 				CRelIndex ndxChapter1 = CRelIndex(nBk, nChp1, 0, 0);
 				CRelIndex ndxChapter2 = CRelIndex(nBk, nChp2, 0, 0);
-				const CChapterEntry *pChapter1 = pBible1->chapterEntry(ndxChapter1);
-				const CChapterEntry *pChapter2 = pBible2->chapterEntry(ndxChapter2);
-				unsigned int nVrs1;
-				unsigned int nVrs2;
-				for (nVrs1=nVrs2=1; ((nVrs1 <= pChapter1->m_nNumVrs) && (nVrs2 <= pChapter2->m_nNumVrs)); ++nVrs1, ++nVrs2) {
-					CRelIndex ndxVerse1 = CRelIndex(nBk, nChp1, nVrs1, 0);
-					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, 0);
+				const CChapterEntry *pChapter1 = ((nChp1 != 0) ? pBible1->chapterEntry(ndxChapter1) : NULL);
+				const CChapterEntry *pChapter2 = ((nChp2 != 0) ? pBible2->chapterEntry(ndxChapter2) : NULL);
+				if ((nChp1 != 0) || (nChp2 != 0)) {
+					assert((pChapter1 != NULL) || (pChapter2 != NULL));		// Must have one or the other!
+					if ((pChapter1 == NULL) || (pChapter2 == NULL)) {
+						std::cout << "\nChapter: ";
+						std::cout << ((pChapter1 != NULL) ? passageReference(pBible1, bUseAbbrevRefs, ndxChapter1, true).toUtf8().data() : "<<missing>>");
+						std::cout << " : ";
+						std::cout << ((pChapter2 != NULL) ? passageReference(pBible2, bUseAbbrevRefs, ndxChapter2, true).toUtf8().data() : "<<missing>>");
+						std::cout << "\n\n";
+						continue;
+					}
+				}
+				unsigned int nVerseCount1 = ((pChapter1 != NULL) ? pChapter1->m_nNumVrs : 0);
+				unsigned int nVerseCount2 = ((pChapter2 != NULL) ? pChapter2->m_nNumVrs : 0);
+				unsigned int nVrs1 = ((pChapter1 != NULL) ? (pChapter1->m_bHaveSuperscription ? 0 : 1) : 0);
+				unsigned int nVrs2 = ((pChapter2 != NULL) ? (pChapter2->m_bHaveSuperscription ? 0 : 1) : 0);
+				nVrs1 = nVrs2 = qMin(nVrs1, nVrs2);
+				for (/* Initializers Above */; ((nVrs1 <= nVerseCount1) || (nVrs2 <= nVerseCount2)); ++nVrs1, ++nVrs2) {
+					CRelIndex ndxVerse1 = CRelIndex(nBk, nChp1, nVrs1, ((nChp1 == 0) || (nVrs1 == 0)) ? 1 : 0);		// Use Word == 1 to drive toward Colophon/Superscription
+					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, ((nChp2 == 0) || (nVrs2 == 0)) ? 1 : 0);
 					const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
 					const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
-					QString strRef1 = passageReference(pBible1, bUseAbbrevRefs, ndxVerse1);
-					QString strRef2 = passageReference(pBible2, bUseAbbrevRefs, ndxVerse2);
+					assert((pVerse1 != NULL) || (pVerse2 != NULL));		// Must have one or the other!
+					QString strRef1 = ((pVerse1 != NULL) ? passageReference(pBible1, bUseAbbrevRefs, ndxVerse1, true) : QString("<<missing>>"));
+					QString strRef2 = ((pVerse2 != NULL) ? passageReference(pBible2, bUseAbbrevRefs, ndxVerse2, true) : QString("<<missing>>"));
 					QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
-					bool bHaveDiff = false;
-					if (pVerse1->m_nNumWrd != pVerse2->m_nNumWrd) {
+					bool bHaveBothVerses = ((pVerse1 != NULL) && (pVerse2 != NULL));
+
+					bool bHaveDiff = !bHaveBothVerses;
+					if ((bHaveBothVerses) &&
+						(pVerse1->m_nNumWrd != pVerse2->m_nNumWrd)) {
 						strDiffText += QString("    WordCount: %1 <=> %2\n").arg(pVerse1->m_nNumWrd).arg(pVerse2->m_nNumWrd);
 						bHaveDiff = true;
 					}
-					if ((!bIgnorePilcrows) && (pVerse1->m_nPilcrow != pVerse2->m_nPilcrow)) {
+					if ((!bIgnorePilcrows) &&
+						(bHaveBothVerses) &&
+						(pVerse1->m_nPilcrow != pVerse2->m_nPilcrow)) {
 						if ((bExactPilcrows) ||
 							(!(((pVerse1->m_nPilcrow == CVerseEntry::PTE_NONE) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_EXTRA)) ||
 							   ((pVerse1->m_nPilcrow == CVerseEntry::PTE_EXTRA) && (pVerse2->m_nPilcrow == CVerseEntry::PTE_NONE)) ||
@@ -415,8 +442,8 @@ int main(int argc, char *argv[])
 							bHaveDiff = true;
 						}
 					}
-					QString strTemplate1 = pVerse1->m_strTemplate;
-					QString strTemplate2 = pVerse2->m_strTemplate;
+					QString strTemplate1 = ((pVerse1 != NULL) ? pVerse1->m_strTemplate : QString());
+					QString strTemplate2 = ((pVerse2 != NULL) ? pVerse2->m_strTemplate : QString());
 					bool bHaveTextDiff = false;
 					if (bIgnoreDivineNames) {
 						strTemplate1.remove(QRegExp("[Dd]"));
@@ -443,7 +470,7 @@ int main(int argc, char *argv[])
 						// strTemplate1.remove(QRegExp("[w]"));
 						// strTemplate2.remove(QRegExp("[w]"));
 					} else {
-						CVerseEntry veNewVerseWords1(*pVerse1);
+						CVerseEntry veNewVerseWords1((pVerse1 != NULL) ? *pVerse1 : CVerseEntry());
 						QString strWordTemplate1;
 						for (unsigned int nWrd = 0; nWrd < veNewVerseWords1.m_nNumWrd; ++nWrd) {
 							if (nWrd != 0) {
@@ -454,7 +481,7 @@ int main(int argc, char *argv[])
 						}
 						veNewVerseWords1.m_strTemplate = strWordTemplate1;
 
-						CVerseEntry veNewVerseWords2(*pVerse2);
+						CVerseEntry veNewVerseWords2((pVerse2 != NULL) ? *pVerse2 : CVerseEntry());
 						QString strWordTemplate2;
 						for (unsigned int nWrd = 0; nWrd < veNewVerseWords2.m_nNumWrd; ++nWrd) {
 							if (nWrd != 0) {
@@ -484,61 +511,47 @@ int main(int argc, char *argv[])
 						strTemplate1.remove(QRegExp("[^DdTtJjLlMw]"));
 						strTemplate2.remove(QRegExp("[^DdTtJjLlMw]"));
 					}
-					CVerseEntry veNewVerse1(*pVerse1);
+					CVerseEntry veNewVerse1((pVerse1 != NULL) ? *pVerse1 : CVerseEntry());
 					veNewVerse1.m_strTemplate = strTemplate1;
-					CVerseEntry veNewVerse2(*pVerse2);
+					CVerseEntry veNewVerse2((pVerse2 != NULL) ? *pVerse2 : CVerseEntry());
 					veNewVerse2.m_strTemplate = strTemplate2;
 					// Note: deApostrHyphen is used here so that hyphen and apostrophy differences in the rendering markup (like the weird extra hyphen
 					//			that exists in Exodus 32:32 doesn't trigger unsubstantiated diffs):
 					if (CSearchStringListModel::deApostrHyphen(strTemplate1, false) != CSearchStringListModel::deApostrHyphen(strTemplate2, false)) {
-						if (pVerse1->m_strTemplate != strTemplate1) {
-							strDiffText += QString("    Template1: \"%1\" <= \"%2\"\n").arg(strTemplate1).arg(pVerse1->m_strTemplate);
-						} else {
-							strDiffText += QString("    Template1: \"%1\"\n").arg(strTemplate1);
+						if (pVerse1 != NULL) {
+							if (pVerse1->m_strTemplate != strTemplate1) {
+								strDiffText += QString("    Template1: \"%1\" <= \"%2\"\n").arg(strTemplate1).arg(pVerse1->m_strTemplate);
+							} else {
+								strDiffText += QString("    Template1: \"%1\"\n").arg(strTemplate1);
+							}
 						}
-						if (pVerse2->m_strTemplate != strTemplate2) {
-							strDiffText += QString("    Template2: \"%1\" <= \"%2\"\n").arg(strTemplate2).arg(pVerse2->m_strTemplate);
-						} else {
-							strDiffText += QString("    Template2: \"%1\"\n").arg(strTemplate2);
+						if (pVerse2 != NULL) {
+							if (pVerse2->m_strTemplate != strTemplate2) {
+								strDiffText += QString("    Template2: \"%1\" <= \"%2\"\n").arg(strTemplate2).arg(pVerse2->m_strTemplate);
+							} else {
+								strDiffText += QString("    Template2: \"%1\"\n").arg(strTemplate2);
+							}
 						}
-						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
-						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
+						if (pVerse1 != NULL) {
+							strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
+						}
+						if (pVerse2 != NULL) {
+							strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
+						}
 						bHaveDiff = true;
 					} else if (bHaveTextDiff) {
-						strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
-						strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
+						if (pVerse1 != NULL) {
+							strDiffText += QString("    Text1: %1\n").arg(CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerse1, vtfTags)).toUtf8().data();
+						}
+						if (pVerse2 != NULL) {
+							strDiffText += QString("    Text2: %1\n").arg(CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerse2, vtfTags)).toUtf8().data();
+						}
 						bHaveDiff = true;
 					}
 					if (bHaveDiff) {
 						std::cout << QString("%1%2\n").arg(bOutputedTextDiffs ? QString("--------------------\n") : QString()).arg(strDiffText).toUtf8().data();
 						bOutputedTextDiffs = true;
 					}
-				}
-				while ((nVrs1 <= pChapter1->m_nNumVrs) || (nVrs2 <= pChapter2->m_nNumVrs)) {
-					CRelIndex ndxVerse1 = CRelIndex(nBk, nChp1, nVrs1, 0);
-					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, 0);
-					if (nVrs1 > pChapter1->m_nNumVrs) {
-						std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxVerse2)).toUtf8().data();
-						++nVrs2;
-					} else if (nVrs2 > pChapter2->m_nNumVrs) {
-						std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxVerse1)).toUtf8().data();
-						++nVrs1;
-					} else {
-						assert(false);
-					}
-				}
-			}
-			while ((nChp1 <= pBook1->m_nNumChp) || (nChp2 <= pBook2->m_nNumChp)) {
-				CRelIndex ndxChapter1 = CRelIndex(nBk, nChp1, 0, 0);
-				CRelIndex ndxChapter2 = CRelIndex(nBk, nChp2, 0, 0);
-				if (nChp1 > pBook1->m_nNumChp) {
-					std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxChapter2)).toUtf8().data();
-					++nChp2;
-				} else if (nChp2 > pBook2->m_nNumChp) {
-					std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxChapter1)).toUtf8().data();
-					++nChp1;
-				} else {
-					assert(false);
 				}
 			}
 		}
