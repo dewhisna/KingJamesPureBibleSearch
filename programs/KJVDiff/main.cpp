@@ -380,21 +380,21 @@ int main(int argc, char *argv[])
 	bool bOutputedTextDiffs = false;
 
 	if (bAllDiffs || bTextDiffs) {
-		for (unsigned int nBk = 0; nBk < nChkBk; ++nBk) {
-			const CBookEntry *pBook1 = pBible1->bookEntry(nBk+1);
-			const CBookEntry *pBook2 = pBible2->bookEntry(nBk+1);
+		for (unsigned int nBk = 1; nBk <= nChkBk; ++nBk) {
+			const CBookEntry *pBook1 = pBible1->bookEntry(nBk);
+			const CBookEntry *pBook2 = pBible2->bookEntry(nBk);
 			unsigned int nChp1;
 			unsigned int nChp2;
-			for (nChp1=nChp2=0; ((nChp1 < pBook1->m_nNumChp) && (nChp2 < pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
-				CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
-				CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
+			for (nChp1=nChp2=1; ((nChp1 <= pBook1->m_nNumChp) && (nChp2 <= pBook2->m_nNumChp)); ++nChp1, ++nChp2) {
+				CRelIndex ndxChapter1 = CRelIndex(nBk, nChp1, 0, 0);
+				CRelIndex ndxChapter2 = CRelIndex(nBk, nChp2, 0, 0);
 				const CChapterEntry *pChapter1 = pBible1->chapterEntry(ndxChapter1);
 				const CChapterEntry *pChapter2 = pBible2->chapterEntry(ndxChapter2);
 				unsigned int nVrs1;
 				unsigned int nVrs2;
-				for (nVrs1=nVrs2=0; ((nVrs1 < pChapter1->m_nNumVrs) && (nVrs2 < pChapter2->m_nNumVrs)); ++nVrs1, ++nVrs2) {
-					CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
-					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
+				for (nVrs1=nVrs2=1; ((nVrs1 <= pChapter1->m_nNumVrs) && (nVrs2 <= pChapter2->m_nNumVrs)); ++nVrs1, ++nVrs2) {
+					CRelIndex ndxVerse1 = CRelIndex(nBk, nChp1, nVrs1, 0);
+					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, 0);
 					const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
 					const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
 					QString strRef1 = passageReference(pBible1, bUseAbbrevRefs, ndxVerse1);
@@ -510,17 +510,17 @@ int main(int argc, char *argv[])
 						bHaveDiff = true;
 					}
 					if (bHaveDiff) {
-						std::cout << QString("%1%2\n").arg(bOutputedTextDiffs ? QString("--------------------") : QString()).arg(strDiffText).toUtf8().data();
+						std::cout << QString("%1%2\n").arg(bOutputedTextDiffs ? QString("--------------------\n") : QString()).arg(strDiffText).toUtf8().data();
 						bOutputedTextDiffs = true;
 					}
 				}
-				while ((nVrs1 < pChapter1->m_nNumVrs) || (nVrs2 < pChapter2->m_nNumVrs)) {
-					CRelIndex ndxVerse1 = CRelIndex(nBk+1, nChp1+1, nVrs1+1, 0);
-					CRelIndex ndxVerse2 = CRelIndex(nBk+1, nChp2+1, nVrs2+1, 0);
-					if (nVrs1 >= pChapter1->m_nNumVrs) {
+				while ((nVrs1 <= pChapter1->m_nNumVrs) || (nVrs2 <= pChapter2->m_nNumVrs)) {
+					CRelIndex ndxVerse1 = CRelIndex(nBk, nChp1, nVrs1, 0);
+					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, 0);
+					if (nVrs1 > pChapter1->m_nNumVrs) {
 						std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxVerse2)).toUtf8().data();
 						++nVrs2;
-					} else if (nVrs2 >= pChapter2->m_nNumVrs) {
+					} else if (nVrs2 > pChapter2->m_nNumVrs) {
 						std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxVerse1)).toUtf8().data();
 						++nVrs1;
 					} else {
@@ -528,13 +528,13 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			while ((nChp1 < pBook1->m_nNumChp) || (nChp2 < pBook2->m_nNumChp)) {
-				CRelIndex ndxChapter1 = CRelIndex(nBk+1, nChp1+1, 0, 0);
-				CRelIndex ndxChapter2 = CRelIndex(nBk+1, nChp2+1, 0, 0);
-				if (nChp1 >= pBook1->m_nNumChp) {
+			while ((nChp1 <= pBook1->m_nNumChp) || (nChp2 <= pBook2->m_nNumChp)) {
+				CRelIndex ndxChapter1 = CRelIndex(nBk, nChp1, 0, 0);
+				CRelIndex ndxChapter2 = CRelIndex(nBk, nChp2, 0, 0);
+				if (nChp1 > pBook1->m_nNumChp) {
 					std::cout << QString("<<missing>> : %1\n").arg(passageReference(pBible2, bUseAbbrevRefs, ndxChapter2)).toUtf8().data();
 					++nChp2;
-				} else if (nChp2 >= pBook2->m_nNumChp) {
+				} else if (nChp2 > pBook2->m_nNumChp) {
 					std::cout << QString("%1 : <<missing>>\n").arg(passageReference(pBible1, bUseAbbrevRefs, ndxChapter1)).toUtf8().data();
 					++nChp1;
 				} else {
