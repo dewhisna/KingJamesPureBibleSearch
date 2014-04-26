@@ -1322,15 +1322,24 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// If we have a footnote or user note for this book and this is the end of the last chapter,
 		//		print it too:
 		if (relPrev.chapter() == bookPrev.m_nNumChp) {
-			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
-			if ((flagsTRO & TRO_Colophons) &&
-				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), !(flagsTRO & TRO_NoAnchors)))) {
-				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+			if ((flagsTRO & TRO_Colophons) && (bookPrev.m_bHaveColophon)) {
+				// Try pseudo-verse (searchable) style first:
 				scriptureHTML.beginDiv("colophon");
-				scriptureHTML.flushBuffer();
-				scriptureHTML.endDiv();
+				scriptureHTML.beginParagraph();
+				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0), m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+				scriptureHTML.endParagraph();
+			} else {
+				// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
+				scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
+				if ((flagsTRO & TRO_Colophons) &&
+					(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), !(flagsTRO & TRO_NoAnchors)))) {
+					scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+					scriptureHTML.beginDiv("colophon");
+					scriptureHTML.flushBuffer();
+					scriptureHTML.endDiv();
+				}
+				scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 			}
-			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 			if (flagsTRO & TRO_UserNotes)
 				scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
@@ -1396,15 +1405,24 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 	scriptureHTML.endDiv();
 	// If we have a chapter Footnote for this chapter, print it too:
-	scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
-	if ((flagsTRO & TRO_Superscriptions) &&
-		(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !(flagsTRO & TRO_NoAnchors)))) {
-		scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+	if ((flagsTRO & TRO_Superscriptions) && (pChapter->m_bHaveSuperscription)) {
+		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("superscription");
-		scriptureHTML.flushBuffer();
-		scriptureHTML.endDiv();
+		scriptureHTML.beginParagraph();
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.endParagraph();
+	} else {
+		// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
+		scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
+		if ((flagsTRO & TRO_Superscriptions) &&
+			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, !(flagsTRO & TRO_NoAnchors)))) {
+			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+			scriptureHTML.beginDiv("superscription");
+			scriptureHTML.flushBuffer();
+			scriptureHTML.endDiv();
+		}
+		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 	}
-	scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 	// Add CrossRefs:
 	if (flagsTRO & TRO_CrossRefs) {
@@ -1494,16 +1512,24 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// If we have a footnote or user note for this book and this is the end of the last chapter,
 	//		print it too:
 	if (ndx.chapter() == book.m_nNumChp) {
-		scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
-		if ((flagsTRO & TRO_Colophons) &&
-			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(ndx.book(),0,0,0), !(flagsTRO & TRO_NoAnchors)))) {
-			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+		if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
+			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("colophon");
-			scriptureHTML.flushBuffer();
-			scriptureHTML.endDiv();
+			scriptureHTML.beginParagraph();
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+			scriptureHTML.endParagraph();
+		} else {
+			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
+			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
+			if ((flagsTRO & TRO_Colophons) &&
+				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBook, !(flagsTRO & TRO_NoAnchors)))) {
+				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+				scriptureHTML.beginDiv("colophon");
+				scriptureHTML.flushBuffer();
+				scriptureHTML.endDiv();
+			}
+			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 		}
-		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
-
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 			// No extra <hr> as we have one below for the whole chapter anyway
@@ -1518,6 +1544,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		CRelIndex ndxBookChapNext(relNext.book(), relNext.chapter(), 0, 0);
 		CRelIndex ndxBookNext(relNext.book(), 0, 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
+		const CChapterEntry *pChapterNext = m_pBibleDatabase->chapterEntry(ndxBookChapNext);
+		assert(pChapterNext != NULL);
 
 		// Print Heading for this Book:
 		if (relNext.book() != ndx.book()) {
@@ -1572,15 +1600,24 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endDiv();
 
 		// If we have a chapter note for this chapter, print it too:
-		scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
-		if ((flagsTRO & TRO_Superscriptions) &&
-			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !(flagsTRO & TRO_NoAnchors)))) {
-			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+		if ((flagsTRO & TRO_Superscriptions) && (pChapterNext->m_bHaveSuperscription)) {
+			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("superscription");
-			scriptureHTML.flushBuffer();
-			scriptureHTML.endDiv();
+			scriptureHTML.beginParagraph();
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+			scriptureHTML.endParagraph();
+		} else {
+			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
+			scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
+			if ((flagsTRO & TRO_Superscriptions) &&
+				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, !(flagsTRO & TRO_NoAnchors)))) {
+				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
+				scriptureHTML.beginDiv("superscription");
+				scriptureHTML.flushBuffer();
+				scriptureHTML.endDiv();
+			}
+			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 		}
-		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
