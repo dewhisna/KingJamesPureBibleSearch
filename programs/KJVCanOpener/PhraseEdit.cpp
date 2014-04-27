@@ -1328,6 +1328,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0), m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 				scriptureHTML.endParagraph();
+				scriptureHTML.endDiv();
 			} else {
 				// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 				scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
@@ -1411,6 +1412,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.beginParagraph();
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 		scriptureHTML.endParagraph();
+		scriptureHTML.endDiv();
 	} else {
 		// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 		scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
@@ -1518,6 +1520,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.beginParagraph();
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 			scriptureHTML.endParagraph();
+			scriptureHTML.endDiv();
 		} else {
 			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
@@ -1606,6 +1609,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.beginParagraph();
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
 			scriptureHTML.endParagraph();
+			scriptureHTML.endDiv();
 		} else {
 			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 			scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
