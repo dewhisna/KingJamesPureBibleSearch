@@ -746,9 +746,20 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			// Older format (embedded in closed-form verse tag): canonical="true" subType="x-preverse" type="section":
 			//		<chapter osisID="Ps.3">
 			//		<verse osisID="Ps.3.1"><title canonical="true" subType="x-preverse" type="section">A Psalm of David, when he fled from Absalom his son.</title>
+			//
 			// Newer format (using OpenEnded markers, but preceding the verse-tags):
 			//		<chapter osisID="Job.42" chapterTitle="CHAPTER 42.">
 			//		<title type="chapter">CHAPTER 42.</title>
+			//
+			// Newer format (using OpenEnded markers, but inside the verse-tags):
+			//		<chapter osisID="Ps.7">
+			//		<verse osisID="Ps.7.1">
+			//		<div type="x-milestone" subType="x-preverse" sID="pv5"/>
+			//		<title canonical="true" type="psalm">Shiggaion of David, which he sang unto the <divineName>Lord</divineName>, concerning the words of Cush the Benjamite.</title>
+			//		<div type="x-milestone" subType="x-preverse" eID="pv5"/>
+			//		O <divineName>Lord</divineName> my God, in thee do I put my trust: save me from all them that persecute me, and deliver me:
+			//		<note type="study">words: or, business</note>
+			//		</verse>
 			//
 			//		<chapter osisID="Ps.3" chapterTitle="PSALM 3.">
 			//		<title type="chapter">PSALM 3.</title>
@@ -1185,22 +1196,22 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bInNotes = false;
 	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = false;
-		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("l:");
 	} else if ((m_bInTransChangeAdded) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
 		m_bInTransChangeAdded = false;
-		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("t:");
 	} else if ((m_bInWordsOfJesus) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		m_bInWordsOfJesus = false;
-		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("j:");
 	} else if ((m_bInDivineName) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
 		m_bInDivineName = false;
-		CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("d:");
 	}
