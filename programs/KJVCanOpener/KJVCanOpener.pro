@@ -426,7 +426,7 @@ android {
 		android/res/values/assets.xml
 
 	android_install {
-		dbDeploy.files = ../KJVCanOpener/db/kjvtext.s3db ../KJVCanOpener/db/kjvuser.s3db ../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files = ../KJVCanOpener/db/kjvtext.ccdb ../KJVCanOpener/db/kjvuser.s3db ../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /assets/KJVCanOpener/db
 		fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.path = /assets/KJVCanOpener/fonts
