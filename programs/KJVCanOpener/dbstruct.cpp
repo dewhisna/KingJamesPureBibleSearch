@@ -988,6 +988,34 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 
 // ============================================================================
 
+unsigned int CBibleDatabase::bookWordCountProper(unsigned int nBook) const
+{
+	assert((nBook > 0) && (nBook <= m_lstBooks.size()));
+	const CBookEntry &bookEntry = m_lstBooks[nBook-1];
+	const TVerseEntryMap &mapVerses = m_lstBookVerses[nBook-1];
+	unsigned int nWords = bookEntry.m_nNumWrd;
+	for (unsigned int ndxChp = 1; ndxChp < bookEntry.m_nNumChp; ++ndxChp) {
+		if (m_mapChapters.at(CRelIndex(nBook, ndxChp, 0,0)).m_bHaveSuperscription) {
+			nWords -= mapVerses.at(CRelIndex(nBook, ndxChp, 0, 0)).m_nNumWrd;
+		}
+	}
+	if (bookEntry.m_bHaveColophon) nWords -= mapVerses.at(CRelIndex(nBook, 0, 0, 0)).m_nNumWrd;
+
+	return nWords;
+}
+
+unsigned int CBibleDatabase::chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const
+{
+	assert((nBook > 0) && (nBook <= m_lstBooks.size()));
+	assert((nChapter > 0) && (nChapter <= m_lstBooks[nBook-1].m_nNumChp));
+	CRelIndex ndxChapter(nBook, nChapter, 0, 0);
+	const TVerseEntryMap &mapVerses = m_lstBookVerses.at(nBook-1);
+	const CChapterEntry &chapterEntry = m_mapChapters.at(ndxChapter);
+	unsigned int nWords = chapterEntry.m_nNumWrd;
+	if (chapterEntry.m_bHaveSuperscription) nWords -= mapVerses.at(ndxChapter).m_nNumWrd;
+	return nWords;
+}
+
 CRelIndex CBibleDatabase::calcRelIndex(
 					unsigned int nWord, unsigned int nVerse, unsigned int nChapter,
 					unsigned int nBook, unsigned int nTestament,
@@ -1066,9 +1094,11 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		if (nVerse>m_lstBooks[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
 		while (nVerse > m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) {		// Resolve nChapter
 			nVerse -= m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs;
+			nWord += chapterWordCountProper(nBook, nChapter);	// Push all chapters prior to target down to nWord level
 			nChapter++;
 			if (nChapter > m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
 		}
+
 		// Verse of Chapter:
 		//	Note:  Here we'll push the words of the verses down to nWord and
 		//			relocate Verse back to 1.  We do that so that we will be
@@ -1083,33 +1113,45 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		//			loop below once we push this down to that:
 		if (nVerse>m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
 		for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
-			nWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, ndx, 0)).m_nNumWrd;		// Push all verses prior to target down to nWord level
+			nWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, ndx, 0)).m_nNumWrd;				// Push all verses prior to target down to nWord level
 		}
 		nVerse = 1;		// Reset to beginning of chapter so nWord can count from there
 
-		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
-			nWord += m_mapChapters.at(CRelIndex(nBook, ndx, 0, 0)).m_nNumWrd;	// Push all chapters prior to target down to nWord level
-		}
 		nChapter = 1;	// Reset to beginning of book so nWord can count from there
 
 		// ===================
 		// Word of Bible/Testament:
-		while (nWord > m_lstBooks[nBook-1].m_nNumWrd) {		// Resolve nBook
+		while (nWord > bookWordCountProper(nBook)) {		// Resolve nBook
 			ndxWord += m_lstBooks[nBook-1].m_nNumWrd;
-			nWord -= m_lstBooks[nBook-1].m_nNumWrd;
+			nWord -= bookWordCountProper(nBook);
 			nBook++;
 			if (nBook > m_lstBooks.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
 		}
 		// Word of Book:
 		if (nWord>m_lstBooks[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
-		while (nWord > m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) {	// Resolve nChapter
+
+		// If the current book has a colophon, add words from the colophon since
+		//		they logistically come ahead of the chapters:
+		if (m_lstBooks[nBook-1].m_bHaveColophon) {
+			ndxWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, 0, 0, 0)).m_nNumWrd;
+		}
+
+		while (nWord > chapterWordCountProper(nBook, nChapter)) {	// Resolve nChapter
 			ndxWord += m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
-			nWord -= m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
+			nWord -= chapterWordCountProper(nBook, nChapter);
 			nChapter++;
 			if (nChapter > m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
 		}
+
 		// Word of Chapter:
 		if (nWord>m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
+
+		// If the current chapter has a superscription, add words from the superscription since
+		//		they logistically come ahead of the vereses:
+		if (m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_bHaveSuperscription) {
+			ndxWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
+		}
+
 		const TVerseEntryMap &bookVerses = m_lstBookVerses[nBook-1];
 		while (nWord > bookVerses.at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse
 			ndxWord += bookVerses.at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd;
@@ -1117,12 +1159,13 @@ CRelIndex CBibleDatabase::calcRelIndex(
 			nVerse++;
 			if (nVerse > m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
 		}
+
 		// Word of Verse:
 		if (nWord>m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
 		ndxWord += nWord;		// Add up to include target word
 
 		// ===================
-		// At this point, either nBook/nChapter/nVerse/nWord is completely resolved.
+		// At this point, nBook/nChapter/nVerse/nWord is completely resolved.
 		//		As a cross-check, ndxWord should be the Normalized index:
 		ndxResult = CRelIndex(nBook, nChapter, nVerse, nWord);
 		uint32_t ndxNormal = NormalizeIndex(ndxResult);
@@ -1131,7 +1174,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		// REVERSE:
 
 		// Start with starting location or last word of Bible:
-		ndxWord = NormalizeIndex(ndxStart.index());
+		ndxWord = NormalizeIndex(ndxStart);
 		if (ndxWord == 0) {
 			// Set ndxWord to the total number of words in Bible:
 			for (unsigned int ndx = 0; ndx<m_lstTestaments.size(); ++ndx) {
@@ -1146,58 +1189,107 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		CRelIndex ndxTarget(DenormalizeIndex(ndxWord));
 		assert(ndxTarget.index() != 0);		// Must be either the starting location or the last entry in the Bible
 
+		// Force to the first whole chapter/verse (i.e. not colophon or superscription):
+		if (ndxTarget.verse() == 0) ndxTarget.setVerse(1);
+		if (ndxTarget.chapter() == 0) ndxTarget.setChapter(1);
+		ndxWord = NormalizeIndex(ndxTarget);
+		ndxTarget = DenormalizeIndex(ndxWord);
+		assert((ndxWord != 0) && (ndxTarget != 0));
+
 		// In Reverse mode, we ignore the nTestament entry
 
 		// Word back:
 		if (ndxWord <= nWord) return CRelIndex();
-		ndxWord -= nWord;
+		while (nWord) {
+			--nWord;
+			--ndxWord;
+			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			if ((ndxTarget.verse() == 0) ||
+				(ndxTarget.chapter() == 0)) {
+				// If we hit a colophon or superscription, move to the previous verse:
+				ndxTarget.setWord(0);
+				ndxTarget.setVerse(0);
+				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
+				ndxWord = NormalizeIndex(ndxTarget) - 1;
+			}
+		}
 		ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
 		nWord = ndxTarget.word();					// nWord = Offset of word into verse so we can traverse from start of verse to start of verse
 		ndxTarget.setWord(1);						// Move to first word of this verse
-		ndxWord = NormalizeIndex(ndxTarget.index());
+		ndxWord = NormalizeIndex(ndxTarget);
 
 		// Verse back:
 		while (nVerse) {
 			ndxWord--;				// This will move us to previous verse since we are at word 1 of current verse (see above and below)
 			if (ndxWord == 0) return CRelIndex();
 			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			if ((ndxTarget.verse() == 0) ||
+				(ndxTarget.chapter() == 0)) {
+				// If we hit a colophon or superscription, move to the previous verse:
+				ndxTarget.setWord(0);
+				ndxTarget.setVerse(0);
+				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
+				ndxWord = NormalizeIndex(ndxTarget) - 1;
+				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			}
 			ndxTarget.setWord(1);	// Move to first word of this verse
-			ndxWord = NormalizeIndex(ndxTarget.index());
+			ndxWord = NormalizeIndex(ndxTarget);
+			if (ndxWord == 0) return CRelIndex();
 			nVerse--;
 		}
 		nVerse = ndxTarget.verse();					// nVerse = Offset of verse into chapter so we can traverse from start of chapter to start of chapter
 		ndxTarget.setVerse(1);						// Move to first verse of this chapter
-		ndxWord = NormalizeIndex(ndxTarget.index());
+		ndxWord = NormalizeIndex(ndxTarget);
 
 		// Chapter back:
 		while (nChapter) {
 			ndxWord--;				// This will move us to previous chapter since we are at word 1 of verse 1 (see above and below)
 			if (ndxWord == 0) return CRelIndex();
 			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			if ((ndxTarget.verse() == 0) ||
+				(ndxTarget.chapter() == 0)) {
+				// If we hit a colophon or superscription, move to the previous chapter:
+				ndxTarget.setWord(0);
+				ndxTarget.setVerse(0);
+				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
+				ndxWord = NormalizeIndex(ndxTarget) - 1;
+				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			}
 			ndxTarget.setVerse(1);	// Move to first word of first verse of this chapter
 			ndxTarget.setWord(1);
 			ndxWord = NormalizeIndex(ndxTarget.index());
+			if (ndxWord == 0) return CRelIndex();
 			nChapter--;
 		}
 		nChapter = ndxTarget.chapter();				// nChapter = Offset of chapter into book so we can traverse from start of book to start of book
 		ndxTarget.setChapter(1);					// Move to first chapter of this book
-		ndxWord = NormalizeIndex(ndxTarget.index());
+		ndxWord = NormalizeIndex(ndxTarget);
 
 		// Book back:
 		while (nBook) {
 			ndxWord--;				// This will move us to previous book since we are at word 1 of verse 1 of chapter 1 (see above and below)
 			if (ndxWord == 0) return CRelIndex();
 			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			if ((ndxTarget.verse() == 0) ||
+				(ndxTarget.chapter() == 0)) {
+				// If we hit a colophon or superscription, move to the previous book:
+				ndxTarget.setWord(0);
+				ndxTarget.setVerse(0);
+				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
+				ndxWord = NormalizeIndex(ndxTarget) -1;
+				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			}
 			ndxTarget.setChapter(1);	// Move to first word of first verse of first chapter of this book
 			ndxTarget.setVerse(1);
 			ndxTarget.setWord(1);
-			ndxWord = NormalizeIndex(ndxTarget.index());
+			ndxWord = NormalizeIndex(ndxTarget);
+			if (ndxWord == 0) return CRelIndex();
 			nBook--;
 		}
 		nBook = ndxTarget.book();					// nBook = Offset of book into Bible for final location
 		ndxTarget.setBook(1);						// Move to first book of the Bible
-		ndxWord = NormalizeIndex(ndxTarget.index());
-		assert(ndxWord == 1);			// We should be at the beginning of the Bible now
+		ndxWord = NormalizeIndex(ndxTarget);
+		assert(ndxWord == NormalizeIndex(CRelIndex(1,1,1,1)));		// We should be at the beginning of the Bible now
 
 		// Call ourselves to calculate index from beginning of Bible:
 		ndxResult = calcRelIndex(nWord, nVerse, nChapter, nBook, 0);

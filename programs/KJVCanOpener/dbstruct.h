@@ -804,6 +804,9 @@ public:
 					const CRelIndex &ndxStart = CRelIndex(),
 					bool bReverse = false) const;
 
+	unsigned int bookWordCountProper(unsigned int nBook) const;
+	unsigned int chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const;
+
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
 		return m_EntireBible;

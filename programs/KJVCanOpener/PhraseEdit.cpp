@@ -1290,14 +1290,11 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
 										.arg(strCopyFont));																// Copy Font
 
-	uint32_t nFirstWordNormal = m_pBibleDatabase->NormalizeIndex(CRelIndex(ndx.book(), ndx.chapter(), 1, 1));		// Find normalized word number for the first verse, first word of this book/chapter
-	uint32_t nNextChapterFirstWordNormal = nFirstWordNormal + pChapter->m_nNumWrd;		// Add the number of words in this chapter to get first word normal of next chapter
-	uint32_t nRelPrevChapter = m_pBibleDatabase->DenormalizeIndex(nFirstWordNormal - 1);			// Find previous book/chapter/verse (and word)
-	uint32_t nRelNextChapter = m_pBibleDatabase->DenormalizeIndex(nNextChapterFirstWordNormal);		// Find next book/chapter/verse (and word)
+	CRelIndex relPrev = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
+	CRelIndex relNext = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), false);	// Calculate first verse of next chapter
 
 	// Print last verse of previous chapter if available:
-	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (nRelPrevChapter != 0)) {
-		CRelIndex relPrev(nRelPrevChapter);
+	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (relPrev.isSet())) {
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		scriptureHTML.beginParagraph();
@@ -1541,8 +1538,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (!(flagsTRO & TRO_SuppressPrePostChapters)) scriptureHTML.insertHorizontalRule();
 
 	// Print first verse of next chapter if available:
-	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (nRelNextChapter != 0)) {
-		CRelIndex relNext(nRelNextChapter);
+	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (relNext.isSet())) {
 		relNext.setWord(0);
 		CRelIndex ndxBookChapNext(relNext.book(), relNext.chapter(), 0, 0);
 		CRelIndex ndxBookNext(relNext.book(), 0, 0, 0);
@@ -1666,7 +1662,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	m_TextDocument.clear();
 
-	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0)) {
+	if (ndx.book() == 0) {
 		emit changedDocumentText();
 		return QString();
 	}
@@ -1685,14 +1681,10 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		return QString();
 	}
 
-	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
-	if (pChapter == NULL) {
-		assert(false);
-		emit changedDocumentText();
-		return QString();
-	}
+	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);		// Note: Will be null on colophon
 
-	if (ndx.verse() > pChapter->m_nNumVrs) {
+	if (((pChapter != NULL) && (ndx.verse() > pChapter->m_nNumVrs)) ||
+		((pChapter == NULL) && (ndx.verse() != 0))) {
 		assert(false);
 		emit changedDocumentText();
 		return QString();
@@ -1761,10 +1753,28 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	}
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 	scriptureHTML.beginBold();
-	scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
+	if (ndx.verse() != 0) {
+		scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
+	} else {
+		if (ndx.chapter() == 0) {
+			scriptureHTML.appendLiteralText(" " + tr("Colophon", "Statistics") + " ");
+		} else {
+			scriptureHTML.appendLiteralText(QString(" %1 %2 ").arg(ndx.chapter()).arg(tr("Superscription", "Statistics")));
+		}
+	}
 	scriptureHTML.endBold();
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
+	if (ndx.verse() == 0) {
+		if (ndx.chapter() == 0) {
+			scriptureHTML.beginDiv("colophon");
+		} else {
+			scriptureHTML.beginDiv("superscription");
+		}
+	}
 	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+	if (ndx.verse() == 0) {
+		scriptureHTML.endDiv();
+	}
 
 	// Add CrossRefs:
 	if (flagsTRO & TRO_CrossRefs) {
@@ -2296,7 +2306,7 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndxScroll = tag.relIndex();
-	if (m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxScroll.book(), ndxScroll.chapter(), 0, 0)) == m_pBibleDatabase->NormalizeIndex(ndxScroll)) {
+	if (m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxScroll.book(), ndxScroll.chapter(), 1, 1)) == m_pBibleDatabase->NormalizeIndex(ndxScroll)) {
 		ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
 	}
 	ndxScroll.setWord(0);
