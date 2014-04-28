@@ -47,21 +47,22 @@ namespace {
 
 	// Bible Database Descriptor Constants:
 	// ------------------------------------
-	const char *constUUID_SPECIAL_TEST =	"00000000-0000-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJV =				"85D8A6B0-E670-11E2-A28F-0800200C9A66";
-	const char *constUUID_RVG2010 =			"9233CB60-141A-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJF2006 =			"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJVPCE =			"C9BA8970-A114-11E3-A5E2-0800200C9A66";
-	const char *constUUID_KJVA =			"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
-	const char *constUUID_UKJV =			"BA852FE0-C762-11E3-9C1A-0800200C9A66";
-	const char *constUUID_GERLUT1545 =		"D7376840-C75F-11E3-9C1A-0800200C9A66";
+	const char *constUUID_SPECIAL_TEST =		"00000000-0000-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJV =					"85D8A6B0-E670-11E2-A28F-0800200C9A66";
+	const char *constUUID_RVG2010 =				"9233CB60-141A-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJF2006 =				"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
+	const char *constUUID_KJVPCE =				"C9BA8970-A114-11E3-A5E2-0800200C9A66";
+	const char *constUUID_KJVA =				"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
+	const char *constUUID_UKJV =				"BA852FE0-C762-11E3-9C1A-0800200C9A66";
+	const char *constUUID_GERLUT1545 =			"D7376840-C75F-11E3-9C1A-0800200C9A66";
+	const char *constUUID_RV1865lcbp20100713 =	"9378F5B0-CE8F-11E3-9C1A-0800200C9A66";
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
 		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "", "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
 		// KJV:
-		{ true, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "", "kjvtext.s3db", "kjvtext.ccdb", constUUID_KJV },
+		{ true, "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "", "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
 		// RVG2010:
 		{ false, "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), constUUID_RVG2010, "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb", constUUID_RVG2010 },
 		// KJF2006:
@@ -73,7 +74,9 @@ namespace {
 		// UKJV (Updated King James Version):
 		{ false, "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "", "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
 		// GERLUT1545 (German Luther 1545):
-		{ false, "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "", "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 }
+		{ false, "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "", "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
+		// RV1865-lcbp20100713 (Reina-Valera 1865, Local Church Bible Publishers 2010-07-13 Release)
+		{ false, "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "", "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 }
 	};
 
 	//////////////////////////////////////////////////////////////////////
