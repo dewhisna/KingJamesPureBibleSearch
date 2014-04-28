@@ -465,18 +465,25 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 {
 	begin_update();
 
-	m_tagPassage = tag;
+	TPhraseTag tagUpdated = tag;
+	// If we are passed a tag that has a reference to a word of a colophon or superscription,
+	//		remove the word selection so that we are referencing just the book or chapter itself:
+	if ((tag.relIndex().chapter() == 0) || (tag.relIndex().word() == 0)) {
+		tagUpdated = TPhraseTag(CRelIndex(tag.relIndex().book(), tag.relIndex().chapter(), tag.relIndex().verse(), 0), tag.count());
+	}
+
+	m_tagPassage = tagUpdated;
 
 	ui.comboTestament->setCurrentIndex(ui.comboTestament->findData(0));
 	m_nTestament = 0;
-	ui.spinBook->setValue(tag.relIndex().book());
-	m_nBook = tag.relIndex().book();
-	ui.spinChapter->setValue(tag.relIndex().chapter());
-	m_nChapter = tag.relIndex().chapter();
-	ui.spinVerse->setValue(tag.relIndex().verse());
-	m_nVerse = tag.relIndex().verse();
-	ui.spinWord->setValue(tag.relIndex().word());
-	m_nWord = tag.relIndex().word();
+	ui.spinBook->setValue(tagUpdated.relIndex().book());
+	m_nBook = tagUpdated.relIndex().book();
+	ui.spinChapter->setValue(tagUpdated.relIndex().chapter());
+	m_nChapter = tagUpdated.relIndex().chapter();
+	ui.spinVerse->setValue(tagUpdated.relIndex().verse());
+	m_nVerse = tagUpdated.relIndex().verse();
+	ui.spinWord->setValue(tagUpdated.relIndex().word());
+	m_nWord = tagUpdated.relIndex().word();
 	CalcPassage();
 
 	end_update();
