@@ -1056,25 +1056,26 @@ TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndx
 	TPhraseTag tagCurrentDisplay;
 
 	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
-		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1);
+		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 0, 1);
 		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
 		// This can happen if the versification of the reference doesn't match the active database:
 		if (ndxNormalCurrent == 0) return TPhraseTag();
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
 		assert(pChapter != NULL);
 		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
-		CRelIndex ndxVerseBefore = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent - 1);
+		CRelIndex ndxVerseBefore = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 		if (ndxVerseBefore.isSet()) {
 			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
 			assert(pVerseBefore != NULL);
-			nNumWordsDisplayed += pVerseBefore->m_nNumWrd;
+			nNumWordsDisplayed += m_pBibleDatabase->NormalizeIndex(ndxDisplay) - m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1));
 			ndxDisplay = CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1);
 		}
-		CRelIndex ndxVerseAfter = m_pBibleDatabase->DenormalizeIndex(ndxNormalCurrent + pChapter->m_nNumWrd);
+		CRelIndex ndxVerseAfter = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1), false);	// Calculate first verse of next chapter
 		if (ndxVerseAfter.isSet()) {
 			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
 			assert(pVerseAfter != NULL);
-			nNumWordsDisplayed += pVerseAfter->m_nNumWrd;
+			ndxVerseAfter.setWord(pVerseAfter->m_nNumWrd);
+			nNumWordsDisplayed = m_pBibleDatabase->NormalizeIndex(ndxVerseAfter) - m_pBibleDatabase->NormalizeIndex(ndxDisplay);
 		}
 		tagCurrentDisplay = TPhraseTag(ndxDisplay, nNumWordsDisplayed);
 	}

@@ -726,7 +726,9 @@ void CScriptureText<T,U>::en_gotoIndex(const TPhraseTag &tag)
 template<class T, class U>
 void CScriptureText<T,U>::rerender()
 {
-	if (selection().relIndex().chapter() == 0) {
+	if ((selection().relIndex().chapter() == 0) &&
+		(selection().relIndex().verse() == 0) &&
+		(selection().relIndex().word() == 0)) {
 		// Special case if it's an entire book, use our last active tag:
 		if (m_tagLastActive.isSet()) emit T::gotoIndex(m_tagLastActive);
 	} else if (selection().isSet()) {
