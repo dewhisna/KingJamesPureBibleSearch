@@ -56,6 +56,7 @@ namespace {
 	const char *constUUID_UKJV =				"BA852FE0-C762-11E3-9C1A-0800200C9A66";
 	const char *constUUID_GERLUT1545 =			"D7376840-C75F-11E3-9C1A-0800200C9A66";
 	const char *constUUID_RV1865lcbp20100713 =	"9378F5B0-CE8F-11E3-9C1A-0800200C9A66";
+	const char *constUUID_RV1602P =				"94B7B600-CF39-11E3-9C1A-0800200C9A66";
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -76,7 +77,9 @@ namespace {
 		// GERLUT1545 (German Luther 1545):
 		{ false, "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "", "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
 		// RV1865-lcbp20100713 (Reina-Valera 1865, Local Church Bible Publishers 2010-07-13 Release)
-		{ false, "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "", "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 }
+		{ false, "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "", "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
+		// RV1602P (Reina-Valera 1602 Purificada)
+		{ false, "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada"), constUUID_RV1602P, "RV1602P_details.html", "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602P }
 	};
 
 	//////////////////////////////////////////////////////////////////////

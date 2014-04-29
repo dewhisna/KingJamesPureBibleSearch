@@ -170,15 +170,17 @@ bool CBuildDatabase::BuildDBInfoTable()
 
 	QByteArray arrDBInfo;
 	if (!strDBInfoFilename.isEmpty()) {
-		QFile fileDBInfo(strDBInfoFilename);
+		QFile fileDBInfo(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/%1").arg(strDBInfoFilename)).absoluteFilePath());
+
 		while (1) {
 			if (!fileDBInfo.open(QIODevice::ReadOnly)) {
 				if (displayWarning(m_pParent, g_constrBuildDatabase,
 									QObject::tr("Failed to open %1 for reading.", "BuildDB").arg(fileDBInfo.fileName()),
 									QMessageBox::Retry, QMessageBox::Cancel) == QMessageBox::Cancel) return false;
-			} else break;
+			}
 			arrDBInfo = fileDBInfo.readAll();
 			fileDBInfo.close();
+			break;
 		}
 	}
 

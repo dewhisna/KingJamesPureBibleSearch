@@ -1283,7 +1283,6 @@ enum VTYPE_ENUM {
 
 void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded)
 {
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 	VTYPE_ENUM nVT = VT_VERSE;
 	if (relIndex.verse() == 0) {
 		nVT = ((relIndex.chapter() == 0) ? VT_COLOPHON : VT_SUPERSCRIPTION);
@@ -1297,9 +1296,42 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	m_bInNotes = false;
 	if (m_bInForeignText) std::cerr << "\n*** Error: Missing end of Foreign text\n";
 	m_bInForeignText = false;
-	assert(m_bInDivineName == false);
 	if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
 	m_bInDivineName = false;
+
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) {
+		if (!m_bOpenEndedColophon) {
+			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+			m_bInWordsOfJesus = false;
+		}
+
+		if (m_bInSuperscription) std::cerr << "\n*** Error: Missing end of Superscription\n";
+		m_bInSuperscription = false;
+		m_bOpenEndedSuperscription = false;
+
+		m_bInColophon = true;
+		if (bOpenEnded) m_bOpenEndedColophon = true;
+
+		return;
+	}
+	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) {
+		if (!m_bOpenEndedSuperscription) {
+			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+			m_bInWordsOfJesus = false;
+		}
+
+		if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
+		m_bInColophon = false;
+		m_bOpenEndedColophon = false;
+
+		m_bInSuperscription = true;
+		if (bOpenEnded) m_bOpenEndedSuperscription = true;
+
+		return;
+	}
+
+	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
+
 	if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
 		verse.m_nPilcrow = m_nDelayedPilcrow;
 		m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
@@ -1375,6 +1407,14 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 
 void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QString &strText)
 {
+	VTYPE_ENUM nVT = VT_VERSE;
+	if (relIndex.verse() == 0) {
+		nVT = ((relIndex.chapter() == 0) ? VT_COLOPHON : VT_SUPERSCRIPTION);
+	}
+
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) return;
+	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) return;
+
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 //		verse.m_strText += strText;
 	verse.m_strText += (m_bInDivineName ? strText.toUpper() : strText);
@@ -1387,12 +1427,21 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 
 void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 {
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 	VTYPE_ENUM nVT = VT_VERSE;
 	if (relIndex.verse() == 0) {
 		nVT = ((relIndex.chapter() == 0) ? VT_COLOPHON : VT_SUPERSCRIPTION);
 	}
 
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) {
+		m_bInColophon = false;
+		return;
+	}
+	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) {
+		m_bInSuperscription = false;
+		return;
+	}
+
+	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 	QString strTemp = verse.m_strText;
 
 	unsigned int nWordCount = 0;
@@ -1621,6 +1670,7 @@ int main(int argc, char *argv[])
 	bool bNoSuperscriptionVerses = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
+	QString strInfoFilePath;
 	QString strOutputPath;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
@@ -1632,6 +1682,8 @@ int main(int argc, char *argv[])
 			} else if (nArgsFound == 2) {
 				strOSISFilename = strArg;
 			} else if (nArgsFound == 3) {
+				strInfoFilePath = strArg;
+			} else if (nArgsFound == 4) {
 				strOutputPath = strArg;
 			}
 		} else if (strArg.compare("-c") == 0) {
@@ -1643,11 +1695,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((nArgsFound != 3) || (bUnknownOption)) {
+	if ((nArgsFound != 4) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile-path> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
-		std::cerr << QString("    necessary to import into KJPBS\n\n").toUtf8().data();
+		std::cerr << QString("    necessary to import into KJPBS into <datafile-path>\n\n").toUtf8().data();
+		std::cerr << QString("<infofile-path> is the path to the information file to include (no filename)\n\n").toUtf8().data();
 		std::cerr << QString("Options\n").toUtf8().data();
 		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
@@ -1718,6 +1771,20 @@ int main(int argc, char *argv[])
 	settingsDBInfo.setValue("UUID", bblDescriptor.m_strUUID);
 	settingsDBInfo.setValue("InfoFilename", bblDescriptor.m_strDBInfoFilename);
 	settingsDBInfo.endGroup();
+
+	if ((!bblDescriptor.m_strDBInfoFilename.isEmpty()) && (!strInfoFilePath.isEmpty())) {
+		QDir dirInfoFile(strInfoFilePath);
+		if (!dirInfoFile.exists()) {
+			std::cerr << QString("\n\n*** Info File path \"%1\" doesn't exist\n\n").arg(dirInfoFile.canonicalPath()).toUtf8().data();
+			return -3;
+		}
+		if (!QFile::copy(dirInfoFile.absoluteFilePath(bblDescriptor.m_strDBInfoFilename), dirOutput.absoluteFilePath(bblDescriptor.m_strDBInfoFilename))) {
+			std::cerr << QString("\n\n*** Failed to copy Info File from \"%1\" to \"%2\"\n\n")
+						 .arg(dirInfoFile.absoluteFilePath(bblDescriptor.m_strDBInfoFilename))
+						 .arg(dirOutput.absoluteFilePath(bblDescriptor.m_strDBInfoFilename))
+						 .toUtf8().data();
+		}
+	}
 
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
 	if (!fileTestaments.open(QIODevice::WriteOnly)) {
