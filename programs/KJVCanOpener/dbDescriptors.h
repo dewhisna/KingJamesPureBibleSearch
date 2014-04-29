@@ -33,9 +33,10 @@
 
 typedef struct {
 	bool m_bAutoLoad;					// If true, the database will be autoloaded at application startup
-	QString m_strLanguage;
-	QString m_strDBName;
-	QString m_strDBDesc;
+	QString m_strWorkID;				// OSIS Work Identifier
+	QString m_strLanguage;				// Two-Character international language ID
+	QString m_strDBName;				// Short Database Name
+	QString m_strDBDesc;				// Long Database Name/Description
 	QString m_strUUID;					// Bible Database UUID
 	QString m_strDBInfoFilename;		// Database Information filename (used during build process)
 	QString m_strS3DBFilename;			// Sqlite3 Database filename

@@ -31,9 +31,36 @@
 #include <QVariant>
 #include <QtSql>
 #include <QSqlQuery>
+#if QT_VERSION < 0x050000
+#include <QTextCodec>
+#include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+#endif
 
 #include <assert.h>
 
+#include "../KJVCanOpener/dbDescriptors.h"
+
+// ============================================================================
+
+#if QT_VERSION < 0x050000
+static inline QString htmlEscape(const QString &aString)
+{
+	return Qt::escape(aString);
+}
+#else
+static inline QString htmlEscape(const QString &aString)
+{
+	return aString.toHtmlEscaped();
+}
+#endif
+
+#ifndef _countof
+#define _countof(x) (sizeof(x)/sizeof(x[0]))
+#endif
+
+// ============================================================================
+
+const unsigned int VERSION = 10000;		// Version 1.0.0
 
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
@@ -47,6 +74,8 @@ typedef struct {
 	const QString m_strCategory;
 	const QString m_strDescription;
 } TBook;
+
+// ============================================================================
 
 TBook g_arrBooks[NUM_BK] =
 {
@@ -120,19 +149,139 @@ TBook g_arrBooks[NUM_BK] =
 
 QSqlDatabase g_sqldbReadMain;
 
+// ============================================================================
+
+class CRTFParseBaton
+{
+public:
+	CRTFParseBaton()
+	{
+
+	}
+
+	QString parseToOsis(const QString &strRTFText);
+
+private:
+
+};
+
+typedef struct {
+	bool m_bRemoveTextBetween;
+	const QString m_strStartTag;
+	const QString m_strEndTag;
+	const QString m_strNewStartTag;
+	const QString m_strNewEndTag;
+} TParseMatrix;
+
+TParseMatrix g_lstParseMatrix[] =
+{
+	{ false, "{\\i ", "}", "<transChange type=\"added\">", "</transChange>" },				// TransChange
+	{ false, "{\\cf15 ", "}", "<div type=\"colophon\">", "</div>" },						// Colophons
+	{ false, "{\\b ", "}", "<title type=\"psalm\" canonical=\"true\">", "</title>" },		// Superscriptions
+	{ true, "{\\qc ", "}", "", "" },														// Psalm 119 Foreign Language Tags
+	{ false, "\\par\\par", "", "<milestone type=\"x-extra-p\"/>", "" },						// Paragraph markers (extra space -- not pilcrows)
+	{ false, "\\par", "", "", "" }															// "Eat" stray single "\par" tags
+};
+
+QString CRTFParseBaton::parseToOsis(const QString &strRTFText)
+{
+	QString strOutText = strRTFText;
+	int ndxStart;
+	int ndxEnd;
+	int nCount = _countof(g_lstParseMatrix);
+	bool bUnbalanced = false;
+
+	for (int nMatrix = 0; nMatrix < nCount; ++nMatrix) {
+		assert(!g_lstParseMatrix[nMatrix].m_strStartTag.isEmpty());
+		while ((ndxStart = strOutText.indexOf(g_lstParseMatrix[nMatrix].m_strStartTag)) != -1) {
+			if (!g_lstParseMatrix[nMatrix].m_strEndTag.isEmpty()) {
+				ndxEnd = strOutText.indexOf(g_lstParseMatrix[nMatrix].m_strEndTag, ndxStart+g_lstParseMatrix[nMatrix].m_strStartTag.size());
+				if (ndxEnd == -1) {
+					bUnbalanced = true;
+					break;
+				}
+				strOutText.replace(ndxEnd, g_lstParseMatrix[nMatrix].m_strEndTag.size(), g_lstParseMatrix[nMatrix].m_strNewEndTag);
+				if (g_lstParseMatrix[nMatrix].m_bRemoveTextBetween) {
+					strOutText.remove(ndxStart + g_lstParseMatrix[nMatrix].m_strStartTag.size(), ndxEnd - (ndxStart + g_lstParseMatrix[nMatrix].m_strStartTag.size()));
+				}
+			}
+			strOutText.replace(ndxStart, g_lstParseMatrix[nMatrix].m_strStartTag.size(), g_lstParseMatrix[nMatrix].m_strNewStartTag);
+		}
+
+		if (bUnbalanced) break;
+	}
+
+	if (bUnbalanced) {
+		std::cerr << QString("\n*** Unbalanced Verse Parse Tags: \"%1\" => \"%2\"\n\n").arg(strRTFText).arg(strOutText).toUtf8().data();
+	}
+
+	if (strOutText.contains("{\\")) {
+		std::cerr << QString("\n*** Verse contains unknown Parse Tag: \"%1\"\n\n").arg(strOutText).toUtf8().data();
+	}
+
+	return strOutText;
+}
+
+
+// ============================================================================
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
+	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
 
-	if (argc < 3) {
-		std::cerr << QString("Usage: %1 <in-file> <out-file>\n").arg(argv[0]).toStdString();
+#if QT_VERSION < 0x050000
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+#endif
+
+	int nArgsFound = 0;
+	bool bUnknownOption = false;
+	int nDescriptor = -1;
+	QString strSQLFilename;
+	QString strOSISFilename;
+
+	for (int ndx = 1; ndx < argc; ++ndx) {
+		QString strArg = QString::fromUtf8(argv[ndx]);
+		if (!strArg.startsWith("-")) {
+			++nArgsFound;
+			if (nArgsFound == 1) {
+				nDescriptor = strArg.toInt();
+			} else if (nArgsFound == 2) {
+				strSQLFilename = strArg;
+			} else if (nArgsFound == 3) {
+				strOSISFilename = strArg;
+			}
+		} else {
+			bUnknownOption = true;
+		}
+	}
+
+	if ((nArgsFound != 3) || (bUnknownOption)) {
+		std::cerr << QString("eSwordParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << QString("Usage: %1 <UUID-Index> <eSword-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("<eSword-SQL-in-file> = e-Sword .bblx SQL Database File\n").toUtf8().data();
+		std::cerr << QString("<OSIS-out-file>      = OSIS XML Output File\n\n").toUtf8().data();
+		std::cerr << QString("UUID-Index:\n").toUtf8().data();
+		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
+			BIBLE_DESCRIPTOR_ENUM nBDETemp = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
+			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nBDETemp).m_strDBName).arg(bibleDescriptor(nBDETemp).m_strDBDesc).toUtf8().data();
+		}
+		std::cerr << "\n";
 		return -1;
 	}
 
+	if ((nDescriptor < 0) || (static_cast<unsigned int>(nDescriptor) >= bibleDescriptorCount())) {
+		std::cerr << "Unknown UUID-Index\n";
+		return -1;
+	}
+
+	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor);
+	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
+
 	g_sqldbReadMain = QSqlDatabase::addDatabase("QSQLITE", "MainReadConnection");
 
-	QFile fileIn(argv[1]);
-	QFile fileOut(argv[2]);
+	QFile fileIn(strSQLFilename);
+	QFile fileOut(strOSISFilename);
 
 	QSqlDatabase myDatabase;
 	myDatabase = g_sqldbReadMain;
@@ -140,7 +289,7 @@ int main(int argc, char *argv[])
 	myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
 
 	if (!myDatabase.open()) {
-		std::cerr << QString("Error: Couldn't open database file \"%1\".\n\n%2\n").arg(fileIn.fileName()).arg(myDatabase.lastError().text()).toUtf8().data();
+		std::cerr << QString("Error: Couldn't open SQL database file \"%1\".\n\n%2\n").arg(fileIn.fileName()).arg(myDatabase.lastError().text()).toUtf8().data();
 		return -2;
 	}
 
@@ -151,11 +300,11 @@ int main(int argc, char *argv[])
 
 	fileOut.write(QString("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\n").toUtf8());
 	fileOut.write(QString("<osis xmlns=\"http://www.bibletechnologies.net/2003/OSIS/namespace\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.2.1.1.xsd\">\n\n").toUtf8());
-	fileOut.write(QString("<osisText osisIDWork=\"RV1602P\" osisRefWork=\"defaultReferenceScheme\" lang=\"es\">\n\n").toUtf8());
+	fileOut.write(QString("<osisText osisIDWork=\"%1\" osisRefWork=\"defaultReferenceScheme\" lang=\"%2\">\n\n").arg(bblDescriptor.m_strWorkID).arg(bblDescriptor.m_strLanguage).toUtf8());
 	fileOut.write(QString("<header>\n").toUtf8());
-	fileOut.write(QString("<work osisWork=\"RV1602P\">\n").toUtf8());
-	fileOut.write(QString("<title>La Santa Biblia: versión Reina Valera 1602 Purificada</title>\n").toUtf8());
-	fileOut.write(QString("<identifier type=\"OSIS\">Bible.RV1602P</identifier>\n").toUtf8());
+	fileOut.write(QString("<work osisWork=\"%1\">\n").arg(bblDescriptor.m_strWorkID).toUtf8());
+	fileOut.write(QString("<title>%1</title>\n").arg(htmlEscape(bblDescriptor.m_strDBDesc)).toUtf8());
+	fileOut.write(QString("<identifier type=\"OSIS\">Bible.%1</identifier>\n").arg(bblDescriptor.m_strWorkID).toUtf8());
 	fileOut.write(QString("<refSystem>Bible.KJV</refSystem>\n").toUtf8());
 	fileOut.write(QString("</work>\n").toUtf8());
 	fileOut.write(QString("<work osisWork=\"defaultReferenceScheme\">\n").toUtf8());
@@ -184,6 +333,8 @@ int main(int argc, char *argv[])
 	unsigned int nNextChp = 0;
 	unsigned int nNextVrs = 0;
 
+	CRTFParseBaton rtfParseBaton;
+
 	fileOut.write(QString("<div type=\"x-testament\">\n").toUtf8().data());
 
 	query.setForwardOnly(true);
@@ -192,6 +343,7 @@ int main(int argc, char *argv[])
 		nNextBk = query.value(0).toUInt();
 		nNextChp = query.value(1).toUInt();
 		nNextVrs = query.value(2).toUInt();
+		QString strVerseText = query.value(3).toString().trimmed();
 
 		assert((nNextBk > 0) && (nNextBk <= NUM_BK));
 
@@ -232,7 +384,7 @@ int main(int argc, char *argv[])
 
 		if (nVrs != nNextVrs) {
 			if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8().data());
-			fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nNextVrs).arg(query.value(3).toString().trimmed()).toUtf8().data());
+			fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nNextVrs).arg(rtfParseBaton.parseToOsis(strVerseText)).toUtf8().data());
 			std::cerr << ".";
 		} else {
 			assert(false);
@@ -259,4 +411,6 @@ int main(int argc, char *argv[])
 //	return a.exec();
 	return 0;
 }
+
+// ============================================================================
 

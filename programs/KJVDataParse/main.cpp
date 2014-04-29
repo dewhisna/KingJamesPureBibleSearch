@@ -1707,8 +1707,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
-			BIBLE_DESCRIPTOR_ENUM nDescriptor = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
-			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nDescriptor).m_strDBName).arg(bibleDescriptor(nDescriptor).m_strDBDesc).toUtf8().data();
+			BIBLE_DESCRIPTOR_ENUM nBDETemp = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
+			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nBDETemp).m_strDBName).arg(bibleDescriptor(nBDETemp).m_strDBDesc).toUtf8().data();
 		}
 		std::cerr << "\n";
 		return -1;
