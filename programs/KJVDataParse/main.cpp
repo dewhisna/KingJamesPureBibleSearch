@@ -475,7 +475,7 @@ public:
 		XFTE_ZEFANIA = 1
 	};
 
-	COSISXmlHandler(const TBibleDescriptor &bblDesc, bool bNoColophonVerses, bool bNoSuperscriptionVerses)
+	COSISXmlHandler(const TBibleDescriptor &bblDesc)
 		:	m_xfteFormatType(XFTE_UNKNOWN),
 			m_bInHeader(false),
 			m_bCaptureTitle(false),
@@ -494,8 +494,8 @@ public:
 			m_bInDivineName(false),
 			m_nDelayedPilcrow(CVerseEntry::PTE_NONE),
 			m_strLanguage("en"),
-			m_bNoColophonVerses(bNoColophonVerses),
-			m_bNoSuperscriptionVerses(bNoSuperscriptionVerses)
+			m_bNoColophonVerses(false),
+			m_bNoSuperscriptionVerses(false)
 	{
 		g_setBooks();
 		g_setTstNames();
@@ -510,6 +510,12 @@ public:
 
 	}
 
+	// Properties:
+	void setNoColophonVerses(bool bNoColophonVerses) { m_bNoColophonVerses = bNoColophonVerses; }
+	void setNoSuperscriptionVerses(bool bNoSuperscriptionVerses) { m_bNoSuperscriptionVerses = bNoSuperscriptionVerses; }
+	void setBracketItalics(bool bBracketItalics) { m_bBracketItalics = bBracketItalics; }
+
+	// Parsing:
 	QStringList elementNames() const { return m_lstElementNames; }
 	QStringList attrNames() const { return m_lstAttrNames; }
 
@@ -613,6 +619,7 @@ private:
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;
 	bool m_bNoSuperscriptionVerses;
+	bool m_bBracketItalics;
 };
 
 static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
@@ -1415,14 +1422,37 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) return;
 	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) return;
 
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
-//		verse.m_strText += strText;
-	verse.m_strText += (m_bInDivineName ? strText.toUpper() : strText);
-
 	assert(!strText.contains(g_chrParseTag, Qt::CaseInsensitive));
 	if (strText.contains(g_chrParseTag, Qt::CaseInsensitive)) {
 		std::cerr << "\n*** ERROR: Text contains the special parse tag!!  Change the tag in KJVDataParse and try again!\n";
 	}
+
+	QString strTempText = strText;
+
+	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
+
+	if (m_bBracketItalics) {
+		int nItalicRefCount = 0;
+		int ndxStart;
+		int ndxEnd;
+		while ((ndxStart = strTempText.indexOf(QChar('['))) != -1) {
+			strTempText.replace(ndxStart, 1, g_chrParseTag);
+			verse.m_lstParseStack.push_back("T:");
+			++nItalicRefCount;
+			ndxEnd = strTempText.indexOf(QChar(']'), ndxStart+1);
+			if (ndxEnd != -1) {
+				strTempText.replace(ndxEnd, 1, g_chrParseTag);
+				verse.m_lstParseStack.push_back("t:");
+				--nItalicRefCount;
+			}
+		}
+		if ((nItalicRefCount != 0) || (strTempText.contains(QChar('['))) || (strTempText.contains(QChar(']')))) {
+			std::cerr << "\n*** Warning: Mismatched Bracket-Italic Markers\n";
+		}
+	}
+
+	//	verse.m_strText += strText;
+	verse.m_strText += (m_bInDivineName ? strTempText.toUpper() : strTempText);
 }
 
 void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
@@ -1668,6 +1698,7 @@ int main(int argc, char *argv[])
 	bool bUnknownOption = false;
 	bool bNoColophonVerses = false;
 	bool bNoSuperscriptionVerses = false;
+	bool bBracketItalics = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilePath;
@@ -1690,6 +1721,8 @@ int main(int argc, char *argv[])
 			bNoColophonVerses = true;
 		} else if (strArg.compare("-s") == 0) {
 			bNoSuperscriptionVerses = true;
+		} else if (strArg.compare("-i") == 0) {
+			bBracketItalics = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -1704,6 +1737,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Options\n").toUtf8().data();
 		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
+		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -1738,7 +1772,11 @@ int main(int argc, char *argv[])
 
 	QXmlInputSource xmlInput(&fileOSIS);
 	QXmlSimpleReader xmlReader;
-	COSISXmlHandler xmlHandler(bblDescriptor, bNoColophonVerses, bNoSuperscriptionVerses);
+	COSISXmlHandler xmlHandler(bblDescriptor);
+
+	xmlHandler.setNoColophonVerses(bNoColophonVerses);
+	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
+	xmlHandler.setBracketItalics(bBracketItalics);
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
