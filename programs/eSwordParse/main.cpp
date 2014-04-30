@@ -62,10 +62,11 @@ static inline QString htmlEscape(const QString &aString)
 
 const unsigned int VERSION = 10000;		// Version 1.0.0
 
-#define NUM_BK 66u
-#define NUM_BK_OT 39u
-#define NUM_BK_NT 27u
-#define NUM_TST 2u
+#define NUM_BK 80u				// Total Books Defined
+#define NUM_BK_OT 39u			// Total Books in Old Testament
+#define NUM_BK_NT 27u			// Total Books in New Testament
+#define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
+#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
 typedef struct {
 	const QString m_strName;
@@ -79,6 +80,7 @@ typedef struct {
 
 TBook g_arrBooks[NUM_BK] =
 {
+	// ---- Begin Old Testament:
 	{ QObject::tr("Genesis"), "Gen", "GEN", QObject::tr("Law"), QObject::tr("The First Book of Moses") },
 	{ QObject::tr("Exodus"), "Exod", "EXOD", QObject::tr("Law"), QObject::tr("The Second Book of Moses") },
 	{ QObject::tr("Leviticus"), "Lev", "LEV", QObject::tr("Law"), QObject::tr("The Third Book of Moses") },
@@ -118,6 +120,7 @@ TBook g_arrBooks[NUM_BK] =
 	{ QObject::tr("Haggai"), "Hag", "HAG", QObject::tr("Minor Prophets"), "" },
 	{ QObject::tr("Zechariah"), "Zech", "ZECH", QObject::tr("Minor Prophets"), "" },
 	{ QObject::tr("Malachi"), "Mal", "MAL", QObject::tr("Minor Prophets"), "" },
+	// ---- Begin New Testament:
 	{ QObject::tr("Matthew"), "Matt", "MATT", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Matthew") },
 	{ QObject::tr("Mark"), "Mark", "MARK", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Mark") },
 	{ QObject::tr("Luke"), "Luke", "LUKE", QObject::tr("NT Narative"), QObject::tr("The Gospel According to Saint Luke") },
@@ -144,10 +147,48 @@ TBook g_arrBooks[NUM_BK] =
 	{ QObject::tr("2 John"), "2John", "JOHN2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of John") },
 	{ QObject::tr("3 John"), "3John", "JOHN3", QObject::tr("General Epistles"), QObject::tr("The Third General Epistle of John") },
 	{ QObject::tr("Jude"), "Jude", "JUDE", QObject::tr("General Epistles"), QObject::tr("The General Epistle of Jude") },
-	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
+	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") },
+	// ---- Begin Apocrypha/Deuterocanon:
+	{ QObject::tr("1 Esdras"), "1Esd", "ESD1", QObject::tr("Apocrypha"), QObject::tr("The First Book of Esdras") },
+	{ QObject::tr("2 Esdras"), "2Esd", "ESD2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of Esdras") },
+	{ QObject::tr("Tobit"), "Tob", "TOB", QObject::tr("Apocrypha"), QObject::tr("The Book of Tobit") },
+	{ QObject::tr("Judith"), "Jdt", "JDT", QObject::tr("Apocrypha"), QObject::tr("The Book of Judith") },
+	{ QObject::tr("Additions to Esther"), "AddEsth", "ADDESTH", QObject::tr("Apocrypha"), QObject::tr("The Rest of the Chapters of the Book of Esther") },
+	{ QObject::tr("Wisdom"), "Wis", "WIS", QObject::tr("Apocrypha"), QObject::tr("The Book of Wisdom or The Wisdom of Solomon") },
+	{ QObject::tr("Sirach"), "Sir", "SIR", QObject::tr("Apocrypha"), QObject::tr("The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus") },
+	{ QObject::tr("Baruch"), "Bar", "BAR", QObject::tr("Apocrypha"), QObject::tr("The Book of Baruch") },
+	{ QObject::tr("Prayer of Azariah"), "PrAzar", "PRAZAR", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Azariah") },
+	{ QObject::tr("Susanna"), "Sus", "SUS", QObject::tr("Apocrypha"), QObject::tr("The History of Susanna [in Daniel]") },
+	{ QObject::tr("Bel and the Dragon"), "Bel", "BEL", QObject::tr("Apocrypha"), QObject::tr("The Book of Bel and the Dragon [in Daniel]") },
+	{ QObject::tr("Prayer of Manasses"), "PrMan", "PRMAN", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah") },
+	{ QObject::tr("1 Maccabees"), "1Macc", "MACC1", QObject::tr("Apocrypha"), QObject::tr("The First Book of the Maccabees") },
+	{ QObject::tr("2 Maccabees"), "2Macc", "MACC2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of the Maccabees") }
 };
 
 QSqlDatabase g_sqldbReadMain;
+
+// ============================================================================
+
+static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
+{
+	unsigned int nTst = 0;
+	if (nBk == 0) return 0;			// Special-case for "no book"
+
+	// note: Shift nBk to be an zero based since book indexes are normally one-based:
+	--nBk;
+	if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
+		nTst = 1;
+	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT)) {
+		nTst = 2;
+	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
+		nTst = 3;
+	} else {
+		nTst = 0;
+		assert(false);			// Can't happen if our NUM_BK_xx values are correct!
+	}
+
+	return nTst;
+}
 
 // ============================================================================
 
@@ -347,8 +388,7 @@ int main(int argc, char *argv[])
 
 		assert((nNextBk > 0) && (nNextBk <= NUM_BK));
 
-		if (nNextBk > 0) nNextTst = 1;
-		if (nNextBk > NUM_BK_OT) nNextTst = 2;
+		nNextTst = bookIndexToTestamentIndex(nNextBk);
 		if (nTst != nNextTst) {
 			if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8().data());
 			if (nChp != 0) fileOut.write(QString("</chapter>\n").toUtf8().data());
