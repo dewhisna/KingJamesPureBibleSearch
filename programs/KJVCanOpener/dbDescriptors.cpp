@@ -57,6 +57,8 @@ namespace {
 	const char *constUUID_GERLUT1545 =			"D7376840-C75F-11E3-9C1A-0800200C9A66";
 	const char *constUUID_RV1865lcbp20100713 =	"9378F5B0-CE8F-11E3-9C1A-0800200C9A66";
 	const char *constUUID_RV1602P =				"94B7B600-CF39-11E3-9C1A-0800200C9A66";
+	const char *constUUID_GERSCH2000 =			"D326F220-CFFC-11E3-9C1A-0800200C9A66";
+	const char *constUUID_KJV1611A =			"8BFE29A0-D014-11E3-9C1A-0800200C9A66";
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -79,7 +81,11 @@ namespace {
 		// RV1865-lcbp20100713 (Reina-Valera 1865, Local Church Bible Publishers 2010-07-13 Release)
 		{ false, "RV1865", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "", "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
 		// RV1602P (Reina-Valera 1602 Purificada)
-		{ false, "RV1602P", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada"), constUUID_RV1602P, "RV1602P_details.html", "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602P }
+		{ false, "RV1602P", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada"), constUUID_RV1602P, "RV1602P_details.html", "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602P },
+		// GERSCH2000 (German Schlachter 2000)
+		{ false, "GERSCH2000", "de", QString::fromUtf8("Schlachter 2000"), QString::fromUtf8("German Schlachter 2000"), constUUID_GERSCH2000, "", "bbl-gersch2000.s3db", "bbl-gersch2000.ccdb", constUUID_GERSCH2000 },
+		// KJV1611A
+		{ false, "KJV1611A", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611 w/Apocrypha"), constUUID_KJV1611A, "", "bbl-kjv1611a.s3db", "bbl-kjv1611a.ccdb", constUUID_KJV1611A }
 	};
 
 	//////////////////////////////////////////////////////////////////////
