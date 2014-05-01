@@ -2118,7 +2118,7 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 		nIndexFirst = CRelIndex(strAnchorName);
 		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
 		//		text from a verse.  We must be in a special tag section of heading:
-		if ((nIndexFirst.verse() == 0) || (nIndexFirst.word() == 0)) {
+		if (nIndexFirst.word() == 0) {
 			nIndexFirst = CRelIndex();
 		}
 		if (!myCursor.moveCursorCharRight()) break;
@@ -2131,15 +2131,37 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 	myCursor.setPosition(nPosLast);
 	while ((myCursor.moveCursorCharLeft()) && (myCursor.charUnderCursorIsSeparator())) { }	// Note: Always move left at least one character so we don't pickup the start of the next word (short-circuit order!)
 	myCursor.moveCursorWordEnd();
-	while ((myCursor.position() >= nPosFirstWordStart) && (!nIndexLast.isSet())) {
+	bool bFoundHit = false;
+	uint32_t nNormPrev = 0;
+	while (myCursor.position() >= nPosFirstWordStart) {
 		strAnchorName = myCursor.charFormat().anchorName();
+		CRelIndex ndxCurrent = CRelIndex(strAnchorName);
+		CRelIndex ndxCurrentActual = ndxCurrent;
+		uint32_t nNormCurrent = m_pBibleDatabase->NormalizeIndex(ndxCurrent);
 
-		nIndexLast = CRelIndex(strAnchorName);
+		// Make sure words selected are consecutive words (i.e. that we don't have a "hidden" colophon between them or something):
+		//		Note: nNormPrev will be equal to nNormCurrent when we are on the first word of the line with how our
+		//		paragraphs/blocks work...
+		if ((bFoundHit) && (ndxCurrent.word() != 0) && (nNormPrev != (nNormCurrent+1)) && (nNormPrev != nNormCurrent)) {
+			ndxCurrent = CRelIndex();
+			bFoundHit = false;
+		}
+
 		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
 		//		text from a verse.  We must be in a special tag section of heading:
-		if ((nIndexLast.verse() == 0) || (nIndexLast.word() == 0)) {
-			nIndexLast = CRelIndex();
+		if ((ndxCurrent.word() == 0) || (ndxCurrent < nIndexFirst)) {
+			ndxCurrent = CRelIndex();
 		}
+
+		if (!bFoundHit) {
+			nIndexLast = ndxCurrent;
+			bFoundHit = nIndexLast.isSet();
+		}
+
+		if (ndxCurrentActual.word() != 0) {
+			nNormPrev = nNormCurrent;
+		}
+
 		if (!myCursor.moveCursorCharLeft()) break;
 	}
 #ifdef DEBUG_CURSOR_SELECTION
@@ -2171,6 +2193,7 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 	unsigned int nWordCount = 0;
 
 	if ((ndxNormFirst != 0) && (ndxNormLast != 0)) {
+		assert(ndxNormLast >= ndxNormFirst);
 		nWordCount = (ndxNormLast - ndxNormFirst + 1);
 	}
 
@@ -2215,14 +2238,14 @@ CSelectedPhrase CPhraseNavigator::getSelectedPhrase(const CPhraseCursor &aCursor
 	CRelIndex ndxRel = retVal.tag().relIndex();
 	// If there is no selection (i.e. count is 0), and we are only in a book or chapter
 	//		marker, don't return any selected phrase text:
-	if ((nCount == 0) && ((ndxRel.chapter() == 0) || (ndxRel.verse() == 0))) ndxRel.clear();
+	if ((nCount == 0) && (((ndxRel.chapter() == 0) || (ndxRel.verse() == 0)) && (ndxRel.word() == 0))) ndxRel.clear();
 	if (ndxRel.isSet()) {
 		// So the we'll start at the beginning of the "next verse", if we are only
 		//		at the begging of the book or chapter, move to the start of the verse.
 		//		In theory this won't happen because of how getSelection() currently
 		//		works, but in case we ever change it for some reason:
-		if (ndxRel.chapter() == 0) ndxRel.setChapter(1);
-		if (ndxRel.verse() == 0) ndxRel.setVerse(1);
+		if ((ndxRel.chapter() == 0) && (ndxRel.word() == 0)) ndxRel.setChapter(1);
+		if ((ndxRel.verse() == 0) && (ndxRel.word() == 0)) ndxRel.setVerse(1);
 	}
 	if (nCount == 0) nCount = 1;
 	CVerseTextPlainRichifierTags tagsRichifier;

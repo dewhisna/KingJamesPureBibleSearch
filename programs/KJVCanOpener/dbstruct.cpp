@@ -1834,7 +1834,7 @@ void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, co
 		} else {
 			// If we've already found one, compare the next one with the previous.
 			if (itrLast->intersectingInsert(pBibleDatabase, *itrTags)) {
-				// If we were able to insert it back into the other, calc or iterator distances
+				// If we were able to insert it back into the other, calc our iterator distances
 				//		so we can nuke the list with a remove, and then continue:
 				int nDistLast = std::distance(begin(), itrLast);
 				itrTags = erase(itrTags);

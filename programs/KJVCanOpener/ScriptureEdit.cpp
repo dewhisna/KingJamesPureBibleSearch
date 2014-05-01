@@ -874,12 +874,16 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	CRelIndex relNdx = tagSel.relIndex();
 	if (!relNdx.isSet()) return;
 
-	if (relNdx.chapter() == 0) {
+	if ((relNdx.chapter() == 0) &&
+		(relNdx.verse() == 0) &&
+		(relNdx.word() == 0)) {
 		return;					// Don't allow highlighting entire book
-	} else if (relNdx.verse() == 0) {
+	} else if ((relNdx.verse() == 0) &&
+				(relNdx.word() == 0)) {
 		// Allow highlighting entire chapter:
 		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), 1, 1), m_pBibleDatabase->chapterEntry(relNdx)->m_nNumWrd);
-	} else if (relNdx.word() == 0) {
+	} else if ((relNdx.word() == 0) &&
+				(relNdx.chapter() != 0)) {
 		// Allow highlighting entire verse:
 		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
 	}
