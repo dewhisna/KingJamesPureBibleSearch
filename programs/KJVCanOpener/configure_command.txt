@@ -197,6 +197,26 @@ would start to connect and then disconnect, regardless of what webserver was run
 ===============================================================================
 
 
+Qt 4.8.6
+========
+
+Mac Cocoa
+---------
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../4.8.6-src/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.6-cocoa-static-run -confirm-license
+
+
+Mac Cocoa (Patched)
+-------------------
+Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../4.8.6-src-patched/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.6-patched-cocoa-static-run -confirm-license
+
+
+
+===============================================================================
+===============================================================================
+
+
 Experimenting with Qt 5:
 ========================
 
