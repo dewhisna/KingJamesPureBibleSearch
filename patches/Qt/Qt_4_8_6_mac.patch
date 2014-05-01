@@ -1,0 +1,18 @@
+diff -rupN 4.8.6-src/mkspecs/common/gcc-base-macx.conf 4.8.6-src-patched/mkspecs/common/gcc-base-macx.conf
+--- 4.8.6-src/mkspecs/common/gcc-base-macx.conf	2014-04-10 13:37:12.000000000 -0500
++++ 4.8.6-src-patched/mkspecs/common/gcc-base-macx.conf	2014-04-30 20:49:31.000000000 -0500
+@@ -12,10 +12,10 @@ include(gcc-base.conf)
+ 
+ QMAKE_COMPILER_DEFINES += __APPLE__ __GNUC__
+ 
+-QMAKE_CFLAGS_X86    += -arch i386
+-QMAKE_CFLAGS_X86_64 += -arch x86_64
+-QMAKE_CFLAGS_PPC    += -arch ppc
+-QMAKE_CFLAGS_PPC_64 += -arch ppc64
++QMAKE_CFLAGS_X86    += -arch i386 -fvisibility=hidden -fvisibility-inlines-hidden
++QMAKE_CFLAGS_X86_64 += -arch x86_64 -fvisibility=hidden -fvisibility-inlines-hidden
++QMAKE_CFLAGS_PPC    += -arch ppc -fvisibility=hidden -fvisibility-inlines-hidden
++QMAKE_CFLAGS_PPC_64 += -arch ppc64 -fvisibility=hidden -fvisibility-inlines-hidden
+ QMAKE_CFLAGS_DWARF2 += -gdwarf-2
+ 
+ QMAKE_CXXFLAGS_X86    += $$QMAKE_CFLAGS_X86
