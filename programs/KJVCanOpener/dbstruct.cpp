@@ -1778,10 +1778,31 @@ TPhraseTagList::TPhraseTagList()
 
 }
 
+TPhraseTagList::TPhraseTagList(const TPhraseTag &aTag)
+	:	QList<TPhraseTag>()
+{
+	append(aTag);
+}
+
 TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
 	:	QList<TPhraseTag>(src)
 {
 
+}
+
+bool TPhraseTagList::isSet() const
+{
+	if (isEmpty()) return false;
+
+	bool bIsSet = true;
+	for (const_iterator itrTags = begin(); itrTags != end(); ++itrTags) {
+		if (!itrTags->isSet()) {
+			bIsSet = false;
+			break;
+		}
+	}
+
+	return bIsSet;
 }
 
 bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
@@ -1810,6 +1831,19 @@ bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, co
 	}
 
 	return bContained;
+}
+
+bool TPhraseTagList::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
+{
+	assert(pBibleDatabase != NULL);
+
+	if (!aTag.relIndex().isSet()) return false;
+
+	for (const_iterator itrTags = begin(); itrTags != end(); ++itrTags) {
+		if (itrTags->intersects(pBibleDatabase, aTag)) return true;
+	}
+
+	return false;
 }
 
 void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)

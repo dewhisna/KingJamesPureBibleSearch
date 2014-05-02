@@ -958,11 +958,11 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	//		We'll find a verse before and a verse after the main chapter being
 	//		displayed (i.e. the actual scripture browser display window).  We
 	//		will precalculate our current index before the main loop:
-	TPhraseTag tagCurrentDisplay = currentChapterDisplayPhraseTag(ndxCurrent);
+	TPhraseTagList tagCurrentDisplay = currentChapterDisplayPhraseTagList(ndxCurrent);
 	doHighlighting(aHighlighter, bClear, tagCurrentDisplay);
 }
 
-void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const TPhraseTag &tagCurrent) const
+void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const TPhraseTagList &tagsCurrent) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -978,7 +978,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 		// Save some time if the tag isn't anything close to what we are displaying.
 		//		Check for intersection of the highlight tag with our display:
-		if ((tagCurrent.isSet()) && (!tag.intersects(m_pBibleDatabase.data(), tagCurrent))) continue;
+		if ((tagsCurrent.isSet()) && (!tagsCurrent.intersects(m_pBibleDatabase.data(), tag))) continue;
 
 		unsigned int nTagCount = tag.count();
 		if (nTagCount) --nTagCount;					// Make nTagCount the number of positions to move, not number words
@@ -1051,15 +1051,15 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 	myCursor.endEditBlock();
 }
 
-TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndxCurrent) const
+TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIndex &ndxCurrent) const
 {
-	TPhraseTag tagCurrentDisplay;
+	TPhraseTagList tagsCurrentDisplay;
 
 	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
 		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 0, 1);
 		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
 		// This can happen if the versification of the reference doesn't match the active database:
-		if (ndxNormalCurrent == 0) return TPhraseTag();
+		if (ndxNormalCurrent == 0) return TPhraseTagList();
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
 		assert(pChapter != NULL);
 		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
@@ -1077,10 +1077,20 @@ TPhraseTag CPhraseNavigator::currentChapterDisplayPhraseTag(const CRelIndex &ndx
 			ndxVerseAfter.setWord(pVerseAfter->m_nNumWrd);
 			nNumWordsDisplayed = m_pBibleDatabase->NormalizeIndex(ndxVerseAfter) - m_pBibleDatabase->NormalizeIndex(ndxDisplay);
 		}
-		tagCurrentDisplay = TPhraseTag(ndxDisplay, nNumWordsDisplayed);
+		tagsCurrentDisplay.append(TPhraseTag(ndxDisplay, nNumWordsDisplayed));
+
+		// If this book has a colophon and this is the last chapter of that book, we
+		//	need to add it as well:
+		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxCurrent.book());
+		assert(pBook != NULL);
+		if ((pBook->m_bHaveColophon) && (ndxCurrent.chapter() == pBook->m_nNumChp)) {
+			const CVerseEntry *pVerseColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxCurrent.book(), 0, 0, 0));
+			assert(pVerseColophon != NULL);
+			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxCurrent.book(), 0, 0, 1), pVerseColophon->m_nNumWrd));
+		}
 	}
 
-	return tagCurrentDisplay;
+	return tagsCurrentDisplay;
 }
 
 QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)

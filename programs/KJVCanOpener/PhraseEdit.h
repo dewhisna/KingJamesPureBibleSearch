@@ -310,12 +310,12 @@ public:
 	//		empty index to ignore.  Highlighting is done in the specified
 	//		color.
 	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const CRelIndex &ndxCurrent) const;
-	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const TPhraseTag &tagCurrent = TPhraseTag()) const;
+	void doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear = false, const TPhraseTagList &tagCurrent = TPhraseTagList()) const;
 
 	// Calculate a phrase tag (reference and word count) that represents the current
 	//		display of our browser text having been set via setDocumentToChapter.  Used
 	//		to calculate intersections with other tags for optimzing highlighting, etc:
-	TPhraseTag currentChapterDisplayPhraseTag(const CRelIndex &ndxCurrent) const;
+	TPhraseTagList currentChapterDisplayPhraseTagList(const CRelIndex &ndxCurrent) const;
 
 	// Text Fill Functions:
 #define defaultDocumentToBookInfoFlags	(CPhraseNavigator::TRO_Subtitles | \

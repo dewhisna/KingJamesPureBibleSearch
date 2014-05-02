@@ -1168,9 +1168,13 @@ class TPhraseTagList : public QList<TPhraseTag>
 {
 public:
 	TPhraseTagList();
+	TPhraseTagList(const TPhraseTag &aTag);
 	TPhraseTagList(const TPhraseTagList &src);
 
+	bool isSet() const;
+
 	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
 	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
 	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);

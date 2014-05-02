@@ -545,10 +545,10 @@ void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
 {
 	if (!selection().isSet()) return;
 	CRelIndex ndxNote = ndx;
-	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
+	TPhraseTagList tagsCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTagList(m_ndxCurrent);
 	if ((!ndx.isSet()) ||
-		(!tagCurrentDisplay.isSet()) ||
-		(tagCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxNote))) ||
+		(!tagsCurrentDisplay.isSet()) ||
+		(tagsCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxNote))) ||
 		((ndx.chapter() == 0) && (ndx.book() == m_ndxCurrent.book())) ||			// This compare is needed for book notes rendered at the end of the book when we aren't displaying chapter 1
 		((ndx.chapter() == 0) && (ndx.book() == (m_ndxCurrent.book()-1)))) {		// This compare is needed for book notes rendered at the end of the book when we are displaying the first chapter of the next book
 		emit rerender();
@@ -560,12 +560,12 @@ void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &
 	if (!selection().isSet()) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
 	CRelIndex ndxCrossRefSecond = ndxSecond;
-	TPhraseTag tagCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTag(m_ndxCurrent);
+	TPhraseTagList tagsCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTagList(m_ndxCurrent);
 	if ((!ndxFirst.isSet()) ||
 		(!ndxSecond.isSet()) ||
-		(!tagCurrentDisplay.isSet()) ||
-		(tagCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCrossRefFirst))) ||
-		(tagCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCrossRefSecond)))) {
+		(!tagsCurrentDisplay.isSet()) ||
+		(tagsCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCrossRefFirst))) ||
+		(tagsCurrentDisplay.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCrossRefSecond)))) {
 		emit rerender();
 	}
 
