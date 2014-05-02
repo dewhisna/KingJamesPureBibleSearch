@@ -380,7 +380,8 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 
 	// If branching to a "book only", goto chapter 1 of that book:
 	if ((tagActual.relIndex().book() != 0) &&
-		(tagActual.relIndex().chapter() == 0)) tagActual.relIndex().setChapter(1);
+		(tagActual.relIndex().chapter() == 0) &&
+		(tagActual.relIndex().word() == 0)) tagActual.relIndex().setChapter(1);
 
 	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.relIndex().asAnchor()));
 
@@ -729,10 +730,10 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), ndx.chapter(), 0, 0);
 
-	ui.comboBkChp->setCurrentIndex(ui.comboBkChp->findData(ndx.chapter()));
+	ui.comboBkChp->setCurrentIndex(ui.comboBkChp->findData(0));
 	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(0));
 
-	if ((m_ndxCurrent.book() == 0) || (m_ndxCurrent.chapter() == 0)) {
+	if ((m_ndxCurrent.book() == 0) || ((m_ndxCurrent.chapter() == 0) && (ndx.word() == 0))) {
 		m_pScriptureBrowser->clear();
 		end_update();
 		return;
@@ -746,9 +747,22 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	}
 
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
+
+	CRelIndex ndxVirtual = m_ndxCurrent;
+	if (ndxVirtual.chapter() == 0) {
+		if (!book.m_bHaveColophon) {
+			m_pScriptureBrowser->clear();
+			end_update();
+			return;
+		}
+		ndxVirtual.setChapter(book.m_nNumChp);
+	}
+
+	ui.comboBkChp->setCurrentIndex(ui.comboBkChp->findData(ndxVirtual.chapter()));
+
 	unsigned int nTstChp = 0;
 	unsigned int nBibleChp = 0;
-	for (unsigned int ndxBk=1; ndxBk<m_ndxCurrent.book(); ++ndxBk) {
+	for (unsigned int ndxBk=1; ndxBk<ndxVirtual.book(); ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
 		assert(pBook != NULL);
 		if (pBook == NULL) continue;
@@ -756,21 +770,21 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 			nTstChp += pBook->m_nNumChp;
 		nBibleChp += pBook->m_nNumChp;
 	}
-	nTstChp += m_ndxCurrent.chapter();
-	nBibleChp += m_ndxCurrent.chapter();
+	nTstChp += ndxVirtual.chapter();
+	nBibleChp += ndxVirtual.chapter();
 
 	ui.comboTstChp->setCurrentIndex(ui.comboTstChp->findData(nTstChp));
 	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(nBibleChp));
 
 	// Set the chapter scroller to the chapter of the Bible:
 	if (ui.scrollbarChapter != NULL) {
-		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first);
+		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxVirtual).ofBible().first);
 //		ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
 	}
 
 	end_update();
 
-	m_pScriptureBrowser->navigator().setDocumentToChapter(ndx);
+	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual);
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)

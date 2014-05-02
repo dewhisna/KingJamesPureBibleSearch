@@ -851,8 +851,8 @@ void CKJVCanOpener::initialize()
 	// If there is no selection to highlight, default to the first sub-entity
 	//		of the index specified:
 	if (tag.count() == 0) {
-		if ((tag.relIndex().chapter() == 0) ||
-			(tag.relIndex().verse() == 0)) {
+		if (((tag.relIndex().chapter() == 0) || (tag.relIndex().verse() == 0)) &&
+			(tag.relIndex().word() == 0)) {
 			tag.relIndex().setChapter(1);
 			tag.relIndex().setVerse(1);
 			tag.relIndex().setWord(1);
