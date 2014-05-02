@@ -2146,30 +2146,29 @@ TPhraseTag CPhraseNavigator::getSelection(const CPhraseCursor &aCursor,
 	while (myCursor.position() >= nPosFirstWordStart) {
 		strAnchorName = myCursor.charFormat().anchorName();
 		CRelIndex ndxCurrent = CRelIndex(strAnchorName);
-		CRelIndex ndxCurrentActual = ndxCurrent;
+
 		uint32_t nNormCurrent = m_pBibleDatabase->NormalizeIndex(ndxCurrent);
 
-		// Make sure words selected are consecutive words (i.e. that we don't have a "hidden" colophon between them or something):
-		//		Note: nNormPrev will be equal to nNormCurrent when we are on the first word of the line with how our
-		//		paragraphs/blocks work...
-		if ((bFoundHit) && (ndxCurrent.word() != 0) && (nNormPrev != (nNormCurrent+1)) && (nNormPrev != nNormCurrent)) {
-			ndxCurrent = CRelIndex();
-			bFoundHit = false;
-		}
+		if (nNormCurrent != 0) {
+			// Make sure words selected are consecutive words (i.e. that we don't have a "hidden" colophon between them or something):
+			//		Note: nNormPrev will be equal to nNormCurrent when we are on the first word of the line with how our
+			//		paragraphs/blocks work...
+			if ((bFoundHit) && (ndxCurrent.word() != 0) && (nNormPrev != (nNormCurrent+1)) && (nNormPrev != nNormCurrent)) {
+				bFoundHit = false;
+			}
 
-		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
-		//		text from a verse.  We must be in a special tag section of heading:
-		if ((ndxCurrent.word() == 0) || (ndxCurrent < nIndexFirst)) {
-			ndxCurrent = CRelIndex();
-		}
+			// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
+			//		text from a verse.  We must be in a special tag section of heading:
+			if ((ndxCurrent.word() == 0) || (ndxCurrent < nIndexFirst)) {
+				ndxCurrent = CRelIndex();
+			} else {
+				nNormPrev = nNormCurrent;
+			}
 
-		if (!bFoundHit) {
-			nIndexLast = ndxCurrent;
-			bFoundHit = nIndexLast.isSet();
-		}
-
-		if (ndxCurrentActual.word() != 0) {
-			nNormPrev = nNormCurrent;
+			if (!bFoundHit) {
+				nIndexLast = ndxCurrent;
+				bFoundHit = nIndexLast.isSet();
+			}
 		}
 
 		if (!myCursor.moveCursorCharLeft()) break;
