@@ -59,8 +59,14 @@ public:
 		SSME_BOOK = 2,
 		SSME_CHAPTER = 3,
 		SSME_VERSE = 4,
-		SSME_CATEGORY = 5
+		SSME_CATEGORY = 5,
+		SSME_COLOPHON = 6,
+		SSME_SUPERSCRIPTION = 7
 	};
+
+	// Special Search Indexes:
+	static const CRelIndex SSI_COLOPHON;
+	static const CRelIndex SSI_SUPERSCRIPTION;
 
 	CSearchCriteria()
 		:	m_nSearchScopeMode(SSME_UNSCOPED) { }
@@ -72,6 +78,17 @@ public:
 
 	bool indexIsWithin(const CRelIndex &ndxRel) const
 	{
+		if ((ndxRel.book() != 0) &&
+			(ndxRel.verse() == 0) &&
+			(ndxRel.word() != 0)) {
+			if (ndxRel.chapter() == 0) {
+				return ((m_setSearchWithin.find(SSI_COLOPHON) != m_setSearchWithin.end()) &&
+						(m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()));
+			} else {
+				return ((m_setSearchWithin.find(SSI_SUPERSCRIPTION) != m_setSearchWithin.end()) &&
+						(m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()));
+			}
+		}
 		return (m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end());
 	}
 	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase) const
@@ -81,6 +98,8 @@ public:
 		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
 		}
+		if (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end()) bIsEntire = false;
+		if (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end()) bIsEntire = false;
 		return bIsEntire;
 	}
 	const TRelativeIndexSet &searchWithin() const { return m_setSearchWithin; }
@@ -97,6 +116,8 @@ public:
 			for (uint32_t nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 				m_setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
 			}
+			m_setSearchWithin.insert(SSI_COLOPHON);
+			m_setSearchWithin.insert(SSI_SUPERSCRIPTION);
 		} else {
 			for (int ndx = 0; ndx < lstIndexes.size(); ++ndx) {
 				CRelIndex ndxRel(lstIndexes.at(ndx));
@@ -283,6 +304,7 @@ public:
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(const CSearchWithinModelIndex *pSearchWithinModelIndex, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;

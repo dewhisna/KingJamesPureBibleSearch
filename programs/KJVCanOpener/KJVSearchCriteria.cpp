@@ -37,6 +37,12 @@
 
 // ============================================================================
 
+// Special Search Indexes:
+const CRelIndex CSearchCriteria::SSI_COLOPHON = CRelIndex(0, 0, 0, 1);
+const CRelIndex CSearchCriteria::SSI_SUPERSCRIPTION = CRelIndex(0, 0, 0, 2);
+
+// ============================================================================
+
 QString CSearchCriteria::searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const
 {
 	CSearchWithinModel modelSearchWithin(pBibleDatabase, m_setSearchWithin);
@@ -86,6 +92,8 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const T
 
 	// Build our model data (which should be static with the given Bible Database):
 	// The root node is the "Whole Bible"
+	m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_COLOPHON, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_COLOPHON) != aSetSearchWithin.end());
+	m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_SUPERSCRIPTION, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) != aSetSearchWithin.end());
 	for (unsigned int nTst = 1; nTst <= m_pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
 		const CTestamentEntry *pTestamentEntry = m_pBibleDatabase->testamentEntry(nTst);
 		assert(pTestamentEntry != NULL);
@@ -120,6 +128,8 @@ CSearchWithinModel::~CSearchWithinModel()
 QString CSearchWithinModel::searchWithinDescription() const
 {
 	QStringList lstDescription;
+	const CSearchWithinModelIndex *pColophon = NULL;
+	const CSearchWithinModelIndex *pSuperscription = NULL;
 
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; /* Increment inside loop */) {
 		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
@@ -127,11 +137,21 @@ QString CSearchWithinModel::searchWithinDescription() const
 		// Fully checked items completely define it, so use it -- except for Category,
 		//	since they are subjective, which will translate to the child names:
 		if ((pSearchWithinModelIndex->checkState() == Qt::Checked) && (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_CATEGORY)) {
-			lstDescription.append(fwdItr->data(Qt::EditRole).toString());
+			if (pSearchWithinModelIndex->ssme() == CSearchCriteria::SSME_COLOPHON) {
+				pColophon = pSearchWithinModelIndex;
+			} else if (pSearchWithinModelIndex->ssme() == CSearchCriteria::SSME_SUPERSCRIPTION) {
+				pSuperscription = pSearchWithinModelIndex;
+			} else {
+				lstDescription.append(fwdItr->data(Qt::EditRole).toString());
+			}
 			fwdItr.nextSibling();
 		} else {
 			++fwdItr;
 		}
+	}
+	if (!lstDescription.isEmpty()) {
+		if (pColophon != NULL) lstDescription.append(data(pColophon, Qt::EditRole).toString());
+		if (pSuperscription != NULL) lstDescription.append(data(pSuperscription, Qt::EditRole).toString());
 	}
 
 	return lstDescription.join(QString(", "));
@@ -145,8 +165,9 @@ TRelativeIndexSet CSearchWithinModel::searchWithin() const
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
 		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
 		assert(pSearchWithinModelIndex != NULL);
-		if ((pSearchWithinModelIndex->childIndexCount() == 0) && (pSearchWithinModelIndex->checkState() == Qt::Checked)) {
-			setIndexes.insert(CRelIndex(pSearchWithinModelIndex->itemIndex(), 0, 0, 0));
+		CRelIndex ndxItem = fwdItr->data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
+		if ((ndxItem.isSet()) && (pSearchWithinModelIndex->checkState() == Qt::Checked)) {
+			setIndexes.insert(ndxItem);
 		} else {
 			bSelectAll = false;
 		}
@@ -159,10 +180,9 @@ TRelativeIndexSet CSearchWithinModel::searchWithin() const
 void CSearchWithinModel::setSearchWithin(const TRelativeIndexSet &aSetSearchWithin)
 {
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
-		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
-		assert(pSearchWithinModelIndex != NULL);
-		if (pSearchWithinModelIndex->childIndexCount() == 0) {
-			setData(*fwdItr, ((aSetSearchWithin.find(CRelIndex(pSearchWithinModelIndex->itemIndex(), 0, 0, 0)) != aSetSearchWithin.end()) ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		CRelIndex ndxItem = fwdItr->data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
+		if (ndxItem.isSet()) {
+			setData(*fwdItr, ((aSetSearchWithin.find(ndxItem) != aSetSearchWithin.end()) ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 	}
 }
@@ -219,6 +239,12 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
 	assert(pSearchWithinModelIndex != NULL);
+
+	return data(pSearchWithinModelIndex, role);
+}
+
+QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinModelIndex, int role) const
+{
 	if (pSearchWithinModelIndex == NULL) return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
@@ -237,6 +263,34 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 					}
 				}
 				return strEntireBible;
+			}
+			case CSearchCriteria::SSME_COLOPHON:
+			{
+				// Search for "Colophons".  First try and see if we can translate it in the language of the selected Bible,
+				//		but if not, try in the current language setting
+				QString strColophons = tr("Colophons", "Scope");
+				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+					if (pTranslator.data() != NULL) {
+						QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Colophons", "Scope");
+						if (!strTemp.isEmpty()) strColophons = strTemp;
+					}
+				}
+				return strColophons;
+			}
+			case CSearchCriteria::SSME_SUPERSCRIPTION:
+			{
+				// Search for "Superscriptions".  First try and see if we can translate it in the language of the selected Bible,
+				//		but if not, try in the current language setting
+				QString strSuperscriptions = tr("Superscriptions", "Scope");
+				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+					if (pTranslator.data() != NULL) {
+						QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Superscriptions", "Scope");
+						if (!strTemp.isEmpty()) strSuperscriptions = strTemp;
+					}
+				}
+				return strSuperscriptions;
 			}
 			case CSearchCriteria::SSME_TESTAMENT:
 			{
@@ -281,6 +335,10 @@ QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 	if (role == SWMDRE_REL_INDEX_ROLE) {
 		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 		switch (pSearchWithinModelIndex->ssme()) {
+			case CSearchCriteria::SSME_COLOPHON:
+				return QVariant::fromValue(CSearchCriteria::SSI_COLOPHON);
+			case CSearchCriteria::SSME_SUPERSCRIPTION:
+				return QVariant::fromValue(CSearchCriteria::SSI_SUPERSCRIPTION);
 			case CSearchCriteria::SSME_BOOK:
 			{
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);
@@ -469,7 +527,9 @@ void CKJVSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &i
 {
 	if (index.isValid()) {
 		CRelIndex ndxReference = m_pSearchWithinModel->data(index, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
-		if (ndxReference.isSet()) {
+		if ((ndxReference.isSet()) &&
+			(ndxReference != CSearchCriteria::SSI_COLOPHON) &&
+			(ndxReference != CSearchCriteria::SSI_SUPERSCRIPTION)) {
 			emit gotoIndex(ndxReference);
 		}
 	}
