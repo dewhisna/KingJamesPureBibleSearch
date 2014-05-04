@@ -558,7 +558,7 @@ public:
 		CVerseMap::const_iterator GetVerse(int ndxVerse, int nBk = -1, int nChp = -1) const;	// Returns index into m_mapVerses based on relative index of Verse for specified Book and/or Book/Chapter
 	public:
 		int GetVerseCount(int nBk = -1, int nChp = -1) const;
-		int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;				// Calculates the total number of results from the Results Phrase Tags (can be limited to book or book/chapter)
+		int GetResultsCount(int nBk = -1, int nChp = -1) const;				// Calculates the total number of results from the Results Phrase Tags (can be limited to book or book/chapter)
 
 		const CVerseMap &verseMap() const { return m_mapVerses; }
 		const QString resultsName() const { return m_strResultsName; }
@@ -756,7 +756,7 @@ protected slots:
 public:
 	// Total Verse/Result count for the whole model for the current mode:
 	int GetVerseCount(int nBk = -1, int nChp = -1) const;
-	int GetResultsCount(unsigned int nBk = 0, unsigned int nChp = 0) const;
+	int GetResultsCount(int nBk = -1, int nChp = -1) const;
 
 private:
 	void clearAllSizeHints();

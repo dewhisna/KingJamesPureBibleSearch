@@ -36,7 +36,7 @@
 #include <QAtomicInt>
 #include <QMessageBox>
 
-#if 0
+#if 1
 #define ASSERT_MODEL_DEBUG(x) assert(x)
 #else
 #define ASSERT_MODEL_DEBUG(x)
@@ -1069,7 +1069,7 @@ QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 			const CVerseListModel::TVerseListModelResults &zResults = results(indexes.at(ndx));
 			aStream << zResults.resultsName();					// Highlighter name
 			aStream << pVerseIndex->relIndex().asAnchor();		// Verse location
-			assert(pVerseIndex->relIndex().word() == 0);
+			assert(pVerseIndex->relIndex().word() == 1);
 		}
 	}
 
@@ -1997,13 +1997,13 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 	return nVerses;
 }
 
-int CVerseListModel::TVerseListModelResults::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::TVerseListModelResults::GetResultsCount(int nBk, int nChp) const
 {
 	int nResults = 0;
 
 	for (CVerseMap::const_iterator itrVerse = m_mapVerses.constBegin(); itrVerse != m_mapVerses.constEnd(); ++itrVerse) {
-		if ((nBk != 0) && (itrVerse.key().book() != nBk)) continue;
-		if ((nBk != 0) && (nChp != 0) && (itrVerse.key().chapter() != nChp)) continue;
+		if ((nBk != -1) && (itrVerse.key().book() != static_cast<unsigned int>(nBk))) continue;
+		if ((nBk != -1) && (nChp != -1) && (itrVerse.key().chapter() != static_cast<unsigned int>(nChp))) continue;
 		nResults += itrVerse->phraseTags().size();
 	}
 
@@ -2026,7 +2026,7 @@ int CVerseListModel::GetVerseCount(int nBk, int nChp) const
 	return nCount;
 }
 
-int CVerseListModel::GetResultsCount(unsigned int nBk, unsigned int nChp) const
+int CVerseListModel::GetResultsCount(int nBk, int nChp) const
 {
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS) return m_searchResults.GetResultsCount(nBk, nChp);
 	if (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED) return m_searchResultsExcluded.GetResultsCount(nBk, nChp);
