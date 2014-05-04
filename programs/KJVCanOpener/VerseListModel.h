@@ -118,7 +118,24 @@ protected:
 };
 typedef QSharedPointer<TVerseIndex> TVerseIndexPtr;
 typedef QList<TVerseIndex> TVerseIndexList;
-typedef QMap<CRelIndex, TVerseIndexPtr> TVerseIndexPtrMap;
+
+struct TExtraVerseIndexKey
+{
+	TExtraVerseIndexKey(const CRelIndex &ndxVerse, VERSE_LIST_MODEL_NODE_TYPE_ENUM nNodeType)
+		:	m_nRelIndex(ndxVerse),
+			m_nNodeType(nNodeType)
+	{ }
+
+	bool operator <(const TExtraVerseIndexKey &other) const
+	{
+		return ((m_nNodeType < other.m_nNodeType) ||
+				((m_nNodeType == other.m_nNodeType) && (m_nRelIndex < other.m_nRelIndex)));
+	}
+
+	CRelIndex m_nRelIndex;
+	VERSE_LIST_MODEL_NODE_TYPE_ENUM m_nNodeType;
+};
+typedef QMap<TExtraVerseIndexKey, TVerseIndexPtr> TExtraVerseIndexPtrMap;
 
 struct TVerseIndexListSortPredicate {
 	static bool ascendingLessThan(const TVerseIndex &s1, const TVerseIndex &s2)
@@ -509,17 +526,18 @@ public:
 
 		CVerseMap m_mapVerses;						// Map of Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 		QList<CRelIndex> m_lstVerseIndexes;			// List of CRelIndexes in CVerseMap -- needed because index lookup within the QMap is time-expensive
-		mutable TVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
+		mutable TExtraVerseIndexPtrMap m_mapExtraVerseIndexes;	// Used to store VerseIndex objects we give out for items with no data, like Book/Chapter headings (cleared in buildScopedResultsFromParsedPhrases() and created on demand).  Objects we give out are in CVerseListModel.
 		QMap<QPersistentModelIndex, QSize> m_mapSizeHints;	// Map of QModelIndex to SizeHint -- used for ReflowDelegate caching (Note: This only needs to be cleared if we change databases or display modes!)
 
 		// --------------------------------------
 
 		TVerseIndexPtr extraVerseIndex(const TVerseIndex &aVerseIndex) const
 		{
-			TVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.find(aVerseIndex.relIndex());
+			TExtraVerseIndexKey keyExtraVerse(aVerseIndex.relIndex(), aVerseIndex.nodeType());
+			TExtraVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.find(keyExtraVerse);
 			if (itr != m_mapExtraVerseIndexes.constEnd()) return itr.value();
 
-			return m_mapExtraVerseIndexes.insert(aVerseIndex.relIndex(), TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
+			return m_mapExtraVerseIndexes.insert(keyExtraVerse, TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
 		}
 
 		TVerseIndexPtr extraVerseIndex(const CRelIndex &ndxRel, VERSE_LIST_MODEL_NODE_TYPE_ENUM nNodeType = VLMNTE_UNDEFINED) const

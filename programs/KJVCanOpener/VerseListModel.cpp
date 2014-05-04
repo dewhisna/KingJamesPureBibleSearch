@@ -526,7 +526,6 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		CRelIndex ndxRel(pVerseIndex->relIndex());
 		CRelIndex ndxVerse(pVerseIndex->relIndex());
-		ndxVerse.setWord(0);
 
 		if ((m_private.m_nViewMode == VVME_CROSSREFS) &&
 			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE)) {
@@ -537,7 +536,17 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			for (int i = index.row(); i > 0; ++itrRef, --i) { }
 			ndxRel = *(itrRef);
 			ndxVerse = *(itrRef);
-			ndxVerse.setWord(0);
+		}
+
+		if ((m_private.m_nViewMode == VVME_CROSSREFS) ||
+			(m_private.m_nViewMode == VVME_USERNOTES)) {
+			if ((ndxVerse.chapter() != 0) && (ndxVerse.verse() != 0)) {
+				ndxVerse.setWord(1);			// Whole verses only
+			} else {
+				ndxVerse.setWord(0);			// We don't allow cross-refs and notes on colophons and superscriptions
+			}
+		} else {
+			ndxVerse.setWord(1);
 		}
 
 		assert(ndxRel.isSet());
@@ -545,7 +554,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		CScriptureTextHtmlBuilder usernoteHTML;
 
-		if ((ndxRel.chapter() == 0) && (ndxRel.verse() == 0)) {
+		if (((ndxRel.chapter() == 0) && (ndxRel.verse() == 0) && (ndxRel.word() == 0) && (pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) ||
+			(pVerseIndex->nodeType() == VLMNTE_BOOK_TERMINATOR_NODE)) {
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
@@ -578,15 +588,23 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 
-		if (ndxRel.verse() == 0) {
+		if (((ndxRel.verse() == 0) && (ndxRel.word() == 0)) ||
+			(pVerseIndex->nodeType() == VLMNTE_CHAPTER_TERMINATOR_NODE)) {
 			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
 					case VVME_SEARCH_RESULTS_EXCLUDED:
 					case VVME_HIGHLIGHTERS:
+						if (ndxRel.chapter() != 0) {
+							return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
+						} else {
+							return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(tr("Colophon", "Scope"));
+						}
 					case VVME_CROSSREFS:
+						assert(ndxRel.chapter() != 0);
 						return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
 					case VVME_USERNOTES:
+						assert(ndxRel.chapter() != 0);
 						usernoteHTML.beginParagraph();
 						usernoteHTML.beginBold();
 						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
@@ -1153,7 +1171,8 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 	const TVerseListModelResults &zResults = results(resolveVerseIndex(ndxRel, results(ndxVerse).resultsName(), VLMRTE_UNDEFINED));
 
 	// See if this is a verse (search result) reference.  If so resolve:
-	if (ndxRel.verse() != 0) {
+	if ((ndxRel.verse() != 0) ||
+		((ndxRel.verse() == 0) && (ndxRel.word() != 0))) {
 		CVerseMap::const_iterator itrFirst;
 		CVerseMap::const_iterator itrTarget;
 
@@ -1174,7 +1193,9 @@ QModelIndex CVerseListModel::locateIndex(const TVerseIndex &ndxVerse) const
 	//		sense than possibly returning the first one that might match:
 	if (m_private.m_nTreeMode == VTME_LIST) return QModelIndex();
 
-	if ((ndxRel.chapter() != 0) && (m_private.m_nTreeMode == VTME_TREE_CHAPTERS)) {
+	if (((ndxRel.chapter() != 0) ||
+		 ((ndxRel.chapter() == 0) && (ndxRel.word() != 0))) &&
+		(m_private.m_nTreeMode == VTME_TREE_CHAPTERS)) {
 		// If this is a book/chapter reference, resolve it:
 		int ndxTarget = zResults.IndexByChapter(ndxRel.book(), ndxRel.chapter());
 		if (ndxTarget == -1) return QModelIndex();
@@ -1327,12 +1348,14 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 			unsigned int nWordCount = itrTags->count();
 			assert(nWordCount != 0);			// Shouldn't have any highlighter tags with empty ranges
 			nWordCount += ((ndxNextRelative.word() != 0) ? (ndxNextRelative.word() - 1) : 0);					// Calculate back to start of verse to figure out how many verses this tag encompasses
-			ndxNextRelative.setWord(0);
+			ndxNextRelative.setWord(1);
 			uint32_t ndxNormalNext = m_private.m_pBibleDatabase->NormalizeIndex(ndxNextRelative);
 			if (ndxNormalNext == 0) continue;												// Handle cases for higlighters from other databases that extend beyond this one (and highlighter isn't part of this)
+			if (m_private.m_pBibleDatabase->verseEntry(ndxNextRelative) == NULL) continue;	// Handle cases for highlighters from othe database beginning in a colophon/superscription not supported in this database
 			while (nWordCount > 0) {
 				// Mask the highlighter tags for this verse and just insert the tags corresponding to this verse:
-				unsigned int nNumWordsInVerse = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative)->m_nNumWrd;
+				const CVerseEntry *pVerseEntry = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative);
+				unsigned int nNumWordsInVerse = ((pVerseEntry != NULL) ? pVerseEntry->m_nNumWrd : 0);
 				TPhraseTag tagMasked = itrTags->mask(m_private.m_pBibleDatabase.data(), TPhraseTag(ndxNextRelative, nNumWordsInVerse));
 				if (zResults.m_mapVerses.contains(ndxNextRelative)) {
 					zResults.m_mapVerses[ndxNextRelative].addPhraseTag(tagMasked);
@@ -1349,7 +1372,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 					assert((ndxNextRelative.word() == 1) ||
 						   (!ndxNextRelative.isSet()));			// We better end up at the first word of the next verse (or out of our text, in cases of cross-database highlighter sharing), or something bad happened
 					if (!ndxNextRelative.isSet()) nWordCount = 0;
-					ndxNextRelative.setWord(0);					// But, add as whole verse
+					ndxNextRelative.setWord(1);					// But, add as whole verse
 				}
 			}
 		}
@@ -1414,7 +1437,11 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	for (CUserNoteEntryMap::const_iterator itrNote = mapNotes.begin(); itrNote != mapNotes.end(); ++itrNote) {
 		CRelIndex ndxNote = (itrNote->first);
 		assert(ndxNote.isSet());
-		ndxNote.setWord(0);			// Whole verses only
+		if ((ndxNote.chapter() != 0) && (ndxNote.verse() != 0)) {
+			ndxNote.setWord(1);			// Whole verses only
+		} else {
+			ndxNote.setWord(0);			// We don't allow notes on colophons and superscriptions
+		}
 
 		if (m_private.m_pBibleDatabase->NormalizeIndex(ndxNote) == 0) continue;		// Don't include notes for references outside our database (like Aprocrypha notes outside on database without Apocrypha)
 
@@ -1489,7 +1516,11 @@ void CVerseListModel::buildCrossRefsResults()
 	for (TCrossReferenceMap::const_iterator itrCrossRef = zResults.m_mapCrossRefs.begin(); itrCrossRef != zResults.m_mapCrossRefs.end(); ++itrCrossRef) {
 		CRelIndex ndxCrossRef = (itrCrossRef->first);
 		assert(ndxCrossRef.isSet());
-		ndxCrossRef.setWord(0);			// Whole verses only
+		if ((ndxCrossRef.chapter() != 0) && (ndxCrossRef.verse() != 0)) {
+			ndxCrossRef.setWord(1);			// Whole verses only
+		} else {
+			ndxCrossRef.setWord(0);			// We don't allow cross-refs to colophons and superscriptions
+		}
 
 		assert(!zResults.m_mapVerses.contains(ndxCrossRef));
 		zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
@@ -1738,13 +1769,15 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 	if (nBk == 0) return 0;
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		return m_private->m_pBibleDatabase->bookEntry(nBk)->m_nNumChp;
+		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
+		assert(pBookEntry != NULL);
+		return pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
 	}
 
 	// Find the first and last entries with the correct Book number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
@@ -1766,14 +1799,20 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 	if (nBk == 0) return -1;
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
-		if (nChp > m_private->m_pBibleDatabase->bookEntry(nBk)->m_nNumChp) return -1;
-		return (nChp-1);
+		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
+		assert(pBookEntry != NULL);
+		unsigned int nChpCount = pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
+		if (!pBookEntry->m_bHaveColophon) {
+			assert(nChp > 0);
+		}
+		if (nChp > nChpCount) return -1;
+		return (pBookEntry->m_bHaveColophon ? nChp : (nChp-1));
 	}
 
 	// Find the first and last entries with the correct Book number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return -1;
@@ -1797,15 +1836,18 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
 	if (m_private->m_bShowMissingLeafs) {
 		if (static_cast<unsigned int>(ndxBook) >= m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
-		if (static_cast<unsigned int>(ndxChapter) >= m_private->m_pBibleDatabase->bookEntry(ndxBook+1)->m_nNumChp) return 0;
-		return (ndxChapter+1);
+		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(ndxBook+1);
+		assert(pBookEntry != NULL);
+		unsigned int nChpCount = pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
+		if (static_cast<unsigned int>(ndxChapter) >= nChpCount) return 0;
+		return (pBookEntry->m_bHaveColophon ? ndxChapter : (ndxChapter+1));
 	}
 
 	unsigned int nBk = BookByIndex(ndxBook);
 	if (nBk == 0) return 0;
 
 	// Find the first and last entries with the correct Book number:
-	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 1, 0, 0));		// This will be the first verse of the first chapter of this book
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));		// This will be the first verse of the first chapter of this book
 	CVerseMap::const_iterator itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));		// This will be the first verse of the next book/chapter
 
 	// We should have found the book, because of the above BookByIndex() call and nBk check, but safe-guard:
@@ -1828,7 +1870,18 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::FindVerseInde
 	if (!ndxRel.isSet()) return m_mapVerses.constEnd();
 
 	CRelIndex ndxSearch(ndxRel);
-	ndxSearch.setWord(0);			// Make sure we don't consider the word
+
+	if ((m_private->m_nViewMode == VVME_CROSSREFS) ||
+		(m_private->m_nViewMode == VVME_USERNOTES)) {
+		if ((ndxSearch.chapter() != 0) && (ndxSearch.verse() != 0)) {
+			ndxSearch.setWord(1);			// Whole verses only
+		} else {
+			ndxSearch.setWord(0);			// We don't allow cross-refs and notes on colophons and superscriptions
+		}
+	} else {
+		ndxSearch.setWord(1);
+	}
+
 	return m_mapVerses.find(ndxSearch);
 }
 
@@ -1877,8 +1930,8 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : 1), 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp > 0) {
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp >= 0) ? nChp : 0), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp >= 0) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));
@@ -1887,14 +1940,16 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 	// If we didn't find the book and/or book/chapter, return (not found):
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return m_mapVerses.constEnd();
 	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
-		((nChp > 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return m_mapVerses.constEnd();
+		((nChp >= 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return m_mapVerses.constEnd();
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
 		// Don't count non-verse entries for Tree-by-Chapters mode since we will roll them
 		//		into the Chapter entry:
 		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
-			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) && (itrVerseMapBookChapterFirst.key().verse() != 0))) {
+			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) &&
+			 ((itrVerseMapBookChapterFirst.key().verse() != 0) ||
+			  ((itrVerseMapBookChapterFirst.key().verse() == 0) && (itrVerseMapBookChapterFirst.key().word() != 0))))) {
 			if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst;
 			++nVerses;
 		}
@@ -1915,8 +1970,8 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : 1), 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp > 0) {
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp >= 0) ? nChp : 0), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp >= 0) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book
@@ -1925,14 +1980,16 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 	// If we didn't find the book and/or book/chapter, return none found:
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
 	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
-		((nChp > 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return 0;
+		((nChp >= 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return 0;
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
 		// Don't count non-verse entries for Tree-by-Chapters mode since we will roll them
 		//		into the Chapter entry:
 		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
-			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) && (itrVerseMapBookChapterFirst.key().verse() != 0))) {
+			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) &&
+			 ((itrVerseMapBookChapterFirst.key().verse() != 0) ||
+			  ((itrVerseMapBookChapterFirst.key().verse() == 0) && (itrVerseMapBookChapterFirst.key().word() != 0))))) {
 			++nVerses;
 		}
 		++itrVerseMapBookChapterFirst;
@@ -2162,7 +2219,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases()
 				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
 					lstScopedPhraseTags.append(*itr);
 					CRelIndex ndxNextRelative = itr->relIndex();
-					ndxNextRelative.setWord(0);
+					ndxNextRelative.setWord(1);
 					if (zResults.m_mapVerses.contains(ndxNextRelative)) {
 						zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
 					} else {
@@ -2230,7 +2287,7 @@ bool CVerseListModel::checkExclusion(QList<TPhraseTagList::const_iterator> &lstI
 
 	if (bExclude && !bPreserveLastItr) {
 		CRelIndex ndxNextRelative = tag.relIndex();
-		ndxNextRelative.setWord(0);
+		ndxNextRelative.setWord(1);
 		// Note: The tag has already been added to the ScopedPhraseTags above in the
 		//			check for intersection.
 		if (zExcludedResults.m_mapVerses.contains(ndxNextRelative)) {

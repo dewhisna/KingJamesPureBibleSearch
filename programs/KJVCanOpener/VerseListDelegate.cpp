@@ -91,7 +91,8 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 										"</style></head><body>\n"));
 
 	if (ndxRel.isSet()) {
-		if (ndxRel.verse() != 0) {
+		if ((ndxRel.verse() != 0) ||
+			((ndxRel.verse() == 0) && (ndxRel.word() != 0))) {
 			// Verses:
 			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 
@@ -134,7 +135,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 				}
 			}
-		} else if (ndxRel.chapter() != 0) {
+		} else if (((ndxRel.chapter() != 0) ||
+					((ndxRel.chapter() == 0) && (ndxRel.word() != 0))) ||
+					(pVerseIndex->nodeType() == VLMNTE_CHAPTER_TERMINATOR_NODE)) {
 			// Chapters:
 			int nVerses = 0;
 			int nResults = 0;
