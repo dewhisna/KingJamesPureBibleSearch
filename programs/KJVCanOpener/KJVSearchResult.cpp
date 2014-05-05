@@ -292,7 +292,7 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 
 	for (int ndx = 0; ndx < lstSelectedItems.size(); /* Increment inside loop */) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+			CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				++ndx;
 			} else {
@@ -402,7 +402,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 
 		for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 			if (lstSelectedItems.at(ndx).isValid()) {
-				CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+				CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
 				if (ndxRel.isSet()) strVerseHeadings += vlmodel()->bibleDatabase()->PassageReferenceText(ndxRel) + "\n";
 			}
 		}
@@ -633,11 +633,11 @@ void CSearchResultsTreeView::showPassageNavigator()
 	QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
 	if (lstSelectedItems.size() == 1) {
 		if (!lstSelectedItems.at(0).isValid()) return;
-		ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(0));
+		ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(0));
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return;
 	} else {
-		ndxRel = vlmodel()->navigationIndexForModelIndex(currentIndex());
+		ndxRel = vlmodel()->logicalIndexForModelIndex(currentIndex());
 		assert(ndxRel.isSet());			// Should have had one or the other because of editableNodeSelected()
 		if (!ndxRel.isSet()) return;
 	}
@@ -924,7 +924,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 /*
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+			CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
 			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
 				nNumResultsSelected++;
 			}

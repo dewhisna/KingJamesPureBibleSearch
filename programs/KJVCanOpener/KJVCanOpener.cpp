@@ -2415,7 +2415,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if (isBrowserFocusedOrActive()) {
 		indexNote = m_pBrowserWidget->selection().relIndex();
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected()))  {
-		indexNote = m_pSearchResultWidget->vlmodel()->navigationIndexForModelIndex(m_pSearchResultWidget->currentIndex());
+		indexNote = m_pSearchResultWidget->vlmodel()->logicalIndexForModelIndex(m_pSearchResultWidget->currentIndex());
 	}
 
 	if (!indexNote.isSet()) return;

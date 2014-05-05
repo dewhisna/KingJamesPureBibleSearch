@@ -535,6 +535,7 @@ public:
 		{
 			TExtraVerseIndexKey keyExtraVerse(aVerseIndex.relIndex(), aVerseIndex.nodeType());
 			TExtraVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.find(keyExtraVerse);
+			if (itr == m_mapExtraVerseIndexes.constEnd()) itr = m_mapExtraVerseIndexes.find(TExtraVerseIndexKey(aVerseIndex.relIndex(), VLMNTE_UNDEFINED));
 			if (itr != m_mapExtraVerseIndexes.constEnd()) return itr.value();
 
 			return m_mapExtraVerseIndexes.insert(keyExtraVerse, TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();
@@ -642,6 +643,7 @@ public:
 	virtual QModelIndex parent(const QModelIndex &index) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	CRelIndex logicalIndexForModelIndex(const QModelIndex &index) const;
 	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 

@@ -36,7 +36,7 @@
 #include <QAtomicInt>
 #include <QMessageBox>
 
-#if 1
+#if 0
 #define ASSERT_MODEL_DEBUG(x) assert(x)
 #else
 #define ASSERT_MODEL_DEBUG(x)
@@ -524,6 +524,31 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
 		assert(pVerseIndex != NULL);
 
+#ifdef DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
+		if (role == Qt::ToolTipRole) {
+			switch (pVerseIndex->nodeType()) {
+				case VLMNTE_UNDEFINED:
+					return QString("Undefined");
+				case VLMNTE_TESTAMENT_TERMINATOR_NODE:
+					return QString("Testament Terminator");
+				case VLMNTE_CATEGORY_TERMINATOR_NODE:
+					return QString("Category Terminator");
+				case VLMNTE_BOOK_TERMINATOR_NODE:
+					return QString("Book Terminator");
+				case VLMNTE_CHAPTER_TERMINATOR_NODE:
+					return QString("Chapter Terminator");
+				case VLMNTE_VERSE_TERMINATOR_NODE:
+					return QString("Verse Terminator");
+				case VLMNTE_CROSS_REFERENCE_SOURCE_NODE:
+					return QString("Cross-Ref Source");
+				case VLMNTE_CROSS_REFERENCE_TARGET_NODE:
+					return QString("Highlighter");
+				default:
+					return QString("Unknown Node Type");
+			}
+		}
+#endif
+
 		CRelIndex ndxRel(pVerseIndex->relIndex());
 		CRelIndex ndxVerse(pVerseIndex->relIndex());
 
@@ -549,6 +574,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			ndxVerse.setWord(1);
 		}
 
+		CRelIndex ndxDisplayVerse(ndxVerse);
+		ndxDisplayVerse.setWord(0);
+
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return QVariant();
 
@@ -569,8 +597,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
-						if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
-							usernoteHTML.addNoteFor(ndxRel, false, true);
+						if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
+							usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
 						}
 						return usernoteHTML.getResult();
 					default:
@@ -618,8 +646,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						}
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
-						if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
-							usernoteHTML.addNoteFor(ndxRel, false, true);
+						if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
+							usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
 						}
 						return usernoteHTML.getResult();
 					default:
@@ -639,7 +667,6 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		if (role == Qt::ToolTipRole) return QString();		// en_viewDetails replaces normal ToolTip
 
-		const TVerseListModelResults &zResults = results(*pVerseIndex);
 		CVerseMap::const_iterator itrVerse = zResults.m_mapVerses.find(ndxVerse);
 		if (itrVerse == zResults.m_mapVerses.constEnd()) {
 			assert(false);
@@ -681,17 +708,15 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
 					} else {
-						QTextDocument doc;
-						CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
-						navigator.setDocumentToVerse(ndxVerse, CPhraseNavigator::TRO_NoAnchors);
-						CScriptureTextDocumentDirector scriptureDirector(&usernoteHTML, m_private.m_pBibleDatabase.data());
 						usernoteHTML.beginParagraph();
-						scriptureDirector.processDocument(&doc);
+						usernoteHTML.beginBold();
+						usernoteHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
+						usernoteHTML.endBold();
 						usernoteHTML.appendRawText(itrVerse->getVerseRichText(m_private.m_richifierTags));
 						usernoteHTML.endParagraph();
 					}
-					if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
-						usernoteHTML.addNoteFor(pVerseIndex->relIndex(), false, true);
+					if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
+						usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
 					}
 					return usernoteHTML.getResult();
 				default:
@@ -785,7 +810,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
+CRelIndex CVerseListModel::logicalIndexForModelIndex(const QModelIndex &index) const
 {
 	const TVerseIndex *pVerseIndex = toVerseIndex(index);
 	assert(pVerseIndex != NULL);
@@ -800,6 +825,20 @@ CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index
 		TRelativeIndexSet::const_iterator itrRef = setCrossRefs.begin();
 		for (int i = index.row(); i > 0; ++itrRef, --i) { }
 		ndxVerse = *(itrRef);
+	}
+
+	return ndxVerse;
+}
+
+CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
+{
+	CRelIndex ndxVerse = logicalIndexForModelIndex(index);
+
+	if (((ndxVerse.chapter() == 0) || (ndxVerse.verse() == 0)) &&
+		(ndxVerse.word() == 0)) {
+		ndxVerse.setChapter(1);
+		ndxVerse.setVerse(1);
+		ndxVerse.setWord(1);
 	}
 
 	return ndxVerse;
@@ -910,7 +949,7 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
 	assert(pVerseIndex != NULL);
 
-	CRelIndex ndxRel(navigationIndexForModelIndex(index));
+	CRelIndex ndxRel(logicalIndexForModelIndex(index));
 	if (m_private.m_nViewMode != VVME_CROSSREFS) {
 		if ((ndxRel.isSet()) &&
 			((ndxRel.verse() != 0) ||
@@ -1774,18 +1813,24 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 {
 	assert(m_private->m_pBibleDatabase.data() != NULL);
 
+	int nFirstChp = 0;
+	if ((resultsType() == VLMRTE_USER_NOTES) ||
+		(resultsType() == VLMRTE_CROSS_REFS)) {
+		nFirstChp = 1;
+	}
+
 	if (nBk == 0) return 0;
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
 		assert(pBookEntry != NULL);
-		return pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
+		return pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
 	}
 
 	// Find the first and last entries with the correct Book number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nFirstChp, 0, 1));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
@@ -1804,23 +1849,29 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 {
 	assert(m_private->m_pBibleDatabase.data() != NULL);
 
+	int nFirstChp = 0;
+	if ((resultsType() == VLMRTE_USER_NOTES) ||
+		(resultsType() == VLMRTE_CROSS_REFS)) {
+		nFirstChp = 1;
+	}
+
 	if (nBk == 0) return -1;
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
 		assert(pBookEntry != NULL);
-		unsigned int nChpCount = pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
-		if (!pBookEntry->m_bHaveColophon) {
+		unsigned int nChpCount = pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
+		if ((!pBookEntry->m_bHaveColophon) || (nFirstChp==1)) {
 			assert(nChp > 0);
 		}
 		if (nChp > nChpCount) return -1;
-		return (pBookEntry->m_bHaveColophon ? nChp : (nChp-1));
+		return ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? nChp : (nChp-1));
 	}
 
 	// Find the first and last entries with the correct Book number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));			// This will be the first verse of the first chapter of this book
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nFirstChp, 0, 1));			// This will be the first verse of the first chapter of this book
 	itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book/chapter
 
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return -1;
@@ -1841,21 +1892,27 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 {
 	assert(m_private->m_pBibleDatabase.data() != NULL);
 
+	int nFirstChp = 0;
+	if ((resultsType() == VLMRTE_USER_NOTES) ||
+		(resultsType() == VLMRTE_CROSS_REFS)) {
+		nFirstChp = 1;
+	}
+
 	if ((ndxBook < 0) || (ndxChapter < 0)) return 0;
 	if (m_private->m_bShowMissingLeafs) {
 		if (static_cast<unsigned int>(ndxBook) >= m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(ndxBook+1);
 		assert(pBookEntry != NULL);
-		unsigned int nChpCount = pBookEntry->m_nNumChp + (pBookEntry->m_bHaveColophon ? 1 : 0);
+		unsigned int nChpCount = pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
 		if (static_cast<unsigned int>(ndxChapter) >= nChpCount) return 0;
-		return (pBookEntry->m_bHaveColophon ? ndxChapter : (ndxChapter+1));
+		return ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? ndxChapter : (ndxChapter+1));
 	}
 
 	unsigned int nBk = BookByIndex(ndxBook);
 	if (nBk == 0) return 0;
 
 	// Find the first and last entries with the correct Book number:
-	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, 0, 0, 0));		// This will be the first verse of the first chapter of this book
+	CVerseMap::const_iterator itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, nFirstChp, 0, 1));		// This will be the first verse of the first chapter of this book
 	CVerseMap::const_iterator itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));		// This will be the first verse of the next book/chapter
 
 	// We should have found the book, because of the above BookByIndex() call and nBk check, but safe-guard:
@@ -1927,6 +1984,12 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 {
 	// Note: This function has a special case for nBk == -1 and nChp == -1 (unlike the other index functions)
 
+	int nFirstChp = 0;
+	if ((resultsType() == VLMRTE_USER_NOTES) ||
+		(resultsType() == VLMRTE_CROSS_REFS)) {
+		nFirstChp = 1;
+	}
+
 	if (ndxVerse < 0) return m_mapVerses.constEnd();
 
 	if ((nBk == -1) && (nChp == -1)) {
@@ -1938,8 +2001,8 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp >= 0) ? nChp : 0), 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp >= 0) {
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : nFirstChp), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp >= nFirstChp) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));
@@ -1948,7 +2011,7 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 	// If we didn't find the book and/or book/chapter, return (not found):
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return m_mapVerses.constEnd();
 	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
-		((nChp >= 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return m_mapVerses.constEnd();
+		((nChp >= nFirstChp) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return m_mapVerses.constEnd();
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {
@@ -1975,13 +2038,19 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 {
 	// Note: This function has special cases for nBk == -1 and nChp == -1 (unlike the other count functions)
 
+	int nFirstChp = 0;
+	if ((resultsType() == VLMRTE_USER_NOTES) ||
+		(resultsType() == VLMRTE_CROSS_REFS)) {
+		nFirstChp = 1;
+	}
+
 	if (nBk == -1) return m_mapVerses.size();		// Quick special-case
 
 	// Find the first and last entries with the correct Book/Chapter number:
 	CVerseMap::const_iterator itrVerseMapBookChapterFirst;
 	CVerseMap::const_iterator itrVerseMapBookChapterLast;
-	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp >= 0) ? nChp : 0), 0, 0));			// This will be the first verse of this chapter of this book
-	if (nChp >= 0) {
+	itrVerseMapBookChapterFirst = m_mapVerses.lowerBound(CRelIndex(nBk, ((nChp > 0) ? nChp : nFirstChp), 0, 0));			// This will be the first verse of this chapter of this book
+	if (nChp >= nFirstChp) {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk, nChp+1, 0, 0));		// This will be the first verse of the next book/chapter
 	} else {
 		itrVerseMapBookChapterLast = m_mapVerses.lowerBound(CRelIndex(nBk+1, 0, 0, 0));			// This will be the first verse of the next book
@@ -1990,7 +2059,7 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 	// If we didn't find the book and/or book/chapter, return none found:
 	if (itrVerseMapBookChapterFirst == m_mapVerses.end()) return 0;
 	if ((itrVerseMapBookChapterFirst.key().book() != static_cast<unsigned int>(nBk)) ||
-		((nChp >= 0) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return 0;
+		((nChp >= nFirstChp) && (itrVerseMapBookChapterFirst.key().chapter() != static_cast<unsigned int>(nChp)))) return 0;
 
 	int nVerses = 0;
 	while (itrVerseMapBookChapterFirst != itrVerseMapBookChapterLast) {

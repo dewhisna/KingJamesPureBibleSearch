@@ -64,7 +64,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
 	assert(pVerseIndex != NULL);
 
-	CRelIndex ndxRel(m_model.navigationIndexForModelIndex(index));
+	CRelIndex ndxRel(m_model.logicalIndexForModelIndex(index));
 
 	doc.setDefaultFont(m_model.font());
 	doc.setDefaultStyleSheet(QString("body, p, li, book, chapter { background-color:%1; color:%2; }")
@@ -373,6 +373,14 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 	switch (event->type()) {
 		case QEvent::ToolTip:
 		{
+
+#ifdef DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
+			QVariant tooltip = index.data(Qt::ToolTipRole);
+			if (tooltip.canConvert<QString>()) {
+				QToolTip::showText(event->globalPos(), tooltip.toString(), view);
+				return true;
+			}
+#else
 			if ((pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 				(pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(pSearchResultsView->parentCanOpener()))) {
@@ -391,6 +399,8 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 														  "drag them to the desired highlighter, and drop them.", "MainMenu"), view);
 				return true;
 			}
+#endif
+
 			break;
 		}
 		case QEvent::QueryWhatsThis:

@@ -255,7 +255,7 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 
 void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
 {
-	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->navigationIndexForModelIndex(index);
+	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->logicalIndexForModelIndex(index);
 	assert(ndxInitial.isSet());
 	CRelIndex ndxTarget = navigateCrossRef(ndxInitial);
 	if ((ndxTarget.isSet()) && (ndxInitial != ndxTarget)) {
@@ -333,7 +333,7 @@ void CKJVCrossRefEditDlg::en_DelReferenceClicked()
 	QModelIndexList lstSelectedItems = m_pCrossRefTreeView->selectionModel()->selectedRows();
 	for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
 		if (lstSelectedItems.at(ndx).isValid()) {
-			CRelIndex ndxRel = m_pCrossRefTreeView->vlmodel()->navigationIndexForModelIndex(lstSelectedItems.at(ndx));
+			CRelIndex ndxRel = m_pCrossRefTreeView->vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
 			if (ndxRel.isSet()) lstRefsToRemove.push_back(ndxRel);
 		}
 	}
