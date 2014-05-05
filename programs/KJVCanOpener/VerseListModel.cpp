@@ -1948,7 +1948,9 @@ CVerseMap::const_iterator CVerseListModel::TVerseListModelResults::GetVerse(int 
 		//		into the Chapter entry:
 		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
 			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) &&
-			 ((itrVerseMapBookChapterFirst.key().verse() != 0) ||
+			 ((itrVerseMapBookChapterFirst->verseIndex()->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE) ||
+			  (itrVerseMapBookChapterFirst->verseIndex()->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) ||
+			  (itrVerseMapBookChapterFirst.key().verse() != 0) ||
 			  ((itrVerseMapBookChapterFirst.key().verse() == 0) && (itrVerseMapBookChapterFirst.key().word() != 0))))) {
 			if (nVerses == ndxVerse) return itrVerseMapBookChapterFirst;
 			++nVerses;
@@ -1988,7 +1990,9 @@ int CVerseListModel::TVerseListModelResults::GetVerseCount(int nBk, int nChp) co
 		//		into the Chapter entry:
 		if ((m_private->m_nTreeMode != VTME_TREE_CHAPTERS) ||
 			((m_private->m_nTreeMode == VTME_TREE_CHAPTERS) &&
-			 ((itrVerseMapBookChapterFirst.key().verse() != 0) ||
+			 ((itrVerseMapBookChapterFirst->verseIndex()->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE) ||
+			  (itrVerseMapBookChapterFirst->verseIndex()->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) ||
+			  (itrVerseMapBookChapterFirst.key().verse() != 0) ||
 			  ((itrVerseMapBookChapterFirst.key().verse() == 0) && (itrVerseMapBookChapterFirst.key().word() != 0))))) {
 			++nVerses;
 		}

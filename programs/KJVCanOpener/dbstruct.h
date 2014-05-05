@@ -237,34 +237,51 @@ class TCrossReferenceMap : public std::map<CRelIndex, TRelativeIndexSet, Relativ
 {
 public:
 	TCrossReferenceMap()
-		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>()
+		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(),
+			m_bNoWordRefs(true)
 	{
 
 	}
 
 	TCrossReferenceMap(const TCrossReferenceMap &aMap)
-		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(aMap)
+		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(aMap),
+			m_bNoWordRefs(true)
 	{
 
 	}
 
 	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
 	{
-		return (find(ndx) != end());
+		return (find(relIndexMaskWord(ndx)) != end());
 	}
 	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
 	{
 		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
-		TRelativeIndexSet::const_iterator itr = refs.find(ndxSecond);
+		TRelativeIndexSet::const_iterator itr = refs.find(relIndexMaskWord(ndxSecond));
 		return (itr != refs.end());
 	}
 	inline const TRelativeIndexSet crossReferencesFor(const CRelIndex &ndx) const
 	{
-		TCrossReferenceMap::const_iterator itr = find(ndx);
+		TCrossReferenceMap::const_iterator itr = find(relIndexMaskWord(ndx));
 		if (itr == end()) return TRelativeIndexSet();
 		return (itr->second);
 	}
 	TCrossReferenceMap createScopedMap(const CBibleDatabase *pBibleDatabase) const;
+
+private:
+	// TODO : If we ever change this to allow WordRefs, we must update calls in
+	//		VerseListModel to properly mask the word for the special "word 1"
+	//		indexes used for verses to distinguish other types
+	inline CRelIndex relIndexMaskWord(const CRelIndex &ndx) const
+	{
+		if (m_bNoWordRefs) {
+			return CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0);
+		}
+		return ndx;
+	}
+
+private:
+	bool m_bNoWordRefs;
 };
 
 // ============================================================================
