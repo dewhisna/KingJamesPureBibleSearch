@@ -601,13 +601,21 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 							return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(tr("Colophon", "Scope"));
 						}
 					case VVME_CROSSREFS:
-						assert(ndxRel.chapter() != 0);
-						return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
+						// Note: Chapter can be zero here to indicate a book at the chapter-node-terminator level:
+						if (ndxRel.chapter() != 0) {
+							return m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter());
+						} else {
+							return m_private.m_pBibleDatabase->bookName(ndxRel);
+						}
 					case VVME_USERNOTES:
-						assert(ndxRel.chapter() != 0);
+						// Note: Chapter can be zero here to indicate a book at the chapter-node-terminator level:
 						usernoteHTML.beginParagraph();
 						usernoteHTML.beginBold();
-						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
+						if (ndxRel.chapter() != 0) {
+							usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
+						} else {
+							usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
+						}
 						usernoteHTML.endBold();
 						usernoteHTML.endParagraph();
 						if (m_userNotesResults.m_mapVerses.contains(pVerseIndex->relIndex())) {
