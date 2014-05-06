@@ -944,7 +944,7 @@ void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes) const
 Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsDropEnabled;
 
 	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
 	assert(pVerseIndex != NULL);

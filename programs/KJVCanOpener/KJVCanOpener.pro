@@ -113,7 +113,7 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #DEFINES += USE_MDI_MAIN_WINDOW
 #DEFINES += DEBUG_CURSOR_SELECTION
 #DEFINES += DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
-CONFIG += modeltest
+#CONFIG += modeltest				# Enable to turn on QAbstractItemModel testing for CVerseListModel
 
 # Special QAbstractItemModel test suite:
 modeltest {
