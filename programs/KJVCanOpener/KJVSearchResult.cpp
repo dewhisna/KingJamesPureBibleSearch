@@ -64,6 +64,10 @@
 #include <QPair>
 #include <QMessageBox>
 
+#ifdef MODELTEST
+#include <modeltest.h>
+#endif
+
 #ifdef TOUCH_GESTURE_PROCESSING
 #include <QGestureEvent>
 #include <QTapGesture>
@@ -146,6 +150,9 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 #endif
 
 	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
+#ifdef MODELTEST
+	new ModelTest(pModel, this);
+#endif
 	QAbstractItemModel *pOldModel = model();
 	setModel(pModel);
 	assert(pModel == vlmodel());

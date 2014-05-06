@@ -113,6 +113,13 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #DEFINES += USE_MDI_MAIN_WINDOW
 #DEFINES += DEBUG_CURSOR_SELECTION
 #DEFINES += DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
+CONFIG += modeltest
+
+# Special QAbstractItemModel test suite:
+modeltest {
+	include(../modeltest/modeltest.pri)
+	DEFINES += MODELTEST
+}
 
 # Enable workarounds for some QTBUGs:
 DEFINES += WORKAROUND_QTBUG_13768											# Hover attribute for QSplitter

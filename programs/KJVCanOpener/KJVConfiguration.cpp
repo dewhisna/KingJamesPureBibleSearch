@@ -59,6 +59,16 @@
 #include <QRegExp>
 #include <QFileDialog>
 
+#ifdef MODELTEST
+// For some reason, including the modeltest code causes our wwWidgets QwwColorButton class to
+//		no longer be able to import the QColorDialog and you end up with a QColorDialog::getColor()
+//		undefined during link.  But, by including an object from QColorDialog, we force it to
+//		get included during linking...  Yes, quite a hack...
+#include <QColorDialog>
+#include <QPointer>
+static QPointer<QColorDialog> g_pdlgColor;
+#endif
+
 // ============================================================================
 
 static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpret_cast<QwwColorButton *>(pButton); }
@@ -2546,6 +2556,10 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 {
 	assert(pBibleDatabase.data() != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
+
+#ifdef MODELTEST
+	if (g_pdlgColor == NULL) g_pdlgColor = new QColorDialog(this);
+#endif
 
 	// --------------------------------------------------------------
 
