@@ -1776,17 +1776,24 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	}
 	scriptureHTML.endBold();
 	if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
-	if (ndx.verse() == 0) {
-		if (ndx.chapter() == 0) {
-			scriptureHTML.beginDiv("colophon");
-		} else {
-			scriptureHTML.beginDiv("superscription");
-		}
-	}
+//
+// Note: The problem with applying a special colophon/superscription style with
+//		a <div> causes it to be separated as its own paragraph rather than
+//		inline like normal verses.  Can we do this with a span or something?
+//		More importantly, do we even want to do it?  As we do lose our
+//		transChange markup in all of the italics...
+//
+//	if (ndx.verse() == 0) {
+//		if (ndx.chapter() == 0) {
+//			scriptureHTML.beginDiv("colophon");
+//		} else {
+//			scriptureHTML.beginDiv("superscription");
+//		}
+//	}
 	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
-	if (ndx.verse() == 0) {
-		scriptureHTML.endDiv();
-	}
+//	if (ndx.verse() == 0) {
+//		scriptureHTML.endDiv();
+//	}
 
 	// Add CrossRefs:
 	if (flagsTRO & TRO_CrossRefs) {
