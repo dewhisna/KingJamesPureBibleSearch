@@ -832,13 +832,20 @@ CRelIndex CVerseListModel::logicalIndexForModelIndex(const QModelIndex &index) c
 
 CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
 {
-	CRelIndex ndxVerse = logicalIndexForModelIndex(index);
+	return navigationIndexFromLogicalIndex(logicalIndexForModelIndex(index));
+}
 
-	if (((ndxVerse.chapter() == 0) || (ndxVerse.verse() == 0)) &&
-		(ndxVerse.word() == 0)) {
-		ndxVerse.setChapter(1);
-		ndxVerse.setVerse(1);
-		ndxVerse.setWord(1);
+CRelIndex CVerseListModel::navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical)
+{
+	CRelIndex ndxVerse = ndxLogical;
+
+	if (ndxVerse.isSet()) {
+		if (((ndxVerse.chapter() == 0) || (ndxVerse.verse() == 0)) &&
+			(ndxVerse.word() == 0)) {
+			if (ndxVerse.chapter() == 0) ndxVerse.setChapter(1);
+			ndxVerse.setVerse(1);
+			ndxVerse.setWord(1);
+		}
 	}
 
 	return ndxVerse;
