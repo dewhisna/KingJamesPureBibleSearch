@@ -63,6 +63,7 @@
 #include <QList>
 #include <QPair>
 #include <QMessageBox>
+#include <QScrollBar>
 
 #ifdef MODELTEST
 #include <modeltest.h>
@@ -74,7 +75,6 @@
 #include <QTapAndHoldGesture>
 #include <QPanGesture>
 #include <QSwipeGesture>
-#include <QScrollBar>
 #endif
 
 #ifdef WORKAROUND_QTBUG_33906
@@ -1155,7 +1155,9 @@ void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 		pDrag->setMimeData(pMimeData);
 //		pDrag->setHotSpot(d->pressedPosition - rc.topLeft());
 		QRect rcCurrentVisual = visualRect(currentIndex());
-		pDrag->setHotSpot(QPoint(rcCurrentVisual.left(), rcCurrentVisual.top() + rcCurrentVisual.height()/2) - rc.topLeft());
+		QScrollBar *pVertScrollBar = verticalScrollBar();
+		assert(pVertScrollBar != NULL);
+		pDrag->setHotSpot(QPoint(rcCurrentVisual.left(), rcCurrentVisual.top() + pVertScrollBar->value() + rcCurrentVisual.height()/2) - rc.topLeft());
 		Qt::DropAction aDefaultDropAction = Qt::IgnoreAction;
 //		if (d->defaultDropAction != Qt::IgnoreAction && (supportedActions & d->defaultDropAction))
 		if ((defaultDropAction() != Qt::IgnoreAction) && (model()->supportedDropActions() & defaultDropAction()))
