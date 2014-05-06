@@ -1084,9 +1084,22 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxCurrent.book());
 		assert(pBook != NULL);
 		if ((pBook->m_bHaveColophon) && (ndxCurrent.chapter() == pBook->m_nNumChp)) {
-			const CVerseEntry *pVerseColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxCurrent.book(), 0, 0, 0));
-			assert(pVerseColophon != NULL);
-			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxCurrent.book(), 0, 0, 1), pVerseColophon->m_nNumWrd));
+			const CVerseEntry *pBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxCurrent.book(), 0, 0, 0));
+			assert(pBookColophon != NULL);
+			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxCurrent.book(), 0, 0, 1), pBookColophon->m_nNumWrd));
+		}
+
+		// If the ndxVerseBefore is in a different book, check that book to see if
+		//	it has a colophon and if so, add it so that we will render highlighting
+		//	and other markup for it:
+		if (ndxVerseBefore.book() != ndxCurrent.book()) {
+			const CBookEntry *pBookVerseBefore = m_pBibleDatabase->bookEntry(ndxVerseBefore.book());
+			assert(pBookVerseBefore != NULL);
+			if (pBookVerseBefore->m_bHaveColophon) {
+				const CVerseEntry *pPrevBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxVerseBefore.book(), 0, 0, 0));
+				assert(pPrevBookColophon != NULL);
+				tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxVerseBefore.book(), 0, 0, 1), pPrevBookColophon->m_nNumWrd));
+			}
 		}
 	}
 
