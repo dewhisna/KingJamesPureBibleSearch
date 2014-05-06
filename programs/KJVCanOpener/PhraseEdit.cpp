@@ -1360,6 +1360,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
+	CRelIndex ndxBookChapter1(ndx.book(), 1, 0, 0);
 
 	// Print Heading for this Book:
 	scriptureHTML.beginDiv("book");
@@ -1381,7 +1382,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	}
 	scriptureHTML.endDiv();
 	// If this is the first chapter of the book:
-	if (m_pBibleDatabase->NormalizeIndex(ndxBook) == m_pBibleDatabase->NormalizeIndex(ndxBookChap)) {
+	if (m_pBibleDatabase->NormalizeIndex(ndxBookChapter1) == m_pBibleDatabase->NormalizeIndex(ndxBookChap)) {
 		// Print Book Descriptions:
 		if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
 			scriptureHTML.beginDiv("subtitle");
