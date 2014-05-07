@@ -1,0 +1,1115 @@
+// Generated .IDL file (by the OLE/COM Object Viewer)
+// 
+// typelib filename: sqltp50.dll
+
+[
+  uuid(5907BAF8-B3FB-4EF2-8673-16EB33A2398C),
+  version(1.0),
+  helpstring("EzTools SqlitePlus 5.0 COM DLL"),
+  custom(DE77BA64-517C-11D1-A2DA-0000F8773CE9, 100663657),
+  custom(DE77BA63-517C-11D1-A2DA-0000F8773CE9, 1252370362),
+  custom(DE77BA65-517C-11D1-A2DA-0000F8773CE9, "Created by MIDL version 6.00.0361 at Tue Sep 08 08:39:20 2009
+")
+
+]
+library SQLITEPLUS50
+{
+    // TLib :     // TLib : OLE Automation : {00020430-0000-0000-C000-000000000046}
+    importlib("stdole2.tlb");
+
+    // Forward declare all types defined in this typelib
+    dispinterface _DSqliteDbEvents;
+    interface ISqliteDb;
+    interface IDataset;
+    interface IColumns;
+    interface IColumn;
+    interface IVariantCollection;
+    interface IScriptResults;
+    interface ISqliteDbEvents;
+    interface IStringBuilder;
+    interface IWinSystem;
+    interface IFile;
+    interface IFindFileInfo;
+    interface IScriptHost;
+
+    [
+      uuid(03B8BF48-C94D-4A84-BC5B-9FF9D059889A),
+      helpstring("_DSqliteDbEvents Interface")
+    ]
+    dispinterface _DSqliteDbEvents {
+        properties:
+        methods:
+            [id(0x00000001), helpstring("Trace: Called before each SQL statement is executed when Trace is enabled.")]
+            HRESULT Trace([in] BSTR strSQL);
+            [id(0x00000002), helpstring("Called if the database is locked and blocking execution. Return False to cause Exec to immediately return with eErrBusy. Return True to try again.")]
+            VARIANT_BOOL BusyHandler([in] long nTimesBusy);
+    };
+
+    [
+      uuid(8C62EEB0-4EF2-40CE-AFF7-1C899EF32CBE),
+      helpstring("SqlitePlus Database class")
+    ]
+    coclass SqliteDb {
+        [default] interface ISqliteDb;
+        [default, source] dispinterface _DSqliteDbEvents;
+        [source] interface ISqliteDbEvents;
+    };
+
+    [
+      odl,
+      uuid(965E4C14-CF3C-4504-BA6B-405FEBFB18A4),
+      helpstring("ISqliteDb Interface"),
+      dual,
+      oleautomation
+    ]
+    interface ISqliteDb : IDispatch {
+        [id(00000000), propget, helpstring("The current database filename and path.")]
+        HRESULT DbFile([out, retval] BSTR* pVal);
+        [id(0x00000001), helpstring("Open the specified database file. If the database must be locked while it is being opened, set nWaitTimeout to a non-zero value in tenths of a second (or -1 for infinite). If the file doesn't exist an empty file will be created if bFailIfNotExist is not True.")]
+        HRESULT Open(
+                        [in] BSTR strDb, 
+                        [in, optional, defaultvalue(0)] long nWaitTimeout, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bFailIfNotExist);
+        [id(0x00000002), helpstring("Close the open database file.")]
+        HRESULT Close();
+        [id(0x00000003), helpstring("Is there a currently open database file?")]
+        HRESULT IsOpen([out, retval] VARIANT_BOOL* pbOpen);
+        [id(0x00000004), helpstring("OLE Automation compliant version of Exec. Use this version is for scripting clients")]
+        HRESULT Exec(
+                        [in] BSTR strSqlCmd, 
+                        [in, optional] VARIANT vtParamsCol, 
+                        [out, optional] VARIANT* pvtErrorCode, 
+                        [out, optional] VARIANT* pvtErrMsg, 
+                        [out, retval] IDataset** ppResult);
+        [id(0x00000005), helpstring("Execute the SQL command. A Dataset will be returned regardless if any rows were returned. C++ note: Pass NULL for ppResult, pstrErrMsg and peErrorCode if these outputs not desired.")]
+        HRESULT Execute(
+                        [in] BSTR strSqlCmd, 
+                        [in, optional, defaultvalue(0)] IVariantCollection* pParamsCol, 
+                        [out, optional] ErrorCodeEnum* peErrorCode, 
+                        [out, optional] BSTR* pstrErrMsg, 
+                        [out, retval] IDataset** ppResult);
+        [id(0x00000006), helpstring("Causes any pending database operation to abort and return at its earliest opportunity.")]
+        HRESULT Abort();
+        [id(0x00000007), propget, helpstring("Specifies an internal setting that determines the way SQLitePlus behaves. Note that this does NOT pass through to the underlying Sqlite engine.")]
+        HRESULT Pragma(
+                        [in] DbPragmaEnum ePragma, 
+                        [out, retval] VARIANT* pVal);
+        [id(0x00000007), propput, helpstring("Specifies an internal setting that determines the way SQLitePlus behaves. Note that this does NOT pass through to the underlying Sqlite engine.")]
+        HRESULT Pragma(
+                        [in] DbPragmaEnum ePragma, 
+                        [in] VARIANT pVal);
+        [id(0x00000008), propget, helpstring("Returns the error code returned from the last SQLite operation.")]
+        HRESULT LastError([out, retval] ErrorCodeEnum* pVal);
+        [id(0x00000009), propget, helpstring("The integer key of the most recent insert in the database. Each entry in an SQLite table has a unique integer key, which is the value of the INTEGER PRIMARY KEY column if there is such a column, otherwise the key is generated at random.")]
+        HRESULT LastInsertRowID([out, retval] long* pID);
+        [id(0x0000000a), propget, helpstring("Returns the number of database rows that were changed (or inserted or deleted) by the most recently called Exec().")]
+        HRESULT NumChanges([out, retval] long* pNumChanges);
+        [id(0x0000000b), propput, helpstring("Sets the amount of time to elapse for a busy timeout.")]
+        HRESULT BusyTimeout([in] long rhs);
+        [id(0x0000000c), propput, helpstring("Sets the Trace facility on or off.  When on the "Trace" event will be called before each SQL statement is executed.")]
+        HRESULT TraceOn([in] VARIANT_BOOL rhs);
+        [id(0x0000000d), helpstring("Pack the database. Reclaims unused space by reconstructing the database from scratch.")]
+        HRESULT Pack();
+        [id(0x0000000e), helpstring("Format a date. Pass NULL or empty string to use system default.")]
+        HRESULT FormatDate(
+                        [in] DATE date, 
+                        [in] BSTR strFormat, 
+                        [out, retval] BSTR* pstrDate);
+        [id(0x0000000f), helpstring("Format a time. Pass NULL or empty string to use system default.")]
+        HRESULT FormatTime(
+                        [in] DATE time, 
+                        [in] BSTR strFormat, 
+                        [out, retval] BSTR* pstrTime);
+        [id(0x00000010), helpstring("High-level method to lock the database to block other threads and processes from performing any database operations (does not block the current thread). nWaitTimeout is in tenths of a second - use -1 for infinite. You must call UnlockDb to balance this call.")]
+        HRESULT LockDb(
+                        [in, optional, defaultvalue(-1)] long nWaitTimeout, 
+                        [out, retval] VARIANT_BOOL* bLocked);
+        [id(0x00000011), helpstring("Must be called after a call to LockDb to unblock other threads. If you do not balance Lock/Unlock calls, other threads and processes will be blocked indefinitely.")]
+        HRESULT UnlockDb();
+        [id(0x00000012), helpstring("Specify the SQLite DLL to use. You can specify a path if the DLL is not in the same folder as this DLL. strLicKey is the SQLitePlus license key. See the Help file for more info about the parameters.")]
+        HRESULT Init(
+                        [in] BSTR strDll, 
+                        [in] BSTR strLicKey, 
+                        [in, optional] BSTR bstrLicFilePath);
+        [id(0x00000013), helpstring("Run the specified stored script. If provided, InParams will be available to the script code. See the Help file for more info about the parameters and return value.")]
+        HRESULT RunScript(
+                        [in] BSTR sScriptName, 
+                        [in, optional, defaultvalue(0)] IVariantCollection* pInParams, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bShowScriptEditor, 
+                        [out, retval] IScriptResults** ppResults);
+        [id(0x00000014), helpstring("Run the specified script file. If provided, InParams will be available to the script code. See the Help file for more info about the parameters and return value.")]
+        HRESULT RunScriptFile(
+                        [in] BSTR sScriptFileName, 
+                        [in, optional, defaultvalue(0)] IVariantCollection* pInParams, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bShowScriptEditor, 
+                        [out, retval] IScriptResults** ppResults);
+        [id(0x00000015), helpstring("See RunScript.")]
+        HRESULT RunScript2(
+                        [in] BSTR sScriptName, 
+                        [in, optional] VARIANT vtInParams, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bShowScriptEditor, 
+                        [out, retval] IScriptResults** ppResults);
+        [id(0x00000016), helpstring("See RunScriptFile.")]
+        HRESULT RunScriptFile2(
+                        [in] BSTR sScriptFileName, 
+                        [in, optional] VARIANT vtInParams, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bShowScriptEditor, 
+                        [out, retval] IScriptResults** ppResults);
+        [id(0x00000017), propput, helpstring("Set the Encryption Key to be used for encrypting data. Must be between 0-32 characters (use length of 8, 16, 24, or 32). The key will be passed to newly created Datasets for auto encrypting/decrypting.")]
+        HRESULT CipherKey([in] BSTR rhs);
+        [id(0x00000018), helpstring("Encrypt the data. Current valid input data types supported are VT_BSTR, VT_LPSTR, VT_ARRAY|VT_UI1 or VT_ARRAY|VT_I1. pvtEncryptedData data will be VT_ARRAY|VT_UI1.")]
+        HRESULT EncryptData(
+                        [in] VARIANT vtData, 
+                        [in] VARIANT_BOOL bUnique, 
+                        [out, retval] VARIANT* pvtEncryptedData);
+        [id(0x00000019), helpstring("Decrypt the data into the specified format. eOutVarType must be one of evtBSTR (string), evtArray|evtUI1 or evtArray|evtI1 (equilalent to VT_BSTR, VT_ARRAY|VT_UI1 and VT_ARRAY|VT_I1).")]
+        HRESULT DecryptData(
+                        [in] VARIANT vtData, 
+                        [in] VarTypeEnum eOutVarType, 
+                        [out, retval] VARIANT* pvtDecryptedData);
+        [id(0x0000001a), helpstring("Converts a stream of Multibyte characters to a Unicode BSTR. vtMultiByte must be of type VT_BSTR, VT_ARRAY|VT_I1 or VT_ARRAY|VT_U1.")]
+        HRESULT MultiByteToUnicode(
+                        [in] VARIANT vtMultiByte, 
+                        [out, retval] BSTR* pbstrUnicode);
+        [id(0x0000001b), helpstring("Converts a Unicode BSTR to an array of MultiByte characters. bstrUnicode will be converted to type VT_ARRAY|VT_I1.")]
+        HRESULT UnicodeToMultiByte(
+                        [in] BSTR bstrUnicode, 
+                        [out, retval] VARIANT* pvtMultiByte);
+        [id(0x0000001c), helpstring("Compress the data with the indicated compression level (1-9, with 1 = best speed and 9 = best compression). Current valid input data types supported are VT_BSTR, VT_LPSTR, VT_ARRAY|VT_UI1 or VT_ARRAY|VT_I1. pvtCompressedData data will be VT_ARRAY|VT_UI1.")]
+        HRESULT CompressData(
+                        [in] VARIANT vtData, 
+                        [in, optional, defaultvalue(9)] short nCompressionLevel, 
+                        [out, retval] VARIANT* pvtCompressedData);
+        [id(0x0000001d), helpstring("Decompress the data into the specified format. eOutVarType must be one of evtBSTR (string), evtArray|evtUI1 or evtArray|evtI1 (equilalent to VT_BSTR, VT_ARRAY|VT_UI1 and VT_ARRAY|VT_I1).")]
+        HRESULT DecompressData(
+                        [in] VARIANT vtData, 
+                        [in] VarTypeEnum eOutVarType, 
+                        [out, retval] VARIANT* pvtDecompressedData);
+        [id(0x0000001e), propget, helpstring("The CodePage to use for all Multibyte <==> Unicode conversions.")]
+        HRESULT CodePage([out, retval] CodePageEnum* pVal);
+        [id(0x0000001e), propput, helpstring("The CodePage to use for all Multibyte <==> Unicode conversions.")]
+        HRESULT CodePage([in] CodePageEnum pVal);
+        [id(0x0000001f), helpstring("Call to enable/disable the BusyHandler event.")]
+        HRESULT EnableBusyHandler([in] VARIANT_BOOL bEnabled);
+        [id(0x00000020), helpstring("TableExists: Tests whether the specified table exists in the DB")]
+        HRESULT TableExists(
+                        [in] BSTR strTableName, 
+                        [out, retval] VARIANT_BOOL* pbExists);
+        [id(0x00000021), helpstring("Obtain meta info about a specific column, or all columns if the column name is NULL or empty.")]
+        HRESULT GetTableSchema(
+                        [in] BSTR sTableName, 
+                        [in, optional, defaultvalue("0")] BSTR sColumnName, 
+                        [out, optional] ErrorCodeEnum* peErrorCode, 
+                        [out, retval] IDataset** ppResult);
+        [id(0x00000022), propget, helpstring("Retrieve the last Sqlite error string")]
+        HRESULT LastSqliteErrorString([out, retval] BSTR* pVal);
+        [id(0x00000023), helpstring("Returns True if the specified table has the specified column")]
+        HRESULT HasColumn(
+                        [in] BSTR sTableName, 
+                        [in] BSTR sColumnName, 
+                        [out, retval] VARIANT_BOOL* bRet);
+        [id(0x00000024), propget, helpstring("The encoding to use for the database. Must be set *before* the database is opened for the first time and must be eUtf8 or eUtf16.")]
+        HRESULT Encoding([out, retval] DbEncodingEnum* peEncoding);
+        [id(0x00000024), propput, helpstring("The encoding to use for the database. Must be set *before* the database is opened for the first time and must be eUtf8 or eUtf16.")]
+        HRESULT Encoding([in] DbEncodingEnum peEncoding);
+        [id(0x00000025), helpstring("Export a RecorsSet to a delimted text file (e.g. CSV file)")]
+        HRESULT ExportToFile(
+                        [in] IDataset* pDataSet, 
+                        [in] BSTR sFileName, 
+                        [in] VARIANT_BOOL bIncludeColNames, 
+                        [in] short cQuoteChar, 
+                        [in] short cDelimChar, 
+                        [in] VARIANT_BOOL bWriteBOM, 
+                        [in] VARIANT_BOOL bConvertCrLf, 
+                        [in] EncodingEnum eEncoding, 
+                        [in] CodePageEnum eCodePage);
+        [id(0x00000026), helpstring("Import a delimted text file.")]
+        HRESULT ImportFile(
+                        [in] BSTR sFileName, 
+                        [in] BSTR sTableName, 
+                        [in] IVariantCollection* pColNames, 
+                        [in] IVariantCollection* pColTypes, 
+                        [in] VARIANT_BOOL bUseColNamesFromFile, 
+                        [in] VARIANT_BOOL bSkipFirstColumn, 
+                        [in] VARIANT_BOOL bSkipFirstRow, 
+                        [in] VARIANT_BOOL bMakeEmptyValsNull, 
+                        [in] short cQuoteChar, 
+                        [in] short cDelimChar, 
+                        [in] EncodingEnum eEncoding, 
+                        [in] CodePageEnum eCodePage);
+        [id(0x00000027), helpstring("Add an object to the list of Script Objects available to scripts when run. The object will be available as a named variable in the script.")]
+        HRESULT AddScriptObject(
+                        [in] IDispatch* pObj, 
+                        [in] BSTR sObjName);
+        [id(0x00000028), helpstring("Clear the list of added Script Objects which were added with AddScriptObject")]
+        HRESULT ClearScriptObjects();
+        [id(0x00000029), helpstring("Same as the Open method, except for the additional OpenFlags parameter which allows you to control how the database file is opened.")]
+        HRESULT OpenEx(
+                        [in] BSTR strDb, 
+                        [in] OpenFlags eOpenFlags, 
+                        [in, optional, defaultvalue(0)] long nWaitTimeout, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bFailIfNotExist);
+        [id(0x0000002a), helpstring("Begin a SQL transaction")]
+        HRESULT BeginTrans();
+        [id(0x0000002b), helpstring("Commit the current SQL transaction")]
+        HRESULT CommitTrans();
+        [id(0x0000002c), helpstring("Rollback the current SQL transaction")]
+        HRESULT RollbackTrans();
+        [id(0x0000002d), helpstring("Begin an Exclusive SQL Transaction")]
+        HRESULT BeginExclusiveTrans();
+    };
+
+    [
+      odl,
+      uuid(081E7E7B-20AB-4F80-AB97-4BBABBE45DE7),
+      helpstring("IDataset Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IDataset : IDispatch {
+        [id(00000000), propget, helpstring("Columns collection.")]
+        HRESULT Columns([out, retval] IColumns** ppColumns);
+        [id(0x00000001), propget, helpstring("The number of rows in the dataset.")]
+        HRESULT NumRows([out, retval] long* pVal);
+        [id(0x00000002), propget, helpstring("Returns True if at the beginning of the dataset, False otherwise.")]
+        HRESULT BOD([out, retval] VARIANT_BOOL* pVal);
+        [id(0x00000003), propget, helpstring("Returns True if at the end of the dataset, False otherwise.")]
+        HRESULT EOD([out, retval] VARIANT_BOOL* pVal);
+        [id(0x00000004), propget, helpstring("Obtain the current edit mode (adding, editing or neither).")]
+        HRESULT EditMode([out, retval] EditModeEnum* pVal);
+        [id(0x00000005), propget, helpstring("Get or set the current row number (set is same as MoveTo).")]
+        HRESULT CurRow([out, retval] long* pCurRow);
+        [id(0x00000005), propput, helpstring("Get or set the current row number (set is same as MoveTo).")]
+        HRESULT CurRow([in] long pCurRow);
+        [id(0x00000006), propget, helpstring("The Dataset will be read-only if not created with the 'OPEN TABLE' command.")]
+        HRESULT ReadOnly([out, retval] VARIANT_BOOL* pVal);
+        [id(0x00000007), helpstring("Move to the first row in the dataset.")]
+        HRESULT MoveFirst();
+        [id(0x00000008), helpstring("Move to the last row in the dataset.")]
+        HRESULT MoveLast();
+        [id(0x00000009), helpstring("Move to the next row in the dataset.")]
+        HRESULT MoveNext();
+        [id(0x0000000a), helpstring("Move to the previous row in the dataset.")]
+        HRESULT MoveBack();
+        [id(0x0000000b), helpstring("Move to the specified row in the dataset.  nRowNum is zero-based (meaning 0 is the first row).")]
+        HRESULT MoveTo([in] long nRow);
+        [id(0x0000000c), helpstring("Get the dataset as a 2-D SafeArray (column names not included).")]
+        HRESULT GetData(
+                        VARIANT_BOOL bIncludeColNames, 
+                        [out, retval] VARIANT* pvtData);
+        [id(0x0000000d), helpstring("Prepares to add a new row to the table. The row is not actually inserted until Update is called.  The Dataset must have been created using "OPEN TABLE <table name>".")]
+        HRESULT AddNew();
+        [id(0x0000000e), helpstring("Prepares the current row for editing. Changes won't be written until Update is called.  The Dataset must have been created using "OPEN TABLE <table name>".")]
+        HRESULT Edit();
+        [id(0x0000000f), helpstring("Writes the data to the table. Must be called after AddNew or Edit has been called.  The Dataset must have been created using "OPEN TABLE <table name>".")]
+        HRESULT Update();
+        [id(0x00000010), helpstring("Delete the current row. The Dataset must have been created using "OPEN TABLE <table name>".")]
+        HRESULT Delete();
+        [id(0x00000011), helpstring("Called to cancel an AddNew or Edit operation.")]
+        HRESULT CancelUpdate();
+        [id(0x00000012), helpstring("Set the indicated column value. The Dataset must have been created using "OPEN TABLE <table name>".")]
+        HRESULT SetValue(
+                        [in] VARIANT vtCol, 
+                        [in] VARIANT vtValue);
+        [id(0x00000013), helpstring("Get the indicated column value.")]
+        HRESULT GetValue(
+                        [in] VARIANT vtCol, 
+                        [out, retval] VARIANT* pvtValue);
+        [id(0x00000014), helpstring("Get the raw contents of the current row. The data will be char array (VT_ARRAY|VT_UI1).")]
+        HRESULT GetRowData([out, retval] VARIANT* pvtRow);
+        [id(0x00000015), helpstring("Set the raw contents of the current row. Must be a BYTE SAFEARRAY with NULL-terminated fields. Must call Add/Edit/Update. Used with GetRowData to easily copy a table.")]
+        HRESULT SetRowData([in] VARIANT vtRow);
+        [id(0x00000016), propget, helpstring("If the Dataset is a table, returns its name. This can only have a value if created with the OPEN TABLE command.")]
+        HRESULT TableName([out, retval] BSTR* pVal);
+        [id(0x00000017), propget, helpstring("Returns the SQL command used to create this Dataset.")]
+        HRESULT SqlCmd([out, retval] BSTR* pVal);
+        [id(0x00000018), propput, helpstring("Get/set the Encryption Key to be used for AutoEncryption. Use this only if not set on the creating SqliteDb object. Must be between 8-32 characters (use length of 8, 16, 24, or 32).")]
+        HRESULT CipherKey([in] BSTR rhs);
+        [id(0x00000019), propget, helpstring("Pragma is used to get/set various Dataset behaviors via a single property.")]
+        HRESULT Pragma(
+                        [in] DatasetPragmaEnum ePragma, 
+                        [out, retval] VARIANT* pVal);
+        [id(0x00000019), propput, helpstring("Pragma is used to get/set various Dataset behaviors via a single property.")]
+        HRESULT Pragma(
+                        [in] DatasetPragmaEnum ePragma, 
+                        [in] VARIANT pVal);
+        [id(0x0000001a), propget, helpstring("The CodePage to use for all Multibyte <==> Unicode conversions.")]
+        HRESULT CodePage([out, retval] CodePageEnum* pVal);
+        [id(0x0000001a), propput, helpstring("The CodePage to use for all Multibyte <==> Unicode conversions.")]
+        HRESULT CodePage([in] CodePageEnum pVal);
+        [id(0x0000001b), helpstring("Persist the Dataset as a byte array. Use Load to re-create as a diconnected Dataset.")]
+        HRESULT Save([out, retval] VARIANT* pvtArray);
+        [id(0x0000001c), helpstring("Create a disconnected Dataset from a previously persisted dataset.")]
+        HRESULT Load(VARIANT vtArray);
+        [id(0x0000001d), helpstring("Used to determine if a cipher key has been set into the dataset.")]
+        HRESULT HasCipherKey([out, retval] VARIANT_BOOL* pbVal);
+        [id(0x0000001e), propget, helpstring("eof: synonym for EOD")]
+        HRESULT eof([out, retval] VARIANT_BOOL* pVal);
+        [id(0x0000001f), propget, helpstring("bof: Synonym for BOD")]
+        HRESULT bof([out, retval] VARIANT_BOOL* pVal);
+        [id(0x00000020), helpstring("Remove all rows from the Dataset. Does not affect the database. Usefull when using AddNew in a loop so the Dataset doesn't grow as you add new rows to Table.")]
+        HRESULT Reset();
+    };
+
+    [
+      odl,
+      uuid(7B3CF9B4-362B-4511-A609-1F5212690983),
+      helpstring("IColumns Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IColumns : IDispatch {
+        [id(0xfffffffc), propget, restricted]
+        HRESULT _NewEnum([out, retval] IUnknown** ppEnum);
+        [id(00000000), propget]
+        HRESULT Column(
+                        [in] VARIANT vtIndex, 
+                        [out, retval] IColumn** ppColumn);
+        [id(0x00000001), propget]
+        HRESULT Count([out, retval] long* plCount);
+        [id(0x00000002), helpstring("For .NET bug doesn't see DISPID_DEFVALUE property if it has a parameter.")]
+        HRESULT GetColumn_(
+                        [in] VARIANT vtIndex, 
+                        [out, retval] IColumn** ppColumn);
+    };
+
+    [
+      odl,
+      uuid(0CD895FC-ABC7-4122-BFB1-12971B509552),
+      helpstring("IColumn Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IColumn : IDispatch {
+        [id(00000000), propget, helpstring("The value that the Column holds.")]
+        HRESULT Value([out, retval] VARIANT* pValue);
+        [id(00000000), propput, helpstring("The value that the Column holds.")]
+        HRESULT Value([in] VARIANT pValue);
+        [id(0x00000001), propget, helpstring("The Column name.")]
+        HRESULT Name([out, retval] BSTR* pstrName);
+        [id(0x00000002), propget, helpstring("The type of the database column.  If the type does not match one of the pre-defined types, it will be eUnknown.")]
+        HRESULT Type([out, retval] DataTypeEnum* pType);
+        [id(0x00000003), propget, helpstring("Type field type name as returned from Sqlite.")]
+        HRESULT TypeName([out, retval] BSTR* pstrTypeName);
+        [id(0x00000004), propget, helpstring("This is meant for maximum performance to access the raw Column data. This is a null-terminated, non-Unicode pointer to the column data (char*). THIS PROPERTY CANNOT BE USED WITH AUTOMATION CLIENTS (like VB) - use with caution.")]
+        HRESULT ValuePtr([out, retval] VARIANT* pVal);
+        [id(0x00000005), propget, helpstring("Pragma is used to get/set various Column behaviors via a single property.")]
+        HRESULT Pragma(
+                        [in] ColumnPragmaEnum ePragma, 
+                        [out, retval] VARIANT* pVal);
+        [id(0x00000005), propput, helpstring("Pragma is used to get/set various Column behaviors via a single property.")]
+        HRESULT Pragma(
+                        [in] ColumnPragmaEnum ePragma, 
+                        [in] VARIANT pVal);
+        [id(0x00000006), helpstring("Get the column value as a byte array (VT_ARRAY|VT_UI1). Retrieves the value as it exists in the database (does decrypt/decompress/decode if these auto-settings are ON). Useful for retrieving multibyte text when no Unicode conversion is desired.")]
+        HRESULT GetValueAsByteArray([out, retval] VARIANT* pvtValue);
+        [id(0x00000007), propget, helpstring("The column length, not including terminating NULL for non-BLOB fields. -1 means NULL")]
+        HRESULT Length([out, retval] long* nLength);
+        [id(0x00000008), propget, helpstring("Returns True if the field value has been changed since the row was set.")]
+        HRESULT Modified([out, retval] VARIANT_BOOL* pVal);
+        [id(0x00000008), propput, helpstring("Returns True if the field value has been changed since the row was set.")]
+        HRESULT Modified([in] VARIANT_BOOL pVal);
+        [id(0x00000009), helpstring("Return True if the current column value is Null. Note that if the value has been set externally, this returns the current value, not the persisted value in the DB.")]
+        HRESULT IsNull([out, retval] VARIANT_BOOL* pbNull);
+        [id(0x0000000a), helpstring("Return string representation of the column value.")]
+        HRESULT ToString([out, retval] BSTR* sVal);
+        [id(0x0000000b), helpstring("Indicates if the column is BLOB type.")]
+        HRESULT IsBlobType([out, retval] VARIANT_BOOL* bRet);
+    };
+
+    typedef enum {
+        eUnknown = 0,
+        eText = 1,
+        eBoolean = 2,
+        eInteger = 3,
+        eFloat = 4,
+        eDouble = 5,
+        eBlob = 6,
+        eMemo = 7,
+        eDate = 8,
+        eTime = 9,
+        eDateTime = 10,
+        eBlobText = 11,
+        eBlobBoolean = 12,
+        eBlobInteger = 13,
+        eBlobFloat = 14,
+        eBlobDouble = 15,
+        eBlobMemo = 16,
+        eBlobDate = 17,
+        eBlobTime = 18,
+        eBlobDateTime = 19,
+        eCurrency = 20,
+        eBlobCurrency = 21,
+        eReal = 22,
+        eBlobReal = 23,
+        eBinary = 24,
+        eTinyInt = 25,
+        eBlobTinyInt = 26,
+        eSmallInt = 27,
+        eBlobSmallInt = 28,
+        eBigInt = 29,
+        eBlobBigInt = 30
+    } DataTypeEnum;
+
+    typedef enum {
+        eAutoEncrypt = 1,
+        eEncryptUnique = 2,
+        eAutoCompress = 3,
+        eCompressionLevel = 4,
+        eTreatUnknownTypeAs = 5
+    } ColumnPragmaEnum;
+
+    typedef enum {
+        eEditModeNone = 0,
+        eEditModeAdding = 1,
+        eEditModeEditing = 2
+    } EditModeEnum;
+
+    typedef enum {
+        eAutoConvertVals = 1,
+        eAutoEncryptBlobs = 2,
+        eAutoEncryptBlobsUnique = 3,
+        eAutoCompressBlobs = 4,
+        eAutoEscapeQuotes = 5
+    } DatasetPragmaEnum;
+
+    typedef enum {
+        eAnsiCP = 0,
+        eOemCP = 1,
+        eThreadACP = 3,
+        eUtf7CP = 65000,
+        eUtf8CP = 65001
+    } CodePageEnum;
+
+    [
+      odl,
+      uuid(6DAACC65-638F-42F2-AF76-339E660D3CDE),
+      dual,
+      oleautomation
+    ]
+    interface IVariantCollection : IDispatch {
+        [id(0xfffffffc), propget, restricted, hidden]
+        HRESULT _NewEnum([out, retval] IUnknown** ppunk);
+        [id(00000000), propget, helpstring("Returns a copy of the item at the specified index. vtKey can be a string name or one-based ordinal index. If no index is specified, the first item is returned.")]
+        HRESULT Item(
+                        [in, optional] VARIANT vtKey, 
+                        [out, retval] VARIANT* pvtItem);
+        [id(00000000), propput, helpstring("Returns a copy of the item at the specified index. vtKey can be a string name or one-based ordinal index. If no index is specified, the first item is returned.")]
+        HRESULT Item(
+                        [in, optional] VARIANT vtKey, 
+                        [in] VARIANT pvtItem);
+        [id(0x00000001), propget, helpstring("Return the Key at the specified index")]
+        HRESULT ItemName(
+                        [in] long lIndex, 
+                        [out, retval] BSTR* ppbstrKey);
+        [id(0x00000002), propget, helpstring("The number of items in the dictionary.")]
+        HRESULT Count([out, retval] long* plCount);
+        [id(0x00000003), helpstring("Set a value at the specified key (optional).")]
+        HRESULT Add(
+                        [in] VARIANT vtItem, 
+                        [in, optional] VARIANT vtKey);
+        [id(0x00000004), helpstring("Remove the item at the specified key.")]
+        HRESULT Remove([in] VARIANT vtKey);
+        [id(0x00000005), helpstring("Removes all objects from the dictionary")]
+        HRESULT RemoveAll();
+        [id(0x00000006), helpstring("For .NET bug doesn't see DISPID_DEFVALUE property if it has a parameter.")]
+        HRESULT GetItem_(
+                        [in, optional] VARIANT vtKey, 
+                        [out, retval] VARIANT* pvtItem);
+        [id(0x00000007), helpstring("For .NET bug doesn't see DISPID_DEFVALUE property if it has a parameter.")]
+        HRESULT SetItem_(
+                        [in, optional] VARIANT vtKey, 
+                        [in, optional] VARIANT vtItem);
+    };
+
+    typedef enum {
+        eErrOK = 0,
+        eErrSql = 1,
+        eErrInternal = 2,
+        eErrPermission = 3,
+        eErrAbort = 4,
+        eErrBusy = 5,
+        eErrLocked = 6,
+        eErrNoMem = 7,
+        eErrReadOnly = 8,
+        eErrInterrupt = 9,
+        eErrIoErr = 10,
+        eErrCorrupt = 11,
+        eErrNotFound = 12,
+        eErrFull = 13,
+        eErrCantOpen = 14,
+        eErrProtocol = 15,
+        eErrEmpty = 16,
+        eErrSchema = 17,
+        eErrTooBig = 18,
+        eErrConstraint = 19,
+        eErrMismatch = 20,
+        eErrMisuse = 21,
+        eErrNOLFS = 22,
+        eErrAuth = 23,
+        eErrFormat = 24,
+        eErrRange = 25,
+        eErrNotADb = 26,
+        eErrRow = 100,
+        eErrDone = 101
+    } ErrorCodeEnum;
+
+    typedef enum {
+        eFailOnDbError = 1,
+        eFloatIsDouble = 2,
+        eEnableLoadExtension = 3
+    } DbPragmaEnum;
+
+    [
+      odl,
+      uuid(01068646-353E-4E7E-A95A-E51ED9DEF8E7),
+      helpstring("IScriptResults Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IScriptResults : IDispatch {
+        [id(00000000), propput, helpstring("Holds the return value from the Script (set by Host.ReturnVal)")]
+        HRESULT ReturnVal([in] VARIANT pVal);
+        [id(00000000), propget, helpstring("Holds the return value from the Script (set by Host.ReturnVal)")]
+        HRESULT ReturnVal([out, retval] VARIANT* pVal);
+        [id(0x00000001), propget, helpstring("Deprecated")]
+        HRESULT ParsedScript([out, retval] BSTR* pVal);
+        [id(0x00000002), propget, helpstring("The output text from Host.Write calls in the script")]
+        HRESULT Text([out, retval] BSTR* pVal);
+        [id(0x00000003), propget, helpstring("Holds the error description, if any")]
+        HRESULT ErrDescription([out, retval] BSTR* pVal);
+        [id(0x00000004), propget, helpstring("Holds the error source code line, if available")]
+        HRESULT ErrSourceLine([out, retval] BSTR* pVal);
+        [id(0x00000005), propget, helpstring("Holds the error line number, if available")]
+        HRESULT ErrLineNumber([out, retval] long* pVal);
+        [id(0x00000006), propget, helpstring("Holds the error column number, if available")]
+        HRESULT ErrColumn([out, retval] long* pVal);
+        [id(0x00000007), propget, helpstring("Holds the script error code, if any")]
+        HRESULT ErrCode([out, retval] long* pVal);
+        [id(0x00000008), propget, helpstring("Output parameters collection")]
+        HRESULT OutParams([out, retval] IVariantCollection** pVal);
+    };
+
+    typedef enum {
+        evtNULL = 1,
+        evtI2 = 2,
+        evtI4 = 3,
+        evtR4 = 4,
+        evtR8 = 5,
+        evtCY = 6,
+        evtDATE = 7,
+        evtBSTR = 8,
+        evtDISPATCH = 9,
+        evtERROR = 10,
+        evtBOOL = 11,
+        evtVARIANT = 12,
+        evtDECIMAL = 14,
+        evtI1 = 16,
+        evtUI1 = 17,
+        evtUI2 = 18,
+        evtUI4 = 19,
+        evtI8 = 20,
+        evtUI8 = 21,
+        evtINT = 22,
+        evtArray = 8192,
+        evtByteArray = 8209
+    } VarTypeEnum;
+
+    typedef enum {
+        eUtf8Encoding = 1,
+        eUtf16Encoding = 2
+    } DbEncodingEnum;
+
+    typedef enum {
+        eCodePage = 1,
+        eUtf7 = 2,
+        eUtf8 = 3,
+        eUtf16 = 4,
+        eUtf16Le = 4,
+        eUtf16Be = 5
+    } EncodingEnum;
+
+    typedef enum {
+        eOpenReadOnly = 1,
+        eOpenReadWrite = 2,
+        eOpenCreate = 4,
+        eOpenDeleteOnClose = 8,
+        eOpenExclusive = 16,
+        eOpenMainDb = 256,
+        eOpenTempDb = 512,
+        eOpenTransientDb = 1024,
+        eOpenMainJournal = 2048,
+        eOpenTempJournal = 4096,
+        eOpenSubJournal = 8192,
+        eOpenMasterJournal = 16384,
+        eOpenNoMutex = 32768,
+        eOpenFullMutex = 0x00010000
+    } OpenFlags;
+
+    [
+      odl,
+      uuid(A128CC55-E4D5-4D54-8C6B-8275BF8255C2),
+      helpstring("ISqliteDbEvents Interface")
+    ]
+    interface ISqliteDbEvents : IUnknown {
+        [helpstring("Called before each SQL statement is executed when Trace is enabled.")]
+        HRESULT _stdcall Trace([in] BSTR strSQL);
+        [helpstring("Called if the database is locked and blocking execution. Return False to cause Exec to immediately return with eErrBusy. Return True to try again.")]
+        HRESULT _stdcall BusyHandler(
+                        [in] long nTimesBusy, 
+                        [out, retval] VARIANT_BOOL* pbTryAgain);
+    };
+
+    [
+      uuid(10B5C0CD-B189-4DF1-9B6C-863968F185F5),
+      helpstring("SqlitePlus Dataset class")
+    ]
+    coclass Dataset {
+        [default] interface IDataset;
+    };
+
+    [
+      uuid(E2847363-D029-4055-A57B-19B3232DF696),
+      helpstring("SqlitePlus Columns Collection"),
+      noncreatable
+    ]
+    coclass Columns {
+        [default] interface IColumns;
+    };
+
+    [
+      uuid(57D92FAC-100E-407B-9ED4-79021F514B2C),
+      helpstring("SqlitePlus Column class"),
+      noncreatable
+    ]
+    coclass Column {
+        [default] interface IColumn;
+    };
+
+    [
+      uuid(C7C9515C-A3FA-4939-8B8E-2BAAD8F01BF7),
+      helpstring("StringBuilder Class for efficient string concatenation.")
+    ]
+    coclass StringBuilder {
+        [default] interface IStringBuilder;
+    };
+
+    [
+      odl,
+      uuid(CB405FE6-E747-4622-8D26-B675E54D7B1E),
+      helpstring("IStringBuilder Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IStringBuilder : IDispatch {
+        [id(00000000), propget, helpstring("Retrieve the string contents.")]
+        HRESULT Value([out, retval] BSTR* pVal);
+        [id(0x00000001), helpstring("Append the value to the contents. If not a string, a conversion will be attempted. If the Variant is NULL, the string NULL will be written.")]
+        HRESULT Write([in] VARIANT vtVal);
+        [id(0x00000002), helpstring("Empty the contents.")]
+        HRESULT Reset();
+    };
+
+    [
+      uuid(C6ABC4DA-CCCA-43E3-BF13-6698BE1042A7),
+      helpstring("VariantCollection Class. Zero-based index.")
+    ]
+    coclass VariantCollection {
+        [default] interface IVariantCollection;
+    };
+
+    [
+      uuid(931FD4F4-0E1B-4F0E-B6BD-F63B80B90BF4),
+      helpstring("Object returned from RunScript containing info about the Script run"),
+      noncreatable
+    ]
+    coclass ScriptResults {
+        [default] interface IScriptResults;
+    };
+
+    [
+      uuid(53A8A6BA-66C5-4FEC-A923-6D13FEB2AB42),
+      helpstring("WinSystem Class")
+    ]
+    coclass WinSystem {
+        [default] interface IWinSystem;
+    };
+
+    [
+      odl,
+      uuid(3AFDAEC1-0CA3-4871-916D-7AB350229FDB),
+      helpstring("IWinSystem Interface"),
+      dual,
+      nonextensible,
+      oleautomation
+    ]
+    interface IWinSystem : IDispatch {
+        [id(0x00000001)]
+        HRESULT GetRegValue(
+                        [in] RegKeyRootEnum eRoot, 
+                        [in] BSTR bstrKey, 
+                        [in] BSTR bstrValueName, 
+                        [out, retval] VARIANT* vtValue);
+        [id(0x00000002)]
+        HRESULT SetRegValue(
+                        [in] RegKeyRootEnum eRoot, 
+                        [in] BSTR bstrKey, 
+                        [in] VARIANT vtValue, 
+                        [in] RegValueTypeEnum eType, 
+                        [in, optional, defaultvalue("")] BSTR bstrValueName);
+        [id(0x00000003)]
+        HRESULT DeleteRegValue(
+                        [in] RegKeyRootEnum eRoot, 
+                        [in] BSTR bstrSubKey, 
+                        [in] BSTR bstrValueName);
+        [id(0x00000004)]
+        HRESULT DeleteRegKey(
+                        [in] RegKeyRootEnum eRoot, 
+                        [in] BSTR bstrSubKey);
+        [id(0x00000005), helpstring("Enumerates all of the values for the specified registry key and returns them in a Collection. If bNoValues is True, only the value names will be returned")]
+        HRESULT EnumRegValues(
+                        [in] RegKeyRootEnum __MIDL_0011, 
+                        [in] BSTR bstrKey, 
+                        [in, optional, defaultvalue(0)] VARIANT_BOOL bNoValues, 
+                        [out, retval] IVariantCollection** ppColNameVals);
+        [id(0x00000006), helpstring("Enumerates subkeys of the specified registry key.")]
+        HRESULT EnumRegKeys(
+                        [in] RegKeyRootEnum eRoot, 
+                        [in] BSTR bstrKey, 
+                        [out, retval] IVariantCollection** ppColNameVals);
+        [id(0x00000007)]
+        HRESULT ReadIniFileString(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [in] BSTR bstrEntry, 
+                        [out, retval] BSTR* pbstrValue);
+        [id(0x00000008)]
+        HRESULT ReadIniFileLong(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [in] BSTR bstrEntry, 
+                        [in, optional, defaultvalue(0)] long lDefaultVal, 
+                        [out, retval] long* lVal);
+        [id(0x00000009)]
+        HRESULT ReadIniFileSection(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [out, retval] IVariantCollection** ppColVals);
+        [id(0x0000000a)]
+        HRESULT WriteIniFileString(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [in] BSTR bstrEntry, 
+                        [in] BSTR bstrValue);
+        [id(0x0000000b)]
+        HRESULT WriteIniFileLong(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [in] BSTR bstrEntry, 
+                        [in] long lVal);
+        [id(0x0000000c)]
+        HRESULT WriteIniFileSection(
+                        [in] BSTR bstrFilename, 
+                        [in] BSTR bstrSection, 
+                        [in] IVariantCollection* colVals);
+        [id(0x0000000d), helpstring("Returns the Windows Path.")]
+        HRESULT GetWindowsPath([out, retval] BSTR* bstrValue);
+        [id(0x0000000e), helpstring("Returns the Environment variable value associated with the passed name.")]
+        HRESULT GetEnv(
+                        [in] BSTR bstrEnvVar, 
+                        [out, retval] VARIANT* pvtVal);
+        [id(0x0000000f), helpstring("Returns the first occurance of strString in strSearch (case insensitive).  The index is zero-based.  Returns -1 if not found.")]
+        HRESULT StrInStrI(
+                        [in] BSTR strSearch, 
+                        [in] BSTR strString, 
+                        [out, retval] short* psIndex);
+        [id(0x00000010), helpstring("Creates or opens an existing file and returns a new File object")]
+        HRESULT OpenFile(
+                        [in] BSTR strFilePath, 
+                        [in, optional, defaultvalue(1)] FileAccessFlags eAccessFlags, 
+                        [in, optional, defaultvalue(1)] FileShareFlags eShareFlags, 
+                        [in, optional, defaultvalue(3)] FileDispositionFlags eDispositionFlags, 
+                        [in, optional, defaultvalue(128)] FileAttributeFlags eAttributeFlags, 
+                        [out, retval] IFile** ppFile);
+        [id(0x00000011), helpstring("Gets the current directory path for this process.")]
+        HRESULT GetCurrentPath([out, retval] BSTR* pbstrDir);
+        [id(0x00000012), helpstring("Calls the Windows ShellExecute API function.")]
+        HRESULT ShellExecute(
+                        [in] long lhWnd, 
+                        [in] BSTR strOperation, 
+                        [in] BSTR strFile, 
+                        [in, optional, defaultvalue("0")] BSTR strParams, 
+                        [in, optional, defaultvalue("")] BSTR strDir, 
+                        [in, optional, defaultvalue(1)] CmdShowFlags eShowCmd, 
+                        [out, retval] long* plRet);
+        [id(0x00000013), helpstring("Checks if the specified file exists on the file system.")]
+        HRESULT FileExists(
+                        [in] BSTR bstrFilename, 
+                        [out, retval] VARIANT_BOOL* pbExists);
+        [id(0x00000014), helpstring("Finds the first file with the given likeness.")]
+        HRESULT FindFirstFile(
+                        [in] BSTR bstrFileLikeness, 
+                        [out, retval] IFindFileInfo** ppFindFileInfo);
+        [id(0x00000015), helpstring("Finds the next file with the given likeness in the call to FindFirstFile.")]
+        HRESULT FindNextFile(
+                        [in] IFindFileInfo* pFindFileInfo, 
+                        [out, retval] VARIANT_BOOL* pbFoundFile);
+        [id(0x00000016), helpstring("Closes the Find Handle. Must be called after FindFirstFile")]
+        HRESULT FindClose(
+                        [in] IFindFileInfo* pFindFileInfo, 
+                        [out, retval] VARIANT_BOOL* pbSuccess);
+        [id(0x00000017), helpstring("Converts a stream of Multibyte characters to a Unicode BSTR. The VARIANT array must be of type VT_BSTR, VT_ARRAY|VT_I1 or VT_ARRAY|VT_U1.")]
+        HRESULT MultiByteToUnicode(
+                        [in] VARIANT vtMultiByte, 
+                        [in] CodePageEnum eCodePage, 
+                        [out, retval] BSTR* pbstrUnicode);
+        [id(0x00000018), helpstring("Converts a Unicode BSTR to an array of MultiByte characters. The string will be converted to type VT_ARRAY|VT_UI1 containing the multibyte characters.")]
+        HRESULT UnicodeToMultiByte(
+                        [in] BSTR bstrUnicode, 
+                        [in] CodePageEnum eCodePage, 
+                        [out, retval] VARIANT* pvtMultiByte);
+        [id(0x00000019), helpstring("Create the specified folder. The function will attempt to create each folder in the path.")]
+        HRESULT CreateFolder(
+                        [in] BSTR sFolderPath, 
+                        [out, retval] VARIANT_BOOL* bRet);
+        [id(0x0000001a), helpstring("Display the Windows MessageBox with the specified settings.")]
+        HRESULT MsgBox(
+                        [in] BSTR sMsg, 
+                        [in, optional, defaultvalue("")] BSTR sCaption, 
+                        [in, optional, defaultvalue(0)] MsgBoxStyles eFlags, 
+                        [out, retval] MsgBoxResult* eResult);
+    };
+
+    typedef enum {
+        eRegKeyClassesRoot = 0,
+        eRegKeyCurrentUser = 1,
+        eRegKeyLocalMachine = 2,
+        eRegKeyUsers = 3,
+        eRegKeyPerformanceData = 4,
+        eRegKeyCurrentConfig = 5,
+        eRegKeyDynData = 6
+    } RegKeyRootEnum;
+
+    typedef enum {
+        eRegString = 1,
+        eRegExpandString = 2,
+        eRegBinary = 3,
+        eRegLong = 4,
+        eRegMultiString = 7
+    } RegValueTypeEnum;
+
+    typedef enum {
+        eFileAccessRead = 1,
+        eFileAccessWrite = 2,
+        eFileAccessReadWrite = 3,
+        eFileAccessAll = 4
+    } FileAccessFlags;
+
+    typedef enum {
+        eFileShareRead = 1,
+        eFileShareWrite = 2,
+        eFileShareReadWrite = 3
+    } FileShareFlags;
+
+    typedef enum {
+        eFileCreateNew = 1,
+        eFileCreateAlways = 2,
+        eFileOpenExisting = 3,
+        eFileOpenAlways = 4,
+        eFileTruncateExisting = 5
+    } FileDispositionFlags;
+
+    typedef enum {
+        eFileAttributeReadOnly = 1,
+        eFileAttributeHidden = 2,
+        eFileAttributeSystem = 4,
+        eFileAttributeDirectory = 16,
+        eFileAttributeArchive = 32,
+        eFileAttributeEncrypted = 64,
+        eFileAttributeNormal = 128,
+        eFileAttributeTemporary = 256,
+        eFileAttributeSparse = 512,
+        eFileAttributeReparsePoint = 1024,
+        eFileAttributeCompressed = 2048
+    } FileAttributeFlags;
+
+    [
+      odl,
+      uuid(E23BA1AE-E855-4BE1-BC9E-10594E1AD234),
+      helpstring("IFile Interface"),
+      dual,
+      nonextensible,
+      oleautomation
+    ]
+    interface IFile : IDispatch {
+        [id(00000000), propget, helpstring("	")]
+        HRESULT PathName([out, retval] BSTR* pVal);
+        [id(0x00000001), propget, helpstring("Returns the file size in bytes.")]
+        HRESULT Size([out, retval] long* pcbSize);
+        [id(0x00000002), helpstring("Read cbRead bytes from the file.")]
+        HRESULT Read(
+                        [in, out] VARIANT* pvtBuf, 
+                        [in] long cbRead, 
+                        [in] DataTypeEnum eDataType, 
+                        [in, out, optional] long* pcbRead, 
+                        [out, retval] VARIANT_BOOL* pbSucceeded);
+        [id(0x00000003), helpstring("Write the Variant data to the file. vtBuf can be either String or Byte array. Use -1 for cbWrite to write the full size of the data stored in the variant.")]
+        HRESULT Write(
+                        [in] VARIANT vtBuf, 
+                        [in, optional, defaultvalue(-1)] long cbWrite, 
+                        [in, out, optional, defaultvalue(0)] long* pcbWritten, 
+                        [out, retval] VARIANT_BOOL* pbSucceeded);
+        [id(0x00000004), helpstring("Move the file pointer to a new location specified by the offset and move method.")]
+        HRESULT Seek(
+                        [in] long cbOffset, 
+                        [in] FileSeekMethodEnum eMethod);
+        [id(0x00000005), helpstring("Creates or opens an existing file")]
+        HRESULT Open(
+                        [in] BSTR sFilePath, 
+                        [in, optional, defaultvalue(1)] FileAccessFlags eAccessFlags, 
+                        [in, optional, defaultvalue(1)] FileShareFlags eShareFlags, 
+                        [in, optional, defaultvalue(3)] FileDispositionFlags eDispositionFlags, 
+                        [in, optional, defaultvalue(128)] FileAttributeFlags eAttributeFlags);
+        [id(0x00000006), helpstring("Close the file.")]
+        HRESULT Close();
+    };
+
+    typedef enum {
+        eFileSeekBegin = 0,
+        eFileSeekCurrent = 1,
+        eFileSeekEnd = 2
+    } FileSeekMethodEnum;
+
+    typedef enum {
+        eCmdShowHide = 0,
+        eCmdShowNormal = 1,
+        eCmdShowMimized = 2,
+        eCmdShowMaximized = 3,
+        eCmdShowMaximize = 3,
+        eCmdShowNoActivate = 4,
+        eCmdShow = 5,
+        eCmdShowMinimize = 6,
+        eCmdShowMinNoActive = 7,
+        eCmdShowNA = 8,
+        eCmdShowRestore = 9,
+        eCmdShowDefault = 10,
+        eCmdShowForceMinimize = 11,
+        eCmdShowMax = 11
+    } CmdShowFlags;
+
+    [
+      odl,
+      uuid(1B92C8AD-91F6-427E-ABC3-FE6112541C72),
+      helpstring("IFindFileInfo Interface"),
+      dual,
+      nonextensible,
+      oleautomation
+    ]
+    interface IFindFileInfo : IDispatch {
+        [id(00000000), propget, helpstring("FileName")]
+        HRESULT FileName([out, retval] BSTR* pVal);
+        [id(0x00000001), propget, helpstring("FileAttributes")]
+        HRESULT FileAttributes([out, retval] FileAttributeFlags* pVal);
+        [id(0x00000002), propget, helpstring("LowCreationTime")]
+        HRESULT LowCreationTime([out, retval] long* pVal);
+        [id(0x00000003), propget, helpstring("HighCreationTime")]
+        HRESULT HighCreationTime([out, retval] long* pVal);
+        [id(0x00000004), propget, helpstring("LowLastAccessTime")]
+        HRESULT LowLastAccessTime([out, retval] long* pVal);
+        [id(0x00000005), propget, helpstring("HighLastAccessTime")]
+        HRESULT HighLastAccessTime([out, retval] long* pVal);
+        [id(0x00000006), propget, helpstring("LowLastWriteTime")]
+        HRESULT LowLastWriteTime([out, retval] long* pVal);
+        [id(0x00000007), propget, helpstring("HighLastWriteTime")]
+        HRESULT HighLastWriteTime([out, retval] long* pVal);
+        [id(0x00000008), propget, helpstring("LowFileSize")]
+        HRESULT LowFileSize([out, retval] long* pVal);
+        [id(0x00000009), propget, helpstring("HighFileSize")]
+        HRESULT HighFileSize([out, retval] long* pVal);
+    };
+
+    typedef enum {
+        eMbStyleOk = 0,
+        eMbStyleOkCancel = 1,
+        eMbStyleAbortRetryIgnore = 2,
+        eMbStyleYesNoCancel = 3,
+        eMbStyleYesNo = 4,
+        eMbStyleRetryCancel = 5,
+        eMbStyleCancelTryContinue = 6,
+        eMbStyleIconError = 16,
+        eMbStyleIconQuestion = 32,
+        eMbStyleIconWarning = 48,
+        eMbStyleIconInformation = 64
+    } MsgBoxStyles;
+
+    typedef enum {
+        eMbOk = 1,
+        eMbCancel = 2,
+        eMbAbort = 3,
+        eMbRetry = 4,
+        eMbIgnore = 5,
+        eMbYes = 6,
+        eMbNo = 7
+    } MsgBoxResult;
+
+    [
+      uuid(3579A9CA-D3D4-41FB-9326-5D23E90A181B),
+      helpstring("File Class")
+    ]
+    coclass File {
+        [default] interface IFile;
+    };
+
+    [
+      uuid(D6F2D393-1D0C-4CA4-86CF-420662E15064),
+      helpstring("FindFileInfo Class"),
+      noncreatable
+    ]
+    coclass FindFileInfo {
+        [default] interface IFindFileInfo;
+    };
+
+    [
+      uuid(319F0431-1F6C-45F1-A525-8038023805D3),
+      helpstring("EzTools SqlitePlus50 ScriptHost Class"),
+      noncreatable,
+      hidden
+    ]
+    coclass ScriptHost {
+        [default] interface IScriptHost;
+    };
+
+    [
+      odl,
+      uuid(320A17C4-43CD-47CC-9A92-64808DA29A69),
+      helpstring("IScriptHost Interface"),
+      hidden,
+      dual,
+      nonextensible,
+      oleautomation
+    ]
+    interface IScriptHost : IDispatch {
+        [id(00000000), propput]
+        HRESULT ReturnVal([in] VARIANT pVal);
+        [id(00000000), propget]
+        HRESULT ReturnVal([out, retval] VARIANT* pVal);
+        [id(0x00000001), helpstring("Write the value to the output stream.")]
+        HRESULT Write([in] VARIANT vtVal);
+        [id(0x00000002), helpstring("Write the value to the output stream and append LF")]
+        HRESULT WriteLn([in] VARIANT vtVal);
+        [id(0x00000003), propget, hidden]
+        HRESULT _fragments([out, retval] IVariantCollection** pVal);
+        [id(0x00000004), helpstring("Get the output text from the Host.Write calls in the specified encoding. If eUtf16, the return value is a string. Otherwise, its a byte array.")]
+        HRESULT GetText(
+                        [in] EncodingEnum Encoding, 
+                        [out, retval] VARIANT* pVal);
+        [id(0x00000005), helpstring("Map a filename onto the executing script's file path.")]
+        HRESULT MapScriptPath(
+                        [in] BSTR sFile, 
+                        [out, retval] BSTR* psPath);
+        [id(0x00000006), helpstring("Map a filename onto the database file path.")]
+        HRESULT MapDbPath(
+                        [in] BSTR sFile, 
+                        [out, retval] BSTR* psPath);
+    };
+};

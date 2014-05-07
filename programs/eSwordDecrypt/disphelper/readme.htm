@@ -1,0 +1,583 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <title>DispHelper Readme</title>
+
+    <style type="text/css">
+
+	body, table { 
+	    font-family: Verdana, Arial, Helvetica, sans-serif, monospace;
+	    font-size: 95%;
+	}
+
+	h1 {
+	    text-align: center;
+	    font-size: 120%;
+	}
+
+	h2 {
+	    font-size: 105%;
+	}
+
+	h3 {
+	    font-size: 95%;
+	}
+
+	td, th {
+	    padding: 5px;
+	    border-left: 1px solid blue;
+	    border-top:  1px solid blue;
+	}
+
+	table {
+	    border-bottom: 1px solid blue;
+	    border-right:  1px solid blue;
+	}
+
+	p {
+	    margin-top:    10px;
+	    margin-bottom: 10px;
+	}
+
+	pre {
+	    margin:  0px;
+	    padding: 1px;
+	    border:  1px inset;
+	    background-color: #DFDFDF;
+	    color:            #000000;
+	    font-size: 95%;
+	}
+
+	.dhfunc {
+	    color: blue;
+	}
+
+    </style>
+</head>
+
+<body>
+
+<h1>DispHelper</h1>
+
+<p>DispHelper Version 0.81 - July 2004.</p>
+
+<h2>Introduction</h2>
+<p>The aim of the DispHelper library is to allow C/C++ programmers to use COM objects
+in a simple, script like manner.</p>
+
+<p>If you did not download DispHelper from Sourceforge, please visit the
+<a href="http://sourceforge.net/projects/disphelper/" title="DispHelper project page at Sourceforge">
+DispHelper project page</a> to get the latest version.</p>
+
+<p>You can <a href="http://cvs.sourceforge.net/viewcvs.py/disphelper/disphelper/">browse
+the DispHelper source code and samples</a> online.</p>
+
+<h2>Basic Sample</h2>
+<pre>
+	<span class="dhfunc">dhCreateObject</span>(L"Word.Application", NULL, &amp;wdApp);
+	<span class="dhfunc">dhPutValue</span>(wdApp, L".Visible = %b", TRUE);
+	<span class="dhfunc">dhCallMethod</span>(wdApp, L".Documents.Add");
+	<span class="dhfunc">dhCallMethod</span>(wdApp, L".Selection.TypeText(%s)", "DispHelper Sample");
+</pre>
+
+<h2>Compatibility</h2>
+<p>DispHelper has been successfully compiled with Dev-C++, Visual C++ and LCC-WIN32.
+It is written to be compatible with as many different Windows C/C++ compilers
+as possible. If you have trouble using it with a Windows compiler please provide
+<a href="#feedback" title="How to provide feedback">feedback</a>
+so that I can attempt to rectify the problem.</p>
+
+<p>A compiled version of DispHelper will run on
+Windows 95, 98, Me, NT4, 2000, XP, 2003 and subsequent operating systems(including
+64 bit versions).</p>
+
+<h2>Usage</h2>
+<p>DispHelper is distributed as a multi file source and a single file version. It is 
+recommended that you use the single file source(disphelper.c) in your projects.</p>
+
+<p>To begin using DispHelper, include <strong>disphelper.c</strong> and <strong>disphelper.h</strong>
+in your project. These files are available in the <strong>single_file_source</strong> directory.</p>
+
+<p>For Visual C++, Borland C++ and LCC-Win32 import libraries are included via
+pragma directives. For other compilers you may need to add <strong>ole32</strong>,
+<strong>oleaut32</strong> and <strong>uuid</strong>.</p>
+
+<p>To do this in Dev-C++ add <strong>"-lole32 -loleaut32 -luuid"</strong> to the <strong>linker</strong>
+box under <strong>Project->Project Options->Parameters</strong>.</p>
+
+<p>If you are using Dev-C++ and get errors when compiling disphelper.c please
+make sure disphelper.c is <strong>set to compile as C</strong> and not C++ under
+<strong>Project->Project Options->Files</strong>.</p>
+
+<h2>Distribution</h2>
+<p>DispHelper is provided under the
+<a href="http://www.opensource.org/licenses/bsd-license.php" title="BSD license text">
+BSD licence</a>. This license allows you to distribute DispHelper in binary and/or source form
+with your commercial or non-commercial projects.</p>
+
+<h2><a id="feedback">Feedback, Bugs and Support</a></h2>
+<p>All feedback, bug reports, support requests, criticism, etc are very welcome. You can
+deliver feedback via the <a href="http://sourceforge.net/forum/?group_id=111558">DispHelper forum</a>
+or post a <a href="http://sourceforge.net/tracker/?group_id=111558&amp;atid=659678" title="View or post DispHelper support requests">
+support request</a>.</p>
+
+<h2>Stability</h2>
+<p>DispHelper should be considered fairly stable. I have used it for several months, including in
+commercial projects, and analysed the source code for bugs without uncovering any issues.</p>
+
+<h2>Directory Layout</h2>
+<p><strong>source: </strong>Contains the source code for DispHelper.<br />
+<strong>single_file_source: </strong>Contains a compacted single file version of the source
+for easy inclusion in your projects.<br />
+<strong>samples_c: </strong>Contains several DispHelper samples in C.<br />
+<strong>samples_cpp: </strong>Contains several DispHelper samples in C++.<br />
+<strong>samples_applications: </strong>Currently empty. Will contain small sample applications that
+make use of DispHelper.</p>
+
+<h2>Samples</h2>
+<p>Several samples are available in the <strong>samples_c</strong> and <strong>samples_cpp</strong> directories.
+Batch files to compile these
+samples are provided for Dev-C++, Visual C++ and LCC-WIN32. Drag the sample file you wish to
+compile onto the appropriate batch file. You may have to edit the batch file for your environment.</p>
+<p>While each of the samples in samples_c will compile as either C or C++, more C++ friendly versions, which
+make use of smart pointers, C++ exceptions and the C++ standard libraries are
+available in the samples_cpp directory.</p>
+
+<h2>Sample List</h2>
+<table cellspacing="0">
+<tr><th>File</th><th>Description</th></tr>
+
+<tr>
+  <td>word</td>
+  <td>Demonstrates outputting formatted text to a Word document and getting user feed
+back with the help of the office assistant. Demonstrates using Word as a spell
+checker.</td>
+</tr>
+
+<tr>
+  <td>excel</td>
+  <td>Demonstrates outputting formatted data to Excel and using it to create a
+chart. Demonstrates using a safe array to efficiently insert data into Excel.</td>
+</tr>
+
+<tr>
+  <td>email</td>
+  <td>Demonstrates sending an email with CDO, Outlook and Eudora.</td>
+</tr>
+
+<tr>
+  <td>ado</td>
+  <td>Demonstrates reading and manipulating data from a data source using ActiveX Data Objects.</td>
+</tr>
+
+<tr>
+  <td>corel</td>
+  <td>Demonstrates outputting formatted text to a WordPerfect document.</td>
+</tr>
+
+<tr>
+  <td>speech</td>
+  <td>Demonstrates using Microsoft Agent and SAPI to provide text-to-speech.</td>
+</tr>
+
+<tr>
+  <td>MSHTML</td>
+  <td>Demonstrates ui-less html parsing and manipulation of the html document object
+model(DOM) using MSHTML.
+  Provides functions to parse html from a string, a website or a file.</td>
+</tr>
+
+<tr>
+  <td>regexp</td>
+  <td>Demonstrates using the VBScript.RegExp object to provide support for regular
+expressions. Provides a function to extract hrefs from a web page using a
+regular expression.</td>
+</tr>
+
+<tr>
+  <td>xml</td>
+  <td>Demonstrates using MSMXL to download a web page, read an RSS feed and read and
+manipulate XML with the XML document object model(DOM).</td>
+</tr>
+
+<tr>
+  <td>wmi</td>
+  <td>Demonstrates using Windows Management Instrumentation(WMI).
+
+  Samples include enumerating installed hot fixes, purging print queues, starting
+a program, monitoring starting and terminating processes, and monitoring file creation.
+All of these samples can target the local or a remote computer.</td>
+</tr>
+
+<tr>
+  <td>pocketsoap</td>
+  <td>Demonstrates using the PocketSoap toolkit to utilise several web services.
+Play the 'Who wants to be a millionaire' quiz with the help of a web service.</td>
+</tr>
+
+<tr>
+  <td>soap</td>
+  <td>Demonstrates using the MSSoap toolkit to utilise several web services.
+Web services demonstrated include Google search, spell checker and cache viewer.</td>
+</tr>
+
+<tr>
+  <td>iexplore</td>
+  <td>Demonstrates controlling Internet Explorer via COM. Demonstrates using an Internet
+Explorer window to display or retrieve information from the user.</td>
+</tr>
+
+<tr>
+  <td>scriptctl</td>
+  <td>Demonstrates using the MSScriptControl to run a VBScript or JScript.</td>
+</tr>
+
+<tr>
+  <td>dexplore</td>
+  <td>Demonstrates controlling Microsoft's new help system for developers, dexplore.</td>
+</tr>
+
+<tr>
+  <td>dcom_alt_creds</td>
+  <td>Demonstrates one way of accessing a remote COM object using alternate credentials.</td>
+</tr>
+
+<tr>
+  <td>wia</td>
+  <td>Demonstrates using Windows Image Acquisition(WIA) to manipulate
+images. Demonstrates taking a snapshot from a video device.</td>
+</tr>
+</table>
+
+<h2>Current Limitations</h2>
+<p>The time_t conversion routines used by the "%t" identifier make use of the mktime(),
+localtime() and gmtime() functions. These functions may not be thread safe on some compilers.</p>
+
+<h2>Micro Tutorial</h2>
+<p>Let's look at a very simple program. This program will grab the web page
+at <a href="http://sourceforge.net">sourceforge.net</a> and dump it to the console.
+Error handling is omitted for simplicity.</p>
+
+<pre>
+01  #include "disphelper.h"
+02  #include &lt;stdio.h&gt;
+03
+04  int main(void)
+05  {
+06      <span class="dhfunc">DISPATCH_OBJ</span>(objHTTP);
+07      LPSTR szResponse;
+08
+09      <span class="dhfunc">dhInitialize</span>(TRUE);
+10      <span class="dhfunc">dhToggleExceptions</span>(TRUE);
+11
+12      <span class="dhfunc">dhCreateObject</span>(L"MSXML2.XMLHTTP", NULL, &amp;objHTTP);
+13      <span class="dhfunc">dhCallMethod</span>(objHTTP, L".Open(%s, %s, %b)", "GET", "http://sourceforge.net", FALSE);
+14      <span class="dhfunc">dhCallMethod</span>(objHTTP, L".Send");
+15
+16      <span class="dhfunc">dhGetValue</span>(L"%s", &amp;szResponse, objHTTP, L".ResponseText");
+17
+18      printf("Response:\n%s\n", szResponse);
+19      <span class="dhfunc">dhFreeString</span>(szResponse);
+20
+21      <span class="dhfunc">SAFE_RELEASE</span>(objHTTP);
+22      <span class="dhfunc">dhUninitialize</span>(TRUE);
+23  }
+</pre>
+
+<p>On line <strong>01</strong> we include disphelper.h. Because DispHelper uses late bound COM
+we do not have to include a header file for a specific COM object.</p>
+
+<p>On line <strong>04</strong> we start a normal console project. DispHelper can be used in both
+console projects and GUI projects.</p>
+
+<p>On line <strong>06</strong> we declare a COM object for use with DispHelper functions. The
+DISPATCH_OBJ macro is declared as such:</p>
+<pre>
+#define DISPATCH_OBJ(objName) IDispatch * objName = NULL
+</pre>
+
+<p>Line <strong>09</strong> initializes DispHelper for this thread. By passing TRUE to dhInitialize()
+it will also initialize COM for this thread.</p>
+
+<p>Line <strong>10</strong> instructs DispHelper to display errors. Any error that occurs during a call
+to a DispHelper function will be displayed in a message box. This feature is very useful for debugging.</p>
+
+<p>On line <strong>12</strong> we create our COM object. The first argument to dhCreateObject()
+specifies which component we wish to create, in this case an XMLHTTP object. The second argument
+specifies which computer the COM object should be created on. COM objects that run in their own process,
+such as Word and Excel can be created on a remote computer, assuming you have access rights. We pass NULL
+to create the object on the local computer. Finally, we pass the address of objHTTP to receive the created
+COM object.</p>
+
+<p>Lines <strong>13 and 14</strong> show our first method calls. As you can see, DispHelper uses a printf style
+syntax. ".Open(%s, %s, %b)" means that we want to call the "Open" method with 2 strings and a BOOL as parameters.
+Line <strong>14</strong> calls the "Send" method with no arguments.</p>
+
+<p>Line <strong>16</strong> shows how to retrieve a value. The value can be from either a property or
+the return value of a function. The first argument passed to dhGetValue() is an identifier which specifies
+the type to return. In this case we pass "%s" to specify we want the value as a string. The second argument
+passes the address of where we want the return value. This must match the type specified in the first argument.
+We pass the address of a string. Subsequent arguments are the same as for dhCallMethod().</p>
+
+<p>Line <strong>18</strong> prints the returned string to the console. Line <strong>19</strong>
+frees the returned string. Strings returned by dhGetValue() must be freed using dhFreeString().</p>
+<p>Line <strong>21</strong> releases our COM object. COM objects returned by DispHelper functions should
+be freed using the SAFE_RELEASE() macro.</p>
+
+<p>You may be wondering what all those Ls dotting the code are for. An L before a string literal
+in C and C++ specify that the string literal should be a unicode string literal. Due to the fact
+that COM typically uses unicode strings most DispHelper string arguments need to be passed as unicode
+strings. On the other hand, strings passed to methods you are calling on an object can be either normal
+strings(%s) or wide unicode strings(%S).</p>
+
+<h2>Format Identifiers</h2>
+<p>As you have seen, DispHelper functions uses format identifiers to specify argument types.
+Below is a complete list of the format identifiers that DispHelper handles.</p>
+
+<table cellspacing="0">
+<thead>
+<tr><th>Identifier</th><th>Type</th><th>Compatible Types</th><th>Note</th></tr>
+</thead>
+
+<tfoot>
+<tr><td colspan="4"><b>Note 1:</b> When a string is returned using dhGetValue() it should be freed using dhFreeString().</td></tr>
+<tr><td colspan="4"><b>Note 2:</b> When an object is declared using DISPATCH_OBJ(var) it is an IDispatch *.</td></tr>
+<tr><td colspan="4"><b>Note 3:</b> When an IDispatch * or IUnknown * is returned from dhGetValue() it should be released using the SAFE_RELEASE() macro.</td></tr>
+<tr><td colspan="4"><b>Note 4:</b> A variant DATE(%D) is always in local time. When passing in or receiving 
+a FILETIME(%f) or SYSTEMTIME(%W) no time zone translation is performed. Therefore, you should
+pass in and expect to receive SYSTEMTIMEs and FILETIMEs in local time. However,
+as a time_t(%t) is always in GMT time, time zone translation is performed by DispHelper.</td></tr>
+<tr><td colspan="4"><b>Note 5:</b> %m can only be used as an input argument. It specifies a missing optional
+argument. It does not have a corresponding entry in the argument list.
+<pre>dhCallMethod(myObj, L".DoSomething(%m, %s)", "test");</pre></td></tr>
+</tfoot>
+
+<tbody>
+<tr><td>%d</td><td>LONG      </td><td>long, int, INT</td><td>&nbsp;</td></tr>
+<tr><td>%u</td><td>ULONG     </td><td>unsigned long, unsigned int, UINT, DWORD</td><td>&nbsp;</td></tr>
+<tr><td>%e</td><td>DOUBLE    </td><td>double</td><td>&nbsp;</td></tr>
+<tr><td>%b</td><td>BOOL      </td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>%v</td><td>VARIANT   </td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>%B</td><td>BSTR      </td><td>&nbsp;   </td><td>1</td></tr>
+<tr><td>%s</td><td>LPSTR     </td><td>char *</td><td>1</td></tr>
+<tr><td>%S</td><td>LPWSTR    </td><td>WCHAR *</td><td>1</td></tr>
+<tr><td>%T</td><td>LPTSTR    </td><td>TCHAR *</td><td>1</td></tr>
+<tr><td>%o</td><td>IDispatch * </td><td>DISPATCH_OBJ(var)</td><td>2, 3</td></tr>
+<tr><td>%O</td><td>IUnknown *  </td><td>&nbsp;</td><td>3</td></tr>
+<tr><td>%t</td><td>time_t      </td><td>&nbsp;</td><td>4</td></tr>
+<tr><td>%W</td><td>SYSTEMTIME *</td><td>&nbsp;</td><td>4</td></tr>
+<tr><td>%f</td><td>FILETIME *  </td><td>&nbsp;</td><td>4</td></tr>
+<tr><td>%D</td><td>DATE        </td><td>&nbsp;</td><td>4</td></tr>
+<tr><td>%p</td><td>LPVOID      </td><td>Use for HANDLEs, HWNDs, etc</td><td>&nbsp;</td></tr>
+<tr><td>%m</td><td>Missing Argument</td><td>&nbsp;</td><td>5</td></tr>
+</tbody>
+</table>
+
+<h2>Quick Reference</h2>
+
+<h3>Initializing DispHelper</h3>
+<pre>
+// Initializes DispHelper and COM for this thread
+dhInitialize(TRUE);
+
+// Initializes DispHelper only. COM must be initialized seperately
+// using CoInitialize(), CoInitializeEx() or OleInitialize().
+dhInitialize(FALSE);
+
+// Using the C++ initialization class
+CDhInitialize init;
+</pre>
+
+<h3>Declaring a DispHelper COM object</h3>
+<pre>
+// With the macro
+DISPATCH_OBJ(wdDoc);
+
+// Without the macro
+IDispatch * wdDoc = NULL;
+
+// Using the C++ smart pointer
+CDispPtr wdDoc;
+</pre>
+
+<h3>Toggling Exceptions</h3>
+<pre>
+// DispHelper will show a message box when an error occurs. Useful for debugging.
+dhToggleExceptions(TRUE);
+
+// DispHelper will not show a message box when an error occurs(default).
+dhToggleExceptions(FALSE);
+</pre>
+
+<h3>Creating a COM object</h3>
+<p>This function is similar to the VBScript function CreateObject().</p>
+<pre>
+// Create an ADO connection object.
+dhCreateObject(L"ADODB.Connection", NULL, &amp;adoConn);
+
+// Create a word document on the computer "server"
+dhCreateObject(L"Word.Document", L"server", &amp;wdDoc);
+</pre>
+
+<h3>Getting a COM object</h3>
+<p>This function is similar to the VBScript function GetObject().</p>
+<pre>
+// Get a running instance of word
+dhGetObject(NULL, L"Word.Application", &amp;wdApp);
+
+// Load "my word doc.doc" as a COM object
+dhGetObject(L"my word doc.doc", L"Word.Document", &amp;wdDoc);
+</pre>
+
+<h3>Calling a method</h3>
+<pre>
+// Type some text in Word
+dhCallMethod(wdApp, L".Selection.TypeText(%s)", "Some text");
+
+// Save the 2nd Word document
+dhCallMethod(wdApp, L".Documents(%d).Save", 2);
+</pre>
+
+<h3>Setting a property value</h3>
+<pre>
+// Make Word visible.
+dhPutValue(wdApp, L".Visible = %b", TRUE);
+
+// Set the age field of an ADO recordset
+dhPutValue(adoRs, L".Fields(%S).Value = %d", L"Age", 34);
+</pre>
+
+<h3>Retrieving a value</h3>
+<pre>
+// Get the text of a word document
+dhGetValue(L"%s", &amp;szText, wdDoc, L".Range.Text");
+
+// Get the value of an Excel cell
+dhGetValue(L"%d", &amp;nValue, xlApp, L".ActiveSheet.Range(%s).Value", "A1");
+
+// Get the result of executing a wmi query - a collection object.
+dhGetValue(L"%o", &amp;colQuickFixes, wmiSvc, L".ExecQuery(%S)",
+                               L"SELECT * FROM Win32_QuickFixEngineering");
+</pre>
+
+<h3>Enumerating a collection</h3>
+<p>This is made simple with a couple of macros.</p>
+<pre>
+     // The enumeration begins with FOR_EACH
+     // objQuickFix does not need to be pre-declared.
+     FOR_EACH(objQuickFix, /* in */ colQuickFixes, NULL)
+     {
+         // In the for each we can use objQuickFix
+         dhGetValue(L"%s", &amp;QuickFix.szDescription, objQuickFix, L".Description");
+         dhGetValue(L"%s", &amp;QuickFix.szInstalledBy, objQuickFix, L".InstalledBy");
+
+         printf("Description: %s\nInstalled By: %s\n", 
+                 QuickFix.szDescription, QuickFix.szInstalledBy);
+
+         dhFreeString(QuickFix.szDescription);
+         dhFreeString(QuickFix.szInstalledBy);
+
+         // The NEXT takes care of cleaning up the enumeration
+     } NEXT(objQuickFix);
+
+     // Enumerate word documents
+     FOR_EACH(wdDoc, wdApp, L".Documents")
+     {
+         dhCallMethod(wdDoc, L".Range.InsertBefore(%s)", "DispHelper");
+
+     } NEXT(wdDoc);
+
+     // The FOR_EACH macro can also take arguments
+     // Note that we append FOR_EACH with the number of arguments, up to 4
+     // Enumerate each word in the second document
+     FOR_EACH1(wdWord, wdApp, L".Documents(%d).Words", 2)
+     {
+         dhPutValue(wdWord, L".Font.Bold = %b", TRUE);
+
+     } NEXT(wdWord);
+</pre>
+
+<h3>Optimising with WITH</h3>
+<p>With a similar syntaxt to the FOR_EACH macro the WITH macro allows you to avoid retrieving
+an object multiple times.</p>
+<pre>
+     // Without the WITH macro
+     dhPutValue(wdApp, L".Selection.Font.Size = %d", 20);
+     dhPutValue(wdApp, L".Selection.Font.SmallCaps = %b", TRUE);
+     dhPutValue(wdApp, L".Selection.Font.Name = %S", L"Comic Sans MS");
+     dhPutValue(wdApp, L".Selection.Font.Color = %d", RGB(33,99,0) );
+
+     // Optimized with the WITH macro
+     WITH(wdFont, wdApp, L".Selection.Font")
+     {
+         dhPutValue(wdFont, L".Size = %d", 20);
+         dhPutValue(wdFont, L".SmallCaps = %b", TRUE);
+         dhPutValue(wdFont, L".Name = %S", L"Comic Sans MS");
+         dhPutValue(wdFont, L".Color = %d", RGB(33,99,0) );
+
+     } END_WITH(wdFont);
+
+     // The WITH macro can also take arguments.
+     WITH1(wdFont, wdApp, L".Documents(%d).Range.Font", 1)
+     {
+         dhPutValue(wdFont, L".Size = %d", 20);
+         dhPutValue(wdFont, L".SmallCaps = %b", TRUE);
+
+     } END_WITH(wdFont);
+</pre>
+
+<h3>Retrieving the last error text</h3>
+<pre>
+    // Dump the details of the last error to a log file
+    void LogDhError(void)
+    {
+        char szMessage[512];
+        dhFormatExceptionA(NULL, szMessage, sizeof(szMessage)/sizeof(szMessage[0]), TRUE);
+        fprintf(g_hLogFile, "%s", szMessage);
+    }
+
+    // Sample usage
+    if (FAILED(dhCallMethod(wdApp, L".Selection.TypeText(%s)", "Hello World")))
+    {
+        LogDhError();
+        // Cleanup and exit
+    }
+</pre>
+
+<h3>Throw a C++ exception on error</h3>
+<pre>
+    // Use the dhCheck macro which will throw a std::string on error
+
+    try
+    {
+        dhCheck( dhCallMethod(wdApp, L".Selection.TypeText(%s)", "Hello World") );
+        dhCheck( dhPutValue(wdApp, L".Selection.Font.Bold = %b", TRUE) );
+    }
+    catch (string errstr)
+    {
+        cerr &lt;&lt; "Fatal error details:" &lt;&lt; endl &lt;&lt; errstr &lt;&lt; endl;
+    }
+</pre>
+
+
+<h3>Releasing a COM object</h3>
+<pre>
+// Make use of the SAFE_RELEASE macro - do not use with smart pointer
+SAFE_RELEASE(wdApp);
+</pre>
+
+<h2>Future Directions</h2>
+<p>DispHelper may expand to allow easy hosting of ActiveX controls, if demand exists.</p>
+
+<p style="text-align:center;"><a href="http://sourceforge.net" title="Go to SourceForge.net - The open source development site">
+<img src="http://sourceforge.net/sflogo.php?group_id=111558&amp;type=3" width="125" height="37" style="border:none;" alt="Go to SourceForge.net - The open source development site" />
+</a></p>
+
+
+</body>
+</html>
+
+
+
