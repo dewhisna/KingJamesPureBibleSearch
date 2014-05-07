@@ -1092,7 +1092,7 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		// If the ndxVerseBefore is in a different book, check that book to see if
 		//	it has a colophon and if so, add it so that we will render highlighting
 		//	and other markup for it:
-		if (ndxVerseBefore.book() != ndxCurrent.book()) {
+		if ((ndxVerseBefore.isSet()) && (ndxVerseBefore.book() != ndxCurrent.book())) {
 			const CBookEntry *pBookVerseBefore = m_pBibleDatabase->bookEntry(ndxVerseBefore.book());
 			assert(pBookVerseBefore != NULL);
 			if (pBookVerseBefore->m_bHaveColophon) {
