@@ -276,7 +276,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 
 				CRelIndex ndxRel(CVerseListModel::toVerseIndex(index)->relIndex());
 				if ((ndxRel.isSet()) &&
-					(((index.row() != 0) && (ndxRel.verse() != 0)) || (m_model.viewMode() == CVerseListModel::VVME_USERNOTES))) {
+					(((index.row() != 0) && ((ndxRel.verse() != 0) || ((ndxRel.verse() == 0) && (ndxRel.word() != 0)))) || (m_model.viewMode() == CVerseListModel::VVME_USERNOTES))) {
 					// Ideally we would just draw the line on the top of all entries except for
 					//		when index.row() == 0. However, there seems to be a one row overlap
 					//		in the rectangles from one cell to the next (QTreeView bug?) and the

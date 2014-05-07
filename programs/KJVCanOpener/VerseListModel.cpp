@@ -774,7 +774,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					}
 				}
 				QPair<int, int> nVerseResult = zSearchResults.GetVerseIndexAndCount(itrVerse);
-				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope", "Statistics").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
+				if (nVerseResult.first != 0) {
+					strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Verse %1 of %2 in Search Scope", "Statistics").arg(nVerseResult.first).arg(nVerseResult.second) + "\n";
+				}
 				QPair<int, int> nChapterResult = zSearchResults.GetChapterIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope", "Statistics").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 				QPair<int, int> nBookResult = zSearchResults.GetBookIndexAndCount(itrVerse);
@@ -959,7 +961,8 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 	CRelIndex ndxRel(logicalIndexForModelIndex(index));
 	if (m_private.m_nViewMode != VVME_CROSSREFS) {
 		if ((ndxRel.isSet()) &&
-			((ndxRel.verse() != 0) ||
+			((ndxRel.verse() != 0)  ||
+			 ((ndxRel.verse() == 0) && (ndxRel.word() != 0)) ||
 			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))))) {
 			if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
@@ -1743,7 +1746,15 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAn
 
 QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse) const
 {
-	return QPair<int, int>(((itrVerse != CVerseMap::const_iterator()) ? (std::distance(m_mapVerses.constBegin(), itrVerse)+1) : 0), m_mapVerses.size());
+	int nIndex = 0;
+	int nCount = 0;
+	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); itr != m_mapVerses.constEnd(); ++itr) {
+		if (itr->getIndex().verse() != 0) {
+			++nCount;
+			if (itr == itrVerse) nIndex = nCount;
+		}
+	}
+	return QPair<int, int>(nIndex, nCount);
 }
 
 // ----------------------------------------------------------------------------

@@ -188,6 +188,7 @@ public:
 			for (int ndx = 0; ndx < m_lstTags.size(); ++ndx) {
 				if (ndx == 0) {
 					CRelIndex relNdxTag;
+					bool bCopyWrdNdx = true;
 					if (bSearchRefs) {
 						relNdxTag = m_lstTags.at(ndx).relIndex();
 					} else {
@@ -195,9 +196,10 @@ public:
 					}
 					if (((bForCopying) && (!CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||
 						((!bForCopying) && (!CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs()))) {
-						relNdxTag.setWord(0);
+						if (relNdxTag.verse() != 0) relNdxTag.setWord(0);
+						bCopyWrdNdx = false;
 					}
-					strHeading += m_pBibleDatabase->PassageReferenceText(relNdxTag);
+					strHeading += m_pBibleDatabase->PassageReferenceText(relNdxTag, !bCopyWrdNdx);
 				} else {
 					if ((bSearchRefs) &&
 						(((bForCopying) && (CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||

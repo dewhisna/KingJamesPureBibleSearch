@@ -746,7 +746,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Chp.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
 		}
 	}
 
@@ -764,10 +764,10 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Vrs.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
 		}
 		if (Vrs.ofChapter().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4", "Statistics").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofChapter().first).arg(Vrs.ofChapter().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),nRelIndex.chapter(),0,0))) + "\n";
 		}
 	}
 
@@ -786,13 +786,13 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
 		}
 		if (Wrd.ofBook().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(bookName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
 		}
-		if (Wrd.ofChapter().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4", "Statistics").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()) + "\n";
+		if ((Wrd.ofChapter().first != 0) && (nRelIndex.chapter() != 0)) {
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofChapter().first).arg(Wrd.ofChapter().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),nRelIndex.chapter(),0,0))) + "\n";
 		}
 		if (Wrd.ofVerse().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3 %4:%5", "Statistics").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofVerse().first).arg(Wrd.ofVerse().second).arg(PassageReferenceText(nRelIndex, true)) + "\n";
 		}
 	}
 
@@ -939,10 +939,10 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 		case RTE_WORD:					// Calculate the Word of the Verse, Book, Testament, and Bible
 			m_nOfVrs.first = m_ndxRef.word();
 			if ((m_ndxRef.book() > 0) && (m_ndxRef.book() <= pBibleDatabase->bibleEntry().m_nNumBk) &&
-				(m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= pBibleDatabase->bookEntry(m_ndxRef.book())->m_nNumChp) &&
-				(m_ndxRef.verse() > 0) && (m_ndxRef.verse() <= pBibleDatabase->chapterEntry(m_ndxRef)->m_nNumVrs)) {
+				(((m_ndxRef.chapter() == 0) && (m_ndxRef.word() != 0)) || ((m_ndxRef.chapter() > 0) && (m_ndxRef.chapter() <= pBibleDatabase->bookEntry(m_ndxRef.book())->m_nNumChp))) &&
+				(((m_ndxRef.verse() == 0) && (m_ndxRef.word() != 0)) || ((m_ndxRef.verse() > 0) && (m_ndxRef.verse() <= pBibleDatabase->chapterEntry(m_ndxRef)->m_nNumVrs)))) {
 				m_nOfVrs.second = pBibleDatabase->verseEntry(m_ndxRef)->m_nNumWrd;
-				m_nOfChp.second = pBibleDatabase->chapterEntry(m_ndxRef)->m_nNumWrd;
+				if (m_ndxRef.chapter() != 0) m_nOfChp.second = pBibleDatabase->chapterEntry(m_ndxRef)->m_nNumWrd;
 				m_nOfBk.second = pBibleDatabase->bookEntry(m_ndxRef.book())->m_nNumWrd;
 				// Number of Words in books prior to target:
 				for (unsigned int ndxBk=1; ndxBk<m_ndxRef.book(); ++ndxBk) {
@@ -968,8 +968,20 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 					m_nOfTst.first += nWords;
 					m_nOfBible.first += nWords;
 				}
+				bool bHaveColophon = (pBibleDatabase->bookEntry(m_ndxRef.book())->m_bHaveColophon);
+				// Even though the colophons logistically are indexed at the start of the book, treat them as if
+				//		they come at the end of the book (since that's the definition of a colophon) -- if this is a colophon,
+				//		add the words of the book minus the colophon to our target and below we'll index
+				//		into the colophon itself.
+				if ((bHaveColophon) && (m_ndxRef.chapter() == 0) && (m_ndxRef.verse() == 0)) {
+					unsigned int nWords = pBibleDatabase->bookEntry(m_ndxRef.book())->m_nNumWrd - pBibleDatabase->verseEntry(CRelIndex(m_ndxRef.book(),0,0,0))->m_nNumWrd;
+					m_nOfBk.first += nWords;
+					m_nOfTst.first += nWords;
+					m_nOfBible.first += nWords;
+				}
 				// Number of Words in Verses prior to target in target Chapter:
-				for (unsigned int ndxVrs=1; ndxVrs<m_ndxRef.verse(); ++ndxVrs) {
+				bool bHaveSuperscription = ((m_ndxRef.chapter() != 0) ? (pBibleDatabase->chapterEntry(m_ndxRef)->m_bHaveSuperscription) : false);
+				for (unsigned int ndxVrs=(bHaveSuperscription ? 0 : 1); ndxVrs<m_ndxRef.verse(); ++ndxVrs) {
 					unsigned int nWords = pBibleDatabase->verseEntry(CRelIndex(m_ndxRef.book(),m_ndxRef.chapter(),ndxVrs,0))->m_nNumWrd;
 					m_nOfChp.first += nWords;
 					m_nOfBk.first += nWords;

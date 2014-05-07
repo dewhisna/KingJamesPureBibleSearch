@@ -300,7 +300,7 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 	for (int ndx = 0; ndx < lstSelectedItems.size(); /* Increment inside loop */) {
 		if (lstSelectedItems.at(ndx).isValid()) {
 			CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
-			if ((ndxRel.isSet()) && (ndxRel.verse() != 0)) {
+			if ((ndxRel.isSet()) && ((ndxRel.verse() != 0) || ((ndxRel.verse() == 0) && (ndxRel.word() != 0)))) {
 				++ndx;
 			} else {
 				lstSelectedItems.removeAt(ndx);
