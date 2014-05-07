@@ -31,10 +31,17 @@
 //	cl eSwordDecrypt.c disphelper/single_file_source/disphelper.c /link ole32.lib oleaut32.lib uuid.lib user32.lib
 //
 //	Note: Technically don't need user32.lib unless displaying messageBox prompts for exceptions
+//
+// On Linux with MinGW32 from rubenvb's build:
+//	/opt/mingw32_4.7.4_rubenvb/bin/i686-w64-mingw32-gcc eSwordDecrypt.c disphelper/single_file_source/disphelper.c -o eSwordDecrypt.exe -lole32 -loleaut32 -luuid -luser32
+//
 
 #include <stdlib.h>
 #include <stdio.h>
 #include "./disphelper/single_file_source/disphelper.h"
+
+#undef ARRAYSIZE
+#define ARRAYSIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 #define VERSION 	10000			// Version 1.0.0
 #define APP_NAME	L"eSwordDecrypt"
@@ -123,7 +130,7 @@ int main(int argc, const char *argv[])
 
 	if ((nArgsFound != 2) || (bUnknownOption) || (pInFile == NULL) || (pOutFile == NULL)) {
 		fwprintf(stderr, L"%s v%d.%d.%d\n\n", APP_NAME, VERSION/10000, ((VERSION/100)%100), (VERSION%100));
-		fprintf(stderr, "Usage: %1 <eSword-In-File> <eSword-Out-File>\n\n", argv[0]);
+		fprintf(stderr, "Usage: %s <eSword-In-File> <eSword-Out-File>\n\n", argv[0]);
 		fprintf(stderr, "This utility decrypts the eSword SQL Databases into a plaintext SQL Database\n\n");
 		fprintf(stderr, "Requires the SQLitePlus sqltp50.dll to be registered and requires associated\n");
 		fprintf(stderr, "   sqltv3701.dll  sqltv3713.dll  sqltv3763.dll  processing dll\n\n");
