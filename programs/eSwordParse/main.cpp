@@ -62,7 +62,9 @@ static inline QString htmlEscape(const QString &aString)
 
 const unsigned int VERSION = 10000;		// Version 1.0.0
 
-#define NUM_BK 80u				// Total Books Defined
+// TODO : Update this for apocrypha:
+#define NUM_BK 66u				// Total Books Defined
+//#define NUM_BK 80u				// Total Books Defined
 #define NUM_BK_OT 39u			// Total Books in Old Testament
 #define NUM_BK_NT 27u			// Total Books in New Testament
 #define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
@@ -147,22 +149,23 @@ TBook g_arrBooks[NUM_BK] =
 	{ QObject::tr("2 John"), "2John", "JOHN2", QObject::tr("General Epistles"), QObject::tr("The Second General Epistle of John") },
 	{ QObject::tr("3 John"), "3John", "JOHN3", QObject::tr("General Epistles"), QObject::tr("The Third General Epistle of John") },
 	{ QObject::tr("Jude"), "Jude", "JUDE", QObject::tr("General Epistles"), QObject::tr("The General Epistle of Jude") },
-	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") },
+	{ QObject::tr("Revelation"), "Rev", "REV", QObject::tr("Apocalyptic Epistle"), QObject::tr("The Revelation of Jesus Christ") }
 	// ---- Begin Apocrypha/Deuterocanon:
-	{ QObject::tr("1 Esdras"), "1Esd", "ESD1", QObject::tr("Apocrypha"), QObject::tr("The First Book of Esdras") },
-	{ QObject::tr("2 Esdras"), "2Esd", "ESD2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of Esdras") },
-	{ QObject::tr("Tobit"), "Tob", "TOB", QObject::tr("Apocrypha"), QObject::tr("The Book of Tobit") },
-	{ QObject::tr("Judith"), "Jdt", "JDT", QObject::tr("Apocrypha"), QObject::tr("The Book of Judith") },
-	{ QObject::tr("Additions to Esther"), "AddEsth", "ADDESTH", QObject::tr("Apocrypha"), QObject::tr("The Rest of the Chapters of the Book of Esther") },
-	{ QObject::tr("Wisdom"), "Wis", "WIS", QObject::tr("Apocrypha"), QObject::tr("The Book of Wisdom or The Wisdom of Solomon") },
-	{ QObject::tr("Sirach"), "Sir", "SIR", QObject::tr("Apocrypha"), QObject::tr("The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus") },
-	{ QObject::tr("Baruch"), "Bar", "BAR", QObject::tr("Apocrypha"), QObject::tr("The Book of Baruch") },
-	{ QObject::tr("Prayer of Azariah"), "PrAzar", "PRAZAR", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Azariah") },
-	{ QObject::tr("Susanna"), "Sus", "SUS", QObject::tr("Apocrypha"), QObject::tr("The History of Susanna [in Daniel]") },
-	{ QObject::tr("Bel and the Dragon"), "Bel", "BEL", QObject::tr("Apocrypha"), QObject::tr("The Book of Bel and the Dragon [in Daniel]") },
-	{ QObject::tr("Prayer of Manasses"), "PrMan", "PRMAN", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah") },
-	{ QObject::tr("1 Maccabees"), "1Macc", "MACC1", QObject::tr("Apocrypha"), QObject::tr("The First Book of the Maccabees") },
-	{ QObject::tr("2 Maccabees"), "2Macc", "MACC2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of the Maccabees") }
+// TODO : Rework this for the Apocrypha once we've remapped their implentation to ours:
+//	{ QObject::tr("1 Esdras"), "1Esd", "ESD1", QObject::tr("Apocrypha"), QObject::tr("The First Book of Esdras") },
+//	{ QObject::tr("2 Esdras"), "2Esd", "ESD2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of Esdras") },
+//	{ QObject::tr("Tobit"), "Tob", "TOB", QObject::tr("Apocrypha"), QObject::tr("The Book of Tobit") },
+//	{ QObject::tr("Judith"), "Jdt", "JDT", QObject::tr("Apocrypha"), QObject::tr("The Book of Judith") },
+//	{ QObject::tr("Additions to Esther"), "AddEsth", "ADDESTH", QObject::tr("Apocrypha"), QObject::tr("The Rest of the Chapters of the Book of Esther") },
+//	{ QObject::tr("Wisdom"), "Wis", "WIS", QObject::tr("Apocrypha"), QObject::tr("The Book of Wisdom or The Wisdom of Solomon") },
+//	{ QObject::tr("Sirach"), "Sir", "SIR", QObject::tr("Apocrypha"), QObject::tr("The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus") },
+//	{ QObject::tr("Baruch"), "Bar", "BAR", QObject::tr("Apocrypha"), QObject::tr("The Book of Baruch") },
+//	{ QObject::tr("Prayer of Azariah"), "PrAzar", "PRAZAR", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Azariah") },
+//	{ QObject::tr("Susanna"), "Sus", "SUS", QObject::tr("Apocrypha"), QObject::tr("The History of Susanna [in Daniel]") },
+//	{ QObject::tr("Bel and the Dragon"), "Bel", "BEL", QObject::tr("Apocrypha"), QObject::tr("The Book of Bel and the Dragon [in Daniel]") },
+//	{ QObject::tr("Prayer of Manasses"), "PrMan", "PRMAN", QObject::tr("Apocrypha"), QObject::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah") },
+//	{ QObject::tr("1 Maccabees"), "1Macc", "MACC1", QObject::tr("Apocrypha"), QObject::tr("The First Book of the Maccabees") },
+//	{ QObject::tr("2 Maccabees"), "2Macc", "MACC2", QObject::tr("Apocrypha"), QObject::tr("The Second Book of the Maccabees") }
 };
 
 QSqlDatabase g_sqldbReadMain;
@@ -221,7 +224,13 @@ TParseMatrix g_lstParseMatrix[] =
 	{ false, "{\\b ", "}", "<title type=\"psalm\" canonical=\"true\">", "</title>" },		// Superscriptions
 	{ true, "{\\qc ", "}", "", "" },														// Psalm 119 Foreign Language Tags
 	{ false, "\\par\\par", "", "<milestone type=\"x-extra-p\"/>", "" },						// Paragraph markers (extra space -- not pilcrows)
-	{ false, "\\par", "", "", "" }															// "Eat" stray single "\par" tags
+	{ false, "\\par", "", "", "" },															// "Eat" stray single "\par" tags
+
+	// TODO : We need to parse the \cf2 tags for doing the Apocrypha as e-Sword
+	//		strangely has it mixed up and not properly segregated from the main
+	//		Bible text.  For now, we'll just strip it out:
+	{ true, "{\\cf2", "}", "", "" },														// Eat the apocrypha text for now
+	{ false, "\\line", "", "", "" }															// Ignore special line (embedded verse) tags for now...
 };
 
 QString CRTFParseBaton::parseToOsis(const QString &strRTFText)
@@ -386,7 +395,19 @@ int main(int argc, char *argv[])
 		nNextVrs = query.value(2).toUInt();
 		QString strVerseText = query.value(3).toString().trimmed();
 
-		assert((nNextBk > 0) && (nNextBk <= NUM_BK));
+		if ((nNextBk <= 0) || (nNextBk > NUM_BK)) {
+			if (nBk != nNextBk) {
+				if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8().data());
+				if (nChp != 0) fileOut.write(QString("</chapter>\n").toUtf8().data());
+				if (nBk != 0) fileOut.write(QString("</div>\n").toUtf8().data());
+				nChp = 0;
+				nVrs = 0;
+
+				std::cerr << QString("\nUnknown Book: %1\n").arg(nNextBk).toUtf8().data();
+				nBk = nNextBk;
+			}
+			continue;
+		}
 
 		nNextTst = bookIndexToTestamentIndex(nNextBk);
 		if (nTst != nNextTst) {
