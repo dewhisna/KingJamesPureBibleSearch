@@ -83,13 +83,21 @@ public:
 			(ndxRel.word() != 0)) {
 			if (ndxRel.chapter() == 0) {
 				return ((m_setSearchWithin.find(SSI_COLOPHON) != m_setSearchWithin.end()) &&
-						(m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()));
+						((m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()) || withinIsPseudoVerseOnly()));
 			} else {
 				return ((m_setSearchWithin.find(SSI_SUPERSCRIPTION) != m_setSearchWithin.end()) &&
-						(m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()));
+						((m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end()) || withinIsPseudoVerseOnly()));
 			}
 		}
 		return (m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end());
+	}
+	bool withinIsPseudoVerseOnly() const
+	{
+		bool bColophon = (m_setSearchWithin.find(SSI_COLOPHON) != m_setSearchWithin.end());
+		bool bSuperscription = (m_setSearchWithin.find(SSI_SUPERSCRIPTION) != m_setSearchWithin.end());
+		return (((bColophon) && (!bSuperscription) && (m_setSearchWithin.size() == 1)) ||
+				((!bColophon) && (bSuperscription) && (m_setSearchWithin.size() == 1)) ||
+				((bColophon) && (bSuperscription) && (m_setSearchWithin.size() == 2)));
 	}
 	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase) const
 	{
