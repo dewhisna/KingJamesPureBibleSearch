@@ -59,33 +59,36 @@ namespace {
 	const char *constUUID_RV1602P =				"94B7B600-CF39-11E3-9C1A-0800200C9A66";
 	const char *constUUID_GERSCH2000 =			"D326F220-CFFC-11E3-9C1A-0800200C9A66";
 	const char *constUUID_KJV1611A =			"8BFE29A0-D014-11E3-9C1A-0800200C9A66";
+	const char *constUUID_KJV1611 =				"8D999FF0-D650-11E3-9C1A-0800200C9A66";
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "", "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
+		{ false, "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
 		// KJV:
-		{ true, "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "", "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
+		{ true, "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
 		// RVG2010:
-		{ false, "RVG2010", "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), constUUID_RVG2010, "", "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb", constUUID_RVG2010 },
+		{ false, "RVG2010", "es", QString::fromUtf8("Reina-Valera Gómez"), QString::fromUtf8("Reina-Valera Gómez Version (2010)"), constUUID_RVG2010, "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb", constUUID_RVG2010 },
 		// KJF2006:
-		{ false, "KJF2006", "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "", "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", constUUID_KJF2006 },
+		{ false, "KJF2006", "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", constUUID_KJF2006 },
 		// KJVPureCambridge:
-		{ false, "KJVPCE", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "", "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", constUUID_KJV },
+		{ false, "KJVPCE", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", constUUID_KJV },
 		// KJVA (KJV 1769 with Apocrypha):
-		{ false, "KJVA", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "", "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV },
+		{ false, "KJVA", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV },
 		// UKJV (Updated King James Version):
-		{ false, "UKJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "", "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
+		{ false, "UKJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
 		// GERLUT1545 (German Luther 1545):
-		{ false, "GERLUT1545", "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "", "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
+		{ false, "GERLUT1545", "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
 		// RV1865-lcbp20100713 (Reina-Valera 1865, Local Church Bible Publishers 2010-07-13 Release)
-		{ false, "RV1865", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "", "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
+		{ false, "RV1865", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, LCBP-20100713"), constUUID_RV1865lcbp20100713, "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
 		// RV1602P (Reina-Valera 1602 Purificada)
-		{ false, "RV1602P", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada"), constUUID_RV1602P, "RV1602P_details.html", "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602P },
+		{ false, "RV1602P", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada"), constUUID_RV1602P, "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602P },
 		// GERSCH2000 (German Schlachter 2000)
-		{ false, "GERSCH2000", "de", QString::fromUtf8("Schlachter 2000"), QString::fromUtf8("German Schlachter 2000"), constUUID_GERSCH2000, "", "bbl-gersch2000.s3db", "bbl-gersch2000.ccdb", constUUID_GERSCH2000 },
-		// KJV1611A
-		{ false, "KJV1611A", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611 w/Apocrypha"), constUUID_KJV1611A, "", "bbl-kjv1611a.s3db", "bbl-kjv1611a.ccdb", constUUID_KJV1611A }
+		{ false, "GERSCH2000", "de", QString::fromUtf8("Schlachter 2000"), QString::fromUtf8("German Schlachter 2000"), constUUID_GERSCH2000, "bbl-gersch2000.s3db", "bbl-gersch2000.ccdb", constUUID_GERSCH2000 },
+		// KJV1611A (1611 with Apocrypha)
+		{ false, "KJV1611A", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611 w/Apocrypha"), constUUID_KJV1611A, "bbl-kjv1611a.s3db", "bbl-kjv1611a.ccdb", constUUID_KJV1611 },
+		// KJV1611 (1611 w/o Apocrypha)
+		{ false, "KJV1611", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611"), constUUID_KJV1611, "bbl-kjv1611.s3db", "bbl-kjv1611.ccdb", constUUID_KJV1611 }
 	};
 
 	//////////////////////////////////////////////////////////////////////
@@ -95,9 +98,9 @@ namespace {
 	const TDictionaryDescriptor constDictionaryDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "", "dct-specTest.s3db", "dct-specTest.ccdb" },
+		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "dct-specTest.s3db", "dct-specTest.ccdb" },
 		// Webster 1828:
-		{ true, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "", "dct-web1828.s3db", "dct-web1828.ccdb" }
+		{ true, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "dct-web1828.s3db", "dct-web1828.ccdb" }
 	};
 
 }	// namespace

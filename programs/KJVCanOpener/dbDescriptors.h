@@ -38,7 +38,6 @@ typedef struct {
 	QString m_strDBName;				// Short Database Name
 	QString m_strDBDesc;				// Long Database Name/Description
 	QString m_strUUID;					// Bible Database UUID
-	QString m_strDBInfoFilename;		// Database Information filename (used during build process)
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 	QString m_strHighlighterUUID;		// Master Highlighter UUID for databases with compatible versification to point to their master
@@ -58,7 +57,8 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_RV1865lcbp20100713 = 8,
 	BDE_RV1602P = 9,
 	BDE_GERSCH2000 = 10,
-	BDE_KJV1611A = 11
+	BDE_KJV1611A = 11,
+	BDE_KJV1611 = 12
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
@@ -68,7 +68,6 @@ typedef struct {
 	QString m_strDBName;
 	QString m_strDBDesc;
 	QString m_strUUID;
-	QString m_strDBInfoFilename;		// Database Information filename (used during build process)
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 } TDictionaryDescriptor;
