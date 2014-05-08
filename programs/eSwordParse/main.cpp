@@ -198,7 +198,8 @@ static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 class CRTFParseBaton
 {
 public:
-	CRTFParseBaton()
+	CRTFParseBaton(bool bConvertAmpersand)
+		:	m_bConvertAmpersand(bConvertAmpersand)
 	{
 
 	}
@@ -206,7 +207,7 @@ public:
 	QString parseToOsis(const QString &strRTFText);
 
 private:
-
+	bool m_bConvertAmpersand;
 };
 
 typedef struct {
@@ -269,7 +270,11 @@ QString CRTFParseBaton::parseToOsis(const QString &strRTFText)
 		std::cerr << QString("\n*** Verse contains unknown Parse Tag: \"%1\"\n\n").arg(strOutText).toUtf8().data();
 	}
 
-	return strOutText;
+	if (m_bConvertAmpersand) {
+		strOutText.replace(QChar('&'), QObject::tr("and"));
+	}
+
+	return htmlEscape(strOutText);
 }
 
 
@@ -285,6 +290,7 @@ int main(int argc, char *argv[])
 #endif
 
 	int nArgsFound = 0;
+	bool bConvertAmpersand = false;
 	bool bUnknownOption = false;
 	int nDescriptor = -1;
 	QString strSQLFilename;
@@ -301,6 +307,8 @@ int main(int argc, char *argv[])
 			} else if (nArgsFound == 3) {
 				strOSISFilename = strArg;
 			}
+		} else if (strArg.compare("-a") == 0) {
+			bConvertAmpersand = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -308,9 +316,12 @@ int main(int argc, char *argv[])
 
 	if ((nArgsFound != 3) || (bUnknownOption)) {
 		std::cerr << QString("eSwordParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 <UUID-Index> <eSword-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <eSword-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("<eSword-SQL-in-file> = e-Sword .bblx SQL Database File\n").toUtf8().data();
 		std::cerr << QString("<OSIS-out-file>      = OSIS XML Output File\n\n").toUtf8().data();
+		std::cerr << QString("Options\n").toUtf8().data();
+		std::cerr << QString("    -a  =  Convert Ampersands to \"and\"\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
 			BIBLE_DESCRIPTOR_ENUM nBDETemp = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
@@ -382,8 +393,9 @@ int main(int argc, char *argv[])
 	unsigned int nNextBk = 0;
 	unsigned int nNextChp = 0;
 	unsigned int nNextVrs = 0;
+	bool bTooManyBooks = false;
 
-	CRTFParseBaton rtfParseBaton;
+	CRTFParseBaton rtfParseBaton(bConvertAmpersand);
 
 	fileOut.write(QString("<div type=\"x-testament\">\n").toUtf8().data());
 
@@ -399,13 +411,14 @@ int main(int argc, char *argv[])
 			if (nBk != nNextBk) {
 				if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8().data());
 				if (nChp != 0) fileOut.write(QString("</chapter>\n").toUtf8().data());
-				if (nBk != 0) fileOut.write(QString("</div>\n").toUtf8().data());
+				if ((!bTooManyBooks) && (nBk != 0)) fileOut.write(QString("</div>\n").toUtf8().data());
 				nChp = 0;
 				nVrs = 0;
 
 				std::cerr << QString("\nUnknown Book: %1\n").arg(nNextBk).toUtf8().data();
 				nBk = nNextBk;
 			}
+			bTooManyBooks = true;
 			continue;
 		}
 
@@ -457,7 +470,7 @@ int main(int argc, char *argv[])
 	if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8().data());
 	if (nChp != 0) fileOut.write(QString("</chapter>\n").toUtf8().data());
 
-	if (nBk != 0) fileOut.write(QString("</div>\n").toUtf8().data());			// End of Book
+	if ((!bTooManyBooks) && (nBk != 0)) fileOut.write(QString("</div>\n").toUtf8().data());			// End of Book
 
 	if (nTst != 0) fileOut.write(QString("</div>\n").toUtf8().data());			// End of testament
 
