@@ -347,7 +347,10 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		QTextDocumentFragment fragment(&docVerse);
 		cursorDocList.insertFragment(fragment);
 //		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
-		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<br />\n");
+		if (ndx != (lstVerses.size()-1)) {
+			cursorDocList.insertHtml("<br />\n");
+			if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) cursorDocList.insertHtml("<br />\n");
+		}
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -390,6 +393,8 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 		} else {
 			strText += phrase.phrase().phraseRaw() + "\n";
 		}
+
+		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();

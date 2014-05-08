@@ -1925,6 +1925,8 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
+	connect(ui.checkBoxSearchResultsAddBlankLineBetweenVerses, SIGNAL(clicked(bool)), this, SLOT(en_changedSearchResultsAddBlankLineBetweenVerses(bool)));
+
 	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxCopyOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxShowWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowWrdNdxInSearchResultsRefs(bool)));
@@ -2060,6 +2062,8 @@ void CConfigCopyOptions::loadSettings()
 	ui.dblSpinBoxCopyFontSize->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
 
 	// ----------
+
+	ui.checkBoxSearchResultsAddBlankLineBetweenVerses->setChecked(CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
 
 	ui.checkBoxShowOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->showOCntInSearchResultsRefs());
 	ui.checkBoxCopyOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
@@ -2242,6 +2246,15 @@ void CConfigCopyOptions::en_changedFontCopyFontSize(double nFontSize)
 	m_bIsDirty = true;
 	emit dataChanged(false);
 	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(bAddBlankLine);
+	m_bIsDirty = true;
+	emit dataChanged(false);
 }
 
 void CConfigCopyOptions::en_changedShowOCntInSearchResultsRefs(bool bShow)

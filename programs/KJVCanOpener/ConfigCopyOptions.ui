@@ -27,7 +27,7 @@
   <property name="windowTitle">
    <string>Scripture Browser Copy Options</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
+  <layout class="QGridLayout" name="gridLayout_5">
    <property name="bottomMargin">
     <number>0</number>
    </property>
@@ -342,120 +342,148 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QGroupBox" name="groupBoxSearchResultsRefs">
+    <widget class="QGroupBox" name="groupBoxSearchResults">
      <property name="title">
-      <string>Search Results References:</string>
+      <string>Search Results</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="leftMargin">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <property name="margin">
        <number>6</number>
       </property>
-      <property name="topMargin">
-       <number>6</number>
-      </property>
-      <property name="rightMargin">
-       <number>6</number>
-      </property>
-      <property name="bottomMargin">
-       <number>6</number>
-      </property>
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="lblOCntInSearchResultsRefs">
-        <property name="text">
-         <string>Occurrence Counts:</string>
+      <item row="0" column="0">
+       <widget class="QGroupBox" name="groupBoxSearchResultsVerses">
+        <property name="title">
+         <string>Verses List:</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="margin">
+          <number>6</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkBoxSearchResultsAddBlankLineBetweenVerses">
+           <property name="text">
+            <string>Add &amp;Blank Line Between Verses</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
-      <item row="1" column="4">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="groupBoxSearchResultsRefs">
+        <property name="title">
+         <string>References List:</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>44</width>
-          <height>20</height>
-         </size>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
-       </spacer>
-      </item>
-      <item row="2" column="1" colspan="4">
-       <widget class="QLineEdit" name="lineEditShowSearchResultsRefsPreview">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QLabel" name="lblWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Word Indexes:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QCheckBox" name="checkBoxShowWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Show</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>44</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBoxShowOCntInSearchResultsRefs">
-        <property name="text">
-         <string>Show</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QCheckBox" name="checkBoxCopyOCntInSearchResultsRefs">
-        <property name="text">
-         <string>Copy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QCheckBox" name="checkBoxCopyWrdNdxInSearchResultsRefs">
-        <property name="text">
-         <string>Copy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lblShowSearchResultsRefsPreview">
-        <property name="text">
-         <string>Show Preview:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="4">
-       <widget class="QLineEdit" name="lineEditCopySearchResultsRefsPreview">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lblCopySearchResultsRefsPreview">
-        <property name="text">
-         <string>Copy Preview:</string>
-        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="margin">
+          <number>6</number>
+         </property>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="lblOCntInSearchResultsRefs">
+           <property name="text">
+            <string>Occurrence Counts:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>44</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1" colspan="4">
+          <widget class="QLineEdit" name="lineEditShowSearchResultsRefsPreview">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QLabel" name="lblWrdNdxInSearchResultsRefs">
+           <property name="text">
+            <string>Word Indexes:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QCheckBox" name="checkBoxShowWrdNdxInSearchResultsRefs">
+           <property name="text">
+            <string>Show</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>44</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QCheckBox" name="checkBoxShowOCntInSearchResultsRefs">
+           <property name="text">
+            <string>Show</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QCheckBox" name="checkBoxCopyOCntInSearchResultsRefs">
+           <property name="text">
+            <string>Copy</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QCheckBox" name="checkBoxCopyWrdNdxInSearchResultsRefs">
+           <property name="text">
+            <string>Copy</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lblShowSearchResultsRefsPreview">
+           <property name="text">
+            <string>Show Preview:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="4">
+          <widget class="QLineEdit" name="lineEditCopySearchResultsRefsPreview">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lblCopySearchResultsRefsPreview">
+           <property name="text">
+            <string>Copy Preview:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -540,6 +568,7 @@
   <tabstop>fontComboBoxCopyFont</tabstop>
   <tabstop>dblSpinBoxCopyFontSize</tabstop>
   <tabstop>comboBoxCopyFontSelection</tabstop>
+  <tabstop>checkBoxSearchResultsAddBlankLineBetweenVerses</tabstop>
   <tabstop>checkBoxShowOCntInSearchResultsRefs</tabstop>
   <tabstop>checkBoxCopyOCntInSearchResultsRefs</tabstop>
   <tabstop>checkBoxShowWrdNdxInSearchResultsRefs</tabstop>

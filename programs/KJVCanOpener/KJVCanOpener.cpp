@@ -192,6 +192,7 @@ namespace {
 	const QString constrCopyPilcrowMarkersKey("CopyPilcrowMarkers");
 	const QString constrCopyFontSelectionKey("CopyFontSelection");
 	const QString constrCopyFontKey("CopyFont");
+	const QString constrCopySearchResultsAddBlankLineBetweenVerses("SearchResultsAddBlankLineBetweenVerses");
 	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
 	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
 
@@ -1029,6 +1030,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
 		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
 		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
+		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
 		settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 		settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 		settings.endGroup();
@@ -1397,6 +1399,7 @@ void CKJVCanOpener::restorePersistentSettings()
 				aCopyFont2.setPointSizeF(aCopyFont.pointSizeF());
 				CPersistentSettings::instance()->setFontCopyFont(aCopyFont2);
 			}
+			CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(settings.value(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()).toBool());
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();

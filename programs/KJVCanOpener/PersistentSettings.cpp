@@ -147,6 +147,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
 		// ----
+		m_bSearchResultsAddBlankLineBetweenVerses(false),
+		// ----
 		m_bShowOCntInSearchResultsRefs(true),
 		m_bCopyOCntInSearchResultsRefs(true),
 		m_bShowWrdNdxInSearchResultsRefs(true),
@@ -284,6 +286,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_bCopyPilcrowMarkers != pTarget->m_bCopyPilcrowMarkers) ||
 			(pSource->m_nCopyFontSelection != pTarget->m_nCopyFontSelection) ||
 			(pSource->m_fntCopyFont != pTarget->m_fntCopyFont) ||
+			(pSource->m_bSearchResultsAddBlankLineBetweenVerses != pTarget->m_bSearchResultsAddBlankLineBetweenVerses) ||
 			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
 			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
 
@@ -601,6 +604,14 @@ void CPersistentSettings::setFontCopyFont(const QFont &aFont)
 {
 	if (m_pPersistentSettingData->m_fntCopyFont != aFont) {
 		m_pPersistentSettingData->m_fntCopyFont = aFont;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine)
+{
+	if (m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses != bAddBlankLine) {
+		m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses = bAddBlankLine;
 		emit changedCopyOptions();
 	}
 }

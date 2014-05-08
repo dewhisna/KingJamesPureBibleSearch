@@ -114,6 +114,8 @@ public:
 	CPhraseNavigator::COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
 	QFont fontCopyFont() const { return m_pPersistentSettingData->m_fntCopyFont; }
 
+	bool searchResultsAddBlankLineBetweenVerses() const { return m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses; }
+
 	bool showOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs; }
 	bool copyOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs; }
 	bool showWrdNdxInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowWrdNdxInSearchResultsRefs; }
@@ -213,6 +215,8 @@ public slots:
 	void setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection);
 	void setFontCopyFont(const QFont &aFont);
 
+	void setSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine);
+
 	void setShowOCntInSearchResultsRefs(bool bShow);
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
 	void setShowWrdNdxInSearchResultsRefs(bool bShow);
@@ -275,6 +279,8 @@ private:
 		bool m_bCopyPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be copied
 		CPhraseNavigator::COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
 		QFont m_fntCopyFont;							// Font to use for the Copy Font for CFSE_COPY_FONT mode
+		// ----
+		bool m_bSearchResultsAddBlankLineBetweenVerses;	// True if adding blank lines between Search Results Verses when copying
 		// ----
 		bool m_bShowOCntInSearchResultsRefs;			// True if showing Occurrence Counts in Search Results References
 		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal
