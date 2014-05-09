@@ -1055,22 +1055,23 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 {
 	TPhraseTagList tagsCurrentDisplay;
 
-	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.chapter() != 0)) {
-		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 0, 1);
+	if ((ndxCurrent.isSet()) && (ndxCurrent.book() != 0) && (ndxCurrent.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk)) {
+		// Note: If this is a colophon reference, find the corresponding last chapter:
+		CRelIndex ndxDisplay = CRelIndex(ndxCurrent.book(), ((ndxCurrent.chapter() != 0) ? ndxCurrent.chapter() : m_pBibleDatabase->bookEntry(ndxCurrent.book())->m_nNumChp), 0, 1);
 		uint32_t ndxNormalCurrent = m_pBibleDatabase->NormalizeIndex(ndxDisplay);
 		// This can happen if the versification of the reference doesn't match the active database:
 		if (ndxNormalCurrent == 0) return TPhraseTagList();
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
 		assert(pChapter != NULL);
 		unsigned int nNumWordsDisplayed = pChapter->m_nNumWrd;
-		CRelIndex ndxVerseBefore = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
+		CRelIndex ndxVerseBefore = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 		if (ndxVerseBefore.isSet()) {
 			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
 			assert(pVerseBefore != NULL);
 			nNumWordsDisplayed += m_pBibleDatabase->NormalizeIndex(ndxDisplay) - m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1));
 			ndxDisplay = CRelIndex(ndxVerseBefore.book(), ndxVerseBefore.chapter(), ndxVerseBefore.verse(), 1);
 		}
-		CRelIndex ndxVerseAfter = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxCurrent.book(), ndxCurrent.chapter(), 1, 1), false);	// Calculate first verse of next chapter
+		CRelIndex ndxVerseAfter = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), false);	// Calculate first verse of next chapter
 		if (ndxVerseAfter.isSet()) {
 			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
 			assert(pVerseAfter != NULL);
@@ -1081,18 +1082,18 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 
 		// If this book has a colophon and this is the last chapter of that book, we
 		//	need to add it as well:
-		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxCurrent.book());
+		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxDisplay.book());
 		assert(pBook != NULL);
-		if ((pBook->m_bHaveColophon) && (ndxCurrent.chapter() == pBook->m_nNumChp)) {
-			const CVerseEntry *pBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxCurrent.book(), 0, 0, 0));
+		if ((pBook->m_bHaveColophon) && (ndxDisplay.chapter() == pBook->m_nNumChp)) {
+			const CVerseEntry *pBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxDisplay.book(), 0, 0, 0));
 			assert(pBookColophon != NULL);
-			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxCurrent.book(), 0, 0, 1), pBookColophon->m_nNumWrd));
+			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxDisplay.book(), 0, 0, 1), pBookColophon->m_nNumWrd));
 		}
 
 		// If the ndxVerseBefore is in a different book, check that book to see if
 		//	it has a colophon and if so, add it so that we will render highlighting
 		//	and other markup for it:
-		if ((ndxVerseBefore.isSet()) && (ndxVerseBefore.book() != ndxCurrent.book())) {
+		if ((ndxVerseBefore.isSet()) && (ndxVerseBefore.book() != ndxDisplay.book())) {
 			const CBookEntry *pBookVerseBefore = m_pBibleDatabase->bookEntry(ndxVerseBefore.book());
 			assert(pBookVerseBefore != NULL);
 			if (pBookVerseBefore->m_bHaveColophon) {
