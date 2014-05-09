@@ -100,9 +100,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				(m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(index.data().toString());
+					scriptureHTML.appendRawText(option.text);
 				} else {
-					scriptureHTML.appendLiteralText(index.data().toString());
+					scriptureHTML.appendLiteralText(option.text);
 				}
 				scriptureHTML.endParagraph();
 				scriptureHTML.appendRawText("</body></html>");
@@ -147,16 +147,16 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				(m_model.viewMode() != CVerseListModel::VVME_USERNOTES) &&
 				(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) {
 				scriptureHTML.beginParagraph();
-				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(index.data().toString()));
+				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(option.text));
 				scriptureHTML.endParagraph();
 			} else {
 				scriptureHTML.beginParagraph();
 				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
 					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.beginBold();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(index.data().toString());
+					scriptureHTML.appendRawText(option.text);
 				} else {
-					scriptureHTML.appendLiteralText(index.data().toString());
+					scriptureHTML.appendLiteralText(option.text);
 				}
 				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
 					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.endBold();
@@ -176,7 +176,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 				scriptureHTML.beginParagraph();
 				scriptureHTML.appendLiteralText(QString("{%1} (%2) ").arg(nVerses).arg(nResults));
 				scriptureHTML.beginBold();
-				scriptureHTML.appendLiteralText(index.data().toString());
+				scriptureHTML.appendLiteralText(option.text);
 				scriptureHTML.endBold();
 				scriptureHTML.endParagraph();
 			} else {
@@ -185,9 +185,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
 					(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) scriptureHTML.beginBold();
 				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(index.data().toString());
+					scriptureHTML.appendRawText(option.text);
 				} else {
-					scriptureHTML.appendLiteralText(index.data().toString());
+					scriptureHTML.appendLiteralText(option.text);
 				}
 				if (((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
 					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
@@ -205,14 +205,14 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			scriptureHTML.beginParagraph();
 			scriptureHTML.beginBold();
 			scriptureHTML.beginBackground(udcHighlighter.m_color);
-			scriptureHTML.appendLiteralText(index.data().toString());
+			scriptureHTML.appendLiteralText(option.text);
 			scriptureHTML.endBackground();
 			scriptureHTML.endBold();
 			scriptureHTML.endParagraph();
 		} else {
 			scriptureHTML.beginParagraph();
 			scriptureHTML.beginBold();
-			scriptureHTML.appendLiteralText(index.data().toString());
+			scriptureHTML.appendLiteralText(option.text);
 			scriptureHTML.endBold();
 			scriptureHTML.endParagraph();
 		}
@@ -359,6 +359,12 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 //		return value.toSize();
 
 	return style->sizeFromContents(QStyle::CT_ItemViewItem, &optionV4, QSize(), optionV4.widget);
+}
+
+QString CVerseListDelegate::displayText(const QVariant &value, const QLocale &locale) const
+{
+	Q_UNUSED(locale);
+	return value.toString();
 }
 
 bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index)

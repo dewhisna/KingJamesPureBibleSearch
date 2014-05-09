@@ -674,32 +674,33 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		}
 
 		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-			QString strVerseText;
-			switch (m_private.m_nDisplayMode) {
-				case VDME_HEADING:
-					strVerseText = itrVerse->getHeading();
-					break;
-				case VDME_VERYPLAIN:
-					strVerseText = itrVerse->getVerseVeryPlainText();
-					break;
-				case VDME_RICHTEXT:
-					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
-					break;
-				case VDME_COMPLETE:
-					strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
-					break;
-				default:
-					assert(false);
-					strVerseText = QString();
-					break;
-			}
-
 			switch (m_private.m_nViewMode) {
 				case VVME_SEARCH_RESULTS:
 				case VVME_SEARCH_RESULTS_EXCLUDED:
 				case VVME_HIGHLIGHTERS:
 				case VVME_CROSSREFS:
+				{
+					QString strVerseText;
+					switch (m_private.m_nDisplayMode) {
+						case VDME_HEADING:
+							strVerseText = itrVerse->getHeading();
+							break;
+						case VDME_VERYPLAIN:
+							strVerseText = itrVerse->getVerseVeryPlainText();
+							break;
+						case VDME_RICHTEXT:
+							strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
+							break;
+						case VDME_COMPLETE:
+							strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
+							break;
+						default:
+							assert(false);
+							strVerseText = QString();
+							break;
+					}
 					return strVerseText;
+				}
 				case VVME_USERNOTES:
 					if (m_private.m_nDisplayMode == VDME_HEADING) {
 						usernoteHTML.beginParagraph();
