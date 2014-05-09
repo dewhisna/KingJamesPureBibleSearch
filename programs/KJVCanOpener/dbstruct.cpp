@@ -155,6 +155,44 @@ QStringList TBibleDatabaseList::availableBibleDatabasesUUIDs()
 	return lstUUIDs;
 }
 
+static QStringList languageList()
+{
+	QStringList lstLanguages;
+	lstLanguages.append("en");
+	lstLanguages.append("es");
+	lstLanguages.append("fr");
+	lstLanguages.append("de");
+	return lstLanguages;
+}
+
+static int languageIndex(const QString &strLanguage)
+{
+	static QStringList lstLanguages = languageList();
+
+	int nIndex = lstLanguages.indexOf(strLanguage, Qt::CaseInsensitive);
+	return ((nIndex != -1) ? nIndex : lstLanguages.size());
+}
+
+static QList<BIBLE_DESCRIPTOR_ENUM> BDElist()
+{
+	QList<BIBLE_DESCRIPTOR_ENUM> lstBDE;
+	lstBDE.append(BDE_KJV);
+	lstBDE.append(BDE_KJVA);
+	lstBDE.append(BDE_KJVPCE);
+	lstBDE.append(BDE_KJV1611);
+	lstBDE.append(BDE_KJV1611A);
+	lstBDE.append(BDE_UKJV);
+	return lstBDE;
+}
+
+static int BDEIndex(BIBLE_DESCRIPTOR_ENUM nBDE)
+{
+	static QList<BIBLE_DESCRIPTOR_ENUM> lstBDE = BDElist();
+
+	int nIndex = lstBDE.indexOf(nBDE);
+	return ((nIndex != -1) ? nIndex : lstBDE.size());
+}
+
 void TBibleDatabaseList::findBibleDatabases()
 {
 	m_lstAvailableDatabases.clear();
@@ -162,7 +200,25 @@ void TBibleDatabaseList::findBibleDatabases()
 		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
-		m_lstAvailableDatabases.append(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+		// Sort the list as we insert them:
+		int nInsertPoint = 0;
+		while (nInsertPoint < m_lstAvailableDatabases.size()) {
+			BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
+			// Sort by Specific decriptro ID, language, then by description, then by general descriptor ID:
+			int nBIndex1 = BDEIndex(nBDE);
+			int nBIndex2 = BDEIndex(m_lstAvailableDatabases.at(nInsertPoint));
+			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
+			int nLIndex2 = languageIndex(bibleDescriptor(m_lstAvailableDatabases.at(nInsertPoint)).m_strLanguage);
+			int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
+			int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
+			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(bibleDescriptor(m_lstAvailableDatabases.at(nInsertPoint)).m_strDBDesc, true), Qt::CaseInsensitive);
+			if ((nBDEComp < 0) ||
+				((nBDEComp == 0) && (nLangComp < 0)) ||
+				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp < 0)) ||
+				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp == 0) && (nBDE < m_lstAvailableDatabases.at(nInsertPoint)))) break;
+			++nInsertPoint;
+		}
+		m_lstAvailableDatabases.insert(nInsertPoint, static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 	}
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableBibleDatabaseList();
