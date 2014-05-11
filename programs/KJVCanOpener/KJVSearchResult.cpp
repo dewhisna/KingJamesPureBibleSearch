@@ -380,18 +380,11 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-		navigator.setDocumentToVerse(item.getIndex());
-
-		QTextCursor cursorDocVerse(&docVerse);
-		cursorDocVerse.select(QTextCursor::Document);
-		CSelectedPhrase phrase = navigator.getSelectedPhrase(cursorDocVerse);
 
 		if (!bVeryRaw) {
-			strText += phrase.phrase().phrase() + "\n";
+			strText += item.getVersePlainText() + "\n";
 		} else {
-			strText += phrase.phrase().phraseRaw() + "\n";
+			strText += item.getVerseVeryPlainText() + "\n";
 		}
 
 		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";

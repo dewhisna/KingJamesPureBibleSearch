@@ -68,7 +68,7 @@ public:
 	inline QMenu *getEditMenu(bool bPassageReferenceEditor) { return (bPassageReferenceEditor ? ui.widgetPassageReference->getEditMenu() : m_pScriptureBrowser->getEditMenu()); }
 
 	inline bool haveSelection() const { return m_pScriptureBrowser->haveSelection(); }
-	inline TPhraseTag selection() const { return m_pScriptureBrowser->selection(); }
+	inline CSelectionPhraseTagList selection() const { return m_pScriptureBrowser->selection(); }
 
 	inline bool haveDetails() const { return m_pScriptureBrowser->haveDetails(); }
 

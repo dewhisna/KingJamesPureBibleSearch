@@ -85,11 +85,13 @@ public:
 	QMenu *getEditMenu() { return m_pEditMenu; }
 
 	bool haveSelection() const {
-		return (m_selectedPhrase.tag().haveSelection());
+		return (m_lstSelectedPhrases.haveSelection());
 	}
-	TPhraseTag selection() const {
-		if (!m_selectedPhrase.tag().haveSelection()) return TPhraseTag(m_tagLast.relIndex(), 0);
-		return (m_selectedPhrase.tag());
+	CSelectionPhraseTagList selection() const {
+		if (m_lstSelectedPhrases.haveSelection()) return m_lstSelectedPhrases.selection();
+		CSelectionPhraseTagList lstSelection;
+		lstSelection.append(TPhraseTag(m_tagLast.relIndex(), 0));
+		return lstSelection;
 	}
 
 	bool haveDetails() const;
@@ -166,7 +168,7 @@ private:
 	CRelIndex m_ndxCurrent;			// Current Displayed index as captured on received en_gotoIndex()
 	TPhraseTag m_tagLast;			// Last mouse/keyboard reference tag for tool tips, etc (used for copying, etc)
 	TPhraseTag m_tagLastActive;		// Last active position -- i.e. m_tagLast for a verse and/or word (as opposed to book/chapter
-	CSelectedPhrase m_selectedPhrase;		// Selected phrase and cursor selection reference
+	CSelectedPhraseList m_lstSelectedPhrases;		// Selected phrases and cursor selection reference
 	bool m_bDoPlainCopyOnly;		// Flag for the createMimeDataFromSelection function to use only plain text
 	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track position or Context Popup position for popups
 

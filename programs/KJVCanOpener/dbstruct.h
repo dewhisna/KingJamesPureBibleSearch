@@ -1143,12 +1143,12 @@ public:
 		return ((m_RelIndex.isSet()) && (m_nCount != 0));
 	}
 
-	bool operator==(const TPhraseTag &otherTag) {
+	bool operator==(const TPhraseTag &otherTag) const {
 		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
 				(m_nCount == otherTag.count()));
 	}
 
-	bool operator!=(const TPhraseTag &otherTag) {
+	bool operator!=(const TPhraseTag &otherTag) const {
 		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
 				(m_nCount != otherTag.count()));
 	}
@@ -1262,12 +1262,12 @@ public:
 		return ((m_RelIndex.isSet()) && (m_nVerseCount != 0));
 	}
 
-	bool operator==(const TPassageTag &otherTag) {
+	bool operator==(const TPassageTag &otherTag) const {
 		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
 				(m_nVerseCount == otherTag.verseCount()));
 	}
 
-	bool operator!=(const TPassageTag &otherTag) {
+	bool operator!=(const TPassageTag &otherTag) const {
 		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
 				(m_nVerseCount != otherTag.verseCount()));
 	}

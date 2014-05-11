@@ -207,18 +207,81 @@ typedef QList <const CParsedPhrase *> TParsedPhrasesList;
 class CSelectedPhrase
 {
 public:
-	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive = false, bool bAccentSensitive = false, bool bExclude = false)
-		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive, bExclude)
-	{ }
+	CSelectedPhrase(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &aTag, const QString &strPhrase, bool bCaseSensitive = false, bool bAccentSensitive = false, bool bExclude = false)
+		:	m_ParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive, bExclude),
+			m_Tag(aTag)
+	{
+		m_ParsedPhrase.ParsePhrase(strPhrase);
+	}
 
 	inline const CParsedPhrase &phrase() const { return m_ParsedPhrase; }
-	inline CParsedPhrase &phrase() { return m_ParsedPhrase; }
 	inline const TPhraseTag &tag() const { return m_Tag; }
-	inline TPhraseTag &tag() { return m_Tag; }
+
+	bool operator==(const CSelectedPhrase &src) const
+	{
+		return (m_Tag == src.m_Tag);
+	}
+	bool operator!=(const CSelectedPhrase &src) const
+	{
+		return (m_Tag != src.m_Tag);
+	}
 
 private:
 	CParsedPhrase m_ParsedPhrase;
 	TPhraseTag m_Tag;
+};
+
+class CSelectionPhraseTagList : public TPhraseTagList
+{
+public:
+	bool haveSelection() const {
+		if (size() == 0) return false;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (at(ndx).haveSelection()) return true;
+		}
+		return false;
+	}
+	TPhraseTag primarySelection() const
+	{
+		if (haveSelection()) {
+			for (int ndx = 0; ndx < size(); ++ndx) {
+				if (at(ndx).haveSelection()) return at(ndx);
+			}
+		}
+		// If we don't have a real selection (i.e. something with words), pick
+		//		the first entry, which will contain a relIndex for a location:
+		if (size() > 0) return at(0);
+		return TPhraseTag();
+	}
+};
+
+class  CSelectedPhraseList : public QList<CSelectedPhrase>
+{
+public:
+	bool haveSelection() const {
+		if (size() == 0) return false;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (at(ndx).tag().haveSelection()) return true;
+		}
+		return false;
+	}
+	const CSelectedPhrase &primarySelectionPhrase() const
+	{
+		assert(size() != 0);
+		assert(haveSelection());
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (at(ndx).tag().haveSelection()) return at(ndx);
+		}
+		return at(0);
+	}
+	CSelectionPhraseTagList selection() const
+	{
+		CSelectionPhraseTagList lstSelection;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			lstSelection.append(at(ndx).tag());
+		}
+		return lstSelection;
+	}
 };
 
 // ============================================================================
@@ -338,9 +401,8 @@ public:
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();
 
-	TPhraseTag getSelection(const CPhraseCursor &aCursor,
-							uint32_t *pNdxNormalFirst = NULL, uint32_t *pNdxNormalLast = NULL) const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
-	CSelectedPhrase getSelectedPhrase(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	CSelectionPhraseTagList getSelection(const CPhraseCursor &aCursor) const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	CSelectedPhraseList getSelectedPhrases(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
 	void removeAnchors();
 
@@ -390,15 +452,15 @@ public:
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
 	using CPhraseNavigator::getSelection;
-	using CPhraseNavigator::getSelectedPhrase;
-	TPhraseTag getSelection() const;				// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
-	CSelectedPhrase getSelectedPhrase() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
+	using CPhraseNavigator::getSelectedPhrases;
+	CSelectionPhraseTagList getSelection() const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	CSelectedPhraseList getSelectedPhrases() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 #if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
-	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &selection) const;
-	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const TPhraseTag &selection) const;
+	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const;
+	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const;
 #endif
 	void highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;
-	QString getToolTip(const TPhraseTag &tag, const TPhraseTag &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
+	QString getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 
 private:
 	QTextEdit &m_TextEditor;

@@ -372,6 +372,12 @@ public:
 		return getVerseAsWordList(ndx, pBibleDatabase).join(" ");
 	}
 
+	QString getVersePlainText() const			// Plain (with punctuation)
+	{
+		CVerseTextPlainRichifierTags plainRichifierTags;
+		return getVerseRichText(plainRichifierTags);
+	}
+
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE

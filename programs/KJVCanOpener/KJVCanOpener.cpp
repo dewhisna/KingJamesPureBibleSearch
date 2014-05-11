@@ -992,7 +992,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 	if (!bSaveLastSearchOnly) {
 		// Current Browser Reference and Browser Settings:
 		settings.beginGroup(constrBrowserViewGroup);
-		TPhraseTag tag = m_pBrowserWidget->selection();
+		TPhraseTag tag = m_pBrowserWidget->selection().primarySelection();
 		settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
 		settings.setValue(constrLastSelectionSizeKey, tag.count());
 		settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
@@ -2411,7 +2411,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	CRelIndex indexNote;
 
 	if (isBrowserFocusedOrActive()) {
-		indexNote = m_pBrowserWidget->selection().relIndex();
+		indexNote = m_pBrowserWidget->selection().primarySelection().relIndex();
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected()))  {
 		indexNote = m_pSearchResultWidget->vlmodel()->logicalIndexForModelIndex(m_pSearchResultWidget->currentIndex());
 	}
@@ -2442,7 +2442,7 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	TPassageTag tagCrossRef;
 
 	if (isBrowserFocusedOrActive()) {
-		tagCrossRef.setFromPhraseTag(m_pBibleDatabase.data(), m_pBrowserWidget->selection());
+		tagCrossRef.setFromPhraseTag(m_pBibleDatabase.data(), m_pBrowserWidget->selection().primarySelection());
 	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->editableNodeSelected())) {
 		// Unlike editing notes and passage navigation, editing cross-references should bring up the "Source" Cross-Reference:
 		tagCrossRef = TPassageTag(m_pSearchResultWidget->currentVerseIndex().relIndex());

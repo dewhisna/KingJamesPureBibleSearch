@@ -74,7 +74,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
-		m_selectedPhrase(pBibleDatabase),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(NULL),
 		m_pActionCopy(NULL),
@@ -288,7 +287,7 @@ void CScriptureText<T,U>::en_findDialog()
 {
 	if (m_pFindDialog != NULL) {
 		if (haveSelection()) {
-			m_pFindDialog->setTextToFind(m_selectedPhrase.phrase().phraseRaw());
+			m_pFindDialog->setTextToFind(m_lstSelectedPhrases.primarySelectionPhrase().phrase().phraseRaw());
 		}
 		if (m_pFindDialog->isVisible()) {
 			m_pFindDialog->activateWindow();
@@ -436,7 +435,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 template<class T, class U>
 bool CScriptureText<T,U>::haveDetails() const
 {
-	QString strToolTip = m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag());
+	QString strToolTip = m_navigator.getToolTip(m_tagLast, selection());
 	return (!strToolTip.isEmpty());
 }
 
@@ -444,7 +443,7 @@ template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag()))
+	if (m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection()))
 		m_HighlightTimer.stop();
 }
 
@@ -455,7 +454,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).relIndex();
+	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
@@ -489,7 +488,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 	//		Ctrl-G shortcut to activate this will make sense and be consistent across
 	//		the entire app.
 
-	TPhraseTag tagSel = m_selectedPhrase.tag();
+	TPhraseTag tagSel = m_lstSelectedPhrases.selection().primarySelection();
 	if (!tagSel.relIndex().isSet()) tagSel.relIndex() = m_tagLast.relIndex();
 	if (tagSel.count() == 0) tagSel.count() = ((tagSel.relIndex().word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
 
@@ -526,7 +525,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(pos)).relIndex();
+	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(pos)).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
@@ -610,7 +609,8 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 			mime->setHtml(docCopy.toHtml());
 		}
 	}
-	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
+	// TODO : Copy list of tags for multi-selection?
+	if (haveSelection()) CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	return mime;
 }
 
@@ -618,7 +618,7 @@ template<class T, class U>
 void CScriptureText<T,U>::en_cursorPositionChanged()
 {
 	CPhraseCursor cursor(T::textCursor());
-	m_tagLast.relIndex() = m_navigator.getSelection(cursor).relIndex();
+	m_tagLast.relIndex() = m_navigator.getSelection(cursor).primarySelection().relIndex();
 	if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
 	setLastActiveTag();
 
@@ -643,20 +643,24 @@ void CScriptureText<T,U>::updateSelection()
 	m_bDoingSelectionChange = true;
 
 	bool bOldSel = haveSelection();
-	CSelectedPhrase prevSelection = m_selectedPhrase;
-	m_selectedPhrase = m_navigator.getSelectedPhrase();
+	CSelectedPhraseList prevSelection = m_lstSelectedPhrases;
+	m_lstSelectedPhrases = m_navigator.getSelectedPhrases();
 	if (haveSelection() != bOldSel) emit T::copyRawAvailable(haveSelection());
-	emit T::copyVersesAvailable(haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0));
+	emit T::copyVersesAvailable(haveSelection() ||
+								(m_tagLast.relIndex().isSet() &&
+								 ((m_tagLast.relIndex().verse() != 0) ||
+								  ((m_tagLast.relIndex().verse() == 0) && (m_tagLast.relIndex().word() != 0)))));
 	QString strStatusText;
+	CSelectionPhraseTagList lstSelection = m_lstSelectedPhrases.selection();
 	if (haveSelection()) {
-		strStatusText = m_selectedPhrase.tag().PassageReferenceRangeText(m_pBibleDatabase.data());
+		strStatusText = lstSelection.primarySelection().PassageReferenceRangeText(m_pBibleDatabase.data());
 	} else if (m_tagLast.relIndex().isSet()) {
 		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.relIndex());
 	}
 
-	if (m_selectedPhrase.tag().count() > 0) {
+	if (lstSelection.primarySelection().count() > 0) {
 		if (!strStatusText.isEmpty()) strStatusText += " : ";
-		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", m_selectedPhrase.tag().count());
+		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", lstSelection.primarySelection().count());
 	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
@@ -670,7 +674,7 @@ void CScriptureText<T,U>::updateSelection()
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
-	if ((CTipEdit::tipEditIsPinned(parentCanOpener())) && (prevSelection.tag() != m_selectedPhrase.tag()))
+	if ((CTipEdit::tipEditIsPinned(parentCanOpener())) && (prevSelection != m_lstSelectedPhrases))
 		m_dlyDetailUpdate.trigger();
 
 	m_bDoingSelectionChange = false;
@@ -679,7 +683,7 @@ void CScriptureText<T,U>::updateSelection()
 template<class T, class U>
 void CScriptureText<T,U>::en_detailUpdate()
 {
-	m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, m_selectedPhrase.tag());
+	m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection());
 }
 
 template<class T, class U>
@@ -726,13 +730,13 @@ void CScriptureText<T,U>::en_gotoIndex(const TPhraseTag &tag)
 template<class T, class U>
 void CScriptureText<T,U>::rerender()
 {
-	if ((selection().relIndex().chapter() == 0) &&
-		(selection().relIndex().verse() == 0) &&
-		(selection().relIndex().word() == 0)) {
+	if ((selection().primarySelection().relIndex().chapter() == 0) &&
+		(selection().primarySelection().relIndex().verse() == 0) &&
+		(selection().primarySelection().relIndex().word() == 0)) {
 		// Special case if it's an entire book, use our last active tag:
 		if (m_tagLastActive.isSet()) emit T::gotoIndex(m_tagLastActive);
 	} else if (selection().isSet()) {
-		emit T::gotoIndex(selection());
+		emit T::gotoIndex(selection().primarySelection());
 	} else {
 		emit T::gotoIndex(TPhraseTag(m_ndxCurrent));
 	}
@@ -769,8 +773,15 @@ void CScriptureText<T,U>::en_copyRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_selectedPhrase.phrase().phrase());
-	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
+	QString strText;
+	for (int ndx = 0; ndx < m_lstSelectedPhrases.size(); ++ndx) {
+		if (!m_lstSelectedPhrases.at(ndx).tag().haveSelection()) continue;
+		strText += m_lstSelectedPhrases.at(ndx).phrase().phrase() + "\n";
+		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
+	}
+	mime->setText(strText);
+	// TODO : Copy list of tags for multi-selection?
+	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
@@ -780,8 +791,15 @@ void CScriptureText<T,U>::en_copyVeryRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_selectedPhrase.phrase().phraseRaw());
-	CMimeHelper::addPhraseTagToMimeData(mime, m_selectedPhrase.tag());
+	QString strText;
+	for (int ndx = 0; ndx < m_lstSelectedPhrases.size(); ++ndx) {
+		if (!m_lstSelectedPhrases.at(ndx).tag().haveSelection()) continue;
+		strText += m_lstSelectedPhrases.at(ndx).phrase().phraseRaw() + "\n";
+		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
+	}
+	mime->setText(strText);
+	// TODO : Copy list of tags for multi-selection?
+	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
@@ -802,9 +820,10 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyReferenceDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
-	CMimeHelper::addPhraseTagToMimeData(mime, selection());
+	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	// TODO : Copy list of tags for multi-selection?
+	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
@@ -813,9 +832,10 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyPassageStatistics()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
-	CMimeHelper::addPhraseTagToMimeData(mime, selection());
+	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	// TODO : Copy list of tags for multi-selection?
+	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
@@ -824,9 +844,10 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyEntirePassageDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, m_selectedPhrase.tag(), CPhraseEditNavigator::TTE_COMPLETE, false));
-	CMimeHelper::addPhraseTagToMimeData(mime, selection());
+	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, true));
+	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, false));
+	// TODO : Copy list of tags for multi-selection?
+	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
@@ -839,7 +860,8 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	QTextDocument docFormattedVerses;
 	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
 	if (haveSelection()) {
-		navigator.setDocumentToFormattedVerses(m_selectedPhrase.tag());
+		// TODO : Fix this for range of selections
+		navigator.setDocumentToFormattedVerses(selection().primarySelection());
 	} else {
 		TPhraseTag tagVerse = m_tagLast;
 		if (tagVerse.relIndex().word() == 0) tagVerse.relIndex().setWord(1);
@@ -870,7 +892,8 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	assert(pAction != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
 
-	TPhraseTag tagSel = selection();
+	// TODO : Enhance this to work with multiselection
+	TPhraseTag tagSel = selection().primarySelection();
 	CRelIndex relNdx = tagSel.relIndex();
 	if (!relNdx.isSet()) return;
 
