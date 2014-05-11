@@ -1112,9 +1112,11 @@ public:
 	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc);
 
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
-	inline CRelIndex &relIndex() { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }						// Needed for >> operator
+	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
 	inline const unsigned int &count() const { return m_nCount; }
-	inline unsigned int &count() { return m_nCount; }
+	inline unsigned int &count() { return m_nCount; }						// Needed for >> operator
+	inline void setCount(unsigned int nCount) { m_nCount = nCount; }
 
 	void setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage);
 	static TPhraseTag fromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage) {
@@ -1228,9 +1230,11 @@ public:
 	{ }
 
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
-	inline CRelIndex &relIndex() { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }							// Needed for >> operator
+	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
 	inline const unsigned int &verseCount() const { return m_nVerseCount; }
-	inline unsigned int &verseCount() { return m_nVerseCount; }
+	inline unsigned int &verseCount() { return m_nVerseCount; }					// Needed for >> operator
+	inline void setVerseCount(unsigned int nVerseCount) { m_nVerseCount = nVerseCount; }
 
 	void setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase);
 	static TPassageTag fromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase) {
