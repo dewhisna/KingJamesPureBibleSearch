@@ -215,7 +215,7 @@ bool CBibleDatabaseListModel::setData(BIBLE_DESCRIPTOR_ENUM nBDE, const QVariant
 Qt::ItemFlags CBibleDatabaseListModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsDropEnabled;
 
 	int ndxDB = index.row();
 

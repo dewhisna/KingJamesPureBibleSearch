@@ -69,9 +69,13 @@ public:
 	static const CRelIndex SSI_SUPERSCRIPTION;
 
 	CSearchCriteria()
-		:	m_nSearchScopeMode(SSME_UNSCOPED) { }
+		:	m_nSearchScopeMode(SSME_UNSCOPED)
+	{ }
 
 	virtual ~CSearchCriteria() { }
+
+	bool bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const;
+	bool bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const;
 
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
 	void setSearchScopeMode(SEARCH_SCOPE_MODE_ENUM nMode) { m_nSearchScopeMode = nMode; }
@@ -106,8 +110,8 @@ public:
 		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
 		}
-		if (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end()) bIsEntire = false;
-		if (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end()) bIsEntire = false;
+		if ((bibleHasColophons(pBibleDatabase)) && (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end())) bIsEntire = false;
+		if ((bibleHasSuperscriptions(pBibleDatabase)) && (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end())) bIsEntire = false;
 		return bIsEntire;
 	}
 	const TRelativeIndexSet &searchWithin() const { return m_setSearchWithin; }
@@ -298,7 +302,7 @@ public:
 		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0		// Data role for CRelIndex() for the corresponding item relative index
 	};
 
-	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin, QObject *pParent = 0);
+	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent = 0);
 	virtual ~CSearchWithinModel();
 
 	QString searchWithinDescription() const;
@@ -340,6 +344,8 @@ private:
 	Q_DISABLE_COPY(CSearchWithinModel)
 	CBibleDatabasePtr m_pBibleDatabase;
 	CSearchWithinModelIndex m_rootSearchWithinModelIndex;
+	bool m_bBibleHasColophons;
+	bool m_bBibleHasSuperscriptions;
 };
 
 #endif

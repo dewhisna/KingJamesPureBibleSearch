@@ -123,7 +123,7 @@ QVariant CBibleWordDiffListModel::headerData(int section, Qt::Orientation orient
 Qt::ItemFlags CBibleWordDiffListModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsDropEnabled;
 
 	int ndxWord = index.row();
 	assert((ndxWord >= 0) && (ndxWord < m_lstWords.size()));

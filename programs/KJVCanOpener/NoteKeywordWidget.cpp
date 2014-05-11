@@ -138,7 +138,7 @@ QModelIndex CNoteKeywordModel::findKeyword(const QString &strKeyword) const
 Qt::ItemFlags CNoteKeywordModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsDropEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable;	// | Qt::ItemIsSelectable;
 }

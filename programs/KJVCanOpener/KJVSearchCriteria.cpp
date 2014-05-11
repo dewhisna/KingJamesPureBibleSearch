@@ -43,9 +43,38 @@ const CRelIndex CSearchCriteria::SSI_SUPERSCRIPTION = CRelIndex(0, 0, 0, 2);
 
 // ============================================================================
 
+bool CSearchCriteria::bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const
+{
+	assert(pBibleDatabase.data() != NULL);
+
+	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
+		if (pBookEntry == NULL) continue;
+		if (pBookEntry->m_bHaveColophon) return true;
+	}
+
+	return false;
+}
+
+bool CSearchCriteria::bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const
+{
+	assert(pBibleDatabase.data() != NULL);
+
+	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
+		if (pBookEntry == NULL) continue;
+		for (unsigned int nChp = 1; nChp <= pBookEntry->m_nNumChp; ++nChp) {
+			const CChapterEntry *pChapterEntry = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
+			if ((pChapterEntry != NULL) && (pChapterEntry->m_bHaveSuperscription)) return true;
+		}
+	}
+
+	return false;
+}
+
 QString CSearchCriteria::searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const
 {
-	CSearchWithinModel modelSearchWithin(pBibleDatabase, m_setSearchWithin);
+	CSearchWithinModel modelSearchWithin(pBibleDatabase, *this);
 	return modelSearchWithin.searchWithinDescription();
 }
 
@@ -84,16 +113,24 @@ QString CSearchCriteria::searchScopeDescription() const
 
 // ============================================================================
 
-CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const TRelativeIndexSet &aSetSearchWithin, QObject *pParent)
+CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent)
 	:	QAbstractItemModel(pParent),
 		m_pBibleDatabase(pBibleDatabase)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	const TRelativeIndexSet &aSetSearchWithin = aSearchCriteria.searchWithin();
+	m_bBibleHasColophons = aSearchCriteria.bibleHasColophons(pBibleDatabase);
+	m_bBibleHasSuperscriptions = aSearchCriteria.bibleHasSuperscriptions(pBibleDatabase);
+
 	// Build our model data (which should be static with the given Bible Database):
 	// The root node is the "Whole Bible"
-	m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_COLOPHON, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_COLOPHON) != aSetSearchWithin.end());
-	m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_SUPERSCRIPTION, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) != aSetSearchWithin.end());
+	if (m_bBibleHasColophons) {
+		m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_COLOPHON, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_COLOPHON) != aSetSearchWithin.end());
+	}
+	if (m_bBibleHasSuperscriptions) {
+		m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_SUPERSCRIPTION, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) != aSetSearchWithin.end());
+	}
 	for (unsigned int nTst = 1; nTst <= m_pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
 		const CTestamentEntry *pTestamentEntry = m_pBibleDatabase->testamentEntry(nTst);
 		assert(pTestamentEntry != NULL);
@@ -150,8 +187,8 @@ QString CSearchWithinModel::searchWithinDescription() const
 		}
 	}
 	if (!lstDescription.isEmpty()) {
-		if (pColophon != NULL) lstDescription.append(data(pColophon, Qt::EditRole).toString());
-		if (pSuperscription != NULL) lstDescription.append(data(pSuperscription, Qt::EditRole).toString());
+		if ((m_bBibleHasColophons) && (pColophon != NULL)) lstDescription.append(data(pColophon, Qt::EditRole).toString());
+		if ((m_bBibleHasSuperscriptions) && (pSuperscription != NULL)) lstDescription.append(data(pSuperscription, Qt::EditRole).toString());
 	}
 
 	return lstDescription.join(QString(", "));
@@ -172,6 +209,11 @@ TRelativeIndexSet CSearchWithinModel::searchWithin() const
 			bSelectAll = false;
 		}
 	}
+
+	// Treat no superscriptions and no colophons as if the are enabled (only non-existant):
+	if (!m_bBibleHasColophons) setIndexes.insert(CSearchCriteria::SSI_COLOPHON);
+	if (!m_bBibleHasSuperscriptions) setIndexes.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+
 	if (bSelectAll) setIndexes.clear();			// An empty list is a special case for select all
 
 	return setIndexes;
@@ -389,11 +431,23 @@ void CSearchWithinModel::fireChildrenChange(const QModelIndex &index)
 Qt::ItemFlags CSearchWithinModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+		return Qt::ItemIsDropEnabled;
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
 	assert(pSearchWithinModelIndex != NULL);
 	if (pSearchWithinModelIndex == NULL) return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
+
+	if (index.data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>() == CSearchCriteria::SSI_COLOPHON) {
+		return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled |
+				(m_bBibleHasColophons ? Qt::ItemIsEnabled : static_cast<Qt::ItemFlags>(0)) |
+				(m_bBibleHasColophons ? Qt::ItemIsUserCheckable : static_cast<Qt::ItemFlags>(0));
+	}
+
+	if (index.data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>() == CSearchCriteria::SSI_SUPERSCRIPTION) {
+		return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled |
+				(m_bBibleHasSuperscriptions ? Qt::ItemIsEnabled : static_cast<Qt::ItemFlags>(0)) |
+				(m_bBibleHasSuperscriptions ? Qt::ItemIsUserCheckable : static_cast<Qt::ItemFlags>(0));
+	}
 
 	if (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_BOOK) {
 		return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsTristate;
@@ -476,7 +530,7 @@ void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 
 	assert(m_pSearchWithinModel == NULL);		// Must be setting for the first time
 	QAbstractItemModel *pOldModel = ui.treeViewSearchWithin->model();
-	m_pSearchWithinModel = new CSearchWithinModel(m_pBibleDatabase, m_SearchCriteria.searchWithin(), this);
+	m_pSearchWithinModel = new CSearchWithinModel(m_pBibleDatabase, m_SearchCriteria, this);
 	ui.treeViewSearchWithin->setModel(m_pSearchWithinModel);
 	if (pOldModel) delete pOldModel;
 	ui.treeViewSearchWithin->expandAll();
