@@ -186,10 +186,8 @@ QString CSearchWithinModel::searchWithinDescription() const
 			++fwdItr;
 		}
 	}
-	if (!lstDescription.isEmpty()) {
-		if ((m_bBibleHasColophons) && (pColophon != NULL)) lstDescription.append(data(pColophon, Qt::EditRole).toString());
-		if ((m_bBibleHasSuperscriptions) && (pSuperscription != NULL)) lstDescription.append(data(pSuperscription, Qt::EditRole).toString());
-	}
+	if ((m_bBibleHasColophons) && (pColophon != NULL)) lstDescription.append(data(pColophon, Qt::EditRole).toString());
+	if ((m_bBibleHasSuperscriptions) && (pSuperscription != NULL)) lstDescription.append(data(pSuperscription, Qt::EditRole).toString());
 
 	return lstDescription.join(QString(", "));
 }
