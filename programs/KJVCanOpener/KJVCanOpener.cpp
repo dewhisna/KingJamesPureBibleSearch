@@ -39,7 +39,7 @@
 #if !defined(VNCSERVER)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
-#include "SaveFileDialog.h"
+#include "SaveLoadFileDialog.h"
 #endif
 #endif
 #include "PhraseEdit.h"
@@ -1504,7 +1504,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 				bool bDone = false;
 				do {
 					if (bPromptFilename) {
-						QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
+						QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
 						if (!strFilePathName.isEmpty()) {
 							g_pUserNotesDatabase->setFilePathName(strFilePathName);
 						} else {
@@ -1633,7 +1633,7 @@ void CKJVCanOpener::en_NewSearch()
 void CKJVCanOpener::en_OpenSearch()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	QString strFilePathName = QFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), NULL, QFileDialog::ReadOnly);
+	QString strFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Open Failed", "Errors"), tr("Failed to open and read the specified KJV Search File!", "Errors"));
@@ -1654,7 +1654,7 @@ void CKJVCanOpener::en_OpenSearch()
 void CKJVCanOpener::en_SaveSearch()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", NULL, 0);
+	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			QMessageBox::warning(this, tr("KJV Search File Save Failed", "Errors"), tr("Failed to save the specified KJV Search File!", "Errors"));

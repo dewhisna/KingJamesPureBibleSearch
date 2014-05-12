@@ -36,7 +36,7 @@
 #include "myApplication.h"
 #include "VerseListModel.h"
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-#include "SaveFileDialog.h"
+#include "SaveLoadFileDialog.h"
 #endif
 #include "BibleWordDiffListModel.h"
 #include "Translator.h"
@@ -1361,7 +1361,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			bDone = false;
 			do {
 				if (bPromptFilename) {
-					QString strFilePathName = CSaveFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
+					QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
 					if (!strFilePathName.isEmpty()) {
 						m_pUserNotesDatabase->setFilePathName(strFilePathName);
 						ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
@@ -1403,7 +1403,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 	while (!bDone) {
 		QString strNewFilePathName = m_pUserNotesDatabase->errorFilePathName();
 		if (strNewFilePathName.isEmpty()) strNewFilePathName = m_pUserNotesDatabase->filePathName();
-		strNewFilePathName = QFileDialog::getOpenFileName(this, tr("Load King James Notes File", "FileFilters"), strNewFilePathName, tr("King James Notes File (*.kjn)", "FileFilters"), NULL, 0);
+		strNewFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Load King James Notes File", "FileFilters"), strNewFilePathName, tr("King James Notes File (*.kjn)", "FileFilters"), NULL, 0);
 		if (strNewFilePathName.isEmpty()) {		// Empty if user cancels
 			if (bLoadFailed) {
 				// If our previous load failed, we now have an uninitalized notes file.  So,

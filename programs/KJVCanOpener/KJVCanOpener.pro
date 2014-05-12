@@ -270,6 +270,7 @@ buildKJVDatabase:SOURCES += \
 !emscripten:!vnc:SOURCES += \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
+	SaveLoadFileDialog.cpp \
 	signalspy/Q4puGenericSignalSpy.cpp
 
 
@@ -333,7 +334,7 @@ buildKJVDatabase:HEADERS += \
 !emscripten:!vnc:HEADERS += \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
-	SaveFileDialog.h \
+	SaveLoadFileDialog.h \
 	signalspy/Q4puGenericSignalSpy.h
 
 

@@ -21,17 +21,16 @@
 **
 ****************************************************************************/
 
-#ifndef SAVE_FILE_DIALOG_H
-#define SAVE_FILE_DIALOG_H
+#ifndef SAVE_LOAD_FILE_DIALOG_H
+#define SAVE_LOAD_FILE_DIALOG_H
 
 #include <QString>
 #include <QWidget>
 #include <QFileDialog>
-#include <QPointer>
 
 // ============================================================================
 
-class CSaveFileDialog
+class CSaveLoadFileDialog
 {
 public:
 	static QString getSaveFileName(QWidget *parent = NULL,
@@ -40,25 +39,23 @@ public:
 												const QString &filter = QString(),
 												const QString &strDefaultSuffix = QString(),
 												QString *selectedFilter = NULL,
-												QFileDialog::Options options = 0)
-	{
-		QPointer<QFileDialog> pDlg = new QFileDialog(parent, caption, dir, filter);
-		pDlg->setFileMode(QFileDialog::AnyFile);
-		pDlg->setAcceptMode(QFileDialog::AcceptSave);
-		pDlg->setDefaultSuffix(strDefaultSuffix);
-		pDlg->setOptions(options);
-		if (selectedFilter) pDlg->selectNameFilter(*selectedFilter);
-		if (pDlg->exec() == QDialog::Accepted) {
-			if (pDlg.data() != NULL) {
-				return pDlg->selectedFiles().value(0);
-			}
-		}
-		if (pDlg) delete pDlg;
+												QFileDialog::Options options = 0);
 
-		return QString();
-	}
+	static QString getOpenFileName(QWidget *parent = NULL,
+												const QString &caption = QString(),
+												const QString &dir = QString(),
+												const QString &filter = QString(),
+												QString *selectedFilter = NULL,
+												QFileDialog::Options options = 0);
+
+protected:
+	static void setLastPath(const QString &strPath);
+	static QString lastPath();
+
+private:
+	static QString m_strLastPath;
 };
 
 // ============================================================================
 
-#endif		// SAVE_FILE_DIALOG_H
+#endif		// SAVE_LOAD_FILE_DIALOG_H
