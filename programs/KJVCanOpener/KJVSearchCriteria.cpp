@@ -287,8 +287,9 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 {
 	if (pSearchWithinModelIndex == NULL) return QVariant();
 
+	uint32_t nItem = pSearchWithinModelIndex->itemIndex();
+
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_WHOLE_BIBLE:
 			{
@@ -368,12 +369,27 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 		}
 	}
 
+	if (role == Qt::ToolTipRole) {
+		switch (pSearchWithinModelIndex->ssme()) {
+			case CSearchCriteria::SSME_COLOPHON:
+				return tr("A Colophon is an inscription at the end of a book\n"
+						  "or manuscript usually with facts about its production.\n"
+						  "In the Bible, they are usually found at the end of\n"
+						  "the Epistles of the New Testament.", "Scope");
+			case CSearchCriteria::SSME_SUPERSCRIPTION:
+				return tr("A Superscription is text written above a chapter\n"
+						  "describing the content of the chapter.  In the Bible,\n"
+						  "they are usually found in the Book of Psalms.", "Scope");
+			default:
+				return QString();
+		}
+	}
+
 	if (role == Qt::CheckStateRole) {
 		return pSearchWithinModelIndex->checkState();
 	}
 
 	if (role == SWMDRE_REL_INDEX_ROLE) {
-		uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_COLOPHON:
 				return QVariant::fromValue(CSearchCriteria::SSI_COLOPHON);
