@@ -1975,7 +1975,14 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 	}
 	strReference += referenceEndingDelimiter();
 
+	bool bInIndent = false;
+
 	scriptureHTML.beginParagraph();
+
+	if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL_HANGING) {
+		scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+		bInIndent = true;
+	}
 
 	if (!CPersistentSettings::instance()->referencesAtEnd()) {
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
@@ -2013,8 +2020,20 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 		if ((CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) &&
 			(ndx != ndxFirst)) scriptureHTML.addLineBreak();
 
+		if ((bInIndent) && (ndx != ndxFirst)) {
+			scriptureHTML.endIndent();
+			bInIndent = false;
+		}
+
+		if ((!bInIndent) && (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL_HANGING)) {
+			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+			bInIndent = true;
+		}
+
 		if (ndx.book() != ndxPrev.book()) {
-			scriptureHTML.appendLiteralText("  ");
+			if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF) {
+				scriptureHTML.appendLiteralText("  ");
+			}
 			if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
 			scriptureHTML.appendLiteralText(QString("%1%2 %3:%4%5")
 											.arg(referenceStartingDelimiter())
@@ -2109,6 +2128,11 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTag &tagPas
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(strReference);
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
+	}
+
+	if ((bInIndent)) {
+		scriptureHTML.endIndent();
+		bInIndent = false;
 	}
 
 	scriptureHTML.endParagraph();

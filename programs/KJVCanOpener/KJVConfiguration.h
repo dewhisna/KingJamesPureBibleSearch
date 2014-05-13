@@ -509,7 +509,7 @@ public:
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
-	bool isDirty() const;
+	bool isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage = CPSE_DEFAULT) const;
 
 signals:
 	void dataChanged(bool bNeedRestart);

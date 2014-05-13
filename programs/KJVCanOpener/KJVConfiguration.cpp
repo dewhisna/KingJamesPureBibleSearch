@@ -1551,20 +1551,23 @@ CConfigSearchOptions::~CConfigSearchOptions()
 
 void CConfigSearchOptions::loadSettings()
 {
+	bool bKeepDirty = false;
+
 	m_bLoadingData = true;
 
 	int nIndex = ui.comboSearchPhraseCompleterMode->findData(CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 	if (nIndex != -1) {
 		ui.comboSearchPhraseCompleterMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboSearchPhraseCompleterMode->setCurrentIndex(0);
 	}
 	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
 	ui.spinInitialNumberOfSearchPhrases->setValue(CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 	ui.checkBoxAutoExpandSearchResultsTree->setChecked(CPersistentSettings::instance()->autoExpandSearchResultsTree());
 
 	m_bLoadingData = false;
-	m_bIsDirty = false;
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigSearchOptions::saveSettings()
@@ -1651,6 +1654,8 @@ CConfigBrowserOptions::~CConfigBrowserOptions()
 
 void CConfigBrowserOptions::loadSettings()
 {
+	bool bKeepDirty = false;
+
 	m_bLoadingData = true;
 
 	ui.spinBrowserNavigationActivationDelay->setValue(CPersistentSettings::instance()->navigationActivationDelay());
@@ -1661,20 +1666,22 @@ void CConfigBrowserOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboBoxChapterScrollbarMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboBoxChapterScrollbarMode->setCurrentIndex(0);
 	}
 
 	nIndex = ui.comboBoxVerseRenderingMode->findData(CPersistentSettings::instance()->verseRenderingMode());
 	if (nIndex != -1) {
 		ui.comboBoxVerseRenderingMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboBoxVerseRenderingMode->setCurrentIndex(0);
 	}
 
 	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
 
 	m_bLoadingData = false;
-	m_bIsDirty = false;
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigBrowserOptions::saveSettings()
@@ -1779,19 +1786,22 @@ CConfigDictionaryOptions::~CConfigDictionaryOptions()
 
 void CConfigDictionaryOptions::loadSettings()
 {
+	bool bKeepDirty = false;
+
 	m_bLoadingData = true;
 
 	int nIndex = ui.comboDictionaryCompleterMode->findData(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 	if (nIndex != -1) {
 		ui.comboDictionaryCompleterMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboDictionaryCompleterMode->setCurrentIndex(0);
 	}
 
 	ui.spinDictionaryActivationDelay->setValue(CPersistentSettings::instance()->dictionaryActivationDelay());
 
 	m_bLoadingData = false;
-	m_bIsDirty = false;
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigDictionaryOptions::saveSettings()
@@ -1978,6 +1988,8 @@ void CConfigCopyOptions::initialize()
 
 void CConfigCopyOptions::loadSettings()
 {
+	bool bKeepDirty = false;
+
 	m_bLoadingData = true;
 
 	int nIndex;
@@ -1988,7 +2000,10 @@ void CConfigCopyOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboReferenceDelimiterMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboReferenceDelimiterMode->setCurrentIndex(0);
+		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(0).toUInt()));
+		setVerseCopyPreview();
 	}
 
 	// ----------
@@ -2009,7 +2024,10 @@ void CConfigCopyOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboVerseNumberDelimiterMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboVerseNumberDelimiterMode->setCurrentIndex(0);
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(0).toUInt()));
+		setVerseCopyPreview();
 	}
 
 	// ----------
@@ -2030,7 +2048,10 @@ void CConfigCopyOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboTransChangeAddedMode->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboTransChangeAddedMode->setCurrentIndex(0);
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(0).toUInt()));
+		setVerseCopyPreview();
 	}
 
 	// ----------
@@ -2039,7 +2060,10 @@ void CConfigCopyOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboBoxVerseRenderingModeCopying->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboBoxVerseRenderingModeCopying->setCurrentIndex(0);
+		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(0).toUInt()));
+		setVerseCopyPreview();
 	}
 
 	// ----------
@@ -2052,7 +2076,13 @@ void CConfigCopyOptions::loadSettings()
 	if (nIndex != -1) {
 		ui.comboBoxCopyFontSelection->setCurrentIndex(nIndex);
 	} else {
-		assert(false);
+		bKeepDirty = true;
+		ui.comboBoxCopyFontSelection->setCurrentIndex(0);
+		CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCFSE = static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(0).toUInt());
+		CPersistentSettings::instance()->setCopyFontSelection(nCFSE);
+		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+		setVerseCopyPreview();
 	}
 
 	m_fntCopyFont = CPersistentSettings::instance()->fontCopyFont();
@@ -2074,7 +2104,7 @@ void CConfigCopyOptions::loadSettings()
 	// ----------
 
 	m_bLoadingData = false;
-	m_bIsDirty = false;
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigCopyOptions::saveSettings()
@@ -2545,16 +2575,36 @@ void CKJVConfiguration::saveSettings()
 	m_pLocaleConfig->saveSettings();
 }
 
-bool CKJVConfiguration::isDirty() const
+bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 {
-	return (m_pGeneralSettingsConfig->isDirty() ||
-			m_pCopyOptionsConfig->isDirty() ||
+	switch (nPage) {
+		case CPSE_GENERAL_SETTINGS:
+			return m_pGeneralSettingsConfig->isDirty();
+		case CPSE_COPY_OPTIONS:
+			return m_pCopyOptionsConfig->isDirty();
+		case CPSE_USER_NOTES_DATABASE:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-			m_pUserNotesDatabaseConfig->isDirty() ||
+			return m_pUserNotesDatabaseConfig->isDirty();
+#else
+			return false;
 #endif
-			m_pTextFormatConfig->isDirty() ||
-			m_pBibleDatabaseConfig->isDirty() ||
-			m_pLocaleConfig->isDirty());
+		case CPSE_TEXT_FORMAT:
+			return m_pTextFormatConfig->isDirty();
+		case CPSE_BIBLE_DATABASE:
+			return m_pBibleDatabaseConfig->isDirty();
+		case CPSE_LOCALE:
+			return m_pLocaleConfig->isDirty();
+		case CPSE_DEFAULT:
+		default:
+			return (m_pGeneralSettingsConfig->isDirty() ||
+					m_pCopyOptionsConfig->isDirty() ||
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+					m_pUserNotesDatabaseConfig->isDirty() ||
+#endif
+					m_pTextFormatConfig->isDirty() ||
+					m_pBibleDatabaseConfig->isDirty() ||
+					m_pLocaleConfig->isDirty());
+	}
 }
 
 // ============================================================================
@@ -2698,34 +2748,34 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 
 	assert(m_nLastIndex != -1);				// We should have set our initial page index and can never navigate away from some page!
 	if (m_nLastIndex == index) return;
-	if (!m_pConfiguration->isDirty()) {
-		m_nLastIndex = index;
-		return;
+	if (m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(m_nLastIndex))) {
+		m_bHandlingPageSwap = true;
+
+		int nResult = QMessageBox::information(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
+																	   "Click 'Yes' to apply the setting changes and continue.\n"
+																	   "Click 'No' to discard those setting changes and continue.\n"
+																	   "Click 'Cancel' to stay on this settings page.", "Errors"),
+																  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
+		if (nResult == QMessageBox::Yes) {
+			apply();
+		} else if (nResult == QMessageBox::No) {
+			restore(true);
+		} else {
+			// It doesn't work right to call setCurrentIndex() here to set us back
+			//		to the last index, because the listWidgetView still hasn't updated
+			//		at the time of this call.  However, we can work around it by setting
+			//		an event to happen when the event loop runs again, which will trigger
+			//		after this current setting process has completed:
+			QTimer::singleShot(0, this, SLOT(en_setToLastIndex()));
+			return;
+		}
+
+		m_bHandlingPageSwap = false;
 	}
 
-	m_bHandlingPageSwap = true;
-
-	int nResult = QMessageBox::information(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
-																   "Click 'Yes' to apply the setting changes and continue.\n"
-																   "Click 'No' to discard those setting changes and continue.\n"
-																   "Click 'Cancel' to stay on this settings page.", "Errors"),
-															  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-	if (nResult == QMessageBox::Yes) {
-		apply();
-	} else if (nResult == QMessageBox::No) {
-		restore(true);
-	} else {
-		// It doesn't work right to call setCurrentIndex() here to set us back
-		//		to the last index, because the listWidgetView still hasn't updated
-		//		at the time of this call.  However, we can work around it by setting
-		//		an event to happen when the event loop runs again, which will trigger
-		//		after this current setting process has completed:
-		QTimer::singleShot(0, this, SLOT(en_setToLastIndex()));
-		return;
-	}
 	m_nLastIndex = index;
 
-	m_bHandlingPageSwap = false;
+	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index)));
 }
 
 void CKJVConfigurationDialog::en_setToLastIndex()
