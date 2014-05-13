@@ -140,6 +140,10 @@ public:
     @param rightMargin The new paragraph rightMargin
   */
   /* reimp */ void beginParagraph( Qt::Alignment al = Qt::AlignLeft, qreal topMargin = 0.0, qreal bottomMargin = 0.0, qreal leftMargin = 0.0, qreal rightMargin = 0.0 );
+  /* reimp */ void endParagraph();
+
+  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0 );
+  /* reimp */ void endIndent();
 
   /**
     Begin a new header element.
@@ -153,7 +157,6 @@ public:
   */
   /* reimp */ void endHeader( int level );
 
-  /* reimp */ void endParagraph();
   /* reimp */ void addNewline();
 
   /* reimp */ void addLineBreak();

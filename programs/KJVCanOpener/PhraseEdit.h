@@ -351,7 +351,8 @@ public:
 
 	enum VERSE_RENDERING_MODE_ENUM {
 		VRME_VPL = 0,								// Verse-Per-Line mode
-		VRME_FF = 1									// Display as Free-Flow/Paragraph mode
+		VRME_FF = 1,								// Display as Free-Flow/Paragraph mode
+		VRME_VPL_HANGING = 2						// Verse Per-Line mode with Hanging Indent
 	};
 
 	enum COPY_FONT_SELECTION_ENUM {

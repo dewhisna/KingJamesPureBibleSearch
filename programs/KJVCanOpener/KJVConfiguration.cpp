@@ -1631,6 +1631,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side", "ScrollbarModes"), CSME_RIGHT);
 
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_HANGING);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));

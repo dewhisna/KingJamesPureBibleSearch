@@ -129,6 +129,16 @@ void BBCodeBuilder::endParagraph()
   m_currentAlignment = Qt::AlignLeft;
 }
 
+void BBCodeBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+{
+  Q_UNUSED( nBlockIndent );
+  Q_UNUSED( nTextIndent );
+}
+
+void BBCodeBuilder::endIndent()
+{
+}
+
 void BBCodeBuilder::addNewline()
 {
   appendRawText( QLatin1String( "\n" ) );

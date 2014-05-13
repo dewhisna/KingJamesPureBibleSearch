@@ -135,6 +135,10 @@ public:
 
   /** Close the paragraph in the markup. */
   virtual void endParagraph() = 0;
+
+  virtual void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0 ) = 0;
+  virtual void endIndent() = 0;
+
   /** Add a newline to the markup. */
   virtual void addNewline() = 0;
 

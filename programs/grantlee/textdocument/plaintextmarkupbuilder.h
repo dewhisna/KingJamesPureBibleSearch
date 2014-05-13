@@ -140,8 +140,11 @@ public:
   /* reimp */ void endFontPointSize();
 
   /* reimp */ void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 );
-
   /* reimp */ void endParagraph();
+
+  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0 );
+  /* reimp */ void endIndent();
+
   /* reimp */ void addNewline();
 
   /* reimp */ void addLineBreak();

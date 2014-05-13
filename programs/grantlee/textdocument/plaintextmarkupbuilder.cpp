@@ -216,11 +216,6 @@ void PlainTextMarkupBuilder::endAnchor()
   appendRawText( QString::fromLatin1( "[%1]" ).arg( d->m_urls.indexOf( d->activeLink ) + 1 ) );
 }
 
-void PlainTextMarkupBuilder::endParagraph()
-{
-  appendRawText( QLatin1String( "\n" ) );
-}
-
 void PlainTextMarkupBuilder::addNewline()
 {
   appendRawText( QLatin1String( "\n" ) );
@@ -396,6 +391,21 @@ void PlainTextMarkupBuilder::beginParagraph( Qt::Alignment a, qreal top, qreal b
   Q_UNUSED( bottom );
   Q_UNUSED( left );
   Q_UNUSED( right );
+}
+
+void PlainTextMarkupBuilder::endParagraph()
+{
+  appendRawText( QLatin1String( "\n" ) );
+}
+
+void PlainTextMarkupBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+{
+  Q_UNUSED( nBlockIndent );
+  Q_UNUSED( nTextIndent );
+}
+
+void PlainTextMarkupBuilder::endIndent()
+{
 }
 
 void PlainTextMarkupBuilder::beginTable( qreal cellpadding, qreal cellspacing, const QString& width )

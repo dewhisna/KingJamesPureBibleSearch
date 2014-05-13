@@ -206,6 +206,21 @@ void TextHTMLBuilder::beginParagraph( Qt::Alignment al, qreal topMargin, qreal b
 //     }
 }
 
+void TextHTMLBuilder::endParagraph()
+{
+  appendRawText( QLatin1String( "</p>\n" ) );
+}
+
+void TextHTMLBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+{
+  appendRawText(QString::fromLatin1("<div style=\"-qt-block-indent:%1; text-indent:%2px;\" >").arg(nBlockIndent).arg(nTextIndent));
+}
+
+void TextHTMLBuilder::endIndent()
+{
+  appendRawText(QString::fromLatin1("</div>"));
+}
+
 void TextHTMLBuilder::beginHeader( int level )
 {
   switch ( level ) {
@@ -256,11 +271,6 @@ void TextHTMLBuilder::endHeader( int level )
   default:
     break;
   }
-}
-
-void TextHTMLBuilder::endParagraph()
-{
-  appendRawText( QLatin1String( "</p>\n" ) );
 }
 
 void TextHTMLBuilder::addNewline()

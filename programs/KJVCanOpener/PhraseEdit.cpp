@@ -1330,6 +1330,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		scriptureHTML.beginParagraph();
+		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relPrev.verse()));
@@ -1345,6 +1348,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// And Notes:
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
+
+		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+			scriptureHTML.endIndent();
+		}
 
 		scriptureHTML.endParagraph();
 
@@ -1468,6 +1475,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	// Print the Chapter Text:
 	bool bParagraph = false;
+	bool bInIndent = false;
 	CRelIndex ndxVerse;
 	bool bVPLNeedsLineBreak = false;
 	bool bStartedText = false;
@@ -1483,16 +1491,21 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		if ((!bStartedText) && (pVerse->m_nNumWrd == 0)) continue;			// Don't print verses that are empty if we haven't started printing anything for the chapter yet
 
-		if ((pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) &&
-			(CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) {
+		if (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) {
 			if (bParagraph) {
 				scriptureHTML.endParagraph();
 				bParagraph=false;
 			}
+			bVPLNeedsLineBreak = false;
 		}
 		if (!bParagraph) {
 			scriptureHTML.beginParagraph();
 			bParagraph = true;
+		}
+
+		if ((!bInIndent) && (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING)) {
+			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+			bInIndent = true;
 		}
 
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
@@ -1501,9 +1514,12 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.addLineBreak();
 			bVPLNeedsLineBreak = false;
 		}
+//		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) && (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE)) {
+//			scriptureHTML.addLineBreak();
+//		}
 
 		scriptureHTML.beginBold();
-		if ((bStartedText) && (CPersistentSettings::instance()->verseRenderingMode() != VRME_VPL)) scriptureHTML.appendLiteralText(" ");
+		if ((bStartedText) && (CPersistentSettings::instance()->verseRenderingMode() == VRME_FF)) scriptureHTML.appendLiteralText(" ");
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
@@ -1521,6 +1537,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.startBuffered();
 		if ((flagsTRO & TRO_UserNotes) &&
 			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true))) {
+			if (bInIndent) {
+				scriptureHTML.endIndent();
+				bInIndent = false;
+			}
 			if (bParagraph) {
 				scriptureHTML.stopBuffered();	// Switch to direct output to end the paragraph ahead of the note
 				scriptureHTML.endParagraph();
@@ -1534,7 +1554,16 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		scriptureHTML.flushBuffer(true);		// Stop buffering and flush
 
+		if (bInIndent) {
+			scriptureHTML.endIndent();
+			bInIndent = false;
+		}
+
 		ndxVerse.setWord(pVerse->m_nNumWrd);		// At end of loop, ndxVerse will be index of last word we've output...
+	}
+	if (bInIndent) {
+		scriptureHTML.endIndent();
+		bInIndent = false;
 	}
 	if (bParagraph) {
 		scriptureHTML.endParagraph();
@@ -1663,6 +1692,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph();
+		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relNext.verse()));
@@ -1678,6 +1710,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// And Notes:
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
+
+		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+			scriptureHTML.endIndent();
+		}
 
 		scriptureHTML.endParagraph();
 	}
