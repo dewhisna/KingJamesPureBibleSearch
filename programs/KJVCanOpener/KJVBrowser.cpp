@@ -509,7 +509,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 	// Work around Qt5 bug.  Without this, rendering goes Minnie Mouse and
 	//		the scroll jumps back a half-line on some lines after doing the
 	//		highlighting -- usually noticeable just after a gotoIndex call:
-	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection.primarySelection();
+	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection().primarySelection();
 	m_pScriptureBrowser->navigator().selectWords(tagSelection);
 #endif
 }
