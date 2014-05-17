@@ -8,31 +8,33 @@
         <location filename="../BibleDBListModel.cpp" line="112"/>
         <source>Loaded - Cannot be unloaded</source>
         <comment>BibleDBStatus</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cargado - No puede ser descargado</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="114"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>BibleDBStatus</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Donna, please check this to see if it&apos;s too long</translatorcomment>
+        <translation>Cargado - Selectione como Base de Datos</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="116"/>
         <source>Loaded, Auto-Reloaded at startup</source>
         <comment>BibleDBStatus</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cargado,-Auto-Recargado al encender
+</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="118"/>
         <source>Loaded, Will Not Auto-Reload at startup</source>
         <comment>BibleDBStatus</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cargado, No Recargara al encender</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="120"/>
         <source>Not Loaded</source>
         <comment>BibleDBStatus</comment>
-        <translation type="unfinished"></translation>
+        <translation>No ha sido cargado</translation>
     </message>
 </context>
 <context>
@@ -41,13 +43,13 @@
         <location filename="../BibleWordDiffListModel.cpp" line="111"/>
         <source>Original Word</source>
         <comment>CBibleWordDiffListModel</comment>
-        <translation type="unfinished"></translation>
+        <translation>Palabra Original</translation>
     </message>
     <message>
         <location filename="../BibleWordDiffListModel.cpp" line="113"/>
         <source>Rendered Word</source>
         <comment>CBibleWordDiffListModel</comment>
-        <translation type="unfinished"></translation>
+        <translation>Palabra Proveida</translation>
     </message>
 </context>
 <context>
@@ -55,67 +57,68 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="28"/>
         <source>Browser Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones del Navegador </translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="36"/>
         <source>Navigation Activation &amp;Delay (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Activación de Navegación &amp;Retraso (ms):</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="66"/>
         <source>Passage Reference Activation &amp;Delay (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Paso de Activación de Referencia &amp;Retraso (ms):</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="94"/>
         <source>Show E&amp;xcluded Search Results</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Hi Donna, are you sure the word E&amp;xcluded (as typed in English) in this string is correct?</translatorcomment>
+        <translation>Mostrar E&amp;xcluidos Resultados de la Búsqueda</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="103"/>
         <source>Entire Bible &amp;Scrollbar:</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblia Complete &amp;Barra de Desplazamiento:</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="127"/>
         <source>Verse &amp;Rendering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versículo&amp;Proveído:</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="149"/>
         <source>Show &amp;Pilcrow (¶) Symbols (Paragraph Marker)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar &amp;Pilcrow (¶) Symbolos (Marcado en Párrafo)</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1618"/>
+        <source>None</source>
+        <comment>ScrollbarModes</comment>
+        <translation>Nada</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1619"/>
-        <source>None</source>
+        <source>Left-Side</source>
         <comment>ScrollbarModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lado-Izquierdo</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1620"/>
-        <source>Left-Side</source>
-        <comment>ScrollbarModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1621"/>
         <source>Right-Side</source>
         <comment>ScrollbarModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lado-Derecho</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1622"/>
+        <source>Verse-Per-Line</source>
+        <comment>VerseRenderingModes</comment>
+        <translation>Versículo-Por-Línea</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1623"/>
-        <source>Verse-Per-Line</source>
-        <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1624"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Párrafo-Flujo</translation>
     </message>
 </context>
 <context>
@@ -123,215 +126,216 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="28"/>
         <source>Scripture Browser Copy Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones del Navegador Opciones para  Copiar</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="41"/>
         <source>&amp;Reference Delimiter:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Delimitador de Referencia:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="71"/>
         <location filename="../ConfigCopyOptions.ui" line="146"/>
         <source>Use &amp;Abbreviated Book Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Uso &amp;Abrevaciond de Nombres de Libros</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="78"/>
         <location filename="../ConfigCopyOptions.ui" line="153"/>
         <source>In &amp;Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>En &amp;Negrita</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="85"/>
         <source>At E&amp;nd</source>
-        <translation type="unfinished"></translation>
+        <translation>At F&amp;in</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="116"/>
         <source>&amp;Verse Number Delimiter:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Delimitador de Número de Versículo:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="182"/>
         <source>Add &amp;Quotes Around Verse/Passage</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir &amp;Cotizaciones Alrededor de el Texto/Versículo </translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="191"/>
         <source>&amp;Translation Change/Added Word Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cambio de Traducción / Modo de Palabras Añadido:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="225"/>
         <source>Verse &amp;Rendering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Representación &amp;deVersículo:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="247"/>
         <source>Copy &amp;Pilcrow (¶) Symbols (Paragraph Marker)</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia &amp;Pilcrow (¶) Symbols (Marcador de Párrafo)</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="263"/>
         <source>Copy &amp;Font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fuente de&amp;Copia:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="276"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Name for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It&apos;s up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establecer el tamaño de Punto de Fuente deseado para Toque Copia de Fuente &lt;/p&gt; &lt;p&gt; Nota:Toque Copia de Fuente es provisto siempre en el portapapeles como una sugerencia del tipo de Fuente deseada. Depende de usted dirigirse a su aplicación realizando el pegado para decidir como interpretarlo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="283"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set to Desired Font Point Size for the Copy Font Hint.&lt;/p&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It&apos;s up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establecer el tamaño de Punto de Fuente deseado para Toque Copia de Fuente &lt;/p&gt; &lt;p&gt; Nota:Toque Copia de Fuente es provisto siempre en el portapapeles como una sugerencia del tipo de Fuente deseada. Depende de usted dirigirse a su aplicación realizando el pegado para decidir como interpretarlo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="290"/>
         <source>Selected Font &amp;Hint:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fuente Seleccionada &amp;Sugerencia:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="309"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note: Copy Font Hint is provided in the clipboard as a hint to the desired font. It&apos;s up to your target application doing the pasting to decide how to interpret it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;ht</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="347"/>
         <source>Search Results References:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultados de la Búsqueda Referencias:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="368"/>
         <source>Occurrence Counts:</source>
-        <translation type="unfinished"></translation>
+        <translation>Contadores de ocurrencia:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="395"/>
         <source>Word Indexes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Índices de palabras:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="402"/>
         <location filename="../ConfigCopyOptions.ui" line="422"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Presentación</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="429"/>
         <location filename="../ConfigCopyOptions.ui" line="436"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="443"/>
         <source>Show Preview:</source>
-        <translation type="unfinished"></translation>
+        <translation>Presentación;Preliminar:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="457"/>
         <source>Copy Preview:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista previa de Copiar:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="489"/>
         <source>Scripture Browser Verse Copying Preview:</source>
-        <translation type="unfinished"></translation>
+        <translation>Navigador de Versículo Escritura que Copia Vista previa:</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1832"/>
+        <location filename="../KJVConfiguration.cpp" line="1854"/>
+        <source>No Delimiters</source>
+        <comment>Delimiters</comment>
+        <translation>Sin delimitadores</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1833"/>
         <location filename="../KJVConfiguration.cpp" line="1855"/>
-        <source>No Delimiters</source>
+        <source>Square Brackets</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Corchetes</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1834"/>
         <location filename="../KJVConfiguration.cpp" line="1856"/>
-        <source>Square Brackets</source>
+        <source>Curly Braces</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Tirantes Rizados</translatorcomment>
+        <translation>Tirantes Rizados</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1835"/>
         <location filename="../KJVConfiguration.cpp" line="1857"/>
-        <source>Curly Braces</source>
-        <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1836"/>
-        <location filename="../KJVConfiguration.cpp" line="1858"/>
         <source>Parentheses</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Paréntesis</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1854"/>
+        <location filename="../KJVConfiguration.cpp" line="1853"/>
         <source>No Numbers</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sin Números</translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1859"/>
+        <location filename="../KJVConfiguration.cpp" line="1858"/>
         <source>Superscript</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Super Texto</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1876"/>
+        <source>No Marking</source>
+        <comment>Delimiters</comment>
+        <translation>Sin marcación</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1877"/>
-        <source>No Marking</source>
+        <source>Italics</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cursiva</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1878"/>
-        <source>Italics</source>
-        <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1879"/>
         <source>Brackets</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Paréntesis</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1884"/>
+        <source>Verse-Per-Line</source>
+        <comment>VerseRenderingModes</comment>
+        <translation>Versículo Por Línea</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1885"/>
-        <source>Verse-Per-Line</source>
-        <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1886"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Párrafo Flujo Libre</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1895"/>
+        <source>No Font Hint</source>
+        <comment>CopyFontModes</comment>
+        <translation>Sin Sugerencia de Fuente</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1896"/>
-        <source>No Font Hint</source>
+        <source>Copy Font</source>
         <comment>CopyFontModes</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1897"/>
-        <source>Copy Font</source>
+        <source>Scripture Browser Font</source>
         <comment>CopyFontModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Navegador de Fuente para Escrituras</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1898"/>
-        <source>Scripture Browser Font</source>
-        <comment>CopyFontModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1899"/>
         <source>Search Results Font</source>
         <comment>CopyFontModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Resultado de Búsqueda de Fuente</translation>
     </message>
 </context>
 <context>
@@ -339,35 +343,38 @@
     <message>
         <location filename="../ConfigDictionaryOptions.ui" line="28"/>
         <source>Dictionary Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones De Diccionario</translation>
     </message>
     <message>
         <location filename="../ConfigDictionaryOptions.ui" line="36"/>
         <source>Dictionary &amp;Completer Mode:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Diccionario &amp;Informática Modulo Completa:</translatorcomment>
+        <translation>Dictionary &amp;Completer Mode:
+</translation>
     </message>
     <message>
         <location filename="../ConfigDictionaryOptions.ui" line="66"/>
         <source>Dictionary Activation &amp;Delay (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Retardo de  Activación de Diccionario (ms):</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1753"/>
+        <source>Normal Filter</source>
+        <comment>SoundExModes</comment>
+        <translation>Filtro Normal</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1754"/>
-        <source>Normal Filter</source>
+        <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Not sure about the flow of this in Spanish</translatorcomment>
+        <translation>SonidoEX Filtro</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1755"/>
-        <source>SoundEx Filter</source>
-        <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1756"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sin Filtrar</translation>
     </message>
 </context>
 <context>
@@ -375,45 +382,46 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="28"/>
         <source>Search Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fuente de Texto</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="36"/>
         <source>Search Phrase &amp;Completer Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Busqueda de Frase &amp;Modo Completer:</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="66"/>
         <source>Search Phrase Activation &amp;Delay (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Activación&amp;Retraso deBúsquda de Frase (ms): </translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="96"/>
         <source>&amp;Initial Number of Search Phrases:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Número Initial de Busqueda de Frases:</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="118"/>
         <source>&amp;Auto Expand Search Results Tree</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Not sure tha Árbol is the appropriate word here (perhaps leave as tree)</translatorcomment>
+        <translation>&amp;Ampliar Resultados Automaticos de Resultado de Árbol de Busqueda</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1524"/>
+        <source>Normal Filter</source>
+        <comment>SoundExModes</comment>
+        <translation>Filtro Normal</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1525"/>
-        <source>Normal Filter</source>
+        <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Filtro SonidoEX</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1526"/>
-        <source>SoundEx Filter</source>
-        <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1527"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sin Filtrar</translation>
     </message>
 </context>
 <context>
@@ -421,141 +429,142 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="34"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="66"/>
         <source>Dictionary Word to Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda de Palabras en el Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="69"/>
         <source>Enter word to search in the Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrese palabra de busqueda en el Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="88"/>
         <location filename="../DictionaryWidget.ui" line="91"/>
         <source>Clear Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Borre Palabra</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="102"/>
         <source>Word History Backword</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Donna, I think you meant to say, Backward, not Backword</translatorcomment>
+        <translation>Historia de Palabras hacia atrás</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="105"/>
         <source>Go Backward in the Word History</source>
-        <translation type="unfinished"></translation>
+        <translation>Ir hacia atrás en la historia de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="116"/>
         <source>Word History Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Avanze de Historia de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="119"/>
         <source>Go Forward in the Word History</source>
-        <translation type="unfinished"></translation>
+        <translation>Abanzar en Historia de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="138"/>
         <source>Word Definition Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Navegador de Definición de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="189"/>
         <location filename="../DictionaryWidget.cpp" line="234"/>
         <source>&amp;Edit</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Editar</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="190"/>
         <source>Dictionary Word Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Operaciones Diccionario para Editar Palabras </translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="207"/>
         <source>Cu&amp;t</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Corta&amp;r</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="208"/>
         <source>Cut selected text from the Dictionary Word Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Pegar el texto seleccionado de la Palabra Editor Diccionario en el portapapeles</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="212"/>
         <location filename="../DictionaryWidget.cpp" line="237"/>
         <source>&amp;Copy</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cortar</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="213"/>
         <source>Copy selected text from the Dictionary Word Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Copia el texto seleccionado de la Palabra Editor Diccionario en el portapapeles</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="217"/>
         <source>&amp;Paste</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Pegar</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="218"/>
         <source>Paste text on clipboard into the Dictionary Word Editor</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Pegar texto en el portapapeles en la Palabra Editor Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="221"/>
         <source>&amp;Delete</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Borrar</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="222"/>
         <source>Delete selected text from the Dictionary Word Editor</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar el texto seleccionado de la Palabra Editor Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="227"/>
         <location filename="../DictionaryWidget.cpp" line="243"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar &amp;Todo</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="228"/>
         <source>Select All Text in the Dictionary Word Editor</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar todo el texto de la Palabra el Editor del Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="235"/>
         <source>Dictionary Definition Text Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Definición de Diccionario  de Operaciones de Editar </translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="238"/>
         <source>Copy selected text from the Dictionary Definition to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Copia el texto seleccionado del Diccionario en el portapapeles</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="244"/>
         <source>Select All Text in the Dictionary Definition</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar todo el texto en la  Definición del Diccionario</translation>
     </message>
 </context>
 <context>
@@ -564,19 +573,19 @@
         <location filename="../Highlighter.cpp" line="346"/>
         <source>&amp;Highlight/Unhighlight Passage with Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Seleccionar/Deseleccieselecciónar Texto con Herramiente #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="350"/>
         <source>Highlighter Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Herramienta Fosforecentel #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="351"/>
         <source>Highlight/Unhighlight the selected passage with Highlighter Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar/Deseleccieselecciónar de Texto Seleccionado con Marcador Fosforescente en Herramienta #%1</translation>
     </message>
 </context>
 <context>
@@ -585,13 +594,13 @@
         <location filename="../KJVConfiguration.cpp" line="168"/>
         <source>Enable</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Activar</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="169"/>
         <source>Enable/Disable this highlighter</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Activar / Desactivar el resaltador</translation>
     </message>
 </context>
 <context>
@@ -599,50 +608,50 @@
     <message>
         <location filename="../KJVAboutDlg.ui" line="36"/>
         <source>About King James Pure Bible Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Sobre King James Pure Search</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="71"/>
         <source>&amp;License</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Licensia</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="79"/>
         <source>King James Pure Bible Search - Version: </source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Version de King James Pure Bible Search: </translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="82"/>
         <location filename="../KJVAboutDlg.cpp" line="85"/>
         <source>Lite Version</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Version Lite</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="98"/>
         <source>Build</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Construir</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="101"/>
         <source>Based on Qt Version %1</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Basado en Version Qt %1</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="102"/>
         <source>Brought to you by the fervent prayers of Bethel Church; Festus, MO</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Presentado por medio de las fervientes oraciones de la Iglesia Bethel; Festus, MO</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="105"/>
         <source>Click Here to Visit Bethel Church</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Haga clic aquí para visitar la Iglesia Bethel</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="176"/>
@@ -656,13 +665,21 @@ Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.
 Contact: http://www.dewtronics.com/
 Written and Developed for Bethel Church, Festus, MO.</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Este programa de software es libre;  puede redistribuirlo y / o modificarlo bajo los términos de la Licencia Pública General GNU publicada por la Fundación para el Software Libre; ya sea la versión 3 de la Licencia, o (a su elección) cualquier versión posterior.
+
+Este programa se distribuye con la esperanza de que sea útil, pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de COMERCIALIZACIÓN o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Vea la Licencia Pública General de GNU para más detalles
+
+Debería haber recibido una copia de la Licencia Pública General de GNU junto con este programa; si no, escriba a la Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, EE.UU
+
+Derechos de Autor  (C) 2012-2014 Donna Whisnant, pseudónimo Dewtronics. 
+Contacto: http://www.dewtronics.com/ 
+Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="187"/>
         <source>About King James Pure Bible Search License</source>
         <comment>AboutBox</comment>
-        <translation type="unfinished"></translation>
+        <translation>Acerca de la Lincencia de Búsqueda para King James Bible Search Pure</translation>
     </message>
 </context>
 <context>
@@ -670,86 +687,87 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
         <source>Bible Database</source>
-        <translation type="unfinished"></translation>
+        <translation>Base de datos de la Biblia</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Base de datos de la Biblia:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
         <source>List of available Bible Databases</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
         <source>I&amp;nitial Bible Database:</source>
-        <translation type="unfinished"></translation>
+        <translation>Base de datos de la Biblia &amp;Iniciales:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="81"/>
         <source>Select Main Bible Database to Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccione Base de datos de Biblia Principalesl para Cargar</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="95"/>
         <source>Options for Selected Database:</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones  para la Base de Datos Seleccionadas:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="111"/>
         <source>When enabled, hyphens in words won&apos;t display or copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuando está habilitado, guiones en palabras no seran mostrados o copiados</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="114"/>
         <source>&amp;Hide Hyphens in Words</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Esconder Guinoes en Palabras</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="148"/>
         <source>Search Phrases are Hyphen Sensitive when Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda  de Frases con Guión Sensible cuando Habilitado</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="151"/>
         <source>Hyphen &amp;Sensitive Search Phrases</source>
-        <translation type="unfinished"></translation>
+        <translation>Guión &amp;Sensitivo Búsqueda de Frases</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="161"/>
         <source>Word &amp;Changes:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cambio de Palabras:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="177"/>
         <source>Details of Changes to Database Word Rendering</source>
-        <translation type="unfinished"></translation>
+        <translation>Detallos de Cambios de Datos de Base en Palabras Representadas</translation>
+    </message>
+    <message>
+        <location filename="../KJVConfiguration.cpp" line="1045"/>
+        <source>None</source>
+        <comment>HyphenModes</comment>
+        <translation>Niguno</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1046"/>
-        <source>None</source>
+        <source>Places/Names</source>
         <comment>HyphenModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lubares/Nombres</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1047"/>
-        <source>Places/Names</source>
+        <source>Ordinary Words</source>
         <comment>HyphenModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Palabras Comunes
+</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1048"/>
-        <source>Ordinary Words</source>
-        <comment>HyphenModes</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVConfiguration.cpp" line="1049"/>
         <source>Both</source>
         <comment>HyphenModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ambos</translation>
     </message>
 </context>
 <context>
@@ -757,39 +775,39 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     <message>
         <location filename="../KJVBrowser.ui" line="28"/>
         <source>KJVBrowserForm</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma de Navegacion para KJV</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="61"/>
         <source>Bible Database Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Base de Datos de Nombre de Biblia</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="89"/>
         <source>Book/Chapter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Libro/Capítulo:</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="130"/>
         <source>Testament:</source>
-        <translation type="unfinished"></translation>
+        <translation>Testamento:</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="142"/>
         <location filename="../KJVBrowser.ui" line="205"/>
         <source>Book:</source>
-        <translation type="unfinished"></translation>
+        <translation>Libro:</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="160"/>
         <location filename="../KJVBrowser.ui" line="223"/>
         <source>Chapter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Capítulo:</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="193"/>
         <source>Entire Bible:</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblia Completa:</translation>
     </message>
 </context>
 <context>
@@ -797,154 +815,154 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     <message>
         <location filename="../KJVCanOpener.ui" line="36"/>
         <source>King James Pure Bible Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda de King James Pure Bible</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.ui" line="53"/>
         <source>&amp;Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Barra de Herramienta Principal</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.ui" line="64"/>
         <source>&amp;Navigation Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Navegación de Barras de Herramienta</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.ui" line="75"/>
         <source>&amp;Highlighter/Notes/References Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Marcador Fluorescente/Notas/Referencias de Barra de Herramienta</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="291"/>
         <source>Add/Edit/Remove Note...</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Añadir?Editar/Eliminar Notas...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="293"/>
         <location filename="../KJVCanOpener.cpp" line="294"/>
         <source>Add/Edit/Remove Note to current verse or passage</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Añadir/Editar/Eliminar Notas al al versículo o pasaje corriente</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="300"/>
         <source>Add/Edit/Remove Cross Reference...</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Añadir/Editar/EliminarReferencias Cruzadas...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="302"/>
         <location filename="../KJVCanOpener.cpp" line="303"/>
         <source>Add/Edit/Remove Cross Reference to link this verse or passage with another</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Añadir/Editar/EliminarReferencias Cruzadas para enlasar  este versículo o pasaje con otro</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="393"/>
         <source>&amp;File</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Archivos</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="395"/>
         <source>&amp;New Search</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nueva Búsqueda</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="396"/>
         <location filename="../KJVCanOpener.cpp" line="397"/>
         <source>Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar criterios de Frases d Búsqueda, Alcance de la búsqueda y búsqueda Dentro de Configuración y Comience la Nueva Búsqueda</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="401"/>
         <source>L&amp;oad Search File...</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Carga de Búsqueda de Archivos...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="402"/>
         <location filename="../KJVCanOpener.cpp" line="403"/>
         <source>Load Search Phrases from a previously saved King James Search File</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Cargar Búsqueda Frases guardados previamente Archivos de Búqueda de King James</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="406"/>
         <source>&amp;Save Search File...</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Guardar Búsqueda de Aarchivos ...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="407"/>
         <location filename="../KJVCanOpener.cpp" line="408"/>
         <source>Save current Search Phrases to a King James Search File</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Guardar Búsqueda de Frases corriente de búsqueda de archivos para King James</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="415"/>
         <source>Cl&amp;ear Search Phrases</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;BorrarCriterio de Búsqueda de Frases</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="416"/>
         <location filename="../KJVCanOpener.cpp" line="417"/>
         <source>Clear All Search Phrases, but keep Search Scope and Search Within Settings</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar criterios de búsqueda frases, pero mantener ámbito de búsqueda y búsqueda Dentro de Ajustes </translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="422"/>
         <source>E&amp;xit</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;alida</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="423"/>
         <source>Exit the King James Pure Bible Search Application</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Salga de la Aplicación de búsquedade King James Pure Bible Search</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="424"/>
         <source>Exit Application</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Salga de Applicacion</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="437"/>
         <source>&amp;View</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vista</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="439"/>
         <source>&amp;Toolbars</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Barra de Herramienta</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="441"/>
         <source>Show/Hide Main Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar Ocultar Barra de Herramientas Principal</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="443"/>
         <source>Show/Hide the Scripture Browser Navigation Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="446"/>
         <source>Show/Hide Highlighter/Notes/References Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="450"/>
@@ -1636,37 +1654,37 @@ http://www.PureBibleSearch.com/</source>
 <context>
     <name>CKJVConfiguration</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2444"/>
+        <location filename="../KJVConfiguration.cpp" line="2443"/>
         <source>General Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2445"/>
+        <location filename="../KJVConfiguration.cpp" line="2444"/>
         <source>Copy Options</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2446"/>
+        <location filename="../KJVConfiguration.cpp" line="2445"/>
         <source>Text Color and Fonts</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2448"/>
+        <location filename="../KJVConfiguration.cpp" line="2447"/>
         <source>Notes File Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2450"/>
+        <location filename="../KJVConfiguration.cpp" line="2449"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2451"/>
+        <location filename="../KJVConfiguration.cpp" line="2450"/>
         <source>Locale Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -1675,7 +1693,7 @@ http://www.PureBibleSearch.com/</source>
 <context>
     <name>CKJVConfigurationDialog</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2612"/>
+        <location filename="../KJVConfiguration.cpp" line="2611"/>
         <source>You still have unapplied changes.  Do you wish to discard these changes??
 
 Click &apos;OK&apos; to discard the changes and close this configuration window.
@@ -1684,7 +1702,7 @@ Click &apos;Cancel&apos; to stay here in the configuration window.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2680"/>
+        <location filename="../KJVConfiguration.cpp" line="2679"/>
         <source>You have changed some settings on the previous page.  Do you wish to apply those settings??
 
 Click &apos;Yes&apos; to apply the setting changes and continue.
@@ -1694,7 +1712,7 @@ Click &apos;Cancel&apos; to stay on this settings page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2713"/>
+        <location filename="../KJVConfiguration.cpp" line="2712"/>
         <source>The changes you have made require that the program be restarted before they take affect.  Doing so will close all Search Windows just like exiting the program.  If you choose not to exit, they will be applied the next time you run the program.
 
 Do you wish to restart the app??</source>
@@ -1823,7 +1841,7 @@ Do you wish to restart the app??</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2364"/>
+        <location filename="../KJVConfiguration.cpp" line="2363"/>
         <source>&lt; System Locale &gt;</source>
         <comment>languageNames</comment>
         <translation type="unfinished"></translation>
@@ -1973,80 +1991,79 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="146"/>
-        <location filename="../KJVPassageNavigator.cpp" line="149"/>
+        <location filename="../KJVPassageNavigator.cpp" line="143"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation>Toda la Biblia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="169"/>
+        <location filename="../KJVPassageNavigator.cpp" line="160"/>
         <source>Word</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="170"/>
+        <location filename="../KJVPassageNavigator.cpp" line="161"/>
         <source>Verse</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="171"/>
+        <location filename="../KJVPassageNavigator.cpp" line="162"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="172"/>
+        <location filename="../KJVPassageNavigator.cpp" line="163"/>
         <source>Book</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="568"/>
+        <location filename="../KJVPassageNavigator.cpp" line="559"/>
         <source>&amp;Books:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="569"/>
+        <location filename="../KJVPassageNavigator.cpp" line="560"/>
         <source>C&amp;hapters:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="570"/>
+        <location filename="../KJVPassageNavigator.cpp" line="561"/>
         <source>&amp;Verses:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="571"/>
+        <location filename="../KJVPassageNavigator.cpp" line="562"/>
         <source>&amp;Words:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="614"/>
+        <location filename="../KJVPassageNavigator.cpp" line="605"/>
         <source>&amp;Book:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="615"/>
+        <location filename="../KJVPassageNavigator.cpp" line="606"/>
         <source>C&amp;hapter:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="616"/>
+        <location filename="../KJVPassageNavigator.cpp" line="607"/>
         <source>&amp;Verse:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="617"/>
+        <location filename="../KJVPassageNavigator.cpp" line="608"/>
         <source>&amp;Word:</source>
         <comment>CKJVPassageNavigator</comment>
         <translation type="unfinished"></translation>
@@ -2142,67 +2159,67 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="370"/>
+        <location filename="../KJVSearchCriteria.cpp" line="359"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="371"/>
+        <location filename="../KJVSearchCriteria.cpp" line="360"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="373"/>
+        <location filename="../KJVSearchCriteria.cpp" line="362"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="374"/>
+        <location filename="../KJVSearchCriteria.cpp" line="363"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="375"/>
+        <location filename="../KJVSearchCriteria.cpp" line="364"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="376"/>
+        <location filename="../KJVSearchCriteria.cpp" line="365"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="377"/>
+        <location filename="../KJVSearchCriteria.cpp" line="366"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="378"/>
+        <location filename="../KJVSearchCriteria.cpp" line="367"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="379"/>
+        <location filename="../KJVSearchCriteria.cpp" line="368"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="380"/>
+        <location filename="../KJVSearchCriteria.cpp" line="369"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="381"/>
+        <location filename="../KJVSearchCriteria.cpp" line="370"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -2416,7 +2433,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2427,7 +2443,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>in %n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2440,7 +2455,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2452,7 +2466,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2460,7 +2473,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2470,7 +2482,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2478,7 +2489,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2497,42 +2507,13 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1564"/>
-        <source>Not found%1at all in %n Verse(s) of the Bible</source>
+        <location filename="../KJVSearchResult.cpp" line="1557"/>
+        <source>Found %n %1Occurrence(s)%2</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1565"/>
-        <source>Not found%1at all in %n Chapter(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1566"/>
-        <source>Not found%1at all in %n Book(s) of the Bible</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1575"/>
-        <source>Excluded %n%1Occurrence(s)</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2543,16 +2524,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1557"/>
-        <source>Found %n%1Occurrence(s)</source>
-        <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2561,6 +2532,14 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1564"/>
+        <source>Not found%1 at all in %n Verse(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1564"/>
         <location filename="../KJVSearchResult.cpp" line="1565"/>
@@ -2568,6 +2547,30 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>together</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1565"/>
+        <source>Not found%1 at all in %n Chapter(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1566"/>
+        <source>Not found%1 at all in %n Book(s) of the Bible</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchResult.cpp" line="1575"/>
+        <source>Excluded %n %1Occurrence(s)</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="1587"/>
@@ -2595,7 +2598,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2609,7 +2611,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2625,7 +2626,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2633,7 +2633,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2643,7 +2642,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2652,7 +2650,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2660,7 +2657,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2993,19 +2989,19 @@ So instead, would you like to disable it so that text highlighted with this High
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1263"/>
+        <location filename="../KJVConfiguration.cpp" line="1262"/>
         <source>Default Note Background &amp;Color</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1264"/>
+        <location filename="../KJVConfiguration.cpp" line="1263"/>
         <source>Set the Default Background Color for New Notes</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1324"/>
+        <location filename="../KJVConfiguration.cpp" line="1323"/>
         <source>You have edited Notes, Highlighters, and/or References, but don&apos;t yet have a King James Notes File setup.
 
 Do you wish to setup a Notes File and save your changes??
@@ -3014,7 +3010,7 @@ Warning: If you select &apos;No&apos;, then your changes will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1330"/>
+        <location filename="../KJVConfiguration.cpp" line="1329"/>
         <source>The previous attempt to load your King James Notes File failed.
 Do you wish to save the changes you&apos;ve made?
 Warning, if you save this file overtop of your original file, you will lose all ability to recover the remaining data in your original file.  It&apos;s recommended that you save it to a new file.
@@ -3026,27 +3022,27 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1354"/>
+        <location filename="../KJVConfiguration.cpp" line="1353"/>
         <source>Save King James Notes File</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1354"/>
+        <location filename="../KJVConfiguration.cpp" line="1353"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1365"/>
-        <location filename="../KJVConfiguration.cpp" line="1412"/>
-        <location filename="../KJVConfiguration.cpp" line="1455"/>
+        <location filename="../KJVConfiguration.cpp" line="1364"/>
+        <location filename="../KJVConfiguration.cpp" line="1411"/>
+        <location filename="../KJVConfiguration.cpp" line="1454"/>
         <source>King James Notes File Error</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1366"/>
+        <location filename="../KJVConfiguration.cpp" line="1365"/>
         <source>Unable to save the King James Notes File!
 
 Click &apos;Yes&apos; to try again, or
@@ -3056,26 +3052,26 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1396"/>
+        <location filename="../KJVConfiguration.cpp" line="1395"/>
         <source>Load King James Notes File</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1396"/>
+        <location filename="../KJVConfiguration.cpp" line="1395"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1423"/>
-        <location filename="../KJVConfiguration.cpp" line="1428"/>
+        <location filename="../KJVConfiguration.cpp" line="1422"/>
+        <location filename="../KJVConfiguration.cpp" line="1427"/>
         <source>Loading King James Notes File</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1423"/>
+        <location filename="../KJVConfiguration.cpp" line="1422"/>
         <source>Warning: The King James Notes File being loaded was last saved on an older version of King James Pure Bible Search.  It will automatically be updated to this version of King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
@@ -3083,7 +3079,7 @@ Filename: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1428"/>
+        <location filename="../KJVConfiguration.cpp" line="1427"/>
         <source>Warning: The King James Notes File being loaded was created on a newer version of King James Pure Bible Search.  It may contain data or settings for things not supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
@@ -3091,7 +3087,7 @@ Filename: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1456"/>
+        <location filename="../KJVConfiguration.cpp" line="1455"/>
         <source>Unable to save the current King James Notes File!
 
 Click &apos;Yes&apos; to try again, or
@@ -3177,13 +3173,13 @@ Check Installation!</source>
         <location filename="../myApplication.cpp" line="508"/>
         <source>King James Pure Bible Search</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Reina Valera Gómez </translation>
     </message>
     <message>
         <location filename="../myApplication.cpp" line="508"/>
         <source>Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Advertencia: Tu  Sesión de Búsquedas en la Reina Valera Gómez expira en 5 minutos.</translation>
     </message>
 </context>
 <context>
@@ -3386,61 +3382,57 @@ Check Installation!</source>
 <context>
     <name>CPhraseEditNavigator</name>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2395"/>
+        <location filename="../PhraseEdit.cpp" line="2392"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2400"/>
+        <location filename="../PhraseEdit.cpp" line="2397"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2429"/>
-        <location filename="../PhraseEdit.cpp" line="2436"/>
-        <location filename="../PhraseEdit.cpp" line="2442"/>
+        <location filename="../PhraseEdit.cpp" line="2426"/>
+        <location filename="../PhraseEdit.cpp" line="2433"/>
+        <location filename="../PhraseEdit.cpp" line="2439"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2430"/>
+        <location filename="../PhraseEdit.cpp" line="2427"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2431"/>
-        <location filename="../PhraseEdit.cpp" line="2437"/>
+        <location filename="../PhraseEdit.cpp" line="2428"/>
+        <location filename="../PhraseEdit.cpp" line="2434"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2432"/>
-        <location filename="../PhraseEdit.cpp" line="2438"/>
-        <location filename="../PhraseEdit.cpp" line="2443"/>
+        <location filename="../PhraseEdit.cpp" line="2429"/>
+        <location filename="../PhraseEdit.cpp" line="2435"/>
+        <location filename="../PhraseEdit.cpp" line="2440"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="2451"/>
+        <location filename="../PhraseEdit.cpp" line="2448"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3537,18 +3529,18 @@ Check Installation!</source>
     <message>
         <location filename="../PhraseEdit.cpp" line="1104"/>
         <location filename="../PhraseEdit.cpp" line="1107"/>
-        <location filename="../PhraseEdit.cpp" line="1236"/>
-        <location filename="../PhraseEdit.cpp" line="1239"/>
+        <location filename="../PhraseEdit.cpp" line="1235"/>
+        <location filename="../PhraseEdit.cpp" line="1238"/>
         <source>Category:</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Categoria</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="1245"/>
-        <location filename="../PhraseEdit.cpp" line="1248"/>
+        <location filename="../PhraseEdit.cpp" line="1243"/>
+        <location filename="../PhraseEdit.cpp" line="1246"/>
         <source>Chapter</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Categoría</translation>
     </message>
 </context>
 <context>
@@ -3706,7 +3698,6 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3714,7 +3705,6 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3724,7 +3714,6 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3732,7 +3721,6 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Note(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3742,18 +3730,16 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
 </context>
 <context>
     <name>CSearchWithinModel</name>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="230"/>
-        <location filename="../KJVSearchCriteria.cpp" line="233"/>
+        <location filename="../KJVSearchCriteria.cpp" line="226"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation>Toda la Biblia</translation>
+        <translation>La Biblia Completa</translation>
     </message>
 </context>
 <context>
@@ -3762,7 +3748,7 @@ Do you wish to unhighlight all of them instead??</source>
         <location filename="../ToolTipEdit.cpp" line="124"/>
         <source>Details : King James Pure Bible Search</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Detalles: Busqueda de la Reina Valera Gómez</translation>
     </message>
 </context>
 <context>
@@ -3975,14 +3961,15 @@ Do you wish to unhighlight all of them instead??</source>
         <location filename="../VerseListDelegate.cpp" line="382"/>
         <source>Press %1 to see Phrase Details</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Oprima% 1 para ver detalles de frase</translation>
     </message>
     <message>
         <location filename="../VerseListDelegate.cpp" line="386"/>
         <source>To Edit Highlighted Phrase Associations: Select verses to move,
 drag them to the desired highlighter, and drop them.</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Para editar Asociaciones de frases destacadas: Seleccionar versos para mover, 
+arrástrelos al marcador que desee y soltarlos.</translation>
     </message>
 </context>
 <context>
@@ -4098,7 +4085,7 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
         <location filename="../QtFindReplaceDialog/dialogs/finddialog.cpp" line="13"/>
         <source>Find</source>
         <comment>FindDialog</comment>
-        <translation type="unfinished"></translation>
+        <translation>Encontrar Dialogo</translation>
     </message>
 </context>
 <context>
@@ -4106,7 +4093,7 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplacedialog.ui" line="14"/>
         <source>Find/Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Encontrar/Reemplazar</translation>
     </message>
 </context>
 <context>
@@ -4220,81 +4207,81 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="134"/>
+        <location filename="../BuildDB.cpp" line="225"/>
         <source>Table Lookup for &quot;DBInfo&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="142"/>
+        <location filename="../BuildDB.cpp" line="233"/>
         <source>Failed to drop old &quot;DBInfo&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="154"/>
+        <location filename="../BuildDB.cpp" line="245"/>
         <source>Failed to create table for &apos;DBInfo&apos;
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="177"/>
-        <location filename="../BuildDB.cpp" line="272"/>
-        <location filename="../BuildDB.cpp" line="407"/>
-        <location filename="../BuildDB.cpp" line="563"/>
-        <location filename="../BuildDB.cpp" line="709"/>
-        <location filename="../BuildDB.cpp" line="861"/>
-        <location filename="../BuildDB.cpp" line="1002"/>
-        <location filename="../BuildDB.cpp" line="1141"/>
+        <location filename="../BuildDB.cpp" line="268"/>
+        <location filename="../BuildDB.cpp" line="363"/>
+        <location filename="../BuildDB.cpp" line="496"/>
+        <location filename="../BuildDB.cpp" line="642"/>
+        <location filename="../BuildDB.cpp" line="784"/>
+        <location filename="../BuildDB.cpp" line="937"/>
+        <location filename="../BuildDB.cpp" line="1078"/>
+        <location filename="../BuildDB.cpp" line="1217"/>
         <source>Failed to open %1 for reading.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="202"/>
+        <location filename="../BuildDB.cpp" line="293"/>
         <source>Insert Failed for &apos;DBInfo&apos;!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="240"/>
+        <location filename="../BuildDB.cpp" line="331"/>
         <source>Table Lookup for &quot;TESTAMENT&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="248"/>
+        <location filename="../BuildDB.cpp" line="339"/>
         <source>Failed to drop old &quot;TESTAMENT&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="260"/>
+        <location filename="../BuildDB.cpp" line="351"/>
         <source>Failed to create table for TESTAMENT
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="286"/>
+        <location filename="../BuildDB.cpp" line="377"/>
         <source>Unexpected Header Layout for TESTAMENT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="307"/>
+        <location filename="../BuildDB.cpp" line="398"/>
         <source>Bad table data in TESTAMENT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="325"/>
+        <location filename="../BuildDB.cpp" line="416"/>
         <source>Insert Failed for TESTAMENT!
 %1
   %2  %3</source>
@@ -4302,40 +4289,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="372"/>
+        <location filename="../BuildDB.cpp" line="461"/>
         <source>Table Lookup for &quot;TOC&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="380"/>
+        <location filename="../BuildDB.cpp" line="469"/>
         <source>Failed to drop old &quot;TOC&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="395"/>
+        <location filename="../BuildDB.cpp" line="484"/>
         <source>Failed to create table for TOC
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="430"/>
+        <location filename="../BuildDB.cpp" line="519"/>
         <source>Unexpected Header Layout for TOC data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="451"/>
+        <location filename="../BuildDB.cpp" line="540"/>
         <source>Bad table data in TOC data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="480"/>
+        <location filename="../BuildDB.cpp" line="569"/>
         <source>Insert Failed for TOC!
 %1
   %2  %3</source>
@@ -4343,40 +4330,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="531"/>
+        <location filename="../BuildDB.cpp" line="610"/>
         <source>Table Lookup for &quot;LAYOUT&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="539"/>
+        <location filename="../BuildDB.cpp" line="618"/>
         <source>Failed to drop old &quot;LAYOUT&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="551"/>
+        <location filename="../BuildDB.cpp" line="630"/>
         <source>Failed to create table for LAYOUT
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="580"/>
+        <location filename="../BuildDB.cpp" line="659"/>
         <source>Unexpected Header Layout for LAYOUT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="601"/>
+        <location filename="../BuildDB.cpp" line="680"/>
         <source>Bad table data in LAYOUT data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="622"/>
+        <location filename="../BuildDB.cpp" line="701"/>
         <source>Insert Failed for LAYOUT!
 %1
   %2  %3</source>
@@ -4384,40 +4371,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="674"/>
+        <location filename="../BuildDB.cpp" line="749"/>
         <source>Table Lookup for &quot;%1&quot; Failed!
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="682"/>
+        <location filename="../BuildDB.cpp" line="757"/>
         <source>Failed to drop old &quot;%1&quot; table from database!
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="696"/>
+        <location filename="../BuildDB.cpp" line="771"/>
         <source>Failed to create table for %1
 %2</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="728"/>
+        <location filename="../BuildDB.cpp" line="803"/>
         <source>Unexpected Header Layout for %1 data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="751"/>
+        <location filename="../BuildDB.cpp" line="826"/>
         <source>Bad table data in %1 data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="781"/>
+        <location filename="../BuildDB.cpp" line="856"/>
         <source>Insert Failed!
 %1
   %2  %3</source>
@@ -4425,46 +4412,46 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="810"/>
-        <source>Processed %1 Books.  Expected %2 books!</source>
+        <location filename="../BuildDB.cpp" line="886"/>
+        <source>Processed %1 Books.  Expected either %2 or %3 books!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="829"/>
+        <location filename="../BuildDB.cpp" line="905"/>
         <source>Table Lookup for &quot;WORDS&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="837"/>
+        <location filename="../BuildDB.cpp" line="913"/>
         <source>Failed to drop old &quot;WORDS&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="849"/>
+        <location filename="../BuildDB.cpp" line="925"/>
         <source>Failed to create table for WORDS
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="880"/>
+        <location filename="../BuildDB.cpp" line="956"/>
         <source>Unexpected Header Layout for WORDS data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="901"/>
+        <location filename="../BuildDB.cpp" line="977"/>
         <source>Bad table data in WORDS data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="929"/>
+        <location filename="../BuildDB.cpp" line="1005"/>
         <source>Insert Failed for WORDS!
 %1
   %2  (%3)</source>
@@ -4472,40 +4459,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="970"/>
+        <location filename="../BuildDB.cpp" line="1046"/>
         <source>Table Lookup for &quot;FOOTNOTES&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="978"/>
+        <location filename="../BuildDB.cpp" line="1054"/>
         <source>Failed to drop old &quot;FOOTNOTES&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="990"/>
+        <location filename="../BuildDB.cpp" line="1066"/>
         <source>Failed to create table for FOOTNOTES
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1017"/>
+        <location filename="../BuildDB.cpp" line="1093"/>
         <source>Unexpected Header Layout for FOOTNOTES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1038"/>
+        <location filename="../BuildDB.cpp" line="1114"/>
         <source>Bad table data in FOOTNOTES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1066"/>
+        <location filename="../BuildDB.cpp" line="1142"/>
         <source>Insert Failed for FOOTNOTES!
 %1
 %2
@@ -4515,40 +4502,40 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1107"/>
+        <location filename="../BuildDB.cpp" line="1183"/>
         <source>Table Lookup for &quot;PHRASES&quot; Failed!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1115"/>
+        <location filename="../BuildDB.cpp" line="1191"/>
         <source>Failed to drop old &quot;PHRASES&quot; table from database!
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1126"/>
+        <location filename="../BuildDB.cpp" line="1202"/>
         <source>Failed to create table for PHRASES
 %1</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1158"/>
+        <location filename="../BuildDB.cpp" line="1234"/>
         <source>Unexpected Header Layout for PHRASES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1170"/>
+        <location filename="../BuildDB.cpp" line="1246"/>
         <source>Bad table data in PHRASES data file!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1225"/>
+        <location filename="../BuildDB.cpp" line="1301"/>
         <source>Insert Failed for PHRASES!
 %1
   %2  (%3)  (%4)  (%5)</source>
@@ -4556,103 +4543,103 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1228"/>
+        <location filename="../BuildDB.cpp" line="1304"/>
         <source>Case</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1228"/>
+        <location filename="../BuildDB.cpp" line="1304"/>
         <source>NoCase</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1229"/>
+        <location filename="../BuildDB.cpp" line="1305"/>
         <source>Accent</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1229"/>
+        <location filename="../BuildDB.cpp" line="1305"/>
         <source>NoAccent</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1230"/>
+        <location filename="../BuildDB.cpp" line="1306"/>
         <source>Exclude</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1230"/>
+        <location filename="../BuildDB.cpp" line="1306"/>
         <source>Include</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1272"/>
+        <location filename="../BuildDB.cpp" line="1348"/>
         <source>Error: Couldn&apos;t open SQL database file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1281"/>
+        <location filename="../BuildDB.cpp" line="1357"/>
         <source>Error: Couldn&apos;t open CC database file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1290"/>
+        <location filename="../BuildDB.cpp" line="1366"/>
         <source>Error: Failed to open i/o compressor for file &quot;%1&quot;.</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../BuildDB.cpp" line="1314"/>
+        <location filename="../BuildDB.cpp" line="1390"/>
         <source>Build Complete!</source>
         <comment>BuildDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="51"/>
+        <location filename="../KJVSearchCriteria.cpp" line="50"/>
         <source>anywhere</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="54"/>
+        <location filename="../KJVSearchCriteria.cpp" line="53"/>
         <source>together</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="57"/>
+        <location filename="../KJVSearchCriteria.cpp" line="56"/>
         <source>in the same Testament</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="60"/>
+        <location filename="../KJVSearchCriteria.cpp" line="59"/>
         <source>in the same Category</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="63"/>
+        <location filename="../KJVSearchCriteria.cpp" line="62"/>
         <source>in the same Book</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="66"/>
+        <location filename="../KJVSearchCriteria.cpp" line="65"/>
         <source>in the same Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="69"/>
+        <location filename="../KJVSearchCriteria.cpp" line="68"/>
         <source>in the same Verse</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
@@ -4760,7 +4747,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="712"/>
+        <location filename="../ReadDB.cpp" line="710"/>
         <source>Non-unique decomposed word entry error in WORDS table!
 
 Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
@@ -4768,31 +4755,31 @@ Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="739"/>
+        <location filename="../ReadDB.cpp" line="737"/>
         <source>Mismatch Word Counts for &quot;%1&quot; AltWords=%2, AltWordCounts=%3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="744"/>
+        <location filename="../ReadDB.cpp" line="742"/>
         <source>Bad AltWordCounts for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="750"/>
+        <location filename="../ReadDB.cpp" line="748"/>
         <source>Bad word indexes for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="756"/>
+        <location filename="../ReadDB.cpp" line="754"/>
         <source>Index/Count consistency error in WORDS table!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="808"/>
+        <location filename="../ReadDB.cpp" line="806"/>
         <source>Invalid WORDS mapping.  Check database integrity!
 
 Word: &quot;%1&quot;  Index: %2</source>
@@ -4800,68 +4787,68 @@ Word: &quot;%1&quot;  Index: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="972"/>
+        <location filename="../ReadDB.cpp" line="970"/>
         <source>Error: Book List and Table of Contents have different sizes!
 Check the database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="979"/>
+        <location filename="../ReadDB.cpp" line="977"/>
         <source>Error: Book &quot;%1&quot; (%2) References Invalid Testament %3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1008"/>
+        <location filename="../ReadDB.cpp" line="1006"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Verses, expected %5 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1013"/>
+        <location filename="../ReadDB.cpp" line="1011"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Words, expected %5 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1019"/>
+        <location filename="../ReadDB.cpp" line="1017"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Chapters, expected %4 Chapters!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1024"/>
+        <location filename="../ReadDB.cpp" line="1022"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Verses, expected %4 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1029"/>
+        <location filename="../ReadDB.cpp" line="1027"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Words, expected %4 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1040"/>
+        <location filename="../ReadDB.cpp" line="1038"/>
         <source>Error: Word List contains %1 indexes, expected %2!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1046"/>
+        <location filename="../ReadDB.cpp" line="1044"/>
         <source>Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1056"/>
+        <location filename="../ReadDB.cpp" line="1054"/>
         <source>Error: Overall Bible Entry Data Counts are inconsistent!  Check database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1065"/>
+        <location filename="../ReadDB.cpp" line="1063"/>
         <source>Normalize/Denormalize Index Check Failed!
 
 Normal-&gt;Relative-&gt;Normal:
@@ -4870,32 +4857,32 @@ Normal-&gt;Relative-&gt;Normal:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1105"/>
+        <location filename="../ReadDB.cpp" line="1103"/>
         <source>Unable to find Dictionary information record!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../ReadDB.cpp" line="1269"/>
         <location filename="../ReadDB.cpp" line="1271"/>
-        <location filename="../ReadDB.cpp" line="1273"/>
+        <location filename="../ReadDB.cpp" line="1360"/>
         <location filename="../ReadDB.cpp" line="1362"/>
-        <location filename="../ReadDB.cpp" line="1364"/>
         <source>Error: Couldn&apos;t open CC database file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ReadDB.cpp" line="1278"/>
-        <location filename="../ReadDB.cpp" line="1369"/>
+        <location filename="../ReadDB.cpp" line="1276"/>
+        <location filename="../ReadDB.cpp" line="1367"/>
         <source>Error: Failed to open i/o compressor for file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../ReadDB.cpp" line="1310"/>
         <location filename="../ReadDB.cpp" line="1312"/>
-        <location filename="../ReadDB.cpp" line="1314"/>
+        <location filename="../ReadDB.cpp" line="1389"/>
         <location filename="../ReadDB.cpp" line="1391"/>
-        <location filename="../ReadDB.cpp" line="1393"/>
         <source>Error: Couldn&apos;t open SQL database file &quot;%1&quot;.
 
 %2</source>
@@ -5027,7 +5014,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.h" line="300"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
-        <translation type="unfinished">Toda la Biblia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.cpp" line="60"/>
@@ -5288,7 +5275,6 @@ Normal-&gt;Relative-&gt;Normal:
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -5332,12 +5318,12 @@ Normal-&gt;Relative-&gt;Normal:
     <message>
         <location filename="../../qtiocompressor/src/qtiocompressor.cpp" line="396"/>
         <source>The gzip format not supported in this version of zlib.</source>
-        <translation type="unfinished"></translation>
+        <translation>El formato gzip no se admite en esta versión de zlib.</translation>
     </message>
     <message>
         <location filename="../../qtiocompressor/src/qtiocompressor.cpp" line="412"/>
         <source>Internal zlib error: </source>
-        <translation type="unfinished"></translation>
+        <translation>Internal zlib error:</translation>
     </message>
 </context>
 <context>
@@ -5355,27 +5341,6 @@ Normal-&gt;Relative-&gt;Normal:
 Check Installation!</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>xc_dbDescriptors</name>
-    <message>
-        <location filename="../dbDescriptors.cpp" line="147"/>
-        <source>Old Testament</source>
-        <comment>testament_names</comment>
-        <translation>Antiguo Testamento</translation>
-    </message>
-    <message>
-        <location filename="../dbDescriptors.cpp" line="148"/>
-        <source>New Testament</source>
-        <comment>testament_names</comment>
-        <translation>Nuevo Testamento</translation>
-    </message>
-    <message>
-        <location filename="../dbDescriptors.cpp" line="149"/>
-        <source>Apocrypha/Deuterocanon</source>
-        <comment>testament_names</comment>
-        <translation>Libros Apócrifos/Deuterocanónicos</translation>
     </message>
 </context>
 </TS>
