@@ -402,7 +402,7 @@ public:
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();
 
-	CSelectionPhraseTagList getSelection(const CPhraseCursor &aCursor) const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
+	CSelectionPhraseTagList getSelection(const CPhraseCursor &aCursor, bool bRecursion = false) const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
 	CSelectedPhraseList getSelectedPhrases(const CPhraseCursor &aCursor) const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 
 	void removeAnchors();

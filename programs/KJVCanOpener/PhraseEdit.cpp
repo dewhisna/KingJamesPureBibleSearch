@@ -2180,14 +2180,14 @@ QString CPhraseNavigator::referenceEndingDelimiter()
 	return QString();
 }
 
-CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCursor) const
+CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCursor, bool bRecursion) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	TPhraseTag tag;
 
 	CPhraseCursor myCursor(aCursor);
-	myCursor.beginEditBlock();
+//	myCursor.beginEditBlock();
 	int nPosFirst = qMin(myCursor.anchor(), myCursor.position());
 	int nPosLast = qMax(myCursor.anchor(), myCursor.position());
 	int nPosFirstWordStart = nPosFirst;
@@ -2259,7 +2259,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 				bFoundHit = nIndexLast.isSet();
 				if (bFoundHit) {
 					nPosOfIndexLast = myCursor.position();
-					if (!nIndexLastDetected.isSet()) nIndexLastDetected = nIndexLast;
+					nIndexLastDetected = nIndexLast;
 				}
 			}
 		}
@@ -2273,6 +2273,14 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 		nPosCursorEnd = myCursor.position() + 1;			// +1 -> One for the extra moveCursorCharLeft
 	}
 #endif
+
+	if (nIndexLastDetected.isSet()) {
+		myCursor.setPosition(nPosOfIndexLast);
+		myCursor.moveCursorWordEnd();
+		nPosOfIndexLast = myCursor.position()+1;
+	} else {
+		nPosOfIndexLast = nPosLast+1;
+	}
 
 	// Handle single-word selection:
 	if (!nIndexLast.isSet()) nIndexLast = nIndexFirst;
@@ -2288,7 +2296,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 		}
 	}
 
-	myCursor.endEditBlock();
+//	myCursor.endEditBlock();
 
 	uint32_t ndxNormFirst = m_pBibleDatabase->NormalizeIndex(nIndexFirst);
 	uint32_t ndxNormLast = m_pBibleDatabase->NormalizeIndex(nIndexLast);
@@ -2318,21 +2326,13 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 #endif
 
 	CSelectionPhraseTagList lstSelectTags;
-	lstSelectTags.append(tag);
+	if ((!bRecursion) || (bRecursion && tag.haveSelection())) lstSelectTags.append(tag);
 
-//
-// TODO : Fix this.  It doesn't quite work yet for calculating multi-selection.  It ends up
-//		not detecting colophon text and then gets stuck in an endless loop when it hits
-//		the text just beyond the colophon:
-//
-//	if (tag.haveSelection()) {
-//		lstSelectTags.append(tag);
-//		if ((nPosOfIndexLast < nPosLast) && (nPosFirst != nPosLast) && (nIndexLastDetected.isSet()) && (nIndexLastDetected != nIndexLast)) {
-//			myCursor.setPosition(nPosOfIndexLast+1);
-//			myCursor.setPosition(nPosLast, QTextCursor::KeepAnchor);
-//			lstSelectTags.append(getSelection(myCursor));
-//		}
-//	}
+	if ((nPosOfIndexLast < nPosLast) && (nPosFirst != nPosLast) && (nIndexLastDetected.isSet())/* && (nIndexLastDetected != nIndexLast)*/) {
+		myCursor.setPosition(nPosOfIndexLast);
+		myCursor.setPosition(nPosLast, QTextCursor::KeepAnchor);
+		lstSelectTags.append(getSelection(myCursor, true));
+	}
 
 	return lstSelectTags;
 }
