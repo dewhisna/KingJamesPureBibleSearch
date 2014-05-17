@@ -14,15 +14,13 @@
         <location filename="../BibleDBListModel.cpp" line="114"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>BibleDBStatus</comment>
-        <translatorcomment>Donna, please check this to see if it&apos;s too long</translatorcomment>
         <translation>Cargado - Selectione como Base de Datos</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="116"/>
         <source>Loaded, Auto-Reloaded at startup</source>
         <comment>BibleDBStatus</comment>
-        <translation>Cargado,-Auto-Recargado al encender
-</translation>
+        <translation>Cargado,-Auto-Recargado al encender</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="118"/>
@@ -72,7 +70,6 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="94"/>
         <source>Show E&amp;xcluded Search Results</source>
-        <translatorcomment>Hi Donna, are you sure the word E&amp;xcluded (as typed in English) in this string is correct?</translatorcomment>
         <translation>Mostrar E&amp;xcluidos Resultados de la Búsqueda</translation>
     </message>
     <message>
@@ -118,7 +115,7 @@
         <location filename="../KJVConfiguration.cpp" line="1637"/>
         <source>Verse-Per-Line with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Versículo-Por-Línea con sangría negativo</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1638"/>
@@ -209,22 +206,22 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="347"/>
         <source>Search Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultados de la Búsqueda</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="359"/>
         <source>Verses List:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versículos Lista:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="371"/>
         <source>Add &amp;Blank Line Between Verses</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir línea en &amp;blanco entre los versículos</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="381"/>
         <source>References List:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de Referencias:</translation>
     </message>
     <message>
         <source>Search Results References:</source>
@@ -1706,7 +1703,7 @@ http://www.PureBibleSearch.com/</source>
         <location filename="../KJVConfiguration.cpp" line="2504"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">Base de datos de la Biblia</translation>
+        <translation>Biblia Base de datos</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2505"/>
@@ -2459,7 +2456,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2470,7 +2466,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>in %n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2483,7 +2478,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2495,7 +2489,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2503,7 +2496,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2513,7 +2505,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2521,7 +2512,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2540,7 +2530,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2548,7 +2537,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found%1at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2558,7 +2546,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2567,7 +2554,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2575,7 +2561,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Excluded %n%1Occurrence(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2586,7 +2571,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2594,7 +2578,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Found %n%1Occurrence(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2638,7 +2621,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2652,7 +2634,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2668,7 +2649,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2676,7 +2656,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2686,7 +2665,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2695,7 +2673,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2703,7 +2680,6 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3454,7 +3430,6 @@ Check Installation!</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3463,7 +3438,6 @@ Check Installation!</source>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3475,7 +3449,6 @@ Check Installation!</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3483,7 +3456,6 @@ Check Installation!</source>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3584,26 +3556,26 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="1272"/>
         <source>Category:</source>
         <comment>Scope</comment>
-        <translation>Categoria</translation>
+        <translation>Categoria:</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="1278"/>
         <location filename="../PhraseEdit.cpp" line="1281"/>
         <source>Chapter</source>
         <comment>Scope</comment>
-        <translation>Categoría</translation>
+        <translation>Capítulo</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="1829"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Colofón</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="1831"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sobrescripción</translation>
     </message>
 </context>
 <context>
@@ -3761,7 +3733,6 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3769,7 +3740,6 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3779,7 +3749,6 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3788,7 +3757,6 @@ Do you wish to unhighlight all of them instead??</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3796,7 +3764,6 @@ Do you wish to unhighlight all of them instead??</source>
         <source>%n Cross-Reference(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3815,14 +3782,14 @@ Do you wish to unhighlight all of them instead??</source>
         <location filename="../KJVSearchCriteria.cpp" line="316"/>
         <source>Colophons</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Colofones</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="326"/>
         <location filename="../KJVSearchCriteria.cpp" line="330"/>
         <source>Superscriptions</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sobrescripcións</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="375"/>
@@ -3831,7 +3798,10 @@ or manuscript usually with facts about its production.
 In the Bible, they are usually found at the end of
 the Epistles of the New Testament.</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Un Colofón una inscripción al final de un libro
+o manuscrito por lo general con datos sobre su producción.
+En la Biblia, que se encuentran generalmente en el extremo de
+las epístolas del Nuevo Testamento.</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="380"/>
@@ -3839,7 +3809,10 @@ the Epistles of the New Testament.</source>
 describing the content of the chapter.  In the Bible,
 they are usually found in the Book of Psalms.</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Un sobrescripción es texto escrito por encima
+de un capítulo que describe el contenido del
+capítulo. En la Biblia, por lo general se encuentran en
+el libro de los Salmos.</translation>
     </message>
 </context>
 <context>
@@ -3857,25 +3830,25 @@ they are usually found in the Book of Psalms.</source>
         <location filename="../Translator.cpp" line="82"/>
         <source>English</source>
         <comment>languageNames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Inglés</translation>
     </message>
     <message>
         <location filename="../Translator.cpp" line="84"/>
         <source>French</source>
         <comment>languageNames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Francés</translation>
     </message>
     <message>
         <location filename="../Translator.cpp" line="86"/>
         <source>Spanish</source>
         <comment>languageNames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Español</translation>
     </message>
     <message>
         <location filename="../Translator.cpp" line="88"/>
         <source>German</source>
         <comment>languageNames</comment>
-        <translation type="unfinished"></translation>
+        <translation>Alemán</translation>
     </message>
 </context>
 <context>
@@ -4084,7 +4057,7 @@ arrástrelos al marcador que desee y soltarlos.</translation>
         <location filename="../VerseListModel.cpp" line="629"/>
         <source>Colophon</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Colofón</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="752"/>
@@ -5055,7 +5028,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="783"/>
         <source>Book:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Libro:</translation>
+        <translation>Libro:</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="785"/>
@@ -5085,7 +5058,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="797"/>
         <source>Chapter:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Capítulo:</translation>
+        <translation>Capítulo:</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="815"/>
@@ -5100,7 +5073,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="888"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Colofón</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="870"/>
@@ -5109,7 +5082,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="895"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sobrescripción</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="837"/>
@@ -5388,7 +5361,6 @@ Normal-&gt;Relative-&gt;Normal:
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
