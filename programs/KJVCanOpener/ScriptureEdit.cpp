@@ -651,16 +651,17 @@ void CScriptureText<T,U>::updateSelection()
 								 ((m_tagLast.relIndex().verse() != 0) ||
 								  ((m_tagLast.relIndex().verse() == 0) && (m_tagLast.relIndex().word() != 0)))));
 	QString strStatusText;
-	CSelectionPhraseTagList lstSelection = m_lstSelectedPhrases.selection();
-	if (haveSelection()) {
-		strStatusText = lstSelection.primarySelection().PassageReferenceRangeText(m_pBibleDatabase.data());
-	} else if (m_tagLast.relIndex().isSet()) {
-		strStatusText = m_pBibleDatabase->PassageReferenceText(m_tagLast.relIndex());
+	CSelectionPhraseTagList lstSelection = selection();
+	unsigned int nWordCount = 0;
+	for (int ndxSel = 0; ndxSel < lstSelection.size(); ++ndxSel) {
+		if (!strStatusText.isEmpty()) strStatusText += "; ";
+		strStatusText += lstSelection.at(ndxSel).PassageReferenceRangeText(m_pBibleDatabase.data());
+		nWordCount += lstSelection.at(ndxSel).count();
 	}
 
-	if (lstSelection.primarySelection().count() > 0) {
+	if (nWordCount > 0) {
 		if (!strStatusText.isEmpty()) strStatusText += " : ";
-		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", lstSelection.primarySelection().count());
+		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", nWordCount);
 	}
 	T::setStatusTip(strStatusText);
 	m_pStatusAction->setStatusTip(strStatusText);
