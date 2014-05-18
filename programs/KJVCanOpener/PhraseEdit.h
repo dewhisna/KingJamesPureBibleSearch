@@ -282,6 +282,60 @@ public:
 		}
 		return lstSelection;
 	}
+
+	enum PHRASE_COMBINE_MODE_ENUM {
+		PCME_SPACE = 0,					// Combine phrases with single space
+		PCME_NEWLINE = 1,				// Combine phrases with each on a newline
+		PCME_NEWLINE_TWO = 2			// Combine phrases with each on a newline and additional newline between them
+	};
+
+	QString phrase(PHRASE_COMBINE_MODE_ENUM nCombineMode = PCME_SPACE) const					// Combined phrase of all selected phrases
+	{
+		QStringList lstPhrases;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (!at(ndx).tag().haveSelection()) continue;
+			if ((nCombineMode == PCME_NEWLINE) ||
+				(nCombineMode == PCME_NEWLINE_TWO)) {
+				lstPhrases.append(at(ndx).phrase().phrase() + "\n");
+			} else {
+				lstPhrases.append(at(ndx).phrase().phrase());
+			}
+		}
+
+		switch (nCombineMode) {
+			case PCME_NEWLINE:
+				return lstPhrases.join("");
+			case PCME_NEWLINE_TWO:
+				return lstPhrases.join("\n");
+			case PCME_SPACE:
+			default:
+				return lstPhrases.join(" ");
+		}
+	}
+
+	QString phraseRaw(PHRASE_COMBINE_MODE_ENUM nCombineMode = PCME_SPACE) const					// Combined raw phrase of all selected phrases
+	{
+		QStringList lstPhrases;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (!at(ndx).tag().haveSelection()) continue;
+			if ((nCombineMode == PCME_NEWLINE) ||
+				(nCombineMode == PCME_NEWLINE_TWO)) {
+				lstPhrases.append(at(ndx).phrase().phraseRaw() + "\n");
+			} else {
+				lstPhrases.append(at(ndx).phrase().phraseRaw());
+			}
+		}
+
+		switch (nCombineMode) {
+			case PCME_NEWLINE:
+				return lstPhrases.join("");
+			case PCME_NEWLINE_TWO:
+				return lstPhrases.join("\n");
+			case PCME_SPACE:
+			default:
+				return lstPhrases.join(" ");
+		}
+	}
 };
 
 // ============================================================================

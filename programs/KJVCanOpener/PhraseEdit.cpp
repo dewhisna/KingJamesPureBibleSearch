@@ -2564,8 +2564,6 @@ void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aH
 		TPhraseTag tag = tagList.at(ndx);
 		// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
 		if ((tag.relIndex().book() != 0) &&
-			(tag.relIndex().chapter() != 0) &&
-			(tag.relIndex().verse() != 0) &&
 			(tag.relIndex().word() != 0) &&
 			(tag.count() != 0)) {
 			tagsToHighlight.append(tag);

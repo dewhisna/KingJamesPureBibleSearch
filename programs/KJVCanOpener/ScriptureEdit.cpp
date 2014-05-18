@@ -287,7 +287,7 @@ void CScriptureText<T,U>::en_findDialog()
 {
 	if (m_pFindDialog != NULL) {
 		if (haveSelection()) {
-			m_pFindDialog->setTextToFind(m_lstSelectedPhrases.primarySelectionPhrase().phrase().phraseRaw());
+			m_pFindDialog->setTextToFind(m_lstSelectedPhrases.phraseRaw());
 		}
 		if (m_pFindDialog->isVisible()) {
 			m_pFindDialog->activateWindow();
@@ -775,12 +775,7 @@ void CScriptureText<T,U>::en_copyRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	QString strText;
-	for (int ndx = 0; ndx < m_lstSelectedPhrases.size(); ++ndx) {
-		if (!m_lstSelectedPhrases.at(ndx).tag().haveSelection()) continue;
-		strText += m_lstSelectedPhrases.at(ndx).phrase().phrase() + "\n";
-		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
-	}
+	QString strText = m_lstSelectedPhrases.phrase(CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses() ? CSelectedPhraseList::PCME_NEWLINE_TWO : CSelectedPhraseList::PCME_NEWLINE);
 	mime->setText(strText);
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -793,12 +788,7 @@ void CScriptureText<T,U>::en_copyVeryRaw()
 {
 	if (!haveSelection()) return;
 	QMimeData *mime = new QMimeData();
-	QString strText;
-	for (int ndx = 0; ndx < m_lstSelectedPhrases.size(); ++ndx) {
-		if (!m_lstSelectedPhrases.at(ndx).tag().haveSelection()) continue;
-		strText += m_lstSelectedPhrases.at(ndx).phrase().phraseRaw() + "\n";
-		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
-	}
+	QString strText = m_lstSelectedPhrases.phraseRaw(CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses() ? CSelectedPhraseList::PCME_NEWLINE_TWO : CSelectedPhraseList::PCME_NEWLINE);
 	mime->setText(strText);
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -894,39 +884,55 @@ void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
 	assert(pAction != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
 
-	// TODO : Enhance this to work with multiselection
-	TPhraseTag tagSel = selection().primarySelection();
-	CRelIndex relNdx = tagSel.relIndex();
-	if (!relNdx.isSet()) return;
-
-	if ((relNdx.chapter() == 0) &&
-		(relNdx.verse() == 0) &&
-		(relNdx.word() == 0)) {
-		return;					// Don't allow highlighting entire book
-	} else if ((relNdx.verse() == 0) &&
-				(relNdx.word() == 0)) {
-		// Allow highlighting entire chapter:
-		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), 1, 1), m_pBibleDatabase->chapterEntry(relNdx)->m_nNumWrd);
-	} else if ((relNdx.word() == 0) &&
-				(relNdx.chapter() != 0)) {
-		// Allow highlighting entire verse:
-		tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
-	}
-
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(pAction->data().toInt());
 	if (strHighlighterName.isEmpty()) return;
+	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
+
+	bool bCompletelyContained = (plstHighlighterTags != NULL);		// Assume it will be completely contained if we have a highlighter and if any phrase isn't, this will get cleared
+	TPhraseTagList lstHighlightList;
+	CSelectionPhraseTagList lstSelection = selection();
+	for (int ndxSel = 0; ndxSel < lstSelection.size(); ++ndxSel) {
+		TPhraseTag tagSel = lstSelection.at(ndxSel);
+		CRelIndex relNdx = tagSel.relIndex();
+		if (!relNdx.isSet()) continue;
+
+		if ((relNdx.chapter() == 0) &&
+			(relNdx.verse() == 0) &&
+			(relNdx.word() == 0)) {
+			continue;					// Don't allow highlighting entire book
+		} else if ((relNdx.verse() == 0) &&
+					(relNdx.word() == 0)) {
+			// Allow highlighting entire chapter:
+			tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), 1, 1), m_pBibleDatabase->chapterEntry(relNdx)->m_nNumWrd);
+		} else if ((relNdx.word() == 0) &&
+					(relNdx.chapter() != 0)) {
+			// Allow highlighting entire verse:
+			tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
+		}
+
+		if ((plstHighlighterTags != NULL) && (!plstHighlighterTags->completelyContains(m_pBibleDatabase.data(), tagSel))) {
+			bCompletelyContained = false;
+		}
+
+		lstHighlightList.append(tagSel);
+	}
+
+	if (lstHighlightList.isEmpty()) return;
 
 	CBusyCursor iAmBusy(NULL);
 
-	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
-	if ((plstHighlighterTags != NULL) && (plstHighlighterTags->completelyContains(m_pBibleDatabase.data(), tagSel))) {
-		g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
-	} else {
-		if (tagSel.haveSelection()) {
-			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+	for (int ndxSel = 0; ndxSel < lstHighlightList.size(); ++ndxSel) {
+		TPhraseTag tagSel = lstHighlightList.at(ndxSel);
+
+		if (bCompletelyContained) {
+			g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
 		} else {
-			// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
-			g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
+			if (tagSel.haveSelection()) {
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+			} else {
+				// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
+			}
 		}
 	}
 }
