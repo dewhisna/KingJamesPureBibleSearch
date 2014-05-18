@@ -460,7 +460,7 @@ public:
 	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const;
 	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const;
 #endif
-	void highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag = TPhraseTag()) const;
+	void highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList = TPhraseTagList()) const;
 	QString getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 
 private:

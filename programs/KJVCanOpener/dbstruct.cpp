@@ -1901,6 +1901,14 @@ bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, co
 	return bContained;
 }
 
+bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const
+{
+	for (int ndx = 0; ndx < aTagList.size(); ++ndx) {
+		if (!completelyContains(pBibleDatabase, aTagList.at(ndx))) return false;
+	}
+	return true;
+}
+
 bool TPhraseTagList::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	assert(pBibleDatabase != NULL);

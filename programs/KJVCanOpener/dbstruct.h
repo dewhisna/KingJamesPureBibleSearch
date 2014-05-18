@@ -1193,11 +1193,17 @@ public:
 	bool isSet() const;
 
 	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const;
 	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
 	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
 	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
 	int findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
+
+	bool isEquivalent(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const
+	{
+		return (completelyContains(pBibleDatabase, aTagList) && aTagList.completelyContains(pBibleDatabase, *this));
+	}
 };
 
 typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases

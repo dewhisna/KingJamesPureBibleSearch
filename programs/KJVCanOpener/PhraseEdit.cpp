@@ -2497,15 +2497,13 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const Q
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	// TODO : Handle tags for multi-selection?
-
 	assert(pHelpEvent != NULL);
 	CSelectionPhraseTagList lstRefSelection = getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
-	CRelIndex ndxReference = lstRefSelection.primarySelection().relIndex();
-	QString strToolTip = getToolTip(TPhraseTag(ndxReference, 1), selection);
+	TPhraseTag tagReference = TPhraseTag(lstRefSelection.primarySelection().relIndex(), 1);
+	QString strToolTip = getToolTip(tagReference, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection.primarySelection() : TPhraseTag(ndxReference, 1)));
+		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(tagReference)));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(pCanOpener, pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
@@ -2530,12 +2528,10 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursor
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	// TODO : Handle tags for multi-selection?
-
 	QString strToolTip = getToolTip(tag, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? selection.primarySelection() : TPhraseTag(tag.relIndex(), 1)));
+		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(TPhraseTag(tag.relIndex(), 1))));
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(pCanOpener, m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
@@ -2558,20 +2554,25 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursor
 
 #endif	// !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 
-void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag) const
+void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList) const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	doHighlighting(aHighlighter, true);
-	TPhraseTagList tags;
-	// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
-	if ((tag.relIndex().book() != 0) &&
-		(tag.relIndex().chapter() != 0) &&
-		(tag.relIndex().verse() != 0) &&
-		(tag.relIndex().word() != 0) &&
-		(tag.count() != 0)) {
-		tags.append(tag);
-		aHighlighter.setPhraseTags(tags);
+	TPhraseTagList tagsToHighlight;
+	for (int ndx = 0; ndx < tagList.size(); ++ndx) {
+		TPhraseTag tag = tagList.at(ndx);
+		// Highlight the word only if we have a reference for an actual word (not just a chapter or book or something):
+		if ((tag.relIndex().book() != 0) &&
+			(tag.relIndex().chapter() != 0) &&
+			(tag.relIndex().verse() != 0) &&
+			(tag.relIndex().word() != 0) &&
+			(tag.count() != 0)) {
+			tagsToHighlight.append(tag);
+		}
+	}
+	if (!tagsToHighlight.isEmpty()) {
+		aHighlighter.setPhraseTags(tagsToHighlight);
 		doHighlighting(aHighlighter);
 	} else {
 		aHighlighter.clearPhraseTags();
@@ -2582,83 +2583,92 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const CSelection
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
-	// TODO : Handle tags for multi-selection?
-
-	bool bHaveSelection = selection.haveSelection();
-	const CRelIndex &ndxReference(bHaveSelection ? selection.primarySelection().relIndex() : tag.relIndex());
-	unsigned int nCount = (bHaveSelection ? selection.primarySelection().count() : tag.count());
-
 	QString strToolTip;
 
-	if (ndxReference.isSet()) {
-		if (!bPlainText) strToolTip += "<html><body><pre>";
-		if ((nToolTipType == TTE_COMPLETE) ||
-			(nToolTipType == TTE_REFERENCE_ONLY)) {
-			if (!bHaveSelection) {
-				if (ndxReference.word() != 0) {
-					uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
-					if ((ndxNormal != 0) && (ndxNormal <= m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
-						strToolTip += tr("Word:", "Statistics") + " \"" + m_pBibleDatabase->wordAtIndex(ndxNormal) + "\"\n";
-					}
-				}
-				strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference);
-			} else {
-				strToolTip += tr("Phrase:", "Statistics") + " \"";
-				uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
-				if (ndxNormal != 0) {
-					unsigned int ndx;
-					for (ndx = 0; ((ndx < qMin(7u, nCount)) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
-						if (ndx) strToolTip += " ";
-						strToolTip += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
-					}
-					if ((ndx == 7u) && (nCount > 7u)) strToolTip += " ...";
+	for (int ndxSel = 0; ((ndxSel < selection.size()) || (ndxSel == 0)); ++ndxSel) {
+		bool bUseTag = !selection.haveSelection();
+
+		bool bHaveSelection = (bUseTag ? false : selection.at(ndxSel).haveSelection());
+		const CRelIndex &ndxReference(bUseTag ? tag.relIndex() : selection.at(ndxSel).relIndex());
+		unsigned int nCount = (bUseTag ? tag.count() : selection.at(ndxSel).count());
+
+		if (ndxReference.isSet()) {
+			if (!strToolTip.isEmpty()) {
+				if (!bPlainText) {
+					strToolTip += "</pre><hr /><hr /><pre>";
 				} else {
-					assert(false);
-					strToolTip += "???";
+					strToolTip += "\n------------------------------------------------------------\n";
 				}
-				strToolTip += "\"\n";
-				strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, nCount);
 			}
-		}
-		if ((nToolTipType == TTE_COMPLETE) ||
-			(nToolTipType == TTE_STATISTICS_ONLY)) {
-			if (ndxReference.book() != 0) {
-				assert(ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk);
-				if (ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
-					if (nToolTipType == TTE_COMPLETE) {
-						if (!bPlainText) {
-							strToolTip += "</pre><hr /><pre>";
-						} else {
-							strToolTip += "--------------------\n";
+			if ((strToolTip.isEmpty()) && (!bPlainText)) strToolTip += "<html><body><pre>";
+			if ((nToolTipType == TTE_COMPLETE) ||
+				(nToolTipType == TTE_REFERENCE_ONLY)) {
+				if (!bHaveSelection) {
+					if (ndxReference.word() != 0) {
+						uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
+						if ((ndxNormal != 0) && (ndxNormal <= m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
+							strToolTip += tr("Word:", "Statistics") + " \"" + m_pBibleDatabase->wordAtIndex(ndxNormal) + "\"\n";
 						}
 					}
-					strToolTip += QString("\n%1 ").arg(m_pBibleDatabase->bookName(ndxReference)) + tr("contains:", "Statistics") + "\n"
-											"    " + tr("%n Chapter(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) + "\n"
-											"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
-											"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
-					if (ndxReference.chapter() != 0) {
-						assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
-						if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
-							strToolTip += QString("\n%1 %2 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:", "Statistics") + "\n"
-											"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
-											"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
-							if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
-								assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
-								if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
-									strToolTip += QString("\n%1 %2:%3 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:", "Statistics") + "\n"
-											"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";
+					strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference);
+				} else {
+					strToolTip += tr("Phrase:", "Statistics") + " \"";
+					uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
+					if (ndxNormal != 0) {
+						unsigned int ndx;
+						for (ndx = 0; ((ndx < qMin(7u, nCount)) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
+							if (ndx) strToolTip += " ";
+							strToolTip += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
+						}
+						if ((ndx == 7u) && (nCount > 7u)) strToolTip += " ...";
+					} else {
+						assert(false);
+						strToolTip += "???";
+					}
+					strToolTip += "\"\n";
+					strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, nCount);
+				}
+			}
+			if ((nToolTipType == TTE_COMPLETE) ||
+				(nToolTipType == TTE_STATISTICS_ONLY)) {
+				if (ndxReference.book() != 0) {
+					assert(ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk);
+					if (ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
+						if (nToolTipType == TTE_COMPLETE) {
+							if (!bPlainText) {
+								strToolTip += "</pre><hr /><pre>";
+							} else {
+								strToolTip += "--------------------\n";
+							}
+						}
+						strToolTip += QString("\n%1 ").arg(m_pBibleDatabase->bookName(ndxReference)) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Chapter(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) + "\n"
+												"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
+												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
+						if (ndxReference.chapter() != 0) {
+							assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
+							if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
+								strToolTip += QString("\n%1 %2 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
+												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
+								if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
+									assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
+									if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
+										strToolTip += QString("\n%1 %2:%3 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";
+									}
 								}
 							}
 						}
 					}
 				}
-			}
-			if (bHaveSelection) {
-				strToolTip += "\n" + tr("%n Word(s) Selected", "Statistics", nCount) + "\n";
+				if (bHaveSelection) {
+					strToolTip += "\n" + tr("%n Word(s) Selected", "Statistics", nCount) + "\n";
+				}
 			}
 		}
-		if (!bPlainText) strToolTip += "</pre></body></html>";
 	}
+	if ((!strToolTip.isEmpty()) && (!bPlainText)) strToolTip += "</pre></body></html>";
 
 	return strToolTip;
 }

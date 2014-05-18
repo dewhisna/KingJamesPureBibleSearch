@@ -457,7 +457,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
-	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(m_tagLast));
 	if (ndxLast.isSet()) emit gotoIndex(m_tagLast);
 
 	end_popup();
@@ -488,9 +488,9 @@ void CScriptureText<T,U>::showPassageNavigator()
 	//		Ctrl-G shortcut to activate this will make sense and be consistent across
 	//		the entire app.
 
-	TPhraseTag tagSel = m_lstSelectedPhrases.selection().primarySelection();
-	if (!tagSel.relIndex().isSet()) tagSel.relIndex() = m_tagLast.relIndex();
-	if (tagSel.count() == 0) tagSel.count() = ((tagSel.relIndex().word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
+	TPhraseTag tagSel = selection().primarySelection();
+	if (!tagSel.relIndex().isSet()) tagSel.setRelIndex(m_tagLast.relIndex());
+	if (tagSel.count() == 0) tagSel.setCount((tagSel.relIndex().word() != 0) ? 1 : 0);			// Simulate single word selection if nothing actually selected, but only if there is a word
 
 	// Cap the number of words to those remaining in this verse so
 	//		we don't spend all day highlighting junk:
@@ -499,7 +499,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 	tagHighlight.count() = qMin(Wrd.ofVerse().second - Wrd.ofVerse().first + 1, tagHighlight.count());
 
 	m_CursorFollowHighlighter.setEnabled(true);
-	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, tagHighlight);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(tagHighlight));
 #ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
 	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
@@ -528,7 +528,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(pos)).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
-	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, m_tagLast);
+	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(m_tagLast));
 	QMenu *menu = new QMenu(this);
 	menu->addAction(m_pActionCopy);
 	menu->addAction(m_pActionCopyPlain);
@@ -669,9 +669,10 @@ void CScriptureText<T,U>::updateSelection()
 
 	if (!haveSelection()) {
 		const TPhraseTagList &lstTags(m_CursorFollowHighlighter.phraseTags());
-		TPhraseTag nNewSel = TPhraseTag(m_tagLast.relIndex(), 1);
-		if  ((lstTags.size() == 0) || (lstTags.value(0) != nNewSel))
+		TPhraseTagList nNewSel(TPhraseTag(m_tagLast.relIndex(), 1));
+		if (!lstTags.isEquivalent(m_pBibleDatabase.data(), nNewSel)) {
 			m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, nNewSel);
+		}
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
