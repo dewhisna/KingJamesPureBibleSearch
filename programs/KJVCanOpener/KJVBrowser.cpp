@@ -926,22 +926,34 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 
 	if (m_bDoingUpdate) return;
 
+	m_bDoingUpdate = true;
+
 	CRelIndex ndxTarget(m_pBibleDatabase->calcRelIndex(0, 0, index, 0, 0));
 	ndxTarget.setVerse(0);
 	ndxTarget.setWord(0);
-	ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(ndxTarget));
+	// Note: Remove existing tooltip before displaying the new and/or even setting it on the control.
+	//		This is an effort to fix the bug on Mac OSX seen where a call to QToolTip::showText()
+	//		crashes trying to do QWindow::windowState() call from a dead object during the QCocoaWindow::setVisible()
+	//		function.  In other words, the Qt wrapper for Cocoa seems to have a bug where it can get out-of-sync
+	//		with object recycling of QToolTip...  Should probably report this to the Qt guys...
+	QString strText = m_pBibleDatabase->PassageReferenceText(ndxTarget);
+	QToolTip::showText(QPoint(), QString());
 	if (!m_ptChapterScrollerMousePos.isNull()) {
-		QToolTip::showText(m_ptChapterScrollerMousePos, ui.scrollbarChapter->toolTip());
+		QToolTip::showText(m_ptChapterScrollerMousePos, strText);
 	} else {
-//		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), ui.scrollbarChapter->toolTip());
+//		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), strText);
 		QStyleOptionSlider opt;
 		opt.initFrom(ui.scrollbarChapter);
 		QRect rcSlider = ui.scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui.scrollbarChapter);
-		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), ui.scrollbarChapter->toolTip());
+		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), strText);
 	}
+	ui.scrollbarChapter->setToolTip(strText);
+
+	m_bDoingUpdate = false;
 
 	if (ui.scrollbarChapter->isSliderDown()) return;		// Just set ToolTip and exit
-	gotoIndex(TPhraseTag(ndxTarget));
+
+	m_dlyGotoIndex.trigger(TPhraseTag(ndxTarget));
 }
 
 void CKJVBrowser::ChapterSliderValueChanged()
