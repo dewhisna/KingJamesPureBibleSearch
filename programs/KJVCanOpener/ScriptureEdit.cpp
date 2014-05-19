@@ -799,13 +799,13 @@ void CScriptureText<T,U>::en_copyVeryRaw()
 template<class T, class U>
 void CScriptureText<T,U>::en_copyVerses()
 {
-	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(false);
+	if (haveSelection() || (m_tagLast.relIndex().isSet() && ((m_tagLast.relIndex().verse() != 0) || (m_tagLast.relIndex().word() != 0)))) copyVersesCommon(false);
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::en_copyVersesPlain()
 {
-	if (haveSelection() || (m_tagLast.relIndex().isSet() && m_tagLast.relIndex().verse() != 0)) copyVersesCommon(true);
+	if (haveSelection() || (m_tagLast.relIndex().isSet() && ((m_tagLast.relIndex().verse() != 0) || (m_tagLast.relIndex().word() != 0)))) copyVersesCommon(true);
 }
 
 template<class T, class U>
