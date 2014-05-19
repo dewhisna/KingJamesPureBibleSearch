@@ -190,6 +190,8 @@ namespace {
 	const QString constrTransChangeAddWordModeKey("TransChangeAddWordMode");
 	//const QString constrVerseRenderingModeKey("VerseRenderingMode");
 	const QString constrCopyPilcrowMarkersKey("CopyPilcrowMarkers");
+	const QString constrCopyColophonsKey("CopyColophons");
+	const QString constrCopySuperscriptionsKey("CopySuperscriptions");
 	const QString constrCopyFontSelectionKey("CopyFontSelection");
 	const QString constrCopyFontKey("CopyFont");
 	const QString constrCopySearchResultsAddBlankLineBetweenVerses("SearchResultsAddBlankLineBetweenVerses");
@@ -1028,6 +1030,8 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode());
 		settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying());
 		settings.setValue(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers());
+		settings.setValue(constrCopyColophonsKey, CPersistentSettings::instance()->copyColophons());
+		settings.setValue(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions());
 		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
 		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
 		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
@@ -1386,6 +1390,8 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
 			CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying()).toUInt()));
 			CPersistentSettings::instance()->setCopyPilcrowMarkers(settings.value(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers()).toBool());
+			CPersistentSettings::instance()->setCopyColophons(settings.value(constrCopyColophonsKey, CPersistentSettings::instance()->copyColophons()).toBool());
+			CPersistentSettings::instance()->setCopySuperscriptions(settings.value(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions()).toBool());
 			CPersistentSettings::instance()->setCopyFontSelection(static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(settings.value(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection()).toUInt()));
 			strFont = settings.value(constrCopyFontKey).toString();
 			if (!strFont.isEmpty()) {

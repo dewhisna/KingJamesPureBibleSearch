@@ -1914,6 +1914,11 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
+	connect(ui.checkBoxCopyColophons, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyColophons(bool)));
+	connect(ui.checkBoxCopySuperscriptions, SIGNAL(clicked(bool)), this, SLOT(en_changedCopySuperscriptions(bool)));
+
+	// ----------
+
 	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint", "CopyFontModes"), CPhraseNavigator::CFSE_NONE);
 	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font", "CopyFontModes"), CPhraseNavigator::CFSE_COPY_FONT);
 	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font", "CopyFontModes"), CPhraseNavigator::CFSE_SCRIPTURE_BROWSER);
@@ -2069,6 +2074,11 @@ void CConfigCopyOptions::loadSettings()
 	// ----------
 
 	ui.checkBoxCopyPilcrowMarkers->setChecked(CPersistentSettings::instance()->copyPilcrowMarkers());
+
+	// ----------
+
+	ui.checkBoxCopyColophons->setChecked(CPersistentSettings::instance()->copyColophons());
+	ui.checkBoxCopySuperscriptions->setChecked(CPersistentSettings::instance()->copySuperscriptions());
 
 	// ----------
 
@@ -2238,6 +2248,24 @@ void CConfigCopyOptions::en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
 	m_bIsDirty = true;
 	emit dataChanged(false);
 	setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyColophons(bool bCopyColophons)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setCopyColophons(bCopyColophons);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigCopyOptions::en_changedCopySuperscriptions(bool bCopySuperscriptions)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setCopySuperscriptions(bCopySuperscriptions);
+	m_bIsDirty = true;
+	emit dataChanged(false);
 }
 
 void CConfigCopyOptions::en_changedCopyFontSelection(int nIndex)

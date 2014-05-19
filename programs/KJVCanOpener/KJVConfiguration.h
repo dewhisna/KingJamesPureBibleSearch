@@ -397,6 +397,8 @@ private slots:
 	void en_changedTransChangeAddWordMode(int nIndex);
 	void en_changedVerseRenderingModeCopying(int nIndex);
 	void en_changedCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
+	void en_changedCopyColophons(bool bCopyColophons);
+	void en_changedCopySuperscriptions(bool bCopySuperscriptions);
 	void en_changedCopyFontSelection(int nIndex);
 	void en_changedFontCopyFont(const QFont &aFont);
 	void en_changedFontCopyFontSize(double nFontSize);

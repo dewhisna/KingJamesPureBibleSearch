@@ -111,6 +111,8 @@ public:
 	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
 	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingModeCopying() const { return m_pPersistentSettingData->m_nVerseRenderingModeCopying; }
 	bool copyPilcrowMarkers() const { return m_pPersistentSettingData->m_bCopyPilcrowMarkers; }
+	bool copyColophons() const { return m_pPersistentSettingData->m_bCopyColophons; }
+	bool copySuperscriptions() const { return m_pPersistentSettingData->m_bCopySuperscriptions; }
 	CPhraseNavigator::COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
 	QFont fontCopyFont() const { return m_pPersistentSettingData->m_fntCopyFont; }
 
@@ -212,6 +214,8 @@ public slots:
 	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
 	void setVerseRenderingModeCopying(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void setCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
+	void setCopyColophons(bool bCopyColophons);
+	void setCopySuperscriptions(bool bCopySuperscriptions);
 	void setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection);
 	void setFontCopyFont(const QFont &aFont);
 
@@ -277,6 +281,8 @@ private:
 		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
 		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingModeCopying;	// How to copy verses from Scripture Browser (VPL, FF, etc)
 		bool m_bCopyPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be copied
+		bool m_bCopyColophons;							// If enabled, colophons are copied as if they are verses
+		bool m_bCopySuperscriptions;					// If enabled, superscriptions are copied as if they are verses
 		CPhraseNavigator::COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
 		QFont m_fntCopyFont;							// Font to use for the Copy Font for CFSE_COPY_FONT mode
 		// ----

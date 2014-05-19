@@ -144,6 +144,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
 		m_nVerseRenderingModeCopying(CPhraseNavigator::VRME_FF),
 		m_bCopyPilcrowMarkers(true),
+		m_bCopyColophons(false),
+		m_bCopySuperscriptions(false),
 		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
 		// ----
@@ -284,6 +286,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_nTransChangeAddWordMode != pTarget->m_nTransChangeAddWordMode) ||
 			(pSource->m_nVerseRenderingModeCopying != pTarget->m_nVerseRenderingModeCopying) ||
 			(pSource->m_bCopyPilcrowMarkers != pTarget->m_bCopyPilcrowMarkers) ||
+			(pSource->m_bCopyColophons != pTarget->m_bCopyColophons) ||
+			(pSource->m_bCopySuperscriptions != pTarget->m_bCopySuperscriptions) ||
 			(pSource->m_nCopyFontSelection != pTarget->m_nCopyFontSelection) ||
 			(pSource->m_fntCopyFont != pTarget->m_fntCopyFont) ||
 			(pSource->m_bSearchResultsAddBlankLineBetweenVerses != pTarget->m_bSearchResultsAddBlankLineBetweenVerses) ||
@@ -588,6 +592,22 @@ void CPersistentSettings::setCopyPilcrowMarkers(bool bCopyPilcrowMarkers)
 {
 	if (m_pPersistentSettingData->m_bCopyPilcrowMarkers != bCopyPilcrowMarkers) {
 		m_pPersistentSettingData->m_bCopyPilcrowMarkers = bCopyPilcrowMarkers;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setCopyColophons(bool bCopyColophons)
+{
+	if (m_pPersistentSettingData->m_bCopyColophons != bCopyColophons) {
+		m_pPersistentSettingData->m_bCopyColophons = bCopyColophons;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setCopySuperscriptions(bool bCopySuperscriptions)
+{
+	if (m_pPersistentSettingData->m_bCopySuperscriptions != bCopySuperscriptions) {
+		m_pPersistentSettingData->m_bCopySuperscriptions = bCopySuperscriptions;
 		emit changedCopyOptions();
 	}
 }
