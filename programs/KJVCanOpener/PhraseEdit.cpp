@@ -2232,6 +2232,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 	myCursor.moveCursorWordEnd();
 	bool bFoundHit = false;
 	uint32_t nNormPrev = 0;
+	CRelIndex ndxPrev;
 	while (myCursor.position() >= nPosFirstWordStart) {
 		strAnchorName = myCursor.charFormat().anchorName();
 		CRelIndex ndxCurrent = CRelIndex(strAnchorName);
@@ -2246,12 +2247,23 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 				bFoundHit = false;
 			}
 
+			// If we are moving into or out of a colophon or superscription, treat it as a
+			//		discontinuity and break the selection into multiple parts:
+			if ((ndxCurrent.word() != 0) && (ndxPrev.isSet()) &&
+				(((ndxCurrent.chapter() != 0) && (ndxPrev.chapter() == 0)) ||
+				 ((ndxCurrent.chapter() == 0) && (ndxPrev.chapter() != 0)) ||
+				 ((ndxCurrent.verse() != 0) && (ndxPrev.verse() == 0)) ||
+				 ((ndxCurrent.verse() == 0) && (ndxPrev.verse() != 0)))) {
+				bFoundHit = false;
+			}
+
 			// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
 			//		text from a verse.  We must be in a special tag section of heading:
 			if ((ndxCurrent.word() == 0) || (ndxCurrent < nIndexFirst)) {
 				ndxCurrent = CRelIndex();
 			} else {
 				nNormPrev = nNormCurrent;
+				ndxPrev = ndxCurrent;
 			}
 
 			if (!bFoundHit) {
@@ -2326,9 +2338,9 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 #endif
 
 	CSelectionPhraseTagList lstSelectTags;
-	if ((!bRecursion) || (bRecursion && tag.haveSelection())) lstSelectTags.append(tag);
+	if ((!bRecursion) || (bRecursion && tag.haveSelection() && (tag.relIndex().word() != 0) && (nIndexLastDetected.isSet()))) lstSelectTags.append(tag);
 
-	if ((nPosOfIndexLast < nPosLast) && (nPosFirst != nPosLast) && (nIndexLastDetected.isSet())/* && (nIndexLastDetected != nIndexLast)*/) {
+	if ((nPosOfIndexLast < nPosLast) && (nPosFirst != nPosLast) && (nIndexLastDetected.isSet())) {
 		myCursor.setPosition(nPosOfIndexLast);
 		myCursor.setPosition(nPosLast, QTextCursor::KeepAnchor);
 		lstSelectTags.append(getSelection(myCursor, true));
