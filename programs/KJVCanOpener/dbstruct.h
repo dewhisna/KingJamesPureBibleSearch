@@ -96,6 +96,13 @@ public:
 	}
 	~CRelIndex() { }
 
+	inline bool isColophon() const {
+		return ((book() != 0) && (chapter() == 0) && (verse() == 0) && (word() != 0));
+	}
+	inline bool isSuperscription() const {
+		return ((book() != 0) && (chapter() != 0) && (verse() == 0) && (word() != 0));
+	}
+
 	inline QString asAnchor() const {			// Anchor is a text string unique to this reference
 		return QString("%1").arg(m_ndx);
 	}
@@ -664,7 +671,9 @@ inline uint qHash(const CPhraseEntry &key)
 
 // Forward declarations:
 class TPhraseTag;
+class TPhraseTagList;
 class TPassageTag;
+class TPassageTagList;
 
 // Class to hold the Normalized Lo and Hi indexes covered by a tag
 //		with basic manipulations:
@@ -1111,6 +1120,12 @@ public:
 
 	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc);
 
+	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage)
+		:	m_nCount(0)
+	{
+		setFromPassageTag(pBibleDatabase, tagPassage);
+	}
+
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
 	inline CRelIndex &relIndex() { return m_RelIndex; }						// Needed for >> operator
 	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
@@ -1119,11 +1134,6 @@ public:
 	inline void setCount(unsigned int nCount) { m_nCount = nCount; }
 
 	void setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage);
-	static TPhraseTag fromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage) {
-		TPhraseTag tagPhrase;
-		tagPhrase.setFromPassageTag(pBibleDatabase, tagPassage);
-		return tagPhrase;
-	}
 
 	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
 		assert(pBibleDatabase != NULL);
@@ -1189,8 +1199,11 @@ public:
 	TPhraseTagList();
 	TPhraseTagList(const TPhraseTag &aTag);
 	TPhraseTagList(const TPhraseTagList &src);
+	TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
 
 	bool isSet() const;
+
+	void setFromPassageTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
 
 	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const;
@@ -1233,7 +1246,14 @@ public:
 	explicit inline TPassageTag(const CRelIndex &ndx = CRelIndex(), unsigned int nVerseCount = 0)
 		:	m_RelIndex(ndx),
 			m_nVerseCount(nVerseCount)
-	{ }
+	{
+		if (m_RelIndex.isSet()) m_RelIndex.setWord(1);
+	}
+	TPassageTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase)
+		:	m_nVerseCount(0)
+	{
+		setFromPhraseTag(pBibleDatabase, tagPhrase);
+	}
 
 	inline const CRelIndex &relIndex() const { return m_RelIndex; }
 	inline CRelIndex &relIndex() { return m_RelIndex; }							// Needed for >> operator
@@ -1243,11 +1263,6 @@ public:
 	inline void setVerseCount(unsigned int nVerseCount) { m_nVerseCount = nVerseCount; }
 
 	void setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase);
-	static TPassageTag fromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase) {
-		TPassageTag tagPassage;
-		tagPassage.setFromPhraseTag(pBibleDatabase, tagPhrase);
-		return tagPassage;
-	}
 
 	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
 		assert(pBibleDatabase != NULL);
@@ -1311,9 +1326,24 @@ public:
 		:	QList<TPassageTag>()
 	{ }
 
+	TPassageTagList(const TPassageTag &aTag)
+		:	QList<TPassageTag>()
+	{
+		append(aTag);
+	}
+
 	TPassageTagList(const TPassageTagList &src)
 		:	QList<TPassageTag>(src)
 	{ }
+
+	TPassageTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags)
+		:	QList<TPassageTag>()
+	{
+		setFromPhraseTagList(pBibleDatabase, lstPhraseTags);
+	}
+
+	void setFromPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags);
+	unsigned int verseCount() const;
 
 //	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
 //	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);

@@ -450,8 +450,8 @@ public:
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	QString setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
 	QString setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
-	QString setDocumentToFormattedVerses(const TPhraseTag &tagPhrase);		// Note: By definition, this one doesn't include anchors
-	QString setDocumentToFormattedVerses(const TPassageTag &tagPassage);	// Note: By definition, this one doesn't include anchors
+	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors
+	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors
 
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();

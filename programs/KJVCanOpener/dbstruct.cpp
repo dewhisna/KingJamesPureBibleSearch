@@ -857,48 +857,52 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
-	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>", "Statistics");
+	if (!nRelIndex.isSet()) return QObject::tr("<Invalid Reference>", "Statistics");
+	QString strBookName = bookName(nRelIndex);
 	if (nRelIndex.chapter() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2").arg(bookName(nRelIndex)).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2").arg(bookName(nRelIndex)).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Colophon", "Statistics")) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")) : QString());
 		}
 	}
+	if (!strBookName.isEmpty()) strBookName += " ";
 	if (nRelIndex.verse() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1 %2%3").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1 %2%3").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
 		}
 	}
 	if (nRelIndex.word() == 0) {
-		return QString("%1 %2:%3").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
+		return QString("%1%2:%3").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
 	}
-	return QString("%1 %2:%3 [%4]").arg(bookName(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
+	return QString("%1%2:%3 [%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
 }
 
 QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
-	if ((!nRelIndex.isSet()) || (nRelIndex.book() == 0)) return QObject::tr("<Invalid Reference>", "Statistics");
+	if (!nRelIndex.isSet()) return QObject::tr("<Invalid Reference>", "Statistics");
+	QString strBookName = bookNameAbbr(nRelIndex);
 	if (nRelIndex.chapter() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2").arg(bookNameAbbr(nRelIndex)).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2").arg(bookNameAbbr(nRelIndex)).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Colophon", "Statistics")) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")) : QString());
 		}
 	}
+	if (!strBookName.isEmpty()) strBookName += " ";
 	if (nRelIndex.verse() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1 %2%3").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1 %2%3").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
 		}
 	}
 	if (nRelIndex.word() == 0) {
-		return QString("%1 %2:%3").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
+		return QString("%1%2:%3").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse());
 	}
-	return QString("%1 %2:%3 [%4]").arg(bookNameAbbr(nRelIndex)).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
+	return QString("%1%2:%3 [%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
 }
 
 
@@ -1772,18 +1776,27 @@ void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const T
 	if (!tagPassage.isSet()) {
 		m_RelIndex = CRelIndex();
 		m_nCount = 0;
+	} else if ((tagPassage.relIndex().isColophon()) || (tagPassage.relIndex().isSuperscription())) {
+		assert(pBibleDatabase != NULL);
+		m_RelIndex = tagPassage.relIndex();
+		assert(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
+		assert(tagPassage.verseCount() == 1);	// Colophons and superscriptions each constitute one pseudo-verse
+		const CVerseEntry *pEntry = pBibleDatabase->verseEntry(m_RelIndex);
+		m_nCount = ((pEntry != NULL) ? pEntry->m_nNumWrd : 0);
 	} else {
 		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPassage.relIndex();
+		assert(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
 		CRelIndex ndxStart = tagPassage.relIndex();
-		ndxStart.setWord(1);
 		CRelIndex ndxTarget = tagPassage.relIndex();
 		if (tagPassage.verseCount() > 1) {
 			// If more than one verse is specified, find the beginning of the last verse:
 			ndxTarget = pBibleDatabase->calcRelIndex(0, tagPassage.verseCount()-1, 0, 0, 0, ndxStart);
 		}
-		ndxTarget.setWord(pBibleDatabase->verseEntry(ndxTarget)->m_nNumWrd);		// Select all words of last verse
-		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(ndxStart);
+		if (pBibleDatabase->verseEntry(ndxTarget) != NULL) {
+			ndxTarget.setWord(pBibleDatabase->verseEntry(ndxTarget)->m_nNumWrd);		// Select all words of last verse
+		}
+		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(ndxStart) + 1;
 	}
 }
 
@@ -1858,6 +1871,12 @@ TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
 
 }
 
+TPhraseTagList::TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags)
+	:	QList<TPhraseTag>()
+{
+	setFromPassageTagList(pBibleDatabase, lstPassageTags);
+}
+
 bool TPhraseTagList::isSet() const
 {
 	if (isEmpty()) return false;
@@ -1871,6 +1890,15 @@ bool TPhraseTagList::isSet() const
 	}
 
 	return bIsSet;
+}
+
+void TPhraseTagList::setFromPassageTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags)
+{
+	clear();
+	reserve(lstPassageTags.size());
+	for (int ndx = 0; ndx < lstPassageTags.size(); ++ndx) {
+		append(TPhraseTag(pBibleDatabase, lstPassageTags.at(ndx)));
+	}
 }
 
 bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
@@ -2171,6 +2199,10 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 	if (!tagPhrase.isSet()) {
 		m_RelIndex = CRelIndex();
 		m_nVerseCount = 0;
+	} else if ((tagPhrase.relIndex().isColophon()) || (tagPhrase.relIndex().isSuperscription())) {
+		m_RelIndex = tagPhrase.relIndex();
+		m_RelIndex.setWord(1);
+		m_nVerseCount = 1;
 	} else {
 		assert(pBibleDatabase != NULL);
 		m_RelIndex = tagPhrase.relIndex();
@@ -2182,6 +2214,26 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 		m_nVerseCount = (CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
 						CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
 	}
+}
+
+// ============================================================================
+
+void TPassageTagList::setFromPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags)
+{
+	clear();
+	reserve(lstPhraseTags.size());
+	for (int ndx = 0; ndx < lstPhraseTags.size(); ++ndx) {
+		append(TPassageTag(pBibleDatabase, lstPhraseTags.at(ndx)));
+	}
+}
+
+unsigned int TPassageTagList::verseCount() const
+{
+	unsigned int nVerseCount = 0;
+	for (int ndx = 0; ndx < size(); ++ndx) {
+		nVerseCount += at(ndx).verseCount();
+	}
+	return nVerseCount;
 }
 
 // ============================================================================

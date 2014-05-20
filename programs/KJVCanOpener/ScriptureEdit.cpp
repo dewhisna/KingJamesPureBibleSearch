@@ -852,8 +852,7 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	QTextDocument docFormattedVerses;
 	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
 	if (haveSelection()) {
-		// TODO : Fix this for range of selections
-		navigator.setDocumentToFormattedVerses(selection().primarySelection());
+		navigator.setDocumentToFormattedVerses(selection());
 	} else {
 		TPhraseTag tagVerse = m_tagLast;
 		if (tagVerse.relIndex().word() == 0) tagVerse.relIndex().setWord(1);

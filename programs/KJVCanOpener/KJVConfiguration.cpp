@@ -2363,19 +2363,19 @@ void CConfigCopyOptions::setVerseCopyPreview()
 	QString strHtml;
 	QTextDocument doc;
 	CPhraseNavigator navigator(m_pBibleDatabase, doc);
-	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(1, 1, 1, 0), 3));
+	navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(1, 1, 1, 0), 3)));
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
-	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(40, 24, 50, 0), 4));
+	navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(40, 24, 50, 0), 4)));
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
-	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(41, 13, 24, 0), 2));
+	navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(41, 13, 24, 0), 2)));
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
-	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(41, 13, 31, 0), 3));
+	navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(41, 13, 31, 0), 3)));
 	strHtml += doc.toHtml();
 	strHtml += "<hr>\n";
-	navigator.setDocumentToFormattedVerses(TPassageTag(CRelIndex(65, 1, 25, 0), 3));
+	navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(65, 1, 25, 0), 3)));
 	strHtml += doc.toHtml();
 	m_pEditCopyOptionPreview->document()->setHtml(strHtml);
 }
