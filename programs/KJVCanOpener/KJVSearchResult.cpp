@@ -894,7 +894,16 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)
 {
-	en_displayContextMenu(event->globalPos());
+	if (event->reason() == QContextMenuEvent::Mouse) {
+		// Prevent the mouse right-click from being right on top of the
+		//		menu, which tends to cause me to accidentally click
+		//		something on the menu that I wasn't intending to:
+		QPoint pos = event->globalPos();
+		pos.rx() += (viewport()->width()/10);
+		en_displayContextMenu(pos);
+	} else {
+		en_displayContextMenu(event->globalPos());
+	}
 }
 
 void CSearchResultsTreeView::en_displayContextMenu(const QPoint &ptGlobalPos)
