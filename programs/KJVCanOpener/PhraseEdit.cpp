@@ -2490,10 +2490,15 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CRelIndex ndxScroll = tag.relIndex();
-	if (m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxScroll.book(), ndxScroll.chapter(), 1, 1)) == m_pBibleDatabase->NormalizeIndex(ndxScroll)) {
-		ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+	if (!ndxScroll.isColophon()) {
+		if (m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxScroll.book(), ndxScroll.chapter(), 1, 1)) == m_pBibleDatabase->NormalizeIndex(ndxScroll)) {
+			ndxScroll.setVerse(0);		// Use 0 anchor if we are going to the first word of the chapter so we'll scroll to top of heading
+		}
+		ndxScroll.setWord(0);
+	} else {
+		// For colophons, goto word 1 and skip the normalization check (as it will be incorrect):
+		ndxScroll.setWord(1);
 	}
-	ndxScroll.setWord(0);
 
 	m_TextEditor.scrollToAnchor(ndxScroll.asAnchor());
 
