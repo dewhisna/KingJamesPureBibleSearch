@@ -437,7 +437,8 @@ public:
 
 	// Text Fill Functions:
 #define defaultDocumentToBookInfoFlags	(CPhraseNavigator::TRO_Subtitles | \
-										 CPhraseNavigator::TRO_Category)
+										 CPhraseNavigator::TRO_Category | \
+										 CPhraseNavigator::TRO_Colophons)
 #define defaultDocumentToChapterFlags	(CPhraseNavigator::TRO_UserNotes | \
 										 CPhraseNavigator::TRO_UserNoteExpandAnchors | \
 										 CPhraseNavigator::TRO_CrossRefs | \

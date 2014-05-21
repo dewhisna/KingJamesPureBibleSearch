@@ -1228,6 +1228,27 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 		scriptureHTML.insertHorizontalRule();
 
+	// Add colophon for the book if it exists and we are instructed to add it:
+	if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
+		// Try pseudo-verse (searchable) style first:
+		scriptureHTML.beginDiv("colophon");
+		scriptureHTML.beginParagraph();
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.endParagraph();
+		scriptureHTML.endDiv();
+	} else {
+		// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
+		scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
+		if ((flagsTRO & TRO_Colophons) &&
+			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBook, !(flagsTRO & TRO_NoAnchors)))) {
+			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
+			scriptureHTML.beginDiv("colophon");
+			scriptureHTML.flushBuffer();
+			scriptureHTML.endDiv();
+		}
+		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
+	}
+
 	scriptureHTML.appendRawText("</body></html>");
 	QString strRawHTML = scriptureHTML.getResult();
 	m_TextDocument.setHtml(strRawHTML);
