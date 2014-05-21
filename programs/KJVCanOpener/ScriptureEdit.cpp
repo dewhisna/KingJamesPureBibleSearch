@@ -870,7 +870,7 @@ template<class T, class U>
 void CScriptureText<T,U>::displayCopyCompleteToolTip() const
 {
 	QPoint ptPos = T::mapToGlobal(m_ptLastTrackPosition);
-	new CNotificationToolTip(1000, ptPos, QObject::tr("Text Copied to Clipboard", "MainMenu"), T::viewport());
+	new CNotificationToolTip(1500, ptPos, QObject::tr("Text Copied to Clipboard", "MainMenu"), T::viewport());
 }
 
 // ----------------------------------------------------------------------------

@@ -501,7 +501,7 @@ void CSearchResultsTreeView::en_copyComplete() const
 
 void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 {
-	new CNotificationToolTip(1000, m_ptLastTrackPosition, tr("Text Copied to Clipboard", "MainMenu"), viewport());
+	new CNotificationToolTip(1500, m_ptLastTrackPosition, tr("Text Copied to Clipboard", "MainMenu"), viewport());
 }
 
 // ----------------------------------------------------------------------------
