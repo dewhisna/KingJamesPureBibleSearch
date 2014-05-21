@@ -92,6 +92,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue")),
 		// Default Note Options:
+		m_nNotesFileAutoSaveTime(10),					// auto-save notes at 10 minutes after changing
 		m_clrDefaultNoteBackground("#F0F0A0"),			// Default note background (stick-note yellow)
 		// Default Search Phrase Options:
 		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
@@ -258,6 +259,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
 
+		if (pSource->m_nNotesFileAutoSaveTime != pTarget->m_nNotesFileAutoSaveTime) emit changedNotesFileAutoSaveTime(pTarget->m_nNotesFileAutoSaveTime);
 		if (pSource->m_clrDefaultNoteBackground != pTarget->m_clrDefaultNoteBackground) emit changedColorDefaultNoteBackground(pTarget->m_clrDefaultNoteBackground);
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
@@ -401,6 +403,14 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 	if (m_pPersistentSettingData->m_clrCursorFollow != color) {
 		m_pPersistentSettingData->m_clrCursorFollow = color;
 		emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
+	}
+}
+
+void CPersistentSettings::setNotesFileAutoSaveFile(int nAutoSaveTime)
+{
+	if (m_pPersistentSettingData->m_nNotesFileAutoSaveTime != nAutoSaveTime) {
+		m_pPersistentSettingData->m_nNotesFileAutoSaveTime = nAutoSaveTime;
+		emit changedNotesFileAutoSaveTime(m_pPersistentSettingData->m_nNotesFileAutoSaveTime);
 	}
 }
 

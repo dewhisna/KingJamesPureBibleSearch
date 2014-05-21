@@ -26,6 +26,7 @@
 
 #include "dbstruct.h"
 #include "dbDescriptors.h"
+#include "DelayedExecutionTimer.h"
 
 #include <QApplication>
 #include <QMdiArea>
@@ -207,6 +208,10 @@ private slots:
 	void en_setTextBrightness(bool bInvert, int nBrightness);
 	void en_setAdjustDialogElementBrightness(bool bAdjust);
 
+	void en_notesFileAutoSaveTriggered();
+	void en_changedUserNotesDatabase();
+	void en_changedNoteesFileAutoSaveTime(int nAutoSaveTime);
+
 protected:
 	bool event(QEvent *event);
 
@@ -228,6 +233,7 @@ protected:
 	QWidget *m_pSplash;									// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
 #endif
 	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
+	DelayedExecutionTimer m_dlyNotesFilesAutoSave;		// Delay timer for notes file auto-save trigger
 };
 extern QPointer<CMyApplication> g_pMyApplication;
 extern QPointer<QMdiArea> g_pMdiArea;

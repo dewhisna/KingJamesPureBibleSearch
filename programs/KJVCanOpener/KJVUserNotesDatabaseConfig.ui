@@ -172,6 +172,36 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="lblAutoSaveTime">
+       <property name="text">
+        <string>Auto Save &amp;Time in minutes (0 to disable):</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinBoxAutoSaveTime</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CSpinBox" name="spinBoxAutoSaveTime"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayoutNoteBackgroundColor">
      <item>
       <widget class="QPushButton" name="buttonDefaultNoteBackgroundColor">
@@ -210,12 +240,20 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>editPrimaryUserNotesFilename</tabstop>
   <tabstop>btnSetPrimaryUserNotesFilename</tabstop>
   <tabstop>btnStartNewUserNotesFile</tabstop>
   <tabstop>checkBoxKeepBackup</tabstop>
   <tabstop>editBackupExtension</tabstop>
+  <tabstop>spinBoxAutoSaveTime</tabstop>
   <tabstop>buttonDefaultNoteBackgroundColor</tabstop>
  </tabstops>
  <resources/>

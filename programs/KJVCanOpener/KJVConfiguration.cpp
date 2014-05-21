@@ -1281,6 +1281,8 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 	connect(ui.checkBoxKeepBackup, SIGNAL(clicked()), this, SLOT(en_changedKeepBackup()));
 	connect(ui.editBackupExtension, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedBackupExtension()));
 
+	connect(ui.spinBoxAutoSaveTime, SIGNAL(valueChanged(int)), this, SLOT(en_changedAutoSaveTime(int)));
+
 	connect(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_DefaultNoteBackgroundColorPicked(const QColor &)));
 
 	loadSettings();
@@ -1302,6 +1304,8 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 	ui.editBackupExtension->setText(m_pUserNotesDatabase->backupFilenamePostfix().remove(QRegExp("^\\.*")));
 	ui.checkBoxKeepBackup->setChecked(m_pUserNotesDatabase->keepBackup());
 
+	ui.spinBoxAutoSaveTime->setValue(CPersistentSettings::instance()->notesFileAutoSaveTime());
+
 	toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->setCurrentColor(CPersistentSettings::instance()->colorDefaultNoteBackground());
 
 	m_bLoadingData = false;
@@ -1314,6 +1318,7 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 	strExtension = "." + strExtension;
 	m_pUserNotesDatabase->setKeepBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
 	m_pUserNotesDatabase->setBackupFilenamePostfix(strExtension);
+	CPersistentSettings::instance()->setNotesFileAutoSaveFile(ui.spinBoxAutoSaveTime->value());
 	CPersistentSettings::instance()->setColorDefaultNoteBackground(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->currentColor());
 	m_bIsDirty = false;
 }
@@ -1507,6 +1512,15 @@ void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
 void CKJVUserNotesDatabaseConfig::en_changedBackupExtension()
 {
 	if (m_bLoadingData) return;
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVUserNotesDatabaseConfig::en_changedAutoSaveTime(int nAutoSaveTime)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nAutoSaveTime);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

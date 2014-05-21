@@ -236,6 +236,7 @@ private slots:
 	void en_changedPrimaryUserNotesFilename(const QString &strFilename);
 	void en_changedKeepBackup();
 	void en_changedBackupExtension();
+	void en_changedAutoSaveTime(int nAutoSaveTime);
 	void en_DefaultNoteBackgroundColorPicked(const QColor &color);
 
 private:

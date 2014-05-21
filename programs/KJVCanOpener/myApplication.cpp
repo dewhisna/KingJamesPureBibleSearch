@@ -24,6 +24,7 @@
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 #include "ReportError.h"
+#include "BusyCursor.h"
 
 #ifdef VNCSERVER
 #include <signal.h>
@@ -1058,6 +1059,38 @@ void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
 
 // ============================================================================
 
+void CMyApplication::en_notesFileAutoSaveTriggered()
+{
+	if (g_pUserNotesDatabase.data() == NULL) return;			// Shouldn't happen, but just in case
+	if ((g_pUserNotesDatabase->isDirty()) && (!g_pUserNotesDatabase->filePathName().isEmpty())) {
+		CBusyCursor iAmBusy(NULL);
+		if (!g_pUserNotesDatabase->save()) m_dlyNotesFilesAutoSave.trigger();		// If save failed, retrigger to try again
+	}
+}
+
+void CMyApplication::en_changedUserNotesDatabase()
+{
+	assert(g_pUserNotesDatabase.data() != NULL);
+	if ((CPersistentSettings::instance()->notesFileAutoSaveTime() > 0) && (!m_dlyNotesFilesAutoSave.isTriggered())) {
+		if (g_pUserNotesDatabase->isDirty()) m_dlyNotesFilesAutoSave.trigger();
+	} else if (!g_pUserNotesDatabase->isDirty()) {
+		// If the file has been saved already, untrigger:
+		m_dlyNotesFilesAutoSave.untrigger();
+	}
+}
+
+void CMyApplication::en_changedNoteesFileAutoSaveTime(int nAutoSaveTime)
+{
+	m_dlyNotesFilesAutoSave.setMinimumDelay(nAutoSaveTime*60000);		// Convert minutes->milliseconds
+	if (nAutoSaveTime > 0) {
+		if (m_dlyNotesFilesAutoSave.isTriggered()) m_dlyNotesFilesAutoSave.trigger();		// Retrigger to extend time if our setting changed
+	} else {
+		m_dlyNotesFilesAutoSave.untrigger();		// If disabling, stop any existing triggers
+	}
+}
+
+// ============================================================================
+
 QString CMyApplication::createKJPBSMessage(KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand, const QStringList &lstArgs) const
 {
 	QString strMessage;
@@ -1394,6 +1427,11 @@ int CMyApplication::execute(bool bBuildDB)
 
 	// Create default empty KJN file before we create CKJVCanOpener:
 	g_pUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
+
+	m_dlyNotesFilesAutoSave.setMinimumDelay(CPersistentSettings::instance()->notesFileAutoSaveTime()*60000);		// Convert minutes->milliseconds
+	connect(&m_dlyNotesFilesAutoSave, SIGNAL(triggered()), this, SLOT(en_notesFileAutoSaveTriggered()));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_changedUserNotesDatabase()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNoteesFileAutoSaveTime(int)));
 
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();

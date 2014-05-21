@@ -83,6 +83,7 @@ public:
 	QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
 	QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
 
+	int notesFileAutoSaveTime() const { return m_pPersistentSettingData->m_nNotesFileAutoSaveTime; }
 	QColor colorDefaultNoteBackground() const { return m_pPersistentSettingData->m_clrDefaultNoteBackground; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
@@ -147,6 +148,7 @@ signals:
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
 
+	void changedNotesFileAutoSaveTime(int nAutoSaveTime);
 	void changedColorDefaultNoteBackground(const QColor &color);
 
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
@@ -186,6 +188,7 @@ public slots:
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
 
+	void setNotesFileAutoSaveFile(int nAutoSaveTime);
 	void setColorDefaultNoteBackground(const QColor &color);
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
@@ -253,6 +256,7 @@ private:
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
 		// ----
+		int m_nNotesFileAutoSaveTime;					// Time to auto-save user notes file after modification
 		QColor m_clrDefaultNoteBackground;				// Default Note Background Color (usually sticky-note yellow)
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
