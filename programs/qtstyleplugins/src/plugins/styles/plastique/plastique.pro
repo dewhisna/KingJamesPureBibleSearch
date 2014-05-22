@@ -1,5 +1,6 @@
 TARGET  = qplastiquestyle
 PLUGIN_TYPE = styles
+PLUGIN_EXTENDS = widgets
 load(qt_plugin)
 
 QT = core core-private gui gui-private widgets
