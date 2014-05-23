@@ -191,6 +191,8 @@ private slots:
 
 	void en_changedMainDBCurrentChanged(int index);
 
+	void en_displayBibleInformation();
+
 private:
 	void setSettingControls(const QString &strUUID);
 

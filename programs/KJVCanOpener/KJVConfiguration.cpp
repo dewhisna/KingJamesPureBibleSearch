@@ -40,6 +40,7 @@
 #endif
 #include "BibleWordDiffListModel.h"
 #include "Translator.h"
+#include "BibleDatabaseInfoDlg.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1068,6 +1069,8 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	connect(ui.comboBoxHyphenHideMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedHyphenHideMode(int)));
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
 
+	connect(ui.buttonDisplayBibleInfo, SIGNAL(clicked()), this, SLOT(en_displayBibleInformation()));
+
 	setSettingControls(QString());
 
 	loadSettings();
@@ -1191,6 +1194,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(TBibleDatabaseSettings::HHO_None));
 		ui.checkBoxHyphenSensitive->setEnabled(false);
 		ui.checkBoxHyphenSensitive->setChecked(false);
+		ui.buttonDisplayBibleInfo->setEnabled(false);
 		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
@@ -1205,7 +1209,9 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.checkBoxHideHyphens->setEnabled(true);
 		ui.comboBoxHyphenHideMode->setEnabled(true);
 		ui.checkBoxHyphenSensitive->setEnabled(bCanBeSensitive);
-		m_pBibleWordDiffListModel->setBibleDatabase(TBibleDatabaseList::instance()->atUUID(strUUID));
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+		ui.buttonDisplayBibleInfo->setEnabled((pBibleDatabase.data() != NULL) && (!pBibleDatabase->info().isEmpty()));
+		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
 	}
 	ui.treeDatabaseWordChanges->resizeColumnToContents(0);
 	ui.treeDatabaseWordChanges->resizeColumnToContents(1);
@@ -1245,6 +1251,20 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	CPersistentSettings::instance()->setMainBibleDatabaseUUID(ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
 	m_bIsDirty = true;
 	emit dataChanged(false);
+}
+
+void CKJVBibleDatabaseConfig::en_displayBibleInformation()
+{
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
+	assert(pBibleDatabase.data() != NULL);
+
+#ifndef USE_ASYNC_DIALOGS
+	CBibleDatabaseInfoDialogPtr pDlg(pBibleDatabase, this);
+	pDlg->exec();
+#else
+	CBibleDatabaseInfoDialog *pDlg = new CBibleDatabaseInfoDialog(pBibleDatabase, this);
+	pDlg->show();
+#endif
 }
 
 // ============================================================================

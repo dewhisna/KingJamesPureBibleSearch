@@ -263,6 +263,7 @@ buildKJVDatabase:SOURCES += \
 	BuildDB.cpp
 
 !emscripten:SOURCES += \
+	BibleDatabaseInfoDlg.cpp \
 	DictionaryWidget.cpp \
 	KJVConfiguration.cpp \
 	RenameHighlighterDlg.cpp
@@ -327,6 +328,7 @@ buildKJVDatabase:HEADERS += \
 	BuildDB.h
 
 !emscripten:HEADERS += \
+	BibleDatabaseInfoDlg.h \
 	DictionaryWidget.h \
 	KJVConfiguration.h \
 	RenameHighlighterDlg.h
@@ -353,6 +355,7 @@ FORMS += \
 	QtFindReplaceDialog/dialogs/findreplacedialog.ui
 
 !emscripten:FORMS += \
+	BibleDatabaseInfoDlg.ui \
 	ConfigBrowserOptions.ui \
 	ConfigCopyOptions.ui \
 	ConfigDictionaryOptions.ui \

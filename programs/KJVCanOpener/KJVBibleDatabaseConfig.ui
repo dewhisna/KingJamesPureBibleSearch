@@ -66,6 +66,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="buttonDisplayBibleInfo">
+       <property name="text">
+        <string>Display Bible &amp;Information</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="lblMainBibleDatabaseSelect">
        <property name="text">
         <string>I&amp;nitial Bible Database:</string>
@@ -206,6 +213,7 @@
  </widget>
  <tabstops>
   <tabstop>treeBibleDatabases</tabstop>
+  <tabstop>buttonDisplayBibleInfo</tabstop>
   <tabstop>comboBoxMainBibleDatabaseSelect</tabstop>
   <tabstop>checkBoxHideHyphens</tabstop>
   <tabstop>comboBoxHyphenHideMode</tabstop>
