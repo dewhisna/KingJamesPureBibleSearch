@@ -1,0 +1,51 @@
+diff -rupN 5.3.0-src/qtbase/src/plugins/bearer/corewlan/corewlan.pro 5.3.0-src-patched/qtbase/src/plugins/bearer/corewlan/corewlan.pro
+--- 5.3.0-src/qtbase/src/plugins/bearer/corewlan/corewlan.pro	2014-05-15 12:12:17.000000000 -0500
++++ 5.3.0-src-patched/qtbase/src/plugins/bearer/corewlan/corewlan.pro	2014-05-24 11:08:35.000000000 -0500
+@@ -11,12 +11,15 @@ contains(QT_CONFIG, corewlan) {
+     LIBS += -framework CoreWLAN -framework Security
+ }
+ 
+-HEADERS += qcorewlanengine.h \
++HEADERS += qcorewlanengine.h
++
++!static:HEADERS += \
+            ../qnetworksession_impl.h \
+            ../qbearerengine_impl.h
+ 
+-SOURCES += main.cpp \
+-           ../qnetworksession_impl.cpp
++SOURCES += main.cpp
++
++!static:SOURCE += ../qnetworksession_impl.cpp
+ 
+ OBJECTIVE_SOURCES += qcorewlanengine.mm
+ 
+diff -rupN 5.3.0-src/qtbase/src/plugins/imageformats/jpeg/jpeg.pro 5.3.0-src-patched/qtbase/src/plugins/imageformats/jpeg/jpeg.pro
+--- 5.3.0-src/qtbase/src/plugins/imageformats/jpeg/jpeg.pro	2014-05-15 12:12:17.000000000 -0500
++++ 5.3.0-src-patched/qtbase/src/plugins/imageformats/jpeg/jpeg.pro	2014-05-24 11:08:57.000000000 -0500
+@@ -8,7 +8,12 @@ QT += core-private
+ 
+ QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-jpeg)"
+ 
+-include(../../../gui/image/qjpeghandler.pri)
++!static {
++    include(../../../gui/image/qjpeghandler.pri)
++} else {
++    HEADERS += ../../../gui/image/qjpeghandler_p.h
++    SOURCES += ../../../gui/image/qjpeghandler.cpp
++}
+ SOURCES += main.cpp
+ HEADERS += main.h
+ OTHER_FILES += jpeg.json
+diff -rupN 5.3.0-src/qtimageformats/src/3rdparty/jasper.pri 5.3.0-src-patched/qtimageformats/src/3rdparty/jasper.pri
+--- 5.3.0-src/qtimageformats/src/3rdparty/jasper.pri	2014-05-15 12:12:47.000000000 -0500
++++ 5.3.0-src-patched/qtimageformats/src/3rdparty/jasper.pri	2014-05-24 13:23:39.000000000 -0500
+@@ -55,7 +55,7 @@ SOURCES += \
+ 
+ LIBJPEG_DEP = $$PWD/../../../qtbase/src/3rdparty/libjpeg.pri
+ exists($${LIBJPEG_DEP}) {
+-    include($${LIBJPEG_DEP})
++    !static:include($${LIBJPEG_DEP})
+     SOURCES += \
+         $$PWD/jasper/src/libjasper/jpg/jpg_dec.c \
+         $$PWD/jasper/src/libjasper/jpg/jpg_enc.c
