@@ -471,6 +471,25 @@ make docs
 make install_docs
 
 
+MAC Cocoa:
+----------
+
+Cocoa x86 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../5.3.0-src/configure -platform macx-g++-32 -opensource -debug-and-release -static -accessibility -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-dbus -nomake tools -nomake examples -nomake tests -skip xmlpatterns -skip declarative -skip webkit -skip webkit-examples -prefix /Users/dewhisna/Qt/5.3.0-cocoa-static-run -confirm-license
+
+NOTE: Mac static build for Qt 5.3.0 has issue with duplicate symbols on xmlpatterns and declarative -- current solution is to skip it, since we don't need it.
+NOTE: While this will now build in and of itself, it still has duplicate symbols in the bearer plugins and jpeg plugins when linking with KJPBS.  Doing a patch instead:
+
+
+MAC Cocoa (Patched):
+--------------------
+
+Cocoa x86 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
+../5.3.0-src-patched/configure -platform macx-g++-32 -opensource -debug-and-release -static -accessibility -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-dbus -nomake tools -nomake examples -nomake tests -skip declarative -skip webkit -skip webkit-examples -prefix /Users/dewhisna/Qt/5.3.0-cocoa-static-run -confirm-license
+
+NOTE: Adding xmlpatterns back in as the patchces fix it, but not the declarative (as I didn't bother addressing its issues, since they cut much deeper)
+
+
 
 ===============================================================================
 ===============================================================================
@@ -817,6 +836,18 @@ cd build-qtstyleplugins-5_3_0_64_local
 /usr/local/Trolltech/Qt-5.3.0-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
 sudo make install
+-----
+
+
+Mac 5.3.0-cocoa-static:
+-----------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_3_0_cocoa_static
+cd build-qtstyleplugins-5_3_0_cocoa_static
+~/Qt/5.3.0-cocoa-static-run/bin/qmake  CONFIG+=staticQt CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
 -----
 
 
