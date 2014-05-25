@@ -15,6 +15,8 @@ TEMPLATE = lib
 CONFIG += warn_on
 TARGET = $$qtLibraryTarget(wwwidgets4)
 
+message("Target:" $$TARGET)
+
 linux-g++|linux-g++-64 {
 	CONFIG += static debug_and_release separate_debug_info
 #	CONFIG += debug_and_release separate_debug_info
@@ -47,7 +49,7 @@ win32 {
 
 mac {
 	CONFIG += lib_bundle
-	CONFIG += build_all
+	macx:CONFIG += build_all
 }
 
 DEFINES += WW_BUILD_WWWIDGETS
