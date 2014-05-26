@@ -182,7 +182,9 @@ lessThan(QT_MAJOR_VERSION,5) {
 	mac:QMAKE_CXXFLAGS += -Wall -W -Wno-unused-private-field
 }
 
-ios:QTPLUGIN += qsqlite
+# On Qt 5.3.0, they apparently fixed this where we don't need qsqlite, and adding this
+#	on that version causes "Redundant entries in QTPLUGIN: qsqlite"
+ios:if(!contains(QT_CONFIG, static)):if(lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qsqlite
 
 TARGET = KingJamesPureBibleSearch
 TEMPLATE = app
