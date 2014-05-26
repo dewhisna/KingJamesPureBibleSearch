@@ -1463,6 +1463,13 @@ void CKJVCanOpener::restorePersistentSettings()
 
 void CKJVCanOpener::closeEvent(QCloseEvent *event)
 {
+	// If we are already closing, ignore this event.  For some reason on Mac with
+	//		Qt 5.3.0, using the application quit from the taskbar context menu
+	//		causes us to receive multiple close events.  This will safe-guard
+	//		against multiple events and keep us from having redundant attempts
+	//		at saving options and notes files...
+	if (m_bIsClosing) return;
+
 	assert(canClose());
 	if (!canClose()) {
 		event->ignore();
