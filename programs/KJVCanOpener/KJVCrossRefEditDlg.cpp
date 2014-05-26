@@ -183,7 +183,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 {
 	CRelIndex ndxRel = tag.relIndex();
 	ndxRel.setWord(0);			// Make sure we have only a book, chapter, or verse
-	m_tagSourcePassage = TPassageTag(ndxRel, tag.verseCount());
+	m_tagSourcePassage = TPassageTag(ndxRel, tag.verseCount());			// Warning: TPassageTag word will always be set to 1 (not 0)!
 
 	ui.editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
 
@@ -257,11 +257,15 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &i
 {
 	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->logicalIndexForModelIndex(index);
 	assert(ndxInitial.isSet());
+	assert(ndxInitial.word() == 0);
 	CRelIndex ndxTarget = navigateCrossRef(ndxInitial);
+	assert(ndxTarget.word() == 0);
+	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
+	ndxSource.setWord(0);		// Note: This is needed because passages always begin at word 1 and our cross-refs are always indexed from 0
 	if ((ndxTarget.isSet()) && (ndxInitial != ndxTarget)) {
-		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(m_tagSourcePassage.relIndex(), ndxInitial);
+		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(ndxSource, ndxInitial);
 		assert(bRemove);
-		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget);
+		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget);
 		assert(bAdd);
 		if (bAdd || bRemove) m_bIsDirty = true;
 	}
@@ -299,7 +303,7 @@ void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 		if (nResult == QMessageBox::Yes) saveCrossRefs();
 	}
 
-	CRelIndex ndxTarget = navigateCrossRef(m_tagSourcePassage.relIndex());
+	CRelIndex ndxTarget = navigateCrossRef(m_tagSourcePassage.relIndex());			// Note: Passage word 1 is OK for navigation
 	if (ndxTarget.isSet()) {
 		setSourcePassage(TPassageTag(ndxTarget));		// This will reset m_bIsDirty for us
 	}
@@ -308,16 +312,18 @@ void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 
 void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 {
-	CRelIndex ndxTarget = m_tagSourcePassage.relIndex();
+	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
+	ndxSource.setWord(0);
+	CRelIndex ndxTarget = ndxSource;
 	bool bRefSet = false;
 	do {
 		ndxTarget = navigateCrossRef(ndxTarget);
 		if (ndxTarget.isSet()) {
-			if (m_tagSourcePassage.relIndex() == ndxTarget) {
+			if (ndxSource == ndxTarget) {
 				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself.", "Errors"));
-			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(ndxSource, ndxTarget)) {
 				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists.", "Errors"));
-			} else if (m_pWorkingUserNotesDatabase->setCrossReference(m_tagSourcePassage.relIndex(), ndxTarget)) {
+			} else if (m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget)) {
 				m_bIsDirty = true;
 				bRefSet = true;
 			}
@@ -339,8 +345,10 @@ void CKJVCrossRefEditDlg::en_DelReferenceClicked()
 	}
 
 	bool bSomethingChanged = false;
+	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
+	ndxSource.setWord(0);
 	for (unsigned int ndx = 0; ndx < lstRefsToRemove.size(); ++ndx) {
-		if (m_pWorkingUserNotesDatabase->removeCrossReference(m_tagSourcePassage.relIndex(), lstRefsToRemove.at(ndx))) {
+		if (m_pWorkingUserNotesDatabase->removeCrossReference(ndxSource, lstRefsToRemove.at(ndx))) {
 			bSomethingChanged = true;
 		}
 	}
