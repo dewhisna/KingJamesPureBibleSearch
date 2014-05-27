@@ -2,7 +2,7 @@
 <resources>
 	<array name="my_bundled_in_assets">
 		<item>KJVCanOpener/db/dct-web1828.s3db:files/KJVCanOpener/db/dct-web1828.s3db</item>
-		<item>KJVCanOpener/db/kjvtext.s3db:files/KJVCanOpener/db/kjvtext.s3db</item>
+		<item>KJVCanOpener/db/bbl-kjv1769.ccdb:files/KJVCanOpener/db/bbl-kjv1769.ccdb</item>
 		<item>KJVCanOpener/db/kjvuser.s3db:files/KJVCanOpener/db/kjvuser.s3db</item>
 		<item>KJVCanOpener/doc/KingJamesPureBibleSearch.pdf:files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf</item>
 <!--		<item>KJVCanOpener/doc/kjv_summary.xls:files/KJVCanOpener/doc/kjv_summary.xls</item>-->
@@ -44,5 +44,9 @@
 		<item>KJVCanOpener/examples/example13.kjs:files/KJVCanOpener/examples/example13.kjs</item>
 		<item>KJVCanOpener/examples/example14.kjs:files/KJVCanOpener/examples/example14.kjs</item>
 		<item>KJVCanOpener/license/gpl-3.0.txt:files/KJVCanOpener/license/gpl-3.0.txt</item>
+		<item>KJVCanOpener/translations/kjpbs.en.qm:files/KJVCanOpener/translations/kjpbs.en.qm</item>
+		<item>KJVCanOpener/translations/kjpbs.fr.qm:files/KJVCanOpener/translations/kjpbs.fr.qm</item>
+		<item>KJVCanOpener/translations/kjpbs.es.qm:files/KJVCanOpener/translations/kjpbs.es.qm</item>
+		<item>KJVCanOpener/translations/kjpbs.de.qm:files/KJVCanOpener/translations/kjpbs.de.qm</item>
 	</array>
 </resources>

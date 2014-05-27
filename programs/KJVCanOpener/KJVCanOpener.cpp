@@ -83,7 +83,7 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 #ifdef Q_OS_ANDROID
-	const char *g_constrHelpDocFilename = "KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
+	const char *g_constrHelpDocFilename = "../qt-reserved-files/files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_IOS)
 	const char *g_constrHelpDocFilename = "./assets/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)

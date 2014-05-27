@@ -127,11 +127,11 @@ namespace {
 	// --------------------------------------------------------------------------------------------------------- Android ------------------------
 // Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
 //	const char *g_constrPluginsPath = "assets:/plugins/";
-//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/plugins/";
+//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
 
-	const char *g_constrBibleDatabasePath = "KJVCanOpener/db/";
-	const char *g_constrDictionaryDatabasePath = "KJVCanOpener/db/";
-	const char *g_constrTranslationsPath = "KJVCanOpener/translations/";
+	const char *g_constrBibleDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
+	const char *g_constrDictionaryDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
+	const char *g_constrTranslationsPath = "../qt-reserved-files/files/KJVCanOpener/translations/";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 	const char *g_constrPluginsPath = "./Frameworks/";
@@ -173,28 +173,28 @@ namespace {
 
 #ifdef Q_OS_ANDROID
 	// --------------------------------------------------------------------------------------------------------- Android ------------------------
-	const char *g_constrScriptBLFontFilename = "KJVCanOpener/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "KJVCanOpener/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "KJVCanOpener/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "KJVCanOpener/fonts/DejaVuSerif.ttf";
+	const char *g_constrScriptBLFontFilename = "../qt-reserved-files/files/KJVCanOpener/fonts/SCRIPTBL.TTF";
+	const char *g_constrDejaVuSans_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
+	const char *g_constrDejaVuSansCondensed_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldItalic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
+	const char *g_constrDejaVuSerif_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+	const char *g_constrDejaVuSerifCondensed_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_Italic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
+	const char *g_constrDejaVuSerifCondensed = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
+	const char *g_constrDejaVuSerif_Italic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
+	const char *g_constrDejaVuSerif = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif.ttf";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
 #ifndef WORKAROUND_QTBUG_34490

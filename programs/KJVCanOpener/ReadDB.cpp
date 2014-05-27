@@ -1209,6 +1209,11 @@ bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) cons
 {
 	QFileInfo fiSQL(bibleDBFileInfo(DTE_SQL, bblDesc));
 	QFileInfo fiCC(bibleDBFileInfo(DTE_CC, bblDesc));
+#ifdef Q_OS_ANDROID
+	if (!fiCC.exists()) {
+		__android_log_print(ANDROID_LOG_WARN, "KJPBS", QObject::tr("Warning: Couldn't find CC database file \"%1\".", "ReadDB").arg(fiCC.absoluteFilePath()).toUtf8().data());
+	}
+#endif
 	return ((fiCC.exists() && fiCC.isFile()) ||
 			(fiSQL.exists() && fiSQL.isFile()));
 }
