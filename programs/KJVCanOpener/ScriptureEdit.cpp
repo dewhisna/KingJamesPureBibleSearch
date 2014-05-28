@@ -51,6 +51,17 @@
 #include <QKeyEvent>
 #include <QColor>
 
+#ifdef TOUCH_GESTURE_PROCESSING
+//#include <QGestureEvent>
+//#include <QTapGesture>
+//#include <QTapAndHoldGesture>
+//#include <QPanGesture>
+//#include <QSwipeGesture>
+
+#include <QScroller>
+#include <QScrollerProperties>
+#endif
+
 // ============================================================================
 
 namespace {
@@ -196,6 +207,37 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	U::setToolTip(QString(QObject::tr("Press %1 to see Passage Details", "MainMenu")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
 
 	m_pStatusAction = new QAction(this);
+
+#ifdef TOUCH_GESTURE_PROCESSING
+	T::grabGesture(Qt::TapGesture);
+	T::grabGesture(Qt::TapAndHoldGesture);
+	T::grabGesture(Qt::PanGesture);
+	T::grabGesture(Qt::SwipeGesture);
+
+// The following is for QTouchEvent:
+//	T::viewport()->setAttribute(Qt::WA_AcceptTouchEvents, true);
+
+//	m_dlyDoubleTouch.setMinimumDelay(QApplication::doubleClickInterval());
+//	connect(&m_dlyDoubleTouch, SIGNAL(triggered()), this, SLOT(en_doubleTouchTimeout()));
+
+	QScroller *pScroller = QScroller::scroller(T::viewport());
+
+	QScrollerProperties scrollerProps = pScroller->scrollerProperties();
+
+	scrollerProps.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.66);
+	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutExpo));
+	scrollerProps.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.05);
+	scrollerProps.setScrollMetric(QScrollerProperties::MaximumVelocity, 1.0 /*0.635*/);
+	scrollerProps.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.33);
+	scrollerProps.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.33);
+	scrollerProps.setScrollMetric(QScrollerProperties::SnapPositionRatio, 0.93);
+	scrollerProps.setScrollMetric(QScrollerProperties::DragStartDistance, 0.001);
+
+	pScroller->setScrollerProperties(scrollerProps);
+
+	pScroller->grabGesture(this, QScroller::TouchGesture);
+	pScroller->grabGesture(this, QScroller::LeftMouseButtonGesture);
+#endif
 }
 
 template<class T, class U>
