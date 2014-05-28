@@ -92,6 +92,12 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#ifdef WORKAROUND_QTBUG_35313_35687
+	// Workaround the dark background/contrast android dialogs on some devices by switching
+	//		to native dialogs:
+	qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
+#endif
+
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
 	pApp->setApplicationVersion(VER_QT);
