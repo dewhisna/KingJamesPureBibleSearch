@@ -455,7 +455,8 @@ android {
 		licDeploy.files = ../KJVCanOpener/gpl-3.0.txt
 		licDeploy.path = /assets/KJVCanOpener/license
 
-		INSTALLS += dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+#		INSTALLS += dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+		INSTALLS += dbDeploy fontDeploy licDeploy
 		!isEmpty(TRANSLATIONS) {
 			translationDeploy.path = /assets/KJVCanOpener/translations
 			INSTALLS += translationDeploy

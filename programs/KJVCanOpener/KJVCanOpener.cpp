@@ -83,7 +83,8 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 #ifdef Q_OS_ANDROID
-	const char *g_constrHelpDocFilename = "../qt-reserved-files/files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
+//	const char *g_constrHelpDocFilename = "../qt-reserved-files/files/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
+	const char *g_constrHelpDocFilename = "http://www.PureBibleSearch.com/manual/";
 #elif defined(Q_OS_IOS)
 	const char *g_constrHelpDocFilename = "./assets/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
@@ -2506,6 +2507,8 @@ void CKJVCanOpener::en_HelpManual()
 #if defined(EMSCRIPTEN)
 	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 #elif defined(VNCSERVER)
+#elif defined(Q_OS_ANDROID)
+	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 #else
 	assert(g_pMyApplication.data() != NULL);
 
