@@ -137,7 +137,11 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setProperty("isWrapping", QVariant(false));
 	header()->setVisible(false);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+#ifndef TOUCH_GESTURE_PROCESSING
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+#else
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+#endif
 
 #ifdef TOUCH_GESTURE_PROCESSING
 	grabGesture(Qt::TapGesture);
@@ -155,10 +159,60 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 	QScrollerProperties scrollerProps = pScroller->scrollerProperties();
 
+//	qDebug("Scroller Properties for SearchResults:");
+//	qDebug("MousePressEventDelay: %lf", scrollerProps.scrollMetric(QScrollerProperties::MousePressEventDelay).toDouble());
+//	qDebug("DragStartDistance: %lf", scrollerProps.scrollMetric(QScrollerProperties::DragStartDistance).toDouble());
+//	qDebug("DragVelocitySmoothingFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::DragVelocitySmoothingFactor).toDouble());
+//	qDebug("AxisLockThreshold: %lf", scrollerProps.scrollMetric(QScrollerProperties::AxisLockThreshold).toDouble());
+//	qDebug("ScrollingCurve: %lf", scrollerProps.scrollMetric(QScrollerProperties::ScrollingCurve).toDouble());
+//	qDebug("DecelerationFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::DecelerationFactor).toDouble());
+//	qDebug("MinimumVelocity: %lf", scrollerProps.scrollMetric(QScrollerProperties::MinimumVelocity).toDouble());
+//	qDebug("MaximumVelocity: %lf", scrollerProps.scrollMetric(QScrollerProperties::MaximumVelocity).toDouble());
+//	qDebug("MaximumClickThroughVelocity: %lf", scrollerProps.scrollMetric(QScrollerProperties::MaximumClickThroughVelocity).toDouble());
+//	qDebug("AcceleratingFlickMaximumTime: %lf", scrollerProps.scrollMetric(QScrollerProperties::AcceleratingFlickMaximumTime).toDouble());
+//	qDebug("AcceleratingFlickSpeedupFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::AcceleratingFlickSpeedupFactor).toDouble());
+//	qDebug("SnapPositionRatio: %lf", scrollerProps.scrollMetric(QScrollerProperties::SnapPositionRatio).toDouble());
+//	qDebug("SnapTime: %lf", scrollerProps.scrollMetric(QScrollerProperties::SnapTime).toDouble());
+//	qDebug("OvershootDragResistanceFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::OvershootDragResistanceFactor).toDouble());
+//	qDebug("OvershootDragDistanceFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::OvershootDragDistanceFactor).toDouble());
+//	qDebug("OvershootScrollDistanceFactor: %lf", scrollerProps.scrollMetric(QScrollerProperties::OvershootScrollDistanceFactor).toDouble());
+//	qDebug("OvershootScrollTime: %lf", scrollerProps.scrollMetric(QScrollerProperties::OvershootScrollTime).toDouble());
+//	qDebug("HorizontalOvershootPolicy: %lf", scrollerProps.scrollMetric(QScrollerProperties::HorizontalOvershootPolicy).toDouble());
+//	qDebug("VerticalOvershootPolicy: %lf", scrollerProps.scrollMetric(QScrollerProperties::VerticalOvershootPolicy).toDouble());
+//	qDebug("FrameRate: %lf", scrollerProps.scrollMetric(QScrollerProperties::FrameRate).toDouble());
+//	qDebug("ScrollMetricCount: %lf", scrollerProps.scrollMetric(QScrollerProperties::ScrollMetricCount).toDouble());
+//
+//	======================================
+//	Default values from my Google Nexus 7:
+//	======================================
+//	MousePressEventDelay: 0.250000
+//	DragStartDistance: 0.005000
+//	DragVelocitySmoothingFactor: 0.800000
+//	AxisLockThreshold: 0.000000
+//	ScrollingCurve: 0.000000
+//	DecelerationFactor: 0.125000
+//	MinimumVelocity: 0.050000
+//	MaximumVelocity: 0.500000
+//	MaximumClickThroughVelocity: 0.066500
+//	AcceleratingFlickMaximumTime: 1.250000
+//	AcceleratingFlickSpeedupFactor: 3.000000
+//	SnapPositionRatio: 0.500000
+//	SnapTime: 0.300000
+//	OvershootDragResistanceFactor: 0.500000
+//	OvershootDragDistanceFactor: 1.000000
+//	OvershootScrollDistanceFactor: 0.500000
+//	OvershootScrollTime: 0.700000
+//	HorizontalOvershootPolicy: 0.000000
+//	VerticalOvershootPolicy: 0.000000
+//	FrameRate: 0.000000
+//	ScrollMetricCount: 0.000000
+
+	scrollerProps.setScrollMetric(QScrollerProperties::MousePressEventDelay, 0.400);
+	scrollerProps.setScrollMetric(QScrollerProperties::DragVelocitySmoothingFactor, 0.500);
 	scrollerProps.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.66);
 	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutExpo));
 	scrollerProps.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.05);
-	scrollerProps.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.635);
+	scrollerProps.setScrollMetric(QScrollerProperties::MaximumVelocity, 1.0 /*0.635*/);
 	scrollerProps.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.33);
 	scrollerProps.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.33);
 	scrollerProps.setScrollMetric(QScrollerProperties::SnapPositionRatio, 0.93);
@@ -166,7 +220,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 	pScroller->setScrollerProperties(scrollerProps);
 
-	pScroller->grabGesture(this, QScroller::TouchGesture);
+//	pScroller->grabGesture(this, QScroller::TouchGesture);
 	pScroller->grabGesture(this, QScroller::LeftMouseButtonGesture);
 #endif
 
@@ -184,7 +238,14 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setRootIsDecorated(bDecorateRoot);
 	setDragDropMode((vlmodel()->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
 
+#ifndef TOUCH_GESTURE_PROCESSING
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
+#else
+	// The reflow delegate doesn't get along well with QScroller.  It seems to be assuming
+	//		some things about item height that isn't true.  So, on touch devices, we need
+	//		to disable the reflow delegate:
+	m_pReflowDelegate = new CReflowDelegate(this, true, false);
+#endif
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
 	m_pReflowDelegate->setItemDelegate(pDelegate);
 	QAbstractItemDelegate *pOldDelegate = itemDelegate();

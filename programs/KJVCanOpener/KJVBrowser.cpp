@@ -233,7 +233,11 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
 	m_pScriptureBrowser->setMouseTracking(true);
+#ifndef TOUCH_GESTURE_PROCESSING
 	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+#else
+	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+#endif
 	m_pScriptureBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_pScriptureBrowser->setTabChangesFocus(false);
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
@@ -944,6 +948,7 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 //		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), strText);
 		QStyleOptionSlider opt;
 		opt.initFrom(ui.scrollbarChapter);
+		assert(ui.scrollbarChapter->style() != NULL);
 		QRect rcSlider = ui.scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui.scrollbarChapter);
 		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), strText);
 	}
