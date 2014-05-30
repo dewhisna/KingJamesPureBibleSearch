@@ -117,6 +117,10 @@ protected:
 	virtual void updateSelection();
 	virtual void copyVersesCommon(bool bPlainOnly);
 
+#ifdef TOUCH_GESTURE_PROCESSING
+	virtual void grabGestures(bool bGrab = true);
+#endif
+
 //protected slots:
 protected:
 	virtual void en_findParentCanOpener();

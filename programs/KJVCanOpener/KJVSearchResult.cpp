@@ -207,10 +207,10 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 //	FrameRate: 0.000000
 //	ScrollMetricCount: 0.000000
 
-	scrollerProps.setScrollMetric(QScrollerProperties::MousePressEventDelay, 0.400);
+	scrollerProps.setScrollMetric(QScrollerProperties::MousePressEventDelay, 0.800);
 	scrollerProps.setScrollMetric(QScrollerProperties::DragVelocitySmoothingFactor, 0.500);
 	scrollerProps.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.66);
-	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutExpo));
+	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutQuad));
 	scrollerProps.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.05);
 	scrollerProps.setScrollMetric(QScrollerProperties::MaximumVelocity, 1.0 /*0.635*/);
 	scrollerProps.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.33);

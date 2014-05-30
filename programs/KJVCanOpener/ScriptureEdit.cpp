@@ -272,10 +272,10 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 //	FrameRate: 0.000000
 //	ScrollMetricCount: 0.000000
 
-	scrollerProps.setScrollMetric(QScrollerProperties::MousePressEventDelay, 0.400);
+	scrollerProps.setScrollMetric(QScrollerProperties::MousePressEventDelay, 0.800);
 	scrollerProps.setScrollMetric(QScrollerProperties::DragVelocitySmoothingFactor, 0.500);
 	scrollerProps.setScrollMetric(QScrollerProperties::AxisLockThreshold, 0.66);
-	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutExpo));
+	scrollerProps.setScrollMetric(QScrollerProperties::ScrollingCurve, QEasingCurve(QEasingCurve::OutQuad));
 	scrollerProps.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.05);
 	scrollerProps.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.635);
 	scrollerProps.setScrollMetric(QScrollerProperties::MaximumClickThroughVelocity, 0);
@@ -286,8 +286,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	pScroller->setScrollerProperties(scrollerProps);
 
-//	pScroller->grabGesture(this, QScroller::TouchGesture);
-	pScroller->grabGesture(this, QScroller::LeftMouseButtonGesture);
+	grabGestures();
 #endif
 }
 
@@ -295,6 +294,21 @@ template<class T, class U>
 CScriptureText<T,U>::~CScriptureText()
 {
 
+}
+
+// ----------------------------------------------------------------------------
+
+template<class T, class U>
+void CScriptureText<T,U>::grabGestures(bool bGrab)
+{
+	QScroller *pScroller = QScroller::scroller(T::viewport());
+
+	if (bGrab) {
+//		pScroller->grabGesture(this, QScroller::TouchGesture);
+		pScroller->grabGesture(this, QScroller::LeftMouseButtonGesture);
+	} else {
+		pScroller->ungrabGesture(this);
+	}
 }
 
 // ----------------------------------------------------------------------------
