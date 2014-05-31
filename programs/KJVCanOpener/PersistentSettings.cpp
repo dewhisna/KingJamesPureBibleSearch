@@ -92,6 +92,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_clrSearchResults(QColor("blue")),
 		m_clrCursorFollow(QColor("blue")),
 		// Default Note Options:
+		m_bKeepNotesBackup(true),
+		m_strNotesBackupFilenamePostfix(QString(".bak")),
 		m_nNotesFileAutoSaveTime(10),					// auto-save notes at 10 minutes after changing
 		m_clrDefaultNoteBackground("#F0F0A0"),			// Default note background (stick-note yellow)
 		// Default Search Phrase Options:
@@ -259,6 +261,8 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
 		if (pSource->m_clrCursorFollow != pTarget->m_clrCursorFollow) emit changedColorCursorFollow(pTarget->m_clrCursorFollow);
 
+		if (pSource->m_bKeepNotesBackup != pTarget->m_bKeepNotesBackup) emit changedKeepNotesBackup(pTarget->m_bKeepNotesBackup);
+		if (pSource->m_strNotesBackupFilenamePostfix != pTarget->m_strNotesBackupFilenamePostfix) emit changedNotesBackupFilenamePostfix(pTarget->m_strNotesBackupFilenamePostfix);
 		if (pSource->m_nNotesFileAutoSaveTime != pTarget->m_nNotesFileAutoSaveTime) emit changedNotesFileAutoSaveTime(pTarget->m_nNotesFileAutoSaveTime);
 		if (pSource->m_clrDefaultNoteBackground != pTarget->m_clrDefaultNoteBackground) emit changedColorDefaultNoteBackground(pTarget->m_clrDefaultNoteBackground);
 
@@ -403,6 +407,22 @@ void CPersistentSettings::setColorCursorFollow(const QColor &color)
 	if (m_pPersistentSettingData->m_clrCursorFollow != color) {
 		m_pPersistentSettingData->m_clrCursorFollow = color;
 		emit changedColorCursorFollow(m_pPersistentSettingData->m_clrCursorFollow);
+	}
+}
+
+void CPersistentSettings::setKeepNotesBackup(bool bKeepBackup)
+{
+	if (m_pPersistentSettingData->m_bKeepNotesBackup != bKeepBackup) {
+		m_pPersistentSettingData->m_bKeepNotesBackup = bKeepBackup;
+		emit changedKeepNotesBackup(m_pPersistentSettingData->m_bKeepNotesBackup);
+	}
+}
+
+void CPersistentSettings::setNotesBackupFilenamePostfix(const QString &strBackupFilenamePostfix)
+{
+	if (m_pPersistentSettingData->m_strNotesBackupFilenamePostfix != strBackupFilenamePostfix) {
+		m_pPersistentSettingData->m_strNotesBackupFilenamePostfix = strBackupFilenamePostfix;
+		emit changedNotesBackupFilenamePostfix(m_pPersistentSettingData->m_strNotesBackupFilenamePostfix);
 	}
 }
 

@@ -183,8 +183,6 @@ QString CUserNoteEntry::plainText() const
 CUserNotesDatabase::CUserNotesDatabase(QObject *pParent)
 	:	QObject(pParent),
 		m_pUserNotesDatabaseData(&m_UserNotesDatabaseData1),
-		m_bKeepBackup(true),
-		m_strBackupFilenamePostfix(QString(".bak")),
 		m_bIsDirty(false),
 		m_bKeepDirtyAfterLoad(false),
 		m_nVersion(KJN_FILE_VERSION)
@@ -700,8 +698,8 @@ bool CUserNotesDatabase::save()
 	QFileInfo fiKJN(fileUND);
 
 	// Make backup if it's enabled:
-	if ((m_bKeepBackup) && (fiKJN.exists())) {
-		QFileInfo fiBackup(fiKJN.dir(), fiKJN.fileName() + m_strBackupFilenamePostfix);
+	if ((CPersistentSettings::instance()->keepNotesBackup()) && (fiKJN.exists())) {
+		QFileInfo fiBackup(fiKJN.dir(), fiKJN.fileName() + CPersistentSettings::instance()->notesBackupFilenamePostfix());
 		if (fiBackup.exists()) QFile::remove(fiBackup.absoluteFilePath());
 		if (!QFile::copy(fiKJN.absoluteFilePath(), fiBackup.absoluteFilePath())) {
 			m_strLastError = tr("Failed to create Backup File.", "KJNErrors");

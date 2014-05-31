@@ -1321,8 +1321,8 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 	m_bLoadingData = true;
 
 	ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
-	ui.editBackupExtension->setText(m_pUserNotesDatabase->backupFilenamePostfix().remove(QRegExp("^\\.*")));
-	ui.checkBoxKeepBackup->setChecked(m_pUserNotesDatabase->keepBackup());
+	ui.editBackupExtension->setText(CPersistentSettings::instance()->notesBackupFilenamePostfix().remove(QRegExp("^\\.*")));
+	ui.checkBoxKeepBackup->setChecked(CPersistentSettings::instance()->keepNotesBackup());
 
 	ui.spinBoxAutoSaveTime->setValue(CPersistentSettings::instance()->notesFileAutoSaveTime());
 
@@ -1336,8 +1336,8 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 {
 	QString strExtension = ui.editBackupExtension->text().trimmed().remove(QRegExp("^\\.*")).trimmed();
 	strExtension = "." + strExtension;
-	m_pUserNotesDatabase->setKeepBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
-	m_pUserNotesDatabase->setBackupFilenamePostfix(strExtension);
+	CPersistentSettings::instance()->setKeepNotesBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
+	CPersistentSettings::instance()->setNotesBackupFilenamePostfix(strExtension);
 	CPersistentSettings::instance()->setNotesFileAutoSaveFile(ui.spinBoxAutoSaveTime->value());
 	CPersistentSettings::instance()->setColorDefaultNoteBackground(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor)->currentColor());
 	m_bIsDirty = false;

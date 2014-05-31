@@ -298,6 +298,7 @@ CScriptureText<T,U>::~CScriptureText()
 
 // ----------------------------------------------------------------------------
 
+#ifdef TOUCH_GESTURE_PROCESSING
 template<class T, class U>
 void CScriptureText<T,U>::grabGestures(bool bGrab)
 {
@@ -310,6 +311,7 @@ void CScriptureText<T,U>::grabGestures(bool bGrab)
 		pScroller->ungrabGesture(this);
 	}
 }
+#endif
 
 // ----------------------------------------------------------------------------
 

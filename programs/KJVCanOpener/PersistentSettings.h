@@ -83,6 +83,8 @@ public:
 	QColor colorSearchResults() const { return m_pPersistentSettingData->m_clrSearchResults; }
 	QColor colorCursorFollow() const { return m_pPersistentSettingData->m_clrCursorFollow; }
 
+	bool keepNotesBackup() const { return m_pPersistentSettingData->m_bKeepNotesBackup; }
+	QString notesBackupFilenamePostfix() const { return m_pPersistentSettingData->m_strNotesBackupFilenamePostfix; }
 	int notesFileAutoSaveTime() const { return m_pPersistentSettingData->m_nNotesFileAutoSaveTime; }
 	QColor colorDefaultNoteBackground() const { return m_pPersistentSettingData->m_clrDefaultNoteBackground; }
 
@@ -148,6 +150,8 @@ signals:
 	void changedColorSearchResults(const QColor &color);
 	void changedColorCursorFollow(const QColor &color);
 
+	void changedKeepNotesBackup(bool bKeepBackup);
+	void changedNotesBackupFilenamePostfix(const QString &strBackupFilenamePostfix);
 	void changedNotesFileAutoSaveTime(int nAutoSaveTime);
 	void changedColorDefaultNoteBackground(const QColor &color);
 
@@ -188,6 +192,8 @@ public slots:
 	void setColorSearchResults(const QColor &color);
 	void setColorCursorFollow(const QColor &color);
 
+	void setKeepNotesBackup(bool bKeepBackup);
+	void setNotesBackupFilenamePostfix(const QString &strBackupFilenamePostfix);
 	void setNotesFileAutoSaveFile(int nAutoSaveTime);
 	void setColorDefaultNoteBackground(const QColor &color);
 
@@ -256,6 +262,8 @@ private:
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")
 		// ----
+		bool m_bKeepNotesBackup;						// True if we should write a backup copy on save.  Done by "copy-to" prior to writing the new file
+		QString m_strNotesBackupFilenamePostfix;		// Filename Postfix to add to the base filename for backups
 		int m_nNotesFileAutoSaveTime;					// Time to auto-save user notes file after modification
 		QColor m_clrDefaultNoteBackground;				// Default Note Background Color (usually sticky-note yellow)
 		// ----

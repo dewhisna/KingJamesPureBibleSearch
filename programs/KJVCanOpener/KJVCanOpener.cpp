@@ -915,8 +915,8 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		assert(g_pUserNotesDatabase.data() != NULL);
 		settings.beginGroup(constrUserNotesDatabaseGroup);
 		settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
-		settings.setValue(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup());
-		settings.setValue(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix());
+		settings.setValue(constrKeepBackupKey, CPersistentSettings::instance()->keepNotesBackup());
+		settings.setValue(constrBackupFilenamePostfixKey, CPersistentSettings::instance()->notesBackupFilenamePostfix());
 		settings.setValue(constrAutoSaveTimeKey, CPersistentSettings::instance()->notesFileAutoSaveTime());
 		settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
 		settings.endGroup();
@@ -1140,8 +1140,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrUserNotesDatabaseGroup);
 			g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
-			g_pUserNotesDatabase->setKeepBackup(settings.value(constrKeepBackupKey, g_pUserNotesDatabase->keepBackup()).toBool());
-			g_pUserNotesDatabase->setBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, g_pUserNotesDatabase->backupFilenamePostfix()).toString());
+			CPersistentSettings::instance()->setKeepNotesBackup(settings.value(constrKeepBackupKey, CPersistentSettings::instance()->keepNotesBackup()).toBool());
+			CPersistentSettings::instance()->setNotesBackupFilenamePostfix(settings.value(constrBackupFilenamePostfixKey, CPersistentSettings::instance()->notesBackupFilenamePostfix()).toString());
 			CPersistentSettings::instance()->setNotesFileAutoSaveFile(settings.value(constrAutoSaveTimeKey, CPersistentSettings::instance()->notesFileAutoSaveTime()).toInt());
 			QColor clrTemp;
 			clrTemp.setNamedColor(settings.value(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name()).toString());
