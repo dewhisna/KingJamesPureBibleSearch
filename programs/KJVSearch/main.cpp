@@ -209,10 +209,12 @@ int main(int argc, char *argv[])
 			}
 		}
 		if (bRenderText) {
-			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndex);
+			CRelIndex relIndexWord1 = relIndex;
+			relIndexWord1.setWord(1);
+			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndexWord1);
 			std::cout << ": ";
 			if (pVerse != NULL) {
-				std::cout << CVerseTextRichifier::parse(relIndex, pBibleDatabase.data(), pVerse, tagsPlain).toUtf8().data();
+				std::cout << CVerseTextRichifier::parse(relIndexWord1, pBibleDatabase.data(), pVerse, tagsPlain).toUtf8().data();
 			} else {
 				std::cout << ": <NULL>";
 			}
