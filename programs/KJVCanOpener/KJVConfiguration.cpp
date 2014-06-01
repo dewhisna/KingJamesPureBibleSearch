@@ -1912,6 +1912,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), CPhraseNavigator::RDME_CURLY_BRACES);
 	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses", "Delimiters"), CPhraseNavigator::RDME_PARENTHESES);
 	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript", "Delimiters"), CPhraseNavigator::RDME_SUPERSCRIPT);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Complete Reference", "Delimiters"), CPhraseNavigator::RDME_COMPLETE_REFERENCE);
 
 	connect(ui.comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
 

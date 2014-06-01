@@ -2041,10 +2041,17 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(strReference);
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.endBold();
-		scriptureHTML.appendLiteralText(" ");
+		if (CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) {
+			scriptureHTML.addLineBreak();
+		} else {
+			scriptureHTML.appendLiteralText(" ");
+		}
 	}
 
-	scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+	if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE) ||
+		(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+		scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+	}
 
 	CVerseTextRichifierTags richifierTags = m_richifierTags;
 	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
@@ -2084,7 +2091,8 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 				bInIndent = true;
 			}
 
-			if (ndx.book() != ndxPrev.book()) {
+			if ((ndx.book() != ndxPrev.book()) &&
+				(CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE)) {
 				if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF) {
 					scriptureHTML.appendLiteralText("  ");
 				}
@@ -2097,13 +2105,21 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 												.arg(referenceEndingDelimiter()));
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
 				scriptureHTML.appendLiteralText(" ");
-			} else if ((ndx.chapter() != ndxPrev.chapter()) || (ndx.verse() != ndxPrev.verse())) {
+			} else if ((ndx.chapter() != ndxPrev.chapter()) || (ndx.verse() != ndxPrev.verse()) ||
+					   (CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE)) {
 				if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER) &&
 					(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_VPL) &&
 					(ndx != ndxFirst)) {
 					scriptureHTML.appendLiteralText("  ");
 				}
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
+
+				QString strBookChapterVerse = QString("%1%2%3")
+												.arg(referenceStartingDelimiter())
+												.arg(CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames() ?
+																					 m_pBibleDatabase->PassageReferenceAbbrText(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), (((ndx.isColophon()) || (ndx.isSuperscription())) ? 1 : 0)), true) :
+																					 m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), (((ndx.isColophon()) || (ndx.isSuperscription())) ? 1 : 0)), true))
+												.arg(referenceEndingDelimiter());
 				QString strChapterVerse = m_pBibleDatabase->PassageReferenceText(CRelIndex((((ndx.isColophon()) || (ndx.isSuperscription())) ? ndx.book() : 0), ndx.chapter(), ndx.verse(), (((ndx.isColophon()) || (ndx.isSuperscription())) ? 1 : 0)), true);
 				QString strVerse = ((!ndx.isSuperscription()) ? QString("%1").arg(ndx.verse()) : tr("Superscription", "Scope"));
 				switch (CPersistentSettings::instance()->verseNumberDelimiterMode()) {
@@ -2146,15 +2162,32 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 						}
 						scriptureHTML.endSuperscript();
 						break;
+					case RDME_COMPLETE_REFERENCE:
+						scriptureHTML.appendLiteralText(QString("%1").arg(strBookChapterVerse));
+						break;
 					default:
 						assert(false);
 						break;
 				}
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
-				scriptureHTML.appendLiteralText(" ");
+
+				if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER) ||
+					(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+					scriptureHTML.appendLiteralText(" ");
+				}
+			}
+
+			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
+				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_FF)) {
+				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 			}
 
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, richifierTags, false));
+
+			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
+				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_FF)) {
+				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+			}
 
 			ndxPrev = ndx;
 
@@ -2166,7 +2199,10 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		}
 	}
 
-	scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+	if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE) ||
+		(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+		scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
+	}
 
 	if (CPersistentSettings::instance()->referencesAtEnd()) {
 		if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) {

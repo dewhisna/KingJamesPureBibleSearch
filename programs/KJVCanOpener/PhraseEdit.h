@@ -394,7 +394,8 @@ public:
 		RDME_SQUARE_BRACKETS = 1,					// Reference and/or Verse in Square Brackets:  [Genesis 1:1], [2]
 		RDME_CURLY_BRACES = 2,						// Reference and/or Verse in Curly Braces: {Genesis 1:1}, {2}
 		RDME_PARENTHESES = 3,						// Reference and/or Verse in Parentheses: (Genesis 1:1), (2)
-		RDME_SUPERSCRIPT = 4						// Verse in Superscript (Verse Number Delimiter Type only)
+		RDME_SUPERSCRIPT = 4,						// Verse in Superscript (Verse Number Delimiter Type only)
+		RDME_COMPLETE_REFERENCE = 5					// Verse rendered as full reference (Verse Number Delimiter Type only)
 	};
 
 	enum TRANS_CHANGE_ADD_WORD_MODE_ENUM {
