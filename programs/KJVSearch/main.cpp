@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
 	bool bNoWordIndex = false;
 	bool bUseAbbreviated = false;
 	bool bSeparateLines = false;
+	bool bRenderText = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -120,6 +121,9 @@ int main(int argc, char *argv[])
 			bUseAbbreviated = true;
 		} else if (strArg.compare("-s") == 0) {
 			bSeparateLines = true;
+		} else if (strArg.compare("-r") == 0) {
+			bRenderText = true;
+			bSeparateLines = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -137,7 +141,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -h  =  Human readable reference text (default is normal index values)\n").toUtf8().data();
 		std::cerr << QString("  -w  =  No word index (only when using '-h')\n").toUtf8().data();
 		std::cerr << QString("  -b  =  Use Abbreviated Book names (only when using '-h')\n").toUtf8().data();
-		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n\n").toUtf8().data();
+		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n").toUtf8().data();
+		std::cerr << QString("  -r  =  Render verse text (implies '-s')\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
 			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBDesc).toUtf8().data();
@@ -178,6 +184,7 @@ int main(int argc, char *argv[])
 
 	CParsedPhrase parsePhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive);
 
+	CVerseTextPlainRichifierTags tagsPlain;
 	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
 	bdbSettings.setHyphenSensitive(bHyphenSensitive);
 	pBibleDatabase->setSettings(bdbSettings);
@@ -194,11 +201,20 @@ int main(int argc, char *argv[])
 		if (!bHumanReadable) {
 			std::cout << relIndex.asAnchor().toUtf8().data();
 		} else {
-			if (bNoWordIndex) relIndex.setWord(0);
+			if ((bNoWordIndex) && (!relIndex.isColophon()) && (!relIndex.isSuperscription())) relIndex.setWord(0);
 			if (bUseAbbreviated) {
-				std::cout << pBibleDatabase->PassageReferenceAbbrText(relIndex).toUtf8().data();
+				std::cout << pBibleDatabase->PassageReferenceAbbrText(relIndex, bNoWordIndex).toUtf8().data();
 			} else {
-				std::cout << pBibleDatabase->PassageReferenceText(relIndex).toUtf8().data();
+				std::cout << pBibleDatabase->PassageReferenceText(relIndex, bNoWordIndex).toUtf8().data();
+			}
+		}
+		if (bRenderText) {
+			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndex);
+			std::cout << ": ";
+			if (pVerse != NULL) {
+				std::cout << CVerseTextRichifier::parse(relIndex, pBibleDatabase.data(), pVerse, tagsPlain).toUtf8().data();
+			} else {
+				std::cout << ": <NULL>";
 			}
 		}
 		if (bSeparateLines) std::cout << "\n";
