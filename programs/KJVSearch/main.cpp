@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
 	bool bUseAbbreviated = false;
 	bool bSeparateLines = false;
 	bool bRenderText = false;
+	bool bNoDuplicateVerses = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -121,9 +122,12 @@ int main(int argc, char *argv[])
 			bUseAbbreviated = true;
 		} else if (strArg.compare("-s") == 0) {
 			bSeparateLines = true;
-		} else if (strArg.compare("-r") == 0) {
+		} else if (strArg.compare("-t") == 0) {
 			bRenderText = true;
 			bSeparateLines = true;
+		} else if (strArg.compare("-d") == 0) {
+			bNoDuplicateVerses = true;
+			bNoWordIndex = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -142,7 +146,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -w  =  No word index (only when using '-h')\n").toUtf8().data();
 		std::cerr << QString("  -b  =  Use Abbreviated Book names (only when using '-h')\n").toUtf8().data();
 		std::cerr << QString("  -s  =  Separate Lines (default is comma separated)\n").toUtf8().data();
-		std::cerr << QString("  -r  =  Render verse text (implies '-s')\n").toUtf8().data();
+		std::cerr << QString("  -t  =  Render verse text (implies '-s')\n").toUtf8().data();
+		std::cerr << QString("  -d  =  Removed Duplicate verses (implies '-w')\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -192,7 +197,23 @@ int main(int argc, char *argv[])
 	parsePhrase.ParsePhrase(strPhrase);
 	parsePhrase.FindWords();
 
-	const TPhraseTagList &lstResults = parsePhrase.GetPhraseTagSearchResults();
+	TPhraseTagList lstResults(parsePhrase.GetPhraseTagSearchResults());
+
+	if (bNoDuplicateVerses) {
+		CRelIndex relIndexLast;
+		for (int ndx = 0; ndx < lstResults.size(); ++ndx) {
+			CRelIndex relIndex = lstResults.at(ndx).relIndex();
+			relIndex.setWord(1);
+			lstResults[ndx].setRelIndex(relIndex);
+			if (relIndexLast.isSet()) {
+				if (relIndex == relIndexLast) {
+					lstResults.removeAt(ndx);
+					--ndx;
+				}
+			}
+			relIndexLast = relIndex;
+		}
+	}
 
 	std::cerr << QString("Found %1 matches\n").arg(lstResults.size()).toUtf8().data();
 	for (int ndx = 0; ndx < lstResults.size(); ++ndx) {
