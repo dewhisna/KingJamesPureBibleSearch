@@ -161,7 +161,19 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// ----
 		m_strMainBibleDatabaseUUID(bibleDescriptor(BDE_KJV).m_strUUID),			// Default to reading KJV
 		// ----
-		m_strApplicationLanguage(QString())				// Default to System Locale language
+		m_strApplicationLanguage(QString()),			// Default to System Locale language
+		// ----
+		m_bScreenSwipeableMainWindow(false),
+#ifdef IS_MOBILE_APP
+		m_bScrollbarsEnabled(false),
+#else
+		m_bScrollbarsEnabled(true),
+#endif
+#ifdef TOUCH_GESTURE_PROCESSING
+		m_bTouchGesturesEnabled(true)
+#else
+		m_bTouchGesturesEnabled(false)
+#endif
 {
 
 }
@@ -312,6 +324,9 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		}
 		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
 		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
+		if (pSource->m_bScreenSwipeableMainWindow != pTarget->m_bScreenSwipeableMainWindow) emit changedScreenSwipeableMainWindow(pTarget->m_bScreenSwipeableMainWindow);
+		if (pSource->m_bScrollbarsEnabled != pTarget->m_bScrollbarsEnabled) emit changedScrollbarsEnabled(pTarget->m_bScrollbarsEnabled);
+		if (pSource->m_bTouchGesturesEnabled != pTarget->m_bTouchGesturesEnabled) emit changedTouchGesturesEnabled(pTarget->m_bTouchGesturesEnabled);
 	}
 }
 
@@ -740,6 +755,30 @@ void CPersistentSettings::setApplicationLanguage(const QString &strLangName)
 	if (m_pPersistentSettingData->m_strApplicationLanguage != strLangName) {
 		m_pPersistentSettingData->m_strApplicationLanguage = strLangName;
 		emit changedApplicationLanguage(strLangName);
+	}
+}
+
+void CPersistentSettings::setScreenSwipeableMainWindow(bool bIsSwipeable)
+{
+	if (m_pPersistentSettingData->m_bScreenSwipeableMainWindow != bIsSwipeable) {
+		m_pPersistentSettingData->m_bScreenSwipeableMainWindow = bIsSwipeable;
+		emit changedScreenSwipeableMainWindow(screenSwipeableMainWindow());
+	}
+}
+
+void CPersistentSettings::setScrollbarsEnabled(bool bIsEnabled)
+{
+	if (m_pPersistentSettingData->m_bScrollbarsEnabled != bIsEnabled) {
+		m_pPersistentSettingData->m_bScrollbarsEnabled = bIsEnabled;
+		emit changedScrollbarsEnabled(scrollbarsEnabled());
+	}
+}
+
+void CPersistentSettings::setTouchGesturesEnabled(bool bIsEnabled)
+{
+	if (m_pPersistentSettingData->m_bTouchGesturesEnabled != bIsEnabled) {
+		m_pPersistentSettingData->m_bTouchGesturesEnabled = bIsEnabled;
+		emit changedTouchGesturesEnabled(touchGesturesEnabled());
 	}
 }
 

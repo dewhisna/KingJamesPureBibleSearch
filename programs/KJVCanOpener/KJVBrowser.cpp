@@ -233,15 +233,12 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
 	m_pScriptureBrowser->setMouseTracking(true);
-#ifndef TOUCH_GESTURE_PROCESSING
-	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-#else
-	m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#endif
+	en_changedScrollbarsEnabled(CPersistentSettings::instance()->scrollbarsEnabled());
 	m_pScriptureBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_pScriptureBrowser->setTabChangesFocus(false);
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 	m_pScriptureBrowser->setOpenLinks(false);
+	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
 	bool bChapterScrollNone = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_NONE);
 	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
@@ -286,6 +283,16 @@ void CKJVBrowser::initialize()
 	setupChapterScrollbar();
 
 	end_update();
+}
+
+void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
+{
+	assert(m_pScriptureBrowser != NULL);
+	if (bEnabled) {
+		m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	} else {
+		m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
 }
 
 void CKJVBrowser::en_changedChapterScrollbarMode()

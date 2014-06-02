@@ -45,6 +45,8 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 	DEFINES += BUILD_KJV_DATABASE
 }
 
+if(android | ios):DEFINES += IS_MOBILE_APP
+
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
@@ -150,7 +152,8 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 emscripten:DEFINES += USE_ASYNC_DIALOGS
 
 # Enable Gesture/TouchDevice processing:
-if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+#if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 
 # Saving/Restoring of KJVCanOpener Window State/Geometry and Splitter State:
 !android:!ios:DEFINES += PRESERVE_MAINWINDOW_GEOMETRY						# Physical size and layout of KJVCanOpener

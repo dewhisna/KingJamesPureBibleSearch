@@ -134,6 +134,29 @@ public:
 
 	QString applicationLanguage() const { return m_pPersistentSettingData->m_strApplicationLanguage; }
 
+	bool screenSwipeableMainWindow() const { return m_pPersistentSettingData->m_bScreenSwipeableMainWindow; }
+	bool scrollbarsEnabled() const
+	{
+#ifdef TOUCH_GESTURE_PROCESSING
+		// Note: Currently, touch gesture processing interferes with scrollbar functionality.
+		//		So until that can be resolved, we will simply let the scrollbars be inverse
+		//		with the touch gestures:
+		//
+		// return m_pPersistentSettingData->m_bScrollbarsEnabled;
+		return !m_pPersistentSettingData->m_bTouchGesturesEnabled;
+#else
+		return true;
+#endif
+	}
+	bool touchGesturesEnabled() const
+	{
+#ifdef TOUCH_GESTURE_PROCESSING
+		return m_pPersistentSettingData->m_bTouchGesturesEnabled;
+#else
+		return false;
+#endif
+	}
+
 	void togglePersistentSettingData(bool bCopy);
 
 signals:
@@ -179,6 +202,10 @@ signals:
 	void changedMainBibleDatabaseSelection(const QString &strUUID);
 
 	void changedApplicationLanguage(const QString &strLangName);
+
+	void changedScreenSwipeableMainWindow(bool bIsSwipeable);
+	void changedScrollbarsEnabled(bool bEnabled);
+	void changedTouchGesturesEnabled(bool bEnabled);
 
 public slots:
 	void setFontScriptureBrowser(const QFont &aFont);
@@ -236,6 +263,10 @@ public slots:
 	void setCopyWrdNdxInSearchResultsRefs(bool bCopy);
 
 	void setApplicationLanguage(const QString &strLangName);
+
+	void setScreenSwipeableMainWindow(bool bIsSwipeable);
+	void setScrollbarsEnabled(bool bIsEnabled);
+	void setTouchGesturesEnabled(bool bIsEnabled);
 
 private:
 	// m_PersistentSettingData1 and m_PersistentSettingData2 are
@@ -309,6 +340,10 @@ private:
 		QString m_strMainBibleDatabaseUUID;				// UUID of Main Bible Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
 		// ----
 		QString m_strApplicationLanguage;				// Language to use for the application.  Empty string to use the system locale.
+		// ----
+		bool m_bScreenSwipeableMainWindow;				// True if the main KJVCanOpener window is a multi-screen "swipeable"
+		bool m_bScrollbarsEnabled;						// True if scollbars are enabled on scrollareas (for mobile devices)
+		bool m_bTouchGesturesEnabled;					// True if Touch Gestures are enabled (when supported)
 	} m_PersistentSettingData1, m_PersistentSettingData2, *m_pPersistentSettingData;
 
 	QSettings *m_pSettings;

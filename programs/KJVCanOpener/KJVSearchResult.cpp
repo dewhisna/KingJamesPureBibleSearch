@@ -137,11 +137,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setProperty("isWrapping", QVariant(false));
 	header()->setVisible(false);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#ifndef TOUCH_GESTURE_PROCESSING
-	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-#else
-	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#endif
+	en_changedScrollbarsEnabled(CPersistentSettings::instance()->scrollbarsEnabled());
+	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
 #ifdef TOUCH_GESTURE_PROCESSING
 	grabGesture(Qt::TapGesture);
@@ -238,13 +235,13 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setRootIsDecorated(bDecorateRoot);
 	setDragDropMode((vlmodel()->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
 
-#ifndef TOUCH_GESTURE_PROCESSING
+#ifndef IS_MOBILE_APP
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
 #else
-	// The reflow delegate doesn't get along well with QScroller.  It seems to be assuming
-	//		some things about item height that isn't true.  So, on touch devices, we need
-	//		to disable the reflow delegate:
-	m_pReflowDelegate = new CReflowDelegate(this, true, false);
+	// The reflow delegate doesn't get along well with QScroller on mobile devices (probably a bug
+	//		on the mobile ports of Qt).  It seems to be assuming some things about item height that
+	//		isn't true.  So, when we are processing touch gestures, we need to disable the reflow delegate:
+	m_pReflowDelegate = new CReflowDelegate(this, true, !CPersistentSettings::instance()->touchGesturesEnabled());
 #endif
 	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
 	m_pReflowDelegate->setItemDelegate(pDelegate);
@@ -330,6 +327,17 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 CSearchResultsTreeView::~CSearchResultsTreeView()
 {
+}
+
+// ----------------------------------------------------------------------------
+
+void CSearchResultsTreeView::en_changedScrollbarsEnabled(bool bEnabled)
+{
+	if (bEnabled) {
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	} else {
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
 }
 
 // ----------------------------------------------------------------------------

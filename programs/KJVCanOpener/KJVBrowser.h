@@ -135,6 +135,7 @@ private:
 	void initialize();
 
 private slots:
+	void en_changedScrollbarsEnabled(bool bEnabled);
 	void en_changedChapterScrollbarMode();
 
 	void en_selectionChanged();

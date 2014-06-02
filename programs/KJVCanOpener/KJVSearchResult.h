@@ -135,7 +135,9 @@ public slots:
 	virtual void setFontSearchResults(const QFont& aFont);
 	virtual void setTextBrightness(bool bInvert, int nBrightness);
 
- private slots:
+private slots:
+	void en_changedScrollbarsEnabled(bool bEnabled);
+
 	void en_displayContextMenu(const QPoint &ptGlobalPos);
 	void handle_searchResultActivated(const QModelIndex &index);	// Triggered on Activate or DoubleClick to handle Enter or double-click activation of searchResult (this emits our searchResultActivated signal)
 #ifdef TOUCH_GESTURE_PROCESSING
