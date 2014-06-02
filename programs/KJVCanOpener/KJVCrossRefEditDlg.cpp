@@ -160,14 +160,17 @@ CKJVCrossRefEditDlg::~CKJVCrossRefEditDlg()
 
 void CKJVCrossRefEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 {
+#ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
 	if (m_bHaveGeometry) settings.setValue(constrGeometryKey, saveGeometry());
 	settings.endGroup();
+#endif
 }
 
 void CKJVCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefix)
 {
+#ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
 	if (!settings.value(constrGeometryKey).toByteArray().isEmpty()) {
@@ -175,6 +178,7 @@ void CKJVCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefi
 		m_bHaveGeometry = true;
 	}
 	settings.endGroup();
+#endif
 }
 
 // ============================================================================

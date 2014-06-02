@@ -869,10 +869,16 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 	if (!bSaveLastSearchOnly) {
 		// Main App and Toolbars RestoreState:
+#if defined(PRESERVE_MAINWINDOW_GEOMETRY) || defined(PRESERVE_MAINWINDOW_STATE)
 		settings.beginGroup(constrMainAppRestoreStateGroup);
+#ifdef PRESERVE_MAINWINDOW_GEOMETRY
 		settings.setValue(constrGeometryKey, saveGeometry());
+#endif
+#ifdef PRESERVE_MAINWINDOW_STATE
 		settings.setValue(constrWindowStateKey, saveState(KJVAPP_REGISTRY_VERSION));
+#endif
 		settings.endGroup();
+#endif
 
 		// Main App General Settings:
 		settings.beginGroup(constrMainAppControlGroup);
@@ -897,19 +903,23 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrCursorTrackerColorKey, CPersistentSettings::instance()->colorCursorFollow().name());
 		settings.endGroup();
 
+#ifdef PRESERVE_MAINWINDOW_SPLITTER_STATE
 		// Splitter:
-		settings.beginGroup(constrSplitterRestoreStateGroup);
-		settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
-		settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
-		settings.endGroup();
+		if (m_pSplitter != NULL) {
+			settings.beginGroup(constrSplitterRestoreStateGroup);
+			settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
+			settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
+			settings.endGroup();
+		}
 
 		// Splitter Dictionary:
-		if (m_pDictionaryWidget != NULL) {
+		if ((m_pDictionaryWidget != NULL) && (m_pSplitterDictionary != NULL)) {
 			settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
 			settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 			settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
 			settings.endGroup();
 		}
+#endif
 
 		// User Notes Database:
 		assert(g_pUserNotesDatabase.data() != NULL);
@@ -1079,14 +1089,27 @@ void CKJVCanOpener::restorePersistentSettings()
 
 		// Main App and Toolbars RestoreState:
 		if (bIsFirstCanOpener) {
+#if defined(PRESERVE_MAINWINDOW_GEOMETRY) || defined(PRESERVE_MAINWINDOW_STATE)
 			settings.beginGroup(constrMainAppRestoreStateGroup);
+#ifdef PRESERVE_MAINWINDOW_GEOMETRY
 			restoreGeometry(settings.value(constrGeometryKey).toByteArray());
+#endif
+#ifdef PRESERVE_MAINWINDOW_STATE
 			restoreState(settings.value(constrWindowStateKey).toByteArray(), KJVAPP_REGISTRY_VERSION);
+#endif
 			settings.endGroup();
+#endif
 		} else {
+#if defined(PRESERVE_MAINWINDOW_GEOMETRY) || defined(PRESERVE_MAINWINDOW_STATE)
 			CKJVCanOpener *pPrimaryCanOpener = g_pMyApplication->canOpeners().at(0);
+			assert(pPrimaryCanOpener != NULL);
+#endif
+#ifdef PRESERVE_MAINWINDOW_STATE
 			restoreState(pPrimaryCanOpener->saveState(KJVAPP_REGISTRY_VERSION), KJVAPP_REGISTRY_VERSION);
+#endif
+#ifdef PRESERVE_MAINWINDOW_GEOMETRY
 			resize(pPrimaryCanOpener->size());
+#endif
 		}
 
 		// Main App General Settings:
@@ -1117,23 +1140,29 @@ void CKJVCanOpener::restorePersistentSettings()
 			settings.endGroup();
 		}
 
+#ifdef PRESERVE_MAINWINDOW_SPLITTER_STATE
 		unsigned int nSplitterVersion;
 
 		// Splitter:
-		settings.beginGroup(constrSplitterRestoreStateGroup);
-		nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
-		if (nSplitterVersion == PS_SPLITTER_VERSION) {
-			m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		if (m_pSplitter != NULL) {
+			settings.beginGroup(constrSplitterRestoreStateGroup);
+			nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
+			if (nSplitterVersion == PS_SPLITTER_VERSION) {
+				m_pSplitter->restoreState(settings.value(constrWindowStateKey).toByteArray());
+			}
+			settings.endGroup();
 		}
-		settings.endGroup();
 
 		// Splitter Dictionary:
-		settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
-		nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
-		if (nSplitterVersion == PS_SPLITTER_VERSION) {
-			m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
+		if ((m_pDictionaryWidget != NULL) && (m_pSplitterDictionary != NULL)) {
+			settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
+			nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
+			if (nSplitterVersion == PS_SPLITTER_VERSION) {
+				m_pSplitterDictionary->restoreState(settings.value(constrWindowStateKey).toByteArray());
+			}
+			settings.endGroup();
 		}
-		settings.endGroup();
+#endif
 
 		// User Notes Database:
 		assert(g_pUserNotesDatabase.data() != NULL);

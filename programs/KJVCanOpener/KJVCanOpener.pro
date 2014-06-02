@@ -152,6 +152,12 @@ emscripten:DEFINES += USE_ASYNC_DIALOGS
 # Enable Gesture/TouchDevice processing:
 if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 
+# Saving/Restoring of KJVCanOpener Window State/Geometry and Splitter State:
+!android:!ios:DEFINES += PRESERVE_MAINWINDOW_GEOMETRY						# Physical size and layout of KJVCanOpener
+DEFINES += PRESERVE_MAINWINDOW_STATE										# Toolbars and DockWidgets of KJVCanOpener
+!android:!ios:DEFINES += PRESERVE_MAINWINDOW_SPLITTER_STATE					# Splitters on KJVCanOpener
+!android:!ios:DEFINES += PRESERVE_DIALOG_GEOMETRY							# Physical size and layout of UserDatabase editor dialogs for Notes and CrossRefs
+
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
 greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64

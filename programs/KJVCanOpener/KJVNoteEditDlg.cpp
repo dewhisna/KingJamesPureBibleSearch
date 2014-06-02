@@ -175,14 +175,17 @@ CKJVNoteEditDlg::~CKJVNoteEditDlg()
 
 void CKJVNoteEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 {
+#ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
 	if (m_bHaveGeometry) settings.setValue(constrGeometryKey, saveGeometry());
 	settings.endGroup();
+#endif
 }
 
 void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 {
+#ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
 	settings.beginGroup(groupCombine(prefix, constrRestoreStateGroup));
 	if (!settings.value(constrGeometryKey).toByteArray().isEmpty()) {
@@ -190,6 +193,7 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 		m_bHaveGeometry = true;
 	}
 	settings.endGroup();
+#endif
 }
 
 // ============================================================================
