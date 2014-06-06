@@ -44,7 +44,6 @@
 #endif
 
 #include <QProxyStyle>
-//#include <QtPlugin>
 #include <QFont>
 #include <QFontDatabase>
 #include <QDesktopWidget>
@@ -75,8 +74,6 @@
 #include "ReadDB.h"
 
 #include <assert.h>
-
-//Q_IMPORT_PLUGIN(qsqlite)
 
 // ============================================================================
 
@@ -125,22 +122,16 @@ namespace {
 
 #ifdef Q_OS_ANDROID
 	// --------------------------------------------------------------------------------------------------------- Android ------------------------
-// Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
-//	const char *g_constrPluginsPath = "assets:/plugins/";
-//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
-
 	const char *g_constrBibleDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../qt-reserved-files/files/KJVCanOpener/translations/";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
-	const char *g_constrPluginsPath = "./Frameworks/";
 	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
-	const char *g_constrPluginsPath = "../Frameworks/";
 	const char *g_constrBibleDatabasePath = "../Resources/db/";
 	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
 	const char *g_constrTranslationsPath = "../Resources/translations/";
@@ -155,13 +146,11 @@ namespace {
 	#endif
 #elif defined(VNCSERVER)
 	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
 #else
-	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
@@ -300,7 +289,7 @@ namespace {
 	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
 	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
 #else
-	// --------------------------------------------------------------------------------------------------------- Linux --------------------------
+	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
 	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
 	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
 	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
@@ -566,12 +555,6 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 
 	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
-
-	// Setup our SQL/Image Plugin paths:
-#if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
-	QFileInfo fiPlugins(initialAppDirPath(), g_constrPluginsPath);
-	addLibraryPath(fiPlugins.absolutePath());
-#endif
 }
 
 CMyApplication::~CMyApplication()
