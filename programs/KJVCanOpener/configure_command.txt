@@ -212,6 +212,13 @@ Cocoa x86/x64 Static:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON MAC
 ../4.8.6-src-patched/configure -platform macx-g++ -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -nomake tests -arch x86 -arch x86_64 -prefix /Users/dewhisna/Qt/4.8.6-patched-cocoa-static-run -confirm-license
 
 
+Linux
+-----
+Linux LOCAL BUILD (x64 release):
+../4.8.6-src/configure -platform linux-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.6-64-local -confirm-license
+
+use: make -j 16 (or just -j if enough RAM)
+
 
 ===============================================================================
 ===============================================================================
@@ -464,6 +471,8 @@ Linux
 
 Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.3.0 (note: doesn't build docs)
 ../5.3.0-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.3.0-64-local -confirm-license 
+
+use:  make -j 16 (or higher)
 
 To build/install docs:
 ----------------------
@@ -769,7 +778,7 @@ Android 5.2.0-rc1 (armeabi_v7a):
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
 cd build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
-export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9b
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
 export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 ~/Qt/5.2.0-rc1-android/5.2.0-rc1/android_armv7/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
@@ -871,7 +880,7 @@ Android 5.3.0 (armeabi_v7a):
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_3_0_android_armv7_gcc_4_8
 cd build-qtstyleplugins-5_3_0_android_armv7_gcc_4_8
-export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9b
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
 export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 ~/Qt/5.3.0-android/5.3/android_armv7/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
@@ -886,7 +895,7 @@ Android 5.3.0 (x86):
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_3_0_android_x86_gcc_4_8
 cd build-qtstyleplugins-5_3_0_android_x86_gcc_4_8
-export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9b
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
 export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 ~/Qt/5.3.0-android/5.3/android_x86/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
@@ -1445,8 +1454,8 @@ Setting up EC2 instance:
 
 sudo apt-get update
 sudo apt-get install joe
-sudo apt-get install build-essentials
-sudo apt-get install libqt4-dev
+sudo apt-get install build-essential
+sudo apt-get build-dep libqt4-dev		<<< build-dep not install!
 sudo apt-get install gperf bison
 sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync0 libxcb-sync0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
 sudo apt-get install perl python
