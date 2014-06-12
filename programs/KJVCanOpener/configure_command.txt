@@ -155,6 +155,24 @@ Add this:
 no-pkg-config
 
 
+Qt 4.8.5 -- Win32 Cross-Compile [Kubuntu Packaged MinGW]
+--------------------------------------------------------
+
+Built with: Kubuntu cross-compile package for MinGW: mingw-w64, g++-mingw-w64, gcc-mingw-64, gcc-mingw-w64-base, mingw-w64-i686-dev, mingw-w64-x86-64-dev, g++-mingw-w64-i686, gcc-mingw-w64-i686, g++-mingw-w64-x86-64, gcc-mingw-w64-x86-64, mingw-w64-common, binutils-mingw-w64, binutils-mingw-w64-i686, binutils-mingw-x86-64, mingw-w64-tools, mingw32-binutils, mingw32, mingw32-runtime
+
+../4.8.5-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.5-win32-kubuntu -confirm-license 
+
+Need to copy:
+/usr/lib/gcc/i686-w64-mingw32/4.8/libstdc++-6.dll
+/usr/lib/gcc/i686-w64-mingw32/4.8/libgcc_s_sjlj-1.dll
+/usr/i686-w64-mingw32/lib/libwinpthread-1.dll
+
+Make with:  make -j 32
+
+Add this:
+no-pkg-config
+
+
 ----------------------------------------------------
 
 --------------------------
@@ -218,6 +236,21 @@ Linux LOCAL BUILD (x64 release):
 ../4.8.6-src/configure -platform linux-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.6-64-local -confirm-license
 
 use: make -j 16 (or just -j if enough RAM)
+
+
+Qt 4.8.6 -- Win32 Cross-Compile [Kubuntu Packaged MinGW]
+--------------------------------------------------------
+
+Built with: Kubuntu cross-compile package for MinGW: mingw-w64, g++-mingw-w64, gcc-mingw-64, gcc-mingw-w64-base, mingw-w64-i686-dev, mingw-w64-x86-64-dev, g++-mingw-w64-i686, gcc-mingw-w64-i686, g++-mingw-w64-x86-64, gcc-mingw-w64-x86-64, mingw-w64-common, binutils-mingw-w64, binutils-mingw-w64-i686, binutils-mingw-x86-64, mingw-w64-tools, mingw32-binutils, mingw32, mingw32-runtime
+
+../4.8.6-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.6-win32-kubuntu -confirm-license 
+
+Note: This one SHOULD work, but looks like they've broken something with their include paths with the #include <itemviews/qfileiconprovider_p.h> on line 61 of /home/dewhisna/Qt/4.8.6-src/src/gui/dialogs/qfiledialog.cpp
+
+Make with:  make -j 32
+
+Add this:
+no-pkg-config
 
 
 ===============================================================================
