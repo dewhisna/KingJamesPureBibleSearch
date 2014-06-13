@@ -2,4 +2,4 @@
 
 cd Release
 /usr/local/Trolltech/Qt-4.8.5-64-lsb/bin/qmake ../../KJVCanOpener/KJVCanOpener.pro -r -spec linux-lsb-g++-64
-make -w
+make -w -j 32

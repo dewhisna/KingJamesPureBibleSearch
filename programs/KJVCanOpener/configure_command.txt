@@ -104,10 +104,10 @@ Linux LSB Build:
 ----------------
 
 LSB x32:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-32
-../4.8.5-src-patched/configure -platform linux-lsb-g++-32 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-32-lsb
+../4.8.5-src-lsb-patched/configure -platform linux-lsb-g++-32 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-32-lsb -confirm-license
 
 LSB x64:  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON LINUX-64
-../4.8.5-src-patched/configure -platform linux-lsb-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-64-lsb
+../4.8.5-src-lsb-patched/configure -platform linux-lsb-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /usr/local/Trolltech/Qt-4.8.5-64-lsb -confirm-license
 
 
 ----------------------------------------------------
@@ -755,6 +755,29 @@ cd build-wwwidgets4-Qt_4_8_5_64_lsb/Debug
 /usr/local/Trolltech/Qt-4.8.5-64-lsb/bin/qmake ../../wwWidgets/wwwidgets4.pro -r -spec linux-lsb-g++-64 CONFIG+=debug CONFIG+=declarative_debug
 make -w
 sudo make install
+
+
+-------------------------------
+wwWidgets with Qt 4.8.5 LSB 32:
+-------------------------------
+From wwWidgets checkout on our SourceForge version, do from ~/Qt:
+
+Release:
+--------
+mkdir -p build-wwwidgets4-Qt_4_8_5_32_lsb/Release
+cd build-wwwidgets4-Qt_4_8_5_32_lsb/Release
+/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake ../../wwWidgets/wwwidgets4.pro -r -spec linux-lsb-g++-32
+make -w
+sudo make install
+
+Debug:
+------
+mkdir -p build-wwwidgets4-Qt_4_8_5_32_lsb/Debug
+cd build-wwwidgets4-Qt_4_8_5_32_lsb/Debug
+/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake ../../wwWidgets/wwwidgets4.pro -r -spec linux-lsb-g++-32 CONFIG+=debug CONFIG+=declarative_debug
+make -w
+sudo make install
+
 
 
 Qt 5.1.0
@@ -1538,4 +1561,150 @@ sudo useradd -r -U -s /bin/false -G kjpbs pbsuser20
 
 ===============================================================================
 ===============================================================================
+
+======================
+LSB and schroot Setup:
+======================
+
+Edit /etc/schroot/schroot.conf.  Add:
+
+-------------------------------------------------------------------------------
+
+[trusty_32dev]
+description=Kubuntu 14.04 Trusty 32-Bit Development 
+directory=/srv/chroot/trusty32dev 
+personality=linux32
+root-users=dewhisna
+#run-setup-scripts=true
+#run-exec-scripts=true
+type=directory
+users=dewhisna,testuser
+
+
+[trusty_64dev]  
+description=Kubuntu 14.04 Trusty 64-Bit Development  
+directory=/srv/chroot/trusty64dev 
+#personality=linux64
+root-users=dewhisna
+#run-setup-scripts=true
+#run-exec-scripts=true 
+type=directory
+users=dewhisna,testuser
+
+
+[trusty_win32] 
+description=Kubuntu 14.04 Trusty 64-Bit Windows Isolation  
+directory=/srv/chroot/trustywin32 
+#personality=linux64
+root-users=dewhisna
+#run-setup-scripts=true
+#run-exec-scripts=true
+type=directory
+users=dewhisna,testuser
+
+
+-------------------------------------------------------------------------------
+
+sudo mkdir -p /srv/chroot/trusty32dev
+sudo mkdir -p /srv/chroot/trusty64dev
+sudo mkdir -p /srv/chroot/trustywin32
+sudo debootstrap --variant=buildd --arch=i386 trusty /srv/chroot/trusty32dev http://archive.ubuntu.com/ubuntu/
+sudo debootstrap --variant=buildd --arch=amd64 trusty /srv/chroot/trusty64dev http://archive.ubuntu.com/ubuntu/
+sudo debootstrap --variant=buildd --arch=amd64 trusty /srv/chroot/trustywin32 http://archive.ubuntu.com/ubuntu/
+
+
+---- For Each ----
+
+schroot -c trusty_32dev -u root		<<< Update for each
+
+apt-get install ubuntu-minimal
+apt-get install nano
+
+Edit (with nano): /etc/apt/sources.list
+Add:
+deb http://archive.ubuntu.com/ubuntu trusty main
+deb-src http://archive.ubuntu.com/ubuntu trusty main
+deb http://us.archive.ubuntu.com/ubuntu/ trusty universe
+deb-src http://us.archive.ubuntu.com/ubuntu/ trusty universe
+deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates universe
+deb-src http://us.archive.ubuntu.com/ubuntu/ trusty-updates universe
+deb http://archive.canonical.com/ubuntu trusty partner
+deb-src http://archive.canonical.com/ubuntu trusty partner
+deb http://extras.ubuntu.com/ubuntu trusty main
+deb-src http://extras.ubuntu.com/ubuntu trusty main
+deb http://us.archive.ubuntu.com/ubuntu/ trusty multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu/ trusty multiverse
+deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+deb-src http://us.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+
+
+apt-get update
+apt-get install wget
+apt-get install joe
+apt-get install build-essential
+apt-get build-dep libqt4-dev		<<< build-dep not install!  (can't find this??)
+apt-get install gperf bison
+apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+apt-get install perl python
+apt-get install libfreetype6-dev fontconfig
+apt-get install libjpeg-dev
+apt-get install zlib1g zlib1g-dev
+apt-get install libssl-dev
+apt-get install pkg-config
+apt-get install patch patchutils
+apt-get install p7zip p7zip-full
+apt-get install unzip zip
+apt-get install apt-file
+apt-file update
+
+apt-get install lsb lsb-base lsb-core lsb-release lsb-multimedia lsb-security lsb-printing lsb-cxx lsb-graphics lsb-desktop lsb-invalid-mta
+lsb_release -a
+
+
+For win32:
+----------
+apt-get install software-properties-common
+add-apt-repository ppa:ubuntu-wine/ppa
+or add the following to /etc/apt:
+	deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main
+	deb-src http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main
+dpkg --add-architecture i386
+apt-get update
+apt-get install wine winetricks wine1.6 wine-gecko2.21 wine1.6-amd64 wine1.6-i386 wine-mono0.0.8
+
+
+For LSB-32:
+-----------
+Download:
+	lsb-sdk-4.1.8-1.ia32.tar.gz
+	lsb-app-checker-local-4.1.8-2.ia32.tar.gz
+from:
+	http://www.linuxfoundation.org/collaborate/workgroups/lsb/download
+
+tar -zxvf lsb-sdk-4.1.8-1.ia32.tar.gz
+cd lsb-sdk
+./install.sh
+cd /opt
+tar -zxvf lsb-app-checker-local-4.1.8-2.ia32.tar.gz
+chown -R root:root lsb-app-checker/
+(or cp -r from temp folder)
+
+
+For LSB-64:
+-----------
+Download:
+	lsb-sdk-4.1.8-1.x86_64.tar.gz
+	lsb-app-checker-local-4.1.8-2.x86_64.tar.gz
+from:
+	http://www.linuxfoundation.org/collaborate/workgroups/lsb/download
+
+tar -zxvf lsb-sdk-4.1.8-1.x86_64.tar.gz
+cd lsb-sdk
+./install.sh
+cd /opt
+tar -zxvf lsb-app-checker-local-4.1.8-2.x86_64.tar.gz
+chown -R root:root lsb-app-checker/
+(or cp -r from temp folder)
+
+
 
