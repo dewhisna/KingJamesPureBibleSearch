@@ -511,20 +511,20 @@ void CKJVPassageNavigator::CalcPassage()
 
 	switch (m_nRefType) {
 		case NRTE_WORD:
-			navigator.setDocumentToVerse(ndxWord, defaultDocumentToVerseFlags);
+			navigator.setDocumentToVerse(ndxWord, defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 			navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 			break;
 		case NRTE_VERSE:
-			navigator.setDocumentToVerse(ndxVerse, defaultDocumentToVerseFlags);
+			navigator.setDocumentToVerse(ndxVerse, defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 			break;
 		case NRTE_CHAPTER:
-			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Superscriptions | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters);
+			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Superscriptions | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters | CPhraseNavigator::TRO_ScriptureBrowser);
 			txtCursor = m_pEditVersePreview->textCursor();
 			txtCursor.movePosition(QTextCursor::Start);
 			m_pEditVersePreview->setTextCursor(txtCursor);
 			break;
 		case NRTE_BOOK:
-			navigator.setDocumentToBookInfo(ndxBook, defaultDocumentToBookInfoFlags);
+			navigator.setDocumentToBookInfo(ndxBook, defaultDocumentToBookInfoFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 			break;
 	}
 

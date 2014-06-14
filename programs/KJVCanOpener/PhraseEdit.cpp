@@ -1163,6 +1163,11 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		}
 	}
 
+	double nLineHeight = 1.0;
+	if (flagsTRO & TRO_ScriptureBrowser) {
+		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
@@ -1170,7 +1175,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
 										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-line; %2 }\n"
+										"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
@@ -1179,7 +1184,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont));																// Copy Font
+										.arg(strCopyFont)																// Copy Font
+										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
@@ -1326,6 +1332,11 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 	}
 
+	double nLineHeight = 1.0;
+	if (flagsTRO & TRO_ScriptureBrowser) {
+		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
@@ -1333,7 +1344,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
 										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-line; %2 }\n"
+										"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
@@ -1342,7 +1353,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont));																// Copy Font
+										.arg(strCopyFont)																// Copy Font
+										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
 
 	CRelIndex relPrev = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 	CRelIndex relNext = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), false);	// Calculate first verse of next chapter
@@ -1806,6 +1818,11 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		}
 	}
 
+	double nLineHeight = 1.0;
+	if (flagsTRO & TRO_ScriptureBrowser) {
+		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
+	}
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 //						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
@@ -1813,7 +1830,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
 										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-wrap; %2 }\n"
+										"body, p, li, .bodyIndent { white-space: pre-wrap; line-height:%3; %2 }\n"
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
@@ -1822,7 +1839,8 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n")
 										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont));																// Copy Font
+										.arg(strCopyFont)																// Copy Font
+										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
 
 	if (flagsTRO & TRO_AddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 

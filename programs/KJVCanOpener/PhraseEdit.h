@@ -384,7 +384,9 @@ public:
 		TRO_CrossRefs = 0x100,						// Add navigation anchors/text for cross-references
 		TRO_Category = 0x200,						// Add book category
 		TRO_SuppressPrePostChapters = 0x400,		// Suppress adding pre/post chapter displays
-		TRO_Copying = 0x800							// Text Copying mode (i.e. add selected font from copy option, etc)
+		TRO_Copying = 0x800,						// Text Copying mode (i.e. add selected font from copy option, etc)
+		TRO_ScriptureBrowser = 0x1000,				// Rendering Scripture Browser Text
+		TRO_SearchResults = 0x2000					// Rendering Search Results Text
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
@@ -452,8 +454,8 @@ public:
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	QString setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
 	QString setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
-	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors
-	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors
+	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
+	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();

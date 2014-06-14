@@ -795,7 +795,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual);
+	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)

@@ -963,7 +963,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 {
 	CRelIndex ndxPreview(41, 9, 1, 1);						// Goto Mark 9:1 for Preview (as it has some red-letter text)
 	CRelIndex ndxPreview2(41, 9, 3, 1);						// Goto Mark 9:3 for additional Search Results highlight so we can get all combinations of highlighters...
-	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview);
+	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 	m_pScriptureBrowser->navigator().selectWords(TPhraseTag(ndxPreview));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview, 5)));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview2, 32)));
@@ -1676,6 +1676,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
 	connect(ui.comboBoxChapterScrollbarMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedChapterScrollbarMode(int)));
 	connect(ui.comboBoxVerseRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingMode(int)));
+	connect(ui.spinBoxLineHeight, SIGNAL(valueChanged(double)), this, SLOT(en_changedLineHeight(double)));
 	connect(ui.checkBoxShowPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 
 	loadSettings();
@@ -1712,6 +1713,8 @@ void CConfigBrowserOptions::loadSettings()
 		ui.comboBoxVerseRenderingMode->setCurrentIndex(0);
 	}
 
+	ui.spinBoxLineHeight->setValue(CPersistentSettings::instance()->scriptureBrowserLineHeight());
+
 	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
 
 	m_bLoadingData = false;
@@ -1736,6 +1739,7 @@ void CConfigBrowserOptions::saveSettings()
 	} else {
 		assert(false);
 	}
+	CPersistentSettings::instance()->setScriptureBrowserLineHeight(ui.spinBoxLineHeight->value());
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
 	m_bIsDirty = false;
 }
@@ -1781,6 +1785,15 @@ void CConfigBrowserOptions::en_changedVerseRenderingMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedLineHeight(double nLineHeight)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nLineHeight);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

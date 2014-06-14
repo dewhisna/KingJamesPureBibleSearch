@@ -99,6 +99,7 @@ public:
 	CHAPTER_SCROLLBAR_MODE_ENUM chapterScrollbarMode() const { return m_pPersistentSettingData->m_nChapterScrollbarMode; }
 	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingMode() const { return m_pPersistentSettingData->m_nVerseRenderingMode; }
 	bool showPilcrowMarkers() const { return m_pPersistentSettingData->m_bShowPilcrowMarkers; }
+	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
@@ -189,6 +190,7 @@ signals:
 	void changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
 	void changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
+	void changedScriptureBrowserLineHeight(qreal nLineHeight);
 
 	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -235,6 +237,7 @@ public slots:
 	void setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
 	void setVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void setShowPilcrowMarkers(bool bShowPilcrowMarkers);
+	void setScriptureBrowserLineHeight(qreal nLineHeight);
 
 	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
@@ -309,6 +312,7 @@ private:
 		CHAPTER_SCROLLBAR_MODE_ENUM m_nChapterScrollbarMode;	// Location of Chapter Scrollbar relative to the Scripture Browser
 		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingMode;	// How to display verses within the Scripture Browser
 		bool m_bShowPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be rendered
+		qreal m_nScriptureBrowserLineHeight;			// Line-height to use in the Scripture Browser display (1.00 to 2.00 for 100% to 200% or single to double spaced)
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation

@@ -27,8 +27,8 @@
   <property name="windowTitle">
    <string>Browser Options</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="lblBrowserNavigationActivationDelay">
@@ -58,7 +58,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QLabel" name="lblBrowserPassageReferenceActivationDelay">
@@ -88,14 +88,14 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item>
     <widget class="QCheckBox" name="checkBoxShowExcludedSearchResults">
      <property name="text">
       <string>Show E&amp;xcluded Search Results</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="lblChapterScrollbarMode">
@@ -119,7 +119,7 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="lblVerseRenderingMode">
@@ -143,7 +143,53 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="lblLineHeight">
+       <property name="text">
+        <string>Line &amp;Height:</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinBoxLineHeight</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CDoubleSpinBox" name="spinBoxLineHeight">
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>2.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="checkBoxShowPilcrowMarkers">
      <property name="text">
       <string>Show &amp;Pilcrow (¶) Symbols (Paragraph Marker)</string>
@@ -158,6 +204,11 @@
    <extends>QSpinBox</extends>
    <header>SubControls.h</header>
   </customwidget>
+  <customwidget>
+   <class>CDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>SubControls.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>spinBrowserNavigationActivationDelay</tabstop>
@@ -165,6 +216,8 @@
   <tabstop>checkBoxShowExcludedSearchResults</tabstop>
   <tabstop>comboBoxChapterScrollbarMode</tabstop>
   <tabstop>comboBoxVerseRenderingMode</tabstop>
+  <tabstop>spinBoxLineHeight</tabstop>
+  <tabstop>checkBoxShowPilcrowMarkers</tabstop>
  </tabstops>
  <resources/>
  <connections/>

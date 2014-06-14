@@ -124,6 +124,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nChapterScrollbarMode(CSME_NONE),
 		m_nVerseRenderingMode(CPhraseNavigator::VRME_FF),
 		m_bShowPilcrowMarkers(true),
+		m_nScriptureBrowserLineHeight(1.0),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -289,6 +290,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nChapterScrollbarMode != pTarget->m_nChapterScrollbarMode) emit changedChapterScrollbarMode(pTarget->m_nChapterScrollbarMode);
 		if (pSource->m_nVerseRenderingMode != pTarget->m_nVerseRenderingMode) emit changedVerseRenderingMode(pTarget->m_nVerseRenderingMode);
 		if (pSource->m_bShowPilcrowMarkers != pTarget->m_bShowPilcrowMarkers) emit changedShowPilcrowMarkers(pTarget->m_bShowPilcrowMarkers);
+		if (pSource->m_nScriptureBrowserLineHeight != pTarget->m_nScriptureBrowserLineHeight) emit changedScriptureBrowserLineHeight(pTarget->m_nScriptureBrowserLineHeight);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -534,6 +536,14 @@ void CPersistentSettings::setShowPilcrowMarkers(bool bShowPilcrowMarkers)
 	if (m_pPersistentSettingData->m_bShowPilcrowMarkers != bShowPilcrowMarkers) {
 		m_pPersistentSettingData->m_bShowPilcrowMarkers = bShowPilcrowMarkers;
 		emit changedShowPilcrowMarkers(m_pPersistentSettingData->m_bShowPilcrowMarkers);
+	}
+}
+
+void CPersistentSettings::setScriptureBrowserLineHeight(qreal nLineHeight)
+{
+	if (m_pPersistentSettingData->m_nScriptureBrowserLineHeight != nLineHeight) {
+		m_pPersistentSettingData->m_nScriptureBrowserLineHeight = nLineHeight;
+		emit changedScriptureBrowserLineHeight(m_pPersistentSettingData->m_nScriptureBrowserLineHeight);
 	}
 }
 

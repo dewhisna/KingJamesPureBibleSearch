@@ -110,7 +110,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			} else {
 				CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
 				if (!bDoingSizeHint) {
-					navigator.setDocumentToVerse(item.getIndex());
+					navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_SearchResults);
 					if ((m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 						(m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 						CSearchResultHighlighter srHighlighter(item.phraseTags(), (m_model.viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
@@ -132,7 +132,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 						navigator.doHighlighting(userHighlighter);
 					}
 				} else {
-					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 				}
 			}
 		} else if (((ndxRel.chapter() != 0) ||
