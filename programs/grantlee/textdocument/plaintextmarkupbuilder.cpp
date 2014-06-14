@@ -398,8 +398,9 @@ void PlainTextMarkupBuilder::endParagraph()
   appendRawText( QLatin1String( "\n" ) );
 }
 
-void PlainTextMarkupBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+void PlainTextMarkupBuilder::beginIndent( int nBlockIndent, qreal nTextIndent, const QString &strClass )
 {
+  Q_UNUSED( strClass );
   Q_UNUSED( nBlockIndent );
   Q_UNUSED( nTextIndent );
 }

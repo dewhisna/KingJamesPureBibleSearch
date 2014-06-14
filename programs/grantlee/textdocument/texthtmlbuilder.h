@@ -142,7 +142,7 @@ public:
   /* reimp */ void beginParagraph( Qt::Alignment al = Qt::AlignLeft, qreal topMargin = 0.0, qreal bottomMargin = 0.0, qreal leftMargin = 0.0, qreal rightMargin = 0.0 );
   /* reimp */ void endParagraph();
 
-  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0 );
+  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") );
   /* reimp */ void endIndent();
 
   /**

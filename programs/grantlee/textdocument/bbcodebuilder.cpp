@@ -129,8 +129,9 @@ void BBCodeBuilder::endParagraph()
   m_currentAlignment = Qt::AlignLeft;
 }
 
-void BBCodeBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+void BBCodeBuilder::beginIndent( int nBlockIndent, qreal nTextIndent, const QString &strClass)
 {
+  Q_UNUSED( strClass );
   Q_UNUSED( nBlockIndent );
   Q_UNUSED( nTextIndent );
 }

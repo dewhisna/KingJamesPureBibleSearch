@@ -211,9 +211,13 @@ void TextHTMLBuilder::endParagraph()
   appendRawText( QLatin1String( "</p>\n" ) );
 }
 
-void TextHTMLBuilder::beginIndent( int nBlockIndent, qreal nTextIndent)
+void TextHTMLBuilder::beginIndent( int nBlockIndent, qreal nTextIndent, const QString &strClass )
 {
-  appendRawText(QString::fromLatin1("<div style=\"-qt-block-indent:%1; text-indent:%2px;\" >").arg(nBlockIndent).arg(nTextIndent));
+  if (strClass.isEmpty()) {
+	  appendRawText(QString::fromLatin1("<div style=\"-qt-block-indent:%1; text-indent:%2px;\" >").arg(nBlockIndent).arg(nTextIndent));
+  } else {
+	  appendRawText(QString::fromLatin1("<div class=\"%1\" style=\"-qt-block-indent:%2; text-indent:%3px;\" >").arg(strClass).arg(nBlockIndent).arg(nTextIndent));
+  }
 }
 
 void TextHTMLBuilder::endIndent()

@@ -104,7 +104,7 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
 # Was fixed on the Mac in Qt5.3.0 -- having this defined caused a (non-fatal) redundant definition:
-!emscripten:!win32:if(!contains(QT_CONFIG, static) | if(lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3))):QTPLUGIN += qtaccessiblewidgets
+!emscripten:!win32:if(!contains(QT_CONFIG, static) | lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qtaccessiblewidgets
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE

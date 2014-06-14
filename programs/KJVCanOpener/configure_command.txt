@@ -97,7 +97,7 @@ Qt 4.8.5
 Linux
 -----
 Linux LOCAL BUILD (x64 release):
-../4.8.5-src/configure -platform linux-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.5-64-local
+../4.8.5-src/configure -platform linux-g++-64 -opensource -release -static -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -prefix /usr/local/Trolltech/Qt-4.8.5-64-local -confirm-license
 
 
 Linux LSB Build:
