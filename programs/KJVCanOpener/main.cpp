@@ -65,30 +65,6 @@ namespace {
 
 	//////////////////////////////////////////////////////////////////////
 
-#ifdef Q_OS_ANDROID
-	// --------------------------------------------------------------------------------------------------------- Android ------------------------
-// Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
-//	const char *g_constrPluginsPath = "assets:/plugins/";
-//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
-#elif defined(Q_OS_IOS)
-	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
-	const char *g_constrPluginsPath = "./Frameworks/";
-#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
-	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
-	const char *g_constrPluginsPath = "../Frameworks/";
-#elif defined(EMSCRIPTEN)
-	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
-	// No plugins on Empscripten
-#elif defined(VNCSERVER)
-	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-#else
-	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-#endif
-
-	//////////////////////////////////////////////////////////////////////
-
 }	// namespace
 
 // ============================================================================
@@ -125,18 +101,6 @@ int main(int argc, char *argv[])
 	// Workaround the dark background/contrast android dialogs on some devices by switching
 	//		to native dialogs:
 	qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
-#endif
-
-	// Setup our SQL/Image and Platform Plugin paths.  Need to do this before we
-	//	instantiate QApplication object or else it won't be able to find the
-	//	platform plugin (on Qt 5.x particularly):
-#if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
-#ifdef Q_OS_ANDROID		// Prepare for Android in case we ever need to add plugins to it
-	QFileInfo fiPlugins(QDir::homePath(), g_constrPluginsPath);
-#else
-	QFileInfo fiPlugins(QCoreApplication::applicationDirPath(), g_constrPluginsPath);
-#endif
-	QCoreApplication::addLibraryPath(fiPlugins.absolutePath());
 #endif
 
 	CMyApplication *pApp = new CMyApplication(argc, argv);

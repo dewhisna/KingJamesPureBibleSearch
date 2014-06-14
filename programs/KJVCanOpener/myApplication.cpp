@@ -122,21 +122,31 @@ namespace {
 
 #ifdef Q_OS_ANDROID
 	// --------------------------------------------------------------------------------------------------------- Android ------------------------
+// Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
+//	const char *g_constrPluginsPath = "assets:/plugins/";
+//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
+
 	const char *g_constrBibleDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../qt-reserved-files/files/KJVCanOpener/translations/";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
+	const char *g_constrPluginsPath = "./Frameworks/";
+
 	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
+	const char *g_constrPluginsPath = "../Frameworks/";
+
 	const char *g_constrBibleDatabasePath = "../Resources/db/";
 	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
 	const char *g_constrTranslationsPath = "../Resources/translations/";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
+	// No plugins on Empscripten
+
 	#ifdef EMSCRIPTEN_NATIVE
 		const char *g_constrBibleDatabasePath = "./data/";
 		const char *g_constrTranslationsPath = "./data/";
@@ -146,11 +156,15 @@ namespace {
 	#endif
 #elif defined(VNCSERVER)
 	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
+	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
 #else
 	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
+	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
@@ -536,6 +550,17 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	m_strInitialAppDirPath = applicationDirPath();
 #endif
 	m_strStartupStyleSheet = styleSheet();
+
+	// Setup our SQL/Image and Platform Plugin paths.  Ideally, this would be
+	//	done in main() before instantiating the object in order to make the
+	//	Platform plugins to work correctly on Qt 5, however, the
+	//	QCoreApplication::applicationDirPath() can't be called until after the
+	//	QApplication object has been instantiated.  So, we'll just have to put
+	//	the Platform plugins in the app folder:
+#if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
+	QFileInfo fiPlugins(m_strInitialAppDirPath, g_constrPluginsPath);
+	QCoreApplication::addLibraryPath(fiPlugins.absolutePath());
+#endif
 
 	if (m_strStartupStyleSheet.startsWith(QLatin1String("file:///"))) {
 		// If the startupStyleSheet was a file, read it:
