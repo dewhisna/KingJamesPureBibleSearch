@@ -158,7 +158,7 @@ no-pkg-config
 Qt 4.8.5 -- Win32 Cross-Compile [Kubuntu Packaged MinGW]
 --------------------------------------------------------
 
-Built with: Kubuntu cross-compile package for MinGW: mingw-w64, g++-mingw-w64, gcc-mingw-64, gcc-mingw-w64-base, mingw-w64-i686-dev, mingw-w64-x86-64-dev, g++-mingw-w64-i686, gcc-mingw-w64-i686, g++-mingw-w64-x86-64, gcc-mingw-w64-x86-64, mingw-w64-common, binutils-mingw-w64, binutils-mingw-w64-i686, binutils-mingw-x86-64, mingw-w64-tools, mingw32-binutils, mingw32, mingw32-runtime
+Built with: Kubuntu cross-compile package for MinGW: mingw-w64, g++-mingw-w64, gcc-mingw-w64, gcc-mingw-w64-base, mingw-w64-i686-dev, mingw-w64-x86-64-dev, g++-mingw-w64-i686, gcc-mingw-w64-i686, g++-mingw-w64-x86-64, gcc-mingw-w64-x86-64, mingw-w64-common, binutils-mingw-w64, binutils-mingw-w64-i686, binutils-mingw-w64-x86-64, mingw-w64-tools, mingw32-binutils, mingw32, mingw32-runtime
 
 ../4.8.5-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.5-win32-kubuntu -confirm-license 
 
