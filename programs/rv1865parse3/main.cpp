@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 				}
 
 				if ((nDocVerse == 0) &&
-					(nBk+1 == 19) &&
+					(nBk+1 == PSALMS_BOOK_NUM) &&
 					(strLine.left(1).compare(QString::fromUtf8("«")) == 0) &&
 					(strLine.right(1).compare(QString::fromUtf8("»")) == 0)) {
 					fileOut.write("<title type=\"psalm\" canonical=\"true\">");
@@ -317,6 +317,43 @@ int main(int argc, char *argv[])
 				} else {
 					fileOut.write(QString("<verse osisID=\"%1.%2.%3\" sID=\"%1.%2.%3\"/>").arg(strOsisAbbr).arg(nChp+1).arg(nVrs+1).toUtf8().data());
 //					fileOut.write(QString("<verse osisID=\"%1.%2.%3\">").arg(strOsisAbbr).arg(nChp+1).arg(nVrs+1).toUtf8().data());
+					if ((nBk+1 == PSALMS_BOOK_NUM) && (nChp+1 == 119) &&
+						((nVrs % 8) == 0)) {
+						// Add Psalm 119 acrostics:
+						QString strLetterName;
+						QChar qcHebrewLetter;
+						switch (nVrs/8) {
+							// Spellings here as per RV1865 document:
+							case 0:		strLetterName = "ALEF";		qcHebrewLetter = QChar(0x005D0);	break;
+							case 1:		strLetterName = "BET";		qcHebrewLetter = QChar(0x005D1);	break;
+							case 2:		strLetterName = "GIMEL";	qcHebrewLetter = QChar(0x005D2);	break;
+							case 3:		strLetterName = "DALET";	qcHebrewLetter = QChar(0x005D3);	break;
+							case 4:		strLetterName = "HE";		qcHebrewLetter = QChar(0x005D4);	break;
+							case 5:		strLetterName = "VAU";		qcHebrewLetter = QChar(0x005D5);	break;
+							case 6:		strLetterName = "ZAIN";		qcHebrewLetter = QChar(0x005D6);	break;
+							case 7:		strLetterName = "HET";		qcHebrewLetter = QChar(0x005D7);	break;
+							case 8:		strLetterName = "TET";		qcHebrewLetter = QChar(0x005D8);	break;
+							case 9:		strLetterName = "JOD";		qcHebrewLetter = QChar(0x005D9);	break;
+							case 10:	strLetterName = "CAF";		qcHebrewLetter = QChar(0x005DB);	break;	// Using nonfinal-Caph
+							case 11:	strLetterName = "LAMED";	qcHebrewLetter = QChar(0x005DC);	break;
+							case 12:	strLetterName = "MEM";		qcHebrewLetter = QChar(0x005DE);	break;	// Using nonfinal-Mem
+							case 13:	strLetterName = "NUN";		qcHebrewLetter = QChar(0x005E0);	break;	// Using nonfinal-Nun
+							case 14:	strLetterName = "SAMEC";	qcHebrewLetter = QChar(0x005E1);	break;
+							case 15:	strLetterName = "AIN";		qcHebrewLetter = QChar(0x005E2);	break;
+							case 16:	strLetterName = "PE";		qcHebrewLetter = QChar(0x005E4);	break;	// Using nonfinal-Pe
+							case 17:	strLetterName = "ZADE";		qcHebrewLetter = QChar(0x005E6);	break;	// Using nonfinal-Tzaddi
+							case 18:	strLetterName = "COF";		qcHebrewLetter = QChar(0x005E7);	break;
+							case 19:	strLetterName = "RES";		qcHebrewLetter = QChar(0x005E8);	break;
+							case 20:	strLetterName = "SIN";		qcHebrewLetter = QChar(0x005E9);	break;
+							case 21:	strLetterName = "TAU";		qcHebrewLetter = QChar(0x005EA);	break;
+							default:	break;
+						}
+						if (!strLetterName.isEmpty()) {
+							fileOut.write(QString("<title type=\"acrostic\" canonical=\"true\"><foreign n=\"%1\">%2.</foreign></title>").arg(qcHebrewLetter).arg(strLetterName).toUtf8().data());
+						} else {
+							std::cerr << QString("Error : Invalid Hebrew Acrostic index for Verse %1\n").arg(nVrs+1).toUtf8().data();
+						}
+					}
 					fileOut.write(convertVerseText(strLine).toUtf8().data());
 					fileOut.write(QString("<verse eID=\"%1.%2.%3\"/>\n").arg(strOsisAbbr).arg(nChp+1).arg(nVrs+1).toUtf8().data());
 //					fileOut.write(QString("</verse>\n").toUtf8().data());
@@ -340,7 +377,7 @@ int main(int argc, char *argv[])
 
 		fileOut.write("</div>\n");
 
-		if (nBk == NUM_BK_OT-1) {
+		if (nBk+1 == NUM_BK_OT) {
 			fileOut.write("</div>\n");
 			fileOut.write("<div type=\"x-testament\">\n");
 		}
