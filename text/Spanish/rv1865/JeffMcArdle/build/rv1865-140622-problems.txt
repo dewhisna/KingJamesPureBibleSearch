@@ -1,0 +1,49 @@
+Errors:
+
+Note: Paragraph markers are generally broken -- many missing and/or in wrong locations
+
+
+Gen 18:32 - Extra character after verse number
+
+Deut 27:1 - Missing Verse Number
+
+1 Sam 20:43 - There shouldn't be a verse 43.  That text should be part of verse 42
+
+1 Chr 3 -- Verse 23 is mixed into 22
+	22 Hijo de Sequenias [fue] Semeías. Y los hijos de Semeías [fueron] Harus, Jegaal, Barias, Naarias, Safat, seis. Los hijos de Naarias [fueron] estos tres, Elioenai, Ezequías, y Ezricam.
+	23 Los hijos de Elioenai [fueron] estos siete, Oduias, Eliasub, Pelaías, Accub, Johanán, Dalaias, Anani.
+Should be:
+	22 Hijo de Sequenias [fue] Semeías. Y los hijos de Semeías [fueron] Harus, Jegaal, Barias, Naarias, Safat, seis.
+	23 Los hijos de Naarias [fueron] estos tres, Elioenai, Ezequías, y Ezricam.
+	24 Los hijos de Elioenai [fueron] estos siete, Oduias, Eliasub, Pelaías, Accub, Johanán, Dalaias, Anani.
+
+1 Chr 29:30 - Italics Start on wrong side of space
+
+2 Chr 16:15 - There shouldn't be a verse 15.  That text should be part of verse 14
+
+2 Chr 33 -- Verse 11 is mixed into verse 10
+	10 Y Jehová hablo a Manasés y a su pueblo; mas ellos no escucharon: por lo cual Jehová trajo contra ellos los príncipes del ejército del rey de los Asirios, los cuales echaron en grillos a Manasés: y atado con [dos] cadenas le llevaron a Babilonia.
+Should be:
+	10 Y Jehová hablo a Manasés y a su pueblo; mas ellos no escucharon:
+	11 por lo cual Jehová trajo contra ellos los príncipes del ejército del rey de los Asirios, los cuales echaron en grillos a Manasés: y atado con [dos] cadenas le llevaron a Babilonia.
+And every verse after that in that chapter should be numbered one higher!
+
+Ps 13 -- Verse 6 is mixed into verse 5
+	5 Mas yo en tu misericordia he confiado: alegrarse ha mi corazón en tu salud. Cantaré a Jehová; porque me ha hecho bien.
+Should be:
+	5 Mas yo en tu misericordia he confiado: alegrarse ha mi corazón en tu salud.
+	6 Cantaré a Jehová; porque me ha hecho bien.
+
+Jer 39 -- Verse 18 is mixed into verse 17
+	17 Y en aquel día [yo] te libraré, dijo Jehová, y no serás entregado en mano de aquellos de quien tú tienes temor; porque escapando te escaparé, y no caerás a espada, y tu vida te será por despojo, porque tuviste confianza en mí, dijo Jehová.
+should be:
+	17 Y en aquel día [yo] te libraré, dijo Jehová, y no serás entregado en mano de aquellos de quien tú tienes temor;
+	18 porque escapando te escaparé, y no caerás a espada, y tu vida te será por despojo, porque tuviste confianza en mí, dijo Jehová.
+
+Hos 13-14 -- Hosea 13 should have 16 verses (not 15) and Hosea 14 should have 9 verses (not 10).  The first verse of Hosea 14 should be in Hosea 13!!
+
+Jonah 1-2 -- Jonah 1 should have 17 verses (not 16) and Jonah 2 should have 10 veress (not 11).  The first verse of Jonah 2 should be in Jonah 1!!
+
+Luke 15:29 -- The "2" from the verse number is in italics and shouldn't be
+
+
