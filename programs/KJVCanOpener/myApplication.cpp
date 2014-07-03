@@ -138,7 +138,7 @@ namespace {
 	const char *g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
-	const char *g_constrPluginsPath = "../Frameworks/";
+	const char *g_constrPluginsPath = "../PlugIns/";
 
 	const char *g_constrBibleDatabasePath = "../Resources/db/";
 	const char *g_constrDictionaryDatabasePath = "../Resources/db/";

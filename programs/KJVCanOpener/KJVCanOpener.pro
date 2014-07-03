@@ -152,8 +152,8 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 emscripten:DEFINES += USE_ASYNC_DIALOGS
 
 # Enable Gesture/TouchDevice processing:
-#if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
-greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+if(ios | android):greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
+#greaterThan(QT_MAJOR_VERSION,4):DEFINES += TOUCH_GESTURE_PROCESSING
 
 # Saving/Restoring of KJVCanOpener Window State/Geometry and Splitter State:
 !android:!ios:DEFINES += PRESERVE_MAINWINDOW_GEOMETRY						# Physical size and layout of KJVCanOpener
@@ -542,7 +542,7 @@ macx {
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/info.nib
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/keyedobjects.nib
 		nibDeploy.path = /Contents/Resources/qt_menu.nib
-		dbDeploy.files =  ../../KJVCanOpener/db/bbl-kjv1769.ccdb ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files =  ../../KJVCanOpener/db/bbl-kjv1769.ccdb ../../KJVCanOpener/db/bbl-rvg2010.ccdb ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /Contents/Resources/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
@@ -593,6 +593,21 @@ macx {
 		!isEmpty(TRANSLATIONS) {
 			translationDeploy.path = /Contents/Resources/translations
 			QMAKE_BUNDLE_DATA += translationDeploy
+		}
+
+		greaterThan(QT_MAJOR_VERSION,4):shared:qt_framework {
+			exists($$[QT_INSTALL_BINS]/macdeployqt) {
+				QMAKE_POST_LINK += $$quote(@echo Deploying...$$escape_expand(\\n\\t))
+				contains(QTPLUGIN, qplastiquestyle) {
+					QMAKE_POST_LINK += $$quote(mkdir -p KingJamesPureBibleSearch.app/Contents/PlugIns/styles$$escape_expand(\\n\\t))
+					QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_PLUGINS]/styles/libqplastiquestyle.dylib $${TARGET}.app/Contents/PlugIns/styles/$$escape_expand(\\n\\t))
+					QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/macdeployqt $${TARGET}.app -executable=$${TARGET}.app/Contents/PlugIns/styles/libqplastiquestyle.dylib$$escape_expand(\\n\\t))
+				} else {
+					QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/macdeployqt $${TARGET}.app$$escape_expand(\\n\\t))
+				}
+			} else {
+				error("Can't deploy Qt Framework bundle!")
+			}
 		}
 	}
 }
