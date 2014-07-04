@@ -2534,13 +2534,24 @@ void CKJVCanOpener::setDetailsEnable()
 
 // ------------------------------------------------------------------
 
+int CKJVCanOpener::confirmFollowLink()
+{
+	return QMessageBox::question(this, windowTitle(), tr("Following this link will launch an external browser on your system.  "
+														"Doing so may incur extra charges from your service provider.\n\n"
+														"Do you wish to follow this link?", "Errors"),
+														QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+														QMessageBox::No);
+}
+
 void CKJVCanOpener::en_HelpManual()
 {
 #if defined(EMSCRIPTEN)
 	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 #elif defined(VNCSERVER)
 #elif defined(Q_OS_ANDROID)
-	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+	if (confirmFollowLink() == QMessageBox::Yes) {
+		QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+	}
 #else
 	assert(g_pMyApplication.data() != NULL);
 
@@ -2569,11 +2580,13 @@ void CKJVCanOpener::en_HelpAbout()
 void CKJVCanOpener::en_PureBibleSearchDotCom()
 {
 #ifndef VNCSERVER
-	if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
+	if (confirmFollowLink() == QMessageBox::Yes) {
+		if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
 #ifndef EMSCRIPTEN
-		QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
-													 "http://www.PureBibleSearch.com/", "Errors"));
+			QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
+														 "%1", "Errors").arg(g_constrPureBibleSearchURL));
 #endif
+		}
 	}
 #endif
 }

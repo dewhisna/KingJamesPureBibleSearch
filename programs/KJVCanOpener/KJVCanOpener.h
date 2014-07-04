@@ -139,6 +139,7 @@ signals:
 
 public:
 	static QString determineBibleUUIDForKJVSearchFile(const QString &strFilePathName);
+	int confirmFollowLink();					// Returns either QMessageBox::Yes or QMessageBox::No
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);

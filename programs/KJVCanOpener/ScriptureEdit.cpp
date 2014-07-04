@@ -50,6 +50,8 @@
 #include <QHelpEvent>
 #include <QKeyEvent>
 #include <QColor>
+#include <QMessageBox>
+#include <QDesktopServices>
 
 #ifdef TOUCH_GESTURE_PROCESSING
 //#include <QGestureEvent>
@@ -1052,38 +1054,61 @@ template<class T, class U>
 void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 {
 	QString strAnchor = link.toString();
-	if (strAnchor.startsWith(QChar('N'))) {
-		CRelIndex ndxLink(strAnchor.mid(1));
-		assert(ndxLink.isSet());
-		if (!ndxLink.isSet()) return;
+	QString strScheme = link.scheme();
+	if (strScheme.isEmpty()) {
+		if (strAnchor.startsWith(QChar('N'))) {
+			CRelIndex ndxLink(strAnchor.mid(1));
+			assert(ndxLink.isSet());
+			if (!ndxLink.isSet()) return;
 
-		assert(g_pUserNotesDatabase.data() != NULL);
-		assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
-		if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
+			assert(g_pUserNotesDatabase.data() != NULL);
+			assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
+			if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
 
-		if ((ndxLink.chapter() == 0) &&
-			(ndxLink.book() == m_ndxCurrent.book())) {
-			if (m_ndxCurrent.chapter() == 1) {
-				m_tagLastActive = TPhraseTag(CRelIndex(ndxLink.book(), 1, 0, 0));
-			} else if (m_ndxCurrent.chapter() == m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp) {
-				m_tagLastActive = TPhraseTag(ndxLink);
-				m_tagLastActive.relIndex().setChapter(m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp);
-				m_tagLastActive.relIndex().setVerse(m_pBibleDatabase->chapterEntry(m_tagLastActive.relIndex())->m_nNumVrs);
-				m_tagLastActive.relIndex().setWord(m_pBibleDatabase->verseEntry(m_tagLastActive.relIndex())->m_nNumWrd);
+			if ((ndxLink.chapter() == 0) &&
+				(ndxLink.book() == m_ndxCurrent.book())) {
+				if (m_ndxCurrent.chapter() == 1) {
+					m_tagLastActive = TPhraseTag(CRelIndex(ndxLink.book(), 1, 0, 0));
+				} else if (m_ndxCurrent.chapter() == m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp) {
+					m_tagLastActive = TPhraseTag(ndxLink);
+					m_tagLastActive.relIndex().setChapter(m_pBibleDatabase->bookEntry(ndxLink.book())->m_nNumChp);
+					m_tagLastActive.relIndex().setVerse(m_pBibleDatabase->chapterEntry(m_tagLastActive.relIndex())->m_nNumVrs);
+					m_tagLastActive.relIndex().setWord(m_pBibleDatabase->verseEntry(m_tagLastActive.relIndex())->m_nNumWrd);
+				}
 			}
+
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
+			userNote.setIsVisible(!userNote.isVisible());
+			g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
+
+			// Note: The Note change above will automatically trigger a rerender()
+		} else if (strAnchor.startsWith(QChar('R'))) {
+			CRelIndex ndxLink(strAnchor.mid(1));
+			assert(ndxLink.isSet());
+			if (!ndxLink.isSet()) return;
+
+			emit T::gotoIndex(TPhraseTag(ndxLink));
 		}
+	} else {
+#ifndef VNCSERVER
+		if ((strScheme.compare("http", Qt::CaseInsensitive) == 0) ||
+			(strScheme.compare("https", Qt::CaseInsensitive) == 0) ||
+			(strScheme.compare("ftp", Qt::CaseInsensitive) == 0) ||
+			(strScheme.compare("ftps", Qt::CaseInsensitive) == 0) ||
+			(strScheme.compare("sftp", Qt::CaseInsensitive) == 0)) {
 
-		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
-		userNote.setIsVisible(!userNote.isVisible());
-		g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
-
-		// Note: The Note change above will automatically trigger a rerender()
-	} else if (strAnchor.startsWith(QChar('R'))) {
-		CRelIndex ndxLink(strAnchor.mid(1));
-		assert(ndxLink.isSet());
-		if (!ndxLink.isSet()) return;
-
-		emit T::gotoIndex(TPhraseTag(ndxLink));
+#ifndef EMSCRIPTEN
+			if (parentCanOpener()->confirmFollowLink() == QMessageBox::Yes) {
+				if (!QDesktopServices::openUrl(link)) {
+					QMessageBox::warning(this, parentCanOpener()->windowTitle(), CKJVCanOpener::tr("Unable to open a System Web Browser for\n\n"
+																									"%1", "Errors").arg(strAnchor));
+				}
+			}
+#else
+			QDesktopServices::openUrl(link);
+#endif
+		}
+#endif
 	}
 }
 
