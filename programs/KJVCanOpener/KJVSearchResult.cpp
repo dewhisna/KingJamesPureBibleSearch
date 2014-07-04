@@ -405,11 +405,9 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 
 // ----------------------------------------------------------------------------
 
-void CSearchResultsTreeView::en_copyVerseText() const
+QMimeData *CSearchResultsTreeView::mimeDataFromVerseText(const QModelIndexList &lstVerses) const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QModelIndexList lstVerses = getSelectedVerses();
 
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
@@ -443,29 +441,15 @@ void CSearchResultsTreeView::en_copyVerseText() const
 		}
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
-	clipboard->setMimeData(mime);
-	displayCopyCompleteToolTip();
+	return mime;
 }
 
-void CSearchResultsTreeView::en_copyRaw() const
-{
-	copyRawCommon(false);
-}
-
-void CSearchResultsTreeView::en_copyVeryRaw() const
-{
-	copyRawCommon(true);
-}
-
-void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
+QMimeData *CSearchResultsTreeView::mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QModelIndexList lstVerses = getSelectedVerses();
 
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
@@ -480,47 +464,35 @@ void CSearchResultsTreeView::copyRawCommon(bool bVeryRaw) const
 		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(strText);
-	clipboard->setMimeData(mime);
-	displayCopyCompleteToolTip();
+	return mime;
 }
 
-void CSearchResultsTreeView::en_copyVerseHeadings() const
+QMimeData *CSearchResultsTreeView::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const
 {
 	QString strVerseHeadings;
 
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
 		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
-		QModelIndexList lstSelectedItems = selectionModel()->selectedRows();
-
-		for (int ndx = 0; ndx < lstSelectedItems.size(); ++ndx) {
-			if (lstSelectedItems.at(ndx).isValid()) {
-				CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(ndx));
-				if (ndxRel.isSet()) strVerseHeadings += vlmodel()->bibleDatabase()->PassageReferenceText(ndxRel) + "\n";
-			}
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstVerses.at(ndx));
+			if (ndxRel.isSet()) strVerseHeadings += vlmodel()->bibleDatabase()->PassageReferenceText(ndxRel) + "\n";
 		}
 	} else {
-		QModelIndexList lstVerses = getSelectedVerses();
-
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 			strVerseHeadings += item.getHeading(true) + "\n";
 		}
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(strVerseHeadings);
-	clipboard->setMimeData(mime);
-	displayCopyCompleteToolTip();
+	return mime;
 }
 
-void CSearchResultsTreeView::en_copyReferenceDetails() const
+QMimeData *CSearchResultsTreeView::mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const
 {
-	QModelIndexList lstVerses = getSelectedVerses();
-
 	QString strPlainText;
 	QString strRichText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
@@ -532,19 +504,15 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 		strRichText += vlmodel()->data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(strPlainText);
 	mime->setHtml(strRichText);
-	clipboard->setMimeData(mime);
-	displayCopyCompleteToolTip();
+	return mime;
 }
 
-void CSearchResultsTreeView::en_copyComplete() const
+QMimeData *CSearchResultsTreeView::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const
 {
 	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QModelIndexList lstVerses = getSelectedVerses();
 
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
@@ -581,10 +549,91 @@ void CSearchResultsTreeView::en_copyComplete() const
 		}
 	}
 
-	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData *mime = new QMimeData();
 	mime->setText(docList.toPlainText());
 	mime->setHtml(docList.toHtml());
+	return mime;
+}
+
+// ----------------------------------------------------------------------------
+
+void CSearchResultsTreeView::en_copyVerseText() const
+{
+	QMimeData *mime = mimeDataFromVerseText(getSelectedVerses());
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::en_copyRaw() const
+{
+	QMimeData *mime = mimeDataFromRawVerseText(getSelectedVerses(), false);
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::en_copyVeryRaw() const
+{
+	QMimeData *mime = mimeDataFromRawVerseText(getSelectedVerses(), true);
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::en_copyVerseHeadings() const
+{
+	QModelIndexList lstVerses;
+
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
+		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
+		lstVerses = selectionModel()->selectedRows();
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			if (!lstVerses.at(ndx).isValid()) {
+				lstVerses.removeAt(ndx);
+				--ndx;
+			}
+		}
+	} else {
+		lstVerses = getSelectedVerses();
+	}
+
+	QMimeData *mime = mimeDataFromVerseHeadings(lstVerses);
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::en_copyReferenceDetails() const
+{
+	QMimeData *mime = mimeDataFromReferenceDetails(getSelectedVerses());
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
+void CSearchResultsTreeView::en_copyComplete() const
+{
+	QMimeData *mime = mimeDataFromCompleteVerseDetails(getSelectedVerses());
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }

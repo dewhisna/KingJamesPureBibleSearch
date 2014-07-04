@@ -61,6 +61,7 @@
 // Forward declarations:
 class CKJVCanOpener;
 class CReflowDelegate;
+class QMimeData;
 
 class CNoteKeywordWidget;
 
@@ -105,6 +106,12 @@ public:
 	QModelIndexList getSelectedVerses() const;
 
 	CKJVCanOpener *parentCanOpener() const;
+
+	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const;
+	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const;
 
 protected slots:
 	void en_findParentCanOpener();
@@ -171,7 +178,6 @@ protected:
 	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 	virtual void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);
 
-	void copyRawCommon(bool bVeryRaw) const;
 	void handle_selectionChanged();
 	void displayCopyCompleteToolTip() const;
 
