@@ -569,6 +569,20 @@ Using Prebuilt Qt x86_64 with dynamic framework...  ~/Qt/5.3.1-ios install...
 I couldn't ever get it to build statically for 32-bit without issues of either global symbols or multiply defined functions.  So I'm punting and dropping 32-bit support.  This will mean we can only target OSX 10.6+ and 64-bit only.
 
 
+Linux
+-----
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.3.1 (note: doesn't build docs)
+../5.3.1-src/configure -platform linux-g++-64 -release -force-debug-info -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.3.1-64-local -confirm-license 
+
+use:  make -j 16 (or higher)
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
+
+
 ===============================================================================
 ===============================================================================
 
@@ -1009,9 +1023,8 @@ make install
 -------------------------------------------------------------------------------
 
 
-
-Mac 5.3.1-64-local:
--------------------
+Mac 5.3.1-64-local (dynamicQt):
+-------------------------------
 -----
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_3_1_64_local
@@ -1021,6 +1034,47 @@ make
 make install
 -----
 
+
+Linux 5.3.1-64-local (dynamicQt):
+-------------------------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_3_1_64_local
+cd build-qtstyleplugins-5_3_1_64_local
+/usr/local/Trolltech/Qt-5.3.1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+sudo make install
+-----
+
+
+Android 5.3.1 (armeabi_v7a):
+----------------------------
+
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_3_1_android_armv7_gcc_4_8
+cd build-qtstyleplugins-5_3_1_android_armv7_gcc_4_8
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
+export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
+~/Qt/5.3.1-android/5.3/android_armv7/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+
+Android 5.3.1 (x86):
+--------------------
+
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_3_1_android_x86_gcc_4_8
+cd build-qtstyleplugins-5_3_1_android_x86_gcc_4_8
+export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
+export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
+~/Qt/5.3.1-android/5.3/android_x86/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
 
 
 ===============================================================================
