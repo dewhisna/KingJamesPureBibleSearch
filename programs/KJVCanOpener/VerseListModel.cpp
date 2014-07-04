@@ -1093,8 +1093,7 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		return Qt::MoveAction;
 	} else {
-		return Qt::IgnoreAction;
-//		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 	}
 }
 
@@ -1175,85 +1174,89 @@ QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent)
 {
 	if (nAction == Qt::IgnoreAction) return true;
-	if (nAction != Qt::MoveAction) return false;
 
 	Q_UNUSED(nRow);
 	Q_UNUSED(nColumn);
 
 	assert(pData != NULL);
 	if (pData == NULL) return false;
-	if (!pData->hasFormat(g_constrHighlighterPhraseTagListMimeType)) return false;
 
-	if (!zParent.isValid()) return false;
+	if ((nAction == Qt::MoveAction) &&
+		(m_private.m_nViewMode == VVME_HIGHLIGHTERS) &&
+		(pData->hasFormat(g_constrHighlighterPhraseTagListMimeType))) {
+		if (!zParent.isValid()) return false;
 
-	TVerseIndex *pVerseIndex = toVerseIndex(zParent);
-	assert(pVerseIndex != NULL);
-	if (pVerseIndex == NULL) return false;
-	assert(pVerseIndex->nodeType() == VLMNTE_HIGHLIGHTER_NODE);
-	const CVerseListModel::TVerseListModelResults &zResults = results(zParent);
-	QString strTargetHighlighter = zResults.resultsName();
-	assert(m_private.m_pUserNotesDatabase->existsHighlighter(strTargetHighlighter));
-	if (!m_private.m_pUserNotesDatabase->existsHighlighter(strTargetHighlighter)) return false;
-	assert(zResults.resultsType() == VLMRTE_HIGHLIGHTERS);
-	if (zResults.resultsType() != VLMRTE_HIGHLIGHTERS) return false;
+		TVerseIndex *pVerseIndex = toVerseIndex(zParent);
+		assert(pVerseIndex != NULL);
+		if (pVerseIndex == NULL) return false;
+		assert(pVerseIndex->nodeType() == VLMNTE_HIGHLIGHTER_NODE);
+		const CVerseListModel::TVerseListModelResults &zResults = results(zParent);
+		QString strTargetHighlighter = zResults.resultsName();
+		assert(m_private.m_pUserNotesDatabase->existsHighlighter(strTargetHighlighter));
+		if (!m_private.m_pUserNotesDatabase->existsHighlighter(strTargetHighlighter)) return false;
+		assert(zResults.resultsType() == VLMRTE_HIGHLIGHTERS);
+		if (zResults.resultsType() != VLMRTE_HIGHLIGHTERS) return false;
 
-	QByteArray baEncodedData = pData->data(g_constrHighlighterPhraseTagListMimeType);
-	QDataStream stream(&baEncodedData, QIODevice::ReadOnly);
-	QList< QPair<QString, CRelIndex> > lstHighlighterIndexPairs;
+		QByteArray baEncodedData = pData->data(g_constrHighlighterPhraseTagListMimeType);
+		QDataStream stream(&baEncodedData, QIODevice::ReadOnly);
+		QList< QPair<QString, CRelIndex> > lstHighlighterIndexPairs;
 
-	bool bHaveAtLeastOneUniqueSource = false;			// Set to true if at least one source highlighter is different from the target (i.e. if we have something to move)
-	while (!stream.atEnd()) {
-		QString strHighlighter;
-		QString strTagAnchor;
-		stream >> strHighlighter;
-		stream >> strTagAnchor;
-		CRelIndex ndxTagAnchor(strTagAnchor);
-		assert(ndxTagAnchor.isSet());
-		if (!ndxTagAnchor.isSet()) continue;
-		lstHighlighterIndexPairs << qMakePair(strHighlighter, ndxTagAnchor);
-		if (strHighlighter.compare(strTargetHighlighter) != 0) bHaveAtLeastOneUniqueSource = true;
-		assert(m_private.m_pUserNotesDatabase->existsHighlighter(strHighlighter));
-		if (!m_private.m_pUserNotesDatabase->existsHighlighter(strHighlighter)) return false;
-		const CVerseListModel::TVerseListModelResults &zTargetResults = highlighterResults(strHighlighter);
-		assert(zTargetResults.resultsType() == VLMRTE_HIGHLIGHTERS);
-		if (zTargetResults.resultsType() != VLMRTE_HIGHLIGHTERS) return false;
-		assert(zTargetResults.m_mapVerses.contains(ndxTagAnchor));
-		if (!zTargetResults.m_mapVerses.contains(ndxTagAnchor)) return false;
+		bool bHaveAtLeastOneUniqueSource = false;			// Set to true if at least one source highlighter is different from the target (i.e. if we have something to move)
+		while (!stream.atEnd()) {
+			QString strHighlighter;
+			QString strTagAnchor;
+			stream >> strHighlighter;
+			stream >> strTagAnchor;
+			CRelIndex ndxTagAnchor(strTagAnchor);
+			assert(ndxTagAnchor.isSet());
+			if (!ndxTagAnchor.isSet()) continue;
+			lstHighlighterIndexPairs << qMakePair(strHighlighter, ndxTagAnchor);
+			if (strHighlighter.compare(strTargetHighlighter) != 0) bHaveAtLeastOneUniqueSource = true;
+			assert(m_private.m_pUserNotesDatabase->existsHighlighter(strHighlighter));
+			if (!m_private.m_pUserNotesDatabase->existsHighlighter(strHighlighter)) return false;
+			const CVerseListModel::TVerseListModelResults &zTargetResults = highlighterResults(strHighlighter);
+			assert(zTargetResults.resultsType() == VLMRTE_HIGHLIGHTERS);
+			if (zTargetResults.resultsType() != VLMRTE_HIGHLIGHTERS) return false;
+			assert(zTargetResults.m_mapVerses.contains(ndxTagAnchor));
+			if (!zTargetResults.m_mapVerses.contains(ndxTagAnchor)) return false;
+		}
+		if (!bHaveAtLeastOneUniqueSource) return false;
+
+		assert(g_pMyApplication.data() != NULL);
+		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
+		assert(pCanOpener != NULL);
+
+		int nResult = QMessageBox::information(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
+											   tr("You are about to move the selected verse highlighting to the \"%1\" highlighter.  This will "
+												  "merge those passages into this target highlighter, changing their color to match the target "
+												  "highlighter.  This operation cannot be undone!\n\n"
+												  "Are you sure you wish to move the selected verse highlighting to \"%1\"?", "Errors").arg(strTargetHighlighter),
+										QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+		if (nResult != QMessageBox::Yes) return false;
+
+		for (int ndxVerse = 0; ndxVerse < lstHighlighterIndexPairs.size(); ++ndxVerse) {
+			if (lstHighlighterIndexPairs.at(ndxVerse).first.compare(strTargetHighlighter) == 0) continue;		// No need to copy to self
+
+			const CVerseListModel::TVerseListModelResults &zTargetResults = highlighterResults(lstHighlighterIndexPairs.at(ndxVerse).first);
+			assert(zTargetResults.resultsType() == VLMRTE_HIGHLIGHTERS);
+			if (zTargetResults.resultsType() != VLMRTE_HIGHLIGHTERS) continue;
+
+			CVerseMap::const_iterator itrVerse = zTargetResults.m_mapVerses.find(lstHighlighterIndexPairs.at(ndxVerse).second);
+			assert(itrVerse != zTargetResults.m_mapVerses.constEnd());
+			if (itrVerse == zTargetResults.m_mapVerses.constEnd()) continue;
+
+			// Note: MUST build this as a copy or else we must do the append before the remove below
+			//			or else the highlighter change notification will change our list and cause the
+			//			list to change on us before the append!
+			TPhraseTagList lstTags(itrVerse->phraseTags());
+			m_private.m_pUserNotesDatabase->removeHighlighterTagsFor(m_private.m_pBibleDatabase, lstHighlighterIndexPairs.at(ndxVerse).first, lstTags);
+			m_private.m_pUserNotesDatabase->appendHighlighterTagsFor(m_private.m_pBibleDatabase, strTargetHighlighter, lstTags);
+		}
+
+		return true;
 	}
-	if (!bHaveAtLeastOneUniqueSource) return false;
 
-	assert(g_pMyApplication.data() != NULL);
-	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
-	assert(pCanOpener != NULL);
-
-	int nResult = QMessageBox::information(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
-										   tr("You are about to move the selected verse highlighting to the \"%1\" highlighter.  This will "
-											  "merge those passages into this target highlighter, changing their color to match the target "
-											  "highlighter.  This operation cannot be undone!\n\n"
-											  "Are you sure you wish to move the selected verse highlighting to \"%1\"?", "Errors").arg(strTargetHighlighter),
-									QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-	if (nResult != QMessageBox::Yes) return false;
-
-	for (int ndxVerse = 0; ndxVerse < lstHighlighterIndexPairs.size(); ++ndxVerse) {
-		if (lstHighlighterIndexPairs.at(ndxVerse).first.compare(strTargetHighlighter) == 0) continue;		// No need to copy to self
-
-		const CVerseListModel::TVerseListModelResults &zTargetResults = highlighterResults(lstHighlighterIndexPairs.at(ndxVerse).first);
-		assert(zTargetResults.resultsType() == VLMRTE_HIGHLIGHTERS);
-		if (zTargetResults.resultsType() != VLMRTE_HIGHLIGHTERS) continue;
-
-		CVerseMap::const_iterator itrVerse = zTargetResults.m_mapVerses.find(lstHighlighterIndexPairs.at(ndxVerse).second);
-		assert(itrVerse != zTargetResults.m_mapVerses.constEnd());
-		if (itrVerse == zTargetResults.m_mapVerses.constEnd()) continue;
-
-		// Note: MUST build this as a copy or else we must do the append before the remove below
-		//			or else the highlighter change notification will change our list and cause the
-		//			list to change on us before the append!
-		TPhraseTagList lstTags(itrVerse->phraseTags());
-		m_private.m_pUserNotesDatabase->removeHighlighterTagsFor(m_private.m_pBibleDatabase, lstHighlighterIndexPairs.at(ndxVerse).first, lstTags);
-		m_private.m_pUserNotesDatabase->appendHighlighterTagsFor(m_private.m_pBibleDatabase, strTargetHighlighter, lstTags);
-	}
-
-	return true;
+	return false;
 }
 
 // ----------------------------------------------------------------------------
