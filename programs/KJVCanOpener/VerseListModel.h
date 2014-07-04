@@ -668,6 +668,7 @@ public:
 	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 	virtual Qt::DropActions supportedDropActions() const;
+	virtual Qt::DropActions supportedDragActions() const;
 	virtual QStringList mimeTypes() const;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);

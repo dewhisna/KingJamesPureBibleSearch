@@ -967,12 +967,20 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 			 ((ndxRel.verse() == 0) && (ndxRel.word() != 0)) ||
 			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))))) {
 			if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+#ifndef IS_MOBILE_APP
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDropEnabled;
+#else
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+#endif
 		}
 	} else {
 		if ((pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_SOURCE_NODE) ||
 			(pVerseIndex->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE))
+#ifndef IS_MOBILE_APP
+			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDropEnabled;
+#else
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+#endif
 	}
 
 	if ((m_private.m_nViewMode == VVME_HIGHLIGHTERS) &&
@@ -1085,8 +1093,14 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		return Qt::MoveAction;
 	} else {
-		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+		return Qt::IgnoreAction;
+//		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 	}
+}
+
+Qt::DropActions CVerseListModel::supportedDragActions() const
+{
+	return Qt::CopyAction;
 }
 
 QStringList CVerseListModel::mimeTypes() const
@@ -1102,37 +1116,59 @@ QStringList CVerseListModel::mimeTypes() const
 QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 {
 	if (indexes.isEmpty()) return NULL;
-	if (m_private.m_nViewMode != VVME_HIGHLIGHTERS) return NULL;
 
-	QMimeData *pMimeData = new QMimeData();
-	QByteArray baEncodedData;
+	QMimeData *pMimeData = NULL;
 
-	QDataStream aStream(&baEncodedData, QIODevice::WriteOnly);
+	switch (m_private.m_nDisplayMode) {
+		case VDME_COMPLETE:
+			pMimeData = mimeDataFromCompleteVerseDetails(indexes);
+			break;
 
-	// Format is:  HighlighterName, VerseReference
-	//	That way, we can move passages from any highlighter to any
-	//		other target highlighter without them getting mixed up,
-	//		and the highlighters will have already been masked by
-	//		the verse-span:
+		case VDME_HEADING:
+			pMimeData = mimeDataFromVerseHeadings(indexes);
+			break;
 
-	for (int ndx = 0; ndx < indexes.size(); ++ndx) {
-		if (indexes.at(ndx).isValid()) {
-			TVerseIndex *pVerseIndex = toVerseIndex(indexes.at(ndx));
-			assert(pVerseIndex != NULL);
-			if (pVerseIndex == NULL) continue;
-			assert(pVerseIndex->resultsType() == VLMRTE_HIGHLIGHTERS);
-			if (pVerseIndex->resultsType() != VLMRTE_HIGHLIGHTERS) continue;
-			assert(pVerseIndex->nodeType() == VLMNTE_UNDEFINED);
-			if (pVerseIndex->nodeType() != VLMNTE_UNDEFINED) continue;
+		case VDME_RICHTEXT:
+			pMimeData = mimeDataFromVerseText(indexes);
+			break;
 
-			const CVerseListModel::TVerseListModelResults &zResults = results(indexes.at(ndx));
-			aStream << zResults.resultsName();					// Highlighter name
-			aStream << pVerseIndex->relIndex().asAnchor();		// Verse location
-			assert(pVerseIndex->relIndex().word() == 1);
-		}
+		case VDME_VERYPLAIN:
+			pMimeData = mimeDataFromRawVerseText(indexes, true);
+			break;
 	}
 
-	pMimeData->setData(g_constrHighlighterPhraseTagListMimeType, baEncodedData);
+	if ((pMimeData != NULL) &&
+		(m_private.m_nViewMode == VVME_HIGHLIGHTERS)) {
+		QByteArray baEncodedData;
+
+		QDataStream aStream(&baEncodedData, QIODevice::WriteOnly);
+
+		// Format is:  HighlighterName, VerseReference
+		//	That way, we can move passages from any highlighter to any
+		//		other target highlighter without them getting mixed up,
+		//		and the highlighters will have already been masked by
+		//		the verse-span:
+
+		for (int ndx = 0; ndx < indexes.size(); ++ndx) {
+			if (indexes.at(ndx).isValid()) {
+				TVerseIndex *pVerseIndex = toVerseIndex(indexes.at(ndx));
+				assert(pVerseIndex != NULL);
+				if (pVerseIndex == NULL) continue;
+				assert(pVerseIndex->resultsType() == VLMRTE_HIGHLIGHTERS);
+				if (pVerseIndex->resultsType() != VLMRTE_HIGHLIGHTERS) continue;
+				assert(pVerseIndex->nodeType() == VLMNTE_UNDEFINED);
+				if (pVerseIndex->nodeType() != VLMNTE_UNDEFINED) continue;
+
+				const CVerseListModel::TVerseListModelResults &zResults = results(indexes.at(ndx));
+				aStream << zResults.resultsName();					// Highlighter name
+				aStream << pVerseIndex->relIndex().asAnchor();		// Verse location
+				assert(pVerseIndex->relIndex().word() == 1);
+			}
+		}
+
+		pMimeData->setData(g_constrHighlighterPhraseTagListMimeType, baEncodedData);
+	}
+
 	return pMimeData;
 }
 
@@ -1230,6 +1266,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(data(lstVerses.at(ndx), VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		if (item.verseIndex().data() == NULL) continue;
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
@@ -1271,6 +1308,7 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		if (item.verseIndex().data() == NULL) continue;
 
 		if (!bVeryRaw) {
 			strText += item.getVersePlainText() + "\n";
@@ -1301,6 +1339,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lst
 	} else {
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+			if (item.verseIndex().data() == NULL) continue;
 			strVerseHeadings += item.getHeading(true) + "\n";
 		}
 	}
@@ -1337,6 +1376,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		if (item.verseIndex().data() == NULL) continue;
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
