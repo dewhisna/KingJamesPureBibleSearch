@@ -1296,8 +1296,14 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 	}
 
 	QMimeData *mime = new QMimeData();
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(docList.toPlainText());
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(docList.toHtml());
+	}
 	return mime;
 }
 
@@ -1363,8 +1369,14 @@ QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &
 	}
 
 	QMimeData *mime = new QMimeData();
-	mime->setText(strPlainText);
-	mime->setHtml(strRichText);
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(strPlainText);
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(strRichText);
+	}
 	return mime;
 }
 
@@ -1409,8 +1421,14 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 	}
 
 	QMimeData *mime = new QMimeData();
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(docList.toPlainText());
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(docList.toHtml());
+	}
 	return mime;
 }
 

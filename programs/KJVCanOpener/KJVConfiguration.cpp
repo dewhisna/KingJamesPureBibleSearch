@@ -2001,6 +2001,14 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
+	ui.comboBoxCopyMimeType->addItem(tr("Both", "CopyMimeTypes"), CMTE_ALL);
+	ui.comboBoxCopyMimeType->addItem(tr("HTML-Only", "CopyMimeTypes"), CMTE_HTML);
+	ui.comboBoxCopyMimeType->addItem(tr("Text-Only", "CopyMimeTypes"), CMTE_TEXT);
+
+	connect(ui.comboBoxCopyMimeType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyMimeType(int)));
+
+	// ----------
+
 	connect(ui.checkBoxSearchResultsAddBlankLineBetweenVerses, SIGNAL(clicked(bool)), this, SLOT(en_changedSearchResultsAddBlankLineBetweenVerses(bool)));
 
 	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
@@ -2161,6 +2169,17 @@ void CConfigCopyOptions::loadSettings()
 
 	ui.fontComboBoxCopyFont->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
 	ui.dblSpinBoxCopyFontSize->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
+
+	// ----------
+
+	nIndex = ui.comboBoxCopyMimeType->findData(CPersistentSettings::instance()->copyMimeType());
+	if (nIndex != -1) {
+		ui.comboBoxCopyMimeType->setCurrentIndex(nIndex);
+	} else {
+		bKeepDirty = true;
+		ui.comboBoxCopyMimeType->setCurrentIndex(0);
+		CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(ui.comboBoxCopyMimeType->itemData(0).toUInt()));
+	}
 
 	// ----------
 
@@ -2365,6 +2384,19 @@ void CConfigCopyOptions::en_changedFontCopyFontSize(double nFontSize)
 	m_bIsDirty = true;
 	emit dataChanged(false);
 	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
+}
+
+void CConfigCopyOptions::en_changedCopyMimeType(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(ui.comboBoxCopyMimeType->itemData(nIndex).toUInt()));
+	} else {
+		assert(false);
+	}
+	m_bIsDirty = true;
+	emit dataChanged(false);
 }
 
 void CConfigCopyOptions::en_changedSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine)

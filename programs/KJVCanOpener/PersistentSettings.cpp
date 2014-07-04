@@ -152,6 +152,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bCopySuperscriptions(false),
 		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
+		m_nCopyMimeType(CMTE_ALL),
 		// ----
 		m_bSearchResultsAddBlankLineBetweenVerses(false),
 		// ----
@@ -310,6 +311,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_bCopySuperscriptions != pTarget->m_bCopySuperscriptions) ||
 			(pSource->m_nCopyFontSelection != pTarget->m_nCopyFontSelection) ||
 			(pSource->m_fntCopyFont != pTarget->m_fntCopyFont) ||
+			(pSource->m_nCopyMimeType != pTarget->m_nCopyMimeType) ||
 			(pSource->m_bSearchResultsAddBlankLineBetweenVerses != pTarget->m_bSearchResultsAddBlankLineBetweenVerses) ||
 			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
 			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
@@ -679,6 +681,14 @@ void CPersistentSettings::setFontCopyFont(const QFont &aFont)
 {
 	if (m_pPersistentSettingData->m_fntCopyFont != aFont) {
 		m_pPersistentSettingData->m_fntCopyFont = aFont;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setCopyMimeType(COPY_MIME_TYPE_ENUM nCopyMimeType)
+{
+	if (m_pPersistentSettingData->m_nCopyMimeType != nCopyMimeType) {
+		m_pPersistentSettingData->m_nCopyMimeType = nCopyMimeType;
 		emit changedCopyOptions();
 	}
 }

@@ -197,6 +197,7 @@ namespace {
 	const QString constrCopySuperscriptionsKey("CopySuperscriptions");
 	const QString constrCopyFontSelectionKey("CopyFontSelection");
 	const QString constrCopyFontKey("CopyFont");
+	const QString constrCopyMimeTypeKey("CopyMimeType");
 	const QString constrCopySearchResultsAddBlankLineBetweenVerses("SearchResultsAddBlankLineBetweenVerses");
 	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
 	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
@@ -1049,6 +1050,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions());
 		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
 		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
+		settings.setValue(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType());
 		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
 		settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 		settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
@@ -1441,6 +1443,7 @@ void CKJVCanOpener::restorePersistentSettings()
 				aCopyFont2.setPointSizeF(aCopyFont.pointSizeF());
 				CPersistentSettings::instance()->setFontCopyFont(aCopyFont2);
 			}
+			CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(settings.value(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType()).toUInt()));
 			CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(settings.value(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()).toBool());
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());

@@ -46,6 +46,12 @@ enum CHAPTER_SCROLLBAR_MODE_ENUM {
 	CSME_RIGHT = 2
 };
 
+enum COPY_MIME_TYPE_ENUM {
+	CMTE_ALL = 0,
+	CMTE_HTML = 1,
+	CMTE_TEXT = 2
+};
+
 // ============================================================================
 
 class CPersistentSettings : public QObject
@@ -119,6 +125,7 @@ public:
 	bool copySuperscriptions() const { return m_pPersistentSettingData->m_bCopySuperscriptions; }
 	CPhraseNavigator::COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
 	QFont fontCopyFont() const { return m_pPersistentSettingData->m_fntCopyFont; }
+	COPY_MIME_TYPE_ENUM copyMimeType() const { return m_pPersistentSettingData->m_nCopyMimeType; }
 
 	bool searchResultsAddBlankLineBetweenVerses() const { return m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses; }
 
@@ -257,6 +264,7 @@ public slots:
 	void setCopySuperscriptions(bool bCopySuperscriptions);
 	void setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection);
 	void setFontCopyFont(const QFont &aFont);
+	void setCopyMimeType(COPY_MIME_TYPE_ENUM nCopyMimeType);
 
 	void setSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine);
 
@@ -332,6 +340,7 @@ private:
 		bool m_bCopySuperscriptions;					// If enabled, superscriptions are copied as if they are verses
 		CPhraseNavigator::COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
 		QFont m_fntCopyFont;							// Font to use for the Copy Font for CFSE_COPY_FONT mode
+		COPY_MIME_TYPE_ENUM m_nCopyMimeType;			// Selection of MIME type to use in copying and drag-n-drop
 		// ----
 		bool m_bSearchResultsAddBlankLineBetweenVerses;	// True if adding blank lines between Search Results Verses when copying
 		// ----
