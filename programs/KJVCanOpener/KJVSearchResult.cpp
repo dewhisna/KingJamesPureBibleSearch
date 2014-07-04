@@ -52,8 +52,6 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
-#include <QTextDocument>
-#include <QTextDocumentFragment>
 #include <QToolTip>
 #include <ToolTipEdit.h>
 #include <QDrag>
@@ -405,161 +403,9 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 
 // ----------------------------------------------------------------------------
 
-QMimeData *CSearchResultsTreeView::mimeDataFromVerseText(const QModelIndexList &lstVerses) const
-{
-	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QTextDocument docList;
-	QTextCursor cursorDocList(&docList);
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-
-		// Note:  Qt bug with fragments causes leading <hr /> tags
-		//		to get converted to <br /> tags.  Since this may
-		//		change on us if/when they get it fixed, we'll pass
-		//		TRO_None here and set our <hr /> or <br /> below as
-		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
-		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
-			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
-			navigator.doHighlighting(highlighter);
-		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
-			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
-			navigator.doHighlighting(highlighter);
-		}
-		navigator.removeAnchors();
-
-		QTextDocumentFragment fragment(&docVerse);
-		cursorDocList.insertFragment(fragment);
-//		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
-		if (ndx != (lstVerses.size()-1)) {
-			cursorDocList.insertHtml("<br />\n");
-			if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) cursorDocList.insertHtml("<br />\n");
-		}
-	}
-
-	QMimeData *mime = new QMimeData();
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
-	return mime;
-}
-
-QMimeData *CSearchResultsTreeView::mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const
-{
-	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QString strText;
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-
-		if (!bVeryRaw) {
-			strText += item.getVersePlainText() + "\n";
-		} else {
-			strText += item.getVerseVeryPlainText() + "\n";
-		}
-
-		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
-	}
-
-	QMimeData *mime = new QMimeData();
-	mime->setText(strText);
-	return mime;
-}
-
-QMimeData *CSearchResultsTreeView::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const
-{
-	QString strVerseHeadings;
-
-	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
-		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
-		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-			CRelIndex ndxRel = vlmodel()->logicalIndexForModelIndex(lstVerses.at(ndx));
-			if (ndxRel.isSet()) strVerseHeadings += vlmodel()->bibleDatabase()->PassageReferenceText(ndxRel) + "\n";
-		}
-	} else {
-		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			strVerseHeadings += item.getHeading(true) + "\n";
-		}
-	}
-
-	QMimeData *mime = new QMimeData();
-	mime->setText(strVerseHeadings);
-	return mime;
-}
-
-QMimeData *CSearchResultsTreeView::mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const
-{
-	QString strPlainText;
-	QString strRichText;
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		if (ndx > 0) {
-			strPlainText += "--------------------\n";
-			strRichText += "<hr />\n";
-		}
-		strPlainText += vlmodel()->data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
-		strRichText += vlmodel()->data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
-	}
-
-	QMimeData *mime = new QMimeData();
-	mime->setText(strPlainText);
-	mime->setHtml(strRichText);
-	return mime;
-}
-
-QMimeData *CSearchResultsTreeView::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const
-{
-	assert(vlmodel()->bibleDatabase().data() != NULL);
-
-	QTextDocument docList;
-	QTextCursor cursorDocList(&docList);
-	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(vlmodel()->bibleDatabase(), docVerse);
-
-		// Note:  Qt bug with fragments causes leading <hr /> tags
-		//		to get converted to <br /> tags.  Since this may
-		//		change on us if/when they get it fixed, we'll pass
-		//		TRO_None here and set our <hr /> or <br /> below as
-		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
-		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
-			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-			CSearchResultHighlighter highlighter(item.phraseTags(), (viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
-			navigator.doHighlighting(highlighter);
-		} else if (viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {
-			CUserDefinedHighlighter highlighter(vlmodel()->results(*item.verseIndex()).resultsName(), item.phraseTags());
-			navigator.doHighlighting(highlighter);
-		}
-		navigator.removeAnchors();
-
-		QTextDocumentFragment fragment(&docVerse);
-		cursorDocList.insertFragment(fragment);
-
-		if ((viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
-			(viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-			cursorDocList.insertHtml("<br />\n<pre>" + vlmodel()->data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
-			if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
-		} else {
-			cursorDocList.insertHtml("<br />\n");
-		}
-	}
-
-	QMimeData *mime = new QMimeData();
-	mime->setText(docList.toPlainText());
-	mime->setHtml(docList.toHtml());
-	return mime;
-}
-
-// ----------------------------------------------------------------------------
-
 void CSearchResultsTreeView::en_copyVerseText() const
 {
-	QMimeData *mime = mimeDataFromVerseText(getSelectedVerses());
+	QMimeData *mime = vlmodel()->mimeDataFromVerseText(getSelectedVerses());
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -570,7 +416,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 
 void CSearchResultsTreeView::en_copyRaw() const
 {
-	QMimeData *mime = mimeDataFromRawVerseText(getSelectedVerses(), false);
+	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), false);
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -581,7 +427,7 @@ void CSearchResultsTreeView::en_copyRaw() const
 
 void CSearchResultsTreeView::en_copyVeryRaw() const
 {
-	QMimeData *mime = mimeDataFromRawVerseText(getSelectedVerses(), true);
+	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), true);
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -607,7 +453,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 		lstVerses = getSelectedVerses();
 	}
 
-	QMimeData *mime = mimeDataFromVerseHeadings(lstVerses);
+	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses);
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -618,7 +464,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 
 void CSearchResultsTreeView::en_copyReferenceDetails() const
 {
-	QMimeData *mime = mimeDataFromReferenceDetails(getSelectedVerses());
+	QMimeData *mime = vlmodel()->mimeDataFromReferenceDetails(getSelectedVerses());
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -629,7 +475,7 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 
 void CSearchResultsTreeView::en_copyComplete() const
 {
-	QMimeData *mime = mimeDataFromCompleteVerseDetails(getSelectedVerses());
+	QMimeData *mime = vlmodel()->mimeDataFromCompleteVerseDetails(getSelectedVerses());
 	assert(mime != NULL);
 	if (mime == NULL) return;
 

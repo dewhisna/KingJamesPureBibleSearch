@@ -672,6 +672,12 @@ public:
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);
 
+	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const;
+	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const;
+
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)
 

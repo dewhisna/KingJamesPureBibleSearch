@@ -33,6 +33,7 @@
 #include <iterator>
 #include <list>
 #include <QTextDocument>
+#include <QTextDocumentFragment>
 #include <QAtomicInt>
 #include <QMessageBox>
 
@@ -1217,6 +1218,160 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	}
 
 	return true;
+}
+
+// ----------------------------------------------------------------------------
+
+QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVerses) const
+{
+	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QTextDocument docList;
+	QTextCursor cursorDocList(&docList);
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(data(lstVerses.at(ndx), VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		QTextDocument docVerse;
+		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
+
+		// Note:  Qt bug with fragments causes leading <hr /> tags
+		//		to get converted to <br /> tags.  Since this may
+		//		change on us if/when they get it fixed, we'll pass
+		//		TRO_None here and set our <hr /> or <br /> below as
+		//		desired:
+		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+			CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));
+			navigator.doHighlighting(highlighter);
+		} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+			CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		}
+		navigator.removeAnchors();
+
+		QTextDocumentFragment fragment(&docVerse);
+		cursorDocList.insertFragment(fragment);
+//		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
+		if (ndx != (lstVerses.size()-1)) {
+			cursorDocList.insertHtml("<br />\n");
+			if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) cursorDocList.insertHtml("<br />\n");
+		}
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(docList.toPlainText());
+	mime->setHtml(docList.toHtml());
+	return mime;
+}
+
+QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const
+{
+	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QString strText;
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+
+		if (!bVeryRaw) {
+			strText += item.getVersePlainText() + "\n";
+		} else {
+			strText += item.getVerseVeryPlainText() + "\n";
+		}
+
+		if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) strText += "\n";
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(strText);
+	return mime;
+}
+
+QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const
+{
+	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QString strVerseHeadings;
+
+	if ((m_private.m_nViewMode == VVME_CROSSREFS) ||
+		(m_private.m_nViewMode == VVME_USERNOTES)) {
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			CRelIndex ndxRel = logicalIndexForModelIndex(lstVerses.at(ndx));
+			if (ndxRel.isSet()) strVerseHeadings += m_private.m_pBibleDatabase->PassageReferenceText(ndxRel) + "\n";
+		}
+	} else {
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+			strVerseHeadings += item.getHeading(true) + "\n";
+		}
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(strVerseHeadings);
+	return mime;
+}
+
+QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const
+{
+	QString strPlainText;
+	QString strRichText;
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		if (ndx > 0) {
+			strPlainText += "--------------------\n";
+			strRichText += "<hr />\n";
+		}
+		strPlainText += data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_PLAINTEXT_ROLE).toString();
+		strRichText += data(lstVerses.at(ndx), CVerseListModel::TOOLTIP_ROLE).toString();
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(strPlainText);
+	mime->setHtml(strRichText);
+	return mime;
+}
+
+QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const
+{
+	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QTextDocument docList;
+	QTextCursor cursorDocList(&docList);
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		QTextDocument docVerse;
+		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
+
+		// Note:  Qt bug with fragments causes leading <hr /> tags
+		//		to get converted to <br /> tags.  Since this may
+		//		change on us if/when they get it fixed, we'll pass
+		//		TRO_None here and set our <hr /> or <br /> below as
+		//		desired:
+		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+			CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));
+			navigator.doHighlighting(highlighter);
+		} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+			CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
+			navigator.doHighlighting(highlighter);
+		}
+		navigator.removeAnchors();
+
+		QTextDocumentFragment fragment(&docVerse);
+		cursorDocList.insertFragment(fragment);
+
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+			cursorDocList.insertHtml("<br />\n<pre>" + data(lstVerses.at(ndx), TOOLTIP_NOHEADING_PLAINTEXT_ROLE).toString() + "</pre>\n");
+			if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("\n<hr /><br />\n");
+		} else {
+			cursorDocList.insertHtml("<br />\n");
+		}
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setText(docList.toPlainText());
+	mime->setHtml(docList.toHtml());
+	return mime;
 }
 
 // ----------------------------------------------------------------------------
