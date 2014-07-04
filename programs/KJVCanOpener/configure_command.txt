@@ -1689,9 +1689,11 @@ users=dewhisna,testuser
 sudo mkdir -p /srv/chroot/trusty32dev
 sudo mkdir -p /srv/chroot/trusty64dev
 sudo mkdir -p /srv/chroot/trustywin32
+sudo mkdir -p /srv/chroot/trustywin32dev
 sudo debootstrap --variant=buildd --arch=i386 trusty /srv/chroot/trusty32dev http://archive.ubuntu.com/ubuntu/
 sudo debootstrap --variant=buildd --arch=amd64 trusty /srv/chroot/trusty64dev http://archive.ubuntu.com/ubuntu/
 sudo debootstrap --variant=buildd --arch=amd64 trusty /srv/chroot/trustywin32 http://archive.ubuntu.com/ubuntu/
+sudo debootstrap --variant=buildd --arch=amd64 trusty /srv/chroot/trustywin32dev http://archive.ubuntu.com/ubuntu/
 
 
 ---- For Each ----
@@ -1752,6 +1754,18 @@ or add the following to /etc/apt:
 dpkg --add-architecture i386
 apt-get update
 apt-get install wine winetricks wine1.6 wine-gecko2.21 wine1.6-amd64 wine1.6-i386 wine-mono0.0.8
+
+
+For win32dev:
+-------------
+apt-get install software-properties-common
+add-apt-repository ppa:ubuntu-wine/ppa
+or add the following to /etc/apt:
+	deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main
+	deb-src http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu trusty main
+dpkg --add-architecture i386
+apt-get update
+apt-get install wine winetricks wine1.7 wine-gecko2.21 wine1.7-amd64 wine1.7-i386 wine-mono0.0.8
 
 
 For LSB-32:
