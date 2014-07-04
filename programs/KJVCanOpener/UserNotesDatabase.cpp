@@ -141,6 +141,7 @@ QString CUserNoteEntry::htmlText() const
 	fmtCharUserNote.setBackground(backgroundColor());
 	QTextBlockFormat fmtBlockUserNote;
 	fmtBlockUserNote.setBackground(backgroundColor());
+	fmtBlockUserNote.setLineHeight(100, QTextBlockFormat::ProportionalHeight);		// Change line-height back to 100% to counter-act scriptureBrowserLineHeight()
 	cursorDocUserNote.mergeBlockFormat(fmtBlockUserNote);
 	cursorDocUserNote.mergeBlockCharFormat(fmtCharUserNote);
 
