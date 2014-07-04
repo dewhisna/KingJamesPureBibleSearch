@@ -446,6 +446,11 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 #endif
 
 	ui.dblSpinBoxApplicationFontSize->setRange(6, 24);
+// On Mac OSX with Qt 5.3.1, QFontDatabase::standardSizes() returns unreasonable 9 to 288 instead of 6 to 72.  Workaround:
+#ifdef WORKAROUND_QTBUG_40057
+	int nFontMin = 6;
+	int nFontMax = 72;
+#else
 	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
 	assert(lstStandardFontSizes.size() > 0);
 	int nFontMin = -1;
@@ -454,6 +459,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
 		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
 	}
+#endif
 	ui.dblSpinBoxScriptureBrowserFontSize->setRange(nFontMin, nFontMax);
 	ui.dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
 	ui.dblSpinBoxDictionaryFontSize->setRange(nFontMin, nFontMax);
@@ -1974,6 +1980,11 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	connect(ui.comboBoxCopyFontSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyFontSelection(int)));
 
+// On Mac OSX with Qt 5.3.1, QFontDatabase::standardSizes() returns unreasonable 9 to 288 instead of 6 to 72.  Workaround:
+#ifdef WORKAROUND_QTBUG_40057
+	int nFontMin = 6;
+	int nFontMax = 72;
+#else
 	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
 	assert(lstStandardFontSizes.size() > 0);
 	int nFontMin = -1;
@@ -1982,6 +1993,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
 		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
 	}
+#endif
 	ui.dblSpinBoxCopyFontSize->setRange(nFontMin, nFontMax);
 
 	connect(ui.fontComboBoxCopyFont, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_changedFontCopyFont(const QFont &)));
