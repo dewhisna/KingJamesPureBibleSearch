@@ -109,6 +109,7 @@ public:
 protected slots:
 	void en_findParentCanOpener();
 
+	void en_copyVerseEntry() const;
 	void en_copyVerseText() const;
 	void en_copyRaw() const;
 	void en_copyVeryRaw() const;
@@ -204,7 +205,8 @@ private:
 	QMenu *m_pEditMenuLocal;		// Edit menu for local popup when user right-clicks -- like above but includes view toggles
 	QPoint m_ptLastTrackPosition;	// Last Viewport mouse track global position or Context Popup position for popups
 	// ----
-	QAction *m_pActionCopyVerseText;			// Edit menu copy text
+	QAction *m_pActionCopyVerseEntry;		// Edit menu copy verse/entry
+	QAction *m_pActionCopyVerseText;		// Edit menu copy verse text
 	QAction *m_pActionCopyRaw;		// Edit menu copy raw phrase text
 	QAction *m_pActionCopyVeryRaw;	// Edit menu copy very (no punctuation) raw phrase text
 	// ----

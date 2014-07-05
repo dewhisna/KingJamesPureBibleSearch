@@ -99,11 +99,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 			if ((m_model.displayMode() == CVerseListModel::VDME_HEADING) ||
 				(m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
 				scriptureHTML.beginParagraph();
-				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(option.text);
-				} else {
-					scriptureHTML.appendLiteralText(option.text);
-				}
+				scriptureHTML.appendRawText(option.text);
 				scriptureHTML.endParagraph();
 				scriptureHTML.appendRawText("</body></html>");
 				doc.setHtml(scriptureHTML.getResult());

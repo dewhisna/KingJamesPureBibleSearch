@@ -471,16 +471,19 @@ signals:
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color)
 	{
-		m_richifierTags.setWordsOfJesusTagsByColor(color);
+		m_richifierTagsDisplay.setWordsOfJesusTagsByColor(color);
+		m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
 	}
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
 	{
-		m_richifierTags.setShowPilcrowMarkers(bShowPilcrowMarkers);
+		m_richifierTagsDisplay.setShowPilcrowMarkers(bShowPilcrowMarkers);
 	}
+	void en_changedCopyOptions();
 
 protected:
 	CBibleDatabasePtr m_pBibleDatabase;
-	CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the text in this browser document
+	CVerseTextRichifierTags m_richifierTagsDisplay;	// Richifier tags used to render the text in this browser document for Display
+	CVerseTextRichifierTags m_richifierTagsCopying;	// Richifier tags used to render the text in this browser document for Copying
 
 private:
 	QTextDocument &m_TextDocument;

@@ -906,11 +906,35 @@ CPhraseNavigator::CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocume
 		m_pBibleDatabase(pBibleDatabase),
 		m_TextDocument(textDocument)
 {
-	m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 
-	m_richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
+	m_richifierTagsDisplay.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
+
+	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
+	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
+}
+
+void CPhraseNavigator::en_changedCopyOptions()
+{
+	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
+		case TCAWME_NO_MARKING:
+			m_richifierTagsCopying.setTransChangeAddedTags(QString(), QString());
+			break;
+		case TCAWME_ITALICS:
+			m_richifierTagsCopying.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
+			break;
+		case TCAWME_BRACKETS:
+			m_richifierTagsCopying.setTransChangeAddedTags(QString("["), QString("]"));
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
 }
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
@@ -1239,7 +1263,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("colophon");
 		scriptureHTML.beginParagraph();
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
 	} else {
@@ -1373,7 +1397,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
@@ -1396,7 +1420,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				// Try pseudo-verse (searchable) style first:
 				scriptureHTML.beginDiv("colophon");
 				scriptureHTML.beginParagraph();
-				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0), m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0), ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 				scriptureHTML.endParagraph();
 				scriptureHTML.endDiv();
 			} else {
@@ -1481,7 +1505,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("superscription");
 		scriptureHTML.beginParagraph();
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
 	} else {
@@ -1558,7 +1582,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 
 		bStartedText = true;
 
@@ -1611,7 +1635,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("colophon");
 			scriptureHTML.beginParagraph();
-			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
 		} else {
@@ -1699,7 +1723,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("superscription");
 			scriptureHTML.beginParagraph();
-			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
 		} else {
@@ -1735,7 +1759,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
 
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
@@ -1887,7 +1911,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 //			scriptureHTML.beginDiv("superscription");
 //		}
 //	}
-	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTags, !(flagsTRO & TRO_NoAnchors)));
+	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 //	if (ndx.verse() == 0) {
 //		scriptureHTML.endDiv();
 //	}
@@ -2071,23 +2095,6 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 	}
 
-	CVerseTextRichifierTags richifierTags = m_richifierTags;
-	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
-		case TCAWME_NO_MARKING:
-			richifierTags.setTransChangeAddedTags(QString(), QString());
-			break;
-		case TCAWME_ITALICS:
-			richifierTags.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
-			break;
-		case TCAWME_BRACKETS:
-			richifierTags.setTransChangeAddedTags(QString("["), QString("]"));
-			break;
-		default:
-			assert(false);
-			break;
-	}
-	richifierTags.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
-
 	CRelIndex ndxPrev = ndxFirst;
 	if (CPersistentSettings::instance()->referencesAtEnd()) {
 		// If printing the reference at the end, for printing of the initial verse number:
@@ -2200,7 +2207,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 			}
 
-			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, richifierTags, false));
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTagsCopying, false));
 
 			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
 				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_FF)) {

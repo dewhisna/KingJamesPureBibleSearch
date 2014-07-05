@@ -99,6 +99,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_bDoingPopup(false),
 		m_pEditMenu(NULL),
 		m_pEditMenuLocal(NULL),
+		m_pActionCopyVerseEntry(NULL),
 		m_pActionCopyVerseText(NULL),
 		m_pActionCopyRaw(NULL),
 		m_pActionCopyVeryRaw(NULL),
@@ -260,11 +261,15 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal = new QMenu(tr("&Edit", "MainMenu"), this);
 	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations", "MainMenu"));
 	// ----
+	m_pActionCopyVerseEntry = m_pEditMenu->addAction(tr("Copy &Entries", "MainMenu"), this, SLOT(en_copyVerseEntry()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyVerseEntry->setStatusTip(tr("Copy Entries for the selected Search Results to the clipboard", "MainMenu"));
+	m_pActionCopyVerseEntry->setEnabled(false);
+	m_pEditMenuLocal->addAction(m_pActionCopyVerseEntry);
 	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text", "MainMenu"), this, SLOT(en_copyVerseText()), QKeySequence(Qt::CTRL + Qt::Key_V));
 	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
-	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw = m_pEditMenu->addAction(tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()));
 	m_pActionCopyRaw->setStatusTip(tr("Copy selected Search Results as raw phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyRaw->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyRaw);
@@ -403,9 +408,35 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 
 // ----------------------------------------------------------------------------
 
+void CSearchResultsTreeView::en_copyVerseEntry() const
+{
+	QModelIndexList lstVerses;
+
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
+		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
+		lstVerses = selectionModel()->selectedRows();
+		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+			if (!lstVerses.at(ndx).isValid()) {
+				lstVerses.removeAt(ndx);
+				--ndx;
+			}
+		}
+	} else {
+		lstVerses = getSelectedVerses();
+	}
+
+	QMimeData *mime = vlmodel()->mimeDataFromVerseText(lstVerses, false);
+	assert(mime != NULL);
+	if (mime == NULL) return;
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(mime);
+	displayCopyCompleteToolTip();
+}
+
 void CSearchResultsTreeView::en_copyVerseText() const
 {
-	QMimeData *mime = vlmodel()->mimeDataFromVerseText(getSelectedVerses());
+	QMimeData *mime = vlmodel()->mimeDataFromVerseText(getSelectedVerses(), true);
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -453,7 +484,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 		lstVerses = getSelectedVerses();
 	}
 
-	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses);
+	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses, true);
 	assert(mime != NULL);
 	if (mime == NULL) return;
 
@@ -936,6 +967,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 								 (vlmodel()->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 
 	if (nNumResultsSelected) {
+		m_pActionCopyVerseEntry->setEnabled(true);
 		m_pActionCopyVerseText->setEnabled(bHaveVerses);
 		m_pActionCopyRaw->setEnabled(bHaveVerses);
 		m_pActionCopyVeryRaw->setEnabled(bHaveVerses);
@@ -944,6 +976,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 		m_pActionCopyComplete->setEnabled(bInSearchResultsMode);
 		m_pActionClearSelection->setEnabled(true);
 	} else {
+		m_pActionCopyVerseEntry->setEnabled(false);
 		m_pActionCopyVerseText->setEnabled(false);
 		m_pActionCopyRaw->setEnabled(false);
 		m_pActionCopyVeryRaw->setEnabled(false);

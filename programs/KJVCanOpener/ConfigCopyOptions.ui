@@ -184,6 +184,37 @@
       </widget>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="lblVerseRenderingMode">
+         <property name="text">
+          <string>Verse &amp;Rendering:</string>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxVerseRenderingModeCopying</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxVerseRenderingModeCopying">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLabel" name="lblTransChangeAddedMode">
@@ -203,37 +234,6 @@
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
-       <item>
-        <widget class="QLabel" name="lblVerseRenderingMode">
-         <property name="text">
-          <string>Verse &amp;Rendering:</string>
-         </property>
-         <property name="buddy">
-          <cstring>comboBoxVerseRenderingModeCopying</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBoxVerseRenderingModeCopying">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>10</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -631,8 +631,8 @@
   <tabstop>checkBoxVerseNumbersUseAbbreviatedBookNames</tabstop>
   <tabstop>checkBoxVerseNumbersInBold</tabstop>
   <tabstop>checkBoxAddQuotesAroundVerse</tabstop>
-  <tabstop>comboTransChangeAddedMode</tabstop>
   <tabstop>comboBoxVerseRenderingModeCopying</tabstop>
+  <tabstop>comboTransChangeAddedMode</tabstop>
   <tabstop>checkBoxCopyPilcrowMarkers</tabstop>
   <tabstop>checkBoxCopyColophons</tabstop>
   <tabstop>checkBoxCopySuperscriptions</tabstop>

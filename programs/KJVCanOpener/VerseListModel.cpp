@@ -93,8 +93,12 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	assert(pBibleDatabase.data() != NULL);
 	assert(pUserNotesDatabase.data() != NULL);
 
-	m_private.m_richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+
+	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
+	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
 	if (m_private.m_pUserNotesDatabase != NULL) {
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
@@ -518,7 +522,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 	bool bHighlighterNode = ((m_private.m_nViewMode != VVME_HIGHLIGHTERS) ? false : !parent(index).isValid());
 
 	if (bHighlighterNode) {
-		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole) || (role == VERSE_COPYING_ROLE)) {
 			return zResults.resultsName();
 		}
 	} else {
@@ -581,11 +585,11 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		assert(ndxRel.isSet());
 		if (!ndxRel.isSet()) return QVariant();
 
-		CScriptureTextHtmlBuilder usernoteHTML;
+		CScriptureTextHtmlBuilder dataGenHTML;
 
 		if (((ndxRel.chapter() == 0) && (ndxRel.verse() == 0) && (ndxRel.word() == 0) && (pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) ||
 			(pVerseIndex->nodeType() == VLMNTE_BOOK_TERMINATOR_NODE)) {
-			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			if ((role == Qt::DisplayRole) || (role == Qt::EditRole) || (role == VERSE_COPYING_ROLE)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
 					case VVME_SEARCH_RESULTS_EXCLUDED:
@@ -593,15 +597,15 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					case VVME_CROSSREFS:
 						return m_private.m_pBibleDatabase->bookName(ndxRel);
 					case VVME_USERNOTES:
-						usernoteHTML.beginParagraph();
-						usernoteHTML.beginBold();
-						usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
-						usernoteHTML.endBold();
-						usernoteHTML.endParagraph();
+						dataGenHTML.beginParagraph();
+						dataGenHTML.beginBold();
+						dataGenHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
+						dataGenHTML.endBold();
+						dataGenHTML.endParagraph();
 						if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
-							usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
+							dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
 						}
-						return usernoteHTML.getResult();
+						return dataGenHTML.getResult();
 					default:
 						assert(false);
 						return QVariant();
@@ -619,7 +623,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 
 		if (((ndxRel.verse() == 0) && (ndxRel.word() == 0)) ||
 			(pVerseIndex->nodeType() == VLMNTE_CHAPTER_TERMINATOR_NODE)) {
-			if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+			if ((role == Qt::DisplayRole) || (role == Qt::EditRole) || (role == VERSE_COPYING_ROLE)) {
 				switch (m_private.m_nViewMode) {
 					case VVME_SEARCH_RESULTS:
 					case VVME_SEARCH_RESULTS_EXCLUDED:
@@ -638,19 +642,19 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						}
 					case VVME_USERNOTES:
 						// Note: Chapter can be zero here to indicate a book at the chapter-node-terminator level:
-						usernoteHTML.beginParagraph();
-						usernoteHTML.beginBold();
+						dataGenHTML.beginParagraph();
+						dataGenHTML.beginBold();
 						if (ndxRel.chapter() != 0) {
-							usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
+							dataGenHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel) + QString(" %1").arg(ndxRel.chapter()));
 						} else {
-							usernoteHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
+							dataGenHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
 						}
-						usernoteHTML.endBold();
-						usernoteHTML.endParagraph();
+						dataGenHTML.endBold();
+						dataGenHTML.endParagraph();
 						if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
-							usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
+							dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
 						}
-						return usernoteHTML.getResult();
+						return dataGenHTML.getResult();
 					default:
 						assert(false);
 						return QVariant();
@@ -674,53 +678,54 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 
-		if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+		if ((role == Qt::DisplayRole) || (role == Qt::EditRole) || (role == VERSE_COPYING_ROLE)) {
 			switch (m_private.m_nViewMode) {
 				case VVME_SEARCH_RESULTS:
 				case VVME_SEARCH_RESULTS_EXCLUDED:
 				case VVME_HIGHLIGHTERS:
 				case VVME_CROSSREFS:
 				{
-					QString strVerseText;
 					switch (m_private.m_nDisplayMode) {
 						case VDME_HEADING:
-							strVerseText = itrVerse->getHeading();
+							dataGenHTML.appendLiteralText(itrVerse->getHeading(role == VERSE_COPYING_ROLE));
 							break;
 						case VDME_VERYPLAIN:
-							strVerseText = itrVerse->getVerseVeryPlainText();
+							dataGenHTML.appendLiteralText(itrVerse->getVerseVeryPlainText());
 							break;
 						case VDME_RICHTEXT:
-							strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);
+							dataGenHTML.beginBold();
+							dataGenHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
+							dataGenHTML.endBold();
+							dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay));
 							break;
 						case VDME_COMPLETE:
-							strVerseText = itrVerse->getVerseRichText(m_private.m_richifierTags);		// TODO : FINISH THIS ONE!!!
+							// TODO : FINISH THIS ONE!!!
+							dataGenHTML.beginBold();
+							dataGenHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
+							dataGenHTML.endBold();
+							dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay));
 							break;
 						default:
 							assert(false);
-							strVerseText = QString();
-							break;
+							return QString();
 					}
-					return strVerseText;
+					return dataGenHTML.getResult();
 				}
 				case VVME_USERNOTES:
 					if (m_private.m_nDisplayMode == VDME_HEADING) {
-						usernoteHTML.beginParagraph();
-						usernoteHTML.beginBold();
-						usernoteHTML.appendLiteralText(itrVerse->getHeading());
-						usernoteHTML.endBold();
-						usernoteHTML.endParagraph();
+						dataGenHTML.beginBold();
+						dataGenHTML.appendLiteralText(itrVerse->getHeading(role == VERSE_COPYING_ROLE));
+						dataGenHTML.endBold();
 					} else {
-						usernoteHTML.beginParagraph();
-						usernoteHTML.beginBold();
-						usernoteHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
-						usernoteHTML.endBold();
-						usernoteHTML.appendRawText(itrVerse->getVerseRichText(m_private.m_richifierTags));
-						usernoteHTML.endParagraph();
+						dataGenHTML.beginBold();
+						dataGenHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
+						dataGenHTML.endBold();
+						dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay));
 					}
 					if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
-						usernoteHTML.addNoteFor(ndxDisplayVerse, false, true);
+						dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
 					}
-					return usernoteHTML.getResult();
+					return dataGenHTML.getResult();
 				default:
 					assert(false);
 					return QVariant();
@@ -1140,11 +1145,11 @@ QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 			break;
 
 		case VDME_HEADING:
-			pMimeData = mimeDataFromVerseHeadings(indexes);
+			pMimeData = mimeDataFromVerseHeadings(indexes, false);
 			break;
 
 		case VDME_RICHTEXT:
-			pMimeData = mimeDataFromVerseText(indexes);
+			pMimeData = mimeDataFromVerseText(indexes, false);
 			break;
 
 		case VDME_VERYPLAIN:
@@ -1277,41 +1282,97 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 // ----------------------------------------------------------------------------
 
-QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVerses) const
+QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVerses, bool bVerseTextOnly) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
 
+	CScriptureTextHtmlBuilder docVerseHTML;
+
+	if ((!bVerseTextOnly) &&
+		(m_private.m_nViewMode != VVME_USERNOTES)) {
+		QString strCopyFont= "font-size:medium;";
+		switch (CPersistentSettings::instance()->copyFontSelection()) {
+			case CPhraseNavigator::CFSE_NONE:
+				break;
+			case CPhraseNavigator::CFSE_COPY_FONT:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+				break;
+			case CPhraseNavigator::CFSE_SCRIPTURE_BROWSER:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+				break;
+			case CPhraseNavigator::CFSE_SEARCH_RESULTS:
+				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+				break;
+			default:
+				assert(false);
+				break;
+		}
+
+		docVerseHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+											"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+											"<style type=\"text/css\">\n"
+											"body, p, li, .bodyIndent { white-space: pre-wrap; %1 }\n"
+											"</style></head><body>\n")
+											.arg(strCopyFont));																// Copy Font
+	}
+
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
+	bool bFirst = true;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-		const CVerseListItem &item(data(lstVerses.at(ndx), VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		if (item.verseIndex().data() == NULL) continue;
-		QTextDocument docVerse;
-		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
+		if (bVerseTextOnly) {
+			const CVerseListItem &item(data(lstVerses.at(ndx), VERSE_ENTRY_ROLE).value<CVerseListItem>());
+			if (item.verseIndex().data() == NULL) continue;
 
-		// Note:  Qt bug with fragments causes leading <hr /> tags
-		//		to get converted to <br /> tags.  Since this may
-		//		change on us if/when they get it fixed, we'll pass
-		//		TRO_None here and set our <hr /> or <br /> below as
-		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
-		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-			CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));
-			navigator.doHighlighting(highlighter);
-		} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
-			CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
-			navigator.doHighlighting(highlighter);
-		}
-		navigator.removeAnchors();
+			QTextDocument docVerse;
+			CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
-		QTextDocumentFragment fragment(&docVerse);
-		cursorDocList.insertFragment(fragment);
-//		if (ndx != (lstVerses.size()-1)) cursorDocList.insertHtml("<hr />\n");
-		if (ndx != (lstVerses.size()-1)) {
-			cursorDocList.insertHtml("<br />\n");
-			if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) cursorDocList.insertHtml("<br />\n");
+//			if (!bFirst) cursorDocList.insertHtml("<hr />\n");
+			if (!bFirst) {
+				cursorDocList.insertHtml("<br />\n");
+				if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) cursorDocList.insertHtml("<br />\n");
+			}
+
+			// Note:  Qt bug with fragments causes leading <hr /> tags
+			//		to get converted to <br /> tags.  Since this may
+			//		change on us if/when they get it fixed, we'll pass
+			//		TRO_None here and set our <hr /> or <br /> below as
+			//		desired:
+			CPhraseNavigator::TextRenderOptionFlags troCopy = defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults;
+			if (!bVerseTextOnly) troCopy |= CPhraseNavigator::TRO_UserNotes | CPhraseNavigator::TRO_UserNotesForceVisible;
+			navigator.setDocumentToVerse(item.getIndex(), troCopy);
+			if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+				(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+				CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));
+				navigator.doHighlighting(highlighter);
+			} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+				CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
+				navigator.doHighlighting(highlighter);
+			}
+			navigator.removeAnchors();
+
+			QTextDocumentFragment fragment(&docVerse);
+			cursorDocList.insertFragment(fragment);
+		} else {
+			if (!bFirst) {
+				if (m_private.m_nViewMode == VVME_USERNOTES) {
+					docVerseHTML.insertHorizontalRule();
+				} else {
+					docVerseHTML.addLineBreak();
+					if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) docVerseHTML.addLineBreak();
+				}
+			}
+			docVerseHTML.appendRawText(data(lstVerses.at(ndx), VERSE_COPYING_ROLE).toString());
 		}
+
+		bFirst = false;
+	}
+
+	if (!bVerseTextOnly) {
+		if (m_private.m_nViewMode != VVME_USERNOTES) {
+			docVerseHTML.appendRawText("</body></html>");
+		}
+		docList.setHtml(docVerseHTML.getResult());
 	}
 
 	QMimeData *mime = new QMimeData();
@@ -1349,28 +1410,73 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 	return mime;
 }
 
-QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const
+QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses, bool bHeadingTextOnly) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
 
-	QString strVerseHeadings;
+//	QString strVerseHeadings;
+
+	QTextDocument docHeadings;
+	CScriptureTextHtmlBuilder docHeadingsHTML;
+	bool bFirst = true;
 
 	if ((m_private.m_nViewMode == VVME_CROSSREFS) ||
 		(m_private.m_nViewMode == VVME_USERNOTES)) {
+
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			CRelIndex ndxRel = logicalIndexForModelIndex(lstVerses.at(ndx));
-			if (ndxRel.isSet()) strVerseHeadings += m_private.m_pBibleDatabase->PassageReferenceText(ndxRel) + "\n";
+			if (ndxRel.isSet()) {
+				//	strVerseHeadings += m_private.m_pBibleDatabase->PassageReferenceText(ndxRel) + "\n";
+
+				if (!bFirst) {
+					if ((m_private.m_nViewMode == VVME_CROSSREFS) || (bHeadingTextOnly)) {
+						if (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()) docHeadingsHTML.addLineBreak();
+					} else if (m_private.m_nViewMode == VVME_USERNOTES) {
+						docHeadingsHTML.insertHorizontalRule();
+					}
+				}
+				bFirst = false;
+
+				if (!bHeadingTextOnly) docHeadingsHTML.beginBold();
+				docHeadingsHTML.appendLiteralText(m_private.m_pBibleDatabase->PassageReferenceText(ndxRel));
+				if (!bHeadingTextOnly) docHeadingsHTML.endBold();
+				docHeadingsHTML.addLineBreak();
+
+				if ((!bHeadingTextOnly) && (m_private.m_nViewMode == VVME_USERNOTES)) {
+					if (m_userNotesResults.m_mapVerses.contains(ndxRel)) {
+						CRelIndex ndxDisplayVerse(ndxRel);
+						ndxDisplayVerse.setWord(0);
+						docHeadingsHTML.addNoteFor(ndxDisplayVerse, false, true);
+					}
+				}
+			}
 		}
 	} else {
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 			if (item.verseIndex().data() == NULL) continue;
-			strVerseHeadings += item.getHeading(true) + "\n";
+//			strVerseHeadings += item.getHeading(true) + "\n";
+
+			if ((!bFirst) && (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses())) docHeadingsHTML.addLineBreak();
+			bFirst = false;
+
+			docHeadingsHTML.appendLiteralText(item.getHeading(true));
+			docHeadingsHTML.addLineBreak();
 		}
 	}
 
+	docHeadings.setHtml(docHeadingsHTML.getResult());
+
 	QMimeData *mime = new QMimeData();
-	mime->setText(strVerseHeadings);
+//	mime->setText(strVerseHeadings);
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(docHeadings.toPlainText());
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(docHeadings.toHtml());
+	}
 	return mime;
 }
 
@@ -2719,8 +2825,30 @@ void CVerseListModel::setFont(const QFont& aFont)
 
 void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
 {
-	m_private.m_richifierTags.setWordsOfJesusTagsByColor(color);
+	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(color);
+	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
 }
+
+void CVerseListModel::en_changedCopyOptions()
+{
+	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
+		case CPhraseNavigator::TCAWME_NO_MARKING:
+			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString(), QString());
+			break;
+		case CPhraseNavigator::TCAWME_ITALICS:
+			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
+			break;
+		case CPhraseNavigator::TCAWME_BRACKETS:
+			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("["), QString("]"));
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	m_private.m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
+}
+
 
 // ============================================================================
 

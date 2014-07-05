@@ -466,8 +466,8 @@ public:
 	}
 
 	enum VERSE_DATA_ROLES_ENUM {
-		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Full verse text display mode
-		VERSE_HEADING_ROLE = Qt::UserRole + 1,				// Verse heading display text
+		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Return CVerseListItem object
+		VERSE_COPYING_ROLE = Qt::UserRole + 1,				// Same as Qt::DisplayRole, but for Copying mode (i.e. copy options used in generation)
 		TOOLTIP_ROLE = Qt::UserRole + 2,					// Use our own ToolTip role so we can have user click Ctrl-D to see details ToolTip.  Qt::ToolTip will be a message telling them to do that.
 		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 3,			// Same as TOOLTIP_ROLE, but as PlainText instead of RichText
 		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 4,			// Same as TOOLTIP_ROLE, but without Verse Reference Heading
@@ -488,7 +488,8 @@ public:
 		bool m_bShowMissingLeafs;					// Shows the missing leafs in book or book/chapter modes
 		bool m_bShowHighlightersInSearchResults;	// True if VerseDelegate will paint highlighters in Search Results verses
 		CRelIndex m_ndxSingleCrossRefSource;		// If Set, will be in special Cross-Reference Display mode, which is limited to this single source reference (used for the Cross-Reference Editor)
-		CVerseTextRichifierTags m_richifierTags;	// Richifier tags used to render the results in this list
+		CVerseTextRichifierTags m_richifierTagsDisplay;	// Richifier tags used to render the results in this list for display
+		CVerseTextRichifierTags m_richifierTagsCopying;	// Richifier tags used to render the results in this list for copying
 		QFont m_font;								// Normally we wouldn't keep this here in the model, but this is directly accessible to the delegate showing us and we have to trigger the model anyway to update sizeHints()
 	};
 
@@ -673,9 +674,9 @@ public:
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);
 
-	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVerses, bool bVerseTextOnly) const;
 	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const;
-	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVerses, bool bHeadingTextOnly) const;
 	QMimeData *mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const;
 	QMimeData *mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const;
 
@@ -759,6 +760,7 @@ public slots:
 
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color);
+	void en_changedCopyOptions();
 
 	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_changedHighlighters();
