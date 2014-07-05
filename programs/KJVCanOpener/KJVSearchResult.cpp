@@ -231,7 +231,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
-	setDragDropMode((vlmodel()->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
+	setDragDropMode(QAbstractItemView::DragDrop);
 
 #ifndef IS_MOBILE_APP
 	m_pReflowDelegate = new CReflowDelegate(this, true, true);
@@ -569,7 +569,6 @@ void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM n
 						((nViewMode != CVerseListModel::VVME_SEARCH_RESULTS) && (nViewMode != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	if ((nViewMode == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
 	setRootIsDecorated(bDecorateRoot);
-	setDragDropMode((nViewMode) ? QAbstractItemView::DragDrop : QAbstractItemView::InternalMove);
 	vlmodel()->setViewMode(nViewMode);
 }
 

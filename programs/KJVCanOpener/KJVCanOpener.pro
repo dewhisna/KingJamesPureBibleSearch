@@ -133,6 +133,7 @@ greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not
 macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Font Bug on MacX Mavericks
 android:DEFINES += WORKAROUND_QTBUG_35313_35687								# Android QMessageBox dialogs have wrong theming (workaround uses Android Native Dialogs)
 macx:equals(QT_MAJOR_VERSION,5):equals(QT_MINOR_VERSION,3):equals(QT_PATCH_VERSION,1):DEFINES += WORKAROUND_QTBUG_40057		# On Mac OSX on Qt 5.3.1, the QFontDatabase::standardSizes() returns unreasonable 9-288 instead of 6-72
+lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS		# Workaround in Qt 4 for the Abstract List Drop Actions issue that causes it to not do drops into other apps without this returning Copy or Move
 
 # Enable Splash Screen:
 !vnc:DEFINES += SHOW_SPLASH_SCREEN

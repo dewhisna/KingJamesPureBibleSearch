@@ -1093,13 +1093,21 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		return Qt::MoveAction;
 	} else {
-		return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+#ifdef WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS
+		return QAbstractItemModel::supportedDropActions();
+#else
+		return Qt::IgnoreAction;
+#endif
 	}
 }
 
 Qt::DropActions CVerseListModel::supportedDragActions() const
 {
-	return Qt::CopyAction;
+	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
+		return Qt::MoveAction | Qt::CopyAction;
+	} else {
+		return Qt::CopyAction;
+	}
 }
 
 QStringList CVerseListModel::mimeTypes() const
@@ -1107,6 +1115,14 @@ QStringList CVerseListModel::mimeTypes() const
 	QStringList lstTypes;
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		lstTypes << g_constrHighlighterPhraseTagListMimeType;
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		lstTypes << g_constrPlainTextMimeType;
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		lstTypes << g_constrHTMLTextMimeType;
 	}
 
 	return lstTypes;
