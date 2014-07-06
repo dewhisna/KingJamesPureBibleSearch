@@ -706,7 +706,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 	assert(m_pBibleDatabase.data() != NULL);
 
 	QMimeData *mime = U::createMimeDataFromSelection();
-	if (m_bDoPlainCopyOnly) {
+	if ((m_bDoPlainCopyOnly) || (CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
 		// Let the base class do the copy, but snag the plaintext
 		//	version and render only that:
 		QString strTemp = mime->text();
@@ -718,6 +718,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 			docCopy.setHtml(mime->html());
 			CPhraseNavigator navigator(m_pBibleDatabase, docCopy);
 			navigator.removeAnchors();
+			if (CPersistentSettings::instance()->copyMimeType() == CMTE_HTML) mime->clear();
 			mime->setHtml(docCopy.toHtml());
 		}
 	}
@@ -924,8 +925,14 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyReferenceDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
@@ -936,8 +943,14 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyPassageStatistics()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
@@ -948,8 +961,14 @@ template<class T, class U>
 void CScriptureText<T,U>::en_copyEntirePassageDetails()
 {
 	QMimeData *mime = new QMimeData();
-	mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, true));
-	mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, false));
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, true));
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, false));
+	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
 	QApplication::clipboard()->setMimeData(mime);
@@ -972,8 +991,15 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	}
 
 	QMimeData *mime = new QMimeData();
-	mime->setText(docFormattedVerses.toPlainText());
-	if (!bPlainOnly) mime->setHtml(docFormattedVerses.toHtml());
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT) ||
+		(bPlainOnly)) {
+		mime->setText(docFormattedVerses.toPlainText());
+	}
+	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
+		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
+		if (!bPlainOnly) mime->setHtml(docFormattedVerses.toHtml());
+	}
 	QApplication::clipboard()->setMimeData(mime);
 	displayCopyCompleteToolTip();
 }
