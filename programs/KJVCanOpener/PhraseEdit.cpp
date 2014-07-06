@@ -1363,6 +1363,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
+	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
+											CPersistentSettings::instance()->verseRenderingModeCopying() :
+											CPersistentSettings::instance()->verseRenderingMode());
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
@@ -1390,7 +1394,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		scriptureHTML.beginParagraph();
-		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
@@ -1409,7 +1413,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
-		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.endIndent();
 		}
 
@@ -1536,11 +1540,12 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// Print the Chapter Text:
 	bool bParagraph = false;
 	bool bInIndent = false;
+	bool bNeedLeadSpace = false;
 	CRelIndex ndxVerse;
 	bool bVPLNeedsLineBreak = false;
 	bool bStartedText = false;
 	for (unsigned int ndxVrs=0; ndxVrs<pChapter->m_nNumVrs; ++ndxVrs) {
-		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) &&
+		if (((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS)) &&
 			(bParagraph)) bVPLNeedsLineBreak = true;
 
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
@@ -1561,9 +1566,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (!bParagraph) {
 			scriptureHTML.beginParagraph();
 			bParagraph = true;
+			bNeedLeadSpace = false;
 		}
 
-		if ((!bInIndent) && (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING)) {
+		if ((!bInIndent) && ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING))) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 			bInIndent = true;
 		}
@@ -1572,14 +1578,15 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		if (bVPLNeedsLineBreak) {
 			scriptureHTML.addLineBreak();
+			if (vrmeMode == VRME_VPL_DS) scriptureHTML.addLineBreak();
 			bVPLNeedsLineBreak = false;
 		}
-//		if ((CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL) && (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE)) {
+//		if (((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS)) && (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE)) {
 //			scriptureHTML.addLineBreak();
 //		}
 
 		scriptureHTML.beginBold();
-		if ((bStartedText) && (CPersistentSettings::instance()->verseRenderingMode() == VRME_FF)) scriptureHTML.appendLiteralText(" ");
+		if ((bNeedLeadSpace) && (vrmeMode == VRME_FF)) scriptureHTML.appendLiteralText(" ");
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.endAnchor();
@@ -1587,6 +1594,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors)));
 
 		bStartedText = true;
+		bNeedLeadSpace = true;
 
 		// Add CrossRefs:
 		if (flagsTRO & TRO_CrossRefs) {
@@ -1611,11 +1619,15 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				scriptureHTML.flushBuffer(true);		// Flush our note, stop buffering (call below is redundant in this one case)
 				scriptureHTML.insertHorizontalRule();	//	but is needed so we can output this <hr>
 			}
+
+			if ((vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) scriptureHTML.addLineBreak();
+			bNeedLeadSpace = false;
 		}
 		scriptureHTML.flushBuffer(true);		// Stop buffering and flush
 
 		if (bInIndent) {
 			scriptureHTML.endIndent();
+			if (vrmeMode == VRME_VPL_DS_HANGING) scriptureHTML.addLineBreak();
 			bInIndent = false;
 		}
 
@@ -1752,7 +1764,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph();
-		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
@@ -1771,7 +1783,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
-		if (CPersistentSettings::instance()->verseRenderingMode() == VRME_VPL_HANGING) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.endIndent();
 		}
 
@@ -2009,6 +2021,8 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 			break;
 	}
 
+	VERSE_RENDERING_MODE_ENUM vrmeMode = CPersistentSettings::instance()->verseRenderingModeCopying();
+
 //	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 //								"<html><head><title>%1</title><style type=\"text/css\">\n"
 //								"body, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n"
@@ -2077,7 +2091,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 
 	scriptureHTML.beginParagraph();
 
-	if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL_HANGING) {
+	if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 		scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		bInIndent = true;
 	}
@@ -2094,7 +2108,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	}
 
 	if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE) ||
-		(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+		(vrmeMode == VRME_FF)) {
 		scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 	}
 
@@ -2106,22 +2120,25 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	}
 	for (int nIndexPair = 0; nIndexPair < lstFirstLastIndexes.size(); ++nIndexPair) {
 		for (CRelIndex ndx = lstFirstLastIndexes.at(nIndexPair).first; ((ndx <= lstFirstLastIndexes.at(nIndexPair).second) && (ndx.isSet())); /* Increment inside */) {
-			if ((CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) &&
-				(ndx != ndxFirst)) scriptureHTML.addLineBreak();
+			if (((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) &&
+				(ndx != ndxFirst)) {
+				scriptureHTML.addLineBreak();
+				if ((vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) scriptureHTML.addLineBreak();
+			}
 
 			if ((bInIndent) && (ndx != ndxFirst)) {
 				scriptureHTML.endIndent();
 				bInIndent = false;
 			}
 
-			if ((!bInIndent) && (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL_HANGING)) {
+			if ((!bInIndent) && ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING))) {
 				scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 				bInIndent = true;
 			}
 
 			if ((ndx.book() != ndxPrev.book()) &&
 				(CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE)) {
-				if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF) {
+				if (vrmeMode == VRME_FF) {
 					scriptureHTML.appendLiteralText("  ");
 				}
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.beginBold();
@@ -2136,7 +2153,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 			} else if ((ndx.chapter() != ndxPrev.chapter()) || (ndx.verse() != ndxPrev.verse()) ||
 					   (CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE)) {
 				if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER) &&
-					(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_VPL) &&
+					(vrmeMode != VRME_VPL) && (vrmeMode != VRME_VPL_DS) &&
 					(ndx != ndxFirst)) {
 					scriptureHTML.appendLiteralText("  ");
 				}
@@ -2200,20 +2217,20 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
 
 				if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_NO_NUMBER) ||
-					(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+					(vrmeMode == VRME_FF)) {
 					scriptureHTML.appendLiteralText(" ");
 				}
 			}
 
 			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
-				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_FF)) {
+				(vrmeMode != VRME_FF)) {
 				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 			}
 
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTagsCopying, false));
 
 			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
-				(CPersistentSettings::instance()->verseRenderingModeCopying() != VRME_FF)) {
+				(vrmeMode != VRME_FF)) {
 				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 			}
 
@@ -2228,12 +2245,12 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	}
 
 	if ((CPersistentSettings::instance()->verseNumberDelimiterMode() != RDME_COMPLETE_REFERENCE) ||
-		(CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_FF)) {
+		(vrmeMode == VRME_FF)) {
 		scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 	}
 
 	if (CPersistentSettings::instance()->referencesAtEnd()) {
-		if (CPersistentSettings::instance()->verseRenderingModeCopying() == VRME_VPL) {
+		if ((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS)) {
 			scriptureHTML.addLineBreak();
 		} else {
 			scriptureHTML.appendLiteralText(" ");
