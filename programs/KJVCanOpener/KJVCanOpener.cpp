@@ -708,6 +708,38 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application", "MainMenu"));
 	pAction->setToolTip(tr("Configure King James Pure Bible Search", "MainMenu"));
 	pAction->setMenuRole(QAction::PreferencesRole);
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F1));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchGeneralSettingsConfig()));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F2));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchCopyOptionsConfig()));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F3));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchTextColorAndFontsConfig()));
+
+#ifndef VNCSERVER
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F4));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchNotesFileSettingsConfig()));
+#endif
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F5));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchBibleDatabaseConfig()));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F6));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchLocaleSettingsConfig()));
 #endif
 
 	// --- Window Menu
@@ -1490,7 +1522,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
 		}
 
-		if (bLaunchNotesSetupConfig) QTimer::singleShot(10, this, SLOT(en_LaunchUserNoteConfig()));
+		if (bLaunchNotesSetupConfig) QTimer::singleShot(10, this, SLOT(en_LaunchNotesFileSettingsConfig()));
 	} else {
 		// For secondary search windows, activate the search window:
 		if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();
@@ -2655,10 +2687,45 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 #endif
 }
 
-void CKJVCanOpener::en_LaunchUserNoteConfig()
+void CKJVCanOpener::en_LaunchGeneralSettingsConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_GENERAL_SETTINGS);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchCopyOptionsConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_COPY_OPTIONS);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchTextColorAndFontsConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_TEXT_FORMAT);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchNotesFileSettingsConfig()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	en_Configure(CPSE_USER_NOTES_DATABASE);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchBibleDatabaseConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_BIBLE_DATABASE);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_LOCALE);
 #endif
 }
 

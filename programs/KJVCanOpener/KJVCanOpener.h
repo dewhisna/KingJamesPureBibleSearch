@@ -204,7 +204,12 @@ protected slots:
 	void en_QuickActivate();
 
 	void en_Configure(int nInitialPage = -1);
-	void en_LaunchUserNoteConfig();
+	void en_LaunchGeneralSettingsConfig();
+	void en_LaunchCopyOptionsConfig();
+	void en_LaunchTextColorAndFontsConfig();
+	void en_LaunchNotesFileSettingsConfig();
+	void en_LaunchBibleDatabaseConfig();
+	void en_LaunchLocaleSettingsConfig();
 
 	void en_NewCanOpener(QAction *pAction = NULL);
 
