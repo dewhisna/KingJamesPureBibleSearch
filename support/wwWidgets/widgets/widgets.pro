@@ -44,7 +44,7 @@ INSTALLS += target dlltarget
 
 win32 {
 #	CONFIG += build_all dll
-	CONFIG += release dll
+	CONFIG += dll
 	QMAKE_LFLAGS += -shared
 }
 
