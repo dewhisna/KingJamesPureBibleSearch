@@ -2724,9 +2724,9 @@ void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aH
 	}
 }
 
-QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText) const
+QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(pBibleDatabase.data() != NULL);
 
 	QString strToolTip;
 
@@ -2750,20 +2750,20 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const CSelection
 				(nToolTipType == TTE_REFERENCE_ONLY)) {
 				if (!bHaveSelection) {
 					if (ndxReference.word() != 0) {
-						uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
-						if ((ndxNormal != 0) && (ndxNormal <= m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
-							strToolTip += tr("Word:", "Statistics") + " \"" + m_pBibleDatabase->wordAtIndex(ndxNormal) + "\"\n";
+						uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxReference);
+						if ((ndxNormal != 0) && (ndxNormal <= pBibleDatabase->bibleEntry().m_nNumWrd)) {
+							strToolTip += tr("Word:", "Statistics") + " \"" + pBibleDatabase->wordAtIndex(ndxNormal) + "\"\n";
 						}
 					}
-					strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference);
+					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference);
 				} else {
 					strToolTip += tr("Phrase:", "Statistics") + " \"";
-					uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(ndxReference);
+					uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxReference);
 					if (ndxNormal != 0) {
 						unsigned int ndx;
-						for (ndx = 0; ((ndx < qMin(7u, nCount)) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
+						for (ndx = 0; ((ndx < qMin(7u, nCount)) && ((ndxNormal + ndx) <= pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 							if (ndx) strToolTip += " ";
-							strToolTip += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
+							strToolTip += pBibleDatabase->wordAtIndex(ndxNormal + ndx);
 						}
 						if ((ndx == 7u) && (nCount > 7u)) strToolTip += " ...";
 					} else {
@@ -2771,14 +2771,14 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const CSelection
 						strToolTip += "???";
 					}
 					strToolTip += "\"\n";
-					strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, nCount);
+					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, nCount);
 				}
 			}
 			if ((nToolTipType == TTE_COMPLETE) ||
 				(nToolTipType == TTE_STATISTICS_ONLY)) {
 				if (ndxReference.book() != 0) {
-					assert(ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk);
-					if (ndxReference.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
+					assert(ndxReference.book() <= pBibleDatabase->bibleEntry().m_nNumBk);
+					if (ndxReference.book() <= pBibleDatabase->bibleEntry().m_nNumBk) {
 						if (nToolTipType == TTE_COMPLETE) {
 							if (!bPlainText) {
 								strToolTip += "</pre><hr /><pre>";
@@ -2786,21 +2786,21 @@ QString CPhraseEditNavigator::getToolTip(const TPhraseTag &tag, const CSelection
 								strToolTip += "--------------------\n";
 							}
 						}
-						strToolTip += QString("\n%1 ").arg(m_pBibleDatabase->bookName(ndxReference)) + tr("contains:", "Statistics") + "\n"
-												"    " + tr("%n Chapter(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) + "\n"
-												"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
-												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
+						strToolTip += QString("\n%1 ").arg(pBibleDatabase->bookName(ndxReference)) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Chapter(s)", "Statistics", pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) + "\n"
+												"    " + tr("%n Verse(s)", "Statistics", pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
+												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
 						if (ndxReference.chapter() != 0) {
-							assert(ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
-							if (ndxReference.chapter() <= m_pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
-								strToolTip += QString("\n%1 %2 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:", "Statistics") + "\n"
-												"    " + tr("%n Verse(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
-												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
+							assert(ndxReference.chapter() <= pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
+							if (ndxReference.chapter() <= pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
+								strToolTip += QString("\n%1 %2 ").arg(pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Verse(s)", "Statistics", pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
+												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
 								if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
-									assert(ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
-									if (ndxReference.verse() <= m_pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
-										strToolTip += QString("\n%1 %2:%3 ").arg(m_pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:", "Statistics") + "\n"
-												"    " + tr("%n Word(s)", "Statistics", m_pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";
+									assert(ndxReference.verse() <= pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
+									if (ndxReference.verse() <= pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
+										strToolTip += QString("\n%1 %2:%3 ").arg(pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:", "Statistics") + "\n"
+												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";
 									}
 								}
 							}

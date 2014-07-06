@@ -234,6 +234,18 @@ private:
 class CSelectionPhraseTagList : public TPhraseTagList
 {
 public:
+	CSelectionPhraseTagList()
+		:	TPhraseTagList()
+	{ }
+
+	CSelectionPhraseTagList(const CSelectionPhraseTagList &aTagList)
+		:	TPhraseTagList(aTagList)
+	{ }
+
+	CSelectionPhraseTagList(const TPhraseTagList &aTagList)
+		:	TPhraseTagList(aTagList)
+	{ }
+
 	bool haveSelection() const {
 		if (size() == 0) return false;
 		for (int ndx = 0; ndx < size(); ++ndx) {
@@ -370,6 +382,12 @@ class CPhraseNavigator : public QObject
 {
 	Q_OBJECT
 public:
+	enum TOOLTIP_TYPE_ENUM {
+		TTE_COMPLETE = 0,
+		TTE_REFERENCE_ONLY = 1,
+		TTE_STATISTICS_ONLY = 2
+	};
+
 	enum TextRenderOptions {
 		TRO_None = 0x0,								// Default for no options
 		TRO_NoAnchors = 0x1,						// Suppresses internal navigation anchors
@@ -467,6 +485,12 @@ public:
 
 	void removeAnchors();
 
+	static QString getToolTip(const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false);
+	QString getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const
+	{
+		return getToolTip(m_pBibleDatabase, tag, selection, nToolTipType, bPlainText);
+	}
+
 signals:
 	void changedDocumentText();
 
@@ -507,12 +531,6 @@ public:
 		assert(m_pBibleDatabase.data() != NULL);
 	}
 
-	enum TOOLTIP_TYPE_ENUM {
-		TTE_COMPLETE = 0,
-		TTE_REFERENCE_ONLY = 1,
-		TTE_STATISTICS_ONLY = 2
-	};
-
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
 	using CPhraseNavigator::getSelection;
@@ -524,7 +542,6 @@ public:
 	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const;
 #endif
 	void highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList = TPhraseTagList()) const;
-	QString getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const;
 
 private:
 	QTextEdit &m_TextEditor;

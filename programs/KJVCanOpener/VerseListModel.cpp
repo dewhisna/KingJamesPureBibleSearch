@@ -645,7 +645,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_PLAINTEXT_ROLE) ||
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-				return QString();
+				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
 			return QVariant();
 		}
@@ -702,7 +702,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_PLAINTEXT_ROLE) ||
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-				return QString();
+				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
 			return QVariant();
 		}
@@ -768,12 +768,12 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			}
 		}
 
-		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-			if ((role == TOOLTIP_ROLE) ||
-				(role == TOOLTIP_PLAINTEXT_ROLE) ||
-				(role == TOOLTIP_NOHEADING_ROLE) ||
-				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+		if ((role == TOOLTIP_ROLE) ||
+			(role == TOOLTIP_PLAINTEXT_ROLE) ||
+			(role == TOOLTIP_NOHEADING_ROLE) ||
+			(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
+			if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+				(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 
 				const TVerseListModelSearchResults &zSearchResults = ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ? m_searchResults : m_searchResultsExcluded);
 
@@ -844,6 +844,8 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 				return strToolTip;
+			} else {
+				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList(itrVerse->phraseTags()));
 			}
 		}
 

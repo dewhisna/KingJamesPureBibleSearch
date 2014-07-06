@@ -927,11 +927,11 @@ void CScriptureText<T,U>::en_copyReferenceDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, true));
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_REFERENCE_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -945,11 +945,11 @@ void CScriptureText<T,U>::en_copyPassageStatistics()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, true));
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_STATISTICS_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -963,11 +963,11 @@ void CScriptureText<T,U>::en_copyEntirePassageDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, true));
+		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseEditNavigator::TTE_COMPLETE, false));
+		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
