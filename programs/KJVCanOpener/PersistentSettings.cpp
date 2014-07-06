@@ -152,7 +152,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bCopySuperscriptions(false),
 		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
-		m_nCopyMimeType(CMTE_HTML),
+		m_nCopyMimeType(CMTE_ALL),
 		// ----
 		m_bSearchResultsAddBlankLineBetweenVerses(false),
 		// ----
