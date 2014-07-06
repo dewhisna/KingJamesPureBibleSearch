@@ -583,6 +583,49 @@ make docs
 make install_docs
 
 
+Qt 5.3.1 -- Win32 Cross-Compile
+-------------------------------
+Build with MinGW-w64-i686 from:
+http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/
+
+Alternate: Build with:   i686-w64-mingw32-gcc-4.8.0-linux64_rubenvb.tar.xz from:
+http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.8-release/
+untar'd to: /opt/mingw32_4.8.0_rubenvb/
+with: ln -s /opt/mingw32_4.8.0_rubenvb/ /opt/cross_win32
+add to path: /opt/cross_win32
+
+Built with:   i686-w64-mingw32-gcc-4.7.4-release-linux64_rubenvb.tar.xz from:
+https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.7-release/
+untar'd to: /opt/mingw32_4.7.4_rubenvb/
+with: ln -s /opt/mingw32_4.7.4_rubenvb/ /opt/cross_win32
+add to path: /opt/cross_win32
+
+../5.3.1-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -release -force-debug-info -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -qt-freetype -qt-pcre -qt-xkbcommon -gui -widgets -no-dbus -no-opengl -skip webkit -skip webkit-examples -skip declarative -skip winextras -skip activeqt -skip tools -nomake examples -no-pkg-config -prefix /home/dewhisna/Qt/5.3.1-win32 -confirm-license
+
+Note: Won't actually use -fontconfig or -qt-xkbcommon, though doesn't complain about them specified in the config script
+Note: declarative, winextras, and activeqt won't build
+
+build within ~/Qt/5.3.1-win32, requires "make install" when done even though prefix is the same path (to flatten the module structure).  And requires the same source dependency copies for all Qt4/Qt5 platforms (described below)
+
+
+Qt 5.3.1 -- Win32 Cross-Compile [Kubuntu Packaged MinGW]
+--------------------------------------------------------
+
+Built with: Kubuntu cross-compile package for MinGW: mingw-w64, g++-mingw-w64, gcc-mingw-w64, gcc-mingw-w64-base, mingw-w64-i686-dev, mingw-w64-x86-64-dev, g++-mingw-w64-i686, gcc-mingw-w64-i686, g++-mingw-w64-x86-64, gcc-mingw-w64-x86-64, mingw-w64-common, binutils-mingw-w64, binutils-mingw-w64-i686, binutils-mingw-w64-x86-64, mingw-w64-tools, mingw32-binutils, mingw32, mingw32-runtime
+
+../5.3.1-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -release -force-debug-info -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -qt-freetype -qt-pcre -qt-xkbcommon -gui -widgets -no-dbus -no-opengl -skip webkit -skip webkit-examples -skip declarative -skip winextras -skip activeqt -skip tools -nomake examples -no-pkg-config -prefix /home/dewhisna/Qt/5.3.1-win32-kubuntu -confirm-license
+
+build within ~/Qt/5.3.1-win32-kubuntu, requires "make install" when done even though prefix is the same path (to flatten the module structure).  And requires the same source dependency copies for all Qt4/Qt5 platforms (described below)
+
+Need to copy:
+/usr/lib/gcc/i686-w64-mingw32/4.8/libstdc++-6.dll
+/usr/lib/gcc/i686-w64-mingw32/4.8/libgcc_s_sjlj-1.dll
+/usr/i686-w64-mingw32/lib/libwinpthread-1.dll
+
+Make with:  make -j 32
+
+
+
 ===============================================================================
 ===============================================================================
 
@@ -1072,6 +1115,18 @@ cd build-qtstyleplugins-5_3_1_android_x86_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
 export ANDROID_SDK_ROOT=/home/dewhisna/android/android-sdks
 ~/Qt/5.3.1-android/5.3/android_x86/bin/qmake -spec android-g++ CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+
+Windows 5.3.1-win32-kubuntu (cross_win32):
+------------------------------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_3_1_win32_kubuntu
+cd build-qtstyleplugins-5_3_1_win32_kubuntu
+~/Qt/5.3.1-win32-kubuntu/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
