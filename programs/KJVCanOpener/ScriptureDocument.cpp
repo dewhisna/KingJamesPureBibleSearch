@@ -227,6 +227,8 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 				endItalics();
 				endFontRelativeSize();
 				endParagraph();
+			} else {
+				addLineBreak();
 			}
 			appendRawText(userNote.htmlText());
 		} else {
@@ -355,6 +357,8 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 				endItalics();
 				endFontRelativeSize();
 				endParagraph();
+			} else {
+				addLineBreak();
 			}
 			appendRawText(userNote.plainText());
 		} else {

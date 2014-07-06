@@ -194,7 +194,8 @@ public:
 					} else {
 						relNdxTag = getIndex();
 					}
-					if (((bForCopying) && (!CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||
+					if ((!bSearchRefs) ||
+						((bForCopying) && (!CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs())) ||
 						((!bForCopying) && (!CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs()))) {
 						if (relNdxTag.verse() != 0) relNdxTag.setWord(0);
 						bCopyWrdNdx = false;
@@ -209,7 +210,10 @@ public:
 				}
 			}
 		} else {
-			strHeading += m_pBibleDatabase->PassageReferenceText(getIndex());
+			CRelIndex ndxRel = getIndex();
+			if ((verseIndex()->resultsType() == VLMRTE_USER_NOTES) ||
+				(verseIndex()->resultsType() == VLMRTE_CROSS_REFS)) ndxRel.setWord(0);		// Note we don't allow notes/cross-refs on colophons/superscriptions
+			strHeading += m_pBibleDatabase->PassageReferenceText(ndxRel);
 		}
 		return strHeading;
 	}

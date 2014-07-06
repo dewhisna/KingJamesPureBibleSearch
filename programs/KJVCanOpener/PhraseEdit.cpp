@@ -1167,24 +1167,25 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
+	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
-	if (flagsTRO & TRO_Copying) {
-		switch (CPersistentSettings::instance()->copyFontSelection()) {
-			case CFSE_NONE:
-				break;
-			case CFSE_COPY_FONT:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
-				break;
-			case CFSE_SCRIPTURE_BROWSER:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
-				break;
-			case CFSE_SEARCH_RESULTS:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
-				break;
-			default:
-				assert(false);
-				break;
-		}
+	switch (cfseToUse) {
+		case CFSE_NONE:
+			break;
+		case CFSE_COPY_FONT:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+			break;
+		case CFSE_SCRIPTURE_BROWSER:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+			break;
+		case CFSE_SEARCH_RESULTS:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+			break;
+		default:
+			assert(false);
+			break;
 	}
 
 	double nLineHeight = 1.0;
@@ -1336,24 +1337,25 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
+	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
-	if (flagsTRO & TRO_Copying) {
-		switch (CPersistentSettings::instance()->copyFontSelection()) {
-			case CFSE_NONE:
-				break;
-			case CFSE_COPY_FONT:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
-				break;
-			case CFSE_SCRIPTURE_BROWSER:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
-				break;
-			case CFSE_SEARCH_RESULTS:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
-				break;
-			default:
-				assert(false);
-				break;
-		}
+	switch (cfseToUse) {
+		case CFSE_NONE:
+			break;
+		case CFSE_COPY_FONT:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+			break;
+		case CFSE_SCRIPTURE_BROWSER:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+			break;
+		case CFSE_SEARCH_RESULTS:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+			break;
+		default:
+			assert(false);
+			break;
 	}
 
 	double nLineHeight = 1.0;
@@ -1822,24 +1824,25 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
+	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
-	if (flagsTRO & TRO_Copying) {
-		switch (CPersistentSettings::instance()->copyFontSelection()) {
-			case CFSE_NONE:
-				break;
-			case CFSE_COPY_FONT:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
-				break;
-			case CFSE_SCRIPTURE_BROWSER:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
-				break;
-			case CFSE_SEARCH_RESULTS:
-				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
-				break;
-			default:
-				assert(false);
-				break;
-		}
+	switch (cfseToUse) {
+		case CFSE_NONE:
+			break;
+		case CFSE_COPY_FONT:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
+			break;
+		case CFSE_SCRIPTURE_BROWSER:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
+			break;
+		case CFSE_SEARCH_RESULTS:
+			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
+			break;
+		default:
+			assert(false);
+			break;
 	}
 
 	double nLineHeight = 1.0;

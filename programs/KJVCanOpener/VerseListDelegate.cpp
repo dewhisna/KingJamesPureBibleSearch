@@ -55,21 +55,19 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
 {
 	assert(index.isValid());
-	const CVerseListModel::TVerseListModelResults &zResults = m_model.results(index);
 
 	QTreeView *pView = parentView();
 	assert(pView != NULL);
 	bool bViewHasFocus = pView->hasFocus();
 
-	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
-	assert(pVerseIndex != NULL);
-
-	CRelIndex ndxRel(m_model.logicalIndexForModelIndex(index));
+	Q_UNUSED(bDoingSizeHint);
 
 	doc.setDefaultFont(m_model.font());
 	doc.setDefaultStyleSheet(QString("body, p, li, book, chapter { background-color:%1; color:%2; }")
 									.arg(option.palette.color(((((option.state & QStyle::State_HasFocus) || (option.state & QStyle::State_Selected)) && bViewHasFocus) ?  QPalette::Active : QPalette::Inactive), ((option.state & QStyle::State_Selected) ? QPalette::Highlight : QPalette::Base)).name())
 									.arg(option.palette.color(((((option.state & QStyle::State_HasFocus) || (option.state & QStyle::State_Selected)) && bViewHasFocus) ?  QPalette::Active : QPalette::Inactive), ((option.state & QStyle::State_Selected) ? QPalette::HighlightedText : QPalette::Text)).name()));
+
+
 
 //	doc.setDefaultStyleSheet(QString("body, p, li { background-color:%1; color:%2; white-space: pre-wrap; font-size:medium; }\n.book { background-color:%1; color:%2; font-size:xx-large; font-weight:bold; }\n.chapter { background-color:%1; color:%2; font-size:x-large; font-weight:bold; }")
 //			.arg(option.palette.color(QPalette::Active, ((option.state & QStyle::State_Selected) ? QPalette::Highlight : QPalette::Base)).name())
@@ -90,131 +88,9 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, Q
 										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
 										"</style></head><body>\n"));
 
-	if (ndxRel.isSet()) {
-		if ((ndxRel.verse() != 0) ||
-			((ndxRel.verse() == 0) && (ndxRel.word() != 0))) {
-			// Verses:
-			const CVerseListItem &item(index.data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-
-			if ((m_model.displayMode() == CVerseListModel::VDME_HEADING) ||
-				(m_model.viewMode() == CVerseListModel::VVME_USERNOTES)) {
-				scriptureHTML.beginParagraph();
-				scriptureHTML.appendRawText(option.text);
-				scriptureHTML.endParagraph();
-				scriptureHTML.appendRawText("</body></html>");
-				doc.setHtml(scriptureHTML.getResult());
-			} else {
-				CPhraseNavigator navigator(m_model.bibleDatabase(), doc);
-				if (!bDoingSizeHint) {
-					navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_SearchResults);
-					if ((m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
-						(m_model.viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-						CSearchResultHighlighter srHighlighter(item.phraseTags(), (m_model.viewMode() != CVerseListModel::VVME_SEARCH_RESULTS));
-						navigator.doHighlighting(srHighlighter);
-						if (m_model.showHighlightersInSearchResults()) {
-							const THighlighterTagMap *pmapHighlighterTags = m_model.userNotesDatabase()->highlighterTagsFor(m_model.bibleDatabase());
-							if (pmapHighlighterTags) {
-								// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
-								//			(the map is already sorted)
-								TPhraseTag tagVerse = item.getWholeVersePhraseTag();
-								for (THighlighterTagMap::const_iterator itrHighlighters = pmapHighlighterTags->begin(); itrHighlighters != pmapHighlighterTags->end(); ++itrHighlighters) {
-									CUserDefinedHighlighter userHighlighter(itrHighlighters->first, itrHighlighters->second);
-									navigator.doHighlighting(userHighlighter, false, tagVerse);
-								}
-							}
-						}
-					} else {
-						CUserDefinedHighlighter userHighlighter(zResults.resultsName(), item.phraseTags());
-						navigator.doHighlighting(userHighlighter);
-					}
-				} else {
-					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
-				}
-			}
-		} else if (((ndxRel.chapter() != 0) ||
-					((ndxRel.chapter() == 0) && (ndxRel.word() != 0))) ||
-					(pVerseIndex->nodeType() == VLMNTE_CHAPTER_TERMINATOR_NODE)) {
-			// Chapters:
-			int nVerses = 0;
-			int nResults = 0;
-			nVerses = zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
-			nResults = zResults.GetResultsCount(ndxRel.book(), ndxRel.chapter());
-			if (((nResults) || (nVerses)) &&
-				(m_model.viewMode() != CVerseListModel::VVME_USERNOTES) &&
-				(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) {
-				scriptureHTML.beginParagraph();
-				scriptureHTML.appendLiteralText(QString("{%1} (%2) %3").arg(nVerses).arg(nResults).arg(option.text));
-				scriptureHTML.endParagraph();
-			} else {
-				scriptureHTML.beginParagraph();
-				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
-					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.beginBold();
-				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(option.text);
-				} else {
-					scriptureHTML.appendLiteralText(option.text);
-				}
-				if ((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
-					(pVerseIndex->nodeType() != VLMNTE_CHAPTER_TERMINATOR_NODE)) scriptureHTML.endBold();
-				scriptureHTML.endParagraph();
-			}
-			scriptureHTML.appendRawText("</body></html>");
-			doc.setHtml(scriptureHTML.getResult());
-		} else {
-			// Books:
-			int nVerses = 0;
-			int nResults = 0;
-			nVerses = zResults.GetVerseCount(ndxRel.book());
-			nResults = zResults.GetResultsCount(ndxRel.book());
-			if (((nResults) || (nVerses)) &&
-				(m_model.viewMode() != CVerseListModel::VVME_USERNOTES) &&
-				(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) {
-				scriptureHTML.beginParagraph();
-				scriptureHTML.appendLiteralText(QString("{%1} (%2) ").arg(nVerses).arg(nResults));
-				scriptureHTML.beginBold();
-				scriptureHTML.appendLiteralText(option.text);
-				scriptureHTML.endBold();
-				scriptureHTML.endParagraph();
-			} else {
-				scriptureHTML.beginParagraph();
-				if (((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
-					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
-					(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) scriptureHTML.beginBold();
-				if (m_model.viewMode() == CVerseListModel::VVME_USERNOTES) {
-					scriptureHTML.appendRawText(option.text);
-				} else {
-					scriptureHTML.appendLiteralText(option.text);
-				}
-				if (((m_model.viewMode() == CVerseListModel::VVME_CROSSREFS) &&
-					(pVerseIndex->nodeType() != VLMNTE_BOOK_TERMINATOR_NODE)) ||
-					(m_model.viewMode() != CVerseListModel::VVME_CROSSREFS)) scriptureHTML.endBold();
-				scriptureHTML.endParagraph();
-			}
-			scriptureHTML.appendRawText("</body></html>");
-			doc.setHtml(scriptureHTML.getResult());
-		}
-	} else {
-		// Highlighter Name:
-		assert(m_model.viewMode() == CVerseListModel::VVME_HIGHLIGHTERS);
-		const TUserDefinedColor udcHighlighter = m_model.userNotesDatabase()->highlighterDefinition(zResults.resultsName());
-		if (udcHighlighter.isValid()) {
-			scriptureHTML.beginParagraph();
-			scriptureHTML.beginBold();
-			scriptureHTML.beginBackground(udcHighlighter.m_color);
-			scriptureHTML.appendLiteralText(option.text);
-			scriptureHTML.endBackground();
-			scriptureHTML.endBold();
-			scriptureHTML.endParagraph();
-		} else {
-			scriptureHTML.beginParagraph();
-			scriptureHTML.beginBold();
-			scriptureHTML.appendLiteralText(option.text);
-			scriptureHTML.endBold();
-			scriptureHTML.endParagraph();
-		}
-		scriptureHTML.appendRawText("</body></html>");
-		doc.setHtml(scriptureHTML.getResult());
-	}
+	scriptureHTML.appendRawText(option.text);
+	scriptureHTML.appendRawText("</body></html>");
+	doc.setHtml(scriptureHTML.getResult());
 }
 
 int CVerseListDelegate::indentationForIndex(const QModelIndex &index) const
