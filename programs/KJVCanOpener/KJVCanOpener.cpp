@@ -156,6 +156,7 @@ namespace {
 	const QString constrHasFocusKey("HasFocus");
 	const QString constrFontKey("Font");
 	const QString constrAutoExpandSearchResultsTreeViewKey("AutoExpandSearchResultsTreeView");
+	const QString constrHideNotFoundInStatisticsKey("HideNotFoundInStatistics");
 	const QString constrShowHighlightersInSearchResultsKey("ShowHighlightingInSearchResults");
 	const QString constrShowOCntInSearchResultsRefs("ShowOCntInSearchResultsRefs");
 	const QString constrShowWrdNdxInSearchResultsRefs("ShowWrdNdxInSearchResultsRefs");
@@ -994,6 +995,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
 		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
 		settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
+		settings.setValue(constrHideNotFoundInStatisticsKey, CPersistentSettings::instance()->hideNotFoundInStatistcs());
 		settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
 		settings.setValue(constrShowOCntInSearchResultsRefs, CPersistentSettings::instance()->showOCntInSearchResultsRefs());
 		settings.setValue(constrShowWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->showWrdNdxInSearchResultsRefs());
@@ -1358,6 +1360,8 @@ void CKJVCanOpener::restorePersistentSettings()
 		if (bIsFirstCanOpener) {
 			// Restore auto-expand before we set the view mode so that it will update correctly:
 			CPersistentSettings::instance()->setAutoExpandSearchResultsTree(settings.value(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree()).toBool());
+			// Same for hideNotFoundInStatistics:
+			CPersistentSettings::instance()->setHideNotFoundInStatistics(settings.value(constrHideNotFoundInStatisticsKey, CPersistentSettings::instance()->hideNotFoundInStatistcs()).toBool());
 		}
 		setViewMode(static_cast<CVerseListModel::VERSE_VIEW_MODE_ENUM>(settings.value(constrResultsViewModeKey, m_pSearchResultWidget->viewMode()).toUInt()));
 		setDisplayMode(static_cast<CVerseListModel::VERSE_DISPLAY_MODE_ENUM>(settings.value(constrVerseDisplayModeKey, m_pSearchResultWidget->displayMode()).toUInt()));

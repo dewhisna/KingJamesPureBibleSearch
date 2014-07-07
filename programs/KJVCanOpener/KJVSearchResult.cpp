@@ -1338,6 +1338,10 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
+	connect(CPersistentSettings::instance(), SIGNAL(changedHideNotFoundInStatistics(bool)), this, SLOT(setSearchResultsSummaryText()));
+
+	// --------------------------------
+
 	if (m_pShowHighlightersInSearchResults != NULL) {
 		m_pShowHighlightersInSearchResults->setChecked(m_pSearchResultsTreeView->vlmodel()->showHighlightersInSearchResults());
 		connect(m_pShowHighlightersInSearchResults, SIGNAL(clicked(bool)), m_pSearchResultsTreeView->vlmodel(), SLOT(setShowHighlightersInSearchResults(bool)));
@@ -1498,8 +1502,6 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, phrases);
 	m_nLastSearchNumPhrases = phrases.size();
 
-	QString strResults;
-
 	// ------------------------------------------------------------------------
 
 	int nVerses = 0;		// Results counts in Verses
@@ -1526,47 +1528,6 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 
 	// ------------------------------------------------------------------------
 
-	strResults.clear();
-
-	strResults += tr("Found %n Occurrence(s)", "Statistics", nResults) + "\n";
-	strResults += "    " + tr("in %n Verse(s)", "Statistics", nVerses) +
-					" " + tr("in %n Chapter(s)", "Statistics", nChapters) +
-					" " + tr("in %n Book(s)", "Statistics", nBooks);
-	if (aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
-		if (nResults > 0) {
-			strResults += "\n";
-			strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - nVerses) + "\n";
-			strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - nChapters) + "\n";
-			strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - nBooks);
-		}
-	} else {
-		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
-		if (!strSearchWithinDescription.isEmpty()) {
-			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
-		}
-	}
-
-	m_pSearchResultsCount->setText(strResults);
-
-	// ------------------------------------------------------------------------
-
-	strResults.clear();
-
-	strResults += tr("Excluded %n Occurrence(s)", "Statistics", nExcludedResults) + "\n";
-	strResults += "    " + tr("in %n Verse(s)", "Statistics", nExcludedVerses) +
-					" " + tr("in %n Chapter(s)", "Statistics", nExcludedChapters) +
-					" " + tr("in %n Book(s)", "Statistics", nExcludedBooks);
-	if (!aSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
-		QString strSearchWithinDescription = aSearchCriteria.searchWithinDescription(m_pBibleDatabase);
-		if (!strSearchWithinDescription.isEmpty()) {
-			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
-		}
-	}
-
-	m_pExcludedSearchResultsCount->setText(strResults);
-
-	// ------------------------------------------------------------------------
-
 	m_bLastCalcSuccess = true;
 	// ----
 	m_nLastSearchOccurrences = nResults;
@@ -1578,6 +1539,58 @@ void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, 
 	m_nLastExcludedSearchVerses = nExcludedVerses;
 	m_nLastExcludedSearchChapters = nExcludedChapters;
 	m_nLastExcludedSearchBooks = nExcludedBooks;
+
+	setSearchResultsSummaryText();
+}
+
+void CKJVSearchResult::setSearchResultsSummaryText()
+{
+	QString strResults;
+
+	// ------------------------------------------------------------------------
+
+	strResults.clear();
+
+	strResults += tr("Found %n Occurrence(s)", "Statistics", m_nLastSearchOccurrences) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) +
+					" " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) +
+					" " + tr("in %n Book(s)", "Statistics", m_nLastSearchBooks);
+	if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		if (!CPersistentSettings::instance()->hideNotFoundInStatistcs()) {
+			if (m_nLastSearchOccurrences > 0) {
+				strResults += "\n";
+				strResults += "    " + tr("Not found at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses) + "\n";
+				strResults += "    " + tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters) + "\n";
+				strResults += "    " + tr("Not found at all in %n Book(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumBk - m_nLastSearchBooks);
+			}
+		}
+	} else {
+		QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+		if (!strSearchWithinDescription.isEmpty()) {
+			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
+		}
+	}
+
+	m_pSearchResultsCount->setText(strResults);
+
+	// ------------------------------------------------------------------------
+
+	strResults.clear();
+
+	strResults += tr("Excluded %n Occurrence(s)", "Statistics", m_nLastExcludedSearchOccurrences) + "\n";
+	strResults += "    " + tr("in %n Verse(s)", "Statistics", m_nLastExcludedSearchVerses) +
+					" " + tr("in %n Chapter(s)", "Statistics", m_nLastExcludedSearchChapters) +
+					" " + tr("in %n Book(s)", "Statistics", m_nLastExcludedSearchBooks);
+	if (!m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		QString strSearchWithinDescription = m_LastSearchCriteria.searchWithinDescription(m_pBibleDatabase);
+		if (!strSearchWithinDescription.isEmpty()) {
+			strResults += " " + tr("within", "Statistics") + " " + strSearchWithinDescription;
+		}
+	}
+
+	m_pExcludedSearchResultsCount->setText(strResults);
+
+	// ------------------------------------------------------------------------
 }
 
 QString CKJVSearchResult::searchResultsSummaryText() const

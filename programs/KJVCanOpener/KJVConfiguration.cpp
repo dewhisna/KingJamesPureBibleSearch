@@ -1580,6 +1580,7 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
 	connect(ui.spinInitialNumberOfSearchPhrases, SIGNAL(valueChanged(int)), this, SLOT(en_changedInitialNumberOfSearchPhrases(int)));
 	connect(ui.checkBoxAutoExpandSearchResultsTree, SIGNAL(clicked(bool)), this, SLOT(en_changedAutoExpandSearchResultsTree(bool)));
+	connect(ui.checkBoxHideNotFoundInStatistics, SIGNAL(clicked(bool)), this, SLOT(en_changedHideNotFoundInStatistics(bool)));
 
 	loadSettings();
 }
@@ -1605,6 +1606,7 @@ void CConfigSearchOptions::loadSettings()
 	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
 	ui.spinInitialNumberOfSearchPhrases->setValue(CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 	ui.checkBoxAutoExpandSearchResultsTree->setChecked(CPersistentSettings::instance()->autoExpandSearchResultsTree());
+	ui.checkBoxHideNotFoundInStatistics->setChecked(CPersistentSettings::instance()->hideNotFoundInStatistcs());
 
 	m_bLoadingData = false;
 	m_bIsDirty = bKeepDirty;
@@ -1622,6 +1624,7 @@ void CConfigSearchOptions::saveSettings()
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
 	CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(ui.spinInitialNumberOfSearchPhrases->value());
 	CPersistentSettings::instance()->setAutoExpandSearchResultsTree(ui.checkBoxAutoExpandSearchResultsTree->isChecked());
+	CPersistentSettings::instance()->setHideNotFoundInStatistics(ui.checkBoxHideNotFoundInStatistics->isChecked());
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
@@ -1656,6 +1659,15 @@ void CConfigSearchOptions::en_changedAutoExpandSearchResultsTree(bool bAutoExpan
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(bAutoExpandSearchResultsTree);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigSearchOptions::en_changedHideNotFoundInStatistics(bool bHideNotFoundInStatistics)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(bHideNotFoundInStatistics);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

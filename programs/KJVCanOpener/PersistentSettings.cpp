@@ -109,6 +109,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 #endif
 		m_nInitialNumberOfSearchPhrases(1),
 		m_bAutoExpandSearchResultsTree(false),
+		m_bHideNotFoundInStatistics(false),
 		// Default Browser Options:
 #ifndef EMSCRIPTEN
 #ifndef IS_CONSOLE_APP
@@ -284,6 +285,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
 		if (pSource->m_nInitialNumberOfSearchPhrases != pTarget->m_nInitialNumberOfSearchPhrases) emit changedInitialNumberOfSearchPhrases(pTarget->m_nInitialNumberOfSearchPhrases);
 		if (pSource->m_bAutoExpandSearchResultsTree != pTarget->m_bAutoExpandSearchResultsTree) emit changedAutoExpandSearchResultsTree(pTarget->m_bAutoExpandSearchResultsTree);
+		if (pSource->m_bHideNotFoundInStatistics != pTarget->m_bHideNotFoundInStatistics) emit changedHideNotFoundInStatistics(pTarget->m_bHideNotFoundInStatistics);
 
 		if (pSource->m_nNavigationActivationDelay != pTarget->m_nNavigationActivationDelay) emit changedNavigationActivationDelay(pTarget->m_nNavigationActivationDelay);
 		if (pSource->m_nPassageReferenceActivationDelay != pTarget->m_nPassageReferenceActivationDelay) emit changedPassageReferenceActivationDelay(pTarget->m_nPassageReferenceActivationDelay);
@@ -490,6 +492,14 @@ void CPersistentSettings::setAutoExpandSearchResultsTree(bool bAutoExpandSearchR
 	if (m_pPersistentSettingData->m_bAutoExpandSearchResultsTree != bAutoExpandSearchResultsTree) {
 		m_pPersistentSettingData->m_bAutoExpandSearchResultsTree = bAutoExpandSearchResultsTree;
 		emit changedAutoExpandSearchResultsTree(m_pPersistentSettingData->m_bAutoExpandSearchResultsTree);
+	}
+}
+
+void CPersistentSettings::setHideNotFoundInStatistics(bool bHideNotFoundInStatistics)
+{
+	if (m_pPersistentSettingData->m_bHideNotFoundInStatistics != bHideNotFoundInStatistics) {
+		m_pPersistentSettingData->m_bHideNotFoundInStatistics = bHideNotFoundInStatistics;
+		emit changedHideNotFoundInStatistics(m_pPersistentSettingData->m_bHideNotFoundInStatistics);
 	}
 }
 

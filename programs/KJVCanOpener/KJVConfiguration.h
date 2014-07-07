@@ -283,6 +283,7 @@ private slots:
 	void en_changedSearchPhraseActivationDelay(int nValue);
 	void en_changedInitialNumberOfSearchPhrases(int nValue);
 	void en_changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
+	void en_changedHideNotFoundInStatistics(bool bHideNotFoundInStatistics);
 
 // Data Private:
 private:

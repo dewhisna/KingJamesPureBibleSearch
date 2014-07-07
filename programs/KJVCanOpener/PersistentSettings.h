@@ -98,6 +98,7 @@ public:
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
 	int initialNumberOfSearchPhrases() const { return m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases; }
 	bool autoExpandSearchResultsTree() const { return m_pPersistentSettingData->m_bAutoExpandSearchResultsTree; }
+	bool hideNotFoundInStatistcs() const { return m_pPersistentSettingData->m_bHideNotFoundInStatistics; }
 
 	int navigationActivationDelay() const { return m_pPersistentSettingData->m_nNavigationActivationDelay; }
 	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
@@ -190,6 +191,7 @@ signals:
 	void changedSearchPhraseActivationDelay(int nDelay);
 	void changedInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
 	void changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
+	void changedHideNotFoundInStatistics(bool bHideNotFoundInStatistics);
 
 	void changedNavigationActivationDelay(int nDelay);
 	void changedPassageReferenceActivationDelay(int nDelay);
@@ -237,6 +239,7 @@ public slots:
 	void setSearchActivationDelay(int nDelay);
 	void setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
 	void setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
+	void setHideNotFoundInStatistics(bool bHideNotFoundInStatistics);
 
 	void setNavigationActivationDelay(int nDelay);
 	void setPassageReferenceActivationDelay(int nDelay);
@@ -313,6 +316,7 @@ private:
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
 		int m_nInitialNumberOfSearchPhrases;			// Number of Search Phrases to create to opening a new Search Window
 		bool m_bAutoExpandSearchResultsTree;			// True to auto-expand Search Results Tree on Search
+		bool m_bHideNotFoundInStatistics;				// True if user elected to hide the displaying of "Not Found In" statistics in the Search Results
 		// ----
 		int m_nNavigationActivationDelay;				// Navigation Delay to set on Scripture Browser controls
 		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls

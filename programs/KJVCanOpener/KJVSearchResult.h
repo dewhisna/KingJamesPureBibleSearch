@@ -301,6 +301,7 @@ private:
 
 private slots:
 	void en_modelKeywordListChanged();
+	void setSearchResultsSummaryText();
 
 // Private Data:
 private:
