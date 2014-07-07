@@ -66,6 +66,14 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	m_pLayoutPhrases->setContentsMargins(0, 0, 0, 0);
 
 	ui.scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+	// Create pushButton for inserting a new Search Phrase:
+	m_buttonAddSearchPhrase.setText(tr("Add Phrase to Search Criteria", "MainMenu"));		// Keep this matching the buttonAdd on CKJVSearchCriteriaWidget
+	m_buttonAddSearchPhrase.setStatusTip(tr("Add another Phrase to the current Search Criteria", "MainMenu"));		// Keep this matching the buttonAdd on CKJVSearchCriteriaWidget
+	m_buttonAddSearchPhrase.adjustSize();			// Must adjust size here so its height() will be correct or else addSearchPhrase() won't set correct height for the scroll area
+	connect(&m_buttonAddSearchPhrase, SIGNAL(clicked()), this, SLOT(addSearchPhrase()));
+	m_pLayoutPhrases->addWidget(&m_buttonAddSearchPhrase);
+
 	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 
@@ -272,14 +280,15 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
-	pPhraseWidget->showSeperatorLine(m_lstSearchPhraseEditors.size() > 1);
+	pPhraseWidget->showSeperatorLine(true);		// Always show the separator since we have the "AddSearchPhrase" button
 	pPhraseWidget->resize(pPhraseWidget->minimumSizeHint());
-	m_pLayoutPhrases->addWidget(pPhraseWidget);
+	m_pLayoutPhrases->insertWidget(m_pLayoutPhrases->indexOf(&m_buttonAddSearchPhrase), pPhraseWidget);		// m_pLayoutPhrases->addWidget(pPhraseWidget);
 	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
 	int nHeight = 0;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
+	nHeight += m_buttonAddSearchPhrase.height();
 	ui.scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
 	ensureSearchPhraseVisible(pPhraseWidget);
 	pPhraseWidget->phraseStatisticsChanged();
@@ -330,14 +339,13 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	if (ndx != -1) {
 		m_lstSearchPhraseEditors.removeAt(ndx);
 	}
-	if ((ndx == 0) && (m_lstSearchPhraseEditors.size() != 0))
-		m_lstSearchPhraseEditors.at(0)->showSeperatorLine(false);
 	int ndxActivate = ((ndx < m_lstSearchPhraseEditors.size()) ? ndx : ndx-1);
 
 	int nHeight = 0;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
+	nHeight += m_buttonAddSearchPhrase.height();
 	ui.scrollAreaWidgetContents->setMinimumSize(ui.scrollAreaWidgetContents->minimumSize().width(), nHeight);
 	if (bPhraseChanged) en_phraseChanged(NULL);
 
