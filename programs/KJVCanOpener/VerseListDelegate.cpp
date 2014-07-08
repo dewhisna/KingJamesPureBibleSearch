@@ -116,11 +116,19 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 	initStyleOption(&optionV4, index);
 
 	QRect textRect;
-	if (parentView()) {
-		textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &optionV4, parentView());
-	} else {
-		textRect = optionV4.rect;
-	}
+
+// The follow is broken on Windows for the startDrag pixel preview but otherwise seems to work
+//		everywhere else (even in Windows).  Seems to be a style difference with what is generated
+//		for the drag prevew from that of the TreeView itself.  But, the optionV4.rect should
+//		always be correct, so we'll just use it...
+//
+//	if (parentView()) {
+//		textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &optionV4, parentView());
+//	} else {
+//		textRect = optionV4.rect;
+//	}
+
+	textRect = optionV4.rect;
 
 	switch (m_model.displayMode()) {
 		case CVerseListModel::VDME_HEADING:
