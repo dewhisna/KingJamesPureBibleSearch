@@ -52,6 +52,12 @@ enum COPY_MIME_TYPE_ENUM {
 	CMTE_TEXT = 2
 };
 
+enum VERSE_COPY_ORDER_ENUM {
+	VCOE_SELECTED = 0,				// Verses copied in the order they were selected
+	VCOE_BIBLE_ASCENDING = 1,		// Bible Order Ascending
+	VCOE_BIBLE_DESCENDING = 2		// Bible Order Descending
+};
+
 // ============================================================================
 
 class CPersistentSettings : public QObject
@@ -129,6 +135,7 @@ public:
 	COPY_MIME_TYPE_ENUM copyMimeType() const { return m_pPersistentSettingData->m_nCopyMimeType; }
 
 	bool searchResultsAddBlankLineBetweenVerses() const { return m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses; }
+	VERSE_COPY_ORDER_ENUM searchResultsVerseCopyOrder() const { return m_pPersistentSettingData->m_nSearchResultsVerseCopyOrder; }
 
 	bool showOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bShowOCntInSearchResultsRefs; }
 	bool copyOCntInSearchResultsRefs() const { return m_pPersistentSettingData->m_bCopyOCntInSearchResultsRefs; }
@@ -270,6 +277,7 @@ public slots:
 	void setCopyMimeType(COPY_MIME_TYPE_ENUM nCopyMimeType);
 
 	void setSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine);
+	void setSearchResultsVerseCopyOrder(VERSE_COPY_ORDER_ENUM nVerseCopyOrder);
 
 	void setShowOCntInSearchResultsRefs(bool bShow);
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
@@ -347,6 +355,7 @@ private:
 		COPY_MIME_TYPE_ENUM m_nCopyMimeType;			// Selection of MIME type to use in copying and drag-n-drop
 		// ----
 		bool m_bSearchResultsAddBlankLineBetweenVerses;	// True if adding blank lines between Search Results Verses when copying
+		VERSE_COPY_ORDER_ENUM m_nSearchResultsVerseCopyOrder;	// Order used for copying (and drag-and-drop) of Search Results Verses
 		// ----
 		bool m_bShowOCntInSearchResultsRefs;			// True if showing Occurrence Counts in Search Results References
 		bool m_bCopyOCntInSearchResultsRefs;			// True if copying Occurrence Counts in Search Results References <--- Considered a Copy Option and will use the changedCopyOptions() signal

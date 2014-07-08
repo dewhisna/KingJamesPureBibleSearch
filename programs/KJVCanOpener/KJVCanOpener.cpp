@@ -199,7 +199,8 @@ namespace {
 	const QString constrCopyFontSelectionKey("CopyFontSelection");
 	const QString constrCopyFontKey("CopyFont");
 	const QString constrCopyMimeTypeKey("CopyMimeType");
-	const QString constrCopySearchResultsAddBlankLineBetweenVerses("SearchResultsAddBlankLineBetweenVerses");
+	const QString constrCopySearchResultsAddBlankLineBetweenVersesKey("SearchResultsAddBlankLineBetweenVerses");
+	const QString constrSearchResultsVerseCopyOrderKey("SearchResultsVerseCopyOrder");
 	const QString constrCopyOCntInSearchResultsRefs("CopyOCntInSearchResultsRefs");
 	const QString constrCopyWrdNdxInSearchResultsRefs("CopyWrdNdxInSearchResultsRefs");
 
@@ -1085,7 +1086,8 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
 		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
 		settings.setValue(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType());
-		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
+		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVersesKey, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
+		settings.setValue(constrSearchResultsVerseCopyOrderKey, CPersistentSettings::instance()->searchResultsVerseCopyOrder());
 		settings.setValue(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
 		settings.setValue(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs());
 		settings.endGroup();
@@ -1480,7 +1482,8 @@ void CKJVCanOpener::restorePersistentSettings()
 				CPersistentSettings::instance()->setFontCopyFont(aCopyFont2);
 			}
 			CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(settings.value(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType()).toUInt()));
-			CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(settings.value(constrCopySearchResultsAddBlankLineBetweenVerses, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()).toBool());
+			CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(settings.value(constrCopySearchResultsAddBlankLineBetweenVersesKey, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()).toBool());
+			CPersistentSettings::instance()->setSearchResultsVerseCopyOrder(static_cast<VERSE_COPY_ORDER_ENUM>(settings.value(constrSearchResultsVerseCopyOrderKey, CPersistentSettings::instance()->searchResultsVerseCopyOrder()).toUInt()));
 			CPersistentSettings::instance()->setCopyOCntInSearchResultsRefs(settings.value(constrCopyOCntInSearchResultsRefs, CPersistentSettings::instance()->copyOCntInSearchResultsRefs()).toBool());
 			CPersistentSettings::instance()->setCopyWrdNdxInSearchResultsRefs(settings.value(constrCopyWrdNdxInSearchResultsRefs, CPersistentSettings::instance()->copyWrdNdxInSearchResultsRefs()).toBool());
 			settings.endGroup();

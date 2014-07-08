@@ -2026,6 +2026,12 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	connect(ui.checkBoxSearchResultsAddBlankLineBetweenVerses, SIGNAL(clicked(bool)), this, SLOT(en_changedSearchResultsAddBlankLineBetweenVerses(bool)));
 
+	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Selected Order", "VerseCopyOrder"), VCOE_SELECTED);
+	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Ascending Order"), VCOE_BIBLE_ASCENDING);
+	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Descending Order"), VCOE_BIBLE_DESCENDING);
+
+	connect(ui.comboBoxSearchResultsVerseCopyOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchResultsVerseCopyOrder(int)));
+
 	connect(ui.checkBoxShowOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxCopyOCntInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedCopyOCntInSearchResultsRefs(bool)));
 	connect(ui.checkBoxShowWrdNdxInSearchResultsRefs, SIGNAL(clicked(bool)), this, SLOT(en_changedShowWrdNdxInSearchResultsRefs(bool)));
@@ -2199,6 +2205,15 @@ void CConfigCopyOptions::loadSettings()
 	// ----------
 
 	ui.checkBoxSearchResultsAddBlankLineBetweenVerses->setChecked(CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
+
+	nIndex = ui.comboBoxSearchResultsVerseCopyOrder->findData(CPersistentSettings::instance()->searchResultsVerseCopyOrder());
+	if (nIndex != -1) {
+		ui.comboBoxSearchResultsVerseCopyOrder->setCurrentIndex(nIndex);
+	} else {
+		bKeepDirty = true;
+		ui.comboBoxSearchResultsVerseCopyOrder->setCurrentIndex(0);
+		CPersistentSettings::instance()->setSearchResultsVerseCopyOrder(static_cast<VERSE_COPY_ORDER_ENUM>(ui.comboBoxSearchResultsVerseCopyOrder->itemData(0).toUInt()));
+	}
 
 	ui.checkBoxShowOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->showOCntInSearchResultsRefs());
 	ui.checkBoxCopyOCntInSearchResultsRefs->setChecked(CPersistentSettings::instance()->copyOCntInSearchResultsRefs());
@@ -2419,6 +2434,21 @@ void CConfigCopyOptions::en_changedSearchResultsAddBlankLineBetweenVerses(bool b
 	if (m_bLoadingData) return;
 
 	CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(bAddBlankLine);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigCopyOptions::en_changedSearchResultsVerseCopyOrder(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	if (nIndex != -1) {
+		VERSE_COPY_ORDER_ENUM nVCOE = static_cast<VERSE_COPY_ORDER_ENUM>(ui.comboBoxSearchResultsVerseCopyOrder->itemData(nIndex).toUInt());
+		CPersistentSettings::instance()->setSearchResultsVerseCopyOrder(nVCOE);
+	} else {
+		assert(false);
+	}
+
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

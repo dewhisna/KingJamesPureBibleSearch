@@ -156,6 +156,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nCopyMimeType(CMTE_ALL),
 		// ----
 		m_bSearchResultsAddBlankLineBetweenVerses(false),
+		m_nSearchResultsVerseCopyOrder(VCOE_SELECTED),
 		// ----
 		m_bShowOCntInSearchResultsRefs(true),
 		m_bCopyOCntInSearchResultsRefs(true),
@@ -315,6 +316,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			(pSource->m_fntCopyFont != pTarget->m_fntCopyFont) ||
 			(pSource->m_nCopyMimeType != pTarget->m_nCopyMimeType) ||
 			(pSource->m_bSearchResultsAddBlankLineBetweenVerses != pTarget->m_bSearchResultsAddBlankLineBetweenVerses) ||
+			(pSource->m_nSearchResultsVerseCopyOrder != pTarget->m_nSearchResultsVerseCopyOrder) ||
 			(pSource->m_bCopyOCntInSearchResultsRefs != pTarget->m_bCopyOCntInSearchResultsRefs) ||
 			(pSource->m_bCopyWrdNdxInSearchResultsRefs != pTarget->m_bCopyWrdNdxInSearchResultsRefs)) emit changedCopyOptions();
 
@@ -707,6 +709,14 @@ void CPersistentSettings::setSearchResultsAddBlankLineBetweenVerses(bool bAddBla
 {
 	if (m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses != bAddBlankLine) {
 		m_pPersistentSettingData->m_bSearchResultsAddBlankLineBetweenVerses = bAddBlankLine;
+		emit changedCopyOptions();
+	}
+}
+
+void CPersistentSettings::setSearchResultsVerseCopyOrder(VERSE_COPY_ORDER_ENUM nVerseCopyOrder)
+{
+	if (m_pPersistentSettingData->m_nSearchResultsVerseCopyOrder != nVerseCopyOrder) {
+		m_pPersistentSettingData->m_nSearchResultsVerseCopyOrder = nVerseCopyOrder;
 		emit changedCopyOptions();
 	}
 }

@@ -409,6 +409,7 @@ private slots:
 	void en_changedFontCopyFontSize(double nFontSize);
 	void en_changedCopyMimeType(int nIndex);
 	void en_changedSearchResultsAddBlankLineBetweenVerses(bool bAddBlankLine);
+	void en_changedSearchResultsVerseCopyOrder(int nIndex);
 	void en_changedShowOCntInSearchResultsRefs(bool bShow);
 	void en_changedCopyOCntInSearchResultsRefs(bool bCopy);
 	void en_changedShowWrdNdxInSearchResultsRefs(bool bShow);
