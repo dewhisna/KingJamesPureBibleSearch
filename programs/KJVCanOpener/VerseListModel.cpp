@@ -2211,6 +2211,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAn
 	bool bFlag = false;
 
 	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); (itr != m_mapVerses.constEnd()); ++itr) {
+		if (itr.key().chapter() == 0) continue;			// Exclude colophons
 		nChapters++;		// Count the chapter we are on and skip the ones that are on the same book/chapter:
 		if (!bFlag) ndxChapter++;
 		if (itr == itrVerse) bFlag = true;
