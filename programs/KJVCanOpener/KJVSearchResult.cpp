@@ -406,24 +406,27 @@ QModelIndexList CSearchResultsTreeView::getSelectedVerses() const
 	return lstSelectedItems;
 }
 
+QModelIndexList CSearchResultsTreeView::getSelectedEntries() const
+{
+	QModelIndexList lstVerses;
+
+	lstVerses = selectionModel()->selectedRows();
+	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
+		if (!lstVerses.at(ndx).isValid()) {
+			lstVerses.removeAt(ndx);
+			--ndx;
+		}
+	}
+
+	return lstVerses;
+}
+
 // ----------------------------------------------------------------------------
 
 void CSearchResultsTreeView::en_copyVerseEntry() const
 {
-	QModelIndexList lstVerses;
-
-	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
-		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
-		lstVerses = selectionModel()->selectedRows();
-		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-			if (!lstVerses.at(ndx).isValid()) {
-				lstVerses.removeAt(ndx);
-				--ndx;
-			}
-		}
-	} else {
-		lstVerses = getSelectedVerses();
-	}
+	QModelIndexList lstVerses = (((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
+								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseText(lstVerses, false);
 	assert(mime != NULL);
@@ -469,20 +472,8 @@ void CSearchResultsTreeView::en_copyVeryRaw() const
 
 void CSearchResultsTreeView::en_copyVerseHeadings() const
 {
-	QModelIndexList lstVerses;
-
-	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
-		(vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) {
-		lstVerses = selectionModel()->selectedRows();
-		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
-			if (!lstVerses.at(ndx).isValid()) {
-				lstVerses.removeAt(ndx);
-				--ndx;
-			}
-		}
-	} else {
-		lstVerses = getSelectedVerses();
-	}
+	QModelIndexList lstVerses = (((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) ||
+								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses, true);
 	assert(mime != NULL);

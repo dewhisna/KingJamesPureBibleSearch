@@ -103,6 +103,7 @@ public:
 	bool editableNodeSelected() const;
 
 	QModelIndexList getSelectedVerses() const;
+	QModelIndexList getSelectedEntries() const;
 
 	CKJVCanOpener *parentCanOpener() const;
 

@@ -661,9 +661,11 @@ public:
 	static CRelIndex navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical);
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-	void sortModelIndexList(QModelIndexList &lstIndexes) const;				// Sorts a list of model indexes for the current set of model settings
+	void sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const;				// Sorts a list of model indexes for the current set of model settings
 	static bool ascendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2);
 	static bool ascendingLessThanXRefTargets(const QModelIndex &ndx1, const QModelIndex &ndx2);
+	static bool descendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2);
+	static bool descendingLessThanXRefTargets(const QModelIndex &ndx1, const QModelIndex &ndx2);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
@@ -678,11 +680,11 @@ public:
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);
 
-	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVerses, bool bVerseTextOnly) const;
-	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const;
-	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVerses, bool bHeadingTextOnly) const;
-	QMimeData *mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const;
-	QMimeData *mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const;
+	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVersesUnsorted, bool bVerseTextOnly) const;
+	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVersesUnsorted, bool bVeryRaw) const;
+	QMimeData *mimeDataFromVerseHeadings(const QModelIndexList &lstVersesUnsorted, bool bHeadingTextOnly) const;
+	QMimeData *mimeDataFromReferenceDetails(const QModelIndexList &lstVersesUnsorted) const;
+	QMimeData *mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVersesUnsorted) const;
 
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)

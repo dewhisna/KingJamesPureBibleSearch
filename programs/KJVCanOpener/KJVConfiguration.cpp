@@ -2027,8 +2027,8 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 	connect(ui.checkBoxSearchResultsAddBlankLineBetweenVerses, SIGNAL(clicked(bool)), this, SLOT(en_changedSearchResultsAddBlankLineBetweenVerses(bool)));
 
 	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Selected Order", "VerseCopyOrder"), VCOE_SELECTED);
-	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Ascending Order"), VCOE_BIBLE_ASCENDING);
-	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Descending Order"), VCOE_BIBLE_DESCENDING);
+	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Order Ascending"), VCOE_BIBLE_ASCENDING);
+	ui.comboBoxSearchResultsVerseCopyOrder->addItem(tr("Bible Order Descending"), VCOE_BIBLE_DESCENDING);
 
 	connect(ui.comboBoxSearchResultsVerseCopyOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchResultsVerseCopyOrder(int)));
 

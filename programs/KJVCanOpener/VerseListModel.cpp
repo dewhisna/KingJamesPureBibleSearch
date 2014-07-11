@@ -977,19 +977,80 @@ bool CVerseListModel::ascendingLessThanXRefTargets(const QModelIndex &ndx1, cons
 	return (ndxRel1 < ndxRel2);
 }
 
+bool CVerseListModel::descendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2)
+{
+	const TVerseIndex *vi1 = toVerseIndex(ndx1);
+	const TVerseIndex *vi2 = toVerseIndex(ndx2);
+
+	return (*vi2 < *vi1);
+}
+
+bool CVerseListModel::descendingLessThanXRefTargets(const QModelIndex &ndx1, const QModelIndex &ndx2)
+{
+	const TVerseIndex *vi1 = toVerseIndex(ndx1);
+	const TVerseIndex *vi2 = toVerseIndex(ndx2);
+
+	CRelIndex ndxRel1(toVerseIndex(ndx1)->relIndex());
+	if (vi1->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
+		const TRelativeIndexSet setCrossRefs1 = ms_pCrossRefsMap->crossReferencesFor(ndxRel1);
+		assert((ndx1.row() >= 0) && (static_cast<unsigned int>(ndx1.row()) < setCrossRefs1.size()));
+		TRelativeIndexSet::const_iterator itrRef1 = setCrossRefs1.begin();
+		for (int i = ndx1.row(); i > 0; ++itrRef1, --i) { }
+		ndxRel1 = *(itrRef1);
+	}
+	CRelIndex ndxRel2(toVerseIndex(ndx2)->relIndex());
+	if (vi2->nodeType() == VLMNTE_CROSS_REFERENCE_TARGET_NODE) {
+		const TRelativeIndexSet setCrossRefs2 = ms_pCrossRefsMap->crossReferencesFor(ndxRel2);
+		assert((ndx2.row() >= 0) && (static_cast<unsigned int>(ndx2.row()) < setCrossRefs2.size()));
+		TRelativeIndexSet::const_iterator itrRef2 = setCrossRefs2.begin();
+		for (int i = ndx2.row(); i > 0; ++itrRef2, --i) { }
+		ndxRel2 = *(itrRef2);
+	}
+	return (ndxRel2 < ndxRel1);
+}
+
 // Static thread-locked data, locked in sortModelIndexList:
 const TCrossReferenceMap *CVerseListModel::ms_pCrossRefsMap = NULL;
 
-void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes) const
+void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const
 {
 	static QAtomicInt nThreadLock(0);
 	while (!nThreadLock.testAndSetRelaxed(0, 1)) { }	// Mutex wait for thread if someone is currently running this function
 	assert(ms_pCrossRefsMap == NULL);					// Thread-safeguard check
 	ms_pCrossRefsMap = &m_crossRefsResults.m_mapCrossRefs;
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
-		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
+		if (bUseCopySortOption) {
+			switch (CPersistentSettings::instance()->searchResultsVerseCopyOrder()) {
+				case VCOE_SELECTED:
+					break;
+				case VCOE_BIBLE_ASCENDING:
+					qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
+					break;
+				case VCOE_BIBLE_DESCENDING:
+					qSort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanXRefTargets);
+					break;
+				default:
+					assert(false);
+					break;
+			}
+		} else {
+			qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
+		}
 	} else {
-		qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
+		if (bUseCopySortOption) {
+			switch (CPersistentSettings::instance()->searchResultsVerseCopyOrder()) {
+				case VCOE_SELECTED:
+					break;
+				case VCOE_BIBLE_ASCENDING:
+					qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
+					break;
+				case VCOE_BIBLE_DESCENDING:
+					qSort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanModelIndex);
+					break;
+			}
+		} else {
+			qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
+		}
 	}
 	ms_pCrossRefsMap = NULL;
 	nThreadLock = 0;
@@ -1322,9 +1383,12 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 // ----------------------------------------------------------------------------
 
-QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVerses, bool bVerseTextOnly) const
+QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVersesUnsorted, bool bVerseTextOnly) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QModelIndexList lstVerses = lstVersesUnsorted;
+	sortModelIndexList(lstVerses, true);
 
 	CScriptureTextHtmlBuilder docVerseHTML;
 
@@ -1430,9 +1494,12 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 	return mime;
 }
 
-QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstVerses, bool bVeryRaw) const
+QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstVersesUnsorted, bool bVeryRaw) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QModelIndexList lstVerses = lstVersesUnsorted;
+	sortModelIndexList(lstVerses, true);
 
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
@@ -1453,9 +1520,12 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 	return mime;
 }
 
-QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVerses, bool bHeadingTextOnly) const
+QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVersesUnsorted, bool bHeadingTextOnly) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QModelIndexList lstVerses = lstVersesUnsorted;
+	sortModelIndexList(lstVerses, true);
 
 	QTextDocument docHeadings;
 	CScriptureTextHtmlBuilder docHeadingsHTML;
@@ -1548,8 +1618,11 @@ QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lst
 	return mime;
 }
 
-QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &lstVerses) const
+QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &lstVersesUnsorted) const
 {
+	QModelIndexList lstVerses = lstVersesUnsorted;
+	sortModelIndexList(lstVerses, true);
+
 	QString strPlainText;
 	QString strRichText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
@@ -1573,9 +1646,12 @@ QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &
 	return mime;
 }
 
-QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVerses) const
+QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVersesUnsorted) const
 {
 	assert(m_private.m_pBibleDatabase.data() != NULL);
+
+	QModelIndexList lstVerses = lstVersesUnsorted;
+	sortModelIndexList(lstVerses, true);
 
 	QTextDocument docList;
 	QTextCursor cursorDocList(&docList);
