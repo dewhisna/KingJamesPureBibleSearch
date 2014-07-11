@@ -654,12 +654,14 @@ void CKJVSearchPhraseEdit::en_phraseAdd()
 {
 	CPersistentSettings::instance()->addUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
+	ui.editPhrase->setFocus();
 }
 
 void CKJVSearchPhraseEdit::en_phraseDel()
 {
 	CPersistentSettings::instance()->removeUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
+	ui.editPhrase->setFocus();
 }
 
 void CKJVSearchPhraseEdit::en_phraseClear()
@@ -671,6 +673,7 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 	en_AccentSensitiveChanged(false);
 	en_ExcludeChanged(false);
 	setDisabled(false);
+	ui.editPhrase->setFocus();
 }
 
 void CKJVSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
