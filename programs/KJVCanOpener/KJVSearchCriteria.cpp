@@ -502,9 +502,6 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 {
 	ui.setupUi(this);
 
-	ui.buttonAdd->setToolTip(tr("Add Phrase to Search Criteria", "MainMenu"));
-	ui.buttonAdd->setStatusTip(tr("Add another Phrase to the current Search Criteria", "MainMenu"));
-
 	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text (Unscoped)", "ScopeMenu"), CSearchCriteria::SSME_UNSCOPED);
 	ui.comboSearchScope->addItem(tr("Together in Selected Search Text", "ScopeMenu"), CSearchCriteria::SSME_WHOLE_BIBLE);
 	ui.comboSearchScope->addItem(tr("Same Testament", "ScopeMenu"), CSearchCriteria::SSME_TESTAMENT);
@@ -519,8 +516,6 @@ CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	ui.comboSearchScope->setCurrentIndex(ui.comboSearchScope->findData(m_SearchCriteria.searchScopeMode()));
 
 	connect(ui.comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchScopeMode(int)));
-	connect(ui.buttonAdd, SIGNAL(clicked()), this, SIGNAL(addSearchPhraseClicked()));
-	connect(ui.buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
 
 	connect(ui.treeViewSearchWithin, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(en_SearchWithinItemActivated(const QModelIndex &)));
 
@@ -601,11 +596,6 @@ void CKJVSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &i
 			emit gotoIndex(ndxReference);
 		}
 	}
-}
-
-void CKJVSearchCriteriaWidget::enableCopySearchPhraseSummary(bool bEnable)
-{
-	ui.buttonCopySummary->setEnabled(bEnable);
 }
 
 void CKJVSearchCriteriaWidget::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)

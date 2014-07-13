@@ -174,12 +174,9 @@ public:
 
 signals:
 	void changedSearchCriteria();
-	void addSearchPhraseClicked();
-	void copySearchPhraseSummary();
 	void gotoIndex(const CRelIndex &relIndex);
 
 public slots:
-	void enableCopySearchPhraseSummary(bool bEnable);
 	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
 
 	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin);

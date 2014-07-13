@@ -2315,87 +2315,83 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <translation>SuchkriterienFormular</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="43"/>
+        <location filename="../KJVSearchCriteria.ui" line="82"/>
         <source>Search W&amp;ithin:</source>
         <translation>Suche &amp;in:</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="67"/>
+        <location filename="../KJVSearchCriteria.ui" line="54"/>
         <source>Search &amp;Scope:</source>
         <translation>&amp;Suchziel:</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="131"/>
         <source>&amp;Copy Search Phrase Summary to Clipboard</source>
-        <translation>&amp;Kopiere Suchphrase in die Zwischenablage</translation>
+        <translation type="obsolete">&amp;Kopiere Suchphrase in die Zwischenablage</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="157"/>
         <source>Ctrl+P</source>
-        <translation>Strg+P</translation>
+        <translation type="obsolete">Strg+P</translation>
+    </message>
+    <message>
+        <source>Add Phrase to Search Criteria</source>
+        <comment>MainMenu</comment>
+        <translation type="obsolete">Füge Phrase zu Schukriterien hinzu</translation>
+    </message>
+    <message>
+        <source>Add another Phrase to the current Search Criteria</source>
+        <comment>MainMenu</comment>
+        <translation type="obsolete">Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="505"/>
-        <source>Add Phrase to Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation>Füge Phrase zu Schukriterien hinzu</translation>
-    </message>
-    <message>
-        <location filename="../KJVSearchCriteria.cpp" line="506"/>
-        <source>Add another Phrase to the current Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation>Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
-    </message>
-    <message>
-        <location filename="../KJVSearchCriteria.cpp" line="508"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation>Irgendwo im ausgewählten Suchtext (unspezifiziert)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="509"/>
+        <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation>Gemeinsam im ausgewählten Suchtext</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="510"/>
+        <location filename="../KJVSearchCriteria.cpp" line="507"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation>Gleiches Testament</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="511"/>
+        <location filename="../KJVSearchCriteria.cpp" line="508"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation>Gleiche Kategorie</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="512"/>
+        <location filename="../KJVSearchCriteria.cpp" line="509"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation>Gleiches Buch</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="513"/>
+        <location filename="../KJVSearchCriteria.cpp" line="510"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation>Gleiches Kapitel</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="514"/>
+        <location filename="../KJVSearchCriteria.cpp" line="511"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation>Gleicher Vers</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="515"/>
+        <location filename="../KJVSearchCriteria.cpp" line="512"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation>Wähle Suchziel aus</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="516"/>
+        <location filename="../KJVSearchCriteria.cpp" line="513"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation>Definiere Suchzielmodus für Phrasensuchen</translation>
@@ -2777,25 +2773,31 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <translation>KJVSearchSpecFormular</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="71"/>
+        <location filename="../KJVSearchSpec.cpp" line="72"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished">Füge Phrase zu Schukriterien hinzu</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="72"/>
+        <location filename="../KJVSearchSpec.cpp" line="75"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished">Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="129"/>
+        <location filename="../KJVSearchSpec.cpp" line="88"/>
+        <source>&amp;Copy Search Phrase Summary to Clipboard</source>
+        <comment>MainMenu</comment>
+        <translation type="unfinished">&amp;Kopiere Suchphrase in die Zwischenablage</translation>
+    </message>
+    <message>
+        <location filename="../KJVSearchSpec.cpp" line="142"/>
         <source>&lt;Empty Search Window&gt;</source>
         <comment>MainMenu</comment>
         <translation>&lt;Leeres Suchfenster&gt;</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="408"/>
+        <location filename="../KJVSearchSpec.cpp" line="423"/>
         <source>Search of %n Phrase(s) %1 within %2</source>
         <comment>Statistics</comment>
         <translation>
@@ -2804,13 +2806,13 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="410"/>
+        <location filename="../KJVSearchSpec.cpp" line="425"/>
         <source>Search within %1 of:</source>
         <comment>Statistics</comment>
         <translation>Suche in %1 von:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="414"/>
+        <location filename="../KJVSearchSpec.cpp" line="429"/>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation>
@@ -2819,13 +2821,13 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="416"/>
+        <location filename="../KJVSearchSpec.cpp" line="431"/>
         <source>Search of:</source>
         <comment>Statistics</comment>
         <translation>Suche von:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="427"/>
+        <location filename="../KJVSearchSpec.cpp" line="442"/>
         <source>(Found %n Time(s), %1 in Scope)</source>
         <comment>Statistics</comment>
         <translation>
@@ -2834,7 +2836,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="431"/>
+        <location filename="../KJVSearchSpec.cpp" line="446"/>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation>
@@ -2843,7 +2845,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="436"/>
+        <location filename="../KJVSearchSpec.cpp" line="451"/>
         <source>(Found %n Time(s), %1 in Scope and not removed by exclusions)</source>
         <comment>Statistics</comment>
         <translation>
@@ -2852,7 +2854,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="442"/>
+        <location filename="../KJVSearchSpec.cpp" line="457"/>
         <source>Found %n Time(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -2861,7 +2863,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="444"/>
+        <location filename="../KJVSearchSpec.cpp" line="459"/>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation>
@@ -2870,19 +2872,19 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="454"/>
+        <location filename="../KJVSearchSpec.cpp" line="469"/>
         <source>(%1 = Case Sensitive)</source>
         <comment>Statistics</comment>
         <translation>(%1 = Groß-/Kleinschreibung)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="457"/>
+        <location filename="../KJVSearchSpec.cpp" line="472"/>
         <source>(%1 = Accent Sensitive)</source>
         <comment>Statistics</comment>
         <translation>(%1 = Akzentsensitiv)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="460"/>
+        <location filename="../KJVSearchSpec.cpp" line="475"/>
         <source>(%1 = Excluding Results From)</source>
         <comment>Statistics</comment>
         <translation>(%1 = ausgeschlossene Ergebnisse von)</translation>

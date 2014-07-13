@@ -68,11 +68,29 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	ui.scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	// Create pushButton for inserting a new Search Phrase:
-	m_buttonAddSearchPhrase.setText(tr("Add Phrase to Search Criteria", "MainMenu"));		// Keep this matching the buttonAdd on CKJVSearchCriteriaWidget
-	m_buttonAddSearchPhrase.setStatusTip(tr("Add another Phrase to the current Search Criteria", "MainMenu"));		// Keep this matching the buttonAdd on CKJVSearchCriteriaWidget
+	QKeySequence ksAddSearchPhrase(QKeySequence(Qt::CTRL + Qt::Key_P));
+	QString strAddButtonText = tr("Add Phrase to Search Criteria", "MainMenu");
+	strAddButtonText += QString(" (%1)").arg(ksAddSearchPhrase.toString(QKeySequence::NativeText));
+	m_buttonAddSearchPhrase.setText(strAddButtonText);
+	m_buttonAddSearchPhrase.setShortcut(ksAddSearchPhrase);
+	m_buttonAddSearchPhrase.setStatusTip(tr("Add another Phrase to the current Search Criteria", "MainMenu"));
 	m_buttonAddSearchPhrase.adjustSize();			// Must adjust size here so its height() will be correct or else addSearchPhrase() won't set correct height for the scroll area
 	connect(&m_buttonAddSearchPhrase, SIGNAL(clicked()), this, SLOT(addSearchPhrase()));
 	m_pLayoutPhrases->addWidget(&m_buttonAddSearchPhrase);
+
+	// Create separator between the two buttons:
+	m_frameAddCopySeparator.setFrameShape(QFrame::HLine);
+	m_frameAddCopySeparator.setFrameShadow(QFrame::Raised);
+	m_frameAddCopySeparator.setLineWidth(2);
+	m_frameAddCopySeparator.adjustSize();			// Must adjust size here so its height() will be correct or else addSearchPhrase() won't set correct height for the scroll area
+	m_pLayoutPhrases->addWidget(&m_frameAddCopySeparator);
+
+	// Create pushButton for Copying Search Phrase Summary:
+	m_buttonCopySummary.setText(tr("&Copy Search Phrase Summary to Clipboard", "MainMenu"));
+	m_buttonCopySummary.adjustSize();				// Must adjust size here so its height() will be correct or else addSearchPhrase() won't set correct height for the scroll area
+	connect(&m_buttonCopySummary, SIGNAL(clicked()), this, SIGNAL(copySearchPhraseSummary()));
+	m_pLayoutPhrases->addWidget(&m_buttonCopySummary);
+	m_buttonCopySummary.setEnabled(false);
 
 	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
@@ -91,13 +109,9 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 
 	ui.widgetSearchCriteria->initialize(m_pBibleDatabase);
 
-	ui.widgetSearchCriteria->enableCopySearchPhraseSummary(false);
-
-	connect(ui.widgetSearchCriteria, SIGNAL(addSearchPhraseClicked()), this, SLOT(addSearchPhrase()));
 	connect(ui.widgetSearchCriteria, SIGNAL(changedSearchCriteria()), this, SLOT(en_changedSearchCriteria()));
 
 	// Connect Pass-through:
-	connect(ui.widgetSearchCriteria, SIGNAL(copySearchPhraseSummary()), this, SIGNAL(copySearchPhraseSummary()));
 	connect(ui.widgetSearchCriteria, SIGNAL(gotoIndex(const CRelIndex &)), this, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)));
 
 	// -------------------- Bible Database Settings:
@@ -138,7 +152,7 @@ QString CKJVSearchSpec::searchWindowDescription() const
 
 void CKJVSearchSpec::enableCopySearchPhraseSummary(bool bEnable)
 {
-	ui.widgetSearchCriteria->enableCopySearchPhraseSummary(bEnable);
+	m_buttonCopySummary.setEnabled(bEnable);
 }
 
 void CKJVSearchSpec::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)
@@ -289,6 +303,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
 	nHeight += m_buttonAddSearchPhrase.height();
+	nHeight += m_buttonCopySummary.height();
 	ui.scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
 	ensureSearchPhraseVisible(pPhraseWidget);
 	pPhraseWidget->phraseStatisticsChanged();
@@ -346,6 +361,7 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
 	}
 	nHeight += m_buttonAddSearchPhrase.height();
+	nHeight += m_buttonCopySummary.height();
 	ui.scrollAreaWidgetContents->setMinimumSize(ui.scrollAreaWidgetContents->minimumSize().width(), nHeight);
 	if (bPhraseChanged) en_phraseChanged(NULL);
 

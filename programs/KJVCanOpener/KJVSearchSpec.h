@@ -34,6 +34,7 @@
 #include <QVBoxLayout>
 #include <QSettings>
 #include <QEvent>
+#include <QFrame>
 #include <QPushButton>
 
 #include <assert.h>
@@ -69,12 +70,12 @@ public:
 
 signals:
 	void changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
+	void copySearchPhraseSummary();
 
 signals:				// Outgoing Pass-Through:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
-	void copySearchPhraseSummary();
 	void triggeredSearchWithinGotoIndex(const CRelIndex &relIndex);
 
 public slots:
@@ -121,6 +122,8 @@ private:
 //	CSearchPhraseListModel m_modelSearchPhraseEditors;
 	CSearchPhraseEditList m_lstSearchPhraseEditors;
 	QPushButton m_buttonAddSearchPhrase;
+	QFrame m_frameAddCopySeparator;
+	QPushButton m_buttonCopySummary;
 	const CPhraseLineEdit *m_pLastEditorActive;		// Used to reactivate when the Search Spec Layout pane become active
 	bool m_bDoneActivation;							// Set to True when we've triggered activation
 	bool m_bCloseAllSearchPhrasesInProgress;		// Set to True when the closeAllSearchPhrases() has been triggered and is processing, so the we don't emit extra phraseChanged() notifications

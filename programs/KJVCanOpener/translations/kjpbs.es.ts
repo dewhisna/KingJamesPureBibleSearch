@@ -2277,87 +2277,65 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="43"/>
+        <location filename="../KJVSearchCriteria.ui" line="82"/>
         <source>Search W&amp;ithin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="67"/>
+        <location filename="../KJVSearchCriteria.ui" line="54"/>
         <source>Search &amp;Scope:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="131"/>
-        <source>&amp;Copy Search Phrase Summary to Clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVSearchCriteria.ui" line="157"/>
-        <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../KJVSearchCriteria.cpp" line="505"/>
-        <source>Add Phrase to Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVSearchCriteria.cpp" line="506"/>
-        <source>Add another Phrase to the current Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../KJVSearchCriteria.cpp" line="508"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="509"/>
+        <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="510"/>
+        <location filename="../KJVSearchCriteria.cpp" line="507"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="511"/>
+        <location filename="../KJVSearchCriteria.cpp" line="508"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="512"/>
+        <location filename="../KJVSearchCriteria.cpp" line="509"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="513"/>
+        <location filename="../KJVSearchCriteria.cpp" line="510"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="514"/>
+        <location filename="../KJVSearchCriteria.cpp" line="511"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="515"/>
+        <location filename="../KJVSearchCriteria.cpp" line="512"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="516"/>
+        <location filename="../KJVSearchCriteria.cpp" line="513"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -2739,25 +2717,31 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="71"/>
+        <location filename="../KJVSearchSpec.cpp" line="72"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="72"/>
+        <location filename="../KJVSearchSpec.cpp" line="75"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="129"/>
+        <location filename="../KJVSearchSpec.cpp" line="88"/>
+        <source>&amp;Copy Search Phrase Summary to Clipboard</source>
+        <comment>MainMenu</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../KJVSearchSpec.cpp" line="142"/>
         <source>&lt;Empty Search Window&gt;</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="408"/>
+        <location filename="../KJVSearchSpec.cpp" line="423"/>
         <source>Search of %n Phrase(s) %1 within %2</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2766,13 +2750,13 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="410"/>
+        <location filename="../KJVSearchSpec.cpp" line="425"/>
         <source>Search within %1 of:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="414"/>
+        <location filename="../KJVSearchSpec.cpp" line="429"/>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2781,13 +2765,13 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="416"/>
+        <location filename="../KJVSearchSpec.cpp" line="431"/>
         <source>Search of:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="427"/>
+        <location filename="../KJVSearchSpec.cpp" line="442"/>
         <source>(Found %n Time(s), %1 in Scope)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2796,7 +2780,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="431"/>
+        <location filename="../KJVSearchSpec.cpp" line="446"/>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2805,7 +2789,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="436"/>
+        <location filename="../KJVSearchSpec.cpp" line="451"/>
         <source>(Found %n Time(s), %1 in Scope and not removed by exclusions)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2814,7 +2798,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="442"/>
+        <location filename="../KJVSearchSpec.cpp" line="457"/>
         <source>Found %n Time(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2823,7 +2807,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="444"/>
+        <location filename="../KJVSearchSpec.cpp" line="459"/>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -2832,19 +2816,19 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="454"/>
+        <location filename="../KJVSearchSpec.cpp" line="469"/>
         <source>(%1 = Case Sensitive)</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="457"/>
+        <location filename="../KJVSearchSpec.cpp" line="472"/>
         <source>(%1 = Accent Sensitive)</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="460"/>
+        <location filename="../KJVSearchSpec.cpp" line="475"/>
         <source>(%1 = Excluding Results From)</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
