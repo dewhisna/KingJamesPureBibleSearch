@@ -567,6 +567,13 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
+	// Hide list of matching phrases so we can invalidate its
+	//		contents.  It will update when uses expands it:
+	if (ui.toolButtonShowMatchingPhrases->isChecked()) {
+		ui.toolButtonShowMatchingPhrases->setChecked(false);
+		en_showMatchingPhrases(false);
+	}
+
 	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
 
@@ -704,4 +711,5 @@ void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
 	updateGeometry();
 	resize(minimumSizeHint());
 	emit changingShowMatchingPhrases(this);
+	ui.editPhrase->setFocus();
 }
