@@ -496,6 +496,10 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.buttonDelPhrase->setEnabled(false);
 	ui.buttonClear->setEnabled(true);
 
+	ui.toolButtonShowMatchingPhrases->setChecked(false);
+	ui.treeViewMatchingPhrases->setVisible(false);
+	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));
+
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(ui.editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
@@ -686,4 +690,18 @@ void CKJVSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
 		ui.buttonDelPhrase->setEnabled(!parsedPhrase()->isDisabled() && m_bHaveUserDatabase && bHaveText && bUserFound);
 //		ui.buttonClear->setEnabled(!parsedPhrase()->isDisabled() && !ui.editPhrase->toPlainText().isEmpty());
 	}
+}
+
+void CKJVSearchPhraseEdit::resizeEvent(QResizeEvent *event)
+{
+	QWidget::resizeEvent(event);
+	emit resizing(this);
+}
+
+void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
+{
+	ui.treeViewMatchingPhrases->setVisible(bShow);
+	updateGeometry();
+	resize(minimumSizeHint());
+	emit changingShowMatchingPhrases(this);
 }

@@ -143,6 +143,8 @@ public:
 signals:
 	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void resizing(CKJVSearchPhraseEdit *pSearchPhrase);
+	void changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 public slots:
@@ -164,6 +166,9 @@ protected slots:
 	void en_phraseDel();
 	void en_phraseClear();
 	void setPhraseButtonEnables(const QString &strUUID = QString());
+
+	virtual void resizeEvent(QResizeEvent *event);
+	void en_showMatchingPhrases(bool bShow);
 
 // Data Private:
 private:

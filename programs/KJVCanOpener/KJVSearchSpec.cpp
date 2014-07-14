@@ -53,6 +53,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 		m_pBibleDatabase(pBibleDatabase),
 		m_bHaveUserDatabase(bHaveUserDatabase),
 		m_pLayoutPhrases(NULL),
+		m_bDoingResizing(false),
 		m_pLastEditorActive(NULL),
 		m_bDoneActivation(false),
 		m_bCloseAllSearchPhrasesInProgress(false)
@@ -272,10 +273,15 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 	m_bCloseAllSearchPhrasesInProgress = true;
 
 	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
+		m_lstSearchPhraseEditors.at(ndx)->disconnect(this);
 		m_lstSearchPhraseEditors.at(ndx)->closeSearchPhrase();
 	}
 
+	m_lstSearchPhraseEditors.clear();
+	m_pLastEditorActive = NULL;
 	m_bCloseAllSearchPhrasesInProgress = false;
+
+	resizeScrollAreaLayout();
 	en_phraseChanged(NULL);							// Still need to emit one change
 }
 
@@ -284,7 +290,9 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	assert(m_pBibleDatabase.data() != NULL);
 
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
+	connect(pPhraseWidget, SIGNAL(resizing(CKJVSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(changingShowMatchingPhrases(CKJVSearchPhraseEdit*)), this, SLOT(en_changingShowMatchingPhrases(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 
@@ -297,14 +305,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	pPhraseWidget->showSeperatorLine(true);		// Always show the separator since we have the "AddSearchPhrase" button
 	pPhraseWidget->resize(pPhraseWidget->minimumSizeHint());
 	m_pLayoutPhrases->insertWidget(m_pLayoutPhrases->indexOf(&m_buttonAddSearchPhrase), pPhraseWidget);		// m_pLayoutPhrases->addWidget(pPhraseWidget);
-	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
-	int nHeight = 0;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
-	}
-	nHeight += m_buttonAddSearchPhrase.height();
-	nHeight += m_buttonCopySummary.height();
-	ui.scrollAreaWidgetContents->setMinimumSize(pPhraseWidget->sizeHint().width(), nHeight);
+	resizeScrollAreaLayout();
 	ensureSearchPhraseVisible(pPhraseWidget);
 	pPhraseWidget->phraseStatisticsChanged();
 	pPhraseWidget->focusEditor();
@@ -337,8 +338,45 @@ void CKJVSearchSpec::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSear
 															nHeight - (pSearchPhrase->sizeHint().height()/2));
 }
 
+void CKJVSearchSpec::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
+{
+	Q_UNUSED(pSearchPhrase);
+
+	if (m_bDoingResizing) return;
+	resizeScrollAreaLayout();
+}
+
+void CKJVSearchSpec::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase)
+{
+	resizeScrollAreaLayout();
+	ensureSearchPhraseVisible(pSearchPhrase);
+	setFocusSearchPhrase(pSearchPhrase);
+}
+
+void CKJVSearchSpec::resizeScrollAreaLayout()
+{
+	m_bDoingResizing = true;
+
+	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
+	int nHeight = 0;
+	int nWidth = 0;
+	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
+		if (ndx == 0) nWidth = m_lstSearchPhraseEditors.at(ndx)->sizeHint().width();
+		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
+	}
+	nHeight += m_buttonAddSearchPhrase.height();
+	nHeight += m_frameAddCopySeparator.height();
+	nHeight += m_buttonCopySummary.height();
+	if (nWidth == 0) nWidth = ui.scrollAreaWidgetContents->minimumSize().width();
+	ui.scrollAreaWidgetContents->setMinimumSize(nWidth, nHeight);
+
+	m_bDoingResizing = false;
+}
+
 void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
+	if (m_bCloseAllSearchPhrasesInProgress) return;
+
 	assert(pSearchPhrase != NULL);
 
 	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = NULL;
@@ -346,8 +384,7 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->isDuplicate()) &&
 							(!pSearchPhrase->parsedPhrase()->isDisabled()) &&
 							(pSearchPhrase->parsedPhrase()->GetNumberOfMatches() != 0) &&
-							(pSearchPhrase->parsedPhrase()->isCompleteMatch()) &&
-							(!m_bCloseAllSearchPhrasesInProgress));
+							(pSearchPhrase->parsedPhrase()->isCompleteMatch()));
 
 	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhrase);
 	assert(ndx != -1);
@@ -356,13 +393,8 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 	int ndxActivate = ((ndx < m_lstSearchPhraseEditors.size()) ? ndx : ndx-1);
 
-	int nHeight = 0;
-	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
-		nHeight += m_lstSearchPhraseEditors.at(ndx)->sizeHint().height();
-	}
-	nHeight += m_buttonAddSearchPhrase.height();
-	nHeight += m_buttonCopySummary.height();
-	ui.scrollAreaWidgetContents->setMinimumSize(ui.scrollAreaWidgetContents->minimumSize().width(), nHeight);
+	resizeScrollAreaLayout();
+
 	if (bPhraseChanged) en_phraseChanged(NULL);
 
 	setFocusSearchPhrase(ndxActivate);
@@ -567,7 +599,7 @@ void CKJVSearchSpec::en_changedBibleDatabaseSettings(const QString &strUUID, con
 
 bool CKJVSearchSpec::eventFilter(QObject *obj, QEvent *ev)
 {
-	if ((obj == ui.scrollAreaSearchPhrases) && (ev->type() == QEvent::FocusIn)) {
+	if ((!m_bDoingResizing) && (obj == ui.scrollAreaSearchPhrases) && (ev->type() == QEvent::FocusIn)) {
 		if (m_pLastEditorActive) {
 			for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 				if (m_lstSearchPhraseEditors.at(ndx)->phraseEditor() == m_pLastEditorActive) {

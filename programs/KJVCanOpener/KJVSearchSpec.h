@@ -98,6 +98,9 @@ protected slots:
 	CKJVSearchPhraseEdit *addSearchPhrase();
 	void ensureSearchPhraseVisible(int nIndex);
 	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase);
+	void resizeScrollAreaLayout();
 	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_changedSearchCriteria();
 	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
@@ -124,6 +127,7 @@ private:
 	QPushButton m_buttonAddSearchPhrase;
 	QFrame m_frameAddCopySeparator;
 	QPushButton m_buttonCopySummary;
+	bool m_bDoingResizing;
 	const CPhraseLineEdit *m_pLastEditorActive;		// Used to reactivate when the Search Spec Layout pane become active
 	bool m_bDoneActivation;							// Set to True when we've triggered activation
 	bool m_bCloseAllSearchPhrasesInProgress;		// Set to True when the closeAllSearchPhrases() has been triggered and is processing, so the we don't emit extra phraseChanged() notifications
