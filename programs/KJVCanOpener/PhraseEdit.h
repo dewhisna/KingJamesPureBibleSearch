@@ -121,6 +121,7 @@ public:
 	unsigned int GetNumberOfMatches() const;
 
 	const TPhraseTagList &GetPhraseTagSearchResults() const;		// Returned as reference so we don't have to keep copying
+	QStringList GetMatchingPhrases() const;
 
 	QString GetCursorWord() const;				// CursorWord for entire composite of all subPhrases
 	int GetCursorWordPos() const;				// CursorWordPos for entire composite of all subPhrases -- includes tail insertion point for each subPhrase at each '|'

@@ -346,6 +346,30 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	return m_cache_lstPhraseTagResults;
 }
 
+QStringList CParsedPhrase::GetMatchingPhrases() const
+{
+	assert(m_pBibleDatabase.data() != NULL);
+
+	const TPhraseTagList &lstTags = GetPhraseTagSearchResults();
+	QStringList lstMatchingPhrases;
+	lstMatchingPhrases.reserve(lstTags.size());
+
+	for (int ndx = 0; ndx < lstTags.size(); ++ndx) {
+		if (!lstTags.at(ndx).isSet()) continue;
+		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(lstTags.at(ndx).relIndex());
+		QStringList lstPhraseWords;
+		lstPhraseWords.reserve(lstTags.at(ndx).count());
+		for (unsigned int nWrd = 0; nWrd < lstTags.at(ndx).count(); ++nWrd) {
+			lstPhraseWords.append(m_pBibleDatabase->wordAtIndex(ndxNormal, true));
+			++ndxNormal;
+		}
+		lstMatchingPhrases.append(lstPhraseWords.join(QChar(' ')));
+	}
+	lstMatchingPhrases.sort(Qt::CaseInsensitive);
+	lstMatchingPhrases.removeDuplicates();
+	return lstMatchingPhrases;
+}
+
 QString CParsedPhrase::GetCursorWord() const
 {
 	if (m_nActiveSubPhrase < 0) return QString();

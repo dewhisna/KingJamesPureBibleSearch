@@ -47,6 +47,9 @@
 
 #include <assert.h>
 
+// Forward Declarations
+class QStringListModel;
+
 // ============================================================================
 
 class CPhraseLineEdit : public CSingleLineTextEdit, public CParsedPhrase
@@ -180,6 +183,7 @@ private:
 
 // UI Private:
 private:
+	QStringListModel *m_pMatchingPhrasesModel;
 	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CKJVSearchPhraseEdit ui;
 };

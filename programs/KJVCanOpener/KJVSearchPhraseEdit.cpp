@@ -33,6 +33,9 @@
 
 #include <QTextCharFormat>
 #include <QGridLayout>
+#include <QItemSelectionModel>
+#include <QStringListModel>
+#include <QFontMetrics>
 
 #include <algorithm>
 #include <string>
@@ -444,7 +447,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_pBibleDatabase(pBibleDatabase),
 	m_bHaveUserDatabase(bHaveUserDatabase),
 	m_bLastPhraseChangeHadResults(false),
-	m_bUpdateInProgress(false)
+	m_bUpdateInProgress(false),
+	m_pMatchingPhrasesModel(NULL)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -498,6 +502,11 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 
 	ui.toolButtonShowMatchingPhrases->setChecked(false);
 	ui.treeViewMatchingPhrases->setVisible(false);
+	ui.treeViewMatchingPhrases->setUniformRowHeights(true);
+	QItemSelectionModel *pOldModel = ui.treeViewMatchingPhrases->selectionModel();
+	m_pMatchingPhrasesModel = new QStringListModel(this);
+	ui.treeViewMatchingPhrases->setModel(m_pMatchingPhrasesModel);
+	if (pOldModel) delete pOldModel;
 	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));
 
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
@@ -707,6 +716,20 @@ void CKJVSearchPhraseEdit::resizeEvent(QResizeEvent *event)
 
 void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
 {
+	assert(m_pMatchingPhrasesModel != NULL);
+	QStringList lstMatchingPhrases = phraseEditor()->GetMatchingPhrases();
+	m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
+
+	const QFontMetrics &fmPhraseTree = ui.treeViewMatchingPhrases->fontMetrics();
+	int nPhraseTreeHeight = 0;
+	if (!lstMatchingPhrases.isEmpty()) {
+		for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ ndx) {
+			nPhraseTreeHeight += fmPhraseTree.boundingRect(lstMatchingPhrases.at(ndx)).height();
+		}
+	}
+	nPhraseTreeHeight = qMax(nPhraseTreeHeight, 48);
+	ui.treeViewMatchingPhrases->setFixedHeight(nPhraseTreeHeight + 2);
+
 	ui.treeViewMatchingPhrases->setVisible(bShow);
 	updateGeometry();
 	resize(minimumSizeHint());
