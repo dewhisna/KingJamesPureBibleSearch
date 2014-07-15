@@ -346,16 +346,38 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	return m_cache_lstPhraseTagResults;
 }
 
+static bool ascendingLessThanMatchingPhrases(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+{
+	return (s1.first.compare(s2.first, Qt::CaseInsensitive) < 0);
+}
+
 QStringList CParsedPhrase::GetMatchingPhrases() const
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
 	const TPhraseTagList &lstTags = GetPhraseTagSearchResults();
-	QStringList lstMatchingPhrases;
-	lstMatchingPhrases.reserve(lstTags.size());
+	QList<QPair<QString, int> > lstMatchingPhrasesSort;
+	lstMatchingPhrasesSort.reserve(lstTags.size());
 
 	for (int ndx = 0; ndx < lstTags.size(); ++ndx) {
 		if (!lstTags.at(ndx).isSet()) continue;
+		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(lstTags.at(ndx).relIndex());
+		QStringList lstPhraseWordsDecomposed;
+		lstPhraseWordsDecomposed.reserve(lstTags.at(ndx).count());
+		for (unsigned int nWrd = 0; nWrd < lstTags.at(ndx).count(); ++nWrd) {
+			lstPhraseWordsDecomposed.append(m_pBibleDatabase->decomposedWordAtIndex(ndxNormal));
+			++ndxNormal;
+		}
+		lstMatchingPhrasesSort.append(QPair<QString, int>(lstPhraseWordsDecomposed.join(QChar(' ')), ndx));
+	}
+	qSort(lstMatchingPhrasesSort.begin(), lstMatchingPhrasesSort.end(), ascendingLessThanMatchingPhrases);
+
+	QStringList lstMatchingPhrases;
+	lstMatchingPhrases.reserve(lstTags.size());
+	for (int i = 0; i < lstMatchingPhrasesSort.size(); ++i) {
+		if ((i > 0) &&
+			(lstMatchingPhrasesSort.at(i).first.compare(lstMatchingPhrasesSort.at(i-1).first, Qt::CaseInsensitive) == 0)) continue;
+		int ndx = lstMatchingPhrasesSort.at(i).second;
 		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(lstTags.at(ndx).relIndex());
 		QStringList lstPhraseWords;
 		lstPhraseWords.reserve(lstTags.at(ndx).count());
@@ -365,8 +387,6 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 		}
 		lstMatchingPhrases.append(lstPhraseWords.join(QChar(' ')));
 	}
-	lstMatchingPhrases.sort(Qt::CaseInsensitive);
-	lstMatchingPhrases.removeDuplicates();
 	return lstMatchingPhrases;
 }
 
