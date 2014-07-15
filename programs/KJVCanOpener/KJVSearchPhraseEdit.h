@@ -171,7 +171,7 @@ protected slots:
 	void setPhraseButtonEnables(const QString &strUUID = QString());
 
 	virtual void resizeEvent(QResizeEvent *event);
-	void en_showMatchingPhrases(bool bShow);
+	void en_showMatchingPhrases(bool bShow, bool bClearMatchingPhraseList = false);
 
 // Data Private:
 private:
@@ -184,6 +184,7 @@ private:
 // UI Private:
 private:
 	QStringListModel *m_pMatchingPhrasesModel;
+	bool m_bMatchingPhrasesModelCurrent;			// True when we have filled in the matching phrases model, set back to false when the en_phraseChanged happens, so if user minimizes list it doesn't have to get recomputed on expanding
 	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CKJVSearchPhraseEdit ui;
 };

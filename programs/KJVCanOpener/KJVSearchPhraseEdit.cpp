@@ -26,6 +26,7 @@
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
+#include "BusyCursor.h"
 
 #ifdef SIGNAL_SPY_DEBUG
 #include "myApplication.h"
@@ -448,7 +449,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_bHaveUserDatabase(bHaveUserDatabase),
 	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
-	m_pMatchingPhrasesModel(NULL)
+	m_pMatchingPhrasesModel(NULL),
+	m_bMatchingPhrasesModelCurrent(false)
 {
 	assert(m_pBibleDatabase.data() != NULL);
 
@@ -501,6 +503,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.buttonClear->setEnabled(true);
 
 	ui.toolButtonShowMatchingPhrases->setChecked(false);
+	ui.toolButtonShowMatchingPhrases->setArrowType(Qt::DownArrow);
 	ui.treeViewMatchingPhrases->setVisible(false);
 	ui.treeViewMatchingPhrases->setUniformRowHeights(true);
 	QItemSelectionModel *pOldModel = ui.treeViewMatchingPhrases->selectionModel();
@@ -549,6 +552,7 @@ void CKJVSearchPhraseEdit::clearSearchPhrase()
 void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
 {
 	ui.lineSeparator->setVisible(bShow);
+	ui.lineSeparator2->setVisible(bShow);
 	adjustSize();
 }
 
@@ -580,8 +584,8 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	//		contents.  It will update when uses expands it:
 	if (ui.toolButtonShowMatchingPhrases->isChecked()) {
 		ui.toolButtonShowMatchingPhrases->setChecked(false);
-		en_showMatchingPhrases(false);
 	}
+	en_showMatchingPhrases(false, true);
 
 	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
@@ -714,21 +718,28 @@ void CKJVSearchPhraseEdit::resizeEvent(QResizeEvent *event)
 	emit resizing(this);
 }
 
-void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
+void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
 {
-	assert(m_pMatchingPhrasesModel != NULL);
-	QStringList lstMatchingPhrases = phraseEditor()->GetMatchingPhrases();
-	m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
+	CBusyCursor iAmBusy(NULL);
 
-	const QFontMetrics &fmPhraseTree = ui.treeViewMatchingPhrases->fontMetrics();
-	int nPhraseTreeHeight = 0;
-	if (!lstMatchingPhrases.isEmpty()) {
-		for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ ndx) {
-			nPhraseTreeHeight += fmPhraseTree.boundingRect(lstMatchingPhrases.at(ndx)).height();
+	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
+		assert(m_pMatchingPhrasesModel != NULL);
+		QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
+		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
+		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;
+
+		const QFontMetrics &fmPhraseTree = ui.treeViewMatchingPhrases->fontMetrics();
+		int nPhraseTreeHeight = 0;
+		if (!lstMatchingPhrases.isEmpty()) {
+			for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ ndx) {
+				nPhraseTreeHeight += fmPhraseTree.boundingRect(lstMatchingPhrases.at(ndx)).height();
+			}
 		}
+		nPhraseTreeHeight = qMax(nPhraseTreeHeight, 48);
+		ui.treeViewMatchingPhrases->setFixedHeight(nPhraseTreeHeight + 2);
 	}
-	nPhraseTreeHeight = qMax(nPhraseTreeHeight, 48);
-	ui.treeViewMatchingPhrases->setFixedHeight(nPhraseTreeHeight + 2);
+
+	ui.toolButtonShowMatchingPhrases->setArrowType(bShow ? Qt::UpArrow : Qt::DownArrow);
 
 	ui.treeViewMatchingPhrases->setVisible(bShow);
 	updateGeometry();
