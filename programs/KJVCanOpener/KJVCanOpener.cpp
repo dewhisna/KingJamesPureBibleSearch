@@ -144,6 +144,7 @@ namespace {
 	const QString constrSearchActivationDelayKey("SearchActivationDelay");
 	const QString constrSearchPhraseCompleterFilterModeKey("SearchPhraseCompleterFilterMode");
 	const QString constrInitialNumberOfSearchPhrasesKey("InitialNumberOfSearchPhrases");
+	const QString constrHideMatchingPhrasesListsKey("HideMatchingPhrasesLists");
 
 	// Search Results View:
 	const QString constrSearchResultsViewGroup("SearchResultsView");
@@ -1007,6 +1008,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
 		settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 		settings.setValue(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases());
+		settings.setValue(constrHideMatchingPhrasesListsKey, CPersistentSettings::instance()->hideMatchingPhrasesLists());
 		settings.endGroup();
 	}
 
@@ -1288,6 +1290,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
 			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 			CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
+			CPersistentSettings::instance()->setHideMatchingPhrasesLists(settings.value(constrHideMatchingPhrasesListsKey, CPersistentSettings::instance()->hideMatchingPhrasesLists()).toBool());
 			settings.endGroup();
 		}
 

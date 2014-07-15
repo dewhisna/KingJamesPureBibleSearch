@@ -171,7 +171,9 @@ protected slots:
 	void setPhraseButtonEnables(const QString &strUUID = QString());
 
 	virtual void resizeEvent(QResizeEvent *event);
-	void en_showMatchingPhrases(bool bShow, bool bClearMatchingPhraseList = false);
+	void en_showMatchingPhrases(bool bShow);
+	void setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList);
+	void en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 
 // Data Private:
 private:

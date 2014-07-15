@@ -103,6 +103,7 @@ public:
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
 	int initialNumberOfSearchPhrases() const { return m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases; }
+	bool hideMatchingPhrasesLists() const { return m_pPersistentSettingData->m_bHideMatchingPhrasesLists; }
 	bool autoExpandSearchResultsTree() const { return m_pPersistentSettingData->m_bAutoExpandSearchResultsTree; }
 	bool hideNotFoundInStatistcs() const { return m_pPersistentSettingData->m_bHideNotFoundInStatistics; }
 
@@ -197,6 +198,7 @@ signals:
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedSearchPhraseActivationDelay(int nDelay);
 	void changedInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
+	void changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 	void changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
 	void changedHideNotFoundInStatistics(bool bHideNotFoundInStatistics);
 
@@ -245,6 +247,7 @@ public slots:
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setSearchActivationDelay(int nDelay);
 	void setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
+	void setHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 	void setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
 	void setHideNotFoundInStatistics(bool bHideNotFoundInStatistics);
 
@@ -323,6 +326,7 @@ private:
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
 		int m_nInitialNumberOfSearchPhrases;			// Number of Search Phrases to create to opening a new Search Window
+		bool m_bHideMatchingPhrasesLists;				// True if user elected to hide the Search Phrase droplists/trees
 		bool m_bAutoExpandSearchResultsTree;			// True to auto-expand Search Results Tree on Search
 		bool m_bHideNotFoundInStatistics;				// True if user elected to hide the displaying of "Not Found In" statistics in the Search Results
 		// ----

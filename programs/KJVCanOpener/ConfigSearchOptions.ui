@@ -28,60 +28,6 @@
    <string>Search Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="lblSearchPhraseCompleterMode">
-       <property name="text">
-        <string>Search Phrase &amp;Completer Mode:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>comboSearchPhraseCompleterMode</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboSearchPhraseCompleterMode">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToContents</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="lblInitialNumberOfSearchPhrases">
-       <property name="text">
-        <string>&amp;Initial Number of Search Phrases:</string>
-       </property>
-       <property name="buddy">
-        <cstring>spinInitialNumberOfSearchPhrases</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CSpinBox" name="spinInitialNumberOfSearchPhrases">
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>8</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
@@ -112,17 +58,78 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="lblSearchPhraseCompleterMode">
+       <property name="text">
+        <string>Search Phrase &amp;Completer Mode:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>comboSearchPhraseCompleterMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboSearchPhraseCompleterMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
     <widget class="QCheckBox" name="checkBoxAutoExpandSearchResultsTree">
      <property name="text">
       <string>&amp;Auto Expand Search Results Tree</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QCheckBox" name="checkBoxHideNotFoundInStatistics">
      <property name="text">
       <string>&amp;Hide &quot;Not Found In&quot; Statistics</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="lblInitialNumberOfSearchPhrases">
+       <property name="text">
+        <string>&amp;Initial Number of Search Phrases:</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinInitialNumberOfSearchPhrases</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CSpinBox" name="spinInitialNumberOfSearchPhrases">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>8</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="checkBoxHideMatchingPhrasesLists">
+     <property name="text">
+      <string>Hide &amp;Matching Words/Phrases Lists</string>
      </property>
     </widget>
    </item>
@@ -139,7 +146,9 @@
   <tabstop>comboSearchPhraseCompleterMode</tabstop>
   <tabstop>spinSearchPhraseActivationDelay</tabstop>
   <tabstop>spinInitialNumberOfSearchPhrases</tabstop>
+  <tabstop>checkBoxHideMatchingPhrasesLists</tabstop>
   <tabstop>checkBoxAutoExpandSearchResultsTree</tabstop>
+  <tabstop>checkBoxHideNotFoundInStatistics</tabstop>
  </tabstops>
  <resources/>
  <connections/>

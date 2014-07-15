@@ -512,6 +512,9 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	if (pOldModel) delete pOldModel;
 	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));
 
+	ui.toolButtonShowMatchingPhrases->setVisible(!CPersistentSettings::instance()->hideMatchingPhrasesLists());
+	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)));
+
 	setSearchActivationDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(ui.editPhrase, SIGNAL(phraseChanged()), &m_dlyTextChanged, SLOT(trigger()));
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
@@ -585,7 +588,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	if (ui.toolButtonShowMatchingPhrases->isChecked()) {
 		ui.toolButtonShowMatchingPhrases->setChecked(false);
 	}
-	en_showMatchingPhrases(false, true);
+	setShowMatchingPhrases(false, true);		// This must always be done so we can invalidate our listModel()
 
 	const CParsedPhrase *pPhrase = parsedPhrase();
 	assert(pPhrase != NULL);
@@ -718,7 +721,13 @@ void CKJVSearchPhraseEdit::resizeEvent(QResizeEvent *event)
 	emit resizing(this);
 }
 
-void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
+void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
+{
+	setShowMatchingPhrases(bShow, false);
+	ui.editPhrase->setFocus();
+}
+
+void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
 {
 	CBusyCursor iAmBusy(NULL);
 
@@ -731,7 +740,7 @@ void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow, bool bClearMatchin
 		const QFontMetrics &fmPhraseTree = ui.treeViewMatchingPhrases->fontMetrics();
 		int nPhraseTreeHeight = 0;
 		if (!lstMatchingPhrases.isEmpty()) {
-			for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ ndx) {
+			for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ndx) {
 				nPhraseTreeHeight += fmPhraseTree.boundingRect(lstMatchingPhrases.at(ndx)).height();
 			}
 		}
@@ -745,5 +754,14 @@ void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow, bool bClearMatchin
 	updateGeometry();
 	resize(minimumSizeHint());
 	emit changingShowMatchingPhrases(this);
-	ui.editPhrase->setFocus();
 }
+
+void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+{
+	ui.toolButtonShowMatchingPhrases->setVisible(!bHideMatchingPhrasesLists);
+	if (bHideMatchingPhrasesLists) {
+		setShowMatchingPhrases(false, true);
+		// Note: this will updateGeometry and resize us
+	}
+}
+

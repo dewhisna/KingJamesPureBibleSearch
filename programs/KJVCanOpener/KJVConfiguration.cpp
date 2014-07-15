@@ -1579,6 +1579,7 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 	connect(ui.comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
 	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
 	connect(ui.spinInitialNumberOfSearchPhrases, SIGNAL(valueChanged(int)), this, SLOT(en_changedInitialNumberOfSearchPhrases(int)));
+	connect(ui.checkBoxHideMatchingPhrasesLists, SIGNAL(clicked(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)));
 	connect(ui.checkBoxAutoExpandSearchResultsTree, SIGNAL(clicked(bool)), this, SLOT(en_changedAutoExpandSearchResultsTree(bool)));
 	connect(ui.checkBoxHideNotFoundInStatistics, SIGNAL(clicked(bool)), this, SLOT(en_changedHideNotFoundInStatistics(bool)));
 
@@ -1605,6 +1606,7 @@ void CConfigSearchOptions::loadSettings()
 	}
 	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
 	ui.spinInitialNumberOfSearchPhrases->setValue(CPersistentSettings::instance()->initialNumberOfSearchPhrases());
+	ui.checkBoxHideMatchingPhrasesLists->setChecked(CPersistentSettings::instance()->hideMatchingPhrasesLists());
 	ui.checkBoxAutoExpandSearchResultsTree->setChecked(CPersistentSettings::instance()->autoExpandSearchResultsTree());
 	ui.checkBoxHideNotFoundInStatistics->setChecked(CPersistentSettings::instance()->hideNotFoundInStatistcs());
 
@@ -1623,6 +1625,7 @@ void CConfigSearchOptions::saveSettings()
 	}
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
 	CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(ui.spinInitialNumberOfSearchPhrases->value());
+	CPersistentSettings::instance()->setHideMatchingPhrasesLists(ui.checkBoxHideMatchingPhrasesLists->isChecked());
 	CPersistentSettings::instance()->setAutoExpandSearchResultsTree(ui.checkBoxAutoExpandSearchResultsTree->isChecked());
 	CPersistentSettings::instance()->setHideNotFoundInStatistics(ui.checkBoxHideNotFoundInStatistics->isChecked());
 }
@@ -1650,6 +1653,15 @@ void CConfigSearchOptions::en_changedInitialNumberOfSearchPhrases(int nValue)
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigSearchOptions::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(bHideMatchingPhrasesLists);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

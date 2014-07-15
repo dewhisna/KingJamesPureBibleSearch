@@ -108,6 +108,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nSearchActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
 		m_nInitialNumberOfSearchPhrases(1),
+		m_bHideMatchingPhrasesLists(false),
 		m_bAutoExpandSearchResultsTree(false),
 		m_bHideNotFoundInStatistics(false),
 		// Default Browser Options:
@@ -285,6 +286,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
 		if (pSource->m_nInitialNumberOfSearchPhrases != pTarget->m_nInitialNumberOfSearchPhrases) emit changedInitialNumberOfSearchPhrases(pTarget->m_nInitialNumberOfSearchPhrases);
+		if (pSource->m_bHideMatchingPhrasesLists != pTarget->m_bHideMatchingPhrasesLists) emit changedHideMatchingPhrasesLists(pTarget->m_bHideMatchingPhrasesLists);
 		if (pSource->m_bAutoExpandSearchResultsTree != pTarget->m_bAutoExpandSearchResultsTree) emit changedAutoExpandSearchResultsTree(pTarget->m_bAutoExpandSearchResultsTree);
 		if (pSource->m_bHideNotFoundInStatistics != pTarget->m_bHideNotFoundInStatistics) emit changedHideNotFoundInStatistics(pTarget->m_bHideNotFoundInStatistics);
 
@@ -486,6 +488,14 @@ void CPersistentSettings::setInitialNumberOfSearchPhrases(int nInitialNumberOfSe
 	if (m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases != nInitialNumberOfSearchPhrases) {
 		m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases = nInitialNumberOfSearchPhrases;
 		emit changedInitialNumberOfSearchPhrases(m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases);
+	}
+}
+
+void CPersistentSettings::setHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+{
+	if (m_pPersistentSettingData->m_bHideMatchingPhrasesLists != bHideMatchingPhrasesLists) {
+		m_pPersistentSettingData->m_bHideMatchingPhrasesLists = bHideMatchingPhrasesLists;
+		emit changedHideMatchingPhrasesLists(m_pPersistentSettingData->m_bHideMatchingPhrasesLists);
 	}
 }
 
