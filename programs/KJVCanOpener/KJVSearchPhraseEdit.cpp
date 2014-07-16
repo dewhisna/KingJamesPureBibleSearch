@@ -182,6 +182,23 @@ CPhraseLineEdit::~CPhraseLineEdit()
 
 }
 
+void CPhraseLineEdit::setupPhrase(const TPhraseSettings &aPhrase)
+{
+	{
+		// Keep doUpdate in separate namespace and release it before we call overall UpdateCompleter() and phraseChanged()
+		CDoUpdate doUpdate(this);		// Save up changes until the end
+		// These will emit a signal that will update the outer CKJVSearchPhraseEdit, which will
+		//		turn around and call us to set it, but will keep us from calling UpdateCompleter()
+		//		and phraseChanged() on each item:
+		emit changeCaseSensitive(aPhrase.m_bCaseSensitive);
+		emit changeAccentSensitive(aPhrase.m_bAccentSensitive);
+		emit changeExclude(aPhrase.m_bExclude);
+		setPlainText(aPhrase.m_strPhrase);
+	}
+	UpdateCompleter();
+	emit phraseChanged();
+}
+
 void CPhraseLineEdit::setCaseSensitive(bool bCaseSensitive)
 {
 	CParsedPhrase::setCaseSensitive(bCaseSensitive);
@@ -363,7 +380,7 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 				strPhrase += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
 			}
 			clear();
-			setText(strPhrase);
+			setPlainText(strPhrase);
 		}
 
 		ensureCursorVisible();
@@ -541,6 +558,12 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 
 }
 
+void CKJVSearchPhraseEdit::setupPhrase(const TPhraseSettings &aPhrase)
+{
+	phraseEditor()->setupPhrase(aPhrase);
+	setDisabled(aPhrase.m_bDisabled);			// Set this one on us directly to update things (as the parsed phrase doesn't signal)
+}
+
 void CKJVSearchPhraseEdit::closeSearchPhrase()
 {
 	emit closingSearchPhrase(this);
@@ -663,6 +686,7 @@ void CKJVSearchPhraseEdit::en_ExcludeChanged(bool bExclude)
 
 void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 {
+	bool bCurrentDisable = parsedPhrase()->isDisabled();
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
 	ui.chkDisable->setChecked(bDisabled);					// Set the checkbox in case the phrase editor is setting us
@@ -674,7 +698,9 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 	ui.editPhrase->getDropListButton()->setEnabled(!bDisabled);
 	setPhraseButtonEnables();
 	m_bUpdateInProgress = false;
-	en_phraseChanged();										// Unlike Case-Sensitive and Accent-Sensitive, CPhraseLineEdit doesn't have a signals handler for this to trigger a phraseChaged.  So we must do it here.
+	if (bCurrentDisable != bDisabled) {
+		en_phraseChanged();									// Unlike Case-Sensitive and Accent-Sensitive, CPhraseLineEdit doesn't have a signals handler for this to trigger a phraseChaged.  So we must do it here.
+	}
 }
 
 void CKJVSearchPhraseEdit::en_phraseAdd()

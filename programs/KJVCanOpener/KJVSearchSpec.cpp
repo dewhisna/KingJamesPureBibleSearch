@@ -56,7 +56,8 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 		m_bDoingResizing(false),
 		m_pLastEditorActive(NULL),
 		m_bDoneActivation(false),
-		m_bCloseAllSearchPhrasesInProgress(false)
+		m_bCloseAllSearchPhrasesInProgress(false),
+		m_bReadingSearchFile(false)
 {
 	ui.setupUi(this);
 
@@ -184,6 +185,8 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_UNSCOPED;
 	QString strSearchWithin;
 
+	m_bReadingSearchFile = true;
+
 	closeAllSearchPhrases();
 
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
@@ -205,11 +208,13 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 			assert(pPhraseEditor != NULL);
 			if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 			kjsFile.setArrayIndex(ndx);
-			pPhraseEditor->phraseEditor()->setCaseSensitive(kjsFile.value("CaseSensitive", false).toBool());
-			pPhraseEditor->phraseEditor()->setAccentSensitive(kjsFile.value("AccentSensitive", false).toBool());
-			pPhraseEditor->phraseEditor()->setExclude(kjsFile.value("Exclude", false).toBool());
-			pPhraseEditor->phraseEditor()->setPlainText(kjsFile.value("Phrase").toString());
-			pPhraseEditor->setDisabled(kjsFile.value("Disabled", false).toBool());			// Set this one on the CKJVSearchPhraseEdit to update things (as the parsed phrase doesn't signal)
+			TPhraseSettings aPhrase;
+			aPhrase.m_bCaseSensitive = kjsFile.value("CaseSensitive", false).toBool();
+			aPhrase.m_bAccentSensitive = kjsFile.value("AccentSensitive", false).toBool();
+			aPhrase.m_bExclude = kjsFile.value("Exclude", false).toBool();
+			aPhrase.m_strPhrase = kjsFile.value("Phrase").toString();
+			aPhrase.m_bDisabled = kjsFile.value("Disabled", false).toBool();
+			pPhraseEditor->setupPhrase(aPhrase);
 		}
 	} else {
 		// If the search had no phrases (like default loading from registry), start
@@ -219,6 +224,9 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 			addSearchPhrase();
 	}
 	kjsFile.endArray();
+
+	m_bReadingSearchFile = false;
+	en_phraseChanged(NULL);			// Update all results at once
 
 	// Set focus to our first editor.  Note that calling of focusEditor
 	//	doesn't work when running from the constructor during a restore
@@ -529,6 +537,8 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
+
+	if (m_bReadingSearchFile) return;
 
 	CBusyCursor iAmBusy(NULL);
 

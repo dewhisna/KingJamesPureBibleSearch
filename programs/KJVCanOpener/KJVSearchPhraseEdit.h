@@ -52,6 +52,22 @@ class QStringListModel;
 
 // ============================================================================
 
+struct TPhraseSettings {
+	TPhraseSettings()
+		:	m_bCaseSensitive(false),
+			m_bAccentSensitive(false),
+			m_bExclude(false),
+			m_bDisabled(false)
+	{
+	}
+
+	bool m_bCaseSensitive;
+	bool m_bAccentSensitive;
+	bool m_bExclude;
+	QString m_strPhrase;
+	bool m_bDisabled;
+};
+
 class CPhraseLineEdit : public CSingleLineTextEdit, public CParsedPhrase
 {
 	Q_OBJECT
@@ -60,6 +76,8 @@ public:
 	explicit CPhraseLineEdit(QWidget *pParent = 0);
 	CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pParent = 0);
 	virtual ~CPhraseLineEdit();
+
+	void setupPhrase(const TPhraseSettings &aPhrase);
 
 	QMenu *getEditMenu() const { return m_pEditMenu; }
 	QWidget *getDropListButton() const { return m_pButtonDroplist; }
@@ -136,6 +154,8 @@ class CKJVSearchPhraseEdit : public QWidget
 public:
 	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
+
+	void setupPhrase(const TPhraseSettings &aPhrase);
 
 	const CParsedPhrase *parsedPhrase() const;
 	CPhraseLineEdit *phraseEditor() const;
