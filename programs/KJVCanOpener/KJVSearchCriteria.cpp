@@ -27,6 +27,7 @@
 #include "ScriptureDocument.h"
 #include "Translator.h"
 #include "dbDescriptors.h"
+#include "VerseListModel.h"
 
 #include "BusyCursor.h"
 
@@ -593,7 +594,7 @@ void CKJVSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &i
 		if ((ndxReference.isSet()) &&
 			(ndxReference != CSearchCriteria::SSI_COLOPHON) &&
 			(ndxReference != CSearchCriteria::SSI_SUPERSCRIPTION)) {
-			emit gotoIndex(ndxReference);
+			emit gotoIndex(CVerseListModel::navigationIndexFromLogicalIndex(ndxReference));
 		}
 	}
 }
