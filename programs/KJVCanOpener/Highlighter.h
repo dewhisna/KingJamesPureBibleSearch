@@ -29,11 +29,14 @@
 #include <QObject>
 #include <QTextCharFormat>
 #include <QList>
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 #include <QToolBar>
 #include <QToolButton>
 #include <QAction>
 #include <QActionGroup>
 #include <QWidgetAction>
+#include <QMouseEvent>
+#endif
 #include <QIcon>
 #include <QPointer>
 #include <QMenu>
@@ -256,12 +259,44 @@ private:
 
 #define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
 
+class CHighlighterToolButton : public QToolButton
+{
+public:
+	CHighlighterToolButton(QWidget *pParent = NULL)
+		:	QToolButton(pParent),
+			m_bControlActivation(false)
+	{
+	}
+
+	virtual ~CHighlighterToolButton()
+	{
+	}
+
+	virtual void mousePressEvent(QMouseEvent *pEvent)
+	{
+		assert(pEvent != NULL);
+		m_bControlActivation = ((pEvent->modifiers() & Qt::ControlModifier) ? true : false);
+		QToolButton::mousePressEvent(pEvent);
+	}
+
+	virtual void mouseReleaseEvent(QMouseEvent *pEvent)
+	{
+		QToolButton::mouseReleaseEvent(pEvent);
+	}
+
+	bool controlActivation() const { return m_bControlActivation; }
+
+private:
+	bool m_bControlActivation;				// Set to true when the control-shortcut has been activated for this action (i.e. pressing Control or Command while clicking the action)
+};
+
 class CHighlighterWidgetAction : public QWidgetAction
 {
 public:
 	CHighlighterWidgetAction(QAction *pButtonAction, QObject *pParent = 0)
 		:	QWidgetAction(pParent),
-			m_pButtonAction(pButtonAction)
+			m_pButtonAction(pButtonAction),
+			m_pHighlighterToolButton(NULL)
 	{
 		setMenu(new QMenu);					// The action will take ownership via setOverrideMenuAction()
 	}
@@ -270,16 +305,25 @@ public:
 
 	virtual QWidget *createWidget(QWidget *parent)
 	{
-		QToolButton *pToolButton = new QToolButton(parent);
-		pToolButton->setDefaultAction(m_pButtonAction);
-		pToolButton->setMenu(this->menu());
-		pToolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-		pToolButton->setPopupMode(QToolButton::MenuButtonPopup);
-		return pToolButton;
+		m_pHighlighterToolButton = new CHighlighterToolButton(parent);
+		m_pHighlighterToolButton->setDefaultAction(m_pButtonAction);
+		m_pHighlighterToolButton->setMenu(this->menu());
+		m_pHighlighterToolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+		m_pHighlighterToolButton->setPopupMode(QToolButton::MenuButtonPopup);
+		return m_pHighlighterToolButton;
 	}
+
+	bool controlActivation() const
+	{
+		assert(m_pHighlighterToolButton != NULL);
+		return m_pHighlighterToolButton->controlActivation();
+	}
+
+	QAction *buttonAction() const { return m_pButtonAction; }
 
 private:
 	QAction *m_pButtonAction;
+	CHighlighterToolButton *m_pHighlighterToolButton;
 };
 
 class CHighlighterButtons : public QObject
@@ -311,8 +355,10 @@ public:
 	void setHighlighterLists();
 	void setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName = QString());
 
+	void setHighlighterTips(bool bSearchResultsActive);
+
 signals:
-	void highlighterToolTriggered(QAction *pAction);	// Triggered whenever one of the Highlighter Tools (or menu equivalents) is clicked
+	void highlighterToolTriggered(QAction *pAction, bool bControlActive);	// Triggered whenever one of the Highlighter Tools (or menu equivalents) is clicked
 
 public slots:
 	void enterConfigurationMode();
@@ -321,6 +367,7 @@ public slots:
 protected slots:
 	void en_changedHighlighters();
 	void en_highlighterSelectionChanged(QAction *pAction);
+	void en_highlighterToolTriggered(QAction *pAction);			// Internal trigger of Highlighter Tool -- reads control status and fires highlighterToolTriggered()
 
 protected:
 	void setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName);

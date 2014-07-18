@@ -342,7 +342,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
-		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightPassage(QAction *)));
+		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *, bool)), this, SLOT(en_highlightPassage(QAction *, bool)));
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
 		m_pActionShowAllNotes = m_pEditMenu->addAction(QObject::tr("Show All Notes", "MainMenu"), this, SLOT(en_showAllNotes()));
@@ -1014,8 +1014,10 @@ void CScriptureText<T,U>::displayCopyCompleteToolTip() const
 // ----------------------------------------------------------------------------
 
 template<class T, class U>
-void CScriptureText<T,U>::en_highlightPassage(QAction *pAction)
+void CScriptureText<T,U>::en_highlightPassage(QAction *pAction, bool bControlActive)
 {
+	Q_UNUSED(bControlActive);
+
 	if (!U::hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
 	assert(pAction != NULL);

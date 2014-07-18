@@ -151,7 +151,7 @@ public:
 	virtual void en_copyReferenceDetails();
 	virtual void en_copyPassageStatistics();
 	virtual void en_copyEntirePassageDetails();
-	virtual void en_highlightPassage(QAction *pAction);
+	virtual void en_highlightPassage(QAction *pAction, bool bControlActive);
 	virtual void en_anchorClicked(const QUrl &link);
 	virtual void en_showAllNotes();
 	virtual void en_hideAllNotes();
@@ -264,7 +264,7 @@ public slots:
 	virtual void en_copyReferenceDetails() = 0;
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
-	virtual void en_highlightPassage(QAction *pAction) = 0;
+	virtual void en_highlightPassage(QAction *pAction, bool bControlActive) = 0;
 	virtual void en_anchorClicked(const QUrl &link) = 0;
 	virtual void en_showAllNotes() = 0;
 	virtual void en_hideAllNotes() = 0;
@@ -317,7 +317,7 @@ public slots:
 	virtual void en_copyReferenceDetails() = 0;
 	virtual void en_copyPassageStatistics() = 0;
 	virtual void en_copyEntirePassageDetails() = 0;
-	virtual void en_highlightPassage(QAction *pAction) = 0;
+	virtual void en_highlightPassage(QAction *pAction, bool bControlActive) = 0;
 	virtual void en_anchorClicked(const QUrl &link) = 0;
 	virtual void en_showAllNotes() = 0;
 	virtual void en_hideAllNotes() = 0;

@@ -30,9 +30,11 @@
 #include <QVariant>
 #include <QBrush>
 #include <QTextFormat>
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
 #include <QPixmap>
 #include <QBitmap>
 #include <QPainter>
+#endif
 
 // Nasty intermediate class type defintion for CVerseListModel::TVerseListModelResults, but avoids very nasty header interdependency:
 class i_TVerseListModelResults
@@ -347,8 +349,6 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
 		m_lstButtons.append(pButtonHighlighter);
 		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
-		pActionToolButton->setToolTip(tr("Highlighter Tool #%1", "MainMenu").arg(ndx+1));
-		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1", "MainMenu").arg(ndx+1));
 		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 #ifndef Q_OS_MAC
 		switch (ndx) {
@@ -390,13 +390,28 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		setHighlighterList(ndx);
 	}
 
+	setHighlighterTips(false);
+
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
-	connect(m_pActionGroupHighlighterTools, SIGNAL(triggered(QAction*)), this, SIGNAL(highlighterToolTriggered(QAction*)));
+	connect(m_pActionGroupHighlighterTools, SIGNAL(triggered(QAction*)), this, SLOT(en_highlighterToolTriggered(QAction*)));
 }
 
 CHighlighterButtons::~CHighlighterButtons()
 {
 
+}
+
+void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
+{
+	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
+		QString strToolTip = tr("Highlighter Tool #%1", "MainMenu").arg(ndx+1);
+		if (bSearchResultsActive) {
+			strToolTip += "\n" + tr("%1Click to highlight only the Search Result Text", "MainMenu").arg(QKeySequence(Qt::CTRL).toString(QKeySequence::NativeText));
+		}
+		m_lstButtons.at(ndx)->buttonAction()->setToolTip(strToolTip);
+
+		m_lstButtons.at(ndx)->buttonAction()->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1", "MainMenu").arg(ndx+1));
+	}
 }
 
 void CHighlighterButtons::addHighlighterButtonsToToolBar(QToolBar *pToolBar)
@@ -521,6 +536,15 @@ QString CHighlighterButtons::highlighter(int ndx) const
 	if (pCurrentAction == NULL) return QString();
 
 	return pCurrentAction->text();
+}
+
+void CHighlighterButtons::en_highlighterToolTriggered(QAction *pAction)
+{
+	assert(pAction != NULL);
+	int ndx = pAction->data().toInt();
+	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+
+	emit highlighterToolTriggered(pAction, m_lstButtons.at(ndx)->controlActivation());
 }
 
 #endif

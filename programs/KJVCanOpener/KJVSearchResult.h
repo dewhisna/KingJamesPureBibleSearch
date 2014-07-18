@@ -118,7 +118,7 @@ protected slots:
 	void en_copyReferenceDetails() const;
 	void en_copyComplete() const;
 
-	void en_highlightSearchResults(QAction *pAction);
+	void en_highlightSearchResults(QAction *pAction, bool bControlActive);
 
 	void en_listChanged();
 

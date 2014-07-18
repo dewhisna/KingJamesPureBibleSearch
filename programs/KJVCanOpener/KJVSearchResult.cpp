@@ -367,7 +367,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
-		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *)), this, SLOT(en_highlightSearchResults(QAction *)));
+		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *, bool)), this, SLOT(en_highlightSearchResults(QAction *, bool)));
 		// ----
 		m_pEditMenu->addSeparator();
 		m_pEditMenuLocal->insertSeparator(m_pMenuUserNotesInsertionPoint);
@@ -513,7 +513,7 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 
 // ----------------------------------------------------------------------------
 
-void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
+void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction, bool bControlActive)
 {
 	if (!hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
@@ -530,7 +530,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
 	if (plstHighlighterTags != NULL) {
 		for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), item.getWholeVersePhraseTag())) {
+			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), (bControlActive ? item.phraseTags() : item.getWholeVersePhraseTag()))) {
 				bAllAlreadyHighlighted = false;
 				break;
 			}
@@ -541,7 +541,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction)
 	lstVerseTags.reserve(lstVerses.size());
 	for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		lstVerseTags.append(item.getWholeVersePhraseTag());
+		lstVerseTags.append(bControlActive ? item.phraseTags() : item.getWholeVersePhraseTag());
 	}
 
 	if (bAllAlreadyHighlighted) {
@@ -877,6 +877,11 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
 	QTreeView::focusInEvent(event);
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	if (parentCanOpener() != NULL) {
+		parentCanOpener()->highlighterButtons()->setHighlighterTips(true);
+	}
+#endif
 	handle_selectionChanged();
 }
 
@@ -888,6 +893,7 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 	if ((parentCanOpener() != NULL) &&
 		(event->reason() != Qt::MenuBarFocusReason) &&
 		(event->reason() != Qt::PopupFocusReason)) {
+		parentCanOpener()->highlighterButtons()->setHighlighterTips(false);
 		parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
 		parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
 		const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
