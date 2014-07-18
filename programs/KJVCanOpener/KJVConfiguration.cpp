@@ -49,7 +49,6 @@
 #include <QGridLayout>
 #include <QSplitter>
 #include <QSizePolicy>
-#include <QFontDatabase>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QwwColorButton>
@@ -69,6 +68,20 @@
 #include <QPointer>
 static QPointer<QColorDialog> g_pdlgColor;
 #endif
+
+// Originally, we were using QFontDatabase::standardSizes() to get the range of font
+//		sizes for all platforms, but starting with Qt 5, the Mac OSX platform started
+//		returning 9 to 288 instead of 6 to 72 like all other platforms.  Apparently,
+//		these ridiculous sizes were by design from some sort of Mac history.  I
+//		reported it to Qt (QTBUG #40057) and they rejected it as invalid.  But 9 to 288
+//		is ridiculous and unusable, so I'll just hardcode the sizes, which is apparently
+//		what Qt 4 used to do anyway:
+
+#define FONT_MIN_SIZE_APP 6
+#define FONT_MAX_SIZE_APP 24
+
+#define FONT_MIN_SIZE 6
+#define FONT_MAX_SIZE 144
 
 // ============================================================================
 
@@ -445,24 +458,10 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	}
 #endif
 
-	ui.dblSpinBoxApplicationFontSize->setRange(6, 24);
-// On Mac OSX with Qt 5.3.1, QFontDatabase::standardSizes() returns unreasonable 9 to 288 instead of 6 to 72.  Workaround:
-#ifdef WORKAROUND_QTBUG_40057
-	int nFontMin = 6;
-	int nFontMax = 72;
-#else
-	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
-	assert(lstStandardFontSizes.size() > 0);
-	int nFontMin = -1;
-	int nFontMax = -1;
-	for (int ndx=0; ndx<lstStandardFontSizes.size(); ++ndx) {
-		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
-		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
-	}
-#endif
-	ui.dblSpinBoxScriptureBrowserFontSize->setRange(nFontMin, nFontMax);
-	ui.dblSpinBoxSearchResultsFontSize->setRange(nFontMin, nFontMax);
-	ui.dblSpinBoxDictionaryFontSize->setRange(nFontMin, nFontMax);
+	ui.dblSpinBoxApplicationFontSize->setRange(FONT_MIN_SIZE_APP, FONT_MAX_SIZE_APP);
+	ui.dblSpinBoxScriptureBrowserFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
+	ui.dblSpinBoxSearchResultsFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
+	ui.dblSpinBoxDictionaryFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
 
 	connect(ui.fontComboBoxApplication, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ApplicationFontChanged(const QFont &)));
 	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
@@ -2007,21 +2006,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	connect(ui.comboBoxCopyFontSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyFontSelection(int)));
 
-// On Mac OSX with Qt 5.3.1, QFontDatabase::standardSizes() returns unreasonable 9 to 288 instead of 6 to 72.  Workaround:
-#ifdef WORKAROUND_QTBUG_40057
-	int nFontMin = 6;
-	int nFontMax = 72;
-#else
-	QList<int> lstStandardFontSizes = QFontDatabase::standardSizes();
-	assert(lstStandardFontSizes.size() > 0);
-	int nFontMin = -1;
-	int nFontMax = -1;
-	for (int ndx=0; ndx<lstStandardFontSizes.size(); ++ndx) {
-		if ((nFontMin == -1) || (lstStandardFontSizes.at(ndx) < nFontMin)) nFontMin = lstStandardFontSizes.at(ndx);
-		if ((nFontMax == -1) || (lstStandardFontSizes.at(ndx) > nFontMax)) nFontMax = lstStandardFontSizes.at(ndx);
-	}
-#endif
-	ui.dblSpinBoxCopyFontSize->setRange(nFontMin, nFontMax);
+	ui.dblSpinBoxCopyFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
 
 	connect(ui.fontComboBoxCopyFont, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_changedFontCopyFont(const QFont &)));
 	connect(ui.dblSpinBoxCopyFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_changedFontCopyFontSize(double)));
