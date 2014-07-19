@@ -37,6 +37,7 @@
 #include <QItemSelectionModel>
 #include <QStringListModel>
 #include <QFontMetrics>
+#include <QKeyEvent>
 
 #include <algorithm>
 #include <string>
@@ -528,6 +529,8 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.treeViewMatchingPhrases->setModel(m_pMatchingPhrasesModel);
 	if (pOldModel) delete pOldModel;
 	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));
+	connect(ui.treeViewMatchingPhrases, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(en_matchingPhraseActivated(const QModelIndex &)));
+	ui.treeViewMatchingPhrases->installEventFilter(this);
 
 	ui.toolButtonShowMatchingPhrases->setVisible(!CPersistentSettings::instance()->hideMatchingPhrasesLists());
 	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)));
@@ -556,6 +559,49 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 {
 
+}
+
+bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
+{
+	assert(pEvent != NULL);
+
+	if ((pEvent->type() == QEvent::KeyPress) && (pObject == ui.treeViewMatchingPhrases)) {
+		QKeyEvent *pKeyEvent = static_cast<QKeyEvent *>(pEvent);
+		switch (pKeyEvent->key()) {
+			case Qt::Key_Select:
+				// Also do Key_Enter action.
+				if (ui.treeViewMatchingPhrases->currentIndex().isValid()) {
+					en_matchingPhraseActivated(ui.treeViewMatchingPhrases->currentIndex());
+					pEvent->ignore();
+					return true;
+				}
+				break;
+
+			case Qt::Key_Enter:
+			case Qt::Key_Return:
+				// ### we can't open the editor on enter, becuse
+				// some widgets will forward the enter event back
+				// to the viewport, starting an endless loop
+				if (ui.treeViewMatchingPhrases->hasFocus() &&
+					(ui.treeViewMatchingPhrases->currentIndex().isValid())) {
+					en_matchingPhraseActivated(ui.treeViewMatchingPhrases->currentIndex());
+					pEvent->ignore();
+					return true;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	return QWidget::eventFilter(pObject, pEvent);
+}
+
+void CKJVSearchPhraseEdit::en_matchingPhraseActivated(const QModelIndex &index)
+{
+	if (index.isValid()) {
+		ui.editPhrase->setText(index.data().toString());
+	}
 }
 
 void CKJVSearchPhraseEdit::setupPhrase(const TPhraseSettings &aPhrase)

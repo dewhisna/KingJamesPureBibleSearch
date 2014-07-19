@@ -155,6 +155,8 @@ public:
 	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
 	virtual ~CKJVSearchPhraseEdit();
 
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+
 	void setupPhrase(const TPhraseSettings &aPhrase);
 
 	const CParsedPhrase *parsedPhrase() const;
@@ -181,6 +183,8 @@ public slots:
 	void setSearchActivationDelay(int nDelay) { m_dlyTextChanged.setMinimumDelay(nDelay); }
 
 protected slots:
+	void en_matchingPhraseActivated(const QModelIndex &index);
+
 	void en_phraseChanged();
 	void en_CaseSensitiveChanged(bool bCaseSensitive);
 	void en_AccentSensitiveChanged(bool bAccentSensitive);
