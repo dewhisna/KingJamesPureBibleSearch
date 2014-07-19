@@ -342,7 +342,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
-		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *, bool)), this, SLOT(en_highlightPassage(QAction *, bool)));
+		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int, bool)), this, SLOT(en_highlightPassage(int, bool)));
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
 		m_pActionShowAllNotes = m_pEditMenu->addAction(QObject::tr("Show All Notes", "MainMenu"), this, SLOT(en_showAllNotes()));
@@ -1014,16 +1014,15 @@ void CScriptureText<T,U>::displayCopyCompleteToolTip() const
 // ----------------------------------------------------------------------------
 
 template<class T, class U>
-void CScriptureText<T,U>::en_highlightPassage(QAction *pAction, bool bControlActive)
+void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSecondaryActive)
 {
-	Q_UNUSED(bControlActive);
+	Q_UNUSED(bSecondaryActive);
 
 	if (!U::hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
-	assert(pAction != NULL);
 	assert(g_pUserNotesDatabase.data() != NULL);
 
-	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(pAction->data().toInt());
+	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
 	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
 

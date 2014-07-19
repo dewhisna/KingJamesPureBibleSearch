@@ -30,12 +30,14 @@
 #include <QTextCharFormat>
 #include <QList>
 #if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#include <QKeySequence>
 #include <QToolBar>
 #include <QToolButton>
 #include <QAction>
 #include <QActionGroup>
 #include <QWidgetAction>
 #include <QMouseEvent>
+#include <QShortcutEvent>
 #endif
 #include <QIcon>
 #include <QPointer>
@@ -290,10 +292,64 @@ private:
 	bool m_bControlActivation;				// Set to true when the control-shortcut has been activated for this action (i.e. pressing Control or Command while clicking the action)
 };
 
+class CHighlighterAction : public QAction
+{
+	Q_OBJECT
+
+public:
+	CHighlighterAction(const QList<QKeySequence> &lstShortcuts, QObject *pParent)
+		:	QAction(pParent),
+			m_lstShortcuts(lstShortcuts)
+	{
+		if (!m_lstShortcuts.isEmpty()) setShortcuts(m_lstShortcuts);
+	}
+
+	CHighlighterAction(const QList<QKeySequence> &lstShortcuts, const QString &strText, QObject *pParent)
+		:	QAction(strText, pParent),
+			m_lstShortcuts(lstShortcuts)
+	{
+		if (!m_lstShortcuts.isEmpty()) setShortcuts(m_lstShortcuts);
+	}
+
+	CHighlighterAction(const QList<QKeySequence> &lstShortcuts, const QIcon &anIcon, const QString &strText, QObject *pParent)
+		:	QAction(anIcon, strText, pParent),
+			m_lstShortcuts(lstShortcuts)
+	{
+		if (!m_lstShortcuts.isEmpty()) setShortcuts(m_lstShortcuts);
+	}
+
+	virtual ~CHighlighterAction()
+	{
+
+	}
+
+signals:
+	void highlightTriggered(QAction *pAction, bool bSecondaryActive);		// bSecondaryActive if secondary function was selected
+
+protected:
+	virtual bool event(QEvent *pEvent)
+	{
+		if (pEvent->type() == QEvent::Shortcut) {
+			QShortcutEvent *pSE = static_cast<QShortcutEvent *>(pEvent);
+			assert(m_lstShortcuts.contains(pSE->key()));
+			if (pSE->isAmbiguous()) {
+				qWarning("QAction::eventFilter: Ambiguous shortcut overload: %s", pSE->key().toString().toLatin1().constData());
+			} else {
+				emit highlightTriggered(this, m_lstShortcuts.indexOf(pSE->key()) == 1);
+			}
+			return true;
+		}
+		return QAction::event(pEvent);
+	}
+
+private:
+	const QList<QKeySequence> m_lstShortcuts;
+};
+
 class CHighlighterWidgetAction : public QWidgetAction
 {
 public:
-	CHighlighterWidgetAction(QAction *pButtonAction, QObject *pParent = 0)
+	CHighlighterWidgetAction(CHighlighterAction *pButtonAction, QObject *pParent = 0)
 		:	QWidgetAction(pParent),
 			m_pButtonAction(pButtonAction),
 			m_pHighlighterToolButton(NULL)
@@ -319,10 +375,10 @@ public:
 		return m_pHighlighterToolButton->controlActivation();
 	}
 
-	QAction *buttonAction() const { return m_pButtonAction; }
+	CHighlighterAction *buttonAction() const { return m_pButtonAction; }
 
 private:
-	QAction *m_pButtonAction;
+	CHighlighterAction *m_pButtonAction;
 	CHighlighterToolButton *m_pHighlighterToolButton;
 };
 
@@ -358,7 +414,7 @@ public:
 	void setHighlighterTips(bool bSearchResultsActive);
 
 signals:
-	void highlighterToolTriggered(QAction *pAction, bool bControlActive);	// Triggered whenever one of the Highlighter Tools (or menu equivalents) is clicked
+	void highlighterToolTriggered(int ndxHighlighterTool, bool bSecondaryActive);	// Triggered whenever one of the Highlighter Tools (or menu equivalents) is clicked
 
 public slots:
 	void enterConfigurationMode();
@@ -367,7 +423,7 @@ public slots:
 protected slots:
 	void en_changedHighlighters();
 	void en_highlighterSelectionChanged(QAction *pAction);
-	void en_highlighterToolTriggered(QAction *pAction);			// Internal trigger of Highlighter Tool -- reads control status and fires highlighterToolTriggered()
+	void en_highlighterToolTriggered(QAction *pAction, bool bSecondary = false);			// Internal trigger of Highlighter Tool -- reads control status and fires highlighterToolTriggered()
 
 protected:
 	void setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName);

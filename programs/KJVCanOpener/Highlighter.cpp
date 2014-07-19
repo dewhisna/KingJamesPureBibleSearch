@@ -345,47 +345,61 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	m_lstButtons.clear();
 	m_lstActionGroups.clear();
 	for (int ndx = 0; ndx < NUM_HIGHLIGHTER_TOOLBAR_BUTTONS; ++ndx) {
-		QAction *pActionToolButton = m_pActionGroupHighlighterTools->addAction(tr("&Highlight/Unhighlight Passage with Tool #%1", "MainMenu").arg(ndx+1));
-		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
-		m_lstButtons.append(pButtonHighlighter);
-		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
-		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
+		QList<QKeySequence> lstShortcuts;
+		lstShortcuts.reserve(2);
 #ifndef Q_OS_MAC
 		switch (ndx) {
 			case 0:
-				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_H));
 				break;
 			case 1:
-				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_J));
 				break;
 			case 2:
-				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_K));
 				break;
 			case 3:
-				pActionToolButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_L));
 				break;
 			default:
 				break;
 		}
-#else
+//#else
 		switch (ndx) {
 			case 0:
-				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_H));
 				break;
 			case 1:
-				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_J));
 				break;
 			case 2:
-				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_K));
 				break;
 			case 3:
-				pActionToolButton->setShortcut(QKeySequence(Qt::META + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_L));
 				break;
 			default:
 				break;
 		}
 #endif
+
+		CHighlighterAction *pActionToolButton = new CHighlighterAction(lstShortcuts, tr("&Highlight/Unhighlight Passage with Tool #%1", "MainMenu").arg(ndx+1), m_pActionGroupHighlighterTools);
+		m_pActionGroupHighlighterTools->addAction(pActionToolButton);
+		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
+		connect(pActionToolButton, SIGNAL(highlightTriggered(QAction*, bool)), this, SLOT(en_highlighterToolTriggered(QAction*, bool)));
+
+		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
+		m_lstButtons.append(pButtonHighlighter);
+		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
 
 		setHighlighterList(ndx);
 	}
@@ -393,7 +407,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	setHighlighterTips(false);
 
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
-	connect(m_pActionGroupHighlighterTools, SIGNAL(triggered(QAction*)), this, SLOT(en_highlighterToolTriggered(QAction*)));
+	connect(m_pActionGroupHighlighterTools, SIGNAL(triggered(QAction*)), this, SLOT(en_highlighterToolTriggered(QAction*)));		// This connect needed for click activate vs. shortcut activated
 }
 
 CHighlighterButtons::~CHighlighterButtons()
@@ -538,13 +552,13 @@ QString CHighlighterButtons::highlighter(int ndx) const
 	return pCurrentAction->text();
 }
 
-void CHighlighterButtons::en_highlighterToolTriggered(QAction *pAction)
+void CHighlighterButtons::en_highlighterToolTriggered(QAction *pAction, bool bSecondary)
 {
 	assert(pAction != NULL);
 	int ndx = pAction->data().toInt();
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 
-	emit highlighterToolTriggered(pAction, m_lstButtons.at(ndx)->controlActivation());
+	emit highlighterToolTriggered(ndx, m_lstButtons.at(ndx)->controlActivation() || bSecondary);
 }
 
 #endif

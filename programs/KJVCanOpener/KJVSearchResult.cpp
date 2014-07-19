@@ -367,7 +367,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
-		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(QAction *, bool)), this, SLOT(en_highlightSearchResults(QAction *, bool)));
+		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int, bool)), this, SLOT(en_highlightSearchResults(int, bool)));
 		// ----
 		m_pEditMenu->addSeparator();
 		m_pEditMenuLocal->insertSeparator(m_pMenuUserNotesInsertionPoint);
@@ -513,13 +513,13 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 
 // ----------------------------------------------------------------------------
 
-void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction, bool bControlActive)
+void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive)
 {
 	if (!hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
 	assert(vlmodel()->userNotesDatabase() != NULL);
 
-	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(pAction->data().toInt());
+	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
 	const TPhraseTagList *plstHighlighterTags = vlmodel()->userNotesDatabase()->highlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName);
 
@@ -530,7 +530,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction, bool bC
 	if (plstHighlighterTags != NULL) {
 		for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), (bControlActive ? item.phraseTags() : item.getWholeVersePhraseTag()))) {
+			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), (bSecondaryActive ? item.phraseTags() : item.getWholeVersePhraseTag()))) {
 				bAllAlreadyHighlighted = false;
 				break;
 			}
@@ -541,7 +541,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(QAction *pAction, bool bC
 	lstVerseTags.reserve(lstVerses.size());
 	for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 		const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		lstVerseTags.append(bControlActive ? item.phraseTags() : item.getWholeVersePhraseTag());
+		lstVerseTags.append(bSecondaryActive ? item.phraseTags() : item.getWholeVersePhraseTag());
 	}
 
 	if (bAllAlreadyHighlighted) {
