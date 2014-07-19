@@ -368,7 +368,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 			default:
 				break;
 		}
-//#else
+#else
 		switch (ndx) {
 			case 0:
 				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_H));
@@ -390,8 +390,12 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 				break;
 		}
 #endif
+		if (lstShortcuts.size() != 2) {
+			assert(false);
+			continue;
+		}
 
-		CHighlighterAction *pActionToolButton = new CHighlighterAction(lstShortcuts, tr("&Highlight/Unhighlight Passage with Tool #%1", "MainMenu").arg(ndx+1), m_pActionGroupHighlighterTools);
+		CHighlighterAction *pActionToolButton = new CHighlighterAction(lstShortcuts, m_pActionGroupHighlighterTools);
 		m_pActionGroupHighlighterTools->addAction(pActionToolButton);
 		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
@@ -418,13 +422,34 @@ CHighlighterButtons::~CHighlighterButtons()
 void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
 {
 	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
+		CHighlighterAction *pActionToolButton = m_lstButtons.at(ndx)->buttonAction();
+
+		QList<QKeySequence> lstShortcuts = pActionToolButton->shortcuts();
+		if (lstShortcuts.size() != 2) {
+			assert(false);
+		} else {
+			QString strActionText;
+			if (bSearchResultsActive) {
+				strActionText += tr("&Highlight/Unhighlight Verse (Search Results) with Tool #%1", "MainMenu").arg(ndx+1);
+			} else {
+				strActionText += tr("&Highlight/Unhighlight Passage with Tool #%1", "MainMenu").arg(ndx+1);
+			}
+			strActionText += "\t" + lstShortcuts.at(0).toString(QKeySequence::NativeText);
+			if (bSearchResultsActive) strActionText += " (" + lstShortcuts.at(1).toString(QKeySequence::NativeText) + ")";
+			pActionToolButton->setText(strActionText);
+		}
+
 		QString strToolTip = tr("Highlighter Tool #%1", "MainMenu").arg(ndx+1);
 		if (bSearchResultsActive) {
+#ifndef Q_OS_MAC
 			strToolTip += "\n" + tr("%1Click to highlight only the Search Result Text", "MainMenu").arg(QKeySequence(Qt::CTRL).toString(QKeySequence::NativeText));
+#else
+			strToolTip += "\n" + tr("%1Click to highlight only the Search Result Text", "MainMenu").arg(QKeySequence(Qt::META).toString(QKeySequence::NativeText));
+#endif
 		}
-		m_lstButtons.at(ndx)->buttonAction()->setToolTip(strToolTip);
+		pActionToolButton->setToolTip(strToolTip);
 
-		m_lstButtons.at(ndx)->buttonAction()->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1", "MainMenu").arg(ndx+1));
+		pActionToolButton->setStatusTip(tr("Highlight/Unhighlight the selected passage with Highlighter Tool #%1", "MainMenu").arg(ndx+1));
 	}
 }
 

@@ -277,7 +277,11 @@ public:
 	virtual void mousePressEvent(QMouseEvent *pEvent)
 	{
 		assert(pEvent != NULL);
+#ifndef Q_OS_MAC
 		m_bControlActivation = ((pEvent->modifiers() & Qt::ControlModifier) ? true : false);
+#else
+		m_bControlActivation = ((pEvent->modifiers() & Qt::MetaModifier) ? true : false);
+#endif
 		QToolButton::mousePressEvent(pEvent);
 	}
 
