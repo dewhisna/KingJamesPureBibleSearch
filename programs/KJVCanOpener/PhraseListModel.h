@@ -28,6 +28,12 @@
 
 #include <QAbstractListModel>
 #include <QModelIndex>
+#include <QString>
+#include <QStringList>
+#include <QStringListModel>
+#include <QMimeData>
+
+// ============================================================================
 
 class CPhraseListModel : public QAbstractListModel
 {
@@ -65,5 +71,46 @@ private:
 	Q_DISABLE_COPY(CPhraseListModel)
 	CPhraseList m_lstPhrases;
 };
+
+// ============================================================================
+
+class CMatchingPhrasesListModel : public QStringListModel
+{
+	Q_OBJECT
+
+public:
+	explicit CMatchingPhrasesListModel(QObject *pParent = NULL)
+		:	QStringListModel(pParent)
+	{
+#if QT_VERSION < 0x050000
+		setSupportedDragActions(mySupportedDragActions());
+#endif
+	}
+
+	CMatchingPhrasesListModel(const QStringList &lstPhrases, QObject *pParent = NULL)
+		:	QStringListModel(lstPhrases, pParent)
+	{
+#if QT_VERSION < 0x050000
+		setSupportedDragActions(mySupportedDragActions());
+#endif
+	}
+
+#if QT_VERSION >= 0x050000
+	virtual Qt::DropActions supportedDragActions() const
+	{
+		return mySupportedDragActions();
+	}
+#endif
+	virtual Qt::DropActions supportedDropActions() const;
+
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+
+private:
+	Qt::DropActions mySupportedDragActions() const;
+};
+
+// ============================================================================
 
 #endif // PHRASELISTMODEL_H

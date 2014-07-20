@@ -35,7 +35,6 @@
 #include <QTextCharFormat>
 #include <QGridLayout>
 #include <QItemSelectionModel>
-#include <QStringListModel>
 #include <QFontMetrics>
 #include <QKeyEvent>
 
@@ -358,11 +357,9 @@ void CPhraseLineEdit::delayed_UpdatedCompleter()
 
 bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
 {
-	if (source->hasFormat(g_constrPhraseTagMimeType)) {
-		return true;
-	} else {
-		return CSingleLineTextEdit::canInsertFromMimeData(source);
-	}
+	return (source->hasFormat(g_constrPhraseTagMimeType) ||
+			source->hasText() ||
+			source->hasHtml());
 }
 
 void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
@@ -371,8 +368,9 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 
 	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
 
+	QString strPhrase;
+
 	if (source->hasFormat(g_constrPhraseTagMimeType)) {
-		QString strPhrase;
 		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(source);
 		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(tag.relIndex());
 		if ((ndxNormal != 0) && (tag.count() > 0)) {
@@ -383,11 +381,31 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 			clear();
 			setPlainText(strPhrase);
 		}
+	} else if (source->hasText() || source->hasHtml()) {
+		if (source->hasText()) {
+			strPhrase = source->text().trimmed();
+		} else {
+			QTextDocument docCopy;
+			docCopy.setHtml(source->html());
+			strPhrase = docCopy.toPlainText().trimmed();
+		}
+		// Change all newlines to "OR" operator to break them into subphrases:
+		if (!strPhrase.isNull()) {
+			QStringList lstSubPhrases = strPhrase.split(QChar('\n'));
+			for (int ndx = 0; ndx < lstSubPhrases.size(); ++ndx) {
+				lstSubPhrases[ndx] = lstSubPhrases.at(ndx).trimmed();
+			}
+			lstSubPhrases.removeAll(QString());
+			strPhrase = lstSubPhrases.join(" | ");
 
-		ensureCursorVisible();
-	} else {
-		CSingleLineTextEdit::insertFromMimeData(source);
+			if (!strPhrase.isEmpty()) {
+				clear();
+				setPlainText(strPhrase);
+			}
+		}
 	}
+
+	ensureCursorVisible();
 }
 
 void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
@@ -525,7 +543,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	ui.treeViewMatchingPhrases->setVisible(false);
 	ui.treeViewMatchingPhrases->setUniformRowHeights(true);
 	QItemSelectionModel *pOldModel = ui.treeViewMatchingPhrases->selectionModel();
-	m_pMatchingPhrasesModel = new QStringListModel(this);
+	m_pMatchingPhrasesModel = new CMatchingPhrasesListModel(this);
 	ui.treeViewMatchingPhrases->setModel(m_pMatchingPhrasesModel);
 	if (pOldModel) delete pOldModel;
 	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));

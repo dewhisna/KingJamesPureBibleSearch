@@ -48,7 +48,7 @@
 #include <assert.h>
 
 // Forward Declarations
-class QStringListModel;
+class CMatchingPhrasesListModel;
 
 // ============================================================================
 
@@ -209,7 +209,7 @@ private:
 
 // UI Private:
 private:
-	QStringListModel *m_pMatchingPhrasesModel;
+	CMatchingPhrasesListModel *m_pMatchingPhrasesModel;
 	bool m_bMatchingPhrasesModelCurrent;			// True when we have filled in the matching phrases model, set back to false when the en_phraseChanged happens, so if user minimizes list it doesn't have to get recomputed on expanding
 	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CKJVSearchPhraseEdit ui;

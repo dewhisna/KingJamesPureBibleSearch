@@ -26,6 +26,8 @@
 #include <QVector>
 #include <QModelIndexList>
 
+// ============================================================================
+
 CPhraseListModel::CPhraseListModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
@@ -182,3 +184,53 @@ void CPhraseListModel::setPhraseList(const CPhraseList &phrases)
 	emit endResetModel();
 }
 
+// ============================================================================
+
+Qt::DropActions CMatchingPhrasesListModel::mySupportedDragActions() const
+{
+	return Qt::CopyAction;
+}
+
+Qt::DropActions CMatchingPhrasesListModel::supportedDropActions() const
+{
+#ifdef WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS
+	return QAbstractItemModel::supportedDropActions();
+#else
+	return Qt::IgnoreAction;
+#endif
+}
+
+Qt::ItemFlags CMatchingPhrasesListModel::flags(const QModelIndex &index) const
+{
+	if (!index.isValid()) return 0;
+
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
+
+QMimeData *CMatchingPhrasesListModel::mimeData(const QModelIndexList &indexes) const
+{
+	if (indexes.isEmpty()) return NULL;
+
+	QMimeData *mime = new QMimeData();
+	QStringList lstPhrases;
+	lstPhrases.reserve(indexes.size());
+	for (int ndx = 0; ndx < indexes.size(); ++ndx) {
+		lstPhrases.append(indexes.at(ndx).data().toString());
+	}
+	mime->setText(lstPhrases.join(QChar('\n')));
+	return mime;
+}
+
+bool CMatchingPhrasesListModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+	if (action == Qt::IgnoreAction) return true;
+
+	Q_UNUSED(data);
+	Q_UNUSED(row);
+	Q_UNUSED(column);
+	Q_UNUSED(parent);
+
+	return false;
+}
+
+// ============================================================================
