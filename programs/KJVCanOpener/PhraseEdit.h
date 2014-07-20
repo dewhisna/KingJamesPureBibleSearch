@@ -426,11 +426,13 @@ public:
 	};
 
 	enum VERSE_RENDERING_MODE_ENUM {
-		VRME_VPL = 0,								// Verse-Per-Line mode
-		VRME_FF = 1,								// Display as Free-Flow/Paragraph mode
-		VRME_VPL_HANGING = 2,						// Verse Per-Line mode with Hanging Indent
-		VRME_VPL_DS = 3,							// Verse Per-Line mode Double-Spaced
-		VRME_VPL_DS_HANGING = 4						// Verse Per-Line mode Double-Spaced with Hanging Indent
+		VRME_FF = 0,								// Display as Free-Flow/Paragraph mode
+		VRME_VPL = 1,								// Verse-Per-Line mode
+		VRME_VPL_DS = 2,							// Verse Per-Line mode Double-Spaced
+		VRME_VPL_INDENT = 3,						// Verse Per-Line mode with Indent
+		VRME_VPL_HANGING = 4,						// Verse Per-Line mode with Hanging Indent
+		VRME_VPL_DS_INDENT = 5,						// Verse Per-Line mode Double-Spaced with Indent
+		VRME_VPL_DS_HANGING = 6						// Verse Per-Line mode Double-Spaced with Hanging Indent
 	};
 
 	enum COPY_FONT_SELECTION_ENUM {

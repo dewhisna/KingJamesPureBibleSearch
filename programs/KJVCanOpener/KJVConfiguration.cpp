@@ -1696,11 +1696,13 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side", "ScrollbarModes"), CSME_LEFT);
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side", "ScrollbarModes"), CSME_RIGHT);
 
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_HANGING);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_HANGING);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_INDENT);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_HANGING);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_INDENT);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_HANGING);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
@@ -1982,9 +1984,9 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
 	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 
 	connect(ui.comboBoxVerseRenderingModeCopying, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingModeCopying(int)));
 

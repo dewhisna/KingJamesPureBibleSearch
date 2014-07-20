@@ -1441,6 +1441,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
+		if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
+			scriptureHTML.beginIndent(0, m_TextDocument.indentWidth());
+		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relPrev.verse()));
@@ -1457,7 +1460,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
-		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING) ||
+			(vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
 			scriptureHTML.endIndent();
 		}
 
@@ -1617,6 +1621,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 			bInIndent = true;
 		}
+		if ((!bInIndent) && ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT))) {
+			scriptureHTML.beginIndent(0, m_TextDocument.indentWidth());
+			bInIndent = true;
+		}
 
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 
@@ -1624,6 +1632,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.addLineBreak();
 			if (vrmeMode == VRME_VPL_DS) scriptureHTML.addLineBreak();
 			bVPLNeedsLineBreak = false;
+		} else if ((pVerse->m_nPilcrow != CVerseEntry::PTE_NONE) && (vrmeMode == VRME_VPL_DS)) {
+			scriptureHTML.addLineBreak();
 		}
 //		if (((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS)) && (pVerse->m_nPilcrow != CVerseEntry::PTE_NONE)) {
 //			scriptureHTML.addLineBreak();
@@ -1664,14 +1674,16 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				scriptureHTML.insertHorizontalRule();	//	but is needed so we can output this <hr>
 			}
 
-			if ((vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) scriptureHTML.addLineBreak();
+			if ((vrmeMode == VRME_VPL_DS) ||
+				(vrmeMode == VRME_VPL_DS_HANGING) ||
+				(vrmeMode == VRME_VPL_DS_INDENT)) scriptureHTML.addLineBreak();
 			bNeedLeadSpace = false;
 		}
 		scriptureHTML.flushBuffer(true);		// Stop buffering and flush
 
 		if (bInIndent) {
+			if ((vrmeMode == VRME_VPL_DS_HANGING) || (vrmeMode == VRME_VPL_DS_INDENT)) scriptureHTML.addLineBreak();
 			scriptureHTML.endIndent();
-			if (vrmeMode == VRME_VPL_DS_HANGING) scriptureHTML.addLineBreak();
 			bInIndent = false;
 		}
 
@@ -1811,6 +1823,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
+		if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
+			scriptureHTML.beginIndent(0, m_TextDocument.indentWidth());
+		}
 		if (!(flagsTRO & TRO_NoAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relNext.verse()));
@@ -1827,7 +1842,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (flagsTRO & TRO_UserNotes)
 			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
-		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
+		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING) ||
+			(vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
 			scriptureHTML.endIndent();
 		}
 
@@ -2139,6 +2155,10 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		bInIndent = true;
 	}
+	if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
+		scriptureHTML.beginIndent(0, m_TextDocument.indentWidth());
+		bInIndent = true;
+	}
 
 	if (!CPersistentSettings::instance()->referencesAtEnd()) {
 		if (CPersistentSettings::instance()->referencesInBold()) scriptureHTML.beginBold();
@@ -2164,10 +2184,15 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	}
 	for (int nIndexPair = 0; nIndexPair < lstFirstLastIndexes.size(); ++nIndexPair) {
 		for (CRelIndex ndx = lstFirstLastIndexes.at(nIndexPair).first; ((ndx <= lstFirstLastIndexes.at(nIndexPair).second) && (ndx.isSet())); /* Increment inside */) {
-			if (((vrmeMode == VRME_VPL) || (vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) &&
+			if (((vrmeMode == VRME_VPL) ||
+				 (vrmeMode == VRME_VPL_DS) ||
+				 (vrmeMode == VRME_VPL_DS_HANGING) ||
+				 (vrmeMode == VRME_VPL_DS_INDENT)) &&
 				(ndx != ndxFirst)) {
 				scriptureHTML.addLineBreak();
-				if ((vrmeMode == VRME_VPL_DS) || (vrmeMode == VRME_VPL_DS_HANGING)) scriptureHTML.addLineBreak();
+				if ((vrmeMode == VRME_VPL_DS) ||
+					(vrmeMode == VRME_VPL_DS_HANGING) ||
+					(vrmeMode == VRME_VPL_DS_INDENT)) scriptureHTML.addLineBreak();
 			}
 
 			if ((bInIndent) && (ndx != ndxFirst)) {
@@ -2177,6 +2202,10 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 
 			if ((!bInIndent) && ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING))) {
 				scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
+				bInIndent = true;
+			}
+			if ((!bInIndent) && ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT))) {
+				scriptureHTML.beginIndent(0, m_TextDocument.indentWidth());
 				bInIndent = true;
 			}
 
