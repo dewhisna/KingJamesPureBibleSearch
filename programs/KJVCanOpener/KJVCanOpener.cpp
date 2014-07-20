@@ -422,7 +422,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pFileMenu->addSeparator();
 	ui.mainToolBar->addSeparator();
 
-	pAction = pFileMenu->addAction(QIcon(":/res/edit_clear.png"), tr("Cl&ear Search Phrases", "MainMenu"), this, SLOT(en_ClearSearchPhrases()), QKeySequence(Qt::CTRL + Qt::Key_E));
+	pAction = pFileMenu->addAction(QIcon(":/res/edit_clear.png"), tr("Cl&ear Search Phrases", "MainMenu"), this, SLOT(en_ClearSearchPhrases()));
+	QList<QKeySequence> lstShortcuts;
+	lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_E));
+	lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
+	pAction->setShortcuts(lstShortcuts);
 	pAction->setStatusTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings", "MainMenu"));
 	pAction->setToolTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings", "MainMenu"));
 	ui.mainToolBar->addAction(pAction);
