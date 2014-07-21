@@ -105,6 +105,14 @@ public:
   /** Close the anchor element */
   virtual void endAnchor() = 0;
 
+	/**
+	  Begin a new font familiy and size element in the markup
+	  @param family The name of the font family to begin.
+	  @param size The point size to begin.
+	*/
+  virtual void beginFont(const QString &family, int size) = 0;
+  virtual void endFont() = 0;
+
   /**
     Begin a new font familiy element in the markup
     @param family The name of the font family to begin.

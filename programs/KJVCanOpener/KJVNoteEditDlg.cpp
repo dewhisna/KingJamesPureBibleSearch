@@ -29,6 +29,8 @@
 #include "KJVPassageNavigatorDlg.h"
 #include "ScriptureDocument.h"
 
+#include "EditWWWLinkDlg.h"
+
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QByteArray>
@@ -156,6 +158,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	connect(ui.buttonSetAsDefaultBackgroundColor, SIGNAL(clicked()), this, SLOT(en_setDefaultNoteBackgroundColor()));
 	connect(ui.widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
 	connect(ui.buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));
+	connect(ui.buttonInsertWWWLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertWWWLink()));
 
 	m_pRichTextEdit->setFocus();
 
@@ -339,7 +342,9 @@ void CKJVNoteEditDlg::en_clickedInsertReferenceLink()
 		m_ndxLastRefLink = ndxTarget;
 
 		CScriptureTextHtmlBuilder refHTML;
+		refHTML.beginFont(m_pRichTextEdit->fontFamily(), m_pRichTextEdit->fontPointSize());
 		refHTML.addRefLinkFor(m_pBibleDatabase.data(), ndxTarget, true, true);
+		refHTML.endFont();
 
 		m_pRichTextEdit->insertHtml(refHTML.getResult());
 		m_bIsDirty = true;
@@ -358,12 +363,40 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	pDlg->navigator().startAbsoluteMode(tagNav);
 	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
 
-	if (pDlg != NULL) {			// Could get deleted during execution
+	if (pDlg.data() != NULL) {			// Could get deleted during execution
 		CRelIndex ndxTarget = pDlg->passage().relIndex();
 		ndxTarget.setWord(0);			// Whole verse references only
 		return ndxTarget;
 	}
 	return CRelIndex();
+}
+
+// ============================================================================
+
+void CKJVNoteEditDlg::en_clickedInsertWWWLink()
+{
+	QString strURL = getWWWLink(m_pRichTextEdit->textCursor().selectedText());
+	if (!strURL.isEmpty()) {
+		CScriptureTextHtmlBuilder refHTML;
+		refHTML.beginFont(m_pRichTextEdit->fontFamily(), m_pRichTextEdit->fontPointSize());
+		refHTML.addWWWLinkFor(strURL, true, true);
+		refHTML.endFont();
+
+		m_pRichTextEdit->insertHtml(refHTML.getResult());
+		m_bIsDirty = true;
+	}
+}
+
+QString CKJVNoteEditDlg::getWWWLink(const QString &strURL)
+{
+	CEditWWWLinkDlgPtr pDlg(strURL, this);
+	if (pDlg->exec() != QDialog::Accepted) return QString();
+
+	if (pDlg.data() != NULL) {			// Could get deleted during execution
+		if (pDlg->isValid()) return pDlg->url();
+	}
+
+	return QString();
 }
 
 // ============================================================================

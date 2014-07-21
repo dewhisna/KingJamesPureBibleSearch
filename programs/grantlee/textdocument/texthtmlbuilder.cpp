@@ -146,6 +146,16 @@ void TextHTMLBuilder::endAnchor()
   appendRawText( QLatin1String( "</a>" ) );
 }
 
+void TextHTMLBuilder::beginFont(const QString &family, int size)
+{
+  appendRawText( QString::fromLatin1( "<span style=\"font-family:%1; font-size:%2pt;\">" ).arg( family ).arg( QString::number( size ) ) );
+}
+
+void TextHTMLBuilder::endFont()
+{
+  appendRawText( QLatin1String( "</span>" ) );
+}
+
 void TextHTMLBuilder::beginFontFamily( const QString &family )
 {
   appendRawText( QString::fromLatin1( "<span style=\"font-family:%1;\">" ).arg( family ) );

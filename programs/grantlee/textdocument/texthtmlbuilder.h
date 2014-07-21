@@ -121,6 +121,9 @@ public:
 
   // Maybe this stuff should just be added to a list, and then when I add literal text,
   // add some kind of style attribute in one span instead of many.
+  /* reimp */ void beginFont(const QString &family, int size);
+  /* reimp */ void endFont();
+
   /* reimp */ void beginFontFamily( const QString &family );
   /* reimp */ void endFontFamily();
 

@@ -89,6 +89,7 @@ public:
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace) = 0;
 	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace) = 0;
+	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors, bool bAddLeadInSpace) = 0;
 };
 
 // ============================================================================
@@ -142,6 +143,7 @@ public:
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
 	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
+	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false);
 };
 
 // ============================================================================
@@ -164,6 +166,7 @@ public:
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
 	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
+	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false);
 };
 
 // ============================================================================

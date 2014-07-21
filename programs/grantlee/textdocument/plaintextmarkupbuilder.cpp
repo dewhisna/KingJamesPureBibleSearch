@@ -364,6 +364,12 @@ void PlainTextMarkupBuilder::beginBackground( const QBrush& brush )
   Q_UNUSED( brush );
 }
 
+void PlainTextMarkupBuilder::beginFont(const QString &family, int size)
+{
+  Q_UNUSED( family );
+  Q_UNUSED( size );
+}
+
 void PlainTextMarkupBuilder::beginFontFamily( const QString& family )
 {
   Q_UNUSED( family );
@@ -436,6 +442,11 @@ void PlainTextMarkupBuilder::beginTableRow()
 }
 
 void PlainTextMarkupBuilder::endBackground()
+{
+
+}
+
+void PlainTextMarkupBuilder::endFont()
 {
 
 }

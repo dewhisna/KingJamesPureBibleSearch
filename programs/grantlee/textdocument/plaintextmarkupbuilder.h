@@ -131,6 +131,10 @@ public:
 
   /* reimp */ void endBackground();
 
+  /* reimp */ void beginFont(const QString &family, int size);
+
+  /* reimp */ void endFont();
+
   /* reimp */ void beginFontFamily( const QString &family );
 
   /* reimp */ void endFontFamily();

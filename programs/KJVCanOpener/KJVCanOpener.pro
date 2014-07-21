@@ -283,6 +283,7 @@ buildKJVDatabase:SOURCES += \
 	RenameHighlighterDlg.cpp
 
 !emscripten:!vnc:SOURCES += \
+	EditWWWLinkDlg.cpp \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
 	SaveLoadFileDialog.cpp \
@@ -348,6 +349,7 @@ buildKJVDatabase:HEADERS += \
 	RenameHighlighterDlg.h
 
 !emscripten:!vnc:HEADERS += \
+	EditWWWLinkDlg.h \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
 	SaveLoadFileDialog.h \
@@ -382,6 +384,7 @@ FORMS += \
 	RenameHighlighterDlg.ui
 
 !emscripten:!vnc:FORMS += \
+	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVNoteEditDlg.ui \
 	KJVUserNotesDatabaseConfig.ui

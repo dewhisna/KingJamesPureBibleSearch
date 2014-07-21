@@ -299,6 +299,17 @@ void CScriptureTextHtmlBuilder::addRefLinkFor(const CBibleDatabase *pBibleDataba
 	appendLiteralText("]");
 }
 
+void CScriptureTextHtmlBuilder::addWWWLinkFor(const QString &strURL, bool bAddAnchors, bool bAddLeadInSpace)
+{
+	if (bAddLeadInSpace) appendLiteralText(" ");
+	appendLiteralText("[");
+	if (bAddAnchors) beginAnchor(QString("%1").arg(strURL));
+	appendLiteralText(strURL);
+	if (bAddAnchors) endAnchor();
+	appendLiteralText("]");
+}
+
+
 // ============================================================================
 
 CScripturePlainTextBuilder::CScripturePlainTextBuilder()
@@ -426,6 +437,16 @@ void CScripturePlainTextBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatab
 	appendLiteralText("[");
 	if (bAddAnchors) beginAnchor(QString("R%1").arg(relNdx.asAnchor()));
 	appendLiteralText(pBibleDatabase->PassageReferenceAbbrText(relNdx));
+	if (bAddAnchors) endAnchor();
+	appendLiteralText("]");
+}
+
+void CScripturePlainTextBuilder::addWWWLinkFor(const QString &strURL, bool bAddAnchors, bool bAddLeadInSpace)
+{
+	if (bAddLeadInSpace) appendLiteralText(" ");
+	appendLiteralText("[");
+	if (bAddAnchors) beginAnchor(QString("%1").arg(strURL));
+	appendLiteralText(strURL);
 	if (bAddAnchors) endAnchor();
 	appendLiteralText("]");
 }

@@ -65,10 +65,12 @@ private slots:
 	void en_ButtonClicked(QAbstractButton *button);
 	void en_keywordListChanged();
 	void en_clickedInsertReferenceLink();
+	void en_clickedInsertWWWLink();
 
 private:
 	void setBackgroundColorPreview();
 	CRelIndex navigateCrossRef(const CRelIndex &ndxStart);		// Bring up navigator at specified starting location for entering a ref-link and return selected ref.  If user cancels, returns CRelIndex()
+	QString getWWWLink(const QString &strURL);
 
 private:
 	QwwColorButton *m_pBackgroundColorButton;

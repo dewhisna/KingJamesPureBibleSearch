@@ -63,6 +63,8 @@ public:
   /* reimp */ void beginAnchor( const QString &href = QString(), const QString &name = QString() );
   /* reimp */ void endAnchor();
 
+  // Font not supported by BBCode.
+
   // Font family not supported by BBCode.
 
   /**
