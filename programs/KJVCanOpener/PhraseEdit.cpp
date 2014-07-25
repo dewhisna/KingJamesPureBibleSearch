@@ -375,8 +375,6 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 	QStringList lstMatchingPhrases;
 	lstMatchingPhrases.reserve(lstTags.size());
 	for (int i = 0; i < lstMatchingPhrasesSort.size(); ++i) {
-		if ((i > 0) &&
-			(lstMatchingPhrasesSort.at(i).first.compare(lstMatchingPhrasesSort.at(i-1).first, Qt::CaseInsensitive) == 0)) continue;
 		int ndx = lstMatchingPhrasesSort.at(i).second;
 		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(lstTags.at(ndx).relIndex());
 		QStringList lstPhraseWords;
@@ -385,7 +383,10 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 			lstPhraseWords.append(m_pBibleDatabase->wordAtIndex(ndxNormal, true));
 			++ndxNormal;
 		}
-		lstMatchingPhrases.append(lstPhraseWords.join(QChar(' ')));
+
+		QString strPhrase = lstPhraseWords.join(QChar(' '));
+		if (!lstMatchingPhrases.contains(strPhrase, Qt::CaseInsensitive))
+			lstMatchingPhrases.append(strPhrase);
 	}
 	return lstMatchingPhrases;
 }
