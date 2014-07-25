@@ -441,11 +441,7 @@ void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
 
 		QString strToolTip = tr("Highlighter Tool #%1", "MainMenu").arg(ndx+1);
 		if (bSearchResultsActive) {
-#ifndef Q_OS_MAC
-			strToolTip += "\n" + tr("%1Click to highlight only the Search Result Text", "MainMenu").arg(QKeySequence(Qt::CTRL).toString(QKeySequence::NativeText));
-#else
-			strToolTip += "\n" + tr("%1Click to highlight only the Search Result Text", "MainMenu").arg(QKeySequence(Qt::META).toString(QKeySequence::NativeText));
-#endif
+			strToolTip += "\n" + tr("Ctrl+Click to highlight only the Search Result Text", "MainMenu");
 		}
 		pActionToolButton->setToolTip(strToolTip);
 
