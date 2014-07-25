@@ -103,15 +103,17 @@ public:
 				((!bColophon) && (bSuperscription) && (m_setSearchWithin.size() == 1)) ||
 				((bColophon) && (bSuperscription) && (m_setSearchWithin.size() == 2)));
 	}
-	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase) const
+	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase, bool bIgnorePseudoVerses = false) const
 	{
 		assert(pBibleDatabase.data() != NULL);
 		bool bIsEntire = true;
 		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
 		}
-		if ((bibleHasColophons(pBibleDatabase)) && (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end())) bIsEntire = false;
-		if ((bibleHasSuperscriptions(pBibleDatabase)) && (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end())) bIsEntire = false;
+		if (!bIgnorePseudoVerses) {
+			if ((bibleHasColophons(pBibleDatabase)) && (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end())) bIsEntire = false;
+			if ((bibleHasSuperscriptions(pBibleDatabase)) && (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end())) bIsEntire = false;
+		}
 		return bIsEntire;
 	}
 	const TRelativeIndexSet &searchWithin() const { return m_setSearchWithin; }

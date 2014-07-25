@@ -1552,7 +1552,7 @@ void CKJVSearchResult::setSearchResultsSummaryText()
 	strResults += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) +
 					" " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) +
 					" " + tr("in %n Book(s)", "Statistics", m_nLastSearchBooks);
-	if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+	if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase, true)) {
 		if (!CPersistentSettings::instance()->hideNotFoundInStatistcs()) {
 			if (m_nLastSearchOccurrences > 0) {
 				strResults += "\n";
@@ -1600,7 +1600,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 		strSummary += "    " + tr("in %n Verse(s)", "Statistics", m_nLastSearchVerses) + "\n";
 		strSummary += "    " + tr("in %n Chapter(s)", "Statistics", m_nLastSearchChapters) + "\n";
 		strSummary += "    " + tr("in %n Book(s)", "Statistics", m_nLastSearchBooks) + "\n";
-		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		if (m_LastSearchCriteria.withinIsEntireBible(m_pBibleDatabase, true)) {
 			strSummary += "\n";
 			strSummary += tr("Not found%1at all in %n Verse(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumVrs - m_nLastSearchVerses).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics") + " ") : " ") + "\n";
 			strSummary += tr("Not found%1at all in %n Chapter(s) of the Bible", "Statistics", m_pBibleDatabase->bibleEntry().m_nNumChp - m_nLastSearchChapters).arg(((m_nLastSearchNumPhrases > 1) && (m_LastSearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + tr("together", "Statistics") + " ") : " ") + "\n";
