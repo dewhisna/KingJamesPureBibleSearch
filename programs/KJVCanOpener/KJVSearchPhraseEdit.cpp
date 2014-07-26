@@ -821,9 +821,10 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 {
 	CBusyCursor iAmBusy(NULL);
 
+	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
+
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
 		assert(m_pMatchingPhrasesModel != NULL);
-		QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
 		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
 		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;
 
@@ -840,6 +841,7 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 
 	ui.toolButtonShowMatchingPhrases->setArrowType(bShow ? Qt::UpArrow : Qt::DownArrow);
 
+	ui.treeViewMatchingPhrases->setToolTip(tr("%n Matching Words/Phrases", "Statistics", lstMatchingPhrases.size()));
 	ui.treeViewMatchingPhrases->setVisible(bShow);
 	updateGeometry();
 	resize(minimumSizeHint());
@@ -854,4 +856,3 @@ void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatching
 		// Note: this will updateGeometry and resize us
 	}
 }
-

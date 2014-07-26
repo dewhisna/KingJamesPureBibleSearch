@@ -2600,6 +2600,15 @@ Do you wish to set them as valid keywords for this note?</translation>
         <comment>Statistics</comment>
         <translation>(Duplicate)</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchPhraseEdit.cpp" line="844"/>
+        <source>%n Matching Words/Phrases</source>
+        <comment>Statistics</comment>
+        <translation>
+            <numerusform>%n Matching Word/Phrase</numerusform>
+            <numerusform>%n Matching Words/Phrases</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>CKJVSearchResult</name>

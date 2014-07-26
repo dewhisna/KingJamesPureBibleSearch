@@ -2598,6 +2598,15 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <comment>Statistics</comment>
         <translation>(Duplikat)</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchPhraseEdit.cpp" line="844"/>
+        <source>%n Matching Words/Phrases</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>CKJVSearchResult</name>

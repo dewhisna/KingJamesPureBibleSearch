@@ -2596,6 +2596,15 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <comment>Statistics</comment>
         <translation>(Duplicata)</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../KJVSearchPhraseEdit.cpp" line="844"/>
+        <source>%n Matching Words/Phrases</source>
+        <comment>Statistics</comment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>CKJVSearchResult</name>
