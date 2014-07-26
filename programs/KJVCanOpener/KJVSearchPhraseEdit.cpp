@@ -615,6 +615,14 @@ bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
 	return QWidget::eventFilter(pObject, pEvent);
 }
 
+void CKJVSearchPhraseEdit::processPendingTextChanges()
+{
+	if (m_dlyTextChanged.isTriggered()) {
+		m_dlyTextChanged.untrigger();
+		en_phraseChanged();
+	}
+}
+
 void CKJVSearchPhraseEdit::en_matchingPhraseActivated(const QModelIndex &index)
 {
 	if (index.isValid()) {
@@ -823,29 +831,34 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 
 	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
 
+	int nCurrentHeight = ui.treeViewMatchingPhrases->height();
+	int nPhraseTreeHeight = 0;
+
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
 		assert(m_pMatchingPhrasesModel != NULL);
 		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
 		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;
 
 		const QFontMetrics &fmPhraseTree = ui.treeViewMatchingPhrases->fontMetrics();
-		int nPhraseTreeHeight = 0;
 		if (!lstMatchingPhrases.isEmpty()) {
 			for (int ndx = 0; ndx < qMin(lstMatchingPhrases.size(), 7); ++ndx) {
 				nPhraseTreeHeight += fmPhraseTree.boundingRect(lstMatchingPhrases.at(ndx)).height();
 			}
 		}
-		nPhraseTreeHeight = qMax(nPhraseTreeHeight, 48);
-		ui.treeViewMatchingPhrases->setFixedHeight(nPhraseTreeHeight + 2);
+		nPhraseTreeHeight = qMax(nPhraseTreeHeight, 48) + 2;
+		ui.treeViewMatchingPhrases->setFixedHeight(nPhraseTreeHeight);
 	}
 
 	ui.toolButtonShowMatchingPhrases->setArrowType(bShow ? Qt::UpArrow : Qt::DownArrow);
 
 	ui.treeViewMatchingPhrases->setToolTip(tr("%n Matching Words/Phrases", "Statistics", lstMatchingPhrases.size()));
-	ui.treeViewMatchingPhrases->setVisible(bShow);
-	updateGeometry();
-	resize(minimumSizeHint());
-	emit changingShowMatchingPhrases(this);
+	if ((ui.treeViewMatchingPhrases->isVisible() != bShow) ||
+		((bShow) && (nPhraseTreeHeight != nCurrentHeight))) {
+		ui.treeViewMatchingPhrases->setVisible(bShow);
+		updateGeometry();
+		resize(minimumSizeHint());
+		emit changingShowMatchingPhrases(this);
+	}
 }
 
 void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)

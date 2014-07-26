@@ -173,6 +173,7 @@ signals:
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
 public slots:
+	void processPendingTextChanges();
 	void showSeperatorLine(bool bShow = true);
 	void enableCloseButton(bool bEnable = true);
 	void focusEditor() const;

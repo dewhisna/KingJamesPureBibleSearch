@@ -268,6 +268,10 @@ void CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
 
 void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
 {
+	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+		m_lstSearchPhraseEditors.at(ndx)->processPendingTextChanges();
+	}
+
 	assert(pSearchPhrase != NULL);
 	pSearchPhrase->focusEditor();
 	ensureSearchPhraseVisible(pSearchPhrase);
@@ -593,6 +597,7 @@ void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	if (pEditor) {
 		m_pLastEditorActive = pEditor;
 	} else {
+		m_pLastEditorActive = NULL;
 		m_bDoneActivation = false;
 	}
 }
