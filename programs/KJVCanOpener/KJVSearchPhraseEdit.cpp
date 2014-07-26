@@ -831,11 +831,10 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 
 	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
 
-	int nCurrentHeight = ui.treeViewMatchingPhrases->height();
-	int nPhraseTreeHeight = 0;
 
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
 		assert(m_pMatchingPhrasesModel != NULL);
+		int nPhraseTreeHeight = 0;
 		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
 		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;
 
@@ -852,20 +851,22 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 	ui.toolButtonShowMatchingPhrases->setArrowType(bShow ? Qt::UpArrow : Qt::DownArrow);
 
 	ui.treeViewMatchingPhrases->setToolTip(tr("%n Matching Words/Phrases", "Statistics", lstMatchingPhrases.size()));
-	if ((ui.treeViewMatchingPhrases->isVisible() != bShow) ||
-		((bShow) && (nPhraseTreeHeight != nCurrentHeight))) {
-		ui.treeViewMatchingPhrases->setVisible(bShow);
-		updateGeometry();
-		resize(minimumSizeHint());
-		emit changingShowMatchingPhrases(this);
-	}
+	ui.treeViewMatchingPhrases->setVisible(bShow);
+	updateGeometry();
+	resize(minimumSizeHint());
+	emit changingShowMatchingPhrases(this);
 }
 
 void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
 {
 	ui.toolButtonShowMatchingPhrases->setVisible(!bHideMatchingPhrasesLists);
+	ui.toolButtonShowMatchingPhrases->setChecked(false);
+	ui.toolButtonShowMatchingPhrases->setArrowType(Qt::DownArrow);
 	if (bHideMatchingPhrasesLists) {
 		setShowMatchingPhrases(false, true);
 		// Note: this will updateGeometry and resize us
+	} else {
+		updateGeometry();
+		resize(minimumSizeHint());
 	}
 }

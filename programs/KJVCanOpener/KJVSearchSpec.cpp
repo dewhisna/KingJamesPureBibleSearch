@@ -118,6 +118,9 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 
 	// -------------------- Bible Database Settings:
 	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)));
+
+	// -------------------- Persistent Settings:
+	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)), Qt::QueuedConnection);
 }
 
 CKJVSearchSpec::~CKJVSearchSpec()
@@ -610,6 +613,12 @@ void CKJVSearchSpec::en_changedBibleDatabaseSettings(const QString &strUUID, con
 			m_lstSearchPhraseEditors.at(ndx)->phraseEditor()->en_textChanged();
 		}
 	}
+}
+
+void CKJVSearchSpec::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+{
+	Q_UNUSED(bHideMatchingPhrasesLists);
+	setFocusSearchPhrase(0);
 }
 
 bool CKJVSearchSpec::eventFilter(QObject *obj, QEvent *ev)

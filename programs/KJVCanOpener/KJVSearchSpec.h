@@ -84,7 +84,7 @@ public slots:
 	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
 	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
 
-	void setFocusSearchPhrase(int nIndex);
+	void setFocusSearchPhrase(int nIndex = 0);
 	void setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase);
 
 public slots:			// Incoming Pass-Through:
@@ -108,6 +108,7 @@ public slots:
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 protected slots:
 	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 
 protected:
 	bool haveUserDatabase() const { return m_bHaveUserDatabase; }
