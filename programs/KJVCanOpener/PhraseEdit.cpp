@@ -1212,7 +1212,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
-	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_NONE;
 	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
 	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
@@ -1382,7 +1382,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
-	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_NONE;
 	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
 	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
@@ -1897,7 +1897,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
-	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_SCRIPTURE_BROWSER;
+	CPhraseNavigator::COPY_FONT_SELECTION_ENUM cfseToUse = CFSE_NONE;
 	if (flagsTRO & TRO_SearchResults) cfseToUse = CFSE_SEARCH_RESULTS;
 	if (flagsTRO & TRO_Copying) cfseToUse = (CPersistentSettings::instance()->copyFontSelection());
 	QString strCopyFont= "font-size:medium;";
