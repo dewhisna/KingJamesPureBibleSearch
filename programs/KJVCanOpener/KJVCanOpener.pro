@@ -546,7 +546,12 @@ macx {
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/info.nib
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/keyedobjects.nib
 		nibDeploy.path = /Contents/Resources/qt_menu.nib
-		dbDeploy.files =  ../../KJVCanOpener/db/bbl-kjv1769.ccdb ../../KJVCanOpener/db/bbl-rvg2010.ccdb ../../KJVCanOpener/db/kjvuser.s3db ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
+		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
+		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rv1865sbv20140622.ccdb
+		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rv1602p.ccdb
+		dbDeploy.files +=  ../../KJVCanOpener/db/kjvuser.s3db
+		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /Contents/Resources/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
