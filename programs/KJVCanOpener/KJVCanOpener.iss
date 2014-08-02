@@ -1,6 +1,6 @@
 ;****************************************************************************
 ;**
-;** Copyright (C) 2012-2013 Donna Whisnant, a.k.a. Dewtronics.
+;** Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.
 ;** Contact: http://www.dewtronics.com/
 ;**
 ;** This file is part of the KJVCanOpener Application as originally written
@@ -27,8 +27,8 @@
 AppName=King James Pure Bible Search
 AppId=KJVPureBibleSearch
 AppMutex=KJVCanOpenerMutex
-#expr VersionInstaller("..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\KingJamesPureBibleSearch.exe")
-AppCopyright=Copyright (C) 2013 Donna Whisnant, a.k.a. Dewtronics.
+#expr VersionInstaller("..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\KingJamesPureBibleSearch.exe")
+AppCopyright=Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.
 AppPublisher=Dewtronics/Bethel Church
 AppPublisherURL=http://www.dewtronics.com/
 AppContact=Bethel Church
@@ -53,15 +53,16 @@ Type: files; Name: "{app}\KJVCanOpener\app\KJVCanOpener.exe";
 
 [Files]
 ; app
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\QtCore4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\QtGui4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\QtSql4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\QtXml4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\QtNetwork4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\wwwidgets4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\libstdc++-6.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\KJVCanOpener-build-Desktop_Qt_4_8_5_win32\release\libgcc_s_sjlj-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\QtCore4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\QtGui4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\QtSql4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\QtXml4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\QtNetwork4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\wwwidgets4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\libstdc++-6.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\libgcc_s_sjlj-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_4_8_5_win32_kubuntu\release\libwinpthread-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 
 ; doc
 Source: "doc\KingJamesPureBibleSearch.pdf"; DestDir: "{app}\KJVCanOpener\doc"; Flags: ignoreversion;
@@ -96,10 +97,15 @@ Source: ".\plugins\imageformats\qtga4.dll"; DestDir: "{app}\KJVCanOpener\plugins
 Source: ".\plugins\imageformats\qtiff4.dll"; DestDir: "{app}\KJVCanOpener\plugins\imageformats"; Flags: ignoreversion;
 ;Source: ".\plugins\imageformats\qsvg4.dll"; DestDir: "{app}\KJVCanOpener\plugins\imageformats"; Flags: ignoreversion;
 
+; plugins/accessible
+Source: ".\plugins\accessible\qtaccessiblewidgets4.dll"; DestDir: "{app}\KJVCanOpener\plugins\accessible"; Flags: ignoreversion;
+
 ; db
-Source: "db\kjvtext.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion; Permissions: users-modify;
-Source: "db\kjvuser.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: onlyifdoesntexist uninsneveruninstall; Permissions: users-modify;
-Source: "db\dct-web1828.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion; Permissions: users-modify;
+Source: "db\bbl-kjv1769.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: "db\bbl-rvg2010.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: "db\bbl-rv1865sbv20140622.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: "db\bbl-rv1602p.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: "db\dct-web1828.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 
 ; license
 Source: "gpl-3.0.txt"; DestDir: "{app}\KJVCanOpener\license"; Flags: ignoreversion;
