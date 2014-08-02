@@ -53,12 +53,14 @@ public:
 
 	bool fadingOut;
 
-	void reuseTip(const QString &text);
+	QString text() const { return m_strText; }
+
+	void reuseTip(const QString &strText);
 	void hideTip();
 	void hideTipImmediately();
 	void setTipRect(QWidget *w, const QRect &r);
 	void restartExpireTimer();
-	bool tipChanged(const QPoint &pos, const QString &text, QObject *o);
+	bool tipChanged(const QPoint &pos, const QString &strText, QObject *o);
 	void placeTip(const QPoint &pos, QWidget *w);
 
 	static int getTipScreen(const QPoint &pos, QWidget *w);
@@ -76,6 +78,12 @@ protected:
 	void restorePersistentSettings();
 
 public slots:
+	void setText(const QString &strText)
+	{
+		m_strText = strText;
+		QTextEdit::setText(strText);
+	}
+
 	// Cleanup the _q_stylesheet_parent propery.
 	void styleSheetParentDestroyed() {
 		setProperty("_q_stylesheet_parent", QVariant());
@@ -102,6 +110,7 @@ private:
 	bool m_bDoingContextMenu;
 	QPushButton *m_pPushButton;
 	bool m_bFirstActivate;
+	QString m_strText;
 };
 
 // ============================================================================
@@ -110,8 +119,8 @@ class CToolTipEdit
 {
 	CToolTipEdit() { }
 public:
-	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w = 0);
-	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w, const QRect &rect);
+	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w = 0);
+	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w, const QRect &rect);
 	static inline void hideText(CKJVCanOpener *pCanOpener) { showText(pCanOpener, QPoint(), QString()); }
 
 	static bool isVisible(CKJVCanOpener *pCanOpener);

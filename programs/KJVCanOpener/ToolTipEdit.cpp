@@ -198,7 +198,7 @@ void CTipEdit::restartExpireTimer()
 	hideTimer.stop();
 }
 
-void CTipEdit::reuseTip(const QString &text)
+void CTipEdit::reuseTip(const QString &strText)
 {
 	if (styleSheetParent){
 		disconnect(styleSheetParent, SIGNAL(destroyed()),
@@ -206,8 +206,8 @@ void CTipEdit::reuseTip(const QString &text)
 		styleSheetParent = 0;
 	}
 
-//	setWordWrap(Qt::mightBeRichText(text));
-	setText(text);
+//	setWordWrap(Qt::mightBeRichText(strText));
+	setText(strText);
 
 	adjustToolTipSize();
 
@@ -293,7 +293,7 @@ void CTipEdit::en_pushPinPressed()
 		QPoint pntTip = pos();
 		pntTip.ry() += this->height()/2;
 		setWindowFlags(windowFlags() | Qt::WindowTitleHint);
-		CToolTipEdit::showText(m_pParentCanOpener, pntTip, toHtml(), widget);
+		CToolTipEdit::showText(m_pParentCanOpener, pntTip, text(), widget);
 	} else {
 		setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 #if defined(EMSCRIPTEN) || defined(VNCSERVER)
@@ -550,9 +550,9 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	this->move(p);
 }
 
-bool CTipEdit::tipChanged(const QPoint &pos, const QString &text, QObject *o)
+bool CTipEdit::tipChanged(const QPoint &pos, const QString &strText, QObject *o)
 {
-	if (instance(m_pParentCanOpener)->toHtml() != text)
+	if (instance(m_pParentCanOpener)->text() != strText)
 		return true;
 
 	if (o != widget)
@@ -566,10 +566,10 @@ bool CTipEdit::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 
 // ============================================================================
 
-void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
+void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w, const QRect &rect)
 {
 	if (CTipEdit::instance(pCanOpener) && CTipEdit::instance(pCanOpener)->isVisible()){ // a tip does already exist
-		if (text.isEmpty()){ // empty text means hide current tip
+		if (strText.isEmpty()){ // empty text means hide current tip
 			if (!CTipEdit::tipEditIsPinned(pCanOpener)) {
 				CTipEdit::instance(pCanOpener)->hideTip();
 			} else {
@@ -584,19 +584,19 @@ void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const 
 				QPoint localPos = pos;
 				if (w)
 					localPos = w->mapFromGlobal(pos);
-				if (CTipEdit::instance(pCanOpener)->tipChanged(localPos, text, w)){
+				if (CTipEdit::instance(pCanOpener)->tipChanged(localPos, strText, w)){
 					CTipEdit::instance(pCanOpener)->setTipRect(w, rect);
-					CTipEdit::instance(pCanOpener)->reuseTip(text);
+					CTipEdit::instance(pCanOpener)->reuseTip(strText);
 					CTipEdit::instance(pCanOpener)->placeTip(pos, w);
 				}
 			} else {
-				CTipEdit::instance(pCanOpener)->setText(text);
+				CTipEdit::instance(pCanOpener)->setText(strText);
 			}
 			return;
 		}
 	}
 
-	if ((!text.isEmpty()) || CTipEdit::tipEditIsPinned(pCanOpener)) { // no tip can be reused, create new tip:
+	if ((!strText.isEmpty()) || CTipEdit::tipEditIsPinned(pCanOpener)) { // no tip can be reused, create new tip:
 #ifndef Q_OS_WIN32
 		new CTipEdit(pCanOpener, w); // sets CTipEdit::instance() to itself
 #else
@@ -609,16 +609,16 @@ void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const 
 		new CTipEdit(pCanOpener, w);
 #endif
 		CTipEdit::instance(pCanOpener)->setTipRect(w, rect);
-		CTipEdit::instance(pCanOpener)->reuseTip(text);
+		CTipEdit::instance(pCanOpener)->reuseTip(strText);
 		CTipEdit::instance(pCanOpener)->placeTip(pos, w);
 		CTipEdit::instance(pCanOpener)->setObjectName(QLatin1String("ctooltip_edit"));
 		CTipEdit::instance(pCanOpener)->show();
 	}
 }
 
-void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &text, QWidget *w)
+void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w)
 {
-	CToolTipEdit::showText(pCanOpener, pos, text, w, QRect());
+	CToolTipEdit::showText(pCanOpener, pos, strText, w, QRect());
 }
 
 bool CToolTipEdit::isVisible(CKJVCanOpener *pCanOpener)
@@ -629,7 +629,7 @@ bool CToolTipEdit::isVisible(CKJVCanOpener *pCanOpener)
 QString CToolTipEdit::text(CKJVCanOpener *pCanOpener)
 {
 	if (CTipEdit::instance(pCanOpener))
-		return CTipEdit::instance(pCanOpener)->toHtml();
+		return CTipEdit::instance(pCanOpener)->text();
 	return QString();
 }
 
