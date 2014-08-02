@@ -206,7 +206,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 		QTreeView *pTree = parentView();
 		if (pTree) {
-			int nWidth = pTree->viewport()->width() - indentationForIndex(index) - 1;
+			int nWidth = pTree->viewport()->width() - indentationForIndex(index) /* - 1 */ ;
 
 //			int nWidth = pTree->viewport()->width() - style->subElementRect(QStyle::SE_TreeViewDisclosureItem, &optionV4, parentView()).width();
 
@@ -214,7 +214,7 @@ QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 			SetDocumentText(optionV4, doc, index, true);
 		} else {
 			if (optionV4.rect.isValid()) {
-				doc.setTextWidth(optionV4.rect.width()-1);
+				doc.setTextWidth(optionV4.rect.width() /* -1 */ );
 				SetDocumentText(optionV4, doc, index, true);
 			} else {
 				SetDocumentText(optionV4, doc, index, true);
