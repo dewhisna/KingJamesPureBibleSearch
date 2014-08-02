@@ -9,7 +9,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright(c)2012-2013 Donna Whisnant, a.k.a. Dewtronics</string>
+	<string>Copyright(c)2012-2014 Donna Whisnant, a.k.a. Dewtronics</string>
 	<key>CFBundleSignature</key>
 	<string>@TYPEINFO@</string>
 	<key>CFBundleExecutable</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.0</string>
+	<string>3.0.0</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dewtronics.@EXECUTABLE@</string>
 	<key>NOTE</key>
