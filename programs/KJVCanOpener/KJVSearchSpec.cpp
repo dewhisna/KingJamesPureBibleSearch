@@ -178,7 +178,7 @@ void CKJVSearchSpec::reset()
 
 void CKJVSearchSpec::clearAllSearchPhrases()
 {
-	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
+	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx >= 0; --ndx) {		// Clear in reverse order to minimize flicker due to sizeHint changes during the textChange notifications
 		m_lstSearchPhraseEditors.at(ndx)->clearSearchPhrase();
 	}
 }
