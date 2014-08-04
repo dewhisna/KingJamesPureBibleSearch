@@ -88,6 +88,10 @@ Source: "examples\example11.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags:
 Source: "examples\example12.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
 Source: "examples\example13.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
 Source: "examples\example14.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example15.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example16.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example17.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
+Source: "examples\example18.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
 
 ; platforms:
 Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\platforms\qwindows.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;

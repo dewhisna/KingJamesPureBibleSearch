@@ -1,0 +1,26 @@
+[KJVPureBibleSearch]
+AppVersion=3.0.0
+BibleDatabase\UUID=85D8A6B0-E670-11E2-A28F-0800200C9A66
+KJSFileVersion=2
+
+[SearchCriteria]
+SearchScope=-1
+SearchWithin="671088640,687865856,704643072,721420288,738197504,754974720,771751936,788529152,805306368,822083584,838860800,855638016,872415232,889192448,905969664,922746880,939524096,956301312,973078528,989855744,1006632960,1023410176,1040187392,1056964608,1073741824,1090519040,1107296256"
+
+[SearchPhrases]
+1\AccentSensitive=false
+1\CaseSensitive=false
+1\Disabled=false
+1\Exclude=false
+1\Phrase=the trumpet
+2\AccentSensitive=false
+2\CaseSensitive=false
+2\Disabled=false
+2\Exclude=false
+2\Phrase=the Lord
+3\AccentSensitive=false
+3\CaseSensitive=false
+3\Disabled=false
+3\Exclude=true
+3\Phrase=the * give | the Lord gave
+size=3

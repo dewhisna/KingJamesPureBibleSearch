@@ -528,6 +528,10 @@ ios {
 		examplesDeploy.files += ../../KJVCanOpener/examples/example12.kjs
 		examplesDeploy.files += ../../KJVCanOpener/examples/example13.kjs
 		examplesDeploy.files += ../../KJVCanOpener/examples/example14.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example15.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example16.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example17.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example18.kjs
 		examplesDeploy.path = /assets/KJVCanOpener/examples
 		licDeploy.files = ../../KJVCanOpener/gpl-3.0.txt
 		licDeploy.path = /assets/KJVCanOpener/license
@@ -595,6 +599,10 @@ macx {
 		examplesDeploy.files += ../../KJVCanOpener/examples/example12.kjs
 		examplesDeploy.files += ../../KJVCanOpener/examples/example13.kjs
 		examplesDeploy.files += ../../KJVCanOpener/examples/example14.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example15.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example16.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example17.kjs
+		examplesDeploy.files += ../../KJVCanOpener/examples/example18.kjs
 		examplesDeploy.path = /Contents/SharedSupport/examples
 		licDeploy.files = ../../KJVCanOpener/gpl-3.0.txt
 		licDeploy.path = /Contents/SharedSupport/license
