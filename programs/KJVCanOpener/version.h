@@ -38,7 +38,7 @@
 #define VER_SPECIALVERSION_STR		"(VNC Web-Version)\0"
 #define SPECIAL_BUILD				1
 #else
-#define VER_SPECIALVERSION_STR		"(Pre-Release Beta)\0"
+#define VER_SPECIALVERSION_STR		"Release-Preview Version\0"
 #define SPECIAL_BUILD				1
 #endif
 #define VER_BUILD_DATE_STR			__DATE__

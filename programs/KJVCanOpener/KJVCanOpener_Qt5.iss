@@ -21,7 +21,14 @@
 ;**
 ;****************************************************************************
 
+#define EXTRAVERSION "Preview"
 #include "..\InnoSetup\version.iss"
+
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
+Name: "es"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "de"; MessagesFile: "compiler:Languages\German.isl"
 
 [Setup]
 AppName=King James Pure Bible Search
