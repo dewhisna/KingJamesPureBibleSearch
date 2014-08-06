@@ -31,8 +31,8 @@
 #define VersionInstallerTo(str version) \
 	INSTALLER_VERSION = version, \
   Local[1] = SpecialBuildString ? " (" + SpecialBuildString + ")" : "", \
-	SetSetupSetting("AppVerName", SetupSetting("AppName") + " " + version + EXTRAVERSION + Local[1]), \
-	SetSetupSetting("AppVersion", version + EXTRAVERSION + Local[1]), \
-	SetSetupSetting("OutputBaseFilename", StringChange(SetupSetting("AppName"), " ", "") + "-" + version + EXTRAVERSION), \
+	SetSetupSetting("AppVerName", SetupSetting("AppName") + " " + version + "-" + EXTRAVERSION + Local[1]), \
+	SetSetupSetting("AppVersion", version + "-" + EXTRAVERSION + Local[1]), \
+	SetSetupSetting("OutputBaseFilename", StringChange(SetupSetting("AppName"), " ", "") + "-" + version + "-" + EXTRAVERSION), \
 	SetSetupSetting("VersionInfoVersion", version);
 #endif
