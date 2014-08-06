@@ -385,7 +385,7 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 		}
 
 		QString strPhrase = lstPhraseWords.join(QChar(' '));
-		if (!lstMatchingPhrases.contains(strPhrase, Qt::CaseInsensitive))
+		if (!lstMatchingPhrases.contains(strPhrase, Qt::CaseSensitive))
 			lstMatchingPhrases.append(strPhrase);
 	}
 	return lstMatchingPhrases;
