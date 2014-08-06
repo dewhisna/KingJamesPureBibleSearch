@@ -554,8 +554,6 @@ macx {
 		nibDeploy.path = /Contents/Resources/qt_menu.nib
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
-		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rv1865sbv20140622.ccdb
-		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rv1602p.ccdb
 		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.path = /Contents/Resources/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
