@@ -853,7 +853,6 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 	ui.treeViewMatchingPhrases->setToolTip(tr("%n Matching Words/Phrases", "Statistics", lstMatchingPhrases.size()));
 	ui.treeViewMatchingPhrases->setVisible(bShow);
 	updateGeometry();
-	resize(minimumSizeHint());
 	emit changingShowMatchingPhrases(this);
 }
 
@@ -867,6 +866,5 @@ void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatching
 		// Note: this will updateGeometry and resize us
 	} else {
 		updateGeometry();
-		resize(minimumSizeHint());
 	}
 }
