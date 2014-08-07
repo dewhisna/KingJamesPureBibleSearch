@@ -607,8 +607,13 @@ macx {
 
 		QMAKE_BUNDLE_DATA += nibDeploy dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
 		!isEmpty(TRANSLATIONS) {
-			translationDeploy.path = /Contents/Resources/translations
-			QMAKE_BUNDLE_DATA += translationDeploy
+# Temporary change for Release Preview Build since we don't have all translations yet:
+#			translationDeploy.path = /Contents/Resources/translations
+#			QMAKE_BUNDLE_DATA += translationDeploy
+
+			translationDeployMac.files += ../../KJVCanOpener/translations/kjpbs.en.qm
+			translationDeployMac.path = /Contents/Resources/translations
+			QMAKE_BUNDLE_DATA += translationDeployMac
 		}
 
 		greaterThan(QT_MAJOR_VERSION,4):shared:qt_framework {
