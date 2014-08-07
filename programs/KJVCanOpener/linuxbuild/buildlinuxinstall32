@@ -88,6 +88,7 @@ makeit: clean
 	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples 2>/dev/null
 	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts 2>/dev/null
 	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/license 2>/dev/null
+	-mkdir --mode=755 -p $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations 2>/dev/null
 	cp $(BASE)/kjvpurebiblesearch.desktop $(RPMPKGROOT)/$(APP)/
 	cp $(BASE)/kjvpurebiblesearch.xml $(RPMPKGROOT)/$(MIMEPACKAGES)/
 	cp $(BASE)/$(SHADOW)/KingJamesPureBibleSearch $(RPMPKGROOT)/$(INST)/KJVCanOpener/app/
@@ -95,8 +96,10 @@ makeit: clean
 	cp $(BASE)/kjvdatagen/kjv_summary.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
 	cp $(BASE)/articles/kjv_stats.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
 	cp $(BASE)/examples/*.kjs $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples/
-	cp $(BASE)/db/kjvtext.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
-	cp $(BASE)/db/kjvuser.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+#	cp $(BASE)/translations/*.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/kjpbs.en.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/db/bbl-kjv1769.ccdb $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+	cp $(BASE)/db/bbl-rvg2010.ccdb $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/db/dct-web1828.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/gpl-3.0.txt $(RPMPKGROOT)/$(INST)/KJVCanOpener/license/
 	cp $(BASE)/fonts/SCRIPTBL.TTF $(RPMPKGROOT)/$(INST)/KJVCanOpener/fonts/

@@ -1,6 +1,6 @@
 <!-- XML file to define tags for kjvpurebiblesearch to build under makelsbpkg -->
 <tags>
-	<version>2.0.0</version>
+	<version>3.0.0</version>
 	<release>1</release>
 	<summary>King James Pure Bible Search - GUI Application to Search and Count the Pure King James Bible</summary>
 	<description>Study and analyze the Fingerprint of God in the mathematical structure, known as the King James Code, of the King James text of the Holy Bible. Allows instant real-time searches, with an autocompleter droplist to assist with words which come next.  Jump to specific words, verses, or chapters by number, and see all possible count statistics of phrases within the text.
