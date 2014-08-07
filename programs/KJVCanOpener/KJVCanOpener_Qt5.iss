@@ -164,9 +164,9 @@ Source: "fonts\DejaVuSerifCondensed.ttf"; DestDir: "{app}\KJVCanOpener\fonts"; F
 
 ; translations
 Source: "translations\kjpbs.en.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: "translations\kjpbs.es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: "translations\kjpbs.fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: "translations\kjpbs.de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: "translations\kjpbs.es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: "translations\kjpbs.fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: "translations\kjpbs.de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 
 [Registry]
 Root: HKCR; Subkey: ".kjs"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletevalue;
