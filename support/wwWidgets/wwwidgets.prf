@@ -11,8 +11,13 @@ mac {
 			declarative_debug:LIBS += -lwwwidgets4_debug
 		}
 	} else {
-		!declarative_debug:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4
-		declarative_debug:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4_debug
+		greaterThan(QT_MAJOR_VERSION, 4) {
+			QMAKE_LFLAGS += -F$$[QT_INSTALL_LIBS]
+			LIBS += -framework wwwidgets4
+		} else {
+			!declarative_debug:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4
+			declarative_debug:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4_debug
+		}
 	}
 } else {
 	LIBS += -lwwwidgets4

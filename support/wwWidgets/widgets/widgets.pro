@@ -22,7 +22,7 @@ linux-g++|linux-g++-64 {
 #	CONFIG += debug_and_release separate_debug_info
 } else {
 	# For Cocoa-static:
-	mac {
+	mac:lessThan(QT_MAJOR_VERSION, 5) {
 		CONFIG += static
 	} else {
 		CONFIG += debug_and_release
@@ -51,6 +51,15 @@ win32 {
 mac {
 	CONFIG += lib_bundle
 	macx:CONFIG += build_all
+	macx {
+		greaterThan(QT_MAJOR_VERSION, 4) {
+			CONFIG += create_prl shared
+			QMAKE_INFO_PLIST = ../wwwidgets4.Info.plist
+			QMAKE_POST_LINK += $$quote(install_name_tool -id $$[QT_INSTALL_LIBS]/wwwidgets4.framework/Versions/1/$$TARGET wwwidgets4.framework/$$TARGET$$escape_expand(\\n\\t))
+		} else {
+			CONFIG += link_prl
+		}
+	}
 }
 
 DEFINES += WW_BUILD_WWWIDGETS
