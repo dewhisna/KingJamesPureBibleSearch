@@ -636,6 +636,7 @@ macx {
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtSql.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtWidgets.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtXml.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/wwwidgets4.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle$$escape_expand(\\n\\t))
 		}
 	}
