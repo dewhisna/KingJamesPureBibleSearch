@@ -143,6 +143,14 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	m_dlyUpdateCompleter.setMinimumDelay(10);				// Arbitrary time, but I think it must be less than our textChanged delay or we may have issues
 	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
 
+#ifdef USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY
+	setCompleterPopupDelay(CPersistentSettings::instance()->searchActivationDelay());		// Somewhat Arbitrary time, used to avoid slow completer model updates on Windows (we'll mirror the activation delay)
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setCompleterPopupDelay(int)));
+#else
+	setCompleterPopupDelay(0);
+#endif
+	connect(&m_dlyPopupCompleter, SIGNAL(triggered()), this, SLOT(popCompleter()));
+
 	m_pCompleter = new SearchCompleter_t(*this, this);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
@@ -416,6 +424,8 @@ void CPhraseLineEdit::focusInEvent(QFocusEvent *event)
 
 void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 {
+	bool bForcePopup = bForce;
+
 	ParsePhrase(textCursor());
 
 	bool bCompleterOpen = m_pCompleter->popup()->isVisible();
@@ -424,7 +434,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 		if (m_nLastCursorWord != GetCursorWordPos()) {
 			m_pCompleter->popup()->close();
 			m_nLastCursorWord = GetCursorWordPos();
-			if (bCompleterOpen) bForce = true;				// Reshow completer if it was open already and we're changing words
+			if (bCompleterOpen) bForcePopup = true;				// Reshow completer if it was open already and we're changing words
 		}
 		m_pCompleter->selectFirstMatchString();
 	}
@@ -432,10 +442,26 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("CursorWord: \"%s\",  AtEnd: %s", GetCursorWord().toUtf8().data(), atEndOfSubPhrase() ? "yes" : "no");
 #endif
-	if (bForce || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
-		m_pCompleter->complete();
-		if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+	if (bForcePopup || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
+		if (bForce) {
+			// For a real force (like keydown), pop immediately
+			popCompleter();
+		} else {
+			m_dlyPopupCompleter.trigger();
+			// If completer is already visible (i.e. we didn't close it above), go ahead and deselect our index
+			//		so we don't select it and then take it away some time later, if we are still triggered
+			//		(i.e. that the above trigger() didn't happen immediately):
+			if ((m_pCompleter->popup()->isVisible()) &&
+				(m_dlyPopupCompleter.isTriggered())) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+		}
 	}
+}
+
+void CPhraseLineEdit::popCompleter()
+{
+	m_dlyPopupCompleter.untrigger();
+	m_pCompleter->complete();
+	if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
 }
 
 void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)

@@ -162,6 +162,9 @@ DEFINES += PRESERVE_MAINWINDOW_STATE										# Toolbars and DockWidgets of KJVC
 !android:!ios:DEFINES += PRESERVE_MAINWINDOW_SPLITTER_STATE					# Splitters on KJVCanOpener
 !android:!ios:DEFINES += PRESERVE_DIALOG_GEOMETRY							# Physical size and layout of UserDatabase editor dialogs for Notes and CrossRefs
 
+# Enable Search Phrase Auto-Completer Popup Delay:
+DEFINES += USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY							# Enable to delay search phrase completer popup based on the search phrase activation time
+
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
 greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64

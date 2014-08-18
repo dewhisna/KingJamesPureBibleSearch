@@ -96,8 +96,11 @@ public:
 
 	void processPendingUpdateCompleter();
 
+	int completerPopupDelay() const { return m_dlyPopupCompleter.minimumDelay(); }
+
 public slots:
 	virtual void en_textChanged();
+	void setCompleterPopupDelay(int nDelay) { m_dlyPopupCompleter.setMinimumDelay(nDelay); }
 
 private slots:
 	void insertCompletion(const QString &completion);
@@ -106,6 +109,7 @@ private slots:
 	void en_dropCommonPhrasesClicked();
 	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void delayed_UpdatedCompleter();
+	void popCompleter();
 
 signals:
 	void phraseChanged();
@@ -141,6 +145,7 @@ private:
 	QAction *m_pActionSelectAll;	// Edit menu select all function (needed to enable/disable based on text available)
 	QAction *m_pStatusAction;		// Used to update the status bar without an enter/leave sequence
 	DelayedExecutionTimer m_dlyUpdateCompleter;		// Activation delay for completer update to avoid extra updates
+	DelayedExecutionTimer m_dlyPopupCompleter;		// Delay time until completer is repopped (to help slow Windows)
 };
 
 // ============================================================================
