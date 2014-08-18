@@ -141,7 +141,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	pal.setBrush(QPalette::All, QPalette::Text, CToolTipEdit::palette().toolTipText());
 	setPalette(pal);
 	ensurePolished();
-	setFrameStyle(QFrame::Box);
+	setFrameStyle(QFrame::Box | QFrame::Plain);
 	setAlignment(Qt::AlignLeft);
 	qApp->installEventFilter(this);
 	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / qreal(255.0));
@@ -264,11 +264,15 @@ void CTipEdit::paintEvent(QPaintEvent *ev)
 
 void CTipEdit::resizeEvent(QResizeEvent *e)
 {
-	QStyleHintReturnMask frameMask;
-	QStyleOption option;
-	option.init(this);
-	if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
-		setMask(frameMask.region);
+// Note: This masking causes the Windows platform to limit the window to just the
+//			editor, which causes the title and resizing frame to not work correctly.
+//			It came from the Qt ToolTip code and we shouldn't need it anyway...
+//
+//	QStyleHintReturnMask frameMask;
+//	QStyleOption option;
+//	option.init(this);
+//	if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
+//		setMask(frameMask.region);
 
 	QTextEdit::resizeEvent(e);
 	setPushPinPosition();
