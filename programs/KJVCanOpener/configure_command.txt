@@ -592,13 +592,13 @@ Alternate: Build with:   i686-w64-mingw32-gcc-4.8.0-linux64_rubenvb.tar.xz from:
 http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.8-release/
 untar'd to: /opt/mingw32_4.8.0_rubenvb/
 with: ln -s /opt/mingw32_4.8.0_rubenvb/ /opt/cross_win32
-add to path: /opt/cross_win32
+add to path: /opt/cross_win32/bin
 
 Built with:   i686-w64-mingw32-gcc-4.7.4-release-linux64_rubenvb.tar.xz from:
 https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.7-release/
 untar'd to: /opt/mingw32_4.7.4_rubenvb/
 with: ln -s /opt/mingw32_4.7.4_rubenvb/ /opt/cross_win32
-add to path: /opt/cross_win32
+add to path: /opt/cross_win32/bin
 
 ../5.3.1-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -release -force-debug-info -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -qt-freetype -qt-pcre -qt-xkbcommon -gui -widgets -no-dbus -no-opengl -skip webkit -skip webkit-examples -skip declarative -skip winextras -skip activeqt -skip tools -nomake examples -no-pkg-config -prefix /home/dewhisna/Qt/5.3.1-win32 -confirm-license
 
@@ -624,6 +624,81 @@ Need to copy:
 
 Make with:  make -j 32
 
+
+
+Qt 5.3.1 -- Win32 Cross-Compile [MinGW32 GCC 4.8.0 w/Dwarf2 exceptions]  <<<<< THIS WAS USED FOR THE KJPBS RELEASE BUILD ON WINDOWS
+-----------------------------------------------------------------------
+
+Build with MinGW-w64-i686 from:
+http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/rubenvb/gcc-4.8-dw2-release/
+Using: i686-w64-mingw32-gcc-dw2-4.8.0-linux64_rubenvb.tar.xz
+
+untar'd to: /opt/mingw32-dw2_4.8.0_rubenvb/
+with: ln -s /opt/mingw32-dw2_4.8.0_rubenvb/ /opt/cross_win32
+add to path: /opt/cross_win32/bin
+
+mkdir ~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb
+cd ~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb
+
+../5.3.1-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -release -force-debug-info -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -fontconfig -qt-freetype -qt-pcre -qt-xkbcommon -gui -widgets -no-dbus -no-opengl -skip webkit -skip webkit-examples -skip declarative -skip winextras -skip activeqt -skip tools -nomake examples -no-pkg-config -prefix /home/dewhisna/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb -confirm-license
+
+Note: Won't actually use -fontconfig or -qt-xkbcommon, though doesn't complain about them specified in the config script
+Note: declarative, winextras, and activeqt won't build
+
+build within ~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb, requires "make install" when done even though prefix is the same path (to flatten the module structure).  And requires the same source dependency copies for all Qt4/Qt5 platforms (described below)
+
+Need to copy:
+/opt/mingw32-dw2_4.8.0_rubenvb/i686-w64-mingw32/lib/libstdc++-6.dll
+/opt/mingw32-dw2_4.8.0_rubenvb/i686-w64-mingw32/lib/libgcc_s_dw2-1.dll
+/opt/mingw32-dw2_4.8.0_rubenvb/i686-w64-mingw32/lib/libwinpthread-1.dll
+
+Make with:  make -j 32
+
+Note: Using the Dwarf2 exceptions is important to avoid the context swapping overhead on every single function call with the SJLJ method, which was causing us major performance issues.
+
+===============================================================================
+===============================================================================
+
+Building a Win32 Cross-Compiler:
+--------------------------------
+
+Download:  crosstool-ng-1.19.0.tar.bz2.md5
+from:      http://crosstool-ng.org/download/crosstool-ng/
+
+KJPBS checkout: trunk/support/crosstool
+
+
+mkdir ~/xcompile
+cd ~/xcompile
+tar -jxvf crosstool-ng-1.19.0.tar.bz2.md5
+cd crosstool-ng-1.19.0
+
+sudo apt-get install automake
+sudo apt-get install libncurses5-dev
+
+./configure --prefix=/opt/crosstool
+make
+sudo make install
+sudo cp ct-ng.dump /etc/bash_completion.d/
+
+export PATH="${PATH}:/opt/crosstool/bin"
+
+cd /opt/crosstool/lib/ct-ng.1.19.0/
+patch -p1 < trunk/support/crosstool/crosstool-ng-1.19.0-fix.patch
+
+cd ~/xcompile
+mkdir src
+mkdir build_i686-w64-mingw32
+cd build_i686-w64-mingw32
+cp trunk/support/crosstool/.config .
+ct-ng menuconfig
+ct-ng build
+
+to Activate:
+sudo ln -s ~/xcompile/i686-w64-mingw32 /opt/cross_win32
+
+
+Well, it almost works...
 
 
 ===============================================================================
@@ -1127,6 +1202,18 @@ cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_3_1_win32_kubuntu
 cd build-qtstyleplugins-5_3_1_win32_kubuntu
 ~/Qt/5.3.1-win32-kubuntu/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+
+Windows 5.3.1-win32-mingw-dw2_4.8.0_rubenvb (cross_win32):
+----------------------------------------------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
+cd build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
+~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
