@@ -1,0 +1,31 @@
+--- a/scripts/build/libc/mingw.sh
++++ b/scripts/build/libc/mingw.sh
+@@ -11,13 +11,7 @@ do_libc_extract() {
+     CT_Pushd "${CT_SRC_DIR}/mingw-w64-v${CT_WINAPI_VERSION}/"
+     CT_Patch nochdir mingw-w64 "${CT_WINAPI_VERSION}"
+     CT_Popd
+-}
+ 
+-do_libc_check_config() {
+-    :
+-}
+-
+-do_libc_start_files() {
+     local -a sdk_opts
+ 
+     CT_DoStep INFO "Installing C library headers"
+@@ -56,6 +50,14 @@ do_libc_start_files() {
+     CT_EndStep
+ }
+ 
++do_libc_check_config() {
++    :
++}
++
++do_libc_start_files() {
++    :
++}
++
+ do_libc() {
+     CT_DoStep INFO "Building mingw-w64 files"
+
