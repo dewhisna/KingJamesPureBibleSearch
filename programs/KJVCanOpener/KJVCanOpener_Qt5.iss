@@ -34,7 +34,7 @@ Name: "de"; MessagesFile: "compiler:Languages\German.isl"
 AppName=King James Pure Bible Search
 AppId=KJVPureBibleSearch
 AppMutex=KJVCanOpenerMutex
-#expr VersionInstaller("..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\KingJamesPureBibleSearch.exe")
+#expr VersionInstaller("..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\KingJamesPureBibleSearch.exe")
 AppCopyright=Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.
 AppPublisher=Dewtronics/Bethel Church
 AppPublisherURL=http://www.dewtronics.com/
@@ -62,18 +62,18 @@ Type: files; Name: "{app}\KJVCanOpener\db\kjvuser.s3db";
 
 [Files]
 ; app
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Core.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Gui.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Widgets.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Sql.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Xml.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Svg.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\Qt5Network.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\wwwidgets4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\libstdc++-6.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\libgcc_s_sjlj-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\libwinpthread-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\KingJamesPureBibleSearch.exe"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Core.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Gui.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Widgets.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Sql.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Xml.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Svg.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\Qt5Network.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\wwwidgets4.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\libstdc++-6.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\libgcc_s_dw2-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\libwinpthread-1.dll"; DestDir: "{app}\KJVCanOpener\app"; Flags: ignoreversion;
 
 ; doc
 Source: "doc\KingJamesPureBibleSearch.pdf"; DestDir: "{app}\KJVCanOpener\doc"; Flags: ignoreversion;
@@ -101,9 +101,9 @@ Source: "examples\example17.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags:
 Source: "examples\example18.kjs"; DestDir: "{app}\KJVCanOpener\examples"; Flags: ignoreversion;
 
 ; platforms:
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\platforms\qwindows.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\platforms\qminimal.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
-Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_kubuntu\release\platforms\qoffscreen.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\platforms\qwindows.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\platforms\qminimal.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
+Source: "..\build-KJVCanOpener-Qt_5_3_1_win32_dw2_4_8_0_rubenvb\release\platforms\qoffscreen.dll"; DestDir: "{app}\KJVCanOpener\app\platforms"; Flags: ignoreversion;
 
 ; plugins/sqldrivers
 ;Source: ".\plugins\sqldrivers\qsqlite.dll"; DestDir: "{app}\KJVCanOpener\plugins\sqldrivers"; Flags: ignoreversion;
