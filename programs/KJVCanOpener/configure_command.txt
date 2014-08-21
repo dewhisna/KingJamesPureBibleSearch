@@ -173,6 +173,36 @@ Add this:
 no-pkg-config
 
 
+Qt 4.8.5 -- Win32 Cross-Compile [sezero Packaged MinGW]
+-------------------------------------------------------
+
+Built with:   mingw-w32-bin_x86_64-linux_20111101_sezero.tar.gz from:
+https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/sezero_4.5_20111101/
+
+cd /opt
+sudo tar -zxvf mingw-w32-bin_x86_64-linux_20111101_sezero.tar.gz
+(automatically makes cross_win32 link)
+export PATH=/opt/cross_win32/bin:$PATH
+
+These older packages are needed in addition to the Kubuntu 14.04 packages:
+sudo dpkg -i libgmp3c2_4.3.2+dfsg-1ubuntu1_amd64.deb libmpc2_0.9-4_amd64.deb libmpfr1ldbl_2.4.2-3ubuntu1_amd64.deb
+
+../4.8.5-src/configure -xplatform win32-g++ -device-option CROSS_COMPILE=i686-w64-mingw32- -opensource -debug-and-release -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -fontconfig -no-javascript-jit -no-script -no-scripttools -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake tools -nomake examples -nomake demos -prefix /home/dewhisna/Qt/4.8.5-win32-sezero -confirm-license 
+
+Need to copy:
+/opt/W32_180676/bin/libstdc++-6.dll
+/opt/W32_180676/bin/libgcc_s_sjlj-1.dll
+
+Make with:  make -j 32
+Still need: make install (even though it's the build folder, so headers get copied)
+Still need to copy required source dependencies as described below...
+
+Add this:
+no-pkg-config
+
+For some reason, even though this is supposedly SJLJ, it's still very fast, at least for Qt 4 (can't be used to build Qt 5)
+
+
 ----------------------------------------------------
 
 --------------------------
