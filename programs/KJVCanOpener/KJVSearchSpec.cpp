@@ -289,6 +289,7 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 
 	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx>=0; --ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->disconnect(this);
+		m_lstSearchPhraseEditors.at(ndx)->disconnect(&m_dlySearchResultsUpdate);
 		m_lstSearchPhraseEditors.at(ndx)->closeSearchPhrase();
 	}
 
@@ -308,8 +309,17 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(resizing(CKJVSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(changingShowMatchingPhrases(CKJVSearchPhraseEdit*)), this, SLOT(en_changingShowMatchingPhrases(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
+//	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
+
+	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit*)), &m_dlySearchResultsUpdate, SLOT(trigger()));
+#ifdef USE_SEARCH_RESULTS_UPDATE_DELAY
+	setSearchResultsUpdateDelay(CPersistentSettings::instance()->searchActivationDelay());
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchResultsUpdateDelay(int)));
+#else
+	setSearchResultsUpdateDelay(0);
+#endif
+	connect(&m_dlySearchResultsUpdate, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 
 	// Set pass-throughs:
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)));

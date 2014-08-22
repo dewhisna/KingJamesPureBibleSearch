@@ -28,6 +28,7 @@
 #include "KJVSearchCriteria.h"
 #include "KJVSearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
+#include "DelayedExecutionTimer.h"
 
 #include <QWidget>
 #include <QScrollArea>
@@ -68,6 +69,8 @@ public:
 	QString searchPhraseSummaryText() const;
 	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
 
+	int searchResultsUpdateDelay() const { return m_dlySearchResultsUpdate.minimumDelay()/2; }			// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
+
 signals:
 	void changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
 	void copySearchPhraseSummary();
@@ -87,6 +90,8 @@ public slots:
 	void setFocusSearchPhrase(int nIndex = 0);
 	void setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase);
 
+	void setSearchResultsUpdateDelay(int nDelay) { m_dlySearchResultsUpdate.setMinimumDelay(nDelay*2); }		// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
+
 public slots:			// Incoming Pass-Through:
 	void enableCopySearchPhraseSummary(bool bEnable);
 	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
@@ -103,7 +108,7 @@ protected slots:
 	void resizeScrollAreaLayout();
 	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_changedSearchCriteria();
-	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase = NULL);
 public slots:
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 protected slots:
@@ -133,6 +138,7 @@ private:
 	bool m_bDoneActivation;							// Set to True when we've triggered activation
 	bool m_bCloseAllSearchPhrasesInProgress;		// Set to True when the closeAllSearchPhrases() has been triggered and is processing, so the we don't emit extra phraseChanged() notifications
 	bool m_bReadingSearchFile;						// Set to True while we are reading a search file to keep updates to a minimum
+	DelayedExecutionTimer m_dlySearchResultsUpdate;	// Staged delay for Search Results Update after Phrase Change notification
 
 	Ui::CKJVSearchSpec ui;
 };
