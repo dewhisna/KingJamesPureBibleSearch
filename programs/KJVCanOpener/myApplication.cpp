@@ -753,12 +753,15 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 	if (pReceiver == NULL) return true;
 #endif
 
+#if !defined(NOT_USING_EXCEPTIONS) && defined(QT_DEBUG)
 	try {
+#endif
 #ifdef USING_QT_SINGLEAPPLICATION
 		return QtSingleApplication::notify(pReceiver, pEvent);
 #else
 		return QApplication::notify(pReceiver, pEvent);
 #endif
+#if !defined(NOT_USING_EXCEPTIONS) && defined(QT_DEBUG)
 	} catch (const std::exception &ex) {
 		qDebug("std::exception was caught: %s", ex.what());
 	} catch (...) {
@@ -767,6 +770,7 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 	}
 
 	return false;
+#endif
 }
 
 bool CMyApplication::event(QEvent *event) {

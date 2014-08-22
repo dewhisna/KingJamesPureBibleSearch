@@ -40,6 +40,8 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 	CONFIG += wwwidgets
 }
 
+exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
+
 !android:!ios:!emscripten:!vnc {
 	CONFIG += buildKJVDatabase
 	DEFINES += BUILD_KJV_DATABASE
