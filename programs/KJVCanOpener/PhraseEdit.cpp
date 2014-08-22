@@ -40,6 +40,7 @@
 #include <QTextFragment>
 #include <QToolTip>
 #include <QPair>
+#include <QSet>
 
 #include <QRegExp>
 
@@ -753,24 +754,21 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 
 			if ((ndx+1) == nCursorWord) {			// Only build list of next words if we are at the last word before the cursor
 				if (!bInFirstWordStar) {
-					// Note: For some reason, adding to a QStringList and removing duplicates is
-					//		faster than using !TConcordanceList.contains() to just not add them
-					//		with initially and directly into m_lstNextWords.  Strange...
-					//		This will use a little more memory, but...
+					// Add our resulting Concordance Indexes to a QSet to remove duplicates and
+					//		create a unique list that we can then turn to strings:
 					subPhrase.m_lstNextWords.clear();
-					QStringList lstNextWords;
+					QSet<int> setNextWords;
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 							int nConcordanceIndex = m_pBibleDatabase->concordanceIndexForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 							assert(nConcordanceIndex != -1);
-							lstNextWords.append(QString("%1").arg(nConcordanceIndex));
+							setNextWords.insert(nConcordanceIndex);
 						}
 					}
-					lstNextWords.removeDuplicates();
 
-					subPhrase.m_lstNextWords.reserve(lstNextWords.size());
-					for (int ndxWord = 0; ndxWord < lstNextWords.size(); ++ndxWord) {
-						const CConcordanceEntry &nextWordEntry(m_pBibleDatabase->concordanceWordList().at(lstNextWords.at(ndxWord).toInt()));
+					subPhrase.m_lstNextWords.reserve(setNextWords.size());
+					for (QSet<int>::const_iterator itrNdxWord = setNextWords.constBegin(); itrNdxWord != setNextWords.constEnd(); ++itrNdxWord) {
+						const CConcordanceEntry &nextWordEntry(m_pBibleDatabase->concordanceWordList().at(*itrNdxWord));
 						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 
