@@ -445,7 +445,7 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	if (bForcePopup || (!strText.isEmpty() && ((GetCursorWord().length() > 0) || (atEndOfSubPhrase())))) {
 		if (bForce) {
 			// For a real force (like keydown), pop immediately
-			popCompleter();
+			popCompleter(true);
 		} else {
 			m_dlyPopupCompleter.trigger();
 			// If completer is already visible (i.e. we didn't close it above), go ahead and deselect our index
@@ -457,11 +457,13 @@ void CPhraseLineEdit::setupCompleter(const QString &strText, bool bForce)
 	}
 }
 
-void CPhraseLineEdit::popCompleter()
+void CPhraseLineEdit::popCompleter(bool bForce)
 {
 	m_dlyPopupCompleter.untrigger();
-	m_pCompleter->complete();
-	if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+	if ((bForce) || (!isCompleteMatch())) {
+		m_pCompleter->complete();
+		if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+	}
 }
 
 void CPhraseLineEdit::resizeEvent(QResizeEvent * /* event */)

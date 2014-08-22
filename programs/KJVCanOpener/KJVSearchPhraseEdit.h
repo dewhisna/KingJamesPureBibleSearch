@@ -109,7 +109,7 @@ private slots:
 	void en_dropCommonPhrasesClicked();
 	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void delayed_UpdatedCompleter();
-	void popCompleter();
+	void popCompleter(bool bForce = false);
 
 signals:
 	void phraseChanged();
