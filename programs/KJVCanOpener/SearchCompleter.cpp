@@ -317,6 +317,10 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 		emit endResetModel();
 
 		emit modelChanged();
+
+		// Free our list since it's only valid immediately after this function runs anyway:
+		m_lstBasicWords.clear();
+
 	}
 }
 
@@ -558,7 +562,7 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 		m_pSearchStringListModel(pSearchStringListModel)
 {
 	assert(m_pSearchStringListModel != NULL);
-	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()));
+	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()), Qt::DirectConnection);
 
 	connect(m_pSearchStringListModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pSearchStringListModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));

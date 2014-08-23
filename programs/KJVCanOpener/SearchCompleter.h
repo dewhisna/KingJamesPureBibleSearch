@@ -78,7 +78,7 @@ public:
 	static QString deHyphen(const QString &strWord, bool bRemove = false);		// Decompose/remove Hyphens only
 
 	virtual const TBasicWordList &basicWordsList() const { return m_lstBasicWords; }
-	virtual bool isDynamicModel() const = 0;			// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
+	virtual bool isDynamicModel() const = 0;									// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
 
 signals:
 	void modelChanged();
