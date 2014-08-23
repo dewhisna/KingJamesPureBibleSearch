@@ -758,6 +758,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 					//		create a unique list that we can then turn to strings:
 					subPhrase.m_lstNextWords.clear();
 					QSet<int> setNextWords;
+					setNextWords.reserve(subPhrase.m_lstMatchMapping.size());
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 							int nConcordanceIndex = m_pBibleDatabase->concordanceIndexForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
