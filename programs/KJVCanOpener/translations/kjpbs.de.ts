@@ -7,12 +7,12 @@
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="36"/>
         <source>Bible Database Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationen zur Bibel-DB</translation>
     </message>
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="57"/>
         <source>Bible Database Name</source>
-        <translation type="unfinished">Bibel Datenbankname</translation>
+        <translation>Bibel Datenbankname</translation>
     </message>
 </context>
 <context>
@@ -73,12 +73,12 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="36"/>
         <source>Navigation Activation &amp;Delay (ms):</source>
-        <translation>Navigations&amp;verzögerung (ms):</translation>
+        <translation>&amp;Navigationsverzögerung (ms):</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="66"/>
         <source>Passage Reference Activation &amp;Delay (ms):</source>
-        <translation>Referenz&amp;aktivierungsverzögerung (ms):</translation>
+        <translation>&amp;Referenzaktivierungsverzögerung (ms):</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="94"/>
@@ -88,7 +88,7 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="103"/>
         <source>Entire Bible &amp;Scrollbar:</source>
-        <translation>Buch-Auswahl &amp;Anordnung:</translation>
+        <translation>&amp;Buch-Auswahl Anordnung:</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="127"/>
@@ -98,7 +98,7 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="151"/>
         <source>Line &amp;Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen&amp;höhe:</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="195"/>
@@ -133,31 +133,31 @@
         <location filename="../KJVConfiguration.cpp" line="1702"/>
         <source>Verse-Per-Line with Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile mit Einzug</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1703"/>
         <source>Verse-Per-Line with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile mit hängendem Einzug</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1701"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile großer Abstand</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1704"/>
         <source>Verse-Per-Line Double-Spaced with Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile großer Abstand mit Einzug</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1705"/>
         <source>Verse-Per-Line Double-Spaced with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile großer Abstand mit hängendem Einzug</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1699"/>
@@ -218,17 +218,17 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="247"/>
         <source>Copy &amp;Pilcrow (¶) Symbols (Paragraph Marker)</source>
-        <translation>Kopiere &amp;Pilcrow (¶) Symbol (Absatzmarker)</translation>
+        <translation>Kopiere &amp;Pilcrow (¶) Symbole (Absatzmarker)</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="263"/>
         <source>Copy &amp;Colophons</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere &amp;Kolophone</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="270"/>
         <source>Copy &amp;Superscriptions</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere &amp;Superscripte</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="301"/>
@@ -258,32 +258,32 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="365"/>
         <source>Copy &amp;MIME Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;MIME-Type für&apos;s Kopieren:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="416"/>
         <source>Search Results</source>
-        <translation type="unfinished">Suchergebnisse</translation>
+        <translation>Suchergebnisse</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="428"/>
         <source>Verses List:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versliste:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="440"/>
         <source>Add &amp;Blank Line Between Verses</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge &amp;Leerzeile zwischen Verse ein</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="449"/>
         <source>Verse Copy &amp;Order:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vers-Kopier&amp;reihenfolge:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="474"/>
         <source>References List:</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzenliste:</translation>
     </message>
     <message>
         <source>Search Results References:</source>
@@ -370,7 +370,7 @@
         <location filename="../KJVConfiguration.cpp" line="1961"/>
         <source>Complete Reference</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vollständige Referenz</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1979"/>
@@ -400,7 +400,7 @@
         <location filename="../KJVConfiguration.cpp" line="1989"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vers pro Zeile großer Abstand</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1987"/>
@@ -436,35 +436,35 @@
         <location filename="../KJVConfiguration.cpp" line="2018"/>
         <source>Both</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished">Beides</translation>
+        <translation>Beides</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2019"/>
         <source>HTML-Only</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nur HTML</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2020"/>
         <source>Text-Only</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nur Text</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2028"/>
         <source>Selected Order</source>
         <comment>VerseCopyOrder</comment>
-        <translation type="unfinished"></translation>
+        <translation>Gewählte Reihenfolge</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2029"/>
         <source>Bible Order Ascending</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibelreihenfolge aufteigend</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2030"/>
         <source>Bible Order Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibelreihenfolge abteigend</translation>
     </message>
 </context>
 <context>
@@ -513,7 +513,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="66"/>
         <source>Search Phrase &amp;Completer Mode:</source>
-        <translation>Suchphrasen &amp;Verviollständigungsmodus:</translation>
+        <translation>Suchphrasen &amp;Vervollständigungsmodus:</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="36"/>
@@ -523,7 +523,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="101"/>
         <source>&amp;Hide &quot;Not Found In&quot; Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbirg &quot;Nicht &amp;gefunden in&quot; Statistik</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="110"/>
@@ -533,12 +533,12 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="132"/>
         <source>Hide &amp;Matching Words/Phrases Lists</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbirg &amp;Übereinstimmende Worte/Phrasen Liste</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="94"/>
         <source>&amp;Auto Expand Search Results Tree</source>
-        <translation>Schubaum automatisch &amp;expandieren</translation>
+        <translation>Suchbaum automatisch &amp;expandieren</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1574"/>
@@ -706,12 +706,12 @@
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="28"/>
         <source>Enter WWW Hyperlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Gib WWW Hyperlink ein</translation>
     </message>
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="34"/>
         <source>Enter WWW &amp;Hyperlink:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gib WWW &amp;Hyperlink ein:</translation>
     </message>
 </context>
 <context>
@@ -720,7 +720,7 @@
         <location filename="../Highlighter.cpp" line="433"/>
         <source>&amp;Highlight/Unhighlight Verse (Search Results) with Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Hervorhebung ein/ausschalten für Vers (Suchergebnisse) mit Werkzeug #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="435"/>
@@ -738,7 +738,7 @@
         <location filename="../Highlighter.cpp" line="444"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Klick um nur den Suchergebnistext hervorzuheben</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="448"/>
@@ -810,7 +810,7 @@
         <location filename="../KJVAboutDlg.cpp" line="105"/>
         <source>Click Here to Visit Bethel Church</source>
         <comment>AboutBox</comment>
-        <translation>Hier klicken um die Bethel Church zu besuchen</translation>
+        <translation>Hier klicken um die Web-Site der Bethel Church zu besuchen</translation>
     </message>
     <message>
         <location filename="../KJVAboutDlg.cpp" line="176"/>
@@ -828,10 +828,10 @@ Written and Developed for Bethel Church, Festus, MO.</source>
 
 Dieses Programm wird verbreitet in der Hoffnung dass es nützlich ist aber OHNE JEGLICHE GARANTIE; auch ohne der Garantie der GEBRAUCHSTAUGLICHKEIT (warranty of MERCHANTABILITY) oder der  EIGNUNG FÜR EINEN SPEZIELLEN ZWECK (FITNESS FOR A PARTICULAR PURPOSE).  Siehe die GNU General Public License für mehr Details.
 
-Sie sollten eine Kopie der GNU General Public License mit diesem Programm erhalten haben; wenn nicht dann schreiben sSie an die Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+Sie sollten eine Kopie der GNU General Public License mit diesem Programm erhalten haben; wenn nicht dann schreiben Sie an die Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.
-Kontact: http://www.dewtronics.com/
+Kontakt: http://www.dewtronics.com/
 Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
     </message>
     <message>
@@ -861,7 +861,7 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibel-&amp;Information anzeigen</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
@@ -1822,7 +1822,9 @@ Um diese Nachricht in Zukunft zu vermeiden speichern sie die Suchphrasen erneut 
 
 Do you wish to follow this link?</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wenn sie diesem Link folgen wir ihr externer Browser gestartet. Dies kann zu zusätzlichen Kosten bei ihrem Internetprovider führen (abhängig von ihrem Vertrag).
+
+Wollen sie diesem Link folgen?</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="2609"/>
@@ -1845,7 +1847,9 @@ And check installation of King James Pure Bible Search User Manual at:
 
 %1</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Der Web-Browser konnte für folgenden Link nicht gestartet werden
+
+%1</translation>
     </message>
     <message>
         <source>Unable to open a System Web Browser for
@@ -2108,7 +2112,7 @@ Wollen Sie die Applikation neu starten?</translation>
         <location filename="../KJVNoteEditDlg.ui" line="249"/>
         <location filename="../KJVNoteEditDlg.ui" line="252"/>
         <source>Insert WWW Link</source>
-        <translation type="unfinished"></translation>
+        <translation>WWW Link einfügen</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.cpp" line="121"/>
@@ -2455,7 +2459,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
-        <translation>Gefundene Anzahl für diese Phrase: Beisteuernd/Ausgewählter Text/Ganze Bibel </translation>
+        <translation>Gefundene Anzahl für diese Phrase: in Suchziel/in ausgewähltem Text/in ganzer Bibel </translation>
     </message>
     <message>
         <source>Number of Occurrences: 00000/00000/00000</source>
@@ -2464,7 +2468,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
         <source>Number of Occurrences: 000000/000000/000000</source>
-        <translation type="unfinished">Gefundene Anzahl: 000000/000000/000000</translation>
+        <translation>Gefundene Anzahl: 000000/000000/000000</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="125"/>
@@ -2584,7 +2588,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="420"/>
         <source>Show Matching Words/Phrases</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige übereinstimmende Worte/Phrasen</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="715"/>
@@ -2602,9 +2606,9 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <location filename="../KJVSearchPhraseEdit.cpp" line="844"/>
         <source>%n Matching Words/Phrases</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n übereinstimmendes Wort/Phrase</numerusform>
+            <numerusform>%n übereinstimmende Worte/Phrasen</numerusform>
         </translation>
     </message>
 </context>
@@ -2798,7 +2802,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <comment>Statistics</comment>
         <translation>
             <numerusform>Kombiniert</numerusform>
-            <numerusform>Kombiniert</numerusform>
+            <numerusform>Kombinierte</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2842,19 +2846,19 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <location filename="../KJVSearchSpec.cpp" line="74"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">Füge Phrase zu Schukriterien hinzu</translation>
+        <translation>Füge Phrase zu Schukriterien hinzu</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="78"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
+        <translation>Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="91"/>
         <source>&amp;Copy Search Phrase Summary to Clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">&amp;Kopiere Suchphrase in die Zwischenablage</translation>
+        <translation>&amp;Kopiere Suchphrase in die Zwischenablage</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="145"/>
@@ -3265,7 +3269,7 @@ Wollen sie stattdessen die Hervorhebung deaktivieren damit die Hervorhebung im T
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Speicherung der &amp;Zeit in Minuten (0 zum deaktivieren):</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
@@ -3294,7 +3298,7 @@ Warning: If you select &apos;No&apos;, then your changes will be lost.</source>
         <translation>Sie haben Notizen, Hervorhebungen und/oder Referenzen editiert aber noch keine King James Notizdatei erstellt.
 
 Wollen sie eine Notizdatei erstellen und ihre Änderungen darin speichern?
-Warnung: Wenn sie nun &apos;nein&apos; wählen, gehen ihre Änderungen verloren!</translation>
+Warnung: Wenn sie nun &apos;nein&apos; wählen, gehen ihre Änderungen verloren.</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1370"/>
@@ -3849,13 +3853,13 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="1969"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kolophon</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="1971"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Superscription</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2128"/>
@@ -3863,19 +3867,19 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="2243"/>
         <source>Superscription</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Superscription</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2829"/>
         <source>Word:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Wort:</translation>
+        <translation>Wort:</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2834"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Phrase:</translation>
+        <translation>Phrase:</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2863"/>
@@ -3883,13 +3887,13 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="2876"/>
         <source>contains:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">beinhaltet:</translation>
+        <translation>beinhaltet:</translation>
     </message>
     <message numerus="yes">
         <location filename="../PhraseEdit.cpp" line="2864"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Kapitel</numerusform>
             <numerusform>%n Kapitel</numerusform>
         </translation>
@@ -3899,7 +3903,7 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="2871"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Vers</numerusform>
             <numerusform>%n Verse</numerusform>
         </translation>
@@ -3910,7 +3914,7 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="2877"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Wort</numerusform>
             <numerusform>%n Worte</numerusform>
         </translation>
@@ -3919,9 +3923,9 @@ Check Installation!</source>
         <location filename="../PhraseEdit.cpp" line="2885"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Wort ausgewählt</numerusform>
+            <numerusform>%n Worte ausgewählt</numerusform>
         </translation>
     </message>
 </context>
@@ -3962,13 +3966,13 @@ Check Installation!</source>
         <location filename="../KJVSearchResult.cpp" line="264"/>
         <source>Copy &amp;Entries</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere &amp;Einträge</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="265"/>
         <source>Copy Entries for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kopiwere Einträge für die ausgewählten Suchergebnisse in die Zwischenablage</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="268"/>
@@ -4148,14 +4152,14 @@ Wollen sie stattdessen die Hervorhebung aufheben??</translation>
         <location filename="../KJVSearchCriteria.cpp" line="317"/>
         <source>Colophons</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kolophone</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="327"/>
         <location filename="../KJVSearchCriteria.cpp" line="331"/>
         <source>Superscriptions</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Superscriptionen</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="376"/>
@@ -4164,7 +4168,10 @@ or manuscript usually with facts about its production.
 In the Bible, they are usually found at the end of
 the Epistles of the New Testament.</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kolophon ist eine Beschreibung am Ende eines Buches
+oder Manuskripts, gewöhnlich mit Fakten über seine Entstehung.
+In der Bibel findet man sie gewöhnluich am Ende 
+der Briefe des Neuen Testaments.</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="381"/>
@@ -4172,7 +4179,9 @@ the Epistles of the New Testament.</source>
 describing the content of the chapter.  In the Bible,
 they are usually found in the Book of Psalms.</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eine Superscription ist ein Text der über einem Kapitel
+den Inhalt des Kapitels beschreibt. In der Bibel findet 
+man sie gewöhnlich in den Psalmen.</translation>
     </message>
 </context>
 <context>
@@ -4417,7 +4426,7 @@ verschieben sie ihn auf die gewünschte neue Hervorhebung und lassen sie ihn dor
         <location filename="../VerseListModel.cpp" line="664"/>
         <source>Colophon</source>
         <comment>Scope</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kolophon</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="794"/>
@@ -4491,9 +4500,9 @@ verschieben sie ihn auf die gewünschte neue Hervorhebung und lassen sie ihn dor
 
 Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?</source>
         <comment>Errors</comment>
-        <translation>Sie sind dabe die ausgewählte Vershervorhebung in die&quot;%1&quot;-Hervorhebung zu verschieben.  Das verbindet die Passagen in der Zielhervorhebung und ändert ihre Farbe auf die Farbe der Zielhervorhebung. Dieser Befehl kann nicht rückgängig gemacht werden!!
+        <translation>Sie sind dabe die ausgewählte Vershervorhebung in die &quot;%1&quot;-Hervorhebung zu verschieben.  Das verbindet die Passagen in der Zielhervorhebung und ändert ihre Farbe auf die Farbe der Zielhervorhebung. Dieser Befehl kann nicht rückgängig gemacht werden!!
 
-Sind sie sicher das sie die ausgewählte hervorhebung zur Hervorhebung &quot;%1&quot; verchieben wollen?</translation>
+Sind sie sicher das sie die ausgewählte Hervorhebung zur Hervorhebung &quot;%1&quot; verschieben wollen?</translation>
     </message>
     <message>
         <location filename="../VerseListModel.h" line="601"/>
@@ -5018,7 +5027,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../BuildDB.cpp" line="1232"/>
         <source>Exclude</source>
         <comment>BuildDB</comment>
-        <translation type="unfinished">Ausschließen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../BuildDB.cpp" line="1232"/>
@@ -5096,7 +5105,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../ReadDB.cpp" line="61"/>
         <source>Reading Database</source>
         <comment>ReadDB</comment>
-        <translation>Lese Datenbank</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ReadDB.cpp" line="125"/>
@@ -5448,7 +5457,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="891"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Kolophon</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="872"/>
@@ -5457,7 +5466,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="899"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
-        <translation type="unfinished"></translation>
+        <translation>Superscription</translation>
     </message>
     <message>
         <source>%1 of %2 of %3 %4</source>
@@ -5643,7 +5652,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="180"/>
         <source>Copy Entire Passage Detai&amp;ls</source>
         <comment>MainMenu</comment>
-        <translation>Kopiere alle Passageldetai&amp;ls</translation>
+        <translation>Kopiere alle Passagendetai&amp;ls</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="181"/>
