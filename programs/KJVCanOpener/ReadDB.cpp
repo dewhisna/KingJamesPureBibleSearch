@@ -741,6 +741,7 @@ bool CReadDatabase::ReadWordsTable()
 			if (!strTemp.isEmpty()) {
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
 				entryWord.m_lstAltWords.push_back(strTemp);
+				entryWord.m_lstDecomposedAltWords.push_back(CSearchStringListModel::decompose(strTemp, true));
 			}
 		}
 		QString strAltWordCounts = lstFields.at(5);

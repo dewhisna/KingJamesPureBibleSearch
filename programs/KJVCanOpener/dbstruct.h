@@ -467,6 +467,7 @@ public:
 	bool m_bCasePreserve;		// Special Word Case Preserve
 	bool m_bIsProperWord;		// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
+	QStringList m_lstDecomposedAltWords;	// Decomposed Words (used for matching)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
 
@@ -494,13 +495,12 @@ public:
 	{
 		m_itrEntryWord = src.m_itrEntryWord;
 		m_nAltWordIndex = src.m_nAltWordIndex;
-		m_strDecomposedWord = src.m_strDecomposedWord;
 		m_nIndex = src.m_nIndex;
 		return *this;
 	}
 
 	inline const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
-	inline const QString &decomposedWord() const { return m_strDecomposedWord; }
+	inline const QString &decomposedWord() const { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
 	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
 
@@ -516,7 +516,6 @@ public:
 private:
 	TWordListMap::const_iterator m_itrEntryWord;	// Bible Word Entry from which this was derived (used to lookup details)
 	int m_nAltWordIndex;					// Index of Composed Word in the reference CWordEntry (as in the actual text)
-	QString m_strDecomposedWord;			// Decomposed Word (used for matching)
 	int m_nIndex;							// Index used when sorting and keeping external reference intact
 };
 

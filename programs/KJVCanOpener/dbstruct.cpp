@@ -690,7 +690,6 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 CConcordanceEntry::CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, int nAltWordIndex, int nIndex)
 	:	m_itrEntryWord(itrEntryWord),
 		m_nAltWordIndex(nAltWordIndex),
-		m_strDecomposedWord(CSearchStringListModel::decompose(word(), true)),
 		m_nIndex(nIndex)
 {
 
