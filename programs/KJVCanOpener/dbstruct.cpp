@@ -1559,6 +1559,20 @@ int CBibleDatabase::concordanceIndexForWordAtIndex(const CRelIndex &relIndex) co
 	return concordanceIndexForWordAtIndex(NormalizeIndex(relIndex));
 }
 
+const CConcordanceEntry *CBibleDatabase::concordanceEntryForWordAtIndex(uint32_t ndxNormal) const
+{
+	int nConcordanceIndex = concordanceIndexForWordAtIndex(ndxNormal);
+	const CConcordanceEntry *pConcordanceEntry = ((nConcordanceIndex != -1) ? &m_lstConcordanceWords.at(nConcordanceIndex) : NULL);
+	return pConcordanceEntry;
+}
+
+const CConcordanceEntry *CBibleDatabase::concordanceEntryForWordAtIndex(const CRelIndex &relIndex) const
+{
+	int nConcordanceIndex = concordanceIndexForWordAtIndex(relIndex);
+	const CConcordanceEntry *pConcordanceEntry = ((nConcordanceIndex != -1) ? &m_lstConcordanceWords.at(nConcordanceIndex) : NULL);
+	return pConcordanceEntry;
+}
+
 QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
 {
 	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))

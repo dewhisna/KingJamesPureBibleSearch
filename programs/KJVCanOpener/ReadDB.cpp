@@ -742,6 +742,9 @@ bool CReadDatabase::ReadWordsTable()
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
 				entryWord.m_lstAltWords.push_back(strTemp);
 				entryWord.m_lstDecomposedAltWords.push_back(CSearchStringListModel::decompose(strTemp, true));
+				entryWord.m_lstDecomposedHyphenAltWords.push_back(CSearchStringListModel::decompose(strTemp, false));
+				entryWord.m_lstDeApostrAltWords.push_back(CSearchStringListModel::deApostrHyphen(strTemp, true));
+				entryWord.m_lstDeApostrHyphenAltWords.push_back(CSearchStringListModel::deApostrHyphen(strTemp, false));
 				entryWord.m_lstRenderedAltWords.push_back(QString());
 			}
 		}

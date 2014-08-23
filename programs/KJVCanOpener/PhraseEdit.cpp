@@ -698,12 +698,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 					} else {
 						unsigned int nCount = 0;
 						for (int ndxAltWord = 0; ndxAltWord<wordEntry.m_lstAltWords.size(); ++ndxAltWord) {
-							QString strAltWord = wordEntry.m_lstAltWords.at(ndxAltWord);
-							if (!isAccentSensitive()) {
-								strAltWord = CSearchStringListModel::decompose(strAltWord, !m_pBibleDatabase->settings().hyphenSensitive());
-							} else{
-								strAltWord = CSearchStringListModel::deApostrHyphen(strAltWord, !m_pBibleDatabase->settings().hyphenSensitive());
-							}
+							const QString &strAltWord = ((!isAccentSensitive()) ?
+									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDecomposedAltWords.at(ndxAltWord) : wordEntry.m_lstDecomposedHyphenAltWords.at(ndxAltWord)) :
+									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDeApostrAltWords.at(ndxAltWord) : wordEntry.m_lstDeApostrHyphenAltWords.at(ndxAltWord)));
 							if (expCurWord.exactMatch(strAltWord)) {
 								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
 																	&wordEntry.m_ndxNormalizedMapping[nCount],
@@ -721,14 +718,11 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 				TNormalizedIndexList lstNextMapping;
 				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
-					QString strNextWord;
-					if ((!isAccentSensitive()) && (!m_pBibleDatabase->settings().hyphenSensitive())) {
-						strNextWord = m_pBibleDatabase->decomposedWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
-					} else if (!isAccentSensitive()) {
-						strNextWord = CSearchStringListModel::decompose(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false), !m_pBibleDatabase->settings().hyphenSensitive());
-					} else {
-						strNextWord = CSearchStringListModel::deApostrHyphen(m_pBibleDatabase->wordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1, false), !m_pBibleDatabase->settings().hyphenSensitive());
-					}
+					const CConcordanceEntry *pNextWordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
+					assert(pNextWordEntry != NULL);
+					const QString &strNextWord = ((!isAccentSensitive()) ?
+							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->decomposedWord() : pNextWordEntry->decomposedHyphenWord()) :
+							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->deApostrWord() : pNextWordEntry->deApostrHyphenWord()));
 					if (expCurWord.exactMatch(strNextWord)) {
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}
