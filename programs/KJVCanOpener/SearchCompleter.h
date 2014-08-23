@@ -77,11 +77,17 @@ public:
 	static QString deApostrophe(const QString &strWord, bool bRemove = false);	// Decompose/remove Apostrophes only
 	static QString deHyphen(const QString &strWord, bool bRemove = false);		// Decompose/remove Hyphens only
 
+	virtual const TBasicWordList &basicWordsList() const { return m_lstBasicWords; }
+	virtual bool isDynamicModel() const = 0;			// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
+
 signals:
 	void modelChanged();
 
 public slots:
-	virtual void setWordsFromPhrase() = 0;
+	virtual void setWordsFromPhrase(bool bForceUpdate = false) = 0;
+
+protected:
+	TBasicWordList m_lstBasicWords;
 
 private:
 	Q_DISABLE_COPY(CSearchStringListModel)
@@ -105,8 +111,10 @@ public:
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
 	virtual QString cursorWord() const;
 
+	virtual bool isDynamicModel() const { return true; }
+
 public slots:
-	virtual void setWordsFromPhrase();
+	virtual void setWordsFromPhrase(bool bForceUpdate = false);
 
 private:
 	Q_DISABLE_COPY(CSearchParsedPhraseListModel)
@@ -132,8 +140,10 @@ public:
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
 	virtual QString cursorWord() const;
 
+	virtual bool isDynamicModel() const { return false; }
+
 public slots:
-	virtual void setWordsFromPhrase();
+	virtual void setWordsFromPhrase(bool bForceUpdate = false);
 
 private:
 	Q_DISABLE_COPY(CSearchDictionaryListModel)
@@ -202,8 +212,6 @@ protected:
 	void updateModel(bool bResetModel = true);			// bResetModel flag is used to disable reset when setting filter text when SoundEx is disabled, in which case the SoundEx doesn't need to drive a model reset
 
 private:
-	QStringList m_lstComposedWords;						// Composed (displayed) word list, used for quick IndexOf(), LastIndexOf() with RegExp of search expression to fill-in exact matches
-	QStringList m_lstDecomposedWords;					// Decomposed word list, used for quick IndexOf(), LastIndexOf() with RegExp of search expression to fill-in exact matches
 	QMap<QString, QList<int> > m_mapSoundEx;			// SoundEx lookup of SoundEx words to indexes of source words, set in en_modelChanged() when our base SearchStringListModel changes
 	bool m_bSoundExEnabled;								// True when we are resolving SoundEx expressions, False for pass-through
 	QString m_strFilterFixedString;
@@ -242,7 +250,7 @@ public:
 
 public slots:
 	virtual void setFilterMatchString();
-	virtual void setWordsFromPhrase();
+	virtual void setWordsFromPhrase(bool bForceUpdate = false);
 
 private:
 	SEARCH_COMPLETION_FILTER_MODE_ENUM m_nCompletionFilterMode;

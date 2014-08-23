@@ -495,6 +495,7 @@ public:
 	virtual const QString &renderedWord() const = 0;
 };
 
+typedef QList<const CBasicWordEntry *> TBasicWordList;
 
 // ============================================================================
 

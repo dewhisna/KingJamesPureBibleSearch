@@ -36,6 +36,121 @@
 
 // ============================================================================
 
+class TBasicWordHelper
+{
+public:
+	TBasicWordHelper(const TBasicWordList &aWordList)
+		:	m_lstBasicWords(aWordList)
+	{
+
+	}
+
+	int indexOf_renderedWord(const QString &strWord, int nFrom = 0) const
+	{
+		if (nFrom < 0)
+			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
+		if (nFrom < m_lstBasicWords.size()) {
+			for (int ndx = nFrom; ndx < m_lstBasicWords.size(); ++ndx) {
+				if (m_lstBasicWords.at(ndx)->renderedWord() == strWord) return ndx;
+			}
+		}
+		return -1;
+	}
+
+	int lastIndexOf_renderedWord(const QString &strWord, int nFrom = -1) const
+	{
+		if (nFrom < 0)
+			nFrom += m_lstBasicWords.size();
+		else if (nFrom >= m_lstBasicWords.size())
+			nFrom = m_lstBasicWords.size()-1;
+		if (nFrom >= 0) {
+			for (int ndx = nFrom; ndx >= 0; --ndx) {
+				if (m_lstBasicWords.at(ndx)->renderedWord() == strWord) return ndx;
+			}
+		}
+		return -1;
+	}
+
+	int indexOf_decomposedWord(const QString &strWord, int nFrom = 0) const
+	{
+		if (nFrom < 0)
+			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
+		if (nFrom < m_lstBasicWords.size()) {
+			for (int ndx = nFrom; ndx < m_lstBasicWords.size(); ++ndx) {
+				if (m_lstBasicWords.at(ndx)->decomposedWord() == strWord) return ndx;
+			}
+		}
+		return -1;
+	}
+
+	int lastIndexOf_decomposedWord(const QString &strWord, int nFrom = -1) const
+	{
+		if (nFrom < 0)
+			nFrom += m_lstBasicWords.size();
+		else if (nFrom >= m_lstBasicWords.size())
+			nFrom = m_lstBasicWords.size()-1;
+		if (nFrom >= 0) {
+			for (int ndx = nFrom; ndx >= 0; --ndx) {
+				if (m_lstBasicWords.at(ndx)->decomposedWord() == strWord) return ndx;
+			}
+		}
+		return -1;
+	}
+
+	int indexOf_renderedWord(const QRegExp &rx, int nFrom = 0) const
+	{
+		if (nFrom < 0)
+			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
+		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+				return i;
+		}
+		return -1;
+	}
+
+	int lastIndexOf_renderedWord(const QRegExp &rx, int nFrom = -1) const
+	{
+		if (nFrom < 0)
+			nFrom += m_lstBasicWords.size();
+		else if (nFrom >= m_lstBasicWords.size())
+			nFrom = m_lstBasicWords.size() - 1;
+		for (int i = nFrom; i >= 0; --i) {
+			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+				return i;
+			}
+		return -1;
+	}
+
+	int indexOf_decomposedWord(const QRegExp &rx, int nFrom = 0) const
+	{
+		if (nFrom < 0)
+			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
+		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+				return i;
+		}
+		return -1;
+	}
+
+	int lastIndexOf_decomposedWord(const QRegExp &rx, int nFrom = -1) const
+	{
+		if (nFrom < 0)
+			nFrom += m_lstBasicWords.size();
+		else if (nFrom >= m_lstBasicWords.size())
+			nFrom = m_lstBasicWords.size() - 1;
+		for (int i = nFrom; i >= 0; --i) {
+			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+				return i;
+			}
+		return -1;
+	}
+
+private:
+	const TBasicWordList &m_lstBasicWords;
+};
+
+// ============================================================================
+
 QString CSearchStringListModel::decompose(const QString &strWord, bool bRemoveHyphens)
 {
 	QString strDecomposed = deApostrHyphen(strWord, bRemoveHyphens).normalized(QString::NormalizationForm_KD);
@@ -180,18 +295,24 @@ QString CSearchParsedPhraseListModel::cursorWord() const
 	return m_parsedPhrase.GetCursorWord();
 }
 
-void CSearchParsedPhraseListModel::setWordsFromPhrase()
+void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 {
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SearchStringListModel::setWordsFromPhrase : %d  OldCursorPos: %d", m_parsedPhrase.GetCursorWordPos(), m_nCursorWord);
 #endif
 
-	if (m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) {
+	if ((m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) || (bForceUpdate)) {
 		m_nCursorWord = m_parsedPhrase.GetCursorWordPos();
 
 		emit beginResetModel();
 
 //		m_ParsedPhrase.nextWordsList();
+
+		m_lstBasicWords.clear();
+		m_lstBasicWords.reserve(m_parsedPhrase.nextWordsList().size());
+		for (int ndx = 0; ndx < m_parsedPhrase.nextWordsList().size(); ++ndx) {
+			m_lstBasicWords.append(&m_parsedPhrase.nextWordsList().at(ndx));
+		}
 
 		emit endResetModel();
 
@@ -207,6 +328,12 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 		m_editorWord(editorWord)
 {
 	assert(pDictionary.data() != NULL);
+
+	m_lstBasicWords.clear();
+	m_lstBasicWords.reserve(m_pDictionaryDatabase->lstWordList().size());
+	for (int ndx = 0; ndx < m_pDictionaryDatabase->lstWordList().size(); ++ndx) {
+		m_lstBasicWords.append(&m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(ndx)));
+	}
 }
 
 CSearchDictionaryListModel::~CSearchDictionaryListModel()
@@ -258,8 +385,10 @@ QString CSearchDictionaryListModel::cursorWord() const
 	return m_editorWord.toPlainText();
 }
 
-void CSearchDictionaryListModel::setWordsFromPhrase()
+void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 {
+	Q_UNUSED(bForceUpdate)
+
 //	emit beginResetModel();
 //	emit endResetModel();
 //	emit modelChanged();
@@ -330,7 +459,9 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 	}
 
 	m_nCompletionFilterMode = nCompletionFilterMode;
-	QTimer::singleShot(1, m_pSoundExFilterModel, SLOT(en_modelChanged()));		// Force a delayed update for models that don't do auto per-word updates
+	if (!m_pSearchStringListModel->isDynamicModel()) {
+		QTimer::singleShot(1, m_pSoundExFilterModel, SLOT(en_modelChanged()));		// Force a delayed update for models that don't do auto per-word updates (i.e. static models)
+	}
 }
 
 void CSearchCompleter::setFilterMatchString()
@@ -408,10 +539,10 @@ void CSearchCompleter::selectFirstMatchString()
 	}
 }
 
-void CSearchCompleter::setWordsFromPhrase()
+void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 {
 	assert(m_pSearchStringListModel != NULL);
-	m_pSearchStringListModel->setWordsFromPhrase();
+	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
 }
 
 // ============================================================================
@@ -517,7 +648,14 @@ void CSoundExSearchCompleterFilter::setFilterFixedString(const QString &strPatte
 
 	bool bNeedUpdate = (m_strFilterFixedString.compare(strPattern) != 0);
 	m_strFilterFixedString = strPattern;
-	if (bNeedUpdate) updateModel(m_bSoundExEnabled);		// No need to update our model if SoundEx isn't enabled -- the SearchListModel's reset will cause a modelChange that will update it
+	if (bNeedUpdate) {
+		if (m_pSearchStringListModel->isDynamicModel()) {
+			// This automatically updates our model:
+			m_pSearchStringListModel->setWordsFromPhrase(true);		// Must force a rebuild on our dynamic models so our indexes will be correct
+		} else {
+			updateModel(m_bSoundExEnabled);		// No need to update our model if SoundEx isn't enabled -- the SearchListModel's reset will cause a modelChange that will update it
+		}
+	}
 }
 
 QModelIndex CSoundExSearchCompleterFilter::firstMatchStringIndex(bool bComposed) const
@@ -543,16 +681,10 @@ void CSoundExSearchCompleterFilter::en_modelChanged()
 	CBusyCursor iAmBusy(NULL);
 
 	int nCount = m_pSearchStringListModel->rowCount();
-	m_lstComposedWords.clear();
-	m_lstComposedWords.reserve(nCount);
-	m_lstDecomposedWords.clear();
-	m_lstDecomposedWords.reserve(nCount);
 	m_mapSoundEx.clear();
 	for (int nRow = 0; nRow < nCount; ++nRow) {
 		QModelIndex ndx = m_pSearchStringListModel->index(nRow);
 		if (m_bSoundExEnabled) m_mapSoundEx[ndx.data(CSearchStringListModel::SOUNDEX_ENTRY_ROLE).toString()].append(nRow);
-		m_lstComposedWords.append(ndx.data(Qt::DisplayRole).toString());
-		m_lstDecomposedWords.append(ndx.data(Qt::EditRole).toString());
 	}
 
 	updateModel(true);					// Always reset our model when base model resets
@@ -565,6 +697,16 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 #endif
 
 	if (bResetModel) beginResetModel();
+
+	// Note: For Dynamic Models, like Search Phrases, this function can ONLY be called
+	//		immediately after setWordsFromPhrase() is called on the SearchStringListModel,
+	//		or from the en_modelChanged() slot triggered by the actual SearchStringListModel's
+	//		setWordsFromPhrase() function, as the BasicWordsList is only valid immediately
+	//		after the model is updated, since it contains references and pointers to
+	//		transient data in order to prevent extraneous copying of strings.  On
+	//		static models, like the Dictionary, it's safe to call it as needed:
+
+	TBasicWordHelper lstBasicWords(m_pSearchStringListModel->basicWordsList());
 
 	m_lstMatchedIndexes.clear();
 	m_nFirstComposedMatchStringIndex = -1;
@@ -580,8 +722,8 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 			qDebug("SoundEx: \"%s\" => %s", m_strFilterFixedString.toUtf8().data(), strSoundEx.toUtf8().data());
 #endif
 
-			int nFirstWord = m_lstDecomposedWords.indexOf(expPrefix);
-			int nLastWord = ((nFirstWord != -1) ? m_lstDecomposedWords.lastIndexOf(expPrefix) : -1);
+			int nFirstWord = lstBasicWords.indexOf_decomposedWord(expPrefix);
+			int nLastWord = ((nFirstWord != -1) ? lstBasicWords.lastIndexOf_decomposedWord(expPrefix) : -1);
 			int nNumWords = ((nFirstWord != -1) ? (nLastWord - nFirstWord + 1) : 0);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
@@ -591,7 +733,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 			const QList<int> &mapSoundEx = m_mapSoundEx[strSoundEx];
 
 			m_nFirstDecomposedMatchStringIndex = nFirstWord;		// Temporarily set first word index to our decomposed list index.  After sorting, we'll find it's new location and change it
-			m_nFirstComposedMatchStringIndex = m_lstComposedWords.indexOf(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
+			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_renderedWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
 
 			QList<int> lstMatches;
 			lstMatches.reserve(mapSoundEx.size() + nNumWords);
@@ -632,8 +774,8 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 				}
 			}
 		} else {
-			m_nFirstDecomposedMatchStringIndex = m_lstDecomposedWords.indexOf(expPrefix);
-			m_nFirstComposedMatchStringIndex = m_lstComposedWords.indexOf(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
+			m_nFirstDecomposedMatchStringIndex = lstBasicWords.indexOf_decomposedWord(expPrefix);
+			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_renderedWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("Prefix: \"%s\"  expPrefix: \"%s\"  nFirstMatch: %d", strDecomposedFilterString.toUtf8().data(), expPrefix.pattern().toUtf8().data(), m_nFirstDecomposedMatchStringIndex);
