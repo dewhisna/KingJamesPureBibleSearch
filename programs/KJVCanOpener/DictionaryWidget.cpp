@@ -102,8 +102,10 @@ void CDictionaryLineEdit::setupCompleter(const QString &strText, bool bForce)
 	}
 
 	if (bForce || (!strText.isEmpty() && (strWord.length() > 2))) {
-		CBusyCursor iAmBusy(NULL);
-		m_pCompleter->complete();
+		if (bForce || (!m_pDictionaryDatabase->wordExists(toPlainText().trimmed()))) {
+			CBusyCursor iAmBusy(NULL);
+			m_pCompleter->complete();
+		}
 	}
 }
 
