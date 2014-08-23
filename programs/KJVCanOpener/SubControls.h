@@ -185,6 +185,9 @@ protected:
 	};
 	friend class CDoUpdate;
 
+signals:
+	void enterTriggered();						// Signaled when the user presses enter/return
+
 protected slots:
 	virtual void en_textChanged();
 	virtual void en_cursorPositionChanged();

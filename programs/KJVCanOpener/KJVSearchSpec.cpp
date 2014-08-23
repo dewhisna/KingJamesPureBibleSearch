@@ -320,6 +320,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	setSearchResultsUpdateDelay(0);
 #endif
 	connect(&m_dlySearchResultsUpdate, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
+	connect(pPhraseWidget, SIGNAL(enterTriggered()), this, SLOT(en_phraseChanged()), Qt::QueuedConnection);
 
 	// Set pass-throughs:
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)));
@@ -553,6 +554,8 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 
 void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
+	m_dlySearchResultsUpdate.untrigger();
+
 	Q_UNUSED(pSearchPhrase);
 
 	if (m_bReadingSearchFile) return;

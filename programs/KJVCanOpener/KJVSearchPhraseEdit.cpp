@@ -600,6 +600,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(ui.buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
 	connect(ui.editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 	connect(ui.buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
+	connect(ui.editPhrase, SIGNAL(enterTriggered()), this, SIGNAL(enterTriggered()));
 }
 
 CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()

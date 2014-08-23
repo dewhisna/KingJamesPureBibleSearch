@@ -118,6 +118,9 @@ signals:
 	void changeExclude(bool bExclude);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 
+	// Pass-through:
+//	virtual void enterTriggered();						// Signaled when the user presses enter/return
+
 protected:
 	virtual void insertFromMimeData(const QMimeData * source);
 	virtual bool canInsertFromMimeData(const QMimeData *source) const;
@@ -176,6 +179,7 @@ signals:
 	void resizing(CKJVSearchPhraseEdit *pSearchPhrase);
 	void changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
+	void enterTriggered();						// Signaled when the user presses enter/return
 
 public slots:
 	void processPendingTextChanges();

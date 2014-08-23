@@ -251,6 +251,8 @@ void CSingleLineTextEdit::keyPressEvent(QKeyEvent *event)
 	switch (event->key()) {
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
+			emit enterTriggered();
+			// fall-through to the event-ignore() so we can still process it for the completer logic
 		case Qt::Key_Escape:
 		case Qt::Key_Tab:
 		case Qt::Key_Control:			// Control is needed here to keep Ctrl-Home/Ctrl-End used in the QCompleter from trigger redoing the QCompleter in setupCompleter()
