@@ -468,6 +468,7 @@ public:
 	bool m_bIsProperWord;		// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
 	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated)
 	QStringList m_lstDecomposedAltWords;	// Decomposed Words (used for matching)
+	QStringList m_lstRenderedAltWords;		// Alt Words as rendered (hyphen/non-hyphen based on proper/ordinary word rules of Bible Database Setting)
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
 
@@ -483,13 +484,28 @@ typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		
 
 // ============================================================================
 
+// CBasicWordEntry -- Word Entry Virtual base to handle word/decomposedWord/etc commonly for Bible Concordance and Dictionary
+//
+
+class CBasicWordEntry
+{
+public:
+	virtual const QString &word() const = 0;
+	virtual const QString &decomposedWord() const = 0;
+	virtual const QString &renderedWord() const = 0;
+};
+
+
+// ============================================================================
+
 // Concordance -- Mapping of words and their Normalized positions:
 //
 
-class CConcordanceEntry
+class CConcordanceEntry : public CBasicWordEntry
 {
 public:
 	CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, int nAltWordIndex, int nIndex = 0);
+	virtual ~CConcordanceEntry() { }
 
 	CConcordanceEntry & operator=(const CConcordanceEntry &src)
 	{
@@ -499,8 +515,9 @@ public:
 		return *this;
 	}
 
-	inline const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
-	inline const QString &decomposedWord() const { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
+	virtual const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
+	virtual const QString &decomposedWord() const { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
+	virtual const QString &renderedWord() const { return m_itrEntryWord->second.m_lstRenderedAltWords.at(m_nAltWordIndex); }
 	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
 
@@ -859,7 +876,8 @@ public:
 	{
 		return m_lstConcordanceWords;
 	}
-	QString renderedWord(const CConcordanceEntry &aConcordanceEntry) const;
+	void setRenderedWords();
+	void setRenderedWords(CWordEntry &aWordEntry) const;
 	int concordanceIndexForWordAtIndex(uint32_t ndxNormal) const;			// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
 	int concordanceIndexForWordAtIndex(const CRelIndex &relIndex) const;	// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
 	QString wordAtIndex(uint32_t ndxNormal, bool bAsRendered = true) const;				// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
@@ -960,6 +978,9 @@ signals:
 	void changedBibleDatabaseList();
 	void changedAvailableBibleDatabaseList();
 
+protected slots:
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+
 private:
 	CBibleDatabasePtr m_pMainBibleDatabase;
 	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
@@ -971,11 +992,12 @@ private:
 // Dictionary Word Entry -- Mapping of words and their Definitions:
 //
 
-class CDictionaryWordEntry
+class CDictionaryWordEntry : public CBasicWordEntry
 {
 public:
 	CDictionaryWordEntry();
 	CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex = 0);
+	virtual ~CDictionaryWordEntry() { }
 
 	CDictionaryWordEntry & operator=(const CDictionaryWordEntry &src)
 	{
@@ -986,8 +1008,9 @@ public:
 		return *this;
 	}
 
-	QString word() const { return m_strWord; }
-	QString decomposedWord() const { return m_strDecomposedWord; }
+	virtual const QString &word() const { return m_strWord; }
+	virtual const QString &decomposedWord() const { return m_strDecomposedWord; }
+	virtual const QString &renderedWord() const { return m_strWord; }
 	QString definition() const { return m_strDefinition; }
 	inline int index() const { return m_nIndex; }
 

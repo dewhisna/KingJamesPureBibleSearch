@@ -150,7 +150,7 @@ QVariant CSearchParsedPhraseListModel::data(const QModelIndex &index, int role) 
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return (m_parsedPhrase.bibleDatabase()->renderedWord(m_parsedPhrase.nextWordsList().at(index.row())));
+		return (m_parsedPhrase.nextWordsList().at(index.row()).renderedWord());
 
 	if (role == Qt::EditRole)
 		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();
@@ -228,7 +228,7 @@ QVariant CSearchDictionaryListModel::data(const QModelIndex &index, int role) co
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).word();
+		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).renderedWord();
 
 	if (role == Qt::EditRole)
 		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).decomposedWord();

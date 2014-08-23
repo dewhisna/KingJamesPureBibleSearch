@@ -168,7 +168,7 @@ DEFINES += PRESERVE_MAINWINDOW_STATE										# Toolbars and DockWidgets of KJVC
 DEFINES += USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY							# Enable to delay search phrase completer popup based on the search phrase activation time
 
 # Enable Search Results Update Delay:
-DEFINES += USE_SEARCH_RESULTS_UPDATE_DELAY									# Enable to delay extra staged search results update delay after the delayed phrase change notification is received
+#DEFINES += USE_SEARCH_RESULTS_UPDATE_DELAY									# Enable to delay extra staged search results update delay after the delayed phrase change notification is received
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86

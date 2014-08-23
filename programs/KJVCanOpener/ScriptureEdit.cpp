@@ -127,7 +127,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedScriptureBrowserLineHeight(qreal)), &m_dlyRerenderCompressor, SLOT(trigger()));
-	U::connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)));
+	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::QueuedConnection);
 
 	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 

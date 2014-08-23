@@ -23,12 +23,17 @@
 
 #include "BibleWordDiffListModel.h"
 
+#include "PersistentSettings.h"
+
 // ============================================================================
 
 CBibleWordDiffListModel::CBibleWordDiffListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
 	:	QAbstractListModel(parent)
 {
 	setBibleDatabase(pBibleDatabase);
+
+	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::QueuedConnection);
 }
 
 CBibleWordDiffListModel::~CBibleWordDiffListModel()
@@ -45,7 +50,7 @@ void CBibleWordDiffListModel::setBibleDatabase(CBibleDatabasePtr pBibleDatabase)
 	if (pBibleDatabase.data() != NULL) {
 		const TConcordanceList &lstConcordance = pBibleDatabase->concordanceWordList();
 		for (TConcordanceList::const_iterator itr = lstConcordance.constBegin(); itr != lstConcordance.constEnd(); ++itr) {
-			if (pBibleDatabase->renderedWord(*itr).compare(itr->word()) != 0)
+			if (itr->renderedWord().compare(itr->word()) != 0)
 				m_lstWords.append(*itr);
 		}
 	}
@@ -85,8 +90,7 @@ QVariant CBibleWordDiffListModel::data(const QModelIndex &index, int role) const
 	} else if (index.column() == 1) {
 		if ((role == Qt::DisplayRole) ||
 			(role == Qt::EditRole)) {
-			assert(m_pBibleDatabase.data() != NULL);
-			return m_pBibleDatabase->renderedWord(m_lstWords.at(ndxWord));
+			return m_lstWords.at(ndxWord).renderedWord();
 		}
 	}
 
@@ -129,6 +133,17 @@ Qt::ItemFlags CBibleWordDiffListModel::flags(const QModelIndex &index) const
 	assert((ndxWord >= 0) && (ndxWord < m_lstWords.size()));
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsSelectable;
+}
+
+void CBibleWordDiffListModel::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+{
+	Q_UNUSED(aSettings);
+
+	if (m_pBibleDatabase.data() != NULL) {
+		if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
+			setBibleDatabase(m_pBibleDatabase);		// Reset the Bible Database again to update the list, since it will be changing
+		}
+	}
 }
 
 // ============================================================================

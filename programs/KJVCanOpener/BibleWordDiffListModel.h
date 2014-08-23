@@ -54,6 +54,9 @@ public:
 
 	void setBibleDatabase(CBibleDatabasePtr pBibleDatabase);
 
+private slots:
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	TConcordanceList m_lstWords;							// List of words that have diffs

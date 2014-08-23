@@ -742,8 +742,10 @@ bool CReadDatabase::ReadWordsTable()
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
 				entryWord.m_lstAltWords.push_back(strTemp);
 				entryWord.m_lstDecomposedAltWords.push_back(CSearchStringListModel::decompose(strTemp, true));
+				entryWord.m_lstRenderedAltWords.push_back(QString());
 			}
 		}
+		m_pBibleDatabase->setRenderedWords(entryWord);
 		QString strAltWordCounts = lstFields.at(5);
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
 		unsigned int nAltCount = 0;

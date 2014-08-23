@@ -1270,6 +1270,8 @@ int CMyApplication::execute(bool bBuildDB)
 
 	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
+	qRegisterMetaType<TBibleDatabaseSettings>("TBibleDatabaseSettings");			// Needed to do queued connection of the CPersistentSettings::changedBibleDatabaseSettings()
+
 	QString strMainDatabaseUUID;
 
 	if (CPersistentSettings::instance()->settings() != NULL) {

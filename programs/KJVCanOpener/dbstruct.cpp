@@ -49,7 +49,8 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)
 {
-
+	// This one should be a Direct connection so that we update the database words immediately before users get updated:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::DirectConnection);
 }
 
 TBibleDatabaseList::~TBibleDatabaseList()
@@ -235,6 +236,16 @@ void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool
 	}
 	emit loadedBibleDatabase(pBibleDatabase);
 	emit changedBibleDatabaseList();
+}
+
+void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+{
+	Q_UNUSED(aSettings);
+
+	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
+	if (pBibleDatabase.data() != NULL) {
+		pBibleDatabase->setRenderedWords();
+	}
 }
 
 // ============================================================================
@@ -1512,17 +1523,27 @@ const CWordEntry *CBibleDatabase::wordlistEntry(const QString &strWord) const
 	return &(word->second);
 }
 
-QString CBibleDatabase::renderedWord(const CConcordanceEntry &aConcordanceEntry) const
+void CBibleDatabase::setRenderedWords()
+{
+	for (TWordListMap::iterator itrWord = m_mapWordList.begin(); itrWord != m_mapWordList.end(); ++itrWord) {
+		setRenderedWords(itrWord->second);
+	}
+}
+
+void CBibleDatabase::setRenderedWords(CWordEntry &aWordEntry) const
 {
 	bool bHideHyphens = false;
 
-	if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) && (aConcordanceEntry.isProperWord())) {
+	if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) && (aWordEntry.m_bIsProperWord)) {
 		bHideHyphens = true;
-	} else if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords) && (!aConcordanceEntry.isProperWord())) {
+	} else if ((settings().hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords) && (!aWordEntry.m_bIsProperWord)) {
 		bHideHyphens = true;
 	}
 
-	return (bHideHyphens ? CSearchStringListModel::deHyphen(aConcordanceEntry.word(), true) : aConcordanceEntry.word());
+	assert(aWordEntry.m_lstAltWords.size() == aWordEntry.m_lstRenderedAltWords.size());
+	for (int ndx = 0; ndx < aWordEntry.m_lstAltWords.size(); ++ndx) {
+		aWordEntry.m_lstRenderedAltWords[ndx] = (bHideHyphens ? CSearchStringListModel::deHyphen(aWordEntry.m_lstAltWords.at(ndx), true) : aWordEntry.m_lstAltWords.at(ndx));
+	}
 }
 
 int CBibleDatabase::concordanceIndexForWordAtIndex(uint32_t ndxNormal) const
@@ -1544,7 +1565,7 @@ QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
 		return QString();
 
 	if (bAsRendered) {
-		return renderedWord(m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)));
+		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).renderedWord();
 	} else {
 		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
 	}

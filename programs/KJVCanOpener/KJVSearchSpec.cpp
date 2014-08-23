@@ -117,7 +117,8 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	connect(ui.widgetSearchCriteria, SIGNAL(gotoIndex(const CRelIndex &)), this, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)));
 
 	// -------------------- Bible Database Settings:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)));
+	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::QueuedConnection);
 
 	// -------------------- Persistent Settings:
 	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)), Qt::QueuedConnection);
