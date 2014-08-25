@@ -565,7 +565,10 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	processAllPendingUpdateCompleter();
 
-	TParsedPhrasesList lstPhrases;
+	CSearchResultsData aSearchResultsData;
+
+	aSearchResultsData.m_SearchCriteria = ui.widgetSearchCriteria->searchCriteria();
+
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
 		assert(pPhrase != NULL);
@@ -593,16 +596,16 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		//		way it will have more things we'll discard rather than things we'll uselessly
 		//		look at:
 		int ndxInsert = 0;
-		for ( ; ndxInsert < lstPhrases.size(); ++ndxInsert) {
-			if (pPhrase->GetNumberOfMatches() < lstPhrases.at(ndxInsert)->GetNumberOfMatches()) break;
+		for ( ; ndxInsert < aSearchResultsData.m_lstParsedPhrases.size(); ++ndxInsert) {
+			if (pPhrase->GetNumberOfMatches() < aSearchResultsData.m_lstParsedPhrases.at(ndxInsert)->GetNumberOfMatches()) break;
 		}
-		lstPhrases.insert(ndxInsert, pPhrase);
+		aSearchResultsData.m_lstParsedPhrases.insert(ndxInsert, pPhrase);
 	}
 
 	// ----------------------------
 
 	// Emit that we have new search phrases and/or search criteria:
-	emit changedSearchSpec(ui.widgetSearchCriteria->searchCriteria(), lstPhrases);
+	emit changedSearchSpec(aSearchResultsData);
 
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();

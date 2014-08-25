@@ -822,7 +822,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Search Spec:
 
-	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)), this, SLOT(en_changedSearchSpec(const CSearchCriteria &, const TParsedPhrasesList &)));
+	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchResultsData &)), this, SLOT(en_changedSearchSpec(const CSearchResultsData &)));
 
 	// -------------------- Search Results List View:
 
@@ -1912,9 +1912,9 @@ void CKJVCanOpener::en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex)
 	}
 }
 
-void CKJVCanOpener::en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CKJVCanOpener::en_changedSearchSpec(const CSearchResultsData &searchResultsData)
 {
-	m_pSearchResultWidget->setParsedPhrases(aSearchCriteria, phrases);		// Setting the phrases will build all of the results and set the verse list on the model
+	m_pSearchResultWidget->setParsedPhrases(searchResultsData);		// Setting the phrases will build all of the results and set the verse list on the model
 	m_pSearchSpecWidget->enableCopySearchPhraseSummary(true);
 	// Auto-switch to Search Results mode:
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)

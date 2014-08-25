@@ -29,6 +29,7 @@
 #include "KJVSearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
 #include "DelayedExecutionTimer.h"
+#include "VerseListModel.h"
 
 #include <QWidget>
 #include <QScrollArea>
@@ -72,7 +73,7 @@ public:
 	int searchResultsUpdateDelay() const { return m_dlySearchResultsUpdate.minimumDelay()/2; }			// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
 
 signals:
-	void changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
+	void changedSearchSpec(const CSearchResultsData &searchResultsData);
 	void copySearchPhraseSummary();
 
 signals:				// Outgoing Pass-Through:

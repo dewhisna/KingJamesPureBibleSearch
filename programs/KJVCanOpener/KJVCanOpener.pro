@@ -170,6 +170,9 @@ DEFINES += USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY							# Enable to delay searc
 # Enable Search Results Update Delay:
 #DEFINES += USE_SEARCH_RESULTS_UPDATE_DELAY									# Enable to delay extra staged search results update delay after the delayed phrase change notification is received
 
+# Enable Multithreaded Search Results:
+#DEFINES += USE_MULTITHREADED_SEARCH_RESULTS									# Enable to spawn separate thread to handle calculation of Scoped Search Results for the VerseListModel
+
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
 greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64
@@ -274,6 +277,7 @@ SOURCES += \
 	SearchCompleter.cpp \
 	SearchPhraseListModel.cpp \
 	SubControls.cpp \
+	ThreadedSearchResults.cpp \
 	ToolTipEdit.cpp \
 	Translator.cpp \
 	UserNotesDatabase.cpp \
@@ -339,6 +343,7 @@ HEADERS += \
 	SearchCompleter.h \
 	SearchPhraseListModel.h \
 	SubControls.h \
+	ThreadedSearchResults.h \
 	ToolTipEdit.h \
 	Translator.h \
 	UserNotesDatabase.h \

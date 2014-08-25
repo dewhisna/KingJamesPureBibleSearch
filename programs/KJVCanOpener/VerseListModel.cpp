@@ -27,6 +27,10 @@
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+#include "ThreadedSearchResults.h"
+#endif
+
 #include <QVector>
 #include <QByteArray>
 #include <QDataStream>
@@ -824,10 +828,10 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Chapter %1 of %2 in Search Scope", "Statistics").arg(nChapterResult.first).arg(nChapterResult.second) + "\n";
 				QPair<int, int> nBookResult = zSearchResults.GetBookIndexAndCount(itrVerse);
 				strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Book %1 of %2 in Search Scope", "Statistics").arg(nBookResult.first).arg(nBookResult.second) + "\n";
-				QString strSearchScopeDescription = zSearchResults.m_SearchCriteria.searchScopeDescription();
+				QString strSearchScopeDescription = zSearchResults.m_searchResultsData.m_SearchCriteria.searchScopeDescription();
 				if (m_private.m_nViewMode != VVME_SEARCH_RESULTS_EXCLUDED) {
 					if (!strSearchScopeDescription.isEmpty()) {
-						QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+						QString strSearchWithinDescription = zSearchResults.m_searchResultsData.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 						if (!strSearchWithinDescription.isEmpty()) {
 							strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Search Scope is: %1 within %2", "Statistics").arg(strSearchScopeDescription).arg(strSearchWithinDescription) + "\n";
 						} else {
@@ -835,12 +839,12 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						}
 					}
 				} else {
-					QString strSearchWithinDescription = zSearchResults.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
+					QString strSearchWithinDescription = zSearchResults.m_searchResultsData.m_SearchCriteria.searchWithinDescription(m_private.m_pBibleDatabase);
 					if (!strSearchWithinDescription.isEmpty()) {
 						strToolTip += QString("%1    ").arg(bHeading ? "    " : "") + tr("Selected Search Text is: %1", "Statistics").arg(strSearchWithinDescription) + "\n";
 					}
 				}
-				strToolTip += itrVerse->getToolTip(zSearchResults.m_SearchCriteria, zSearchResults.m_lstParsedPhrases);
+				strToolTip += itrVerse->getToolTip(zSearchResults.m_searchResultsData);
 				if ((role != TOOLTIP_PLAINTEXT_ROLE) &&
 					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 				return strToolTip;
@@ -1783,7 +1787,7 @@ TVerseIndex CVerseListModel::resolveVerseIndex(const CRelIndex &ndxRel, const QS
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CVerseListModel::setParsedPhrases(const CSearchResultsData &searchResultsData)
 {
 	// Note: Basic setting of this list doesn't change the model, as the phrases
 	//		themselves are used primarily for building of tooltips that are
@@ -1792,18 +1796,7 @@ void CVerseListModel::setParsedPhrases(const CSearchCriteria &aSearchCriteria, c
 	//		will build and set the VerseList, which will change the model.
 	//		Therefore, the beginResetModel/endResetModel calls don't exist here,
 	//		but down in buildScopedResultsFromParsedPhrases():
-	m_searchResults.m_lstParsedPhrases.clear();
-	m_searchResultsExcluded.m_lstParsedPhrases.clear();
-	for (int ndx=0; ndx<phrases.size(); ++ndx) {
-		if (!phrases.at(ndx)->isExcluded()) {
-			m_searchResults.m_lstParsedPhrases.append(phrases.at(ndx));
-		} else {
-			m_searchResultsExcluded.m_lstParsedPhrases.append(phrases.at(ndx));
-		}
-	}
-	m_searchResults.m_SearchCriteria = aSearchCriteria;
-	m_searchResultsExcluded.m_SearchCriteria = aSearchCriteria;
-	buildScopedResultsFromParsedPhrases();
+	buildScopedResultsFromParsedPhrases(searchResultsData);
 }
 
 // ----------------------------------------------------------------------------
@@ -2654,317 +2647,6 @@ void CVerseListModel::clearAllExtraVerseIndexes()
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::buildScopedResultsFromParsedPhrases()
-{
-	TVerseListModelSearchResults &zResults = m_searchResults;
-	TVerseListModelSearchResults &zExcludedResults = m_searchResultsExcluded;
-
-	QList<TPhraseTagList::const_iterator> lstItrStart;
-	QList<TPhraseTagList::const_iterator> lstItrEnd;
-	QList<CRelIndex> lstScopedRefs;
-	QList<bool> lstNeedScope;
-	int nNumPhrases = zResults.m_lstParsedPhrases.size();
-	QList< QList<TPhraseTagList::const_iterator> > lstlstItrExclNext;		// List of List Exclusion Next Iterators so we can check for intersection without comparing the whole list (inner list is exclusions, outer list is inclusions)
-	QList<bool> lstHitExclusion;
-	int nNumExcludedPhrases = zExcludedResults.m_lstParsedPhrases.size();
-
-	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-		emit verseListAboutToChange();
-		emit beginResetModel();
-	}
-
-	zResults.m_mapVerses.clear();
-	zResults.m_lstVerseIndexes.clear();
-	zResults.m_mapExtraVerseIndexes.clear();
-	zResults.m_mapSizeHints.clear();
-
-	zExcludedResults.m_mapVerses.clear();
-	zExcludedResults.m_lstVerseIndexes.clear();
-	zExcludedResults.m_mapExtraVerseIndexes.clear();
-	zExcludedResults.m_mapSizeHints.clear();
-
-	// Note: We'll still build the "within" results even for excluded phrases.
-	//		We have to do this first so we can populate the list of iterators per inclusion phrase:
-	for (int ndx=0; ndx<nNumExcludedPhrases; ++ndx) {
-		buildWithinResultsInParsedPhrase(zExcludedResults.m_SearchCriteria, zExcludedResults.m_lstParsedPhrases.at(ndx));
-	}
-
-	lstItrStart.reserve(nNumPhrases);
-	lstItrEnd.reserve(nNumPhrases);
-	lstScopedRefs.reserve(nNumPhrases);
-	lstNeedScope.reserve(nNumPhrases);
-	lstlstItrExclNext.reserve(nNumPhrases);
-	lstHitExclusion.reserve(nNumPhrases);
-
-	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
-	//		setting the phrase size details:
-	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-		buildWithinResultsInParsedPhrase(zResults.m_SearchCriteria, zResults.m_lstParsedPhrases.at(ndx));
-		const TPhraseTagList &lstSearchResultsPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults();
-		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
-		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
-		lstScopedRefs.append(CRelIndex());
-		lstNeedScope.append(true);
-		QList<TPhraseTagList::const_iterator> lstItrExclNext;
-		lstItrExclNext.reserve(nNumExcludedPhrases);
-		for (int ndxExclusion=0; ndxExclusion<nNumExcludedPhrases; ++ndxExclusion) {
-			const TPhraseTagList &lstExcludedSearchResultsPhraseTags = zExcludedResults.m_lstParsedPhrases.at(ndxExclusion)->GetWithinPhraseTagSearchResults();
-			lstItrExclNext.append(lstExcludedSearchResultsPhraseTags.constBegin());
-		}
-		lstlstItrExclNext.append(lstItrExclNext);
-		lstHitExclusion.append(false);
-	}
-
-	// Now, we'll go through our lists and compress the results to the scope specified
-	//		for each phrase.  We'll then find the lowest valued one and see if the others
-	//		match.  If they do, we'll push all of those results onto the output.  If not,
-	//		we'll toss results for the lowest until we get a match.  When any list hits
-	//		its end, we're done and can break out since we have no more matches
-
-	bool bDone = (nNumPhrases == 0);		// We're done if we have no phrases (or phrases with results)
-	while (!bDone) {
-		uint32_t nMaxScope = 0;
-		bool bDoneAll = true;
-		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			const CParsedPhrase *phrase = zResults.m_lstParsedPhrases.at(ndx);
-			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
-			QList<TPhraseTagList::const_iterator> &lstItrExclNext = lstlstItrExclNext[ndx];
-			if (!lstNeedScope[ndx]) {
-				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
-				continue;		// Only find next scope for a phrase if we need it
-			}
-			lstItrStart[ndx] = lstItrEnd[ndx];		// Begin at the last ending position
-
-			// Go until we find one that isn't excluded:
-			while ((lstItrStart[ndx] != lstSearchResultsPhraseTags.constEnd()) &&
-				   (checkExclusion(lstItrExclNext, *lstItrStart[ndx]))) {
-				++lstItrStart[ndx];
-			}
-
-			if (lstItrStart[ndx] == lstSearchResultsPhraseTags.constEnd()) {
-				if (zResults.m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
-					bDone = true;
-					break;
-				}
-				// For unscoped, keep going and process other phrases when this one is done (no short-circuit like scoped)
-			} else {
-				bDoneAll = false;
-			}
-
-			lstHitExclusion[ndx] = false;
-			if (lstItrStart[ndx] != lstSearchResultsPhraseTags.constEnd()) {
-				lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex(), zResults.m_SearchCriteria);
-				for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
-					CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex(), zResults.m_SearchCriteria);
-					if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
-
-					// Check for exclusion, but don't advance and count exclusions as we'll need to do
-					//		that when we come back through the loop via our start index:
-					if (checkExclusion(lstItrExclNext, *lstItrEnd[ndx], true)) {
-						lstHitExclusion[ndx] = true;
-						break;
-					}
-				}
-			} else {
-				lstScopedRefs[ndx] = ScopeIndex(CRelIndex(1, 0, 0, 0), zResults.m_SearchCriteria);
-				lstItrEnd[ndx] = lstSearchResultsPhraseTags.constEnd();
-			}
-			// Here lstItrEnd will be one more than the number of matching, either the next index
-			//		off the end of the array, an exclusion, or the first non-matching entry.  So the scoped
-			//		area is from lstItrStart to lstItrEnd-1.
-			nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
-			lstNeedScope[ndx] = false;
-		}
-		if (zResults.m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
-			if (bDone) continue;		// For scoped, if we run out of phrase matches on any phrase, we're done
-		} else {
-			// For unscoped, if we run out of matches on all phrases, we're done
-			if (bDoneAll) {
-				bDone = true;
-				continue;
-			}
-		}
-		// Now, check the scoped references.  If they match for all indexes, we'll push the
-		//	results to our output and set flags to get all new scopes.  Otherwise, compare them
-		//	all against our maximum scope value and tag any that's less than that as needing a
-		//	new scope (they weren't matches).  Then loop back until we've either pushed all
-		//	results or run out of matches.
-		bool bMatch = true;
-		bool bHitExclusion = false;
-		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-			if (lstScopedRefs[ndx].index() != nMaxScope) {
-				lstNeedScope[ndx] = true;
-				bMatch = false;
-			}
-			if (lstHitExclusion[ndx]) bHitExclusion = true;
-		}
-		if (bMatch) {
-			// We got a match, so push results to output and flag for new scopes:
-			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
-				TPhraseTagList &lstScopedPhraseTags = zResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
-				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
-				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
-					lstScopedPhraseTags.append(*itr);
-					CRelIndex ndxNextRelative = itr->relIndex();
-					ndxNextRelative.setWord(1);
-					if (zResults.m_mapVerses.contains(ndxNextRelative)) {
-						zResults.m_mapVerses[ndxNextRelative].addPhraseTag(*itr);
-					} else {
-						zResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, *itr));
-					}
-				}
-				if (!bHitExclusion) {
-					lstNeedScope[ndx] = true;
-				} else {
-					// If we hit an exclusion on one list, the others don't need to move to next
-					//		scope, only the one we hit the exclusion on:
-					if (!lstHitExclusion[ndx]) {
-						lstNeedScope[ndx] = false;
-						lstItrStart[ndx] = lstItrEnd[ndx];		// But we've already consumed the search results (don't keep them or we'll get an extra copy)
-					} else {
-						lstNeedScope[ndx] = true;
-					}
-				}
-			}
-		}
-	}
-
-	zResults.m_lstVerseIndexes.reserve(zResults.m_mapVerses.size());
-	for (CVerseMap::iterator itr = zResults.m_mapVerses.begin(); (itr != zResults.m_mapVerses.end()); ++itr) {
-		itr->sortPhraseTags();
-		zResults.m_lstVerseIndexes.append(itr.key());
-	}
-
-	zExcludedResults.m_lstVerseIndexes.reserve(zExcludedResults.m_mapVerses.size());
-	for (CVerseMap::iterator itr = zExcludedResults.m_mapVerses.begin(); (itr != zExcludedResults.m_mapVerses.end()); ++itr) {
-		itr->sortPhraseTags();
-		zExcludedResults.m_lstVerseIndexes.append(itr.key());
-	}
-
-	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-		emit endResetModel();
-		emit verseListChanged();
-	}
-}
-
-bool CVerseListModel::checkExclusion(QList<TPhraseTagList::const_iterator> &lstItrExclNext, const TPhraseTag &tag, bool bPreserveLastItr)
-{
-	TVerseListModelSearchResults &zExcludedResults = m_searchResultsExcluded;
-	bool bExclude = false;
-
-	TTagBoundsPair tbpTag(tag, m_private.m_pBibleDatabase.data());
-
-	for (int ndx=0; ndx<lstItrExclNext.size(); ++ndx) {
-		// If inclusion tag is less than exclusion target, it can't possibly be completely contained in exclusion:
-		while ((lstItrExclNext.at(ndx) != zExcludedResults.m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResults().constEnd()) &&
-			   (tbpTag.lo() >= m_private.m_pBibleDatabase->NormalizeIndex(lstItrExclNext.at(ndx)->relIndex()))) {
-			if (lstItrExclNext.at(ndx)->bounds(m_private.m_pBibleDatabase.data()).completelyContains(tbpTag)) {
-				bExclude = true;
-				if (!bPreserveLastItr) {
-					zExcludedResults.m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst().append(tag);
-				} else {
-					break;		// Don't increment last index when we're preserving so we can use it again in Start logic
-				}
-
-			}
-			++lstItrExclNext[ndx];
-		}
-	}
-
-	if (bExclude && !bPreserveLastItr) {
-		CRelIndex ndxNextRelative = tag.relIndex();
-		ndxNextRelative.setWord(1);
-		// Note: The tag has already been added to the ScopedPhraseTags above in the
-		//			check for intersection.
-		if (zExcludedResults.m_mapVerses.contains(ndxNextRelative)) {
-			zExcludedResults.m_mapVerses[ndxNextRelative].addPhraseTag(tag);
-		} else {
-			zExcludedResults.m_mapVerses.insert(ndxNextRelative, CVerseListItem(zExcludedResults.makeVerseIndex(ndxNextRelative), m_private.m_pBibleDatabase, tag));
-		}
-	}
-
-	return bExclude;
-}
-
-void CVerseListModel::buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase) const
-{
-	const TPhraseTagList &lstPhraseTags = pParsedPhrase->GetPhraseTagSearchResults();
-	TPhraseTagList &lstWithinPhraseTags = pParsedPhrase->GetWithinPhraseTagSearchResultsNonConst();
-
-	if (searchCriteria.withinIsEntireBible(m_private.m_pBibleDatabase)) {
-		lstWithinPhraseTags = lstPhraseTags;
-		return;
-	}
-
-	lstWithinPhraseTags.reserve(lstPhraseTags.size());
-	for (TPhraseTagList::const_iterator itrTags = lstPhraseTags.constBegin(); itrTags != lstPhraseTags.constEnd(); ++itrTags) {
-		if (searchCriteria.indexIsWithin(itrTags->relIndex())) lstWithinPhraseTags.append(*itrTags);
-	}
-}
-
-CRelIndex CVerseListModel::ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria)
-{
-	assert(m_private.m_pBibleDatabase.data() != NULL);
-
-	CRelIndex indexScoped;
-
-	switch (searchCriteria.searchScopeMode()) {
-		case (CSearchCriteria::SSME_UNSCOPED):
-		case (CSearchCriteria::SSME_WHOLE_BIBLE):
-			// For Whole Bible and Unscoped, we'll set the Book to 1 so that anything in the Bible matches:
-			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
-			break;
-		case (CSearchCriteria::SSME_TESTAMENT):
-			// For Testament, set the Book to the 1st Book of the corresponding Testament:
-			if (index.book()) {
-				if (index.book() <= m_private.m_pBibleDatabase->bibleEntry().m_nNumBk) {
-					const CBookEntry &book = *m_private.m_pBibleDatabase->bookEntry(index.book());
-					unsigned int nTestament = book.m_nTstNdx;
-					unsigned int nBook = 1;
-					for (unsigned int i=1; i<nTestament; ++i)
-						nBook += m_private.m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
-					indexScoped = CRelIndex(nBook, 0, 0 ,0);
-				}
-			}
-			break;
-		case (CSearchCriteria::SSME_CATEGORY):
-			// For Category, set the Book to the 1st Book of the corresponding Category:
-			if (index.book()) {
-				uint32_t nCat = m_private.m_pBibleDatabase->bookCategory(index);
-				if (nCat) {
-					assert(m_private.m_pBibleDatabase->bookCategoryEntry(nCat) != NULL);
-					const CBookCategoryEntry &category = *m_private.m_pBibleDatabase->bookCategoryEntry(nCat);
-					if (category.m_setBooksNum.find(index.book()) != category.m_setBooksNum.end()) {
-						// Get first book of the category for the scope:
-						indexScoped = CRelIndex(*(category.m_setBooksNum.begin()), 0, 0, 0);
-					}
-				}
-			}
-			break;
-		case (CSearchCriteria::SSME_BOOK):
-			// For Book, mask off Chapter, Verse, and Word:
-			indexScoped = CRelIndex(index.book(), 0, 0, 0);
-			break;
-		case (CSearchCriteria::SSME_CHAPTER):
-			// For Chapter, mask off Verse and Word:
-			indexScoped = CRelIndex(index.book(), index.chapter(), 0, 0);
-			break;
-		case (CSearchCriteria::SSME_VERSE):
-			// For Verse, mask off word:
-			indexScoped = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
-			break;
-		default:
-			assert(false);
-			break;
-	}
-
-	return indexScoped;
-}
-
-// ----------------------------------------------------------------------------
-
 void CVerseListModel::setFont(const QFont& aFont)
 {
 	m_private.m_font = aFont;
@@ -2999,6 +2681,414 @@ void CVerseListModel::en_changedCopyOptions()
 	m_private.m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
 }
 
+// ----------------------------------------------------------------------------
+
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+
+#else
+void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
+{
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
+
+	CSearchResultsProcess srp(m_private.m_pBibleDatabase, searchResultsData, m_searchResults.m_mapVerses, m_searchResultsExcluded.m_mapVerses);
+	srp.buildScopedResultsFromParsedPhrases();
+	srp.copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
+	srp.copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
+
+	m_searchResults.m_mapExtraVerseIndexes.clear();
+	m_searchResults.m_mapSizeHints.clear();
+
+	m_searchResultsExcluded.m_mapExtraVerseIndexes.clear();
+	m_searchResultsExcluded.m_mapSizeHints.clear();
+
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
+}
+#endif
+
+// ============================================================================
+
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData)
+	:	CSearchResultsData(searchResultsData),
+		m_pBibleDatabase(pBibleDatabase)
+#else
+CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl)
+	:	CSearchResultsData(searchResultsData),
+		m_pBibleDatabase(pBibleDatabase),
+		m_mapVersesIncl(mapVersesIncl),
+		m_mapVersesExcl(mapVersesExcl)
+#endif
+{
+	assert(pBibleDatabase.data() != NULL);
+
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		assert(m_lstParsedPhrases.at(ndx) != NULL);
+		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+			m_lstCopyParsedPhrasesIncl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
+			m_lstParsedPhrasesIncl.append(m_lstCopyParsedPhrasesIncl.last().data());
+#else
+			m_lstParsedPhrasesIncl.append(m_lstParsedPhrases.at(ndx));
+#endif
+		} else {
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+			m_lstCopyParsedPhrasesExcl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
+			m_lstParsedPhrasesExcl.append(m_lstCopyParsedPhrasesExcl.last().data());
+#else
+			m_lstParsedPhrasesExcl.append(m_lstParsedPhrases.at(ndx));
+#endif
+		}
+	}
+}
+
+void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes)
+{
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	int ndxIncl = 0;
+	assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+#endif
+	searchResultsData.m_lstParsedPhrases.clear();
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
+			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+			assert(*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesIncl.at(ndxIncl).data());		// Our split phrases had better match our sources
+			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
+			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
+			++ndxIncl;
+#endif
+		}
+	}
+	searchResultsData.m_SearchCriteria = m_SearchCriteria;
+	lstVerseIndexes.clear();
+	lstVerseIndexes.reserve(m_mapVersesIncl.size());
+	for (CVerseMap::iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
+		lstVerseIndexes.append(itr.key());
+	}
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	mapVerseData = m_mapVersesIncl;
+#else
+	Q_UNUSED(mapVerseData);
+#endif
+}
+
+void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes)
+{
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	int ndxExcl = 0;
+	assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+#endif
+	searchResultsData.m_lstParsedPhrases.clear();
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
+			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+			assert(*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesExcl.at(ndxExcl).data());		// Our split phrases had better match our sources
+			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
+			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
+			++ndxExcl;
+#endif
+		}
+	}
+	searchResultsData.m_SearchCriteria = m_SearchCriteria;
+	lstVerseIndexes.clear();
+	lstVerseIndexes.reserve(m_mapVersesExcl.size());
+	for (CVerseMap::iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
+		lstVerseIndexes.append(itr.key());
+	}
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	mapVerseData = m_mapVersesExcl;
+#else
+	Q_UNUSED(mapVerseData);
+#endif
+}
+
+void CSearchResultsProcess::buildScopedResultsFromParsedPhrases()
+{
+	m_mapVersesIncl.clear();
+	m_mapVersesExcl.clear();
+
+	QList<TPhraseTagList::const_iterator> lstItrStart;
+	QList<TPhraseTagList::const_iterator> lstItrEnd;
+	QList<CRelIndex> lstScopedRefs;
+	QList<bool> lstNeedScope;
+	int nNumPhrases = m_lstParsedPhrasesIncl.size();
+	QList< QList<TPhraseTagList::const_iterator> > lstlstItrExclNext;		// List of List Exclusion Next Iterators so we can check for intersection without comparing the whole list (inner list is exclusions, outer list is inclusions)
+	QList<bool> lstHitExclusion;
+	int nNumExcludedPhrases = m_lstParsedPhrasesExcl.size();
+
+	// Note: We'll still build the "within" results even for excluded phrases.
+	//		We have to do this first so we can populate the list of iterators per inclusion phrase:
+	for (int ndx=0; ndx<nNumExcludedPhrases; ++ndx) {
+		buildWithinResultsInParsedPhrase(m_lstParsedPhrasesExcl.at(ndx));
+	}
+
+	lstItrStart.reserve(nNumPhrases);
+	lstItrEnd.reserve(nNumPhrases);
+	lstScopedRefs.reserve(nNumPhrases);
+	lstNeedScope.reserve(nNumPhrases);
+	lstlstItrExclNext.reserve(nNumPhrases);
+	lstHitExclusion.reserve(nNumPhrases);
+
+	// Fetch results from all phrases and build a list of lists, denormalizing entries, and
+	//		setting the phrase size details:
+	for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+		buildWithinResultsInParsedPhrase(m_lstParsedPhrasesIncl.at(ndx));
+		const TPhraseTagList &lstSearchResultsPhraseTags = m_lstParsedPhrasesIncl.at(ndx)->GetWithinPhraseTagSearchResults();
+		lstItrStart.append(lstSearchResultsPhraseTags.constBegin());
+		lstItrEnd.append(lstSearchResultsPhraseTags.constBegin());
+		lstScopedRefs.append(CRelIndex());
+		lstNeedScope.append(true);
+		QList<TPhraseTagList::const_iterator> lstItrExclNext;
+		lstItrExclNext.reserve(nNumExcludedPhrases);
+		for (int ndxExclusion=0; ndxExclusion<nNumExcludedPhrases; ++ndxExclusion) {
+			const TPhraseTagList &lstExcludedSearchResultsPhraseTags = m_lstParsedPhrasesExcl.at(ndxExclusion)->GetWithinPhraseTagSearchResults();
+			lstItrExclNext.append(lstExcludedSearchResultsPhraseTags.constBegin());
+		}
+		lstlstItrExclNext.append(lstItrExclNext);
+		lstHitExclusion.append(false);
+	}
+
+	// Now, we'll go through our lists and compress the results to the scope specified
+	//		for each phrase.  We'll then find the lowest valued one and see if the others
+	//		match.  If they do, we'll push all of those results onto the output.  If not,
+	//		we'll toss results for the lowest until we get a match.  When any list hits
+	//		its end, we're done and can break out since we have no more matches
+
+	bool bDone = (nNumPhrases == 0);		// We're done if we have no phrases (or phrases with results)
+	while (!bDone) {
+		uint32_t nMaxScope = 0;
+		bool bDoneAll = true;
+		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+			const CParsedPhrase *phrase = m_lstParsedPhrasesIncl.at(ndx);
+			const TPhraseTagList &lstSearchResultsPhraseTags = phrase->GetWithinPhraseTagSearchResults();
+			QList<TPhraseTagList::const_iterator> &lstItrExclNext = lstlstItrExclNext[ndx];
+			if (!lstNeedScope[ndx]) {
+				nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
+				continue;		// Only find next scope for a phrase if we need it
+			}
+			lstItrStart[ndx] = lstItrEnd[ndx];		// Begin at the last ending position
+
+			// Go until we find one that isn't excluded:
+			while ((lstItrStart[ndx] != lstSearchResultsPhraseTags.constEnd()) &&
+				   (checkExclusion(lstItrExclNext, *lstItrStart[ndx]))) {
+				++lstItrStart[ndx];
+			}
+
+			if (lstItrStart[ndx] == lstSearchResultsPhraseTags.constEnd()) {
+				if (m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
+					bDone = true;
+					break;
+				}
+				// For unscoped, keep going and process other phrases when this one is done (no short-circuit like scoped)
+			} else {
+				bDoneAll = false;
+			}
+
+			lstHitExclusion[ndx] = false;
+			if (lstItrStart[ndx] != lstSearchResultsPhraseTags.constEnd()) {
+				lstScopedRefs[ndx] = ScopeIndex(lstItrStart[ndx]->relIndex());
+				for (lstItrEnd[ndx] = lstItrStart[ndx]+1; lstItrEnd[ndx] != lstSearchResultsPhraseTags.constEnd(); ++lstItrEnd[ndx]) {
+					CRelIndex ndxScopedTemp = ScopeIndex(lstItrEnd[ndx]->relIndex());
+					if (lstScopedRefs[ndx].index() != ndxScopedTemp.index()) break;
+
+					// Check for exclusion, but don't advance and count exclusions as we'll need to do
+					//		that when we come back through the loop via our start index:
+					if (checkExclusion(lstItrExclNext, *lstItrEnd[ndx], true)) {
+						lstHitExclusion[ndx] = true;
+						break;
+					}
+				}
+			} else {
+				lstScopedRefs[ndx] = ScopeIndex(CRelIndex(1, 0, 0, 0));
+				lstItrEnd[ndx] = lstSearchResultsPhraseTags.constEnd();
+			}
+			// Here lstItrEnd will be one more than the number of matching, either the next index
+			//		off the end of the array, an exclusion, or the first non-matching entry.  So the scoped
+			//		area is from lstItrStart to lstItrEnd-1.
+			nMaxScope = qMax(nMaxScope, lstScopedRefs[ndx].index());
+			lstNeedScope[ndx] = false;
+		}
+		if (m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) {
+			if (bDone) continue;		// For scoped, if we run out of phrase matches on any phrase, we're done
+		} else {
+			// For unscoped, if we run out of matches on all phrases, we're done
+			if (bDoneAll) {
+				bDone = true;
+				continue;
+			}
+		}
+		// Now, check the scoped references.  If they match for all indexes, we'll push the
+		//	results to our output and set flags to get all new scopes.  Otherwise, compare them
+		//	all against our maximum scope value and tag any that's less than that as needing a
+		//	new scope (they weren't matches).  Then loop back until we've either pushed all
+		//	results or run out of matches.
+		bool bMatch = true;
+		bool bHitExclusion = false;
+		for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+			if (lstScopedRefs[ndx].index() != nMaxScope) {
+				lstNeedScope[ndx] = true;
+				bMatch = false;
+			}
+			if (lstHitExclusion[ndx]) bHitExclusion = true;
+		}
+		if (bMatch) {
+			// We got a match, so push results to output and flag for new scopes:
+			for (int ndx=0; ndx<nNumPhrases; ++ndx) {
+				TPhraseTagList &lstScopedPhraseTags = m_lstParsedPhrasesIncl.at(ndx)->GetScopedPhraseTagSearchResultsNonConst();
+				lstScopedPhraseTags.reserve(lstScopedPhraseTags.size() + std::distance(lstItrStart[ndx], lstItrEnd[ndx]));
+				for (TPhraseTagList::const_iterator itr = lstItrStart[ndx]; itr != lstItrEnd[ndx]; ++itr) {
+					lstScopedPhraseTags.append(*itr);
+					CRelIndex ndxNextRelative = itr->relIndex();
+					ndxNextRelative.setWord(1);
+					if (m_mapVersesIncl.contains(ndxNextRelative)) {
+						m_mapVersesIncl[ndxNextRelative].addPhraseTag(*itr);
+					} else {
+						m_mapVersesIncl.insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS), m_pBibleDatabase, *itr));
+					}
+				}
+				if (!bHitExclusion) {
+					lstNeedScope[ndx] = true;
+				} else {
+					// If we hit an exclusion on one list, the others don't need to move to next
+					//		scope, only the one we hit the exclusion on:
+					if (!lstHitExclusion[ndx]) {
+						lstNeedScope[ndx] = false;
+						lstItrStart[ndx] = lstItrEnd[ndx];		// But we've already consumed the search results (don't keep them or we'll get an extra copy)
+					} else {
+						lstNeedScope[ndx] = true;
+					}
+				}
+			}
+		}
+	}
+
+	for (CVerseMap::iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
+		itr->sortPhraseTags();
+	}
+	for (CVerseMap::iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
+		itr->sortPhraseTags();
+	}
+}
+
+bool CSearchResultsProcess::checkExclusion(QList<TPhraseTagList::const_iterator> &lstItrExclNext, const TPhraseTag &tag, bool bPreserveLastItr)
+{
+	bool bExclude = false;
+
+	TTagBoundsPair tbpTag(tag, m_pBibleDatabase.data());
+
+	for (int ndx=0; ndx<lstItrExclNext.size(); ++ndx) {
+		// If inclusion tag is less than exclusion target, it can't possibly be completely contained in exclusion:
+		while ((lstItrExclNext.at(ndx) != m_lstParsedPhrasesExcl.at(ndx)->GetWithinPhraseTagSearchResults().constEnd()) &&
+			   (tbpTag.lo() >= m_pBibleDatabase->NormalizeIndex(lstItrExclNext.at(ndx)->relIndex()))) {
+			if (lstItrExclNext.at(ndx)->bounds(m_pBibleDatabase.data()).completelyContains(tbpTag)) {
+				bExclude = true;
+				if (!bPreserveLastItr) {
+					m_lstParsedPhrasesExcl.at(ndx)->GetScopedPhraseTagSearchResultsNonConst().append(tag);
+				} else {
+					break;		// Don't increment last index when we're preserving so we can use it again in Start logic
+				}
+
+			}
+			++lstItrExclNext[ndx];
+		}
+	}
+
+	if (bExclude && !bPreserveLastItr) {
+		CRelIndex ndxNextRelative = tag.relIndex();
+		ndxNextRelative.setWord(1);
+		// Note: The tag has already been added to the ScopedPhraseTags above in the
+		//			check for intersection.
+		if (m_mapVersesExcl.contains(ndxNextRelative)) {
+			m_mapVersesExcl[ndxNextRelative].addPhraseTag(tag);
+		} else {
+			m_mapVersesExcl.insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS_EXCLUDED), m_pBibleDatabase, tag));
+		}
+	}
+
+	return bExclude;
+}
+
+void CSearchResultsProcess::buildWithinResultsInParsedPhrase(const CParsedPhrase *pParsedPhrase) const
+{
+	const TPhraseTagList &lstPhraseTags = pParsedPhrase->GetPhraseTagSearchResults();
+	TPhraseTagList &lstWithinPhraseTags = pParsedPhrase->GetWithinPhraseTagSearchResultsNonConst();
+
+	if (m_SearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+		lstWithinPhraseTags = lstPhraseTags;
+		return;
+	}
+
+	lstWithinPhraseTags.reserve(lstPhraseTags.size());
+	for (TPhraseTagList::const_iterator itrTags = lstPhraseTags.constBegin(); itrTags != lstPhraseTags.constEnd(); ++itrTags) {
+		if (m_SearchCriteria.indexIsWithin(itrTags->relIndex())) lstWithinPhraseTags.append(*itrTags);
+	}
+}
+
+CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
+{
+	CRelIndex indexScoped;
+
+	switch (m_SearchCriteria.searchScopeMode()) {
+		case (CSearchCriteria::SSME_UNSCOPED):
+		case (CSearchCriteria::SSME_WHOLE_BIBLE):
+			// For Whole Bible and Unscoped, we'll set the Book to 1 so that anything in the Bible matches:
+			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
+			break;
+		case (CSearchCriteria::SSME_TESTAMENT):
+			// For Testament, set the Book to the 1st Book of the corresponding Testament:
+			if (index.book()) {
+				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
+					const CBookEntry &book = *m_pBibleDatabase->bookEntry(index.book());
+					unsigned int nTestament = book.m_nTstNdx;
+					unsigned int nBook = 1;
+					for (unsigned int i=1; i<nTestament; ++i)
+						nBook += m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
+					indexScoped = CRelIndex(nBook, 0, 0 ,0);
+				}
+			}
+			break;
+		case (CSearchCriteria::SSME_CATEGORY):
+			// For Category, set the Book to the 1st Book of the corresponding Category:
+			if (index.book()) {
+				uint32_t nCat = m_pBibleDatabase->bookCategory(index);
+				if (nCat) {
+					assert(m_pBibleDatabase->bookCategoryEntry(nCat) != NULL);
+					const CBookCategoryEntry &category = *m_pBibleDatabase->bookCategoryEntry(nCat);
+					if (category.m_setBooksNum.find(index.book()) != category.m_setBooksNum.end()) {
+						// Get first book of the category for the scope:
+						indexScoped = CRelIndex(*(category.m_setBooksNum.begin()), 0, 0, 0);
+					}
+				}
+			}
+			break;
+		case (CSearchCriteria::SSME_BOOK):
+			// For Book, mask off Chapter, Verse, and Word:
+			indexScoped = CRelIndex(index.book(), 0, 0, 0);
+			break;
+		case (CSearchCriteria::SSME_CHAPTER):
+			// For Chapter, mask off Verse and Word:
+			indexScoped = CRelIndex(index.book(), index.chapter(), 0, 0);
+			break;
+		case (CSearchCriteria::SSME_VERSE):
+			// For Verse, mask off word:
+			indexScoped = CRelIndex(index.book(), index.chapter(), index.verse(), 0);
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	return indexScoped;
+}
 
 // ============================================================================
 

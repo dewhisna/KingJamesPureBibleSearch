@@ -163,7 +163,7 @@ protected slots:
 	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_copySearchPhraseSummary();
 	void en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex);
-	void en_changedSearchSpec(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);
+	void en_changedSearchSpec(const CSearchResultsData &searchResultsData);
 
 	void en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferenceEditor);
 	void en_addSearchResultsEditMenu(bool bAdd);

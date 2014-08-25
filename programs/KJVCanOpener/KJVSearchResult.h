@@ -130,7 +130,7 @@ public slots:
 	virtual void setShowMissingLeafs(bool bShowMissing);
 	virtual void setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults);
 	virtual void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
-	virtual void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	virtual void setParsedPhrases(const CSearchResultsData &searchResultsData);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 
 	virtual void showPassageNavigator();
 	virtual void showDetails();
@@ -274,7 +274,7 @@ public slots:
 	void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	void showPassageNavigator();
 	void showDetails();
-	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
+	void setParsedPhrases(const CSearchResultsData &searchResultsData);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 	void keywordListChanged(bool bInitialLoad = false);
 
 signals:			// Outgoing Pass-Through:

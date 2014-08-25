@@ -55,6 +55,7 @@ class CParsedPhrase;
 class CSubPhrase {
 public:
 	CSubPhrase();
+	CSubPhrase(const CSubPhrase &aSrc);
 	~CSubPhrase();
 
 	int GetMatchLevel() const;
@@ -95,7 +96,10 @@ class CParsedPhrase
 {
 public:
 	CParsedPhrase(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), bool bCaseSensitive = false, bool bAccentSensitive = false, bool bExclude = false);
+	CParsedPhrase(const CParsedPhrase &aSrc);
 	virtual ~CParsedPhrase();
+
+	CParsedPhrase & operator=(const CParsedPhrase &aSrc);
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
 	const TConcordanceList &nextWordsList() const;
@@ -200,10 +204,10 @@ protected:
 	int m_nActiveSubPhrase;
 
 	TSubPhraseList m_lstSubPhrases;
-
 };
 
-typedef QList <const CParsedPhrase *> TParsedPhrasesList;
+typedef QList< const CParsedPhrase* > TParsedPhrasesList;
+typedef QList< QSharedPointer<CParsedPhrase> > TSharedParsedPhrasesList;
 
 class CSelectedPhrase
 {

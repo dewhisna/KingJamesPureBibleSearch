@@ -630,9 +630,9 @@ void CSearchResultsTreeView::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 	vlmodel()->setSingleCrossRefSourceIndex(ndx);
 }
 
-void CSearchResultsTreeView::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CSearchResultsTreeView::setParsedPhrases(const CSearchResultsData &searchResultsData)
 {
-	vlmodel()->setParsedPhrases(aSearchCriteria, phrases);
+	vlmodel()->setParsedPhrases(searchResultsData);
 }
 
 void CSearchResultsTreeView::showPassageNavigator()
@@ -1493,11 +1493,11 @@ void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 	m_pSearchResultsTreeView->setSingleCrossRefSourceIndex(ndx);
 }
 
-void CKJVSearchResult::setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases)
+void CKJVSearchResult::setParsedPhrases(const CSearchResultsData &searchResultsData)
 {
-	m_LastSearchCriteria = aSearchCriteria;
-	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, phrases);
-	m_nLastSearchNumPhrases = phrases.size();
+	m_LastSearchCriteria = searchResultsData.m_SearchCriteria;
+	m_pSearchResultsTreeView->setParsedPhrases(searchResultsData);
+	m_nLastSearchNumPhrases = searchResultsData.m_lstParsedPhrases.size();
 
 	// ------------------------------------------------------------------------
 

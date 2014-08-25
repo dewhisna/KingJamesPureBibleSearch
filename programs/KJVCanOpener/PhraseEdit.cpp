@@ -125,6 +125,18 @@ CSubPhrase::CSubPhrase()
 
 }
 
+CSubPhrase::CSubPhrase(const CSubPhrase &aSrc)
+	:	m_nLevel(aSrc.m_nLevel),
+		m_lstMatchMapping(aSrc.m_lstMatchMapping),
+		m_nCursorLevel(aSrc.m_nCursorLevel),
+		m_lstNextWords(aSrc.m_lstNextWords),
+		m_lstWords(aSrc.m_lstWords),
+		m_nCursorWord(aSrc.m_nCursorWord),
+		m_strCursorWord(aSrc.m_strCursorWord)
+{
+
+}
+
 CSubPhrase::~CSubPhrase()
 {
 
@@ -231,6 +243,33 @@ CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensiti
 		m_nActiveSubPhrase(-1)
 {
 
+}
+
+CParsedPhrase::CParsedPhrase(const CParsedPhrase &aSrc)
+{
+	*this = aSrc;
+}
+
+CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
+{
+	m_pBibleDatabase = aSrc.m_pBibleDatabase;
+	m_bIsDuplicate = aSrc.m_bIsDuplicate;
+	m_bIsDisabled = aSrc.m_bIsDisabled;
+	m_lstScopedPhraseTagResults = aSrc.m_lstScopedPhraseTagResults;
+	m_lstWithinPhraseTagResults = aSrc.m_lstWithinPhraseTagResults;
+	m_bCaseSensitive = aSrc.m_bCaseSensitive;
+	m_bAccentSensitive = aSrc.m_bAccentSensitive;
+	m_bExclude = aSrc.m_bExclude;
+	m_nActiveSubPhrase = aSrc.m_nActiveSubPhrase;
+
+	for (int ndx = 0; ndx < aSrc.m_lstSubPhrases.size(); ++ndx) {
+		QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase(*aSrc.m_lstSubPhrases.at(ndx).data()));
+		m_lstSubPhrases.append(subPhrase);
+	}
+
+	clearCache();
+
+	return *this;
 }
 
 CParsedPhrase::~CParsedPhrase()

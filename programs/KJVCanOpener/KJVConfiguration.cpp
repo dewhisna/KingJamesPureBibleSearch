@@ -1003,11 +1003,10 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	}
 	m_previewSearchPhrase.ParsePhrase(strTrumpet);
 	m_previewSearchPhrase.FindWords();
-	TParsedPhrasesList lstPhrases;
-	lstPhrases.append(&m_previewSearchPhrase);
-	CSearchCriteria aSearchCriteria;
-	aSearchCriteria.setSearchWithin(m_pSearchResultsTreeView->vlmodel()->bibleDatabase());
-	m_pSearchResultsTreeView->setParsedPhrases(aSearchCriteria, lstPhrases);
+	CSearchResultsData aSearchResultsData;
+	aSearchResultsData.m_SearchCriteria.setSearchWithin(m_pSearchResultsTreeView->vlmodel()->bibleDatabase());
+	aSearchResultsData.m_lstParsedPhrases.append(&m_previewSearchPhrase);
+	m_pSearchResultsTreeView->setParsedPhrases(aSearchResultsData);
 	m_pSearchResultsTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 	m_pSearchResultsTreeView->setTreeMode(CVerseListModel::VTME_TREE_CHAPTERS);
 	m_pSearchResultsTreeView->expandAll();

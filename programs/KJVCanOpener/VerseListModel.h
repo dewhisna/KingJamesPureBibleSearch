@@ -146,6 +146,17 @@ struct TVerseIndexListSortPredicate {
 
 // ============================================================================
 
+class CSearchResultsData
+{
+public:
+	// For SearchResults, this list will be the Included phrases.  For
+	//		ExcludedSearchResults, this list will be the Excluded phrases:
+	CSearchCriteria m_SearchCriteria;			// Search criteria set at the time of generating these results
+	TParsedPhrasesList m_lstParsedPhrases;		// Pointer to Parsed phrases
+};
+
+// ============================================================================
+
 class CVerseListItem
 {
 public:
@@ -218,7 +229,7 @@ public:
 		return strHeading;
 	}
 
-	inline QString getToolTip(const CSearchCriteria &searchCriteria, const TParsedPhrasesList &phrases = TParsedPhrasesList()) const {
+	inline QString getToolTip(const CSearchResultsData &searchResultsData) const {
 		assert(m_pBibleDatabase.data() != NULL);
 		if (m_pBibleDatabase.data() == NULL) return QString();
 		QString strToolTip;
@@ -231,20 +242,20 @@ public:
 				strToolTip += QString("[%1] \"%2\" %3 ").arg(ndxTag.word()).arg(getPhrase(ndx)).arg(QObject::tr("is", "Statistics"));
 			}
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
-			for (int ndxPhrase = 0; ndxPhrase < phrases.size(); ++ndxPhrase) {
-				const CParsedPhrase *pPhrase = phrases.at(ndxPhrase);
+			for (int ndxPhrase = 0; ndxPhrase < searchResultsData.m_lstParsedPhrases.size(); ++ndxPhrase) {
+				const CParsedPhrase *pPhrase = searchResultsData.m_lstParsedPhrases.at(ndxPhrase);
 				assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
-					QString strSearchWithinDescription = searchCriteria.searchWithinDescription(m_pBibleDatabase);
-					QString strSearchScopeDescription = searchCriteria.searchScopeDescription();
+					QString strSearchWithinDescription = searchResultsData.m_SearchCriteria.searchWithinDescription(m_pBibleDatabase);
+					QString strSearchScopeDescription = searchResultsData.m_SearchCriteria.searchScopeDescription();
 					if (pPhrase->GetPhraseTagSearchResults().contains(phraseTags().at(ndx))) {
 						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results in Entire Bible", "Statistics")
 											.arg(pPhrase->GetPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
 											.arg(pPhrase->GetPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase()) + "\n";
 					}
-					if ((!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
+					if ((!searchResultsData.m_SearchCriteria.withinIsEntireBible(m_pBibleDatabase)) &&
 						(!strSearchWithinDescription.isEmpty()) &&
 						(pPhrase->GetWithinPhraseTagSearchResults().contains(phraseTags().at(ndx)))) {
 						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results within %4", "Statistics")
@@ -255,7 +266,7 @@ public:
 					}
 					if (strSearchScopeDescription.isEmpty()) strSearchScopeDescription = QObject::tr("in Search Scope", "Statistics");
 					if ((pPhrase->GetScopedPhraseTagSearchResults().contains(phraseTags().at(ndx))) &&
-						(searchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) &&
+						(searchResultsData.m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED) &&
 						(!strSearchScopeDescription.isEmpty())) {
 						strToolTip += "    " + QObject::tr("%1 of %2 of Search Phrase \"%3\" Results %4", "Statistics")
 											.arg(pPhrase->GetScopedPhraseTagSearchResults().indexOf(phraseTags().at(ndx)) + 1)
@@ -271,7 +282,7 @@ public:
 											.arg(pPhrase->GetPhraseTagSearchResults().size())
 											.arg(pPhrase->phrase()) + "\n";
 					}
-					if (!searchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
+					if (!searchResultsData.m_SearchCriteria.withinIsEntireBible(m_pBibleDatabase)) {
 						int nResultsWithinIndex = pPhrase->GetWithinPhraseTagSearchResults().findIntersectingIndex(m_pBibleDatabase.data(), phraseTags().at(ndx));
 						if (nResultsWithinIndex != -1) {
 							strToolTip += "    " + QObject::tr("%1 of %2 of Excluded Search Phrase \"%3\" Results in Selected Search Text", "Statistics")
@@ -431,6 +442,47 @@ typedef QMap<CRelIndex, CVerseListItem> CVerseMap;
 
 // ============================================================================
 
+// Forward Declaration:
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+class CThreadedSearchResultCtrl;
+#endif
+
+class CSearchResultsProcess : private CSearchResultsData
+{
+public:
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData);
+#else
+	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl);
+#endif
+
+	void copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes);
+	void copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes);
+
+	void buildScopedResultsFromParsedPhrases();
+
+protected:
+	bool checkExclusion(QList<TPhraseTagList::const_iterator> &lstItrExclNext, const TPhraseTag &tag, bool bPreserveLastItr = false);			// Finds next possible intersection of the specified tag in the m_searchResultsExcluded indexed with the list of iterators
+	void buildWithinResultsInParsedPhrase(const CParsedPhrase *pParsedPhrase) const;
+	CRelIndex ScopeIndex(const CRelIndex &index);
+
+private:
+	CBibleDatabasePtr m_pBibleDatabase;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	TSharedParsedPhrasesList m_lstCopyParsedPhrasesIncl;		// Copy of Parsed Phrases for inclusions
+	TSharedParsedPhrasesList m_lstCopyParsedPhrasesExcl;		// Copy of Parsed Phrases for exclusions
+#endif
+	TParsedPhrasesList m_lstParsedPhrasesIncl;	// Pointer to Phrases for inclusions
+	TParsedPhrasesList m_lstParsedPhrasesExcl;	// Pointer to Phrases for exclusions
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	CVerseMap m_mapVersesIncl;					// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	CVerseMap m_mapVersesExcl;					// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+#else
+	CVerseMap &m_mapVersesIncl;					// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	CVerseMap &m_mapVersesExcl;					// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+#endif
+};
+
 class CVerseListModel : public QAbstractItemModel
 {
 	Q_OBJECT
@@ -524,6 +576,9 @@ public:
 
 	protected:
 		friend class CVerseListModel;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+		friend class CThreadedSearchResultCtrl;
+#endif
 
 		TVerseListModelResults(TVerseListModelPrivate *priv,
 								const QString &strResultsName,
@@ -596,6 +651,9 @@ public:
 	class TVerseListModelSearchResults : public TVerseListModelResults {
 	protected:
 		friend class CVerseListModel;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+		friend class CThreadedSearchResultCtrl;
+#endif
 
 		TVerseListModelSearchResults(TVerseListModelPrivate *priv, bool bExcluded)
 			:	TVerseListModelResults(priv, (!bExcluded ? tr("Search Results", "MainMenu") : tr("Excluded Search Results", "MainMenu")), (!bExcluded ? VLMRTE_SEARCH_RESULTS : VLMRTE_SEARCH_RESULTS_EXCLUDED))
@@ -603,8 +661,7 @@ public:
 
 		// For SearchResults, this list will be the Included phrases.  For
 		//		ExcludedSearchResults, this list will be the Excluded phrases:
-		TParsedPhrasesList m_lstParsedPhrases;		// Parsed phrases, updated by KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
-		CSearchCriteria m_SearchCriteria;			// Search criteria set during setParsedPhrases
+		CSearchResultsData m_searchResultsData;				// Set via setParsedPhrases via KJVCanOpener en_phraseChanged (used to build Search Results and for displaying tooltips)
 
 		// --------------------------------------
 
@@ -689,7 +746,7 @@ public:
 	QModelIndex locateIndex(const TVerseIndex &ndxVerse) const;
 	TVerseIndex resolveVerseIndex(const CRelIndex &ndxRel, const QString &strResultsName, VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType = VLMRTE_UNDEFINED) const;			// Note: Pass strHighlighterName for strResultsName or Empty string for types that use no specialIndex (nResultsType == VLMRTE_UNDEFINED uses ViewMode of model)
 
-	void setParsedPhrases(const CSearchCriteria &aSearchCriteria, const TParsedPhrasesList &phrases);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
+	void setParsedPhrases(const CSearchResultsData &searchResultsData);		// Will build verseList and the list of tags so they can be iterated in a highlighter, etc
 
 	VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_private.m_nDisplayMode; }
 	VERSE_TREE_MODE_ENUM treeMode() const { return m_private.m_nTreeMode; }
@@ -788,11 +845,6 @@ private:
 	void clearAllSizeHints();
 	void clearAllExtraVerseIndexes();
 
-	void buildScopedResultsFromParsedPhrases();
-	bool checkExclusion(QList<TPhraseTagList::const_iterator> &lstItrExclNext, const TPhraseTag &tag, bool bPreserveLastItr = false);			// Finds next possible intersection of the specified tag in the m_searchResultsExcluded indexed with the list of iterators
-	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, const CParsedPhrase *pParsedPhrase) const;
-	CRelIndex ScopeIndex(const CRelIndex &index, const CSearchCriteria &searchCriteria);
-
 	void buildHighlighterResults(int ndxHighlighter = -1);								// Note: index of -1 = All Highlighters
 	void buildHighlighterResults(int ndxHighlighter, const TPhraseTagList *pTags);		// Here, ndxHighlighter must NOT be -1 !!
 
@@ -800,9 +852,14 @@ private:
 
 	void buildCrossRefsResults();
 
+	void buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData);
+
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	TVerseListModelPrivate m_private;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	CThreadedSearchResultCtrl *m_pSearchResultsThreadCtrl;		// Thread Controller for multi-threading Search Results
+#endif
 
 	THighlighterVLMRList m_vlmrListHighlighters;		// Per-Highlighter VerseListModelResults
 	TVerseListModelResults m_undefinedResults;			// VerseListModelResults for Undefined Results -- Used for generating extraVerseIndexes for parent entries where QModelIndex->NULL
