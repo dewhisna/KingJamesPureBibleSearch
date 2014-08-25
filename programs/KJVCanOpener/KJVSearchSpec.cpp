@@ -606,7 +606,10 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	// Emit that we have new search phrases and/or search criteria:
 	emit changedSearchSpec(aSearchResultsData);
+}
 
+void CKJVSearchSpec::en_searchResultsReady()
+{
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 	}

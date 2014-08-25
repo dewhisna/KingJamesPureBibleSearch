@@ -288,6 +288,8 @@ signals:			// Outgoing Pass-Through:
 	void canCollapseAll(bool bEnable);
 	void currentItemChanged();
 
+	void searchResultsReady();
+
 signals:			// Incoming Pass-Through:
 	void expandAll();
 	void collapseAll();
@@ -303,6 +305,7 @@ private:
 private slots:
 	void en_modelKeywordListChanged();
 	void setSearchResultsSummaryText();
+	void en_searchResultsReady();
 
 // Private Data:
 private:

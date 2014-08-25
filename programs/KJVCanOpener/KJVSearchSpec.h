@@ -111,6 +111,7 @@ protected slots:
 	void en_changedSearchCriteria();
 	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase = NULL);
 public slots:
+	void en_searchResultsReady();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 protected slots:
 	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);

@@ -33,6 +33,7 @@
 
 // ============================================================================
 
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
 
 class CThreadedSearchResultWorker : public QObject
 {
@@ -40,7 +41,14 @@ class CThreadedSearchResultWorker : public QObject
 	QThread workerThreadedSearchResult;
 
 public slots:
+	void doWork(CSearchResultsProcess *theSearchResultsProcess)
+	{
+		theSearchResultsProcess->buildScopedResultsFromParsedPhrases();
+		emit resultsReady();
+	}
 
+signals:
+	void resultsReady();
 };
 
 class CThreadedSearchResultCtrl : public QObject
@@ -49,23 +57,53 @@ class CThreadedSearchResultCtrl : public QObject
 	QThread workerThreadedSearchResult;
 
 public:
-	CThreadedSearchResultCtrl(CVerseListModel &vlm, const CSearchResultsData &theData)
-		:	QObject(&vlm),
-			m_searchResultsdata(theData),
-			m_vlm(vlm)
+	CThreadedSearchResultCtrl(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &theData, QObject *pParent = NULL)
+		:	QObject(pParent),
+			m_searchResultsProcess(pBibleDatabase, theData)
 	{
-
+		CThreadedSearchResultWorker *pWorker = new CThreadedSearchResultWorker;
+		pWorker->moveToThread(&workerThreadedSearchResult);
+		connect(&workerThreadedSearchResult, SIGNAL(finished()), pWorker, SLOT(deleteLater()));
+		connect(this, SIGNAL(internalStartWorking(CSearchResultsProcess *)), pWorker, SLOT(doWork(CSearchResultsProcess *)));
+		connect(pWorker, SIGNAL(resultsReady()), this, SLOT(en_resultsReady()));
+		workerThreadedSearchResult.start();
 	}
 
-	void deactivate();
+	~CThreadedSearchResultCtrl()
+	{
+		workerThreadedSearchResult.quit();
+		workerThreadedSearchResult.wait();
+	}
 
+	void startWorking()
+	{
+		emit internalStartWorking(&m_searchResultsProcess);
+	}
+
+	void deactivate()
+	{
+		m_bActive = false;
+	}
+
+signals:
+	void internalStartWorking(CSearchResultsProcess *theSearchResultsProcess);
+	void resultsReady(const CSearchResultsProcess *theSearchResultsProcess);
+
+protected slots:
+	void en_resultsReady()
+	{
+		if (m_bActive) {
+			emit resultsReady(&m_searchResultsProcess);
+		}
+		deleteLater();
+	}
 
 private:
-	bool m_bActive;								// Set to True if the results of this thread is to be used to drive results.  Set to False if this result has been superceded by later results and we need to ignore this
-	CSearchResultsData m_searchResultsdata;		// Current search results data being operated on
-	TSharedParsedPhrasesList m_lstPhrases;		// Copy of phrases to work on
-	CVerseListModel &m_vlm;
+	bool m_bActive;									// Set to True if the results of this thread is to be used to drive results.  Set to False if this result has been superceded by later results and we need to ignore this
+	CSearchResultsProcess m_searchResultsProcess;	// Search results data processing
 };
+
+#endif	// USE_MULTITHREADED_SEARCH_RESULTS
 
 // ============================================================================
 

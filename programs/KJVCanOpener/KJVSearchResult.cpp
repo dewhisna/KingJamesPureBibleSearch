@@ -1370,6 +1370,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	connect(m_pSearchResultsTreeView, SIGNAL(canCollapseAll(bool)), this, SIGNAL(canCollapseAll(bool)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(currentItemChanged()));
 
+	connect(vlmodel(), SIGNAL(searchResultsReady()), this, SIGNAL(searchResultsReady()));
+
 	// Set Incoming Pass-Through Signals:
 	connect(this, SIGNAL(expandAll()), m_pSearchResultsTreeView, SLOT(expandAll()));
 	connect(this, SIGNAL(collapseAll()), m_pSearchResultsTreeView, SLOT(collapseAll()));
@@ -1496,11 +1498,12 @@ void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 void CKJVSearchResult::setParsedPhrases(const CSearchResultsData &searchResultsData)
 {
 	m_LastSearchCriteria = searchResultsData.m_SearchCriteria;
-	m_pSearchResultsTreeView->setParsedPhrases(searchResultsData);
 	m_nLastSearchNumPhrases = searchResultsData.m_lstParsedPhrases.size();
+	m_pSearchResultsTreeView->setParsedPhrases(searchResultsData);
+}
 
-	// ------------------------------------------------------------------------
-
+void CKJVSearchResult::en_searchResultsReady()
+{
 	int nVerses = 0;		// Results counts in Verses
 	int nChapters = 0;		// Results counts in Chapters
 	int nBooks = 0;			// Results counts in Books

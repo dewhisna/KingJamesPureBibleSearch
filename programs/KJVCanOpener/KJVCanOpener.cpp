@@ -830,6 +830,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 
+	// -------------------- Search Results to Search Spec pass-through:
+
+	connect(m_pSearchResultWidget, SIGNAL(searchResultsReady()), m_pSearchSpecWidget, SLOT(en_searchResultsReady()));
+
 	// -------------------- Scripture Browser:
 
 #ifndef EMSCRIPTEN

@@ -456,8 +456,8 @@ public:
 	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl);
 #endif
 
-	void copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes);
-	void copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes);
+	void copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const;
+	void copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const;
 
 	void buildScopedResultsFromParsedPhrases();
 
@@ -810,6 +810,7 @@ signals:
 	void cachedSizeHintsInvalidated();
 	void verseListAboutToChange();					// Emitted just before our verse phrase tags change so that users (KJVBrowser, etc) can clear highlighting with the old tags
 	void verseListChanged();						// Emitted just after our verse phrase tags change so that users (KJVBrowser, etc) can set highlighting with the new tags
+	void searchResultsReady();						// Emitted when we receive en_searchResultsReady() during multithreaded or in the buildScopedResultsFromParsedPhrases() for non-multithreaded
 
 public slots:
 	void setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode);
@@ -854,11 +855,16 @@ private:
 
 	void buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData);
 
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+private slots:
+	void en_searchResultsReady(const CSearchResultsProcess *theSearchResultsProcess);
+#endif
+
 private:
 	Q_DISABLE_COPY(CVerseListModel)
 	TVerseListModelPrivate m_private;
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-	CThreadedSearchResultCtrl *m_pSearchResultsThreadCtrl;		// Thread Controller for multi-threading Search Results
+	QPointer<CThreadedSearchResultCtrl> m_pSearchResultsThreadCtrl;		// Thread Controller for multi-threading Search Results
 #endif
 
 	THighlighterVLMRList m_vlmrListHighlighters;		// Per-Highlighter VerseListModelResults

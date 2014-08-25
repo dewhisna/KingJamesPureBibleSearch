@@ -2685,6 +2685,42 @@ void CVerseListModel::en_changedCopyOptions()
 
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 
+void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
+{
+	if (m_pSearchResultsThreadCtrl.data() != NULL) {
+		m_pSearchResultsThreadCtrl->deactivate();
+	}
+	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData, this);
+	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CSearchResultsProcess *)), this, SLOT(en_searchResultsReady(const CSearchResultsProcess *)));
+	m_pSearchResultsThreadCtrl->startWorking();
+}
+
+void CVerseListModel::en_searchResultsReady(const CSearchResultsProcess *theSearchResultsProcess)
+{
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+		emit verseListAboutToChange();
+		emit beginResetModel();
+	}
+
+	theSearchResultsProcess->copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
+	theSearchResultsProcess->copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
+
+	m_searchResults.m_mapExtraVerseIndexes.clear();
+	m_searchResults.m_mapSizeHints.clear();
+
+	m_searchResultsExcluded.m_mapExtraVerseIndexes.clear();
+	m_searchResultsExcluded.m_mapSizeHints.clear();
+
+	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+		emit endResetModel();
+		emit verseListChanged();
+	}
+
+	emit searchResultsReady();
+}
+
 #else
 void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
 {
@@ -2710,6 +2746,8 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 		emit endResetModel();
 		emit verseListChanged();
 	}
+
+	emit searchResultsReady();
 }
 #endif
 
@@ -2749,7 +2787,7 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 	}
 }
 
-void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes)
+void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	int ndxIncl = 0;
@@ -2760,9 +2798,11 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			assert(*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesIncl.at(ndxIncl).data());		// Our split phrases had better match our sources
-			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
-			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
+			// If the phrases don't match, don't copy as the phrase has already changed and we'll be getting another notification/thread to process it:
+			if (*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesIncl.at(ndxIncl).data()) {
+				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
+				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
+			}
 			++ndxIncl;
 #endif
 		}
@@ -2770,7 +2810,7 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 	searchResultsData.m_SearchCriteria = m_SearchCriteria;
 	lstVerseIndexes.clear();
 	lstVerseIndexes.reserve(m_mapVersesIncl.size());
-	for (CVerseMap::iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
+	for (CVerseMap::const_iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
 		lstVerseIndexes.append(itr.key());
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
@@ -2780,7 +2820,7 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 #endif
 }
 
-void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes)
+void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	int ndxExcl = 0;
@@ -2791,9 +2831,11 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			assert(*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesExcl.at(ndxExcl).data());		// Our split phrases had better match our sources
-			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
-			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
+			// If the phrases don't match, don't copy as the phrase has already changed and we'll be getting another notification/thread to process it:
+			if (*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesExcl.at(ndxExcl).data()) {
+				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
+				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
+			}
 			++ndxExcl;
 #endif
 		}
@@ -2801,7 +2843,7 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 	searchResultsData.m_SearchCriteria = m_SearchCriteria;
 	lstVerseIndexes.clear();
 	lstVerseIndexes.reserve(m_mapVersesExcl.size());
-	for (CVerseMap::iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
+	for (CVerseMap::const_iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
 		lstVerseIndexes.append(itr.key());
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
