@@ -59,6 +59,7 @@ class CThreadedSearchResultCtrl : public QObject
 public:
 	CThreadedSearchResultCtrl(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &theData, QObject *pParent = NULL)
 		:	QObject(pParent),
+			m_bActive(true),
 			m_searchResultsProcess(pBibleDatabase, theData)
 	{
 		CThreadedSearchResultWorker *pWorker = new CThreadedSearchResultWorker;
@@ -85,15 +86,18 @@ public:
 		m_bActive = false;
 	}
 
+	bool isActive() const { return m_bActive; }
+	const CSearchResultsProcess *searchResultsProcess() const { return &m_searchResultsProcess; }
+
 signals:
 	void internalStartWorking(CSearchResultsProcess *theSearchResultsProcess);
-	void resultsReady(const CSearchResultsProcess *theSearchResultsProcess);
+	void resultsReady(const CThreadedSearchResultCtrl *theThreadedSearchResult);
 
 protected slots:
 	void en_resultsReady()
 	{
 		if (m_bActive) {
-			emit resultsReady(&m_searchResultsProcess);
+			emit resultsReady(this);
 		}
 		deleteLater();
 	}

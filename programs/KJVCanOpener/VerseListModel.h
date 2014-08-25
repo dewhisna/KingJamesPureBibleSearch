@@ -576,9 +576,6 @@ public:
 
 	protected:
 		friend class CVerseListModel;
-#ifdef USE_MULTITHREADED_SEARCH_RESULTS
-		friend class CThreadedSearchResultCtrl;
-#endif
 
 		TVerseListModelResults(TVerseListModelPrivate *priv,
 								const QString &strResultsName,
@@ -651,9 +648,6 @@ public:
 	class TVerseListModelSearchResults : public TVerseListModelResults {
 	protected:
 		friend class CVerseListModel;
-#ifdef USE_MULTITHREADED_SEARCH_RESULTS
-		friend class CThreadedSearchResultCtrl;
-#endif
 
 		TVerseListModelSearchResults(TVerseListModelPrivate *priv, bool bExcluded)
 			:	TVerseListModelResults(priv, (!bExcluded ? tr("Search Results", "MainMenu") : tr("Excluded Search Results", "MainMenu")), (!bExcluded ? VLMRTE_SEARCH_RESULTS : VLMRTE_SEARCH_RESULTS_EXCLUDED))
@@ -857,7 +851,7 @@ private:
 
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 private slots:
-	void en_searchResultsReady(const CSearchResultsProcess *theSearchResultsProcess);
+	void en_searchResultsReady(const CThreadedSearchResultCtrl *theThreadedSearchResult);
 #endif
 
 private:

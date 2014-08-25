@@ -2691,20 +2691,22 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 		m_pSearchResultsThreadCtrl->deactivate();
 	}
 	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData, this);
-	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CSearchResultsProcess *)), this, SLOT(en_searchResultsReady(const CSearchResultsProcess *)));
+	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
 	m_pSearchResultsThreadCtrl->startWorking();
 }
 
-void CVerseListModel::en_searchResultsReady(const CSearchResultsProcess *theSearchResultsProcess)
+void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *theThreadedSearchResult)
 {
+	if (!theThreadedSearchResult->isActive()) return;
+
 	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 		emit verseListAboutToChange();
 		emit beginResetModel();
 	}
 
-	theSearchResultsProcess->copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
-	theSearchResultsProcess->copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
+	theThreadedSearchResult->searchResultsProcess()->copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
+	theThreadedSearchResult->searchResultsProcess()->copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
 
 	m_searchResults.m_mapExtraVerseIndexes.clear();
 	m_searchResults.m_mapSizeHints.clear();

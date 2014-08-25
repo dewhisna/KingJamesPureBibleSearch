@@ -1370,6 +1370,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	connect(m_pSearchResultsTreeView, SIGNAL(canCollapseAll(bool)), this, SIGNAL(canCollapseAll(bool)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(currentItemChanged()));
 
+	connect(vlmodel(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
 	connect(vlmodel(), SIGNAL(searchResultsReady()), this, SIGNAL(searchResultsReady()));
 
 	// Set Incoming Pass-Through Signals:
