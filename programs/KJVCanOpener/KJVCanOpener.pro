@@ -277,7 +277,6 @@ SOURCES += \
 	SearchCompleter.cpp \
 	SearchPhraseListModel.cpp \
 	SubControls.cpp \
-	ThreadedSearchResults.cpp \
 	ToolTipEdit.cpp \
 	Translator.cpp \
 	UserNotesDatabase.cpp \
