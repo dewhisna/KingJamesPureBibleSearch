@@ -20,7 +20,12 @@ mac {
 		}
 	}
 } else {
-	LIBS += -lwwwidgets4
+	win32 {
+		debug:LIBS += -lwwwidgets4d
+		release:LIBS += -lwwwidgets4
+	} else {
+		LIBS += -lwwwidgets4
+	}
 }
 
 DEFINES += WWWIDGETS
