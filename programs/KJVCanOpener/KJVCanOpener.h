@@ -136,6 +136,7 @@ signals:
 	void windowActivated(CKJVCanOpener *pCanOpener);
 	void canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 	void isClosing(CKJVCanOpener *pCanOpener);
+	void triggerUpdateSearchWindowList();
 
 public:
 	static QString determineBibleUUIDForKJVSearchFile(const QString &strFilePathName);

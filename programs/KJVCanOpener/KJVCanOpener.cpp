@@ -433,12 +433,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	pFileMenu->addSeparator();
 
-	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication, SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 	pAction->setStatusTip(tr("Exit the King James Pure Bible Search Application", "MainMenu"));
 	pAction->setToolTip(tr("Exit Application", "MainMenu"));
 	pAction->setMenuRole(QAction::QuitRole);
 	pAction->setEnabled(g_pMyApplication->canQuit());
-	connect(g_pMyApplication, SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
+	connect(g_pMyApplication.data(), SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
 
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
@@ -763,7 +763,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 		// Otherwise, we'll setup a submenu:
 		m_pActionBibleDatabasesList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
 		en_updateBibleDatabasesList();
-		connect(TBibleDatabaseList::instance(), SIGNAL(changedBibleDatabaseList()), this, SLOT(en_updateBibleDatabasesList()));
+		//	Do the update via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
+		//	that have to open new Bible Databases won't crash if the menu that was triggering it gets yanked out from under it:
+		connect(TBibleDatabaseList::instance(), SIGNAL(changedBibleDatabaseList()), this, SLOT(en_updateBibleDatabasesList()), Qt::QueuedConnection);
 	}
 	pWindowMenu->addAction(m_pActionBibleDatabasesList);
 
@@ -779,6 +781,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionSearchWindowList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
 	pWindowMenu->addAction(m_pActionSearchWindowList);
 	// Note: This action's menu will be automatically updated by our application object
+	//	Do this via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
+	//	won't crash if the menu that was triggering it gets yanked out from under it:
+	connect(g_pMyApplication.data(), SIGNAL(updateSearchWindowList()), this, SLOT(en_updateSearchWindowList()), Qt::QueuedConnection);
 
 	// --- Help Menu
 	ui.mainToolBar->addSeparator();
@@ -1924,7 +1929,7 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchResultsData &searchResults
 	if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS)
 		setViewMode(CVerseListModel::VVME_SEARCH_RESULTS, false);
 
-	g_pMyApplication->updateSearchWindowList();				// Updates this and all other KJVCanOpener lists -- it needs to be there so it can also update KJVCanOpeners created or destroyed also
+	emit triggerUpdateSearchWindowList();				// Updates this and all other KJVCanOpener lists via myApplication -- it needs to be there so it can also update KJVCanOpeners created or destroyed also
 }
 
 void CKJVCanOpener::en_updateBibleDatabasesList()
@@ -1985,7 +1990,7 @@ void CKJVCanOpener::en_updateSearchWindowList()
 		pAction->setData(ndx);
 		m_pActionSearchWindowList->menu()->addAction(pAction);
 	}
-	connect(m_pActionGroupSearchWindowList.data(), SIGNAL(triggered(QAction*)), g_pMyApplication, SLOT(en_triggeredKJVCanOpener(QAction*)));
+	connect(m_pActionGroupSearchWindowList.data(), SIGNAL(triggered(QAction*)), g_pMyApplication.data(), SLOT(en_triggeredKJVCanOpener(QAction*)));
 }
 
 // ------------------------------------------------------------------
@@ -2699,7 +2704,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pHighlighterButtons != NULL) pHighlighterButtons->leaveConfigurationMode();
 	}
 
-	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication, SLOT(restartApp()));
+	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
 #else
 	Q_UNUSED(nInitialPage);
 #endif

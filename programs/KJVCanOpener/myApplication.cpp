@@ -828,6 +828,9 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
+	//	Do this via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
+	//	won't crash if the menu that was triggering it gets yanked out from under it:
+	connect(pCanOpener, SIGNAL(triggerUpdateSearchWindowList()), this, SIGNAL(updateSearchWindowList()), Qt::QueuedConnection);
 
 	if (g_pMdiArea.data() != NULL) {
 		QMdiSubWindow *pSubWindow = new QMdiSubWindow;
@@ -850,7 +853,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 
 	// Note: no call to initialize() or show() here for the CanOpner.  We'll do it inside
 	//	KJVCanOpener in the delayed restorePersistentSettings() function
-	updateSearchWindowList();
+	emit updateSearchWindowList();
 	return pCanOpener;
 }
 
@@ -899,7 +902,7 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 			}
 		}
 	}
-	updateSearchWindowList();
+	emit updateSearchWindowList();
 }
 
 void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
@@ -993,13 +996,6 @@ void CMyApplication::closeAllCanOpeners() const
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
 	// Note: List update will happen automatically as the windows close...
-}
-
-void CMyApplication::updateSearchWindowList()
-{
-	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-		m_lstKJVCanOpeners.at(ndx)->en_updateSearchWindowList();
-	}
 }
 
 void CMyApplication::restartApp()

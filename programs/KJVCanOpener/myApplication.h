@@ -182,12 +182,12 @@ public slots:
 	void activateCanOpener(int ndx) const;
 	void activateAllCanOpeners() const;
 	void closeAllCanOpeners() const;
-	void updateSearchWindowList();
 	void restartApp();
 
 signals:
 	void loadFile(const QString &strFilename);
 	void canQuitChanged(bool bCanQuit);
+	void updateSearchWindowList();
 
 #ifdef SIGNAL_SPY_DEBUG
 public slots:
