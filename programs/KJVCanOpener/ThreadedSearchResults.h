@@ -38,7 +38,6 @@
 class CThreadedSearchResultWorker : public QObject
 {
 	Q_OBJECT
-	QThread workerThreadedSearchResult;
 
 public slots:
 	void doWork(CSearchResultsProcess *theSearchResultsProcess)
@@ -54,26 +53,24 @@ signals:
 class CThreadedSearchResultCtrl : public QObject
 {
 	Q_OBJECT
-	QThread workerThreadedSearchResult;
 
 public:
 	CThreadedSearchResultCtrl(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &theData, QObject *pParent = NULL)
 		:	QObject(pParent),
-			m_bActive(true),
 			m_searchResultsProcess(pBibleDatabase, theData)
 	{
 		CThreadedSearchResultWorker *pWorker = new CThreadedSearchResultWorker;
-		pWorker->moveToThread(&workerThreadedSearchResult);
-		connect(&workerThreadedSearchResult, SIGNAL(finished()), pWorker, SLOT(deleteLater()));
+		pWorker->moveToThread(&m_theThread);
+		connect(&m_theThread, SIGNAL(finished()), pWorker, SLOT(deleteLater()));		// When the thread ends, delete the object since it becomes detached at that point
 		connect(this, SIGNAL(internalStartWorking(CSearchResultsProcess *)), pWorker, SLOT(doWork(CSearchResultsProcess *)));
 		connect(pWorker, SIGNAL(resultsReady()), this, SLOT(en_resultsReady()));
-		workerThreadedSearchResult.start();
+		m_theThread.start();
 	}
 
 	~CThreadedSearchResultCtrl()
 	{
-		workerThreadedSearchResult.quit();
-		workerThreadedSearchResult.wait();
+		m_theThread.quit();
+		m_theThread.wait();
 	}
 
 	void startWorking()
@@ -81,12 +78,6 @@ public:
 		emit internalStartWorking(&m_searchResultsProcess);
 	}
 
-	void deactivate()
-	{
-		m_bActive = false;
-	}
-
-	bool isActive() const { return m_bActive; }
 	const CSearchResultsProcess *searchResultsProcess() const { return &m_searchResultsProcess; }
 
 signals:
@@ -96,14 +87,12 @@ signals:
 protected slots:
 	void en_resultsReady()
 	{
-		if (m_bActive) {
-			emit resultsReady(this);
-		}
+		emit resultsReady(this);
 		deleteLater();
 	}
 
 private:
-	bool m_bActive;									// Set to True if the results of this thread is to be used to drive results.  Set to False if this result has been superceded by later results and we need to ignore this
+	QThread m_theThread;
 	CSearchResultsProcess m_searchResultsProcess;	// Search results data processing
 };
 

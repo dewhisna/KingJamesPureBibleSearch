@@ -456,6 +456,7 @@ public:
 	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl);
 #endif
 
+	bool canCopyBack() const;		// Returns true if the copied phrases match the source (i.e. data hasn't changed)
 	void copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const;
 	void copyBackExclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const;
 

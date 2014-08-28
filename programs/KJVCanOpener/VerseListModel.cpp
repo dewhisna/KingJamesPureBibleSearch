@@ -2688,8 +2688,9 @@ void CVerseListModel::en_changedCopyOptions()
 void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
 {
 	if (m_pSearchResultsThreadCtrl.data() != NULL) {
-		m_pSearchResultsThreadCtrl->deactivate();
+		m_pSearchResultsThreadCtrl->disconnect(this);		// Deactivate future notifications from current worker thread
 	}
+
 	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData, this);
 	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
 	m_pSearchResultsThreadCtrl->startWorking();
@@ -2697,7 +2698,15 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 
 void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *theThreadedSearchResult)
 {
-	if (!theThreadedSearchResult->isActive()) return;
+	// If a signal from another (now stale) thread helper sneaks through, ignore it:
+	if (theThreadedSearchResult != m_pSearchResultsThreadCtrl.data()) return;
+
+	// If the phrases changed out from under us, we can't copy back.  We'll eventually
+	//		get another change notification to handle it:
+	if (!theThreadedSearchResult->searchResultsProcess()->canCopyBack()) {
+		m_pSearchResultsThreadCtrl = NULL;			// Object has its own deleteLater()
+		return;
+	}
 
 	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
@@ -2719,6 +2728,8 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 		emit endResetModel();
 		emit verseListChanged();
 	}
+
+	m_pSearchResultsThreadCtrl = NULL;		// Object has its own deleteLater()
 
 	emit searchResultsReady();
 }
@@ -2789,6 +2800,39 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 	}
 }
 
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+bool CSearchResultsProcess::canCopyBack() const
+{
+	int ndxIncl = 0;
+	int ndxExcl = 0;
+
+	// Check Included Phrases:
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
+			// If the phrases don't match, don't copy as the phrase has already changed.  We'll be getting another notification/thread to process it:
+			if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data())) return false;
+			++ndxIncl;
+		}
+	}
+
+	// Check Excluded Phrases:
+	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
+			// If the phrases don't match, don't copy as the phrase has already changed.  We'll be getting another notification/thread to process it:
+			if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data())) return false;
+			++ndxExcl;
+		}
+	}
+
+	return true;
+}
+#else
+bool CSearchResultsProcess::canCopyBack() const
+{
+	return true;
+}
+#endif
+
 void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
@@ -2800,11 +2844,10 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			// If the phrases don't match, don't copy as the phrase has already changed and we'll be getting another notification/thread to process it:
-			if (*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesIncl.at(ndxIncl).data()) {
-				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
-				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
-			}
+			//	Assert if phrase changed because caller should have called canCopyBack():
+			assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data()));
+			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
+			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
 			++ndxIncl;
 #endif
 		}
@@ -2833,11 +2876,10 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			// If the phrases don't match, don't copy as the phrase has already changed and we'll be getting another notification/thread to process it:
-			if (*m_lstParsedPhrases.at(ndx) == *m_lstCopyParsedPhrasesExcl.at(ndxExcl).data()) {
-				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
-				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
-			}
+			//	Assert if phrase changed because caller should have called canCopyBack():
+			assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data()));
+			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
+			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
 			++ndxExcl;
 #endif
 		}
