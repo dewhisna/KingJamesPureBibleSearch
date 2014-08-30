@@ -185,7 +185,21 @@ int CSubPhrase::phraseRawSize() const
 QStringList CSubPhrase::phraseWords() const
 {
 	QStringList strPhraseWords;
-	strPhraseWords.reserve(m_lstWords.size());
+
+// For some reason, this reserve() continually causes the Windows cross-build
+//	to just hang, deep down in QList at this p.detach(alloc):
+//		$$[QT_INSTALL_HEADERS]/QtCore/qlist.h
+//
+//		template <typename T>
+//		Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper(int alloc)
+//		{
+//			Node *n = reinterpret_cast<Node *>(p.begin());
+//			QListData::Data *x = p.detach(alloc);
+//
+// Since our list is relatively small, there really isn't much need
+//	to call it anyway:
+//
+//	strPhraseWords.reserve(m_lstWords.size());
 
 	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
 		if (!m_lstWords.at(ndx).isEmpty()) strPhraseWords.append(m_lstWords.at(ndx));
