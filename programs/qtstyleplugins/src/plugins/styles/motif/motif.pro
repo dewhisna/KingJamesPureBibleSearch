@@ -4,6 +4,7 @@ PLUGIN_EXTENDS = widgets
 load(qt_plugin)
 
 QT = core gui widgets
+win32:CONFIG-=debug_and_release
 
 HEADERS += qcdestyle.h
 HEADERS += qmotifstyle.h
