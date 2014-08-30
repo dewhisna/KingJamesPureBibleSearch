@@ -92,6 +92,9 @@ typedef QList< QSharedPointer<CSubPhrase> > TSubPhraseList;
 
 // ============================================================================
 
+// Forward declaration:
+class CParsedPhrasePtr;
+
 class CParsedPhrase
 {
 public:
@@ -99,7 +102,19 @@ public:
 	CParsedPhrase(const CParsedPhrase &aSrc);
 	virtual ~CParsedPhrase();
 
+	void registerSmartPointer(CParsedPhrasePtr *pSmartPtr) const
+	{
+		if (pSmartPtr != NULL) m_lstSmartPointers.append(pSmartPtr);
+	}
+	void unregisterSmartPointer(CParsedPhrasePtr *pSmartPtr) const
+	{
+		m_lstSmartPointers.removeAll(pSmartPtr);
+	}
+
 	CParsedPhrase & operator=(const CParsedPhrase &aSrc);
+
+	bool hasChanged() const { return m_bHasChanged; }
+	void setHasChanged(bool bHasChanged) const { m_bHasChanged = bHasChanged; }		// Mutable flag we can set on objects to detect changing/updating in other threads
 
 	// ------- Helpers functions for CSearchCompleter and CSearchStringListModel usage:
 	const TConcordanceList &nextWordsList() const;
@@ -202,11 +217,52 @@ protected:
 	bool m_bExclude;
 
 	int m_nActiveSubPhrase;
-
 	TSubPhraseList m_lstSubPhrases;
+
+	mutable bool m_bHasChanged;								// Flag to detect text/setting changed, set by CPhraseLineEdit child object via phraseChanged() signal, cleared on thread copy operation -- used for multithreading phrase change detection
+	mutable QList< CParsedPhrasePtr * > m_lstSmartPointers;	// Smart pointers to work like QPointer for non-QObject
 };
 
-typedef QList< const CParsedPhrase* > TParsedPhrasesList;
+class CParsedPhrasePtr
+{
+public:
+	CParsedPhrasePtr()
+		:	m_pParsedPhrase(NULL)
+	{
+	}
+	CParsedPhrasePtr(const CParsedPhrasePtr &aSrc)
+		:	m_pParsedPhrase(aSrc.m_pParsedPhrase)
+	{
+		if (m_pParsedPhrase != NULL) m_pParsedPhrase->registerSmartPointer(this);
+	}
+	CParsedPhrasePtr(const CParsedPhrase *pParsedPhrase)
+		:	m_pParsedPhrase(pParsedPhrase)
+	{
+		if (m_pParsedPhrase != NULL) m_pParsedPhrase->registerSmartPointer(this);
+	}
+	~CParsedPhrasePtr()
+	{
+		if (m_pParsedPhrase != NULL) m_pParsedPhrase->unregisterSmartPointer(this);
+	}
+
+	inline const CParsedPhrase &operator*() const { return *m_pParsedPhrase; }
+	inline operator const CParsedPhrase*() const { return m_pParsedPhrase; }
+	inline const CParsedPhrase *operator->() const { return m_pParsedPhrase; }
+	inline const CParsedPhrase *data() const { return m_pParsedPhrase; }
+	inline bool isNull() const { return !m_pParsedPhrase; }
+
+protected:
+	friend class CParsedPhrase;
+	void clear()
+	{
+		m_pParsedPhrase = NULL;
+	}
+
+private:
+	const CParsedPhrase *m_pParsedPhrase;
+};
+
+typedef QList< CParsedPhrasePtr > TParsedPhrasesList;
 typedef QList< QSharedPointer<CParsedPhrase> > TSharedParsedPhrasesList;
 
 class CSelectedPhrase

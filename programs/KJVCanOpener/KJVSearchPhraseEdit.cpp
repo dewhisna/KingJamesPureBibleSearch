@@ -181,6 +181,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+	connect(this, SIGNAL(phraseChanged()), this, SLOT(en_phraseChanged()));		// Handle internal flag for cross-thread changes
 
 	m_pStatusAction = new QAction(this);
 }
@@ -188,6 +189,11 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 CPhraseLineEdit::~CPhraseLineEdit()
 {
 
+}
+
+void CPhraseLineEdit::en_phraseChanged()
+{
+	setHasChanged(true);
 }
 
 void CPhraseLineEdit::setupPhrase(const TPhraseSettings &aPhrase)

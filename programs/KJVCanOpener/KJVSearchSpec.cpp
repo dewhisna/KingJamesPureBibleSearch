@@ -599,7 +599,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 		for ( ; ndxInsert < aSearchResultsData.m_lstParsedPhrases.size(); ++ndxInsert) {
 			if (pPhrase->GetNumberOfMatches() < aSearchResultsData.m_lstParsedPhrases.at(ndxInsert)->GetNumberOfMatches()) break;
 		}
-		aSearchResultsData.m_lstParsedPhrases.insert(ndxInsert, pPhrase);
+		aSearchResultsData.m_lstParsedPhrases.insert(ndxInsert, CParsedPhrasePtr(pPhrase));
 	}
 
 	// ----------------------------

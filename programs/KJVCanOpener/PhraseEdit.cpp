@@ -240,7 +240,8 @@ CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensiti
 		m_bCaseSensitive(bCaseSensitive),
 		m_bAccentSensitive(bAccentSensitive),
 		m_bExclude(bExclude),
-		m_nActiveSubPhrase(-1)
+		m_nActiveSubPhrase(-1),
+		m_bHasChanged(false)
 {
 
 }
@@ -265,6 +266,8 @@ CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
 		m_lstSubPhrases.append(subPhrase);
 	}
 
+	m_bHasChanged = false;
+
 	clearCache();
 
 	return *this;
@@ -272,7 +275,10 @@ CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
 
 CParsedPhrase::~CParsedPhrase()
 {
-
+	// Release all smart pointers pointing to us:
+	for (int ndx=0; ndx<m_lstSmartPointers.size(); ++ndx) {
+		m_lstSmartPointers.at(ndx)->clear();
+	}
 }
 
 // ============================================================================

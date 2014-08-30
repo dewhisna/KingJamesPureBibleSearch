@@ -2781,7 +2781,8 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 	assert(pBibleDatabase.data() != NULL);
 
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		assert(m_lstParsedPhrases.at(ndx) != NULL);
+		assert(!m_lstParsedPhrases.at(ndx).isNull());
+		m_lstParsedPhrases.at(ndx)->setHasChanged(false);
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 			m_lstCopyParsedPhrasesIncl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
@@ -2803,25 +2804,10 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 bool CSearchResultsProcess::canCopyBack() const
 {
-	int ndxIncl = 0;
-	int ndxExcl = 0;
-
-	// Check Included Phrases:
+	// Check for phrases that have changed:
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
-			// If the phrases don't match, don't copy as the phrase has already changed.  We'll be getting another notification/thread to process it:
-			if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data())) return false;
-			++ndxIncl;
-		}
-	}
-
-	// Check Excluded Phrases:
-	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
-			// If the phrases don't match, don't copy as the phrase has already changed.  We'll be getting another notification/thread to process it:
-			if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data())) return false;
-			++ndxExcl;
-		}
+		if ((m_lstParsedPhrases.at(ndx).isNull()) ||
+			(m_lstParsedPhrases.at(ndx)->hasChanged())) return false;
 	}
 
 	return true;
@@ -2841,6 +2827,7 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 #endif
 	searchResultsData.m_lstParsedPhrases.clear();
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		assert(!m_lstParsedPhrases.at(ndx).isNull());
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
@@ -2873,6 +2860,7 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 #endif
 	searchResultsData.m_lstParsedPhrases.clear();
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+		assert(!m_lstParsedPhrases.at(ndx).isNull());
 		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
