@@ -8,15 +8,6 @@ SOURCES += wwglobal_p.cpp colormodel.cpp
 QT += core gui
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
-RESOURCES += ../images/wwwidgets.qrc
-INCLUDEPATH += .
-
-TEMPLATE = lib
-CONFIG += warn_on
-TARGET = $$qtLibraryTarget(wwwidgets4)
-
-message("Target:" $$TARGET)
-
 linux-g++|linux-g++-64 {
 	CONFIG += static debug_and_release separate_debug_info
 #	CONFIG += debug_and_release separate_debug_info
@@ -25,9 +16,18 @@ linux-g++|linux-g++-64 {
 	mac:lessThan(QT_MAJOR_VERSION, 5) {
 		CONFIG += static
 	} else {
-		CONFIG += debug_and_release
+		CONFIG -= debug_and_release
 	}
 }
+
+RESOURCES += ../images/wwwidgets.qrc
+INCLUDEPATH += .
+
+TEMPLATE = lib
+CONFIG += warn_on
+TARGET = $$qtLibraryTarget(wwwidgets4)
+
+message("Target:" $$TARGET)
 
 # The following will build the correct .a libs, but for
 #	whatever reason, make install breaks things!!  So
@@ -40,7 +40,6 @@ ios {
 dlltarget.path = $$[QT_INSTALL_BINS]
 target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target dlltarget
-
 
 win32 {
 #	CONFIG += build_all dll
