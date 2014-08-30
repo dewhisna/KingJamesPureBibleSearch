@@ -40,6 +40,8 @@ greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 	CONFIG += wwwidgets
 }
 
+win32:CONFIG -= debug_and_release					# Get rid of double debug/release subfolders and do correct shadow build
+
 exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
 !android:!ios:!emscripten:!vnc {
