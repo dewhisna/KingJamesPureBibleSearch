@@ -2691,7 +2691,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 		m_pSearchResultsThreadCtrl->disconnect(this);		// Deactivate future notifications from current worker thread
 	}
 
-	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData, this);
+	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData);
 	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
 	m_pSearchResultsThreadCtrl->startWorking();
 }
