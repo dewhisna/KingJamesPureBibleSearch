@@ -36,11 +36,14 @@ QT       += core gui xml
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 !emscripten {
-	win32:CONFIG += rtti
 	CONFIG += wwwidgets
 }
 
-win32:CONFIG -= debug_and_release					# Get rid of double debug/release subfolders and do correct shadow build
+win32 {
+	CONFIG += rtti
+	CONFIG -= debug_and_release							# Get rid of double debug/release subfolders and do correct shadow build
+	equals(MSVC_VER, "12.0"):QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01		# Enable Support for WinXP if we are building with MSVC 2013, as MSVC 2010 already does
+}
 
 exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
@@ -454,6 +457,11 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 	message("Deploying translations:" $$TRANSLATIONS$$escape_expand(\\n))
 }
 
+# Qt Translation Files:
+#translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_en.qm		-- English is native and doesn't have a separate translation file
+translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_fr.qm
+translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_es.qm
+translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_de.qm
 
 ###############################################################################
 
@@ -654,6 +662,120 @@ macx {
 			QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle$$escape_expand(\\n\\t))
 		}
 	}
+}
+
+win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
+#
+# For Windows:
+# Be sure to define environment variables for:
+#			VCINSTALLDIR	(ex:  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\)
+#			QTDIR			(ex:  C:\Qt\5.3.1-msvc2013-opengl\5.3\msvc2013_opengl)
+#
+# Add: "%QTDIR%/bin" to %PATH%
+#
+	WINBUILD = $${PWD}/winbuild
+
+	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
+	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
+	dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
+	dbDeploy.path = $${WINBUILD}/KJVCanOpener/db
+	fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf
+	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif.ttf
+	fontDeploy.path = $${WINBUILD}/KJVCanOpener/fonts
+	docDeploy.files += ../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+	docDeploy.files += ../../KJVCanOpener/kjvdatagen/kjv_summary.xls
+	docDeploy.files += ../../KJVCanOpener/articles/kjv_stats.xls
+	docDeploy.path = $${WINBUILD}/KJVCanOpener/doc
+	examplesDeploy.files += ../../KJVCanOpener/examples/example01.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example02.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example03.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example04.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example05.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example06.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example07.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example08.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example09.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example10.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example11.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example12.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example13.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example14.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example15.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example16.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example17.kjs
+	examplesDeploy.files += ../../KJVCanOpener/examples/example18.kjs
+	examplesDeploy.path = $${WINBUILD}/KJVCanOpener/examples
+	licDeploy.files = ../../KJVCanOpener/gpl-3.0.txt
+	licDeploy.path = $${WINBUILD}/KJVCanOpener/license
+
+	INSTALLS += dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
+	!isEmpty(TRANSLATIONS) {
+		translationDeploy.path = $${WINBUILD}/KJVCanOpener/translations
+		INSTALLS += translationDeploy
+	}
+
+	greaterThan(QT_MAJOR_VERSION,4):shared {
+		equals(MSVC_VER, "10.0") {
+			vcRuntimeDeploy.files += $$(VCINSTALLDIR)/redist/x86/Microsoft.VC100.CRT/msvcp100.dll
+			vcRuntimeDeploy.files += $$(VCINSTALLDIR)/redist/x86/Microsoft.VC100.CRT/msvcr100.dll
+		}
+		equals(MSVC_VER, "12.0") {
+			vcRuntimeDeploy.files += $$(VCINSTALLDIR)/redist/x86/Microsoft.VC120.CRT/msvcp120.dll
+			vcRuntimeDeploy.files += $$(VCINSTALLDIR)/redist/x86/Microsoft.VC120.CRT/msvcr120.dll
+			vcRuntimeDeploy.files += $$(VCINSTALLDIR)/redist/x86/Microsoft.VC120.CRT/vccorlib120.dll
+		}
+		isEmpty(vcRuntimeDeploy.files) {
+			error("Can't deploy MSVC Runtime!")
+		}
+		vcRuntimeDeploy.path = $${WINBUILD}/KJVCanOpener/app
+		INSTALLS += vcRuntimeDeploy
+
+		exists($$[QT_INSTALL_BINS]/windeployqt.exe) {
+			QMAKE_POST_LINK += $$quote(@echo Deploying...$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(nmake install $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\app $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y $${TARGET}.exe $$shell_path($${WINBUILD})\\KJVCanOpener\\app $$escape_expand(\\n\\t))
+			contains(QTPLUGIN, qplastiquestyle) {
+				QMAKE_POST_LINK += $$quote(mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles $$escape_expand(\\n\\t))
+				QMAKE_POST_LINK += $$quote(copy $$shell_path($$[QT_INSTALL_PLUGINS])\\styles\\qplastiquestyle.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles\\ $$escape_expand(\\n\\t))
+			}
+			QMAKE_POST_LINK += $$quote(windeployqt --release --no-compiler-runtime $${TARGET}.exe $$escape_expand(\\n\\t))		# Their compiler runtime deploy copies the exe not the dlls!
+			QMAKE_POST_LINK += $$quote(move accessible $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(move bearer $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(move iconengines $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(move imageformats $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(move platforms $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))			# platforms must be in app folder!
+			QMAKE_POST_LINK += $$quote(move sqldrivers $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy $$shell_path($$[QT_INSTALL_LIBS])\\wwwidgets4.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(move *.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(move *.qm $$shell_path($${WINBUILD})\\KJVCanOpener\translations\\ $$escape_expand(\\n\\t))
+		} else {
+			error("Can't deploy KJPBS/Qt Bundle!")
+		}
+#		QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle$$escape_expand(\\n\\t))
+	}
+
+	message("Deployment Path: " $$shell_path($${WINBUILD})$$escape_expand(\\n))
 }
 
 message("Config: " $$CONFIG$$escape_expand(\\n))
