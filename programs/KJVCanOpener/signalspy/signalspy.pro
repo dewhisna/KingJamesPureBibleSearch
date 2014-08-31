@@ -9,5 +9,5 @@ QT += qt3support
 
 # Input
 HEADERS += ColorWidget.h Q4puGenericSignalSpy.h
-SOURCES += ColorWidget.cpp main.cpp Q4puGenericSignalSpy.cpp
+SOURCES += ColorWidget.cpp mainSignalSpy.cpp Q4puGenericSignalSpy.cpp
 TARGET = spy
