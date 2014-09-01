@@ -310,6 +310,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_pSearchResultsTreeView->setSizePolicy(sizePolicy1);
 	m_pSearchResultsTreeView->setContextMenuPolicy(Qt::NoContextMenu);
 	m_pSearchResultsTreeView->setToolTip(tr("Search Results Preview", "MainMenu"));
+	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(false);
 
 	delete ui.treeViewSearchResultsPreview;
 	ui.treeViewSearchResultsPreview = NULL;
@@ -558,7 +559,12 @@ void CKJVTextFormatConfig::loadSettings()
 void CKJVTextFormatConfig::saveSettings()
 {
 	CPersistentSettings::instance()->setFontScriptureBrowser(m_fntScriptureBrowser);
-	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);
+	// Updating of the SearchResults font needs to be done down in the individual change
+	//		notifications.  Without that, the PhraseNavigator::setDocumentToVerse can't
+	//		get the correct font to set our preview.  The downside is that having the
+	//		change there, it sends an update notification to all of the app and changes
+	//		it everywhere.  But without it, the preview doesn't work correctly.  In
+	//		anycase, that's why that persistent setting update isn't here in this function...
 	CPersistentSettings::instance()->setFontDictionary(m_fntDictionary);
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
@@ -606,6 +612,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
 	if (m_bLoadingData) return;
 
 	m_fntSearchResults.setFamily(font.family());
+	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);		// Needed to be here instead of saveSettings() so preview works
 	m_pSearchResultsTreeView->setFontSearchResults(m_fntSearchResults);
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -648,6 +655,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
 	if (m_bLoadingData) return;
 
 	m_fntSearchResults.setPointSizeF(nFontSize);
+	CPersistentSettings::instance()->setFontSearchResults(m_fntSearchResults);		// Needed to be here instead of saveSettings() so preview works
 	m_pSearchResultsTreeView->setFontSearchResults(m_fntSearchResults);
 	m_bIsDirty = true;
 	emit dataChanged(false);
