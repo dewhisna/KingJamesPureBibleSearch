@@ -681,7 +681,7 @@ void CMyApplication::restoreApplicationFontSettings()
 {
 	// Setup our default font for our controls:
 #ifdef Q_OS_WIN32
-	QFont fntAppControls = QFont("MS Shell Dlg 2", 8);
+	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #elif defined(Q_OS_MAC)
 //	QFont fntAppControls = QFont("Arial", 12);
 	QFont fntAppControls = QFont("Lucida Grande", 12);

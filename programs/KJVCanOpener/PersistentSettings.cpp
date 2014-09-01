@@ -71,9 +71,9 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_fntSearchResults("DejaVu Serif", 14),
 		m_fntDictionary("DejaVu Serif", 14),
 #elif defined(Q_OS_WIN32)
-		m_fntScriptureBrowser("Times New Roman", 12),
-		m_fntSearchResults("Times New Roman", 12),
-		m_fntDictionary("Times New Roman", 12),
+		m_fntScriptureBrowser("DejaVu Serif Condensed", 12),
+		m_fntSearchResults("DejaVu Serif Condensed", 12),
+		m_fntDictionary("DejaVu Serif Condensed", 12),
 #elif defined(VNCSERVER)
 		m_fntScriptureBrowser("DejaVu Serif", 12),
 		m_fntSearchResults("DejaVu Serif", 12),
