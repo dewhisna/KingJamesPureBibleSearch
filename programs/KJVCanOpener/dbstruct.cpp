@@ -795,7 +795,10 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Bk.ofBible().first).arg(Bk.ofBible().second) + "\n";
 		}
 		if (Bk.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(
+							/* testamentName(nRelIndex) */
+							xc_dbDescriptors::translatedBibleTestamentName(compatibilityUUID(), testament(nRelIndex))
+						) + "\n";
 		}
 	}
 
@@ -809,7 +812,10 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Chp.ofBible().first).arg(Chp.ofBible().second) + "\n";
 		}
 		if (Chp.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(
+							/* testamentName(nRelIndex) */
+							xc_dbDescriptors::translatedBibleTestamentName(compatibilityUUID(), testament(nRelIndex))
+						) + "\n";
 		}
 		if (Chp.ofBook().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofBook().first).arg(Chp.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
@@ -827,7 +833,10 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Vrs.ofBible().first).arg(Vrs.ofBible().second) + "\n";
 		}
 		if (Vrs.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(
+							/* testamentName(nRelIndex) */
+							xc_dbDescriptors::translatedBibleTestamentName(compatibilityUUID(), testament(nRelIndex))
+						) + "\n";
 		}
 		if (Vrs.ofBook().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofBook().first).arg(Vrs.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
@@ -849,7 +858,10 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 			strTemp += "    " + QObject::tr("%1 of %2 of Bible", "Statistics").arg(Wrd.ofBible().first).arg(Wrd.ofBible().second) + "\n";
 		}
 		if (Wrd.ofTestament().first != 0) {
-			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(testamentName(nRelIndex)) + "\n";
+			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(
+							/* testamentName(nRelIndex) */
+							xc_dbDescriptors::translatedBibleTestamentName(compatibilityUUID(), testament(nRelIndex))
+						) + "\n";
 		}
 		if (Wrd.ofBook().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofBook().first).arg(Wrd.ofBook().second).arg(PassageReferenceText(CRelIndex(nRelIndex.book(),0,0,0))) + "\n";
