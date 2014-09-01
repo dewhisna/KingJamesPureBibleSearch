@@ -146,7 +146,7 @@ void CKJVPassageNavigator::initialize()
 			QString strEntireBible = tr("Entire Bible", "Scope");
 			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 			if (pTranslator.data() != NULL) {
-				QString strTemp = pTranslator->translator().translate("CKJVPassageNavigator", "Entire Bible", "Scope");
+				QString strTemp = pTranslator->translatorApp().translate("CKJVPassageNavigator", "Entire Bible", "Scope");
 				if (!strTemp.isEmpty()) strEntireBible = strTemp;
 			}
 			ui.comboTestament->addItem(strEntireBible, ndx);

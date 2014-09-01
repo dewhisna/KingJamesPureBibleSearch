@@ -1006,7 +1006,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	QString strTrumpet = tr("trumpet", "ConfigurationSearchPreviewKeyword");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language());
 	if (pTranslator.data() != NULL) {
-		QString strTemp = pTranslator->translator().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
+		QString strTemp = pTranslator->translatorApp().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
 		if (!strTemp.isEmpty()) strTrumpet = strTemp;
 	}
 	m_previewSearchPhrase.ParsePhrase(strTrumpet);

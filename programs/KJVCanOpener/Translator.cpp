@@ -56,7 +56,15 @@ CTranslator::CTranslator(const QString &strLangName, const QString &strTranslati
 		m_locale((strLangName.isEmpty()) ? QLocale::system() : strLangName),
 		m_bLoaded(false)
 {
-	m_bLoaded = m_translator.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
+	m_bLoaded = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
+	if (m_bLoaded) {
+		if (!m_translatorQt.load(m_locale, "qt", "_", g_strTranslationsPath, constrTranslationFilenameSuffix)) {
+			// Note: Qt5 is moving toward using individual component translations.  They have the primary qt file, like
+			//		"qt_de.qm", but it doesn't have any data.  Instead, it delegates to "qtbase_de.qm", for example.
+			//		So if the primary doesn't load, try the base.  This of course makes the deployment more difficult:
+			m_translatorQt.load(m_locale, "qtbase", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+		}
+	}
 }
 
 CTranslator::~CTranslator()
@@ -130,7 +138,8 @@ CTranslatorList *CTranslatorList::instance()
 bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 {
 	if (m_pCurrentTranslator.data() != NULL) {
-		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translator());
+		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorApp());
+		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorQt());
 	}
 
 	if (strLangName.isEmpty()) {
@@ -141,7 +150,8 @@ bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 
 	if (m_pCurrentTranslator.data() == NULL) return false;
 
-	QCoreApplication::installTranslator(&m_pCurrentTranslator->translator());
+	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorQt());
+	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorApp());
 	return true;
 }
 

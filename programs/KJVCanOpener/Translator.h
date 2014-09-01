@@ -50,13 +50,15 @@ public:
 	QString name(bool bLangOnly) const;							// Resolved Locale name.  If bLangOnly is True, this will automatically be truncated to the first "_" (language part only)
 	QString nativeLanguageName() const;							// Translated name for translator in currently selected local (via TR)
 
-	QTranslator &translator() { return m_translator; }
+	QTranslator &translatorApp() { return m_translatorApp; }
+	QTranslator &translatorQt() { return m_translatorQt; }
 	QLocale &locale() { return m_locale; }
 	bool isLoaded() const { return m_bLoaded; }
 
 private:
 	QString m_strLangName;
-	QTranslator m_translator;
+	QTranslator m_translatorApp;
+	QTranslator m_translatorQt;
 	QLocale m_locale;
 	bool m_bLoaded;
 };

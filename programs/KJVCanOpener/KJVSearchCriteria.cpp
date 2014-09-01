@@ -300,7 +300,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (pTranslator.data() != NULL) {
-						QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Entire Bible", "Scope");
+						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Entire Bible", "Scope");
 						if (!strTemp.isEmpty()) strEntireBible = strTemp;
 					}
 				}
@@ -314,7 +314,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (pTranslator.data() != NULL) {
-						QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Colophons", "Scope");
+						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Colophons", "Scope");
 						if (!strTemp.isEmpty()) strColophons = strTemp;
 					}
 				}
@@ -328,7 +328,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (pTranslator.data() != NULL) {
-						QString strTemp = pTranslator->translator().translate("CSearchWithinModel", "Superscriptions", "Scope");
+						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Superscriptions", "Scope");
 						if (!strTemp.isEmpty()) strSuperscriptions = strTemp;
 					}
 				}
