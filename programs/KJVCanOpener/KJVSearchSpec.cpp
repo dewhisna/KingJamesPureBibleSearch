@@ -206,26 +206,24 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 
 	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = NULL;
 	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
-	if (nPhrases != 0) {
-		for (int ndx = 0; ndx < nPhrases; ++ndx) {
-			CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-			assert(pPhraseEditor != NULL);
-			if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
-			kjsFile.setArrayIndex(ndx);
-			TPhraseSettings aPhrase;
-			aPhrase.m_bCaseSensitive = kjsFile.value("CaseSensitive", false).toBool();
-			aPhrase.m_bAccentSensitive = kjsFile.value("AccentSensitive", false).toBool();
-			aPhrase.m_bExclude = kjsFile.value("Exclude", false).toBool();
-			aPhrase.m_strPhrase = kjsFile.value("Phrase").toString();
-			aPhrase.m_bDisabled = kjsFile.value("Disabled", false).toBool();
-			pPhraseEditor->setupPhrase(aPhrase);
-		}
-	} else {
-		// If the search had no phrases (like default loading from registry), start
-		//		with empty search phrase(s):
-		pFirstSearchPhraseEditor = addSearchPhrase();
-		for (int nCount = 1; nCount < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++nCount)
-			addSearchPhrase();
+	for (int ndx = 0; ndx < nPhrases; ++ndx) {
+		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+		assert(pPhraseEditor != NULL);
+		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
+		kjsFile.setArrayIndex(ndx);
+		TPhraseSettings aPhrase;
+		aPhrase.m_bCaseSensitive = kjsFile.value("CaseSensitive", false).toBool();
+		aPhrase.m_bAccentSensitive = kjsFile.value("AccentSensitive", false).toBool();
+		aPhrase.m_bExclude = kjsFile.value("Exclude", false).toBool();
+		aPhrase.m_strPhrase = kjsFile.value("Phrase").toString();
+		aPhrase.m_bDisabled = kjsFile.value("Disabled", false).toBool();
+		pPhraseEditor->setupPhrase(aPhrase);
+	}
+	// But, always open at least the minimum number of empty search phrases specified:
+	for (int ndx = nPhrases; ndx < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++ndx) {
+		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+		assert(pPhraseEditor != NULL);
+		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 	}
 	kjsFile.endArray();
 
