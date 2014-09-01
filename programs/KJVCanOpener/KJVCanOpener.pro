@@ -462,6 +462,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_fr.qm
 translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_es.qm
 translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_de.qm
+greaterThan(QT_MAJOR_VERSION,4):translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qtbase_de.qm		# Qt5 has German translation split into subcomponents
 
 ###############################################################################
 

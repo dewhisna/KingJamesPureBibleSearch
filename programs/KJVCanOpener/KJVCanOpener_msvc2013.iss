@@ -177,9 +177,10 @@ Source: ".\winbuild\KJVCanOpener\translations\kjpbs.en.qm"; DestDir: "{app}\KJVC
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: ".\winbuild\KJVCanOpener\translations\qt_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\qt_es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\qt_fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\qt_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\qtbase_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 
 [Registry]
 Root: HKCR; Subkey: ".kjs"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletevalue;
