@@ -538,6 +538,11 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 #else
 	:	QApplication(argc, argv),
 #endif
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+		m_bSingleThreadedSearchResults(false),
+#else
+		m_bSingleThreadedSearchResults(true),
+#endif
 		m_nLastActivateCanOpener(-1),
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),

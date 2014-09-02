@@ -452,9 +452,9 @@ class CSearchResultsProcess : private CSearchResultsData
 public:
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData);
-#else
-	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl);
 #endif
+	CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap *pMapVersesIncl, CVerseMap *pMapVersesExcl);
+	void commonConstruct();
 
 	bool canCopyBack() const;		// Returns true if the copied phrases match the source (i.e. data hasn't changed)
 	void copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const;
@@ -476,12 +476,11 @@ private:
 	TParsedPhrasesList m_lstParsedPhrasesIncl;	// Pointer to Phrases for inclusions
 	TParsedPhrasesList m_lstParsedPhrasesExcl;	// Pointer to Phrases for exclusions
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-	CVerseMap m_mapVersesIncl;					// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
-	CVerseMap m_mapVersesExcl;					// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
-#else
-	CVerseMap &m_mapVersesIncl;					// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
-	CVerseMap &m_mapVersesExcl;					// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	CVerseMap m_mapVersesInclLocal;				// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	CVerseMap m_mapVersesExclLocal;				// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 #endif
+	CVerseMap *m_pMapVersesIncl;				// Map of Included Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
+	CVerseMap *m_pMapVersesExcl;				// Map of Excluded Verse Search Results by CRelIndex [nBk|nChp|nVrs|0].  Set in buildScopedResultsFromParsedPhrases()
 };
 
 class CVerseListModel : public QAbstractItemModel

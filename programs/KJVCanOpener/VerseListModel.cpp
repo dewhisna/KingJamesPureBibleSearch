@@ -2685,18 +2685,53 @@ void CVerseListModel::en_changedCopyOptions()
 
 // ----------------------------------------------------------------------------
 
-#ifdef USE_MULTITHREADED_SEARCH_RESULTS
 
 void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
 {
-	if (m_pSearchResultsThreadCtrl.data() != NULL) {
-		m_pSearchResultsThreadCtrl->disconnect(this);		// Deactivate future notifications from current worker thread
-	}
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		if (m_pSearchResultsThreadCtrl.data() != NULL) {
+			m_pSearchResultsThreadCtrl->disconnect(this);		// Deactivate future notifications from current worker thread
+		}
 
-	m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData);
-	connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
-	m_pSearchResultsThreadCtrl->startWorking();
+		m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData);
+		connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
+		m_pSearchResultsThreadCtrl->startWorking();
+	} else {
+#endif
+
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+			emit verseListAboutToChange();
+			emit beginResetModel();
+		}
+
+		CSearchResultsProcess srp(m_private.m_pBibleDatabase, searchResultsData, &m_searchResults.m_mapVerses, &m_searchResultsExcluded.m_mapVerses);
+		srp.buildScopedResultsFromParsedPhrases();
+		srp.copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
+		srp.copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
+
+		m_searchResults.m_mapExtraVerseIndexes.clear();
+		m_searchResults.m_mapSizeHints.clear();
+
+		m_searchResultsExcluded.m_mapExtraVerseIndexes.clear();
+		m_searchResultsExcluded.m_mapSizeHints.clear();
+
+		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
+			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
+			emit endResetModel();
+			emit verseListChanged();
+		}
+
+		emit searchResultsReady();
+
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	}
+#endif
+
 }
+
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
 
 void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *theThreadedSearchResult)
 {
@@ -2736,66 +2771,62 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 	emit searchResultsReady();
 }
 
-#else
-void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsData &searchResultsData)
-{
-	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-		emit verseListAboutToChange();
-		emit beginResetModel();
-	}
-
-	CSearchResultsProcess srp(m_private.m_pBibleDatabase, searchResultsData, m_searchResults.m_mapVerses, m_searchResultsExcluded.m_mapVerses);
-	srp.buildScopedResultsFromParsedPhrases();
-	srp.copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
-	srp.copyBackExclusionData(m_searchResultsExcluded.m_searchResultsData, m_searchResultsExcluded.m_mapVerses, m_searchResultsExcluded.m_lstVerseIndexes);
-
-	m_searchResults.m_mapExtraVerseIndexes.clear();
-	m_searchResults.m_mapSizeHints.clear();
-
-	m_searchResultsExcluded.m_mapExtraVerseIndexes.clear();
-	m_searchResultsExcluded.m_mapSizeHints.clear();
-
-	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
-		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-		emit endResetModel();
-		emit verseListChanged();
-	}
-
-	emit searchResultsReady();
-}
 #endif
 
 // ============================================================================
 
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
+
 CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData)
 	:	CSearchResultsData(searchResultsData),
 		m_pBibleDatabase(pBibleDatabase)
-#else
-CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap &mapVersesIncl, CVerseMap &mapVersesExcl)
-	:	CSearchResultsData(searchResultsData),
-		m_pBibleDatabase(pBibleDatabase),
-		m_mapVersesIncl(mapVersesIncl),
-		m_mapVersesExcl(mapVersesExcl)
-#endif
 {
 	assert(pBibleDatabase.data() != NULL);
+	m_pMapVersesIncl = &m_mapVersesInclLocal;
+	m_pMapVersesExcl = &m_mapVersesExclLocal;
 
+	commonConstruct();
+}
+
+#endif
+
+CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &searchResultsData, CVerseMap *pMapVersesIncl, CVerseMap *pMapVersesExcl)
+	:	CSearchResultsData(searchResultsData),
+		m_pBibleDatabase(pBibleDatabase),
+		m_pMapVersesIncl(pMapVersesIncl),
+		m_pMapVersesExcl(pMapVersesExcl)
+{
+	assert(pBibleDatabase.data() != NULL);
+	assert(pMapVersesIncl != NULL);
+	assert(pMapVersesExcl != NULL);
+
+	commonConstruct();
+}
+
+void CSearchResultsProcess::commonConstruct()
+{
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
 		assert(!m_lstParsedPhrases.at(ndx).isNull());
 		m_lstParsedPhrases.at(ndx)->setHasChanged(false);
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			m_lstCopyParsedPhrasesIncl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
-			m_lstParsedPhrasesIncl.append(m_lstCopyParsedPhrasesIncl.last().data());
+			if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+				m_lstCopyParsedPhrasesIncl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
+				m_lstParsedPhrasesIncl.append(m_lstCopyParsedPhrasesIncl.last().data());
+			} else {
+				m_lstParsedPhrasesIncl.append(m_lstParsedPhrases.at(ndx));
+			}
 #else
 			m_lstParsedPhrasesIncl.append(m_lstParsedPhrases.at(ndx));
 #endif
 		} else {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			m_lstCopyParsedPhrasesExcl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
-			m_lstParsedPhrasesExcl.append(m_lstCopyParsedPhrasesExcl.last().data());
+			if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+				m_lstCopyParsedPhrasesExcl.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(*m_lstParsedPhrases.at(ndx))));
+				m_lstParsedPhrasesExcl.append(m_lstCopyParsedPhrasesExcl.last().data());
+			} else {
+				m_lstParsedPhrasesExcl.append(m_lstParsedPhrases.at(ndx));
+			}
 #else
 			m_lstParsedPhrasesExcl.append(m_lstParsedPhrases.at(ndx));
 #endif
@@ -2803,29 +2834,28 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 	}
 }
 
-#ifdef USE_MULTITHREADED_SEARCH_RESULTS
 bool CSearchResultsProcess::canCopyBack() const
 {
-	// Check for phrases that have changed:
-	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
-		if ((m_lstParsedPhrases.at(ndx).isNull()) ||
-			(m_lstParsedPhrases.at(ndx)->hasChanged())) return false;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		// Check for phrases that have changed:
+		for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
+			if ((m_lstParsedPhrases.at(ndx).isNull()) ||
+				(m_lstParsedPhrases.at(ndx)->hasChanged())) return false;
+		}
 	}
+#endif
 
 	return true;
 }
-#else
-bool CSearchResultsProcess::canCopyBack() const
-{
-	return true;
-}
-#endif
 
 void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResultsData, CVerseMap &mapVerseData, QList<CRelIndex> &lstVerseIndexes) const
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	int ndxIncl = 0;
-	assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+	}
 #endif
 	searchResultsData.m_lstParsedPhrases.clear();
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
@@ -2833,22 +2863,27 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 		if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			//	Assert if phrase changed because caller should have called canCopyBack():
-			assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data()));
-			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
-			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
+			if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+				//	Assert if phrase changed because caller should have called canCopyBack():
+				assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data()));
+				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetScopedPhraseTagSearchResults();
+				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesIncl.at(ndxIncl)->GetWithinPhraseTagSearchResults();
+			}
 			++ndxIncl;
 #endif
 		}
 	}
 	searchResultsData.m_SearchCriteria = m_SearchCriteria;
 	lstVerseIndexes.clear();
-	lstVerseIndexes.reserve(m_mapVersesIncl.size());
-	for (CVerseMap::const_iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
+	lstVerseIndexes.reserve(m_pMapVersesIncl->size());
+	for (CVerseMap::const_iterator itr = m_pMapVersesIncl->begin(); (itr != m_pMapVersesIncl->end()); ++itr) {
 		lstVerseIndexes.append(itr.key());
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-	mapVerseData = m_mapVersesIncl;
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		assert(m_pMapVersesIncl != NULL);
+		mapVerseData = *m_pMapVersesIncl;
+	}
 #else
 	Q_UNUSED(mapVerseData);
 #endif
@@ -2858,7 +2893,9 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	int ndxExcl = 0;
-	assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		assert(m_lstParsedPhrases.size() == (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size()));
+	}
 #endif
 	searchResultsData.m_lstParsedPhrases.clear();
 	for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
@@ -2866,22 +2903,27 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 		if (m_lstParsedPhrases.at(ndx)->isExcluded()) {
 			searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.at(ndx));
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-			//	Assert if phrase changed because caller should have called canCopyBack():
-			assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data()));
-			m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
-			m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
+			if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+				//	Assert if phrase changed because caller should have called canCopyBack():
+				assert((*m_lstParsedPhrases.at(ndx)) == (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data()));
+				m_lstParsedPhrases.at(ndx)->GetScopedPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetScopedPhraseTagSearchResults();
+				m_lstParsedPhrases.at(ndx)->GetWithinPhraseTagSearchResultsNonConst() = m_lstCopyParsedPhrasesExcl.at(ndxExcl)->GetWithinPhraseTagSearchResults();
+			}
 			++ndxExcl;
 #endif
 		}
 	}
 	searchResultsData.m_SearchCriteria = m_SearchCriteria;
 	lstVerseIndexes.clear();
-	lstVerseIndexes.reserve(m_mapVersesExcl.size());
-	for (CVerseMap::const_iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
+	lstVerseIndexes.reserve(m_pMapVersesExcl->size());
+	for (CVerseMap::const_iterator itr = m_pMapVersesExcl->begin(); (itr != m_pMapVersesExcl->end()); ++itr) {
 		lstVerseIndexes.append(itr.key());
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
-	mapVerseData = m_mapVersesExcl;
+	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		assert(m_pMapVersesExcl != NULL);
+		mapVerseData = *m_pMapVersesExcl;
+	}
 #else
 	Q_UNUSED(mapVerseData);
 #endif
@@ -2889,8 +2931,8 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 
 void CSearchResultsProcess::buildScopedResultsFromParsedPhrases()
 {
-	m_mapVersesIncl.clear();
-	m_mapVersesExcl.clear();
+	m_pMapVersesIncl->clear();
+	m_pMapVersesExcl->clear();
 
 	QList<TPhraseTagList::const_iterator> lstItrStart;
 	QList<TPhraseTagList::const_iterator> lstItrEnd;
@@ -3025,10 +3067,10 @@ void CSearchResultsProcess::buildScopedResultsFromParsedPhrases()
 					lstScopedPhraseTags.append(*itr);
 					CRelIndex ndxNextRelative = itr->relIndex();
 					ndxNextRelative.setWord(1);
-					if (m_mapVersesIncl.contains(ndxNextRelative)) {
-						m_mapVersesIncl[ndxNextRelative].addPhraseTag(*itr);
+					if (m_pMapVersesIncl->contains(ndxNextRelative)) {
+						(*m_pMapVersesIncl)[ndxNextRelative].addPhraseTag(*itr);
 					} else {
-						m_mapVersesIncl.insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS), m_pBibleDatabase, *itr));
+						m_pMapVersesIncl->insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS), m_pBibleDatabase, *itr));
 					}
 				}
 				if (!bHitExclusion) {
@@ -3047,10 +3089,10 @@ void CSearchResultsProcess::buildScopedResultsFromParsedPhrases()
 		}
 	}
 
-	for (CVerseMap::iterator itr = m_mapVersesIncl.begin(); (itr != m_mapVersesIncl.end()); ++itr) {
+	for (CVerseMap::iterator itr = m_pMapVersesIncl->begin(); (itr != m_pMapVersesIncl->end()); ++itr) {
 		itr->sortPhraseTags();
 	}
-	for (CVerseMap::iterator itr = m_mapVersesExcl.begin(); (itr != m_mapVersesExcl.end()); ++itr) {
+	for (CVerseMap::iterator itr = m_pMapVersesExcl->begin(); (itr != m_pMapVersesExcl->end()); ++itr) {
 		itr->sortPhraseTags();
 	}
 }
@@ -3083,10 +3125,10 @@ bool CSearchResultsProcess::checkExclusion(QList<TPhraseTagList::const_iterator>
 		ndxNextRelative.setWord(1);
 		// Note: The tag has already been added to the ScopedPhraseTags above in the
 		//			check for intersection.
-		if (m_mapVersesExcl.contains(ndxNextRelative)) {
-			m_mapVersesExcl[ndxNextRelative].addPhraseTag(tag);
+		if (m_pMapVersesExcl->contains(ndxNextRelative)) {
+			(*m_pMapVersesExcl)[ndxNextRelative].addPhraseTag(tag);
 		} else {
-			m_mapVersesExcl.insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS_EXCLUDED), m_pBibleDatabase, tag));
+			m_pMapVersesExcl->insert(ndxNextRelative, CVerseListItem(TVerseIndex(ndxNextRelative, VLMRTE_SEARCH_RESULTS_EXCLUDED), m_pBibleDatabase, tag));
 		}
 	}
 

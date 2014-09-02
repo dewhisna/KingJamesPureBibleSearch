@@ -124,6 +124,11 @@ int main(int argc, char *argv[])
 	QString strKJSFile;
 	bool bBuildDB = false;
 	bool bStealthMode = false;
+#ifdef USE_MULTITHREADED_SEARCH_RESULTS
+	bool bSingleThreadedSearchResults = false;
+#else
+	bool bSingleThreadedSearchResults = true;
+#endif
 	QString strStealthSettingsFilename;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
@@ -190,6 +195,8 @@ int main(int argc, char *argv[])
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 				bLookingForSettings = true;
+			} else if (strArg.compare("-singlethread", Qt::CaseInsensitive) == 0) {
+				bSingleThreadedSearchResults = true;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}
@@ -246,6 +253,8 @@ int main(int argc, char *argv[])
 	if (bStealthMode) {
 		CPersistentSettings::instance()->setStealthMode(strStealthSettingsFilename);
 	}
+
+	pApp->setSingleThreadedSearchResults(bSingleThreadedSearchResults);
 
 	int nRetVal = 0;
 

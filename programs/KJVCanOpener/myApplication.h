@@ -123,6 +123,9 @@ public:
 	CMyApplication(int & argc, char ** argv);
 	virtual ~CMyApplication();
 
+	bool isSingleThreadedSearchResults() const { return m_bSingleThreadedSearchResults; }
+	void setSingleThreadedSearchResults(bool bSingleThreadedSearchResults) { m_bSingleThreadedSearchResults = bSingleThreadedSearchResults; }		// Warning: Only call this in main() before calling execute(), otherwise isn't thread-safe
+
 	BIBLE_DESCRIPTOR_ENUM selectedMainBibleDB() const { return m_nSelectedMainBibleDB; }
 	void setSelectedMainBibleDB(BIBLE_DESCRIPTOR_ENUM nBibleDB) { m_nSelectedMainBibleDB = nBibleDB; }
 
@@ -218,6 +221,7 @@ protected:
 	void setSplashMessage(const QString &strMessage = QString());
 
 protected:
+	bool m_bSingleThreadedSearchResults;				// True if we are using single-threaded Search Results processing
 	QString m_strFileToLoad;
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
