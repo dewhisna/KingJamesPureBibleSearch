@@ -1019,7 +1019,9 @@ const TCrossReferenceMap *CVerseListModel::ms_pCrossRefsMap = NULL;
 void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const
 {
 	static QAtomicInt nThreadLock(0);
-	while (!nThreadLock.testAndSetRelaxed(0, 1)) { }	// Mutex wait for thread if someone is currently running this function
+	while (!nThreadLock.testAndSetRelaxed(0, 1)) {
+		QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	}	// Mutex wait for thread if someone is currently running this function
 	assert(ms_pCrossRefsMap == NULL);					// Thread-safeguard check
 	ms_pCrossRefsMap = &m_crossRefsResults.m_mapCrossRefs;
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
