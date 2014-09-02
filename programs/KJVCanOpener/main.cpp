@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 				bLookingForSettings = true;
-			} else if (strArg.compare("-singlethread", Qt::CaseInsensitive) == 0) {
+			} else if (strArg.compare("-singlethreaded", Qt::CaseInsensitive) == 0) {
 				bSingleThreadedSearchResults = true;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
