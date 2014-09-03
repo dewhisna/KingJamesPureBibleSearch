@@ -125,7 +125,11 @@ int main(int argc, char *argv[])
 	bool bBuildDB = false;
 	bool bStealthMode = false;
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
+#ifdef INVERT_MULTITHREADED_LOGIC
+	bool bSingleThreadedSearchResults = true;
+#else
 	bool bSingleThreadedSearchResults = false;
+#endif
 #else
 	bool bSingleThreadedSearchResults = true;
 #endif
@@ -195,8 +199,12 @@ int main(int argc, char *argv[])
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 				bLookingForSettings = true;
-			} else if (strArg.compare("-singlethreaded", Qt::CaseInsensitive) == 0) {
+			} else if ((strArg.compare("-singlethreaded", Qt::CaseInsensitive) == 0) ||
+						(strArg.compare("-st", Qt::CaseInsensitive) == 0)) {
 				bSingleThreadedSearchResults = true;
+			} else if ((strArg.compare("-multithreaded", Qt::CaseInsensitive) == 0) ||
+						(strArg.compare("-mt", Qt::CaseInsensitive) == 0)) {
+				bSingleThreadedSearchResults = false;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}

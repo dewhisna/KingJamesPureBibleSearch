@@ -177,6 +177,7 @@ DEFINES += USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY							# Enable to delay searc
 
 # Enable Multithreaded Search Results:
 DEFINES += USE_MULTITHREADED_SEARCH_RESULTS									# Enable to spawn separate thread to handle calculation of Scoped Search Results for the VerseListModel
+DEFINES += INVERT_MULTITHREADED_LOGIC										# Invert the defaults of single vs. multi threaded when USE_MULTITHREADED_SEARCH_RESULTS is enabled (with this Single is default without command-line option instead of Multi)
 
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86

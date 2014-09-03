@@ -539,7 +539,11 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	:	QApplication(argc, argv),
 #endif
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
+#ifdef INVERT_MULTITHREADED_LOGIC
+		m_bSingleThreadedSearchResults(true),
+#else
 		m_bSingleThreadedSearchResults(false),
+#endif
 #else
 		m_bSingleThreadedSearchResults(true),
 #endif
