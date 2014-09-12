@@ -1170,9 +1170,12 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 		int nIndex = lstFields.at(0).toInt();
 		QString strWord = lstFields.at(1);
 		QString strDefinition = (bLiveDB ? QString() : lstFields.at(2));
-		CDictionaryWordEntry wordEntry(strWord, strDefinition, nIndex);
-		assert(m_pDictionaryDatabase->m_mapWordDefinitions.find(wordEntry.decomposedWord()) == m_pDictionaryDatabase->m_mapWordDefinitions.end());
-		m_pDictionaryDatabase->m_mapWordDefinitions[wordEntry.decomposedWord()] = wordEntry;
+		CDictionaryWordEntry wordEntryNew(strWord);
+		if (m_pDictionaryDatabase->m_mapWordDefinitions.find(wordEntryNew.decomposedWord()) == m_pDictionaryDatabase->m_mapWordDefinitions.end()) {
+			m_pDictionaryDatabase->m_mapWordDefinitions[wordEntryNew.decomposedWord()] = wordEntryNew;
+		}
+		CDictionaryWordEntry &wordEntry = m_pDictionaryDatabase->m_mapWordDefinitions[wordEntryNew.decomposedWord()];
+		wordEntry.addDefinition(nIndex, strDefinition);
 	}
 
 	dbParser.endQueryLoop();
@@ -1190,23 +1193,30 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictionaryDatabase, const CDictionaryWordEntry &wordEntry)
 {
 	assert(pDictionaryDatabase != NULL);
-	assert(pDictionaryDatabase->isLiveDatabase());
 
-	QString strDefinition;
+	QStringList lstDefinitions;
 
+	if (!pDictionaryDatabase->isLiveDatabase()) {
+		// If we have loaded the whole database in memory, just return it:
+		return wordEntry.definitions().join(QString::fromLatin1("<hr>"));
+	} else {
+		// Otherwise, do SQL Query:
 #ifndef NOT_USING_SQL
-	QSqlQuery queryData(pDictionaryDatabase->m_myDatabase);
-	queryData.setForwardOnly(true);
-	if ((queryData.exec(QString("SELECT definition FROM dictionary WHERE id=%1").arg(wordEntry.index()))) &&
-		(queryData.next())) {
-		strDefinition = queryData.value(0).toString();
-	}
-	queryData.finish();
+		for (int ndx=0; ndx < wordEntry.indexes().size(); ++ndx) {
+			QSqlQuery queryData(pDictionaryDatabase->m_myDatabase);
+			queryData.setForwardOnly(true);
+			if ((queryData.exec(QString("SELECT definition FROM dictionary WHERE id=%1").arg(wordEntry.indexes().at(ndx)))) &&
+				(queryData.next())) {
+				lstDefinitions.append(queryData.value(0).toString());
+			}
+			queryData.finish();
+		}
 #else
 	Q_UNUSED(wordEntry);
 #endif
+	}
 
-	return strDefinition;
+	return lstDefinitions.join(QString::fromLatin1("<hr>"));
 }
 
 // ============================================================================

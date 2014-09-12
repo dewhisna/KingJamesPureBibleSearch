@@ -129,6 +129,9 @@ public:
 	BIBLE_DESCRIPTOR_ENUM selectedMainBibleDB() const { return m_nSelectedMainBibleDB; }
 	void setSelectedMainBibleDB(BIBLE_DESCRIPTOR_ENUM nBibleDB) { m_nSelectedMainBibleDB = nBibleDB; }
 
+	DICTIONARY_DESCRIPTOR_ENUM selectedMainDictDB() const { return m_nSelectedMainDictDB; }
+	void setSelectedMainDictDB(DICTIONARY_DESCRIPTOR_ENUM nDictDB) { m_nSelectedMainDictDB = nDictDB; }
+
 	QWidget *showSplash();
 	void completeInterAppSplash();
 
@@ -237,6 +240,7 @@ protected:
 	QWidget *m_pSplash;									// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
 #endif
 	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
+	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index
 	DelayedExecutionTimer m_dlyNotesFilesAutoSave;		// Delay timer for notes file auto-save trigger
 };
 extern QPointer<CMyApplication> g_pMyApplication;

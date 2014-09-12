@@ -98,11 +98,15 @@ namespace {
 
 	// Main Bible Database Settings:
 	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
-	const QString constrBibleDatabaseUUIDKey("UUID");
+	const QString constrDatabaseUUIDKey("UUID");
+
+	// Main Dictionary Database Settings:
+	const QString constrMainAppDictDatabaseGroup("MainApp/DictionaryDatabase");
+	//const QString constrDatabaseUUIDKey("UUID");
 
 	// Bible Database Settings:
 	const QString constrBibleDatabaseSettingsGroup("BibleDatabaseSettings");
-	//const QString constrBibleDatabaseUUIDKey("UUID");
+	//const QString constrDatabaseUUIDKey("UUID");
 	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
@@ -551,7 +555,8 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
 		m_pSplash(NULL),
-		m_nSelectedMainBibleDB(BDE_UNKNOWN)
+		m_nSelectedMainBibleDB(BDE_UNKNOWN),
+		m_nSelectedMainDictDB(DDE_UNKNOWN)
 {
 #ifdef Q_OS_ANDROID
 	m_strInitialAppDirPath = QDir::homePath();
@@ -1277,16 +1282,17 @@ int CMyApplication::execute(bool bBuildDB)
 
 	qRegisterMetaType<TBibleDatabaseSettings>("TBibleDatabaseSettings");			// Needed to do queued connection of the CPersistentSettings::changedBibleDatabaseSettings()
 
-	QString strMainDatabaseUUID;
+	QString strMainBibleDatabaseUUID;
+	QString strMainDictDatabaseUUID;
 
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
 		// Main Bible Database:
 		settings.beginGroup(constrMainAppBibleDatabaseGroup);
-		strMainDatabaseUUID = settings.value(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID()).toString();
-		if (!strMainDatabaseUUID.isEmpty()) {
-			CPersistentSettings::instance()->setMainBibleDatabaseUUID(strMainDatabaseUUID);
+		strMainBibleDatabaseUUID = settings.value(constrDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID()).toString();
+		if (!strMainBibleDatabaseUUID.isEmpty()) {
+			CPersistentSettings::instance()->setMainBibleDatabaseUUID(strMainBibleDatabaseUUID);
 		}
 		settings.endGroup();
 
@@ -1296,7 +1302,7 @@ int CMyApplication::execute(bool bBuildDB)
 			for (int ndx = 0; ndx < nBDBSettings; ++ndx) {
 				TBibleDatabaseSettings bdbSettings;
 				settings.setArrayIndex(ndx);
-				QString strUUID = settings.value(constrBibleDatabaseUUIDKey, QString()).toString();
+				QString strUUID = settings.value(constrDatabaseUUIDKey, QString()).toString();
 				if (!strUUID.isEmpty()) {
 					bdbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, bdbSettings.loadOnStart()).toBool());
 					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toUInt());
@@ -1306,6 +1312,14 @@ int CMyApplication::execute(bool bBuildDB)
 			}
 		}
 		settings.endArray();
+
+		// Main Dictionary Database:
+		settings.beginGroup(constrMainAppDictDatabaseGroup);
+		strMainDictDatabaseUUID = settings.value(constrDatabaseUUIDKey, CPersistentSettings::instance()->mainDictDatabaseUUID()).toString();
+		if (!strMainDictDatabaseUUID.isEmpty()) {
+			CPersistentSettings::instance()->setMainDictDatabaseUUID(strMainDictDatabaseUUID);
+		}
+		settings.endGroup();
 	}
 
 	if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
@@ -1317,13 +1331,26 @@ int CMyApplication::execute(bool bBuildDB)
 		// Else, see if a persistent settings was previously set:
 		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
 			for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-				if ((!strMainDatabaseUUID.isEmpty()) && (strMainDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
+				if ((!strMainBibleDatabaseUUID.isEmpty()) && (strMainBibleDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
 					m_nSelectedMainBibleDB = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
 					break;
 				}
 			}
 		}
 		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise
+	}
+
+	if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
+		// If command-line override for dictionary wasn't specified, see if a persistent setting was previously set:
+		if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
+			for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
+				if ((!strMainDictDatabaseUUID.isEmpty()) && (strMainDictDatabaseUUID.compare(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
+					m_nSelectedMainDictDB = static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx);
+					break;
+				}
+			}
+		}
+		if (m_nSelectedMainDictDB == DDE_UNKNOWN) m_nSelectedMainDictDB = DDE_WEB1828;				// Default to WEB1828 unless we're told otherwise
 	}
 
 #ifndef EMSCRIPTEN
@@ -1387,24 +1414,35 @@ int CMyApplication::execute(bool bBuildDB)
 
 #ifndef EMSCRIPTEN
 		// Read Dictionary Database:
-		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
-			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
-			if (!dctDesc.m_bAutoLoad) continue;
+		QList<DICTIONARY_DESCRIPTOR_ENUM> lstAvailableDDEs = TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
+		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
+			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(lstAvailableDDEs.at(ndx));
+			if ((!dctDesc.m_bAutoLoad) &&
+				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) /* &&			TODO --- ENABLE this when we add dictionary settings!!!
+				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart()) */  ) continue;
 			bool bHaveLanguageMatch = false;
-			for (int nBBLNdx = 0; nBBLNdx < TBibleDatabaseList::instance()->size(); ++nBBLNdx) {
-				if ((TBibleDatabaseList::instance()->at(nBBLNdx).data() != NULL) &&
-					(TBibleDatabaseList::instance()->at(nBBLNdx)->language().compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
+			for (int nBBLNdx = 0; nBBLNdx < lstAvailableBDEs.size(); ++nBBLNdx) {
+				if (bibleDescriptor(lstAvailableBDEs.at(nBBLNdx)).m_strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0) {
 					bHaveLanguageMatch = true;
 					break;
 				}
 			}
 			if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
 			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
-			if (!rdbDict.haveDictionaryDatabaseFiles(dctDesc)) continue;
+			assert(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(dctDesc.m_strDBName) + tr("Dictionary", "Errors"));
-			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() == NULL))) {
+			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_nSelectedMainDictDB == lstAvailableDDEs.at(ndx)))) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
 				return -5;
+			}
+		}
+		// If the specified database wasn't found, see if we loaded any database and if so, make the
+		//		first one loaded matching our main Bible Database language the main dictionary:
+		for (int nDctNdx = 0; ((nDctNdx < TDictionaryDatabaseList::instance()->size()) &&
+							   (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() == NULL)); ++nDctNdx) {
+			if ((TDictionaryDatabaseList::instance()->at(nDctNdx).data() != NULL) &&			// Note: Main Bible Database is guaranteed to be set above in Bible DB Loading
+				(TDictionaryDatabaseList::instance()->at(nDctNdx)->language().compare(TBibleDatabaseList::instance()->mainBibleDatabase()->language(), Qt::CaseInsensitive) == 0)) {
+				TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(TDictionaryDatabaseList::instance()->at(nDctNdx)->compatibilityUUID());
 			}
 		}
 #endif	// !EMSCRIPTEN

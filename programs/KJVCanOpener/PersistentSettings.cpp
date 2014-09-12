@@ -166,6 +166,8 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		// ----
 		m_strMainBibleDatabaseUUID(bibleDescriptor(BDE_KJV).m_strUUID),			// Default to reading KJV
 		// ----
+		m_strMainDictDatabaseUUID(dictionaryDescriptor(DDE_WEB1828).m_strUUID),	// Default to reading Web1828
+		// ----
 		m_strApplicationLanguage(QString()),			// Default to System Locale language
 		// ----
 		m_bScreenSwipeableMainWindow(false),
@@ -333,6 +335,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			}
 		}
 		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
+		if (pSource->m_strMainDictDatabaseUUID != pTarget->m_strMainDictDatabaseUUID) emit changedMainDictDatabaseSelection(pTarget->m_strMainDictDatabaseUUID);
 		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
 		if (pSource->m_bScreenSwipeableMainWindow != pTarget->m_bScreenSwipeableMainWindow) emit changedScreenSwipeableMainWindow(pTarget->m_bScreenSwipeableMainWindow);
 		if (pSource->m_bScrollbarsEnabled != pTarget->m_bScrollbarsEnabled) emit changedScrollbarsEnabled(pTarget->m_bScrollbarsEnabled);
@@ -797,6 +800,14 @@ void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
 	if (m_pPersistentSettingData->m_strMainBibleDatabaseUUID != strUUID) {
 		m_pPersistentSettingData->m_strMainBibleDatabaseUUID = strUUID;
 		emit changedMainBibleDatabaseSelection(strUUID);
+	}
+}
+
+void CPersistentSettings::setMainDictDatabaseUUID(const QString &strUUID)
+{
+	if (m_pPersistentSettingData->m_strMainDictDatabaseUUID != strUUID) {
+		m_pPersistentSettingData->m_strMainDictDatabaseUUID = strUUID;
+		emit changedMainDictDatabaseSelection(strUUID);
 	}
 }
 

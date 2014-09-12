@@ -171,6 +171,7 @@ int main(int argc, char *argv[])
 
 	bool bLookingForSettings = false;
 	bool bLookingForBibleDB = false;
+	bool bLookingForDictDB = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
 		if (!strArg.startsWith("-")) {
@@ -184,16 +185,27 @@ int main(int argc, char *argv[])
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"", "Errors").arg(strArg));
 				}
+			} else if (bLookingForDictDB) {
+				bLookingForDictDB = false;
+				if (strArg.toUInt() < dictionaryDescriptorCount()) {
+					pApp->setSelectedMainDictDB(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(strArg.toUInt()));
+				} else {
+					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Dictionary Database Index \"%1\"", "Errors").arg(strArg));
+				}
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unexpected command-line filename \"%1\"", "Errors").arg(strArg));
 			}
-		} else if (!bLookingForSettings) {
+		} else if ((!bLookingForSettings) &&
+					(!bLookingForBibleDB) &&
+					(!bLookingForDictDB)) {
 			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 				bBuildDB = true;
 			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
 				bLookingForBibleDB = true;
+			} else if (strArg.compare("-dct", Qt::CaseInsensitive) == 0) {
+				bLookingForDictDB = true;
 			} else if (strArg.compare("-stealth", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
@@ -212,6 +224,14 @@ int main(int argc, char *argv[])
 			if (bLookingForSettings) {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForSettings = false;
+			}
+			if (bLookingForBibleDB) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForBibleDB = false;
+			}
+			if (bLookingForDictDB) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForDictDB = false;
 			}
 		}
 	}

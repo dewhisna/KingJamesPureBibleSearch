@@ -1008,15 +1008,15 @@ class CDictionaryWordEntry : public CBasicWordEntry
 {
 public:
 	CDictionaryWordEntry();
-	CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex = 0);
+	CDictionaryWordEntry(const QString &strWord);
 	virtual ~CDictionaryWordEntry() { }
 
 	CDictionaryWordEntry & operator=(const CDictionaryWordEntry &src)
 	{
 		m_strWord = src.m_strWord;
 		m_strDecomposedWord = src.m_strDecomposedWord;
-		m_strDefinition = src.m_strDefinition;
-		m_nIndex = src.m_nIndex;
+		m_lstDefinitions = src.m_lstDefinitions;
+		m_lstIndexes = src.m_lstIndexes;
 		return *this;
 	}
 
@@ -1026,8 +1026,15 @@ public:
 	virtual const QString &deApostrWord() const { return m_strDecomposedWord; }
 	virtual const QString &deApostrHyphenWord() const { return m_strDecomposedWord; }
 	virtual const QString &renderedWord() const { return m_strWord; }
-	QString definition() const { return m_strDefinition; }
-	inline int index() const { return m_nIndex; }
+	const QStringList &definitions() const { return m_lstDefinitions; }
+	const QList<int> &indexes() const { return m_lstIndexes; }
+	void addDefinition(int nIndex, const QString &strDefinition)
+	{
+		if (!m_lstIndexes.contains(nIndex)) {
+			m_lstIndexes.append(nIndex);
+			m_lstDefinitions.append(strDefinition);
+		}
+	}
 
 	bool operator==(const CDictionaryWordEntry &src) const
 	{
@@ -1041,8 +1048,8 @@ public:
 private:
 	QString m_strWord;						// Composed Word (as in the actual text)
 	QString m_strDecomposedWord;			// Lowercase Decomposed Word (used for matching)
-	QString m_strDefinition;				// Rich-Text Definition of the Word
-	int m_nIndex;							// Database index -- used for live database lookup
+	QStringList m_lstDefinitions;			// Rich-Text Definitions of the Word
+	QList<int> m_lstIndexes;				// Database indexes -- used for live database lookup
 };
 
 typedef std::map<QString, CDictionaryWordEntry> TDictionaryWordListMap;		// Indexed by lower-case decomposed words from word-list

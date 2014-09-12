@@ -1676,16 +1676,13 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 // ============================================================================
 
 CDictionaryWordEntry::CDictionaryWordEntry()
-	:	m_nIndex(0)
 {
 
 }
 
-CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord, const QString &strDefinition, int nIndex)
+CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord)
 	:	m_strWord(strWord),
-		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, false).toLower()),
-		m_strDefinition(strDefinition),
-		m_nIndex(nIndex)
+		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, false).toLower())
 {
 
 }
@@ -1734,11 +1731,6 @@ QString CDictionaryDatabase::definition(const QString &strWord) const
 	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	if (itrWord == m_mapWordDefinitions.end()) return QString();
-
-	// If we have loaded the whole database in memory, just return it:
-	if (!isLiveDatabase()) return (itrWord->second).definition();
-
-	// Otherwise, do SQL Query:
 	return CReadDatabase::dictionaryDefinition(this, itrWord->second);
 }
 

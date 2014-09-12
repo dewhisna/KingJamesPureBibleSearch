@@ -111,7 +111,11 @@ namespace {
 
 	// Main Bible Database Settings:
 	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
-	const QString constrBibleDatabaseUUIDKey("UUID");
+	const QString constrDatabaseUUIDKey("UUID");
+
+	// Main Dictionary Database Settings:
+	const QString constrMainAppDictDatabaseGroup("MainApp/DictionaryDatabase");
+	//const QString constrDatabaseUUIDKey("UUID");
 
 	// Colors:
 	const QString constrColorsGroup("Colors");
@@ -213,7 +217,7 @@ namespace {
 
 	// Bible Database Settings:
 	const QString constrBibleDatabaseSettingsGroup("BibleDatabaseSettings");
-	//const QString constrBibleDatabaseUUIDKey("UUID");
+	//const QString constrDatabaseUUIDKey("UUID");
 	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
@@ -939,7 +943,12 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 		// Main App Bible Database Settings:
 		settings.beginGroup(constrMainAppBibleDatabaseGroup);
-		settings.setValue(constrBibleDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID());
+		settings.setValue(constrDatabaseUUIDKey, CPersistentSettings::instance()->mainBibleDatabaseUUID());
+		settings.endGroup();
+
+		// Main App Dictionary Database Settings:
+		settings.beginGroup(constrMainAppDictDatabaseGroup);
+		settings.setValue(constrDatabaseUUIDKey, CPersistentSettings::instance()->mainDictDatabaseUUID());
 		settings.endGroup();
 
 		// Colors:
@@ -1114,7 +1123,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		for (int ndxDB = 0; ndxDB < lstBibleDatabaseUUIDs.size(); ++ndxDB) {
 			const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(lstBibleDatabaseUUIDs.at(ndxDB));
 			settings.setArrayIndex(ndxDB);
-			settings.setValue(constrBibleDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
+			settings.setValue(constrDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
 			settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
 			settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
 			settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
