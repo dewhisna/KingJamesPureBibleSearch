@@ -2838,10 +2838,23 @@ bool CSearchResultsProcess::canCopyBack() const
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
+		int ndxIncl = 0;
+		int ndxExcl = 0;
+		if (m_lstParsedPhrases.size() != (m_lstCopyParsedPhrasesIncl.size() + m_lstCopyParsedPhrasesExcl.size())) return false;
+
 		// Check for phrases that have changed:
 		for (int ndx=0; ndx<m_lstParsedPhrases.size(); ++ndx) {
 			if ((m_lstParsedPhrases.at(ndx).isNull()) ||
 				(m_lstParsedPhrases.at(ndx)->hasChanged())) return false;
+			if (!m_lstParsedPhrases.at(ndx)->isExcluded()) {
+				if (ndxIncl >= m_lstCopyParsedPhrasesIncl.size()) return false;
+				if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesIncl.at(ndxIncl).data())) return false;
+				++ndxIncl;
+			} else {
+				if (ndxExcl >= m_lstCopyParsedPhrasesExcl.size()) return false;
+				if ((*m_lstParsedPhrases.at(ndx)) != (*m_lstCopyParsedPhrasesExcl.at(ndxExcl).data())) return false;
+				++ndxExcl;
+			}
 		}
 	}
 #endif
