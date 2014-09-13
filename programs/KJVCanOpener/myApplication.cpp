@@ -111,6 +111,11 @@ namespace {
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
 
+	// Dictionary Database Settings:
+	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
+	//const QString constrDatabaseUUIDKey("UUID");									// Entries in the dictionary settings signify selecting it for the corresponding language
+	//const QString constrLoadOnStartKey("LoadOnStart");
+
 	//////////////////////////////////////////////////////////////////////
 
 #ifdef SHOW_SPLASH_SCREEN
@@ -1300,10 +1305,10 @@ int CMyApplication::execute(bool bBuildDB)
 		int nBDBSettings = settings.beginReadArray(constrBibleDatabaseSettingsGroup);
 		if (nBDBSettings != 0) {
 			for (int ndx = 0; ndx < nBDBSettings; ++ndx) {
-				TBibleDatabaseSettings bdbSettings;
 				settings.setArrayIndex(ndx);
 				QString strUUID = settings.value(constrDatabaseUUIDKey, QString()).toString();
 				if (!strUUID.isEmpty()) {
+					TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
 					bdbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, bdbSettings.loadOnStart()).toBool());
 					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toUInt());
 					bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
@@ -1320,6 +1325,21 @@ int CMyApplication::execute(bool bBuildDB)
 			CPersistentSettings::instance()->setMainDictDatabaseUUID(strMainDictDatabaseUUID);
 		}
 		settings.endGroup();
+
+		// Dictionary Database Settings:
+		int nDDBSettings = settings.beginReadArray(constrDictDatabaseSettingsGroup);
+		if (nDDBSettings != 0) {
+			for (int ndx = 0; ndx < nDDBSettings; ++ndx) {
+				settings.setArrayIndex(ndx);
+				QString strUUID = settings.value(constrDatabaseUUIDKey, QString()).toString();
+				if (!strUUID.isEmpty()) {
+					TDictionaryDatabaseSettings ddbSettings = CPersistentSettings::instance()->dictionaryDatabaseSettings(strUUID);
+					ddbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, ddbSettings.loadOnStart()).toBool());
+					CPersistentSettings::instance()->setDictionaryDatabaseSettings(strUUID, ddbSettings);
+				}
+			}
+		}
+		settings.endArray();
 	}
 
 	if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
@@ -1342,12 +1362,10 @@ int CMyApplication::execute(bool bBuildDB)
 
 	if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
 		// If command-line override for dictionary wasn't specified, see if a persistent setting was previously set:
-		if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
-			for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
-				if ((!strMainDictDatabaseUUID.isEmpty()) && (strMainDictDatabaseUUID.compare(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
-					m_nSelectedMainDictDB = static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx);
-					break;
-				}
+		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
+			if ((!strMainDictDatabaseUUID.isEmpty()) && (strMainDictDatabaseUUID.compare(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
+				m_nSelectedMainDictDB = static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx);
+				break;
 			}
 		}
 		if (m_nSelectedMainDictDB == DDE_UNKNOWN) m_nSelectedMainDictDB = DDE_WEB1828;				// Default to WEB1828 unless we're told otherwise
@@ -1418,8 +1436,8 @@ int CMyApplication::execute(bool bBuildDB)
 		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(lstAvailableDDEs.at(ndx));
 			if ((!dctDesc.m_bAutoLoad) &&
-				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) /* &&			TODO --- ENABLE this when we add dictionary settings!!!
-				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart()) */  ) continue;
+				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) &&
+				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart())) continue;
 			bool bHaveLanguageMatch = false;
 			for (int nBBLNdx = 0; nBBLNdx < lstAvailableBDEs.size(); ++nBBLNdx) {
 				if (bibleDescriptor(lstAvailableBDEs.at(nBBLNdx)).m_strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0) {

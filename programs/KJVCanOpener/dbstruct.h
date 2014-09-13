@@ -1056,6 +1056,33 @@ typedef std::map<QString, CDictionaryWordEntry> TDictionaryWordListMap;		// Inde
 
 // ============================================================================
 
+class TDictionaryDatabaseSettings
+{
+public:
+	explicit TDictionaryDatabaseSettings()
+		:	m_bLoadOnStart(false)
+	{ }
+
+	bool isValid() const { return true; }
+
+	inline bool operator==(const TDictionaryDatabaseSettings &other) const {
+		return (m_bLoadOnStart == other.m_bLoadOnStart);
+	}
+	inline bool operator!=(const TDictionaryDatabaseSettings &other) const {
+		return (!operator==(other));
+	}
+
+	bool loadOnStart() const { return m_bLoadOnStart; }
+	void setLoadOnStart(bool bLoadOnStart) { m_bLoadOnStart = bLoadOnStart; }
+
+private:
+	bool m_bLoadOnStart;
+};
+
+typedef QMap<QString, TDictionaryDatabaseSettings> TDictionaryDatabaseSettingsMap;		// Map of Dictionary UUIDs to settings for saving/preserving
+
+// ============================================================================
+
 // CDictionaryDatabase - Class to define a Dictionary Database file
 class CDictionaryDatabase
 {

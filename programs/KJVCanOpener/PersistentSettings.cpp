@@ -335,7 +335,16 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			}
 		}
 		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
+
+		if (pSource->m_mapDictDatabaseSettings != pTarget->m_mapDictDatabaseSettings) {
+			for (TDictionaryDatabaseSettingsMap::ConstIterator itrUUIDs = pTarget->m_mapDictDatabaseSettings.constBegin();
+																itrUUIDs != pTarget->m_mapDictDatabaseSettings.constEnd();
+																++itrUUIDs) {
+				emit changedDictionaryDatabaseSettings(itrUUIDs.key(), itrUUIDs.value());
+			}
+		}
 		if (pSource->m_strMainDictDatabaseUUID != pTarget->m_strMainDictDatabaseUUID) emit changedMainDictDatabaseSelection(pTarget->m_strMainDictDatabaseUUID);
+
 		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
 		if (pSource->m_bScreenSwipeableMainWindow != pTarget->m_bScreenSwipeableMainWindow) emit changedScreenSwipeableMainWindow(pTarget->m_bScreenSwipeableMainWindow);
 		if (pSource->m_bScrollbarsEnabled != pTarget->m_bScrollbarsEnabled) emit changedScrollbarsEnabled(pTarget->m_bScrollbarsEnabled);
@@ -803,6 +812,35 @@ void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
 	}
 }
 
+// ----------------------------------------------------------------------------
+
+QStringList CPersistentSettings::dictionaryDatabaseSettingsUUIDList() const
+{
+	QStringList lstUUIDs;
+
+	lstUUIDs.reserve(m_pPersistentSettingData->m_mapDictDatabaseSettings.size());
+	for (TDictionaryDatabaseSettingsMap::ConstIterator itrUUIDs = m_pPersistentSettingData->m_mapDictDatabaseSettings.constBegin();
+														itrUUIDs != m_pPersistentSettingData->m_mapDictDatabaseSettings.constEnd();
+														++itrUUIDs) {
+		lstUUIDs.append(itrUUIDs.key());
+	}
+
+	return lstUUIDs;
+}
+
+TDictionaryDatabaseSettings CPersistentSettings::dictionaryDatabaseSettings(const QString &strUUID) const
+{
+	return (m_pPersistentSettingData->m_mapDictDatabaseSettings.value(strUUID, TDictionaryDatabaseSettings()));
+}
+
+void CPersistentSettings::setDictionaryDatabaseSettings(const QString &strUUID, const TDictionaryDatabaseSettings &aSettings)
+{
+	bool bFound = m_pPersistentSettingData->m_mapDictDatabaseSettings.contains(strUUID);
+	TDictionaryDatabaseSettings oldSettings = m_pPersistentSettingData->m_mapDictDatabaseSettings.value(strUUID, TDictionaryDatabaseSettings());
+	m_pPersistentSettingData->m_mapDictDatabaseSettings[strUUID] = aSettings;
+	if ((!bFound) || (oldSettings != aSettings)) emit changedDictionaryDatabaseSettings(strUUID, aSettings);
+}
+
 void CPersistentSettings::setMainDictDatabaseUUID(const QString &strUUID)
 {
 	if (m_pPersistentSettingData->m_strMainDictDatabaseUUID != strUUID) {
@@ -810,6 +848,8 @@ void CPersistentSettings::setMainDictDatabaseUUID(const QString &strUUID)
 		emit changedMainDictDatabaseSelection(strUUID);
 	}
 }
+
+// ----------------------------------------------------------------------------
 
 void CPersistentSettings::setApplicationLanguage(const QString &strLangName)
 {

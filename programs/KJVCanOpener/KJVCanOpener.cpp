@@ -221,6 +221,11 @@ namespace {
 	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
+
+	// Dictionary Database Settings:
+	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
+	//const QString constrDatabaseUUIDKey("UUID");									// Entries in the dictionary settings signify selecting it for the corresponding language
+	//const QString constrLoadOnStartKey("LoadOnStart");
 }
 
 // ============================================================================
@@ -1127,6 +1132,18 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 			settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
 			settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
 			settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
+		}
+		settings.endArray();
+
+		// Dictionary Database Settings:
+		settings.beginWriteArray(constrDictDatabaseSettingsGroup);
+		settings.remove("");
+		QStringList lstDictDatabaseUUIDs = CPersistentSettings::instance()->dictionaryDatabaseSettingsUUIDList();
+		for (int ndxDB = 0; ndxDB < lstDictDatabaseUUIDs.size(); ++ndxDB) {
+			const TDictionaryDatabaseSettings ddbSettings = CPersistentSettings::instance()->dictionaryDatabaseSettings(lstDictDatabaseUUIDs.at(ndxDB));
+			settings.setArrayIndex(ndxDB);
+			settings.setValue(constrDatabaseUUIDKey, lstDictDatabaseUUIDs.at(ndxDB));
+			settings.setValue(constrLoadOnStartKey, ddbSettings.loadOnStart());
 		}
 		settings.endArray();
 	}

@@ -103,9 +103,9 @@ namespace {
 		// Special Test Value:
 		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "dct-specTest.s3db", "dct-specTest.ccdb" },
 		// Webster 1828:
-		{ true, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "dct-web1828.s3db", "dct-web1828.ccdb" },
+		{ false, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "dct-web1828.s3db", "dct-web1828.ccdb" },
 		// Webster 1913:
-		{ true, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), "70C95C30-3893-11E4-916C-0800200C9A66", "dct-web1913.s3db", "dct-web1913.ccdb" }
+		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), "70C95C30-3893-11E4-916C-0800200C9A66", "dct-web1913.s3db", "dct-web1913.ccdb" }
 	};
 
 }	// namespace

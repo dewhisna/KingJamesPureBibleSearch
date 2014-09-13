@@ -149,6 +149,9 @@ public:
 	void setMainBibleDatabaseUUID(const QString &strUUID);
 	QString mainBibleDatabaseUUID() const { return m_pPersistentSettingData->m_strMainBibleDatabaseUUID; }
 
+	QStringList dictionaryDatabaseSettingsUUIDList() const;
+	TDictionaryDatabaseSettings dictionaryDatabaseSettings(const QString &strUUID) const;
+	void setDictionaryDatabaseSettings(const QString &strUUID, const TDictionaryDatabaseSettings &aSettings);
 	void setMainDictDatabaseUUID(const QString &strUUID);
 	QString mainDictDatabaseUUID() const { return m_pPersistentSettingData->m_strMainDictDatabaseUUID; }
 
@@ -224,6 +227,7 @@ signals:
 	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
 	void changedMainBibleDatabaseSelection(const QString &strUUID);
 
+	void changedDictionaryDatabaseSettings(const QString &strUUID, const TDictionaryDatabaseSettings &aSettings);
 	void changedMainDictDatabaseSelection(const QString &strUUID);
 
 	void changedApplicationLanguage(const QString &strLangName);
@@ -374,6 +378,7 @@ private:
 		TBibleDatabaseSettingsMap m_mapBibleDatabaseSettings;		// Map of Bible UUIDs to settings for saving/preserving (written in KJVCanOpener shutdown, read in myApplication execute)
 		QString m_strMainBibleDatabaseUUID;				// UUID of Main Bible Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
 		// ----
+		TDictionaryDatabaseSettingsMap m_mapDictDatabaseSettings;	// Map of Dictionary UUIDs to settings for saving/preserving (written in KJVCanOpener shutdown, read in myApplication execute)
 		QString m_strMainDictDatabaseUUID;				// UUID of Main Dictionary Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
 		// ----
 		QString m_strApplicationLanguage;				// Language to use for the application.  Empty string to use the system locale.
