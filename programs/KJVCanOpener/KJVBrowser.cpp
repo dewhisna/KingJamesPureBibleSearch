@@ -376,6 +376,12 @@ void CKJVBrowser::setupChapterScrollbar()
 	}
 }
 
+void CKJVBrowser::gotoPassageReference(const QString &strPassageReference)
+{
+	ui.widgetPassageReference->setPassageReference(strPassageReference);
+	PassageReferenceEnterPressed();				// Simulate pressing enter to immediately jump to it and focus the browser
+}
+
 void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 {
 	unsigned int nWordCount = ((tag.relIndex().word() != 0) ? tag.count() : 0);

@@ -853,6 +853,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #ifndef EMSCRIPTEN
 	if (m_pDictionaryWidget != NULL) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
+		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
 	}
 #endif
 

@@ -94,6 +94,7 @@ public:
 
 signals:
 	void activatedDictionary(bool bWordEditor);
+	void gotoPassageReference(const QString &strPassageReference);
 
 public slots:
 	void setWord(const QString &strWord);

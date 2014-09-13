@@ -332,23 +332,36 @@ void CDictionaryWidget::en_sourceChanged(const QUrl &src)
 
 void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 {
-	// Incoming URL Format:  dict/Web-1828://Word
+	// Incoming URL Format:		dict/Web-1828://Word
+	//							dict/Web-1913://Word
+	//							bible://Reference		-> converted to bible/://Reference in ReadDB so that parsing works!!
 
 	QString strAnchor = link.toString();
 
-	// Convert to:  dict://Word
+	// Convert "dict/Web-1828" or "dict/Web-1913" to:  dict://Word
 	int ndxColon = strAnchor.indexOf(':');
 	if (ndxColon == -1) return;
 	int ndxSlash = strAnchor.left(ndxColon).indexOf('/');
 	if (ndxSlash != -1) strAnchor.remove(ndxSlash, ndxColon-ndxSlash);
 
+	int ndxDblSlash = strAnchor.lastIndexOf("//");
+	QString strValue = strAnchor.mid(ndxDblSlash+2);
+
 	QUrl urlResolved(strAnchor);
 
-	// Scheme = "dict"
-	// Host = Word
+	// Scheme = "dict" or "bible"
+	// Host = Word/Reference (Note: Reference decode doesn't work correctly as "host", use strValue)
 
 	if (urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) {
-		setWord(urlResolved.host());
+		if (ndxDblSlash != -1) {
+			setWord(strValue);
+		} else {
+			setWord(urlResolved.host());
+		}
+	} else if (urlResolved.scheme().compare("bible", Qt::CaseInsensitive) == 0) {
+		if (ndxDblSlash != -1) {
+			emit gotoPassageReference(strValue);
+		}
 	}
 }
 

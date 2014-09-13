@@ -1198,7 +1198,7 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 	if (!pDictionaryDatabase->isLiveDatabase()) {
 		// If we have loaded the whole database in memory, just return it:
-		return wordEntry.definitions().join(QString::fromLatin1("<hr>"));
+		return wordEntry.definitions().join(QString::fromLatin1("<hr>")).replace("bible://", "bible/://", Qt::CaseInsensitive);
 	} else {
 		// Otherwise, do SQL Query:
 #ifndef NOT_USING_SQL
@@ -1216,7 +1216,7 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 #endif
 	}
 
-	return lstDefinitions.join(QString::fromLatin1("<hr>"));
+	return lstDefinitions.join(QString::fromLatin1("<hr>")).replace("bible://", "bible/://", Qt::CaseInsensitive);
 }
 
 // ============================================================================

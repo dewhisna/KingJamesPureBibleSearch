@@ -62,6 +62,9 @@ signals:
 	void passageReferenceChanged(const TPhraseTag &tagPhrase);
 	void enterPressed();
 
+public slots:
+	void setPassageReference(const QString &strPassageReference);
+
 protected slots:
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);

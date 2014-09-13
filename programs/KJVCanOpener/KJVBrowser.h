@@ -92,6 +92,7 @@ public slots:
 	void setNavigationActivationDelay(int nDelay);
 	void setPassageReferenceActivationDelay(int nDelay);
 
+	void gotoPassageReference(const QString &strPassageReference);
 	void gotoIndex(const TPhraseTag &tag);
 	void setFocusBrowser();
 	void setFocusPassageReferenceEditor();

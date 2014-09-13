@@ -122,6 +122,11 @@ void CPassageReferenceWidget::clear()
 	ui.editPassageReference->clear();
 }
 
+void CPassageReferenceWidget::setPassageReference(const QString &strPassageReference)
+{
+	ui.editPassageReference->setText(strPassageReference);
+}
+
 bool CPassageReferenceWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 {
 	assert(pEvent != NULL);
