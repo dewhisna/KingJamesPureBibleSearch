@@ -319,7 +319,7 @@ const TConcordanceList &CParsedPhrase::nextWordsList() const
 		return m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstNextWords;
 	}
 
-	if (m_pBibleDatabase != NULL)
+	if (!m_pBibleDatabase.isNull())
 		return m_pBibleDatabase->concordanceWordList();
 
 	return lstEmptyConcordance;
@@ -352,7 +352,7 @@ unsigned int CParsedPhrase::GetNumberOfMatches() const
 
 const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
 	if (m_lstSubPhrases.size() == 0) return m_cache_lstPhraseTagResults;
@@ -411,7 +411,7 @@ static bool ascendingLessThanMatchingPhrases(const QPair<QString, int> &s1, cons
 
 QStringList CParsedPhrase::GetMatchingPhrases() const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	const TPhraseTagList &lstTags = GetPhraseTagSearchResults();
 	QList<QPair<QString, int> > lstMatchingPhrasesSort;
@@ -649,7 +649,7 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	m_lstSubPhrases.reserve(lstPhrases.size());
 	for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
 		QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
-		if (m_pBibleDatabase != NULL) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		if (!m_pBibleDatabase.isNull()) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 		subPhrase->ParsePhrase(lstPhrases.at(ndx));
 		m_lstSubPhrases.append(subPhrase);
 	}
@@ -674,7 +674,7 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 		}
 		if (!lstSubPhrase.isEmpty()) {
 			QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
-			if (m_pBibleDatabase != NULL) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+			if (!m_pBibleDatabase.isNull()) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
 			subPhrase->ParsePhrase(lstSubPhrase);
 			m_lstSubPhrases.append(subPhrase);
 		}
@@ -692,7 +692,7 @@ void CParsedPhrase::FindWords()
 
 void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	int nCursorWord = subPhrase.m_nCursorWord;
 	assert((nCursorWord >= 0) && (nCursorWord <= subPhrase.m_lstWords.size()));
@@ -1034,7 +1034,7 @@ void CPhraseNavigator::en_changedCopyOptions()
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (strAnchorName.isEmpty()) return -1;
 
@@ -1089,7 +1089,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const TPhraseTagList &tagsCurrent) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	CPhraseCursor myCursor(&m_TextDocument);
 
@@ -1236,8 +1236,8 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 
 QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
-	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 	m_TextDocument.clear();
 
@@ -1255,7 +1255,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	//		but if not, try in the current language setting
 	QString strCategory = tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-	if (pTranslator.data() != NULL) {
+	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
@@ -1384,8 +1384,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
-	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 	m_TextDocument.clear();
 
@@ -1416,7 +1416,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	//		but if not, try in the current language setting
 	QString strCategory = tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-	if (pTranslator.data() != NULL) {
+	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
@@ -1425,7 +1425,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	//		but if not, try in the current language setting
 	QString strChapter = tr("Chapter", "Scope");
 	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-	if (pTranslator.data() != NULL) {
+	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Chapter", "Scope");
 		if (!strTemp.isEmpty()) strChapter = strTemp;
 	}
@@ -1910,7 +1910,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	m_TextDocument.clear();
 
@@ -2069,7 +2069,7 @@ typedef QList<TRelIndexPair> TRelIndexPairList;
 
 QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	m_TextDocument.clear();
 
@@ -2436,7 +2436,7 @@ QString CPhraseNavigator::referenceEndingDelimiter()
 
 CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCursor, bool bRecursion) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	TPhraseTag tag;
 
@@ -2605,7 +2605,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 
 CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aCursor) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	CSelectedPhraseList lstSelectedPhrases;
 
@@ -2665,7 +2665,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 
 void CPhraseNavigator::removeAnchors()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Note: I discovered in this that just moving the cursor one character
 	//		to the right at a time and looking for anchors wasn't sufficient.
@@ -2713,7 +2713,7 @@ void CPhraseNavigator::removeAnchors()
 
 void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	CRelIndex ndxScroll = tag.relIndex();
 	if (!ndxScroll.isColophon()) {
@@ -2766,7 +2766,7 @@ CSelectedPhraseList CPhraseEditNavigator::getSelectedPhrases() const
 
 bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	assert(pHelpEvent != NULL);
 	CSelectionPhraseTagList lstRefSelection = getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
@@ -2797,7 +2797,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const Q
 
 bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QString strToolTip = getToolTip(tag, selection);
 
@@ -2827,7 +2827,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursor
 
 void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	doHighlighting(aHighlighter, true);
 	TPhraseTagList tagsToHighlight;
@@ -2850,7 +2850,7 @@ void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aH
 
 QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	QString strToolTip;
 

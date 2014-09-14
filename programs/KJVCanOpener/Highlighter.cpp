@@ -280,7 +280,7 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
 
 	QTextCharFormat fmtNew;
@@ -337,7 +337,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		m_pActionGroupHighlighterTools(NULL)
 {
 	assert(pParent != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	m_pActionGroupHighlighterTools = new QActionGroup(pParent);
 	m_pActionGroupHighlighterTools->setExclusive(false);
@@ -488,7 +488,7 @@ void CHighlighterButtons::setHighlighterLists()
 
 void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 	assert(m_lstButtons.size() == m_lstActionGroups.size());
 	assert(m_lstButtons.at(ndx) != NULL);
@@ -526,7 +526,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 
 void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	if (strUserDefinedHighlighterName.isEmpty()) {

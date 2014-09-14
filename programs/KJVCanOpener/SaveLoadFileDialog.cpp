@@ -54,7 +54,7 @@ QString CSaveLoadFileDialog::getSaveFileName(QWidget *parent,
 	pDlg->setOptions(options);
 	if (selectedFilter) pDlg->selectNameFilter(*selectedFilter);
 	if (pDlg->exec() == QDialog::Accepted) {
-		if (pDlg.data() != NULL) {
+		if (!pDlg.isNull()) {
 			QString strFilename = pDlg->selectedFiles().value(0);
 			if (!strFilename.isEmpty()) setLastPath(strFilename);
 			return strFilename;

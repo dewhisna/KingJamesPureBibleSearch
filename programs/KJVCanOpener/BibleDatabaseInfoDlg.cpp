@@ -28,7 +28,7 @@
 CBibleDatabaseInfoDialog::CBibleDatabaseInfoDialog(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 

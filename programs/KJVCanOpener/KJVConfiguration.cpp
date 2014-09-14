@@ -165,7 +165,7 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 		m_pEnableCheckbox(NULL)
 {
 	assert(pList != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	m_pWidget = new QWidget(pList);
 	m_pWidget->setObjectName(QString("widget_%1").arg(strUserDefinedHighlighterName));
@@ -288,8 +288,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_bIsDirty(false),
 	m_bLoadingData(false)
 {
-	assert(pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -357,7 +357,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	assert(ndx != -1);
 	if (ndx == -1) return;
 
-	if (pDictionary != NULL) {
+	if (!pDictionary.isNull()) {
 		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, this);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -756,7 +756,7 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, color);
 	recalcColorListWidth();			// If color was previously invalid and is now valid, we'll have a preview to paint and so the width can change
@@ -777,7 +777,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterEnabled(strUserDefinedHighlighterName, bEnabled);
 	navigateToDemoText();
@@ -788,7 +788,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	ui.toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui.toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
@@ -799,7 +799,7 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -822,7 +822,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -885,7 +885,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
 	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
@@ -1006,7 +1006,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	//		but if not, try in the current language setting
 	QString strTrumpet = tr("trumpet", "ConfigurationSearchPreviewKeyword");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language());
-	if (pTranslator.data() != NULL) {
+	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
 		if (!strTemp.isEmpty()) strTrumpet = strTemp;
 	}
@@ -1125,7 +1125,7 @@ void CKJVBibleDatabaseConfig::saveSettings()
 		QString strUUID = TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID();
 		if ((m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
 			(TBibleDatabaseList::instance()->mainBibleDatabase() != TBibleDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
-			(g_pMyApplication.data() != NULL) && (g_pMyApplication->bibleDatabaseCanOpenerRefCount(strUUID) == 0)) {
+			(!g_pMyApplication.isNull()) && (g_pMyApplication->bibleDatabaseCanOpenerRefCount(strUUID) == 0)) {
 			TBibleDatabaseList::instance()->removeBibleDatabase(strUUID);
 			continue;
 		}
@@ -1223,7 +1223,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.comboBoxHyphenHideMode->setEnabled(true);
 		ui.checkBoxHyphenSensitive->setEnabled(bCanBeSensitive);
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
-		ui.buttonDisplayBibleInfo->setEnabled((pBibleDatabase.data() != NULL) && (!pBibleDatabase->info().isEmpty()));
+		ui.buttonDisplayBibleInfo->setEnabled((!pBibleDatabase.isNull()) && (!pBibleDatabase->info().isEmpty()));
 		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
 	}
 	ui.treeDatabaseWordChanges->resizeColumnToContents(0);
@@ -1269,7 +1269,7 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 void CKJVBibleDatabaseConfig::en_displayBibleInformation()
 {
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 #ifndef USE_ASYNC_DIALOGS
 	CBibleDatabaseInfoDialogPtr pDlg(pBibleDatabase, this);
@@ -1350,7 +1350,7 @@ void CKJVDictDatabaseConfig::saveSettings()
 		QString strUUID = TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID();
 		if ((m_pDictDatabaseListModel->data(dictionaryDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
 			(TDictionaryDatabaseList::instance()->mainDictionaryDatabase() != TDictionaryDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
-			(g_pMyApplication.data() != NULL) && (g_pMyApplication->dictDatabaseCanOpenerRefCount(strUUID) == 0)) {
+			(!g_pMyApplication.isNull()) && (g_pMyApplication->dictDatabaseCanOpenerRefCount(strUUID) == 0)) {
 			TDictionaryDatabaseList::instance()->removeDictionaryDatabase(strUUID);
 			continue;
 		}
@@ -1377,7 +1377,7 @@ void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.buttonDisplayDictInfo->setEnabled(false);
 	} else {
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
-		ui.buttonDisplayDictInfo->setEnabled((pDictDatabase.data() != NULL) && (!pDictDatabase->info().isEmpty()));
+		ui.buttonDisplayDictInfo->setEnabled((!pDictDatabase.isNull()) && (!pDictDatabase->info().isEmpty()));
 	}
 
 	m_strSelectedDatabaseUUID = strUUID;
@@ -1413,7 +1413,7 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	DICTIONARY_DESCRIPTOR_ENUM nDictDB = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_DICTIONARY_DESCRIPTOR_ROLE).value<DICTIONARY_DESCRIPTOR_ENUM>();
 	QString strUUID = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString();
 	// Must set main dict first so list model will update correctly:
-	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).data() == NULL) TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
+	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).isNull()) TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
 	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);
 	CPersistentSettings::instance()->setMainDictDatabaseUUID(ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
 	m_pDictDatabaseListModel->setData(nDictDB, m_pDictDatabaseListModel->data(nDictDB, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
@@ -1424,7 +1424,7 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 void CKJVDictDatabaseConfig::en_displayDictInformation()
 {
 	CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
-	assert(pDictDatabase.data() != NULL);
+	assert(!pDictDatabase.isNull());
 
 #ifndef USE_ASYNC_DIALOGS
 	CDictDatabaseInfoDialogPtr pDlg(pDictDatabase, this);
@@ -1446,7 +1446,7 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 		m_bIsDirty(false),
 		m_bLoadingData(false)
 {
-	assert(pUserNotesDatabase.data() != NULL);
+	assert(!pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -2086,7 +2086,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 		m_bLoadingData(false),
 		m_pEditCopyOptionPreview(NULL)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -2657,7 +2657,7 @@ void CConfigCopyOptions::en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy)
 
 void CConfigCopyOptions::setVerseCopyPreview()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QString strHtml;
 	QTextDocument doc;
@@ -2681,7 +2681,7 @@ void CConfigCopyOptions::setVerseCopyPreview()
 
 void CConfigCopyOptions::setSearchResultsRefsPreview()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	TPhraseTagList lstTags;
 	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 1)));
@@ -2697,7 +2697,7 @@ void CConfigCopyOptions::setSearchResultsRefsPreview()
 CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -2811,8 +2811,8 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pDictDatabaseConfig(NULL),
 		m_pLocaleConfig(NULL)
 {
-	assert(pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
@@ -2957,8 +2957,8 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_bNeedRestart(false),
 		m_bRestartApp(false)
 {
-	assert(pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 #ifdef MODELTEST
 	if (g_pdlgColor == NULL) g_pdlgColor = new QColorDialog(this);
@@ -3038,7 +3038,7 @@ void CKJVConfigurationDialog::reject()
 
 void CKJVConfigurationDialog::apply()
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	if (m_bNeedRestart) m_bRestartApp = promptRestart();
 
@@ -3063,7 +3063,7 @@ void CKJVConfigurationDialog::apply()
 
 void CKJVConfigurationDialog::restore(bool bRecopy)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	// Restore original settings by switching back to the original
 	//		settings without copying:

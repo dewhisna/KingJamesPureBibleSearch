@@ -47,7 +47,7 @@ void CBibleWordDiffListModel::setBibleDatabase(CBibleDatabasePtr pBibleDatabase)
 
 	m_lstWords.clear();
 	m_pBibleDatabase = pBibleDatabase;
-	if (pBibleDatabase.data() != NULL) {
+	if (!pBibleDatabase.isNull()) {
 		const TConcordanceList &lstConcordance = pBibleDatabase->concordanceWordList();
 		for (TConcordanceList::const_iterator itr = lstConcordance.constBegin(); itr != lstConcordance.constEnd(); ++itr) {
 			if (itr->renderedWord().compare(itr->word()) != 0)
@@ -139,7 +139,7 @@ void CBibleWordDiffListModel::en_changedBibleDatabaseSettings(const QString &str
 {
 	Q_UNUSED(aSettings);
 
-	if (m_pBibleDatabase.data() != NULL) {
+	if (!m_pBibleDatabase.isNull()) {
 		if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 			setBibleDatabase(m_pBibleDatabase);		// Reset the Bible Database again to update the list, since it will be changing
 		}

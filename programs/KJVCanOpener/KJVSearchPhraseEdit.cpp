@@ -78,7 +78,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 		m_pActionSelectAll(NULL),
 		m_pStatusAction(NULL)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	setAcceptRichText(false);
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
@@ -378,7 +378,7 @@ bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
 
 void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
 
@@ -490,8 +490,8 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
-	assert(m_pBibleDatabase.data() != NULL);
-	if (m_pBibleDatabase == NULL) return;
+	assert(!m_pBibleDatabase.isNull());
+	if (m_pBibleDatabase.isNull()) return;
 	assert(m_pCommonPhrasesCompleter != NULL);
 	if (m_pCommonPhrasesCompleter == NULL) return;
 	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
@@ -522,7 +522,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_pMatchingPhrasesModel(NULL),
 	m_bMatchingPhrasesModelCurrent(false)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -711,7 +711,7 @@ CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 
 void CKJVSearchPhraseEdit::en_phraseChanged()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Hide list of matching phrases so we can invalidate its
 	//		contents.  It will update when uses expands it:

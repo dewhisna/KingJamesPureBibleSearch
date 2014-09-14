@@ -296,7 +296,7 @@ CReadDatabase::~CReadDatabase()
 
 bool CReadDatabase::ReadDBInfoTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Database Info Table:
 
@@ -304,7 +304,7 @@ bool CReadDatabase::ReadDBInfoTable()
 	QString strError;
 	QStringList lstFields;
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		if (!readCCDatabaseRecord(m_pParent, lstFields, m_pCCDatabase.data(), 2)) return false;
 	} else {
 #ifndef NOT_USING_SQL
@@ -383,7 +383,7 @@ bool CReadDatabase::ReadDBInfoTable()
 
 bool CReadDatabase::ReadTestamentTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Testament Table
 
@@ -416,7 +416,7 @@ bool CReadDatabase::ReadTestamentTable()
 
 bool CReadDatabase::ReadBooksTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Books Table
 
@@ -507,7 +507,7 @@ bool CReadDatabase::ReadBooksTable()
 
 bool CReadDatabase::ReadChaptersTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Chapters (LAYOUT) table:
 
@@ -553,7 +553,7 @@ bool CReadDatabase::ReadChaptersTable()
 
 bool CReadDatabase::ReadVerseTables()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Book Verses tables:
 
@@ -668,7 +668,7 @@ static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 
 bool CReadDatabase::ReadWordsTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Words table:
 
@@ -899,7 +899,7 @@ bool CReadDatabase::ReadWordsTable()
 
 bool CReadDatabase::ReadFOOTNOTESTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Footnotes table:
 
@@ -939,7 +939,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 bool CReadDatabase::ReadPHRASESTable()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Read the Phrases table:
 
@@ -976,7 +976,7 @@ bool CReadDatabase::ReadPHRASESTable()
 
 bool CReadDatabase::ValidateData()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
 	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
@@ -1111,7 +1111,7 @@ bool CReadDatabase::ValidateData()
 
 bool CReadDatabase::ReadDictionaryDBInfo()
 {
-	assert(m_pDictionaryDatabase.data() != NULL);
+	assert(!m_pDictionaryDatabase.isNull());
 
 	// Read the Dictionary Info table:
 
@@ -1147,7 +1147,7 @@ bool CReadDatabase::ReadDictionaryDBInfo()
 
 bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 {
-	assert(m_pDictionaryDatabase.data() != NULL);
+	assert(!m_pDictionaryDatabase.isNull());
 
 	// Read the Dictionary Defintions table:
 
@@ -1313,7 +1313,7 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const
 
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(m_pBibleDatabase.data() != NULL);
+		assert(!m_pBibleDatabase.isNull());
 
 		QFile fileCCDB;
 		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
@@ -1349,7 +1349,7 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, const
 
 	if (fiS3DB.exists() && fiS3DB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(m_pBibleDatabase.data() != NULL);
+		assert(!m_pBibleDatabase.isNull());
 
 #ifndef NOT_USING_SQL
 		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
@@ -1397,7 +1397,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 	bool bSuccess = false;
 
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
-	assert(m_pDictionaryDatabase.data() != NULL);
+	assert(!m_pDictionaryDatabase.isNull());
 
 	m_pDictionaryDatabase->m_strLanguage = dctDesc.m_strLanguage;
 

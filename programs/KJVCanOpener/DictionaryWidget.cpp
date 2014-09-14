@@ -51,7 +51,7 @@ CDictionaryLineEdit::~CDictionaryLineEdit()
 
 void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 {
-	assert(pDictionary.data() != NULL);
+	assert(!pDictionary.isNull());
 	m_pDictionaryDatabase = pDictionary;
 
 	setAcceptRichText(false);
@@ -180,7 +180,7 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 		m_pEditMenuDictWord(NULL),
 		m_bDoingUpdate(false)
 {
-	assert(m_pDictionaryDatabase.data() != NULL);
+	assert(!m_pDictionaryDatabase.isNull());
 
 	ui.setupUi(this);
 

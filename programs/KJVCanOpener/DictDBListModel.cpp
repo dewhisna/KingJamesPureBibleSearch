@@ -59,8 +59,8 @@ void CDictDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 	bool bFound = false;
 	for (int ndxLoaded = 0; ndxLoaded < TDictionaryDatabaseList::instance()->size(); ++ndxLoaded) {
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->at(ndxLoaded);
-		assert(pDictDatabase.data() != NULL);
-		if (pDictDatabase.data() == NULL) continue;
+		assert(!pDictDatabase.isNull());
+		if (pDictDatabase.isNull()) continue;
 		if (pDictDatabase->compatibilityUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
 			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
 			bFound = true;

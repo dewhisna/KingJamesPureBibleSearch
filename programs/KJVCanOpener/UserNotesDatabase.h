@@ -211,7 +211,7 @@ public:
 
 	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
 	{
-		assert(pBibleDatabase.data() != NULL);
+		assert(!pBibleDatabase.isNull());
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
 	}
 	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
@@ -222,7 +222,7 @@ public:
 	}
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
-		assert(pBibleDatabase.data() != NULL);
+		assert(!pBibleDatabase.isNull());
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
 	}
 	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const

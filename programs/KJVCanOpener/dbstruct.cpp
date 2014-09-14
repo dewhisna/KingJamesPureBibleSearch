@@ -85,9 +85,9 @@ bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSet
 
 void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)
 {
-	QString strOldUUID = ((m_pMainBibleDatabase.data() != NULL) ? m_pMainBibleDatabase->compatibilityUUID() : QString());
+	QString strOldUUID = ((!m_pMainBibleDatabase.isNull()) ? m_pMainBibleDatabase->compatibilityUUID() : QString());
 	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
-	if (pBibleDatabase.data() != NULL) {
+	if (!pBibleDatabase.isNull()) {
 		m_pMainBibleDatabase = pBibleDatabase;
 		if (strOldUUID.compare(strUUID, Qt::CaseInsensitive) != 0) emit changedMainBibleDatabase(pBibleDatabase);
 	}
@@ -227,7 +227,7 @@ void TBibleDatabaseList::findBibleDatabases()
 
 void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	push_back(pBibleDatabase);
 	if (bSetAsMain) {
 		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
@@ -243,7 +243,7 @@ void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID,
 	Q_UNUSED(aSettings);
 
 	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
-	if (pBibleDatabase.data() != NULL) {
+	if (!pBibleDatabase.isNull()) {
 		pBibleDatabase->setRenderedWords();
 	}
 }
@@ -289,9 +289,9 @@ bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, boo
 
 void TDictionaryDatabaseList::setMainDictionaryDatabase(const QString &strUUID)
 {
-	QString strOldUUID = ((m_pMainDictionaryDatabase.data() != NULL) ? m_pMainDictionaryDatabase->compatibilityUUID() : QString());
+	QString strOldUUID = ((!m_pMainDictionaryDatabase.isNull()) ? m_pMainDictionaryDatabase->compatibilityUUID() : QString());
 	CDictionaryDatabasePtr pDictionaryDatabase = atUUID(strUUID);
-	if (pDictionaryDatabase.data() != NULL) {
+	if (!pDictionaryDatabase.isNull()) {
 		m_pMainDictionaryDatabase = pDictionaryDatabase;
 		if (strOldUUID.compare(strUUID, Qt::CaseInsensitive) != 0) emit changedMainDictionaryDatabase(pDictionaryDatabase);
 	}
@@ -375,7 +375,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 
 void TDictionaryDatabaseList::addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain)
 {
-	assert(pDictionaryDatabase.data() != NULL);
+	assert(!pDictionaryDatabase.isNull());
 	push_back(pDictionaryDatabase);
 	if (bSetAsMain) {
 		CDictionaryDatabasePtr pOldMain = m_pMainDictionaryDatabase;

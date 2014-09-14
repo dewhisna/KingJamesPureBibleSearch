@@ -184,8 +184,8 @@ public:
 	TVerseIndexPtr verseIndex() const { return m_pVerseIndex; }
 
 	inline QString getHeading(bool bForCopying = false) const {		// bForCopying = false for Showing/Displaying the heading, true for Copy mode
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return QString();
+		assert(!m_pBibleDatabase.isNull());
+		if (m_pBibleDatabase.isNull()) return QString();
 		bool bSearchRefs = ((verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS) ||
 							(verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS_EXCLUDED));		// For Search Results, show word positions too
 		QString strHeading;
@@ -230,8 +230,8 @@ public:
 	}
 
 	inline QString getToolTip(const CSearchResultsData &searchResultsData) const {
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return QString();
+		assert(!m_pBibleDatabase.isNull());
+		if (m_pBibleDatabase.isNull()) return QString();
 		QString strToolTip;
 		strToolTip += m_pBibleDatabase->SearchResultToolTip(getIndex(), RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
 		for (int ndx = 0; ndx < phraseTags().size(); ++ndx) {
@@ -306,8 +306,8 @@ public:
 	inline uint32_t getChapter() const { return m_pVerseIndex->relIndex().chapter(); }	// Chapter Number within Book (1-n)
 	inline uint32_t getVerse() const { return m_pVerseIndex->relIndex().verse(); }		// Verse Number within Chapter (1-n)
 	uint32_t getIndexNormalized() const {
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return 0;
+		assert(!m_pBibleDatabase.isNull());
+		if (m_pBibleDatabase.isNull()) return 0;
 		return m_pBibleDatabase->NormalizeIndex(m_pVerseIndex->relIndex());
 	}
 	inline uint32_t getIndexDenormalized() const { return m_pVerseIndex->relIndex().index(); }
@@ -332,8 +332,8 @@ public:
 
 	QStringList getWordList(int nTag) const
 	{
-		assert(m_pBibleDatabase.data() != NULL);
-		if (m_pBibleDatabase.data() == NULL) return QStringList();
+		assert(!m_pBibleDatabase.isNull());
+		if (m_pBibleDatabase.isNull()) return QStringList();
 		assert((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((!isSet()) || (nTag < 0) || (nTag >= m_lstTags.size())) return QStringList();
 		QStringList strWords;
@@ -357,8 +357,8 @@ public:
 	}
 	static QStringList getVerseAsWordList(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
 	{
-		assert(pBibleDatabase.data() != NULL);
-		if (pBibleDatabase.data() == NULL) return QStringList();
+		assert(!pBibleDatabase.isNull());
+		if (pBibleDatabase.isNull()) return QStringList();
 		if (!ndx.isSet()) return QStringList();
 		QStringList strWords;
 		const CVerseEntry *pVerseEntry = pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
@@ -407,8 +407,8 @@ public:
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase, const CVerseTextRichifierTags &richifierTags)
 	{
-		assert(pBibleDatabase.data() != NULL);
-		if (pBibleDatabase.data() == NULL) return QString();
+		assert(!pBibleDatabase.isNull());
+		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
 		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
 	}

@@ -484,7 +484,7 @@ void CMyDaemon::handleSigHup()
 	assert(szRead == sizeof(tmp));
 
 	// do Qt stuff
-	if (m_pMyApplication.data() != NULL) {
+	if (!m_pMyApplication.isNull()) {
 		m_pMyApplication->closeAllWindows();
 	}
 
@@ -499,7 +499,7 @@ void CMyDaemon::handleSigTerm()
 	assert(szRead == sizeof(tmp));
 
 	// do Qt stuff
-	if (m_pMyApplication.data() != NULL) {
+	if (!m_pMyApplication.isNull()) {
 		m_pMyApplication->closeAllWindows();
 	}
 
@@ -515,7 +515,7 @@ void CMyDaemon::handleSigUsr1()
 
 	// do Qt stuff
 	QWidget *pParent = NULL;
-	if (m_pMyApplication.data() != NULL) {
+	if (!m_pMyApplication.isNull()) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
 	QMessageBox::warning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
@@ -811,7 +811,7 @@ bool CMyApplication::event(QEvent *event) {
 #ifdef SIGNAL_SPY_DEBUG
 Q4puGenericSignalSpy *CMyApplication::createSpy(QObject *pOwner, QObject *pSpyOn)
 {
-	assert(g_pMyApplication.data() != NULL);
+	assert(!g_pMyApplication.isNull());
 	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != NULL) ? pOwner : g_pMyApplication);
 
 	QObject::connect(pSpy, SIGNAL(caughtSignal(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSignal(const QString &)));
@@ -851,7 +851,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	//	won't crash if the menu that was triggering it gets yanked out from under it:
 	connect(pCanOpener, SIGNAL(triggerUpdateSearchWindowList()), this, SIGNAL(updateSearchWindowList()), Qt::QueuedConnection);
 
-	if (g_pMdiArea.data() != NULL) {
+	if (!g_pMdiArea.isNull()) {
 		QMdiSubWindow *pSubWindow = new QMdiSubWindow;
 		pSubWindow->setWidget(pCanOpener);
 		pSubWindow->setAttribute(Qt::WA_DeleteOnClose);
@@ -895,7 +895,7 @@ int CMyApplication::bibleDatabaseCanOpenerRefCount(const QString &strBblUUID) co
 		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
 			CBibleDatabasePtr pBibleDatabase = m_lstKJVCanOpeners.at(ndx)->bibleDatabase();
-			if (pBibleDatabase.data() == NULL) continue;
+			if (pBibleDatabase.isNull()) continue;
 			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
 		}
 		return nCount;
@@ -911,7 +911,7 @@ int CMyApplication::dictDatabaseCanOpenerRefCount(const QString &strDctUUID) con
 		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
 			CDictionaryDatabasePtr pDictDatabase = m_lstKJVCanOpeners.at(ndx)->dictionaryDatabase();
-			if (pDictDatabase.data() == NULL) continue;
+			if (pDictDatabase.isNull()) continue;
 			if (pDictDatabase->compatibilityUUID().compare(strDctUUID, Qt::CaseInsensitive) == 0) ++nCount;
 		}
 		return nCount;
@@ -924,7 +924,7 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 	assert(ndxCanOpener != -1);
 	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
-	if (g_pMdiArea.data() != NULL) {
+	if (!g_pMdiArea.isNull()) {
 		if (m_lstKJVCanOpeners.size() == 0) {
 			if (!areRestarting()) g_pMdiArea->deleteLater();
 		} else {
@@ -992,7 +992,7 @@ template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>
 void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 {
 	assert(pCanOpener != NULL);
-	if (g_pMdiArea.data() != NULL) {
+	if (!g_pMdiArea.isNull()) {
 		QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
 		for (int ndx = 0; ndx < lstSubWindows.size(); ++ndx) {
 			if (lstSubWindows.at(ndx)->widget() == static_cast<QWidget *>(pCanOpener)) {
@@ -1104,7 +1104,7 @@ void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
 
 void CMyApplication::en_notesFileAutoSaveTriggered()
 {
-	if (g_pUserNotesDatabase.data() == NULL) return;			// Shouldn't happen, but just in case
+	if (g_pUserNotesDatabase.isNull()) return;			// Shouldn't happen, but just in case
 	if ((g_pUserNotesDatabase->isDirty()) && (!g_pUserNotesDatabase->filePathName().isEmpty())) {
 		CBusyCursor iAmBusy(NULL);
 		if (!g_pUserNotesDatabase->save()) m_dlyNotesFilesAutoSave.trigger();		// If save failed, retrigger to try again
@@ -1113,7 +1113,7 @@ void CMyApplication::en_notesFileAutoSaveTriggered()
 
 void CMyApplication::en_changedUserNotesDatabase()
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	if ((CPersistentSettings::instance()->notesFileAutoSaveTime() > 0) && (!m_dlyNotesFilesAutoSave.isTriggered())) {
 		if (g_pUserNotesDatabase->isDirty()) m_dlyNotesFilesAutoSave.trigger();
 	} else if (!g_pUserNotesDatabase->isDirty()) {
@@ -1227,7 +1227,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 				//		Bible Database from the KJS file itself:
 				strBibleUUID = CKJVCanOpener::determineBibleUUIDForKJVSearchFile(strKJSFileName);
 				if (!strBibleUUID.isEmpty()) {
-					if (TBibleDatabaseList::instance()->atUUID(strBibleUUID).data() == NULL) bNeedDB = true;
+					if (TBibleDatabaseList::instance()->atUUID(strBibleUUID).isNull()) bNeedDB = true;
 				}
 			}
 			bool bForceOpen = ((nCommand == KAMCE_NEW_CANOPENER_OPEN_KJS) || (nCommand == KAMCE_NEW_CANOPENER));
@@ -1236,12 +1236,12 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 			if ((bForceOpen) || (bNeedDB) || (m_lstKJVCanOpeners.size() != 1)) {
 				// If we have more than one, just open a new window and launch the file:
 				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
-				if ((pBibleDatabase.data() == NULL) && (!strBibleUUID.isEmpty())) {
+				if ((pBibleDatabase.isNull()) && (!strBibleUUID.isEmpty())) {
 					if (TBibleDatabaseList::loadBibleDatabase(strBibleUUID, true, NULL)) {
 						pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
 					}
 				}
-				if (pBibleDatabase.data() == NULL) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+				if (pBibleDatabase.isNull()) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 				setFileToLoad(strKJSFileName);
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
 				assert(pCanOpener != NULL);
@@ -1437,11 +1437,11 @@ int CMyApplication::execute(bool bBuildDB)
 		}
 		// If the specified database wasn't found, see if we loaded any database and if so, make the
 		//		first one loaded (from our priority list) the main database:
-		if ((TBibleDatabaseList::instance()->mainBibleDatabase().data() == NULL) &&
+		if ((TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) &&
 			(TBibleDatabaseList::instance()->size() > 0)) {
 			TBibleDatabaseList::instance()->setMainBibleDatabase(TBibleDatabaseList::instance()->at(0)->compatibilityUUID());
 		}
-		if (TBibleDatabaseList::instance()->mainBibleDatabase().data() == NULL) {
+		if (TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
 			displayWarning(m_pSplash, g_constrInitialization, tr("Failed to find and load a Bible Database!  Check Installation!", "Errors"));
 			return -3;
 		}
@@ -1473,8 +1473,8 @@ int CMyApplication::execute(bool bBuildDB)
 		// If the specified database wasn't found, see if we loaded any database and if so, make the
 		//		first one loaded matching our main Bible Database language the main dictionary:
 		for (int nDctNdx = 0; ((nDctNdx < TDictionaryDatabaseList::instance()->size()) &&
-							   (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() == NULL)); ++nDctNdx) {
-			if ((TDictionaryDatabaseList::instance()->at(nDctNdx).data() != NULL) &&			// Note: Main Bible Database is guaranteed to be set above in Bible DB Loading
+							   (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().isNull())); ++nDctNdx) {
+			if ((!TDictionaryDatabaseList::instance()->at(nDctNdx).isNull()) &&			// Note: Main Bible Database is guaranteed to be set above in Bible DB Loading
 				(TDictionaryDatabaseList::instance()->at(nDctNdx)->language().compare(TBibleDatabaseList::instance()->mainBibleDatabase()->language(), Qt::CaseInsensitive) == 0)) {
 				TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(TDictionaryDatabaseList::instance()->at(nDctNdx)->compatibilityUUID());
 			}
@@ -1539,7 +1539,7 @@ int CMyApplication::execute(bool bBuildDB)
 #ifdef SHOW_SPLASH_SCREEN
 	CKJVCanOpener *pMain = createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 	if (m_pSplash != NULL) {
-		m_pSplash->finish((g_pMdiArea.data() != NULL) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
+		m_pSplash->finish((!g_pMdiArea.isNull()) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
 		delete m_pSplash;
 		m_pSplash = NULL;
 	}

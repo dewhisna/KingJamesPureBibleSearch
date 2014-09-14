@@ -331,7 +331,7 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 		m_pDictionaryDatabase(pDictionary),
 		m_editorWord(editorWord)
 {
-	assert(pDictionary.data() != NULL);
+	assert(!pDictionary.isNull());
 
 	m_lstBasicWords.clear();
 	m_lstBasicWords.reserve(m_pDictionaryDatabase->lstWordList().size());

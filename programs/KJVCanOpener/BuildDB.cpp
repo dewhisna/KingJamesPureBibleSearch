@@ -211,7 +211,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Info
 		QStringList arrCCData;
 		arrCCData.append("KJPBSDB");
@@ -343,7 +343,7 @@ bool CBuildDatabase::BuildTestamentTable()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  TESTAMENT,count
 		QStringList arrCCData;
 		arrCCData.append("TESTAMENT");
@@ -505,7 +505,7 @@ bool CBuildDatabase::BuildBooksTable()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  TOC,count
 		QStringList arrCCData;
 		arrCCData.append("TOC");
@@ -637,7 +637,7 @@ bool CBuildDatabase::BuildChaptersTable()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  LAYOUT,count
 		QStringList arrCCData;
 		arrCCData.append("LAYOUT");
@@ -796,7 +796,7 @@ bool CBuildDatabase::BuildVerseTables()
 		}
 #endif	// !NOT_USING_SQL
 
-		if (m_pCCDatabase.data() != NULL) {
+		if (!m_pCCDatabase.isNull()) {
 			// Format:  tblName,count
 			QStringList arrCCData;
 			arrCCData.append(QString("%1").arg(m_lststrBkTblNames.at(i)));
@@ -944,7 +944,7 @@ bool CBuildDatabase::BuildWordsTable()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  WORDS,count
 		QStringList arrCCData;
 		arrCCData.append("WORDS");
@@ -1081,7 +1081,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 	}
 #endif	// !NOT_USING_SQL
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  FOOTNOTES,count
 		QStringList arrCCData;
 		arrCCData.append("FOOTNOTES");
@@ -1203,7 +1203,7 @@ bool CBuildDatabase::BuildPhrasesTable()
 
 	QStringList arrCCData;
 
-	if (m_pCCDatabase.data() != NULL) {
+	if (!m_pCCDatabase.isNull()) {
 		// Format:  PHRASES,count
 		arrCCData.clear();
 		arrCCData.append("PHRASES");
@@ -1235,7 +1235,7 @@ bool CBuildDatabase::BuildPhrasesTable()
 		}
 #endif	// !NOT_USING_SQL
 
-		if (m_pCCDatabase.data() != NULL) {
+		if (!m_pCCDatabase.isNull()) {
 			// Format:  Ndx, Phrase, CaseSensitive, AccentSensitive, Exclude
 			arrCCData.clear();
 			arrCCData.append(QString("%1").arg(ndx+1));

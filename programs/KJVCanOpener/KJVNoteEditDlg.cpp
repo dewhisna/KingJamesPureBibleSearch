@@ -72,8 +72,8 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
-	assert(pBibleDatabase.data() != NULL);
-	assert(pUserNotesDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
+	assert(!pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -204,7 +204,7 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(m_pUserNotesDatabase.data() != NULL);
+	assert(!m_pUserNotesDatabase.isNull());
 
 	m_ndxLocation = ndxLocation;
 	m_ndxLocation.setWord(0);		// Work with whole verses only
@@ -231,7 +231,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 void CKJVNoteEditDlg::accept()
 {
 	assert(m_pRichTextEdit != NULL);
-	assert(m_pUserNotesDatabase.data() != NULL);
+	assert(!m_pUserNotesDatabase.isNull());
 
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
@@ -303,7 +303,7 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
 	assert(button != NULL);
-	assert(m_pUserNotesDatabase.data() != NULL);
+	assert(!m_pUserNotesDatabase.isNull());
 
 	if (button == m_pDeleteNoteButton) {
 		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??", "Errors"),
@@ -363,7 +363,7 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	pDlg->navigator().startAbsoluteMode(tagNav);
 	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
 
-	if (pDlg.data() != NULL) {			// Could get deleted during execution
+	if (!pDlg.isNull()) {			// Could get deleted during execution
 		CRelIndex ndxTarget = pDlg->passage().relIndex();
 		ndxTarget.setWord(0);			// Whole verse references only
 		return ndxTarget;
@@ -392,7 +392,7 @@ QString CKJVNoteEditDlg::getWWWLink(const QString &strURL)
 	CEditWWWLinkDlgPtr pDlg(strURL, this);
 	if (pDlg->exec() != QDialog::Accepted) return QString();
 
-	if (pDlg.data() != NULL) {			// Could get deleted during execution
+	if (!pDlg.isNull()) {			// Could get deleted during execution
 		if (pDlg->isValid()) return pDlg->url();
 	}
 

@@ -137,7 +137,7 @@ CTranslatorList *CTranslatorList::instance()
 
 bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 {
-	if (m_pCurrentTranslator.data() != NULL) {
+	if (!m_pCurrentTranslator.isNull()) {
 		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorApp());
 		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorQt());
 	}
@@ -148,7 +148,7 @@ bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 		m_pCurrentTranslator = m_mapTranslators.value(strLangName.toLower(), TTranslatorPtr());
 	}
 
-	if (m_pCurrentTranslator.data() == NULL) return false;
+	if (m_pCurrentTranslator.isNull()) return false;
 
 	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorQt());
 	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorApp());
@@ -161,7 +161,7 @@ QList<CTranslatorList::TLanguageName> CTranslatorList::languageList() const
 
 	lstLanguages.reserve(m_mapTranslators.size());
 	for (TTranslatorMap::const_iterator itr = m_mapTranslators.constBegin(); itr != m_mapTranslators.constEnd(); ++itr) {
-		if (itr.value().data() == NULL) continue;
+		if (itr.value().isNull()) continue;
 		if (!itr.value()->isLoaded()) continue;
 		lstLanguages.append(TLanguageName(itr.key(), itr.value()->nativeLanguageName()));
 	}

@@ -968,7 +968,7 @@ public:
 	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
 	void setMainBibleDatabase(const QString &strUUID);
-	bool haveMainBibleDatabase() const { return (m_pMainBibleDatabase.data() != NULL); }
+	bool haveMainBibleDatabase() const { return (!m_pMainBibleDatabase.isNull()); }
 	void removeBibleDatabase(const QString &strUUID);
 	void clear();
 	int size() const { return QList<CBibleDatabasePtr>::size(); }
@@ -1152,7 +1152,7 @@ public:
 	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	CDictionaryDatabasePtr mainDictionaryDatabase() const { return m_pMainDictionaryDatabase; }
 	void setMainDictionaryDatabase(const QString &strUUID);
-	bool haveMainDictionaryDatabase() const { return (m_pMainDictionaryDatabase.data() != NULL); }
+	bool haveMainDictionaryDatabase() const { return (!m_pMainDictionaryDatabase.isNull()); }
 	void removeDictionaryDatabase(const QString &strUUID);
 	void clear();
 	int size() const { return QList<CDictionaryDatabasePtr>::size(); }

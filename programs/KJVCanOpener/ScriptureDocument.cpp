@@ -207,7 +207,7 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 
 bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -265,7 +265,7 @@ bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatab
 bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
@@ -348,7 +348,7 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 
 bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -406,7 +406,7 @@ bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleData
 bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
 	assert(pBibleDatabase != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {

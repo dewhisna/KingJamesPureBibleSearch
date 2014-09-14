@@ -59,8 +59,8 @@ void CBibleDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 	bool bFound = false;
 	for (int ndxLoaded = 0; ndxLoaded < TBibleDatabaseList::instance()->size(); ++ndxLoaded) {
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->at(ndxLoaded);
-		assert(pBibleDatabase.data() != NULL);
-		if (pBibleDatabase.data() == NULL) continue;
+		assert(!pBibleDatabase.isNull());
+		if (pBibleDatabase.isNull()) continue;
 		if (pBibleDatabase->compatibilityUUID().compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
 			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
 			bFound = true;

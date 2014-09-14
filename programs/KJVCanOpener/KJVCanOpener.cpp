@@ -287,7 +287,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pTipEdit(NULL),
 	m_bTipEditIsPinned(false)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -359,7 +359,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
 #ifndef EMSCRIPTEN
-	if ((TDictionaryDatabaseList::instance()->mainDictionaryDatabase().data() != NULL) && (TDictionaryDatabaseList::instance()->mainDictionaryDatabase()->language().compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) == 0)) {
+	if ((!TDictionaryDatabaseList::instance()->mainDictionaryDatabase().isNull()) && (TDictionaryDatabaseList::instance()->mainDictionaryDatabase()->language().compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) == 0)) {
 		m_pDictionaryWidget = new CDictionaryWidget(TDictionaryDatabaseList::instance()->mainDictionaryDatabase(), m_pSplitterDictionary);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -903,7 +903,7 @@ CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
 
 void CKJVCanOpener::initialize()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	TPhraseTag tag(CRelIndex(1,1,0,0), 0);						// Default for unset key
 
@@ -1001,7 +1001,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 #endif
 
 		// User Notes Database:
-		assert(g_pUserNotesDatabase.data() != NULL);
+		assert(!g_pUserNotesDatabase.isNull());
 		settings.beginGroup(constrUserNotesDatabaseGroup);
 		settings.setValue(constrFilePathNameKey, g_pUserNotesDatabase->filePathName());
 		settings.setValue(constrKeepBackupKey, CPersistentSettings::instance()->keepNotesBackup());
@@ -1166,8 +1166,8 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 void CKJVCanOpener::restorePersistentSettings()
 {
-	assert(g_pMyApplication.data() != NULL);
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!g_pMyApplication.isNull());
+	assert(!m_pBibleDatabase.isNull());
 
 	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
 	bool bIsFirstCanOpenerForThisBibleDB = g_pMyApplication->isFirstCanOpener(false, m_pBibleDatabase->compatibilityUUID());
@@ -1261,7 +1261,7 @@ void CKJVCanOpener::restorePersistentSettings()
 #endif
 
 		// User Notes Database:
-		assert(g_pUserNotesDatabase.data() != NULL);
+		assert(!g_pUserNotesDatabase.isNull());
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrUserNotesDatabaseGroup);
 			g_pUserNotesDatabase->setFilePathName(settings.value(constrFilePathNameKey, QString()).toString());
@@ -1548,7 +1548,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	} else {
 		// If we aren't using Persistent Settings:
 
-		assert(g_pUserNotesDatabase.data() != NULL);
+		assert(!g_pUserNotesDatabase.isNull());
 
 		// Set the ToolBar to the initial file default highlighters:
 		if (m_pHighlighterButtons != NULL) {
@@ -1611,11 +1611,11 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	int nResult;
 	bool bPromptFilename = false;
 
-	assert(g_pMyApplication.data() != NULL);
+	assert(!g_pMyApplication.isNull());
 
 	if (g_pMyApplication->isLastCanOpener()) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-		assert(g_pUserNotesDatabase.data() != NULL);
+		assert(!g_pUserNotesDatabase.isNull());
 		if (g_pUserNotesDatabase->isDirty()) {
 			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:
 			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
@@ -1691,7 +1691,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 #endif
 
 		savePersistentSettings(false);
-	} else if ((m_pBibleDatabase.data() != NULL) && (g_pMyApplication->isLastCanOpener(m_pBibleDatabase->compatibilityUUID()))) {
+	} else if ((!m_pBibleDatabase.isNull()) && (g_pMyApplication->isLastCanOpener(m_pBibleDatabase->compatibilityUUID()))) {
 		savePersistentSettings(true);
 	}
 
@@ -1844,7 +1844,7 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 {
 	if (strFilePathName.isEmpty()) return true;						// Empty is no-file-selected (cancel), treat it as "OK"
 
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
@@ -1897,7 +1897,7 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
@@ -1954,7 +1954,7 @@ void CKJVCanOpener::en_copySearchPhraseSummary()
 
 void CKJVCanOpener::en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if ((m_pBrowserWidget != NULL) && (relIndex.isSet())) {
 		m_pBrowserWidget->gotoIndex(TPhraseTag(relIndex));
@@ -1983,7 +1983,7 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 
 #ifdef ENABLE_ONLY_LOADED_BIBLE_DATABASES
 	for (int ndx = 0; ndx < TBibleDatabaseList::instance()->size(); ++ndx) {
-		if (TBibleDatabaseList::instance()->at(ndx).data() == NULL) continue;
+		if (TBibleDatabaseList::instance()->at(ndx).isNull()) continue;
 		QAction *pAction = new QAction(TBibleDatabaseList::instance()->at(ndx)->description(), m_pActionGroupBibleDatabasesList);
 		pAction->setData(TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID());
 		if (TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
@@ -1996,7 +1996,7 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
 
-		if (pBibleDatabase.data() != NULL) {
+		if (!pBibleDatabase.isNull()) {
 			QAction *pAction = new QAction(pBibleDatabase->description(), m_pActionGroupBibleDatabasesList);
 			pAction->setData(pBibleDatabase->compatibilityUUID());
 			if (pBibleDatabase->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
@@ -2438,7 +2438,7 @@ void CKJVCanOpener::en_clearBrowserHistory()
 
 void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (!index.isValid()) return;
 
@@ -2452,7 +2452,7 @@ void CKJVCanOpener::en_SearchResultActivated(const QModelIndex &index)
 
 void CKJVCanOpener::en_PassageNavigatorTriggered()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (isBrowserFocusedOrActive()) {
 		m_pBrowserWidget->showPassageNavigator();
@@ -2480,7 +2480,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 
 void CKJVCanOpener::en_gotoRandomPassage()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	CRelIndex ndxPassage;
 
@@ -2553,8 +2553,8 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pUserNoteEditorDlg != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
-	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase.data() == NULL)) return;
+	assert(!g_pUserNotesDatabase.isNull());
+	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase.isNull())) return;
 
 	CRelIndex indexNote;
 
@@ -2584,8 +2584,8 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
 	assert(m_pCrossRefsEditorDlg != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
-	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase.data() == NULL)) return;
+	assert(!g_pUserNotesDatabase.isNull());
+	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase.isNull())) return;
 
 	TPassageTag tagCrossRef;
 
@@ -2652,7 +2652,7 @@ void CKJVCanOpener::en_HelpManual()
 		QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 	}
 #else
-	assert(g_pMyApplication.data() != NULL);
+	assert(!g_pMyApplication.isNull());
 
 	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
 	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
@@ -2728,7 +2728,7 @@ void CKJVCanOpener::en_QuickActivate()
 void CKJVCanOpener::en_Configure(int nInitialPage)
 {
 #ifndef EMSCRIPTEN
-	assert(g_pMyApplication.data() != NULL);
+	assert(!g_pMyApplication.isNull());
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 
@@ -2802,28 +2802,28 @@ void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
 
 void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 {
-	assert(g_pMyApplication.data() != NULL);
+	assert(!g_pMyApplication.isNull());
 
 	if (pAction != NULL) {
 		QString strUUID = pAction->data().toString();
 
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
 #ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
-		if (pBibleDatabase.data() == NULL) {
+		if (pBibleDatabase.isNull()) {
 			if (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false, this)) {
 				pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
-				assert(pBibleDatabase.data() != NULL);
+				assert(!pBibleDatabase.isNull());
 			} else {
 				return;
 			}
 		}
 #else
-		assert(pBibleDatabase.data() != NULL);
+		assert(!pBibleDatabase.isNull());
 #endif
 
 		g_pMyApplication->createKJVCanOpener(pBibleDatabase);
 	} else {
-		assert(TBibleDatabaseList::instance()->mainBibleDatabase().data() != NULL);
+		assert(!TBibleDatabaseList::instance()->mainBibleDatabase().isNull());
 		g_pMyApplication->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 	}
 }

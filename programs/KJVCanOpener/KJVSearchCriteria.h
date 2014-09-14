@@ -105,7 +105,7 @@ public:
 	}
 	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase, bool bIgnorePseudoVerses = false) const
 	{
-		assert(pBibleDatabase.data() != NULL);
+		assert(!pBibleDatabase.isNull());
 		bool bIsEntire = true;
 		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
@@ -126,7 +126,7 @@ public:
 		// Check for "Entire Bible" shortcut (i.e. empty string or single "0"):
 		if ((lstIndexes.size() == 0) ||
 			((lstIndexes.size() == 1) && (lstIndexes.at(0).toUInt() == 0))) {
-			assert(pBibleDatabase.data() != NULL);
+			assert(!pBibleDatabase.isNull());
 			for (uint32_t nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 				m_setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
 			}

@@ -591,7 +591,7 @@ public:
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
-		assert(m_pBibleDatabase.data() != NULL);
+		assert(!m_pBibleDatabase.isNull());
 	}
 
 	// Text Selection/ToolTip Functions:

@@ -895,7 +895,7 @@ QStringList CUserNotesDatabase::compositeKeywordList() const
 
 void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
@@ -911,7 +911,7 @@ void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase,
 
 void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
@@ -929,7 +929,7 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 	assert(!strUUID.isEmpty());
 	assert(!strUserDefinedHighlighterName.isEmpty());
@@ -945,7 +945,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
@@ -963,7 +963,7 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
@@ -986,7 +986,7 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 	assert(!strUUID.isEmpty());
 	if (strUUID.isEmpty()) return;

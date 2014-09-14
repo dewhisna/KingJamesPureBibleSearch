@@ -109,7 +109,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_dlyDetailUpdate(-1, 500),
 		m_dlyRerenderCompressor(-1, 10)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	T::setMouseTracking(true);
 	T::installEventFilter(this);
@@ -323,7 +323,7 @@ template<class T, class U>
 CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 {
 	if (m_pParentCanOpener == NULL) {
-		assert(g_pMyApplication.data() != NULL);
+		assert(!g_pMyApplication.isNull());
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<T>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
 		//		the construction process before the parent actually exists.  In that case, we'll
@@ -563,7 +563,7 @@ void CScriptureText<T,U>::showDetails()
 template<>
 void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	begin_popup();
 
@@ -592,7 +592,7 @@ void CScriptureText<T,U>::mouseMoveEvent(QMouseEvent *ev)
 template<class T, class U>
 void CScriptureText<T,U>::showPassageNavigator()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	begin_popup();
 
@@ -634,7 +634,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 template<class T, class U>
 void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	begin_popup();
 
@@ -704,7 +704,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 template<class T, class U>
 QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QMimeData *mime = U::createMimeDataFromSelection();
 	if ((m_bDoPlainCopyOnly) || (CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
@@ -750,8 +750,8 @@ void CScriptureText<T,U>::en_selectionChanged()
 template<class T, class U>
 void CScriptureText<T,U>::updateSelection()
 {
-	assert(m_pBibleDatabase.data() != NULL);
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
+	assert(!g_pUserNotesDatabase.isNull());
 
 	if (m_bDoingSelectionChange) return;
 	m_bDoingSelectionChange = true;
@@ -979,7 +979,7 @@ void CScriptureText<T,U>::en_copyEntirePassageDetails()
 template<class T, class U>
 void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	QTextDocument docFormattedVerses;
 	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
@@ -1021,7 +1021,7 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 
 	if (!U::hasFocus()) return;
 	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
@@ -1089,7 +1089,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 			assert(ndxLink.isSet());
 			if (!ndxLink.isSet()) return;
 
-			assert(g_pUserNotesDatabase.data() != NULL);
+			assert(!g_pUserNotesDatabase.isNull());
 			assert(g_pUserNotesDatabase->existsNoteFor(ndxLink));
 			if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
 
@@ -1145,7 +1145,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 template<class T, class U>
 void CScriptureText<T,U>::en_showAllNotes()
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (!itrNotes->second.isVisible()) {
@@ -1161,7 +1161,7 @@ void CScriptureText<T,U>::en_showAllNotes()
 template<class T, class U>
 void CScriptureText<T,U>::en_hideAllNotes()
 {
-	assert(g_pUserNotesDatabase.data() != NULL);
+	assert(!g_pUserNotesDatabase.isNull());
 	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
 	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
 		if (itrNotes->second.isVisible()) {

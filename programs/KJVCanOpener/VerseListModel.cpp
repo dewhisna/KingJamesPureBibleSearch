@@ -95,8 +95,8 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		m_userNotesResults(&m_private),
 		m_crossRefsResults(&m_private)
 {
-	assert(pBibleDatabase.data() != NULL);
-	assert(pUserNotesDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
+	assert(!pUserNotesDatabase.isNull());
 
 	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
 	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
@@ -105,7 +105,7 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
-	if (m_private.m_pUserNotesDatabase != NULL) {
+	if (!m_private.m_pUserNotesDatabase.isNull()) {
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 
@@ -516,7 +516,7 @@ QModelIndex CVerseListModel::parent(const QModelIndex &index) const
 
 QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 {
-	assert(m_private.m_pBibleDatabase.data() != NULL);
+	assert(!m_private.m_pBibleDatabase.isNull());
 
 	if (!index.isValid()) return QVariant();
 
@@ -1350,7 +1350,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 		}
 		if (!bHaveAtLeastOneUniqueSource) return false;
 
-		assert(g_pMyApplication.data() != NULL);
+		assert(!g_pMyApplication.isNull());
 		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 		assert(pCanOpener != NULL);
 
@@ -1391,7 +1391,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVersesUnsorted, bool bVerseTextOnly) const
 {
-	assert(m_private.m_pBibleDatabase.data() != NULL);
+	assert(!m_private.m_pBibleDatabase.isNull());
 
 	QModelIndexList lstVerses = lstVersesUnsorted;
 	sortModelIndexList(lstVerses, true);
@@ -1433,7 +1433,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		if (!bUsingData) {
 			const CVerseListItem &item(data(lstVerses.at(ndx), VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			if (item.verseIndex().data() == NULL) continue;
+			if (item.verseIndex().isNull()) continue;
 
 			QTextDocument docVerse;
 			CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
@@ -1502,7 +1502,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 
 QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstVersesUnsorted, bool bVeryRaw) const
 {
-	assert(m_private.m_pBibleDatabase.data() != NULL);
+	assert(!m_private.m_pBibleDatabase.isNull());
 
 	QModelIndexList lstVerses = lstVersesUnsorted;
 	sortModelIndexList(lstVerses, true);
@@ -1510,7 +1510,7 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 	QString strText;
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		if (item.verseIndex().data() == NULL) continue;
+		if (item.verseIndex().isNull()) continue;
 
 		if (!bVeryRaw) {
 			strText += item.getVersePlainText() + "\n";
@@ -1528,7 +1528,7 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 
 QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lstVersesUnsorted, bool bHeadingTextOnly) const
 {
-	assert(m_private.m_pBibleDatabase.data() != NULL);
+	assert(!m_private.m_pBibleDatabase.isNull());
 
 	QModelIndexList lstVerses = lstVersesUnsorted;
 	sortModelIndexList(lstVerses, true);
@@ -1597,7 +1597,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lst
 	} else {
 		for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 			const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-			if (item.verseIndex().data() == NULL) continue;
+			if (item.verseIndex().isNull()) continue;
 
 			if ((!bFirst) && (CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses())) docHeadingsHTML.addLineBreak();
 			bFirst = false;
@@ -1654,7 +1654,7 @@ QMimeData *CVerseListModel::mimeDataFromReferenceDetails(const QModelIndexList &
 
 QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexList &lstVersesUnsorted) const
 {
-	assert(m_private.m_pBibleDatabase.data() != NULL);
+	assert(!m_private.m_pBibleDatabase.isNull());
 
 	QModelIndexList lstVerses = lstVersesUnsorted;
 	sortModelIndexList(lstVerses, true);
@@ -1663,7 +1663,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 	QTextCursor cursorDocList(&docList);
 	for (int ndx = 0; ndx < lstVerses.size(); ++ndx) {
 		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		if (item.verseIndex().data() == NULL) continue;
+		if (item.verseIndex().isNull()) continue;
 		QTextDocument docVerse;
 		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
@@ -1805,7 +1805,7 @@ void CVerseListModel::setParsedPhrases(const CSearchResultsData &searchResultsDa
 
 void CVerseListModel::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	if ((pBibleDatabase.data() == NULL) ||
+	if ((pBibleDatabase.isNull()) ||
 		(pBibleDatabase->highlighterUUID().compare(m_private.m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		if (strUserDefinedHighlighterName.isEmpty()) {
 			// Rebuild all highlighters if this is a broadcast for all highlighters
@@ -2101,7 +2101,7 @@ void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMod
 
 	// Don't allow Highlighters, UserNotes, or Cross-Refs if we have no UserNotesDatabase:
 	if (((nViewMode == VVME_HIGHLIGHTERS) || (nViewMode == VVME_USERNOTES) || (nViewMode == VVME_CROSSREFS)) &&
-		(m_private.m_pUserNotesDatabase == NULL)) {
+		(m_private.m_pUserNotesDatabase.isNull())) {
 		assert(false);
 		return;
 	}
@@ -2240,7 +2240,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetVerseIndexAndC
 
 int CVerseListModel::TVerseListModelResults::GetBookCount() const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	if (m_private->m_bShowMissingLeafs) return m_private->m_pBibleDatabase->bibleEntry().m_nNumBk;
 
@@ -2258,7 +2258,7 @@ int CVerseListModel::TVerseListModelResults::GetBookCount() const
 
 int CVerseListModel::TVerseListModelResults::IndexByBook(unsigned int nBk) const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	if (m_private->m_bShowMissingLeafs) {
 		if ((nBk < 1) || (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk)) return -1;
@@ -2285,7 +2285,7 @@ int CVerseListModel::TVerseListModelResults::IndexByBook(unsigned int nBk) const
 
 unsigned int CVerseListModel::TVerseListModelResults::BookByIndex(int ndxBook) const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	if (m_private->m_bShowMissingLeafs) {
 		if ((ndxBook < 0) || (static_cast<unsigned int>(ndxBook) >= m_private->m_pBibleDatabase->bibleEntry().m_nNumBk)) return 0;
@@ -2308,7 +2308,7 @@ unsigned int CVerseListModel::TVerseListModelResults::BookByIndex(int ndxBook) c
 
 int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	int nFirstChp = 0;
 	if ((resultsType() == VLMRTE_USER_NOTES) ||
@@ -2344,7 +2344,7 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 
 int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, unsigned int nChp) const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	int nFirstChp = 0;
 	if ((resultsType() == VLMRTE_USER_NOTES) ||
@@ -2387,7 +2387,7 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 
 unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook, int ndxChapter) const
 {
-	assert(m_private->m_pBibleDatabase.data() != NULL);
+	assert(!m_private->m_pBibleDatabase.isNull());
 
 	int nFirstChp = 0;
 	if ((resultsType() == VLMRTE_USER_NOTES) ||
@@ -2690,7 +2690,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 {
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
-		if (m_pSearchResultsThreadCtrl.data() != NULL) {
+		if (!m_pSearchResultsThreadCtrl.isNull()) {
 			m_pSearchResultsThreadCtrl->disconnect(this);		// Deactivate future notifications from current worker thread
 		}
 
@@ -2781,7 +2781,7 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 	:	CSearchResultsData(searchResultsData),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	m_pMapVersesIncl = &m_mapVersesInclLocal;
 	m_pMapVersesExcl = &m_mapVersesExclLocal;
 
@@ -2796,7 +2796,7 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 		m_pMapVersesIncl(pMapVersesIncl),
 		m_pMapVersesExcl(pMapVersesExcl)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	assert(pMapVersesIncl != NULL);
 	assert(pMapVersesExcl != NULL);
 

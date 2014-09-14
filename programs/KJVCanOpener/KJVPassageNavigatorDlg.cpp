@@ -41,7 +41,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 		m_pCancelButton(NULL),
 		m_pNavigator(NULL)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 

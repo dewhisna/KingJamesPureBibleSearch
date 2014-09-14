@@ -302,7 +302,7 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 
 CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
 	connect(pPhraseWidget, SIGNAL(resizing(CKJVSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CKJVSearchPhraseEdit*)));

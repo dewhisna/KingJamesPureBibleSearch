@@ -49,7 +49,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_nRefType(nRefType),
 		m_bDoingUpdate(false)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -145,7 +145,7 @@ void CKJVPassageNavigator::initialize()
 			//		but if not, try in the current language setting
 			QString strEntireBible = tr("Entire Bible", "Scope");
 			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-			if (pTranslator.data() != NULL) {
+			if (!pTranslator.isNull()) {
 				QString strTemp = pTranslator->translatorApp().translate("CKJVPassageNavigator", "Entire Bible", "Scope");
 				if (!strTemp.isEmpty()) strEntireBible = strTemp;
 			}
@@ -189,7 +189,7 @@ void CKJVPassageNavigator::initialize()
 
 void CKJVPassageNavigator::reset()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (isAbsolute()) {
 		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.count()));		// Default to Genesis 1:1 [1]
@@ -276,7 +276,7 @@ void CKJVPassageNavigator::en_RefTypeChanged(int nType)
 
 void CKJVPassageNavigator::en_BookDirectChanged(int index)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -294,7 +294,7 @@ void CKJVPassageNavigator::en_BookDirectChanged(int index)
 
 void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -313,7 +313,7 @@ void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 
 void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -333,7 +333,7 @@ void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 
 void CKJVPassageNavigator::en_WordDirectChanged(int index)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -354,7 +354,7 @@ void CKJVPassageNavigator::en_WordDirectChanged(int index)
 
 void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	// Special "not set" case:
 	if (!ndx.isSet()) {
@@ -491,7 +491,7 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui.chkboxReverse->isChecked()));
 	ui.editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
@@ -552,7 +552,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tag
 
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	begin_update();
 
@@ -604,7 +604,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 
 void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	begin_update();
 

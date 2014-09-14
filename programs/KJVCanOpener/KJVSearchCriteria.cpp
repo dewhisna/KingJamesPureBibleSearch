@@ -46,7 +46,7 @@ const CRelIndex CSearchCriteria::SSI_SUPERSCRIPTION = CRelIndex(0, 0, 0, 2);
 
 bool CSearchCriteria::bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
@@ -59,7 +59,7 @@ bool CSearchCriteria::bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const
 
 bool CSearchCriteria::bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 
 	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
@@ -118,7 +118,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 	:	QAbstractItemModel(pParent),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	const TRelativeIndexSet &aSetSearchWithin = aSearchCriteria.searchWithin();
 	m_bBibleHasColophons = aSearchCriteria.bibleHasColophons(pBibleDatabase);
@@ -274,7 +274,7 @@ QModelIndex CSearchWithinModel::parent(const QModelIndex &index) const
 
 QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 {
-	assert(m_pBibleDatabase.data() != NULL);
+	assert(!m_pBibleDatabase.isNull());
 
 	if (!index.isValid()) return QVariant();
 
@@ -299,7 +299,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strEntireBible = tr("Entire Bible", "Scope");
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-					if (pTranslator.data() != NULL) {
+					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Entire Bible", "Scope");
 						if (!strTemp.isEmpty()) strEntireBible = strTemp;
 					}
@@ -313,7 +313,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strColophons = tr("Colophons", "Scope");
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-					if (pTranslator.data() != NULL) {
+					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Colophons", "Scope");
 						if (!strTemp.isEmpty()) strColophons = strTemp;
 					}
@@ -327,7 +327,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strSuperscriptions = tr("Superscriptions", "Scope");
 				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
-					if (pTranslator.data() != NULL) {
+					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Superscriptions", "Scope");
 						if (!strTemp.isEmpty()) strSuperscriptions = strTemp;
 					}
@@ -533,7 +533,7 @@ CKJVSearchCriteriaWidget::~CKJVSearchCriteriaWidget()
 
 void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(pBibleDatabase.data() != NULL);
+	assert(!pBibleDatabase.isNull());
 	m_pBibleDatabase = pBibleDatabase;
 
 	begin_update();
