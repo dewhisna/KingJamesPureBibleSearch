@@ -33,6 +33,9 @@
 #include <QModelIndex>
 #include <QPoint>
 #include <QMenu>
+#include <QAction>
+#include <QActionGroup>
+#include <QPointer>
 
 // ============================================================================
 
@@ -45,6 +48,7 @@ public:
 	virtual ~CDictionaryLineEdit();
 
 	void initialize(CDictionaryDatabasePtr pDictionary);
+	void setDictionary(CDictionaryDatabasePtr pDictionary);
 
 	void processPendingUpdateCompleter();
 
@@ -112,15 +116,23 @@ protected slots:
 	void en_definitionBrowserContextMenuRequested(const QPoint &pos);
 	void en_editDictionaryWordContextMenuRequested(const QPoint &pos);
 
+	void en_updateDictionaryDatabasesList();
+	void en_selectDictionary(QAction *pAction = NULL);
+
 // Data Private:
 private:
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
 
 // UI Private:
 private:
+	QString m_strLanguage;			// Language to use for dictionary lists.  If empty, all languages are used
 	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
 	QMenu *m_pEditMenuDictionary;	// Edit menu for main screen when the dictionary is active
 	QMenu *m_pEditMenuDictWord;		// Edit menu for main screen when the dictionary word editor is active
+	// ----
+	QAction *m_pActionDictDatabasesList;	// Action for Loaded Dictionary Databases list from which the user can open/select
+	QPointer<QActionGroup> m_pActionGroupDictDatabasesList;	// Actual Dictionary Databases List items for the selection list
+	// ----
 	bool m_bDoingUpdate;
 	DelayedExecutionTimer m_dlyTextChanged;
 	Ui::CDictionaryWidget ui;

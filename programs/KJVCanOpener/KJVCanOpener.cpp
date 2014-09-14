@@ -1978,7 +1978,7 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 	assert(m_pActionBibleDatabasesList != NULL);
 	assert(m_pActionBibleDatabasesList->menu() != NULL);
 
-	if (m_pActionGroupBibleDatabasesList != NULL) delete m_pActionGroupBibleDatabasesList;
+	if (!m_pActionGroupBibleDatabasesList.isNull()) delete m_pActionGroupBibleDatabasesList;
 	m_pActionGroupBibleDatabasesList = new QActionGroup(this);
 
 #ifdef ENABLE_ONLY_LOADED_BIBLE_DATABASES

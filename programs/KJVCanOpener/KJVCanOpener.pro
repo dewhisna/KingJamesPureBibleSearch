@@ -152,6 +152,9 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 # Enable to only show loaded Bible Databases in New Search Window action:
 #DEFINES += ENABLE_ONLY_LOADED_BIBLE_DATABASES
 
+# Enable to only show loaded Dictionary Databases in the Select Dictionary action:
+#DEFINES += ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
 !emscripten:DEFINES += LOAD_APPLICATION_FONTS
 

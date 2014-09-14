@@ -51,9 +51,6 @@ CDictionaryLineEdit::~CDictionaryLineEdit()
 
 void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 {
-	assert(!pDictionary.isNull());
-	m_pDictionaryDatabase = pDictionary;
-
 	setAcceptRichText(false);
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
 
@@ -68,6 +65,22 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 	m_dlyUpdateCompleter.setMinimumDelay(10);				// Arbitrary time, but I think it must be less than our textChanged delay or we may have issues
 	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
 
+	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+
+	setDictionary(pDictionary);
+}
+
+void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
+{
+	assert(!pDictionary.isNull());
+	m_pDictionaryDatabase = pDictionary;
+
+	m_dlyUpdateCompleter.untrigger();
+	if (m_pCompleter) {
+		delete m_pCompleter;
+		m_pCompleter = NULL;
+	}
+
 	m_pCompleter = new SearchCompleter_t(m_pDictionaryDatabase, *this, this);
 //	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
 	// TODO : ??? Add AccentSensitivity to completer ???
@@ -75,7 +88,11 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+
+	// Reset the word to trigger an update so widget will update definition with that of the new database:
+	if (!toPlainText().isEmpty()) {
+		setPlainText(toPlainText());
+	}
 }
 
 void CDictionaryLineEdit::en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
@@ -178,9 +195,12 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 		m_bDoingPopup(false),
 		m_pEditMenuDictionary(NULL),
 		m_pEditMenuDictWord(NULL),
+		m_pActionDictDatabasesList(NULL),
 		m_bDoingUpdate(false)
 {
 	assert(!m_pDictionaryDatabase.isNull());
+
+	m_strLanguage = m_pDictionaryDatabase->language();			// Used the passed dictionary's language as the default language for our list
 
 	ui.setupUi(this);
 
@@ -246,6 +266,19 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 	pAction->setStatusTip(tr("Select All Text in the Dictionary Definition", "MainMenu"));
 	pAction->setEnabled(true);
 	connect(pAction, SIGNAL(triggered()), ui.definitionBrowser, SLOT(setFocus()));
+	// ----
+	m_pEditMenuDictionary->addSeparator();
+	// ----
+	m_pActionDictDatabasesList = new QAction(QIcon(":/res/Apps-accessories-dictionary-icon-128.png"), tr("Select &Dictionary", "MainMenu"), this);
+	m_pActionDictDatabasesList->setStatusTip(tr("Select dictionary to use in this Search Window", "MainMenu"));
+	m_pActionDictDatabasesList->setToolTip(tr("Select dictionary to use", "MainMenu"));
+	// Setup the submenu:
+	m_pActionDictDatabasesList->setMenu(new QMenu);			// The action will take ownership via setOverrideMenuAction()
+	en_updateDictionaryDatabasesList();
+	//	Do the update via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
+	//	that have to open new Dictionary Databases won't crash if the menu that was triggering it gets yanked out from under it:
+	connect(TDictionaryDatabaseList::instance(), SIGNAL(changedDictionaryDatabaseList()), this, SLOT(en_updateDictionaryDatabasesList()), Qt::QueuedConnection);
+	m_pEditMenuDictionary->addAction(m_pActionDictDatabasesList);
 
 	// ------------------------------------------------------------------------
 
@@ -405,6 +438,89 @@ void CDictionaryWidget::setTextBrightness(bool bInvert, int nBrightness)
 	setStyleSheet(QString("CDictionaryLineEdit, QTextBrowser { background-color:%1; color:%2; }")
 								   .arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
 								   .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+}
+
+void CDictionaryWidget::en_updateDictionaryDatabasesList()
+{
+	assert(m_pActionDictDatabasesList != NULL);
+	assert(m_pActionDictDatabasesList->menu() != NULL);
+
+	if (!m_pActionGroupDictDatabasesList.isNull()) delete m_pActionGroupDictDatabasesList;
+	m_pActionGroupDictDatabasesList = new QActionGroup(this);
+	m_pActionGroupDictDatabasesList->setExclusive(true);
+
+#ifdef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+	for (int ndx = 0; ndx < TDictionaryDatabaseList::instance()->size(); ++ndx) {
+		if (TDictionaryDatabaseList::instance()->at(ndx).isNull()) continue;
+		if ((!m_strLanguage.isEmpty()) && (TDictionaryDatabaseList::instance()->at(ndx)->language().compare(m_strLanguage, Qt::CaseInsensitive) != 0)) continue;
+		QAction *pAction = new QAction(TDictionaryDatabaseList::instance()->at(ndx)->description(), m_pActionGroupDictDatabasesList);
+		pAction->setData(TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID());
+		pAction->setCheckable(true);
+		if (TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID().compare(m_pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+			pAction->setChecked(true);
+		}
+		m_pActionDictDatabasesList->menu()->addAction(pAction);
+	}
+#else
+	QStringList lstAvailableDatabases = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesUUIDs();
+	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
+		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+
+		if (!pDictDatabase.isNull()) {
+			if ((m_strLanguage.isEmpty()) || (pDictDatabase->language().compare(m_strLanguage, Qt::CaseInsensitive) == 0)) {
+				QAction *pAction = new QAction(pDictDatabase->description(), m_pActionGroupDictDatabasesList);
+				pAction->setData(pDictDatabase->compatibilityUUID());
+				pAction->setCheckable(true);
+				if (pDictDatabase->compatibilityUUID().compare(m_pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+					pAction->setChecked(true);
+				}
+				m_pActionDictDatabasesList->menu()->addAction(pAction);
+			}
+		} else {
+			DICTIONARY_DESCRIPTOR_ENUM nDDE = dictionaryDescriptorFromUUID(lstAvailableDatabases.at(ndx));
+			assert(nDDE != DDE_UNKNOWN);
+			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDDE);
+			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0)) {
+				QAction *pAction = new QAction(dctDesc.m_strDBDesc, m_pActionGroupDictDatabasesList);
+				pAction->setData(dctDesc.m_strUUID);
+				pAction->setCheckable(true);
+				if (dctDesc.m_strUUID.compare(m_pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+					pAction->setChecked(true);
+				}
+				m_pActionDictDatabasesList->menu()->addAction(pAction);
+			}
+		}
+	}
+#endif
+
+	connect(m_pActionGroupDictDatabasesList.data(), SIGNAL(triggered(QAction*)), this, SLOT(en_selectDictionary(QAction*)));
+}
+
+void CDictionaryWidget::en_selectDictionary(QAction *pAction)
+{
+	assert(pAction != NULL);
+
+	if (pAction != NULL) {
+		QString strUUID = pAction->data().toString();
+		if (strUUID.compare(m_pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) return;		// Ignore if "switching" to same database
+
+		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+		if (pDictDatabase.isNull()) {
+			if (TDictionaryDatabaseList::instance()->loadDictionaryDatabase(strUUID, false, this)) {
+				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
+				assert(!pDictDatabase.isNull());
+			} else {
+				return;
+			}
+		}
+#else
+		assert(!pDictDatabase.isNull());
+#endif
+
+		m_pDictionaryDatabase = pDictDatabase;
+		ui.editDictionaryWord->setDictionary(pDictDatabase);
+	}
 }
 
 // ============================================================================
