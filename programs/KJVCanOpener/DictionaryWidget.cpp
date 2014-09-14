@@ -196,7 +196,8 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 		m_pEditMenuDictionary(NULL),
 		m_pEditMenuDictWord(NULL),
 		m_pActionDictDatabasesList(NULL),
-		m_bDoingUpdate(false)
+		m_bDoingUpdate(false),
+		m_bIgnoreNextWordChange(false)
 {
 	assert(!m_pDictionaryDatabase.isNull());
 
@@ -345,6 +346,11 @@ void CDictionaryWidget::setWord(const QString &strWord)
 
 void CDictionaryWidget::en_wordChanged()
 {
+	if (m_bIgnoreNextWordChange) {
+		m_bIgnoreNextWordChange = false;
+		return;
+	}
+
 	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
 	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
 	if (m_pDictionaryDatabase->wordExists(strWord)) {
@@ -393,6 +399,7 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 		}
 	} else if (urlResolved.scheme().compare("bible", Qt::CaseInsensitive) == 0) {
 		if (ndxDblSlash != -1) {
+			m_bIgnoreNextWordChange = true;					// Ignore automatic word selection from the new passage, as it's annoying
 			emit gotoPassageReference(strValue);
 		}
 	}

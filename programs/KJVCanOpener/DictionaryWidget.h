@@ -135,6 +135,7 @@ private:
 	// ----
 	bool m_bDoingUpdate;
 	DelayedExecutionTimer m_dlyTextChanged;
+	bool m_bIgnoreNextWordChange;	// Used to ignore the automatic word update when navigating to a passage via an embedded link, as that is annoying
 	Ui::CDictionaryWidget ui;
 };
 
