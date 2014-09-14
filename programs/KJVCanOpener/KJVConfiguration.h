@@ -28,6 +28,7 @@
 #include "PhraseEdit.h"
 #include "UserNotesDatabase.h"
 #include "BibleDBListModel.h"
+#include "DictDBListModel.h"
 
 #include <QWidget>
 #include <QDialog>
@@ -208,6 +209,51 @@ private:
 	QString m_strSelectedDatabaseUUID;
 
 	Ui::CKJVBibleDatabaseConfig ui;
+};
+
+// ============================================================================
+
+#include "ui_KJVDictDatabaseConfig.h"
+
+class CKJVDictDatabaseConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVDictDatabaseConfig(QWidget *parent = 0);
+	~CKJVDictDatabaseConfig();
+
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged(bool bNeedRestart);
+
+private slots:
+	void en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);
+	void en_loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB);
+	void en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
+
+	void en_changedMainDBCurrentChanged(int index);
+
+	void en_displayDictInformation();
+
+private:
+	void setSettingControls(const QString &strUUID);
+
+// Data Private:
+private:
+	CDictDatabaseListModel *m_pDictDatabaseListModel;
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+	bool m_bLoadingData;
+	QString m_strSelectedDatabaseUUID;
+
+	Ui::CKJVDictDatabaseConfig ui;
 };
 
 // ============================================================================
@@ -506,7 +552,8 @@ enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_TEXT_FORMAT = 2,
 	CPSE_USER_NOTES_DATABASE = 3,
 	CPSE_BIBLE_DATABASE = 4,
-	CPSE_LOCALE = 5
+	CPSE_DICT_DATABASE = 5,
+	CPSE_LOCALE = 6
 };
 
 class CKJVConfiguration : public QwwConfigWidget
@@ -532,6 +579,7 @@ private:
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 #endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
+	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
 	CKJVLocaleConfig *m_pLocaleConfig;
 };
 

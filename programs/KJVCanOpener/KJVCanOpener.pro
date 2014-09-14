@@ -253,6 +253,7 @@ SOURCES += \
 	dbDescriptors.cpp \
 	dbstruct.cpp \
 	DelayedExecutionTimer.cpp \
+	DictDBListModel.cpp \
 	Highlighter.cpp \
 	KJVAboutDlg.cpp \
 	KJVBrowser.cpp \
@@ -295,6 +296,7 @@ buildKJVDatabase:SOURCES += \
 
 !emscripten:SOURCES += \
 	BibleDatabaseInfoDlg.cpp \
+	DictDatabaseInfoDlg.cpp \
 	DictionaryWidget.cpp \
 	KJVConfiguration.cpp \
 	RenameHighlighterDlg.cpp
@@ -316,6 +318,7 @@ HEADERS += \
 	dbDescriptors.h \
 	dbstruct.h \
 	DelayedExecutionTimer.h \
+	DictDBListModel.h \
 	Highlighter.h \
 	KJVAboutDlg.h \
 	KJVBrowser.h \
@@ -362,6 +365,7 @@ buildKJVDatabase:HEADERS += \
 
 !emscripten:HEADERS += \
 	BibleDatabaseInfoDlg.h \
+	DictDatabaseInfoDlg.h \
 	DictionaryWidget.h \
 	KJVConfiguration.h \
 	RenameHighlighterDlg.h
@@ -394,8 +398,10 @@ FORMS += \
 	ConfigCopyOptions.ui \
 	ConfigDictionaryOptions.ui \
 	ConfigSearchOptions.ui \
+	DictDatabaseInfoDlg.ui \
 	DictionaryWidget.ui \
 	KJVBibleDatabaseConfig.ui \
+	KJVDictDatabaseConfig.ui \
 	KJVGeneralSettingsConfig.ui \
 	KJVLocaleConfig.ui \
 	KJVTextFormatConfig.ui \

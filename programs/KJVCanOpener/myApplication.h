@@ -156,6 +156,7 @@ public:
 	bool isFirstCanOpener(bool bInCanOpenerConstructor = false, const QString &strBblUUID = QString()) const;		// If strBblUUID.isEmpty(), returns overall "first" status, otherwise, it's the first of the specified Bible Database
 	bool isLastCanOpener(const QString &strBblUUID = QString()) const;					// If strBblUUID.isEmpty(), returns overall "last" status, otherwise, it's the last of the specified Bible Database
 	int bibleDatabaseCanOpenerRefCount(const QString &strBblUUID = QString()) const;	// Returns the number of KJVCanOpeners opened with the specified database.  If strBblUUID is empty, returns total number of open CanOpeners
+	int dictDatabaseCanOpenerRefCount(const QString &strDctUUID = QString()) const;		// Returns the number of KJVCanOpeners opened with the specified database.  If strDctUUID is empty, returns total number of open CanOpeners
 
 	CKJVCanOpener *activeCanOpener() const;
 	template<class T>

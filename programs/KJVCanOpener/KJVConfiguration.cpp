@@ -41,6 +41,7 @@
 #include "BibleWordDiffListModel.h"
 #include "Translator.h"
 #include "BibleDatabaseInfoDlg.h"
+#include "DictDatabaseInfoDlg.h"
 
 #include <QIcon>
 #include <QVBoxLayout>
@@ -1275,6 +1276,161 @@ void CKJVBibleDatabaseConfig::en_displayBibleInformation()
 	pDlg->exec();
 #else
 	CBibleDatabaseInfoDialog *pDlg = new CBibleDatabaseInfoDialog(pBibleDatabase, this);
+	pDlg->show();
+#endif
+}
+
+// ============================================================================
+// ============================================================================
+
+CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		m_bLoadingData(false)
+{
+	ui.setupUi(this);
+
+	m_pDictDatabaseListModel = new CDictDatabaseListModel(ui.treeDictDatabases);
+	ui.treeDictDatabases->setModel(m_pDictDatabaseListModel);
+	ui.treeDictDatabases->resizeColumnToContents(0);
+	ui.treeDictDatabases->resizeColumnToContents(1);
+
+#if QT_VERSION >= 0x050000
+	ui.treeDictDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+#endif
+
+	ui.comboBoxMainDictDatabaseSelect->setModel(m_pDictDatabaseListModel);
+
+	connect(ui.treeDictDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
+	connect(m_pDictDatabaseListModel, SIGNAL(loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM)), this, SLOT(en_loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM)));
+	connect(m_pDictDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
+
+	connect(ui.comboBoxMainDictDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
+
+	connect(ui.buttonDisplayDictInfo, SIGNAL(clicked()), this, SLOT(en_displayDictInformation()));
+
+	setSettingControls(QString());
+
+	loadSettings();
+}
+
+CKJVDictDatabaseConfig::~CKJVDictDatabaseConfig()
+{
+
+}
+
+void CKJVDictDatabaseConfig::loadSettings()
+{
+	m_bLoadingData = true;
+
+	ui.treeDictDatabases->setCurrentIndex(ui.treeDictDatabases->model()->index(0, 0));
+	for (int ndx = 0; ndx < ui.comboBoxMainDictDatabaseSelect->count(); ++ndx) {
+		DICTIONARY_DESCRIPTOR_ENUM nDictDB = ui.comboBoxMainDictDatabaseSelect->itemData(ndx, CDictDatabaseListModel::DDDRE_DICTIONARY_DESCRIPTOR_ROLE).value<DICTIONARY_DESCRIPTOR_ENUM>();
+		const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDictDB);
+		if (CPersistentSettings::instance()->mainDictDatabaseUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+			ui.comboBoxMainDictDatabaseSelect->setCurrentIndex(ndx);
+			break;
+		}
+	}
+
+	m_bLoadingData = false;
+	m_bIsDirty = false;
+}
+
+void CKJVDictDatabaseConfig::saveSettings()
+{
+	// We've already saved settings in the change notification slots.  Just reset our
+	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
+	m_bIsDirty = false;
+
+	m_bLoadingData = true;
+
+	// Unload unused Dictionary Databases:
+	for (int ndx = TDictionaryDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
+		QString strUUID = TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID();
+		if ((m_pDictDatabaseListModel->data(dictionaryDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
+			(TDictionaryDatabaseList::instance()->mainDictionaryDatabase() != TDictionaryDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
+			(g_pMyApplication.data() != NULL) && (g_pMyApplication->dictDatabaseCanOpenerRefCount(strUUID) == 0)) {
+			TDictionaryDatabaseList::instance()->removeDictionaryDatabase(strUUID);
+			continue;
+		}
+	}
+	m_pDictDatabaseListModel->updateDictDatabaseList();
+
+	m_bLoadingData = false;
+
+	loadSettings();		// Reload page with new settings
+}
+
+void CKJVDictDatabaseConfig::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
+{
+	Q_UNUSED(indexPrevious);
+	setSettingControls(m_pDictDatabaseListModel->data(indexCurrent, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
+}
+
+void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
+{
+	bool bLoadingData = m_bLoadingData;
+	m_bLoadingData = true;
+
+	if (strUUID.isEmpty()) {
+		ui.buttonDisplayDictInfo->setEnabled(false);
+	} else {
+		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
+		ui.buttonDisplayDictInfo->setEnabled((pDictDatabase.data() != NULL) && (!pDictDatabase->info().isEmpty()));
+	}
+
+	m_strSelectedDatabaseUUID = strUUID;
+
+	m_bLoadingData = bLoadingData;
+}
+
+void CKJVDictDatabaseConfig::en_loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB)
+{
+	assert(nDictDB != DDE_UNKNOWN);
+	TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
+}
+
+void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
+{
+	Q_UNUSED(strUUID);
+	Q_UNUSED(bAutoLoad);
+
+	assert(!m_bLoadingData);
+	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our preview to change
+	ui.treeDictDatabases->resizeColumnToContents(0);
+	ui.treeDictDatabases->resizeColumnToContents(1);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
+{
+	if (m_bLoadingData) return;
+
+	if (index == -1) return;
+
+	DICTIONARY_DESCRIPTOR_ENUM nDictDB = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_DICTIONARY_DESCRIPTOR_ROLE).value<DICTIONARY_DESCRIPTOR_ENUM>();
+	QString strUUID = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString();
+	// Must set main dict first so list model will update correctly:
+	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).data() == NULL) TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
+	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);
+	CPersistentSettings::instance()->setMainDictDatabaseUUID(ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
+	m_pDictDatabaseListModel->setData(nDictDB, m_pDictDatabaseListModel->data(nDictDB, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVDictDatabaseConfig::en_displayDictInformation()
+{
+	CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
+	assert(pDictDatabase.data() != NULL);
+
+#ifndef USE_ASYNC_DIALOGS
+	CDictDatabaseInfoDialogPtr pDlg(pDictDatabase, this);
+	pDlg->exec();
+#else
+	CDictDatabaseInfoDialog *pDlg = new CDictDatabaseInfoDialog(pDictDatabase, this);
 	pDlg->show();
 #endif
 }
@@ -2652,6 +2808,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pUserNotesDatabaseConfig(NULL),
 #endif
 		m_pBibleDatabaseConfig(NULL),
+		m_pDictDatabaseConfig(NULL),
 		m_pLocaleConfig(NULL)
 {
 	assert(pBibleDatabase.data() != NULL);
@@ -2664,6 +2821,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
+	m_pDictDatabaseConfig = new CKJVDictDatabaseConfig(this);
 	m_pLocaleConfig = new CKJVLocaleConfig(this);
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings", "MainMenu"));
@@ -2673,6 +2831,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings", "MainMenu"));
 #endif
 	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database", "MainMenu"));
+	addGroup(m_pDictDatabaseConfig, QIcon(":/res/Apps-accessories-dictionary-icon-128.png"), tr("Dictionary Database", "MainMenu"));
 	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings", "MainMenu"));
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
@@ -2695,6 +2854,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_BIBLE_DATABASE:
 			pSelect = m_pBibleDatabaseConfig;
 			break;
+		case CPSE_DICT_DATABASE:
+			pSelect = m_pDictDatabaseConfig;
+			break;
 		case CPSE_LOCALE:
 			pSelect = m_pLocaleConfig;
 			break;
@@ -2714,6 +2876,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 #endif
 	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+	connect(m_pDictDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pLocaleConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
@@ -2731,6 +2894,7 @@ void CKJVConfiguration::loadSettings()
 	m_pUserNotesDatabaseConfig->loadSettings();
 #endif
 	m_pBibleDatabaseConfig->loadSettings();
+	m_pDictDatabaseConfig->loadSettings();
 	m_pLocaleConfig->loadSettings();
 }
 
@@ -2743,6 +2907,7 @@ void CKJVConfiguration::saveSettings()
 	m_pUserNotesDatabaseConfig->saveSettings();
 #endif
 	m_pBibleDatabaseConfig->saveSettings();
+	m_pDictDatabaseConfig->saveSettings();
 	m_pLocaleConfig->saveSettings();
 }
 
@@ -2763,6 +2928,8 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 			return m_pTextFormatConfig->isDirty();
 		case CPSE_BIBLE_DATABASE:
 			return m_pBibleDatabaseConfig->isDirty();
+		case CPSE_DICT_DATABASE:
+			return m_pDictDatabaseConfig->isDirty();
 		case CPSE_LOCALE:
 			return m_pLocaleConfig->isDirty();
 		case CPSE_DEFAULT:
@@ -2774,6 +2941,7 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 #endif
 					m_pTextFormatConfig->isDirty() ||
 					m_pBibleDatabaseConfig->isDirty() ||
+					m_pDictDatabaseConfig->isDirty() ||
 					m_pLocaleConfig->isDirty());
 	}
 }

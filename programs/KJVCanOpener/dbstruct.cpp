@@ -268,6 +268,25 @@ TDictionaryDatabaseList *TDictionaryDatabaseList::instance()
 	return &theDictionaryDatabaseList;
 }
 
+bool TDictionaryDatabaseList::loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain, QWidget *pParent)
+{
+	if (nDictDB == DDE_UNKNOWN) return false;
+	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDictDB);
+	CBusyCursor iAmBusy(NULL);
+	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
+	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
+		iAmBusy.earlyRestore();
+		displayWarning(pParent, tr("Load Dictionary Database", "Errors"), tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
+		return false;
+	}
+	return true;
+}
+
+bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
+{
+	return loadDictionaryDatabase(dictionaryDescriptorFromUUID(strUUID), bAutoSetAsMain, pParent);
+}
+
 void TDictionaryDatabaseList::setMainDictionaryDatabase(const QString &strUUID)
 {
 	QString strOldUUID = ((m_pMainDictionaryDatabase.data() != NULL) ? m_pMainDictionaryDatabase->compatibilityUUID() : QString());

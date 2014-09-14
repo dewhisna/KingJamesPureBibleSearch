@@ -67,6 +67,7 @@ public:
 	~CKJVCanOpener();
 
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
+	CDictionaryDatabasePtr dictionaryDatabase() const;
 
 	bool isBrowserActive() const { return m_bBrowserActive; }
 	bool isSearchResultsActive() const { return m_bSearchResultsActive; }
@@ -210,6 +211,7 @@ protected slots:
 	void en_LaunchTextColorAndFontsConfig();
 	void en_LaunchNotesFileSettingsConfig();
 	void en_LaunchBibleDatabaseConfig();
+	void en_LaunchDictDatabaseConfig();
 	void en_LaunchLocaleSettingsConfig();
 
 	void en_NewCanOpener(QAction *pAction = NULL);

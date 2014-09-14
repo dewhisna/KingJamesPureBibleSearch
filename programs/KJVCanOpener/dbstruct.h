@@ -1148,8 +1148,11 @@ public:
 	virtual ~TDictionaryDatabaseList();
 	static TDictionaryDatabaseList *instance();
 
+	static bool loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
+	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	CDictionaryDatabasePtr mainDictionaryDatabase() const { return m_pMainDictionaryDatabase; }
 	void setMainDictionaryDatabase(const QString &strUUID);
+	bool haveMainDictionaryDatabase() const { return (m_pMainDictionaryDatabase.data() != NULL); }
 	void removeDictionaryDatabase(const QString &strUUID);
 	void clear();
 	int size() const { return QList<CDictionaryDatabasePtr>::size(); }

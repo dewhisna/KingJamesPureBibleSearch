@@ -902,6 +902,22 @@ int CMyApplication::bibleDatabaseCanOpenerRefCount(const QString &strBblUUID) co
 	}
 }
 
+int CMyApplication::dictDatabaseCanOpenerRefCount(const QString &strDctUUID) const
+{
+	if (strDctUUID.isEmpty()) {
+		return m_lstKJVCanOpeners.size();
+	} else {
+		int nCount = 0;
+		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
+			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
+			CDictionaryDatabasePtr pDictDatabase = m_lstKJVCanOpeners.at(ndx)->dictionaryDatabase();
+			if (pDictDatabase.data() == NULL) continue;
+			if (pDictDatabase->compatibilityUUID().compare(strDctUUID, Qt::CaseInsensitive) == 0) ++nCount;
+		}
+		return nCount;
+	}
+}
+
 void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 {
 	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pKJVCanOpener);

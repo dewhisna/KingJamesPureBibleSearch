@@ -755,6 +755,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F6));
 	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchDictDatabaseConfig()));
+
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F7));
+	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchLocaleSettingsConfig()));
 #endif
 
@@ -885,6 +890,15 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 CKJVCanOpener::~CKJVCanOpener()
 {
 
+}
+
+CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
+{
+	if (m_pDictionaryWidget != NULL) {
+		return m_pDictionaryWidget->dictionaryDatabase();
+	} else {
+		return CDictionaryDatabasePtr();
+	}
 }
 
 void CKJVCanOpener::initialize()
@@ -2769,6 +2783,13 @@ void CKJVCanOpener::en_LaunchBibleDatabaseConfig()
 {
 #if !defined(EMSCRIPTEN)
 	en_Configure(CPSE_BIBLE_DATABASE);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchDictDatabaseConfig()
+{
+#if !defined(EMSCRIPTEN)
+	en_Configure(CPSE_DICT_DATABASE);
 #endif
 }
 
