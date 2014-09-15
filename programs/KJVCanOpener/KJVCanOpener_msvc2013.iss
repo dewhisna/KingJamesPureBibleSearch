@@ -144,6 +144,7 @@ Source: ".\winbuild\KJVCanOpener\plugins\styles\qplastiquestyle.dll"; DestDir: "
 Source: ".\winbuild\KJVCanOpener\db\bbl-kjv1769.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\db\bbl-rvg2010.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\db\dct-web1828.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\db\dct-web1913.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 
 ; license
 Source: ".\winbuild\KJVCanOpener\license\gpl-3.0.txt"; DestDir: "{app}\KJVCanOpener\license"; Flags: ignoreversion;

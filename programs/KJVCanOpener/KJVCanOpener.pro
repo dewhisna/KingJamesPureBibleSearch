@@ -490,6 +490,7 @@ android {
 	android_install {
 		dbDeploy.files += ../KJVCanOpener/db/bbl-kjv1769.ccdb
 		dbDeploy.files += ../KJVCanOpener/db/dct-web1828.s3db
+#		dbDeploy.files += ../KJVCanOpener/db/dct-web1913.s3db
 		dbDeploy.path = /assets/KJVCanOpener/db
 		fontDeploy.files = ../KJVCanOpener/fonts/DejaVu*.ttf ../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.path = /assets/KJVCanOpener/fonts
@@ -519,6 +520,7 @@ ios {
 		iconDeploy.path = .
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
 		dbDeploy.files += ../../KJVCanOpener/db/dct-web1828.s3db
+#		dbDeploy.files += ../../KJVCanOpener/db/dct-web1913.s3db
 		dbDeploy.path = /assets/KJVCanOpener/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
@@ -588,6 +590,7 @@ macx {
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
 		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
+		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1913.s3db
 		dbDeploy.path = /Contents/Resources/db
 		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
@@ -689,6 +692,7 @@ win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
 	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
 	dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
+	dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1913.s3db
 	dbDeploy.path = $${WINBUILD}/KJVCanOpener/db
 	fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
 	fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf

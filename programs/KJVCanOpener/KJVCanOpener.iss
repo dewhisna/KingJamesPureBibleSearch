@@ -116,6 +116,7 @@ Source: ".\plugins\accessible\qtaccessiblewidgets4.dll"; DestDir: "{app}\KJVCanO
 Source: "db\bbl-kjv1769.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: "db\bbl-rvg2010.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: "db\dct-web1828.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: "db\dct-web1913.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 
 ; license
 Source: "gpl-3.0.txt"; DestDir: "{app}\KJVCanOpener\license"; Flags: ignoreversion;
