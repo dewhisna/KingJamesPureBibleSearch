@@ -268,6 +268,66 @@ TDictionaryDatabaseList *TDictionaryDatabaseList::instance()
 	return &theDictionaryDatabaseList;
 }
 
+CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QString &strLanguage, QWidget *pParentWidget)
+{
+	// Try Loaded Main Dictionary first:
+	CDictionaryDatabasePtr pMainDictDatabase = TDictionaryDatabaseList::instance()->mainDictionaryDatabase();
+	if (!pMainDictDatabase.isNull()) {
+		if ((strLanguage.isEmpty()) || (pMainDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0)) return pMainDictDatabase;
+	}
+
+	// Try Selected Main Dictionary second (if it isn't the same as main):
+	CDictionaryDatabasePtr pDictDatabase;
+	QString strUUIDSelMain = CPersistentSettings::instance()->mainDictDatabaseUUID();
+	if (!strUUIDSelMain.isEmpty()) {
+		if ((pMainDictDatabase.isNull()) ||
+			((!pMainDictDatabase.isNull()) && (pMainDictDatabase->compatibilityUUID().compare(strUUIDSelMain, Qt::CaseInsensitive) != 0))) {
+			if ((strLanguage.isEmpty()) ||
+				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_strUUID.compare(strLanguage, Qt::CaseInsensitive) == 0)) {
+				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
+				if (!pDictDatabase.isNull()) {
+					return pDictDatabase;
+				} else {
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+					if (TDictionaryDatabaseList::loadDictionaryDatabase(strUUIDSelMain, false, pParentWidget)) {
+						pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
+						assert(!pDictDatabase.isNull());
+						if (!pDictDatabase.isNull()) return pDictDatabase;
+					}
+				}
+#endif
+			}
+		}
+	}
+
+	QStringList lstAvailableUUIDs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesUUIDs();
+
+	// Loaded dictionaries have precedence:
+	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
+		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
+		if (!pDictDatabase.isNull()) {
+			if ((strLanguage.isEmpty()) || (pDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0)) return pDictDatabase;
+		}
+	}
+
+	// Try to find one that isn't loaded if we're allowed to:
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
+		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx)).isNull()) continue;
+		if ((strLanguage.isEmpty()) ||
+			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_strUUID.compare(strLanguage, Qt::CaseInsensitive) == 0)) {
+			if (TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableUUIDs.at(ndx), false, pParentWidget)) {
+				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
+				assert(!pDictDatabase.isNull());
+				if (!pDictDatabase.isNull()) return pDictDatabase;
+			}
+		}
+	}
+#endif
+
+	return CDictionaryDatabasePtr();
+}
+
 bool TDictionaryDatabaseList::loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain, QWidget *pParent)
 {
 	if (nDictDB == DDE_UNKNOWN) return false;
