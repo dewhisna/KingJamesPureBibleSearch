@@ -105,7 +105,11 @@ namespace {
 		// Webster 1828:
 		{ false, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "dct-web1828.s3db", "dct-web1828.ccdb" },
 		// Webster 1913:
-		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), "70C95C30-3893-11E4-916C-0800200C9A66", "dct-web1913.s3db", "dct-web1913.ccdb" }
+		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), "70C95C30-3893-11E4-916C-0800200C9A66", "dct-web1913.s3db", "dct-web1913.ccdb" },
+		// Webster 1806:
+		{ false, "en", QString::fromUtf8("Webster 1806"), QString::fromUtf8("Webster's Compendious Dictionary, 1806"), "8d71d7c0-3d4a-11e4-916c-0800200c9a66", "dct-web1806.s3db", "dct-web1806.ccdb" },
+		// Ussher's Annals of the World, 1654:
+		{ false, "en", QString::fromUtf8("Ussher"), QString::fromUtf8("Ussher's Annals of the World, 1654"), "92f1c570-3d4a-11e4-916c-0800200c9a66", "dct-ussher.s3db", "dct-ussher.ccdb" }
 	};
 
 }	// namespace
