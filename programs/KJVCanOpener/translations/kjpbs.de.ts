@@ -564,12 +564,12 @@
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="36"/>
         <source>Dictionary Database Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Wörterbuch-Datenbank-Informationen</translation>
     </message>
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="57"/>
         <source>Dictionary Database Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Wörterbuch-Datenbank-Bezeichnung</translation>
     </message>
 </context>
 <context>
@@ -683,7 +683,7 @@
         <location filename="../DictionaryWidget.cpp" line="260"/>
         <source>&amp;Copy</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Kopiere</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="236"/>
@@ -720,7 +720,7 @@
         <location filename="../DictionaryWidget.cpp" line="266"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="251"/>
@@ -750,19 +750,19 @@
         <location filename="../DictionaryWidget.cpp" line="273"/>
         <source>Select &amp;Dictionary</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wähle &amp;Wörterbuch</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="274"/>
         <source>Select dictionary to use in this Search Window</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wähle Wörterbuch für dieses Suchfenster</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="275"/>
         <source>Select dictionary to use</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wähle Wörterbuch</translation>
     </message>
 </context>
 <context>
@@ -1147,7 +1147,7 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="446"/>
         <source>E&amp;xit</source>
         <comment>MainMenu</comment>
-        <translation>Schlie&amp;ßen</translation>
+        <translation>&amp;Beenden</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="447"/>
@@ -1670,7 +1670,7 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="818"/>
         <source>About...</source>
         <comment>MainMenu</comment>
-        <translation>Über...</translation>
+        <translation>Info...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="820"/>
@@ -1961,7 +1961,7 @@ http://www.PureBibleSearch.com/</translation>
         <location filename="../KJVConfiguration.cpp" line="2834"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wörterbuch-DB</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2835"/>
@@ -2099,32 +2099,32 @@ Wollen Sie die Applikation neu starten?</translation>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="28"/>
         <source>Dictionary Database</source>
-        <translation type="unfinished"></translation>
+        <translation>Wörterbuch-Datenbank</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="39"/>
         <source>&amp;Dictionary Databases:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Wörterbuch-Datenbanken:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="55"/>
         <source>List of available Dictionary Databases</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste verfügbarer Wörterbuch-Datenbanken</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="71"/>
         <source>Display Dictionary &amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Wörterbuch-&amp;Informationen</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="78"/>
         <source>I&amp;nitial Dictionary Database:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Basis-Wörterbuch-Datenbank:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="88"/>
         <source>Select Main Dictionary Database to Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Wähle zu ladende Haupt-Wörterbuch-Datenbank</translation>
     </message>
 </context>
 <context>
@@ -3606,7 +3606,7 @@ Check Installation!</source>
         <location filename="../NoteKeywordWidget.cpp" line="40"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles Auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../NoteKeywordWidget.cpp" line="41"/>
@@ -3728,7 +3728,7 @@ Check Installation!</source>
         <location filename="../PassageReferenceWidget.cpp" line="63"/>
         <source>&amp;Redo</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Wiederholen</translation>
+        <translation>&amp;Wiederherstellen</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="64"/>
@@ -3788,7 +3788,7 @@ Check Installation!</source>
         <location filename="../PassageReferenceWidget.cpp" line="85"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="86"/>
@@ -3913,7 +3913,7 @@ Check Installation!</source>
         <location filename="../KJVSearchPhraseEdit.cpp" line="138"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles Auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="139"/>
@@ -4153,7 +4153,7 @@ Check Installation!</source>
         <location filename="../KJVSearchResult.cpp" line="298"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles Auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="299"/>
@@ -4638,7 +4638,7 @@ Sind sie sicher das sie die ausgewählte Hervorhebung zur Hervorhebung &quot;%1&
         <location filename="../QtFindReplaceDialog/dialogs/finddialog.cpp" line="13"/>
         <source>Find</source>
         <comment>FindDialog</comment>
-        <translation>Suche</translation>
+        <translation>Suchen</translation>
     </message>
 </context>
 <context>
@@ -5617,7 +5617,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../main.cpp" line="193"/>
         <source>Unrecognized Dictionary Database Index &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Wörterbuch-Datenbank-Index %1</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="198"/>
@@ -5641,13 +5641,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../main.cpp" line="229"/>
         <source>Was expecting Bible Descriptor Index, but received: &quot;%1&quot; instead</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Habe Bibel-Deskriptor-Index erwartet aber stattdessen %1 erhalten</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="233"/>
         <source>Was expecting Dictionary Descriptor Index, but received: &quot;%1&quot; instead</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Habe Wörterbuch-Deskriptor-Index erwartet aber stattdessen %1 erhalten</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="250"/>
@@ -5785,7 +5785,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="184"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Alles Auswählen</translation>
+        <translation>Alles Auswä&amp;hlen</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="185"/>
@@ -5954,7 +5954,7 @@ Check Installation!</source>
         <location filename="../dbstruct.cpp" line="339"/>
         <source>Load Dictionary Database</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Lade Wörterbuch-Datenbank</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="339"/>
@@ -5962,7 +5962,9 @@ Check Installation!</source>
 %1
 Check Installation!</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Laden und Validieren der Wörterbuch-Datenbank gescheitert!
+%1
+Überprüfen Sie die installation!</translation>
     </message>
 </context>
 <context>
