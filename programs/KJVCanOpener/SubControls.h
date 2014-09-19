@@ -139,11 +139,11 @@ public:
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 };
 
-#define SearchCompleter_t CComposingCompleter
+typedef CComposingCompleter SearchCompleter_t;
 
 #else
 
-#define SearchCompleter_t CSearchCompleter
+typedef CSearchCompleter SearchCompleter_t;
 
 #endif
 
