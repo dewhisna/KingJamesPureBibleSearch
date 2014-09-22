@@ -1084,7 +1084,7 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 
 	connect(ui.buttonDisplayBibleInfo, SIGNAL(clicked()), this, SLOT(en_displayBibleInformation()));
 
-	setSettingControls(QString());
+	setSettingControls();
 
 	loadSettings();
 }
@@ -1200,7 +1200,11 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 	bool bLoadingData = m_bLoadingData;
 	m_bLoadingData = true;
 
-	if (strUUID.isEmpty()) {
+	if (!strUUID.isEmpty()) {
+		m_strSelectedDatabaseUUID = strUUID;
+	}
+
+	if (m_strSelectedDatabaseUUID.isEmpty()) {
 		ui.checkBoxHideHyphens->setEnabled(false);
 		ui.checkBoxHideHyphens->setChecked(false);
 		ui.comboBoxHyphenHideMode->setEnabled(false);
@@ -1210,7 +1214,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.buttonDisplayBibleInfo->setEnabled(false);
 		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
-		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
+		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
 		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens() != TBibleDatabaseSettings::HHO_None);
 		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(bdbSettings.hideHyphens()));
 		ui.checkBoxHyphenSensitive->setChecked(bdbSettings.hyphenSensitive());
@@ -1222,14 +1226,12 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		ui.checkBoxHideHyphens->setEnabled(true);
 		ui.comboBoxHyphenHideMode->setEnabled(true);
 		ui.checkBoxHyphenSensitive->setEnabled(bCanBeSensitive);
-		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
 		ui.buttonDisplayBibleInfo->setEnabled((!pBibleDatabase.isNull()) && (!pBibleDatabase->info().isEmpty()));
 		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
 	}
 	ui.treeDatabaseWordChanges->resizeColumnToContents(0);
 	ui.treeDatabaseWordChanges->resizeColumnToContents(1);
-
-	m_strSelectedDatabaseUUID = strUUID;
 
 	m_bLoadingData = bLoadingData;
 }
@@ -1249,6 +1251,7 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our word-diff preview to change
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
+	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
@@ -1262,6 +1265,7 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	BIBLE_DESCRIPTOR_ENUM nBibleDB = ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_BIBLE_DESCRIPTOR_ROLE).value<BIBLE_DESCRIPTOR_ENUM>();
 	m_pBibleDatabaseListModel->setData(nBibleDB, true, Qt::CheckStateRole);
 	CPersistentSettings::instance()->setMainBibleDatabaseUUID(ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
+	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
@@ -1309,7 +1313,7 @@ CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
 
 	connect(ui.buttonDisplayDictInfo, SIGNAL(clicked()), this, SLOT(en_displayDictInformation()));
 
-	setSettingControls(QString());
+	setSettingControls();
 
 	loadSettings();
 }
@@ -1373,14 +1377,16 @@ void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
 	bool bLoadingData = m_bLoadingData;
 	m_bLoadingData = true;
 
-	if (strUUID.isEmpty()) {
-		ui.buttonDisplayDictInfo->setEnabled(false);
-	} else {
-		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
-		ui.buttonDisplayDictInfo->setEnabled((!pDictDatabase.isNull()) && (!pDictDatabase->info().isEmpty()));
+	if (!strUUID.isEmpty()) {
+		m_strSelectedDatabaseUUID = strUUID;
 	}
 
-	m_strSelectedDatabaseUUID = strUUID;
+	if (m_strSelectedDatabaseUUID.isEmpty()) {
+		ui.buttonDisplayDictInfo->setEnabled(false);
+	} else {
+		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
+		ui.buttonDisplayDictInfo->setEnabled((!pDictDatabase.isNull()) && (!pDictDatabase->info().isEmpty()));
+	}
 
 	m_bLoadingData = bLoadingData;
 }
@@ -1400,6 +1406,7 @@ void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bo
 	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our preview to change
 	ui.treeDictDatabases->resizeColumnToContents(0);
 	ui.treeDictDatabases->resizeColumnToContents(1);
+	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
@@ -1417,6 +1424,7 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);
 	CPersistentSettings::instance()->setMainDictDatabaseUUID(ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
 	m_pDictDatabaseListModel->setData(nDictDB, m_pDictDatabaseListModel->data(nDictDB, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
+	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

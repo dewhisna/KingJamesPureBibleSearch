@@ -195,7 +195,7 @@ private slots:
 	void en_displayBibleInformation();
 
 private:
-	void setSettingControls(const QString &strUUID);
+	void setSettingControls(const QString &strUUID = QString());
 
 // Data Private:
 private:
@@ -241,7 +241,7 @@ private slots:
 	void en_displayDictInformation();
 
 private:
-	void setSettingControls(const QString &strUUID);
+	void setSettingControls(const QString &strUUID = QString());
 
 // Data Private:
 private:
