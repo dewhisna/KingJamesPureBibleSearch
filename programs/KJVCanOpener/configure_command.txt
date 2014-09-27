@@ -237,12 +237,22 @@ no-pkg-config
 Qt 4.8.5 -- VNC (DYNAMIC):
 --------------------------
 
+Requires PATCHED Qt source!
+
 HOME:
-../4.8.5-src/configure -platform linux-g++-64 -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/dewhisna/Qt/4.8.5-vnc-run
+../4.8.5-src-patched-vnc/configure -platform qws/vnc-linux-x86_64-g++ -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/dewhisna/Qt/4.8.5-vnc-run
 
 AWS:
-../4.8.5-src/configure -platform linux-g++-64 -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/ubuntu/Qt/4.8.5-vnc-run
+../4.8.5-src-patched-vnc/configure -platform qws/vnc-linux-x86_64-g++ -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/ubuntu/Qt/4.8.5-vnc-run
 
+Use with modified noVNC from:
+http://github.com/kanaka/noVNC
+(see checkin on "purebiblesearch")
+
+Note: "-platform" should be used above instead of "-xplatform" so that it knows it's a native build and will use local threading support and things like notifyFileSystemWatcher, which Qt won't do correctly if it thinks it's a full cross-compile.  HOWEVER, you must run qmake with "-spec qws/vnc-linux-x86_64-g++" in addition to "CONFIG+=release" and the project file/path so that it properly includes the mkspec to define "vnc" and "VNCSERVER" or else KJPBS won't build correctly!!!
+
+
+---- Tested with ----
 
 Building with libvncserver:
 http://libvncserver.sourceforge.net/
@@ -254,6 +264,8 @@ http://github.com/connectedtable/qt-libvncserver
 	make
 	make install
 http://github.com/kanaka/noVNC
+
+---------------------
 
 Could not get it to work with a static-built Qt Embedded, even with linking the qt-libvncserver
 into KJPBS.  Maybe it would have worked if I had built Qt, then built qt-libvncserver, then
