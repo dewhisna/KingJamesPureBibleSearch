@@ -2854,11 +2854,11 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_TEXT_FORMAT:
 			pSelect = m_pTextFormatConfig;
 			break;
-		case CPSE_USER_NOTES_DATABASE:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		case CPSE_USER_NOTES_DATABASE:
 			pSelect = m_pUserNotesDatabaseConfig;
-#endif
 			break;
+#endif
 		case CPSE_BIBLE_DATABASE:
 			pSelect = m_pBibleDatabaseConfig;
 			break;
@@ -2926,11 +2926,9 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 			return m_pGeneralSettingsConfig->isDirty();
 		case CPSE_COPY_OPTIONS:
 			return m_pCopyOptionsConfig->isDirty();
-		case CPSE_USER_NOTES_DATABASE:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		case CPSE_USER_NOTES_DATABASE:
 			return m_pUserNotesDatabaseConfig->isDirty();
-#else
-			return false;
 #endif
 		case CPSE_TEXT_FORMAT:
 			return m_pTextFormatConfig->isDirty();

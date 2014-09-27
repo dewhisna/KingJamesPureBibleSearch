@@ -545,15 +545,26 @@ private:
 
 // ============================================================================
 
+// NOTE: These enumerations must match the configuration pages defined, meaning
+//		that on Emscripten and VNC, we must redefine the list accordingly or
+//		else weird things will happen because the actual indexes won't match
+//		the pages:
+
 enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_DEFAULT = -1,
 	CPSE_GENERAL_SETTINGS = 0,
 	CPSE_COPY_OPTIONS = 1,
 	CPSE_TEXT_FORMAT = 2,
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CPSE_USER_NOTES_DATABASE = 3,
 	CPSE_BIBLE_DATABASE = 4,
 	CPSE_DICT_DATABASE = 5,
 	CPSE_LOCALE = 6
+#else
+	CPSE_BIBLE_DATABASE = 3,
+	CPSE_DICT_DATABASE = 4,
+	CPSE_LOCALE = 5
+#endif
 };
 
 class CKJVConfiguration : public QwwConfigWidget
