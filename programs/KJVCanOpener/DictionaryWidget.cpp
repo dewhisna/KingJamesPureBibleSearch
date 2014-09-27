@@ -346,12 +346,24 @@ void CDictionaryWidget::setWord(const QString &strWord)
 
 void CDictionaryWidget::en_wordChanged()
 {
+	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
+
+	QUrl strURLLastWord = ui.definitionBrowser->source();
+
 	if (m_bIgnoreNextWordChange) {
 		m_bIgnoreNextWordChange = false;
+		m_bDoingUpdate = true;
+		if (strURLLastWord.hasFragment()) setWord(strURLLastWord.fragment());
+		m_bDoingUpdate = false;
 		return;
 	}
 
-	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
+	// Don't set the word again, if it's already set.  This prevents reloading the
+	//		same thing and losing the user's place in the definition, particularly
+	//		if we are using the ignoreNextWordChange guard above for when the user
+	//		click on a particular passage:
+	if (strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord)) return;
+
 	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
 	if (m_pDictionaryDatabase->wordExists(strWord)) {
 		m_bDoingUpdate = true;
