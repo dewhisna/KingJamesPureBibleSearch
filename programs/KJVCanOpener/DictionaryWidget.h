@@ -136,6 +136,7 @@ private:
 	bool m_bDoingUpdate;
 	DelayedExecutionTimer m_dlyTextChanged;
 	bool m_bIgnoreNextWordChange;	// Used to ignore the automatic word update when navigating to a passage via an embedded link, as that is annoying
+	QString m_strLastWordDictionaryUUID;	// UUID of the dictionary used to display the last word whose definition is displayed.  Used to determine if an update is needed on database change
 	Ui::CDictionaryWidget ui;
 };
 

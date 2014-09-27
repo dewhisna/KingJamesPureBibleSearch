@@ -353,6 +353,7 @@ void CDictionaryWidget::en_wordChanged()
 	if (m_bIgnoreNextWordChange) {
 		m_bIgnoreNextWordChange = false;
 		m_bDoingUpdate = true;
+		// Restore last word:
 		if (strURLLastWord.hasFragment()) setWord(strURLLastWord.fragment());
 		m_bDoingUpdate = false;
 		return;
@@ -361,9 +362,13 @@ void CDictionaryWidget::en_wordChanged()
 	// Don't set the word again, if it's already set.  This prevents reloading the
 	//		same thing and losing the user's place in the definition, particularly
 	//		if we are using the ignoreNextWordChange guard above for when the user
-	//		click on a particular passage:
-	if (strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord)) return;
+	//		click on a particular passage.  Unless the dictionary being used has
+	//		changed, in which case we need to trigger an update to display the
+	//		definition for the new dictionary:
+	if (strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord) &&
+		(m_pDictionaryDatabase->compatibilityUUID() == m_strLastWordDictionaryUUID)) return;
 
+	m_strLastWordDictionaryUUID = m_pDictionaryDatabase->compatibilityUUID();
 	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
 	if (m_pDictionaryDatabase->wordExists(strWord)) {
 		m_bDoingUpdate = true;
