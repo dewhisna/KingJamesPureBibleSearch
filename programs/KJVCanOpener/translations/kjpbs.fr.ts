@@ -7,12 +7,12 @@
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="36"/>
         <source>Bible Database Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information de base de données de la Bible</translation>
     </message>
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="57"/>
         <source>Bible Database Name</source>
-        <translation type="unfinished">Bible Database Name</translation>
+        <translation>Nom de base de données de la Bible</translation>
     </message>
 </context>
 <context>
@@ -98,7 +98,7 @@
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="151"/>
         <source>Line &amp;Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Hauteur des Lignes:</translation>
     </message>
     <message>
         <location filename="../ConfigBrowserOptions.ui" line="195"/>
@@ -133,31 +133,31 @@
         <location filename="../KJVConfiguration.cpp" line="1865"/>
         <source>Verse-Per-Line with Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Verset Par Ligne Indenté</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1866"/>
         <source>Verse-Per-Line with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation>Verset-Par-Ligne avec Retrait négatif</translation>
+        <translation>Verset-Par-Ligne Indenté-négatif</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1864"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Verset Par Ligne à Double-interligne</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1867"/>
         <source>Verse-Per-Line Double-Spaced with Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Verset Par Ligne à Double-interligne Indenté</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1868"/>
         <source>Verse-Per-Line Double-Spaced with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Verset Par Ligne à Double-interligne Indenté-négatif</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1862"/>
@@ -223,12 +223,12 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="263"/>
         <source>Copy &amp;Colophons</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier &amp;Colophons</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="270"/>
         <source>Copy &amp;Superscriptions</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier &amp;Suscriptions</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="301"/>
@@ -258,7 +258,7 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="365"/>
         <source>Copy &amp;MIME Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Type &amp;MIME pour la copie:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="416"/>
@@ -278,7 +278,7 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="449"/>
         <source>Verse Copy &amp;Order:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ordre de Verset-Copie:</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="474"/>
@@ -370,7 +370,7 @@
         <location filename="../KJVConfiguration.cpp" line="2124"/>
         <source>Complete Reference</source>
         <comment>Delimiters</comment>
-        <translation type="unfinished"></translation>
+        <translation>Référence Complète</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2142"/>
@@ -400,7 +400,7 @@
         <location filename="../KJVConfiguration.cpp" line="2152"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Verset Par Ligne à Double-interligne</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2150"/>
@@ -436,35 +436,35 @@
         <location filename="../KJVConfiguration.cpp" line="2181"/>
         <source>Both</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished">Tout Ensemble</translation>
+        <translation>Tout Ensemble</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2182"/>
         <source>HTML-Only</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished"></translation>
+        <translation>HTML Uniquement</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2183"/>
         <source>Text-Only</source>
         <comment>CopyMimeTypes</comment>
-        <translation type="unfinished"></translation>
+        <translation>Texte Uniquement</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2191"/>
         <source>Selected Order</source>
         <comment>VerseCopyOrder</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ordre Sélectionné</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2192"/>
         <source>Bible Order Ascending</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordre Bible, Ascendant</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2193"/>
         <source>Bible Order Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordre Bible, Descendant</translation>
     </message>
 </context>
 <context>
@@ -523,7 +523,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="101"/>
         <source>&amp;Hide &quot;Not Found In&quot; Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cacher les Statistics de &quot;Pas Trouvé dans&quot;</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="110"/>
@@ -533,7 +533,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="132"/>
         <source>Hide &amp;Matching Words/Phrases Lists</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacher les &amp;Listes des Mots/Phrases Correspondant</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="94"/>
@@ -564,12 +564,12 @@
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="36"/>
         <source>Dictionary Database Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information de base de données dictionnaire</translation>
     </message>
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="57"/>
         <source>Dictionary Database Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de base de données dictionnaire</translation>
     </message>
 </context>
 <context>
@@ -578,31 +578,31 @@
         <location filename="../DictDBListModel.cpp" line="115"/>
         <source>Loaded - Cannot be unloaded</source>
         <comment>DictDBStatus</comment>
-        <translation type="unfinished">Chargé - Impossible être déchargés</translation>
+        <translation>Chargé - Impossible être déchargés</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="117"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>DictDBStatus</comment>
-        <translation type="unfinished">Chargé - Sélectionné comme Base de Données initiale</translation>
+        <translation>Chargé - Sélectionné comme Base de Données initiale</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="119"/>
         <source>Loaded, Auto-Reloaded at startup</source>
         <comment>DictDBStatus</comment>
-        <translation type="unfinished">Chargé - Auto-rechargé au démarrage</translation>
+        <translation>Chargé - Auto-rechargé au démarrage</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="121"/>
         <source>Loaded, Will Not Auto-Reload at startup</source>
         <comment>DictDBStatus</comment>
-        <translation type="unfinished">Chargé - Ne sera pas Auto Recharger au démarrage</translation>
+        <translation>Chargé - Ne sera pas Auto Recharger au démarrage</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="123"/>
         <source>Not Loaded</source>
         <comment>DictDBStatus</comment>
-        <translation type="unfinished">non Chargé</translation>
+        <translation>non Chargé</translation>
     </message>
 </context>
 <context>
@@ -750,19 +750,19 @@
         <location filename="../DictionaryWidget.cpp" line="273"/>
         <source>Select &amp;Dictionary</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le &amp;Dictionnaire</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="274"/>
         <source>Select dictionary to use in this Search Window</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le dictionnaire à utiliser dans cette fenêtre de recherche</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="275"/>
         <source>Select dictionary to use</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le dictionnaire à utiliser</translation>
     </message>
 </context>
 <context>
@@ -770,12 +770,12 @@
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="28"/>
         <source>Enter WWW Hyperlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrer WWW lien hypertexte</translation>
     </message>
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="34"/>
         <source>Enter WWW &amp;Hyperlink:</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez un lien &amp;hypertexte WWW:</translation>
     </message>
 </context>
 <context>
@@ -784,7 +784,7 @@
         <location filename="../Highlighter.cpp" line="433"/>
         <source>&amp;Highlight/Unhighlight Verse (Search Results) with Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mettre en &amp;Surbrillance de Verset (Résultat-Recherche) avec l&apos;outil #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="435"/>
@@ -802,7 +802,7 @@
         <location filename="../Highlighter.cpp" line="444"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Clic, pour mettre en surbrillance seulement le texte de résultats de recherche</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="448"/>
@@ -910,12 +910,12 @@ Contact: http://www.dewtronics.com/
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
         <source>Bible Database</source>
-        <translation>Bible Base de données</translation>
+        <translation>Base de données Bible</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
-        <translation>&amp;Bible Bases de données:</translation>
+        <translation>&amp;Bases de données de la Bible:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
@@ -925,7 +925,7 @@ Contact: http://www.dewtronics.com/
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les &amp;Informations de la Bible</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
@@ -935,7 +935,7 @@ Contact: http://www.dewtronics.com/
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="88"/>
         <source>Select Main Bible Database to Load</source>
-        <translation>Sélectionner la base de données Bible principale à charger</translation>
+        <translation>Sélectionner la base de données Bible Principale à charger</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
@@ -1177,19 +1177,19 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="465"/>
         <source>Show/Hide Main Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation>Afficher / Masquer la barre d&apos;outils Principale</translation>
+        <translation>Afficher / Cacher la barre d&apos;outils Principale</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="467"/>
         <source>Show/Hide the Scripture Browser Navigation Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation>Afficher / Masquer l&apos;Écriture-Navigateur Navigation Barre d&apos;outils</translation>
+        <translation>Afficher / Cacher l&apos;Écriture-Navigateur Navigation Barre d&apos;outils</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="470"/>
         <source>Show/Hide Highlighter/Notes/References Tool Bar</source>
         <comment>MainMenu</comment>
-        <translation>Afficher / Masquer Surligneur / Notes / Références barre d&apos;outils</translation>
+        <translation>Afficher / Cacher Surligneur / Notes / Références barre d&apos;outils</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="474"/>
@@ -1884,7 +1884,9 @@ Pour éviter ce message lors de l&apos;ouverture de ce fichier dans le futur, pu
 
 Do you wish to follow this link?</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Suivant ce lien lancera un navigateur externe sur votre système. Cela peut entraîner des frais supplémentaires auprès de votre fournisseur de services.
+
+Voulez-vous suivre ce lien?</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="2660"/>
@@ -1907,7 +1909,9 @@ Et vérifier l&apos;installation de Manuel de l&apos;utilisateur de King James P
 
 %1</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;ouvrir un navigateur Web du système pour
+
+%1</translation>
     </message>
     <message>
         <source>Unable to open a System Web Browser for
@@ -1949,13 +1953,13 @@ http://www.PureBibleSearch.com/</translation>
         <location filename="../KJVConfiguration.cpp" line="2833"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
-        <translation>Bible Bases de données</translation>
+        <translation>Base de données Bible</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2834"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Base de Données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2835"/>
@@ -2093,32 +2097,32 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="28"/>
         <source>Dictionary Database</source>
-        <translation type="unfinished"></translation>
+        <translation>Base de Données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="39"/>
         <source>&amp;Dictionary Databases:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bases de Données des &amp;Dictionnaires:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="55"/>
         <source>List of available Dictionary Databases</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste des bases de données de disponibles</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="71"/>
         <source>Display Dictionary &amp;Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les &amp;Informations du Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="78"/>
         <source>I&amp;nitial Dictionary Database:</source>
-        <translation type="unfinished"></translation>
+        <translation>Base de données Dictionnaire I&amp;nitiale:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="88"/>
         <source>Select Main Dictionary Database to Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner la base de données Dictionnaire Principal à charger</translation>
     </message>
 </context>
 <context>
@@ -2209,7 +2213,7 @@ Voulez-vous redémarrer l&apos;application??</translation>
         <location filename="../KJVNoteEditDlg.ui" line="249"/>
         <location filename="../KJVNoteEditDlg.ui" line="252"/>
         <source>Insert WWW Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Insérer un lien WWW</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.cpp" line="121"/>
@@ -2565,7 +2569,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
         <source>Number of Occurrences: 000000/000000/000000</source>
-        <translation type="unfinished">Nombre d&apos;occurrences: 000000/000000/000000</translation>
+        <translation>Nombre d&apos;occurrences: 000000/000000/000000</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="125"/>
@@ -2685,7 +2689,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="420"/>
         <source>Show Matching Words/Phrases</source>
-        <translation type="unfinished"></translation>
+        <translation>Montrer les Mots/Phrases Correspondant</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="758"/>
@@ -2703,9 +2707,9 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchPhraseEdit.cpp" line="888"/>
         <source>%n Matching Words/Phrases</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Mot/Phrase Correspondant</numerusform>
+            <numerusform>%n Mots/Phrases Correspondant</numerusform>
         </translation>
     </message>
 </context>
@@ -2943,19 +2947,19 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchSpec.cpp" line="74"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">Ajouter une expression à Rechercher Critères</translation>
+        <translation>Ajouter une expression à Rechercher Critères</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="78"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">Ajouter une Phrase à la Recherche en cours Critères</translation>
+        <translation>Ajouter une Phrase à la Recherche en cours Critères</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="91"/>
         <source>&amp;Copy Search Phrase Summary to Clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished">&amp;Copier Recherche Phrase Résumé au presse-papiers</translation>
+        <translation>&amp;Copier Recherche Phrase Résumé au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="149"/>
@@ -3366,7 +3370,7 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Temps de sauvegarde automatique en quelques minutes (0 pour désactiver):</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
@@ -3964,19 +3968,19 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PhraseEdit.cpp" line="2293"/>
         <source>Superscription</source>
         <comment>Scope</comment>
-        <translation type="unfinished">Suscription</translation>
+        <translation>Suscription</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2879"/>
         <source>Word:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Mot:</translation>
+        <translation>Mot:</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2884"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">Phrase:</translation>
+        <translation>Phrase:</translation>
     </message>
     <message>
         <location filename="../PhraseEdit.cpp" line="2913"/>
@@ -3984,13 +3988,13 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PhraseEdit.cpp" line="2926"/>
         <source>contains:</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">contient:</translation>
+        <translation>contient:</translation>
     </message>
     <message numerus="yes">
         <location filename="../PhraseEdit.cpp" line="2914"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Chapitre</numerusform>
             <numerusform>%n Chapitres</numerusform>
         </translation>
@@ -4000,7 +4004,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PhraseEdit.cpp" line="2921"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Verset</numerusform>
             <numerusform>%n Versets</numerusform>
         </translation>
@@ -4011,7 +4015,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PhraseEdit.cpp" line="2927"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Mot</numerusform>
             <numerusform>%n Mots</numerusform>
         </translation>
@@ -4020,7 +4024,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PhraseEdit.cpp" line="2935"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%n Mot Sélectionné</numerusform>
             <numerusform>%n Mots Sélectionnés</numerusform>
         </translation>
@@ -4063,13 +4067,13 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="264"/>
         <source>Copy &amp;Entries</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Copier les &amp;Entrées</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="265"/>
         <source>Copy Entries for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation type="unfinished"></translation>
+        <translation>Copier les entrées pour les sélectionnés Résultats de la Recherche au presse-papiers</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="268"/>
@@ -5612,7 +5616,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../main.cpp" line="193"/>
         <source>Unrecognized Dictionary Database Index &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Non reconnu indice de base de données dictionnaire &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="198"/>
@@ -5636,13 +5640,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../main.cpp" line="229"/>
         <source>Was expecting Bible Descriptor Index, but received: &quot;%1&quot; instead</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>M&apos;attendais Bible descripteur indice, mais a reçu: &quot;%1&quot; à la place</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="233"/>
         <source>Was expecting Dictionary Descriptor Index, but received: &quot;%1&quot; instead</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>M&apos;attendais dictionnaire descripteur indice, mais a reçu: &quot;%1&quot; à la place</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="250"/>
@@ -5846,7 +5850,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="351"/>
         <source>Hide All Notes</source>
         <comment>MainMenu</comment>
-        <translation>Masquer tout Notes</translation>
+        <translation>Cacher tout Notes</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="352"/>
@@ -5930,7 +5934,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../dbstruct.cpp" line="75"/>
         <source>Load Bible Database</source>
         <comment>Errors</comment>
-        <translation>Charger la base de données de la Bible</translation>
+        <translation>Chargement la base de données de la Bible</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="75"/>
@@ -5940,7 +5944,7 @@ Check Installation!</source>
         <comment>Errors</comment>
         <translation>Impossible de lire et de valider la base de données de la Bible!
 %1
-Vérification de l&apos;installation!</translation>
+Vérifiez l&apos;installation!</translation>
     </message>
 </context>
 <context>
@@ -5949,7 +5953,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../dbstruct.cpp" line="339"/>
         <source>Load Dictionary Database</source>
         <comment>Errors</comment>
-        <translation type="unfinished"></translation>
+        <translation>Chargement base de données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="339"/>
@@ -5957,9 +5961,9 @@ Vérification de l&apos;installation!</translation>
 %1
 Check Installation!</source>
         <comment>Errors</comment>
-        <translation type="unfinished">Impossible de lire et de valider la base de données dictionnaire!
+        <translation>Impossible de lire et de valider la base de données dictionnaire!
 %1
-Vérification de l&apos;installation!</translation>
+Vérifiez l&apos;installation!</translation>
     </message>
 </context>
 <context>
