@@ -245,6 +245,27 @@ TRANSLATIONS += \
 	translations/kjpbs.es.ts \
 	translations/kjpbs.de.ts
 
+# Qt Translation Files:
+# Define these in a new name so that lupdate, etc, won't pick them up, since they
+#	aren't part of the code.  This is needed because Qt4 -> Qt5 broke the namespace
+#	for QDialogButtonBox, changing it to QPlatformTheme and yet they didn't properly
+#	include ES and FR translations for them, only DE.  So, we'll just manually build
+#	all of the translations and deploy with ours:
+
+greaterThan(QT_MAJOR_VERSION,4) {
+	TRANSLATIONS_QT += \
+		translations/qtbase_fr.ts \
+		translations/qtbase_es.ts \
+		translations/qtbase_de.ts
+		# English is native and doesn't have a separate translation file
+} else {
+	TRANSLATIONS_QT += \
+		translations/qt_fr.ts \
+		translations/qt_es.ts \
+		translations/qt_de.ts
+		# English is native and doesn't have a separate translation file
+}
+
 
 SOURCES += \
 	main.cpp \
@@ -445,17 +466,23 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 	DEFINES+=HAVE_TRANSLATIONS
 	for(f, TRANSLATIONS):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
 	for(f, TRANSLATIONS):translation_source.files += $$quote($${PWD}/$$f)
+	!isEmpty(TRANSLATIONS_QT) {
+		for(f, TRANSLATIONS_QT):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
+		for(f, TRANSLATIONS_QT):translation_source.files += $$quote($${PWD}/$$f)
+	}
 	exists($$[QT_INSTALL_BINS]/lrelease) {
 		translation_build.output = $$translationDeploy.files
 		translation_build.target = $$translationDeploy.files
 		translation_build.input = $$translation_source.files
 		translation_build.depends = $$translation_source.files
-		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+#		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+		trnaslation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
 		translation_build.CONFIG = no_link
 		QMAKE_EXTRA_TARGETS += translation_build $$translation_source.files
 		QMAKE_EXTRA_COMPILERS += translation_build
 		POST_TARGETDEPS +=  $$translation_source.files
-		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+#		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
+		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
 	} else {
 		message("Can't build translations!  Using previously built translations if possible")
 	}
@@ -464,15 +491,8 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 #		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
 	}
 	#INSTALLS += translationDeploy
-	message("Deploying translations:" $$TRANSLATIONS$$escape_expand(\\n))
+	message("Deploying translations:" $$TRANSLATIONS$$TRANSLATIONS_QT$$escape_expand(\\n))
 }
-
-# Qt Translation Files:
-#translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_en.qm		-- English is native and doesn't have a separate translation file
-translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_fr.qm
-translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_es.qm
-translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qt_de.qm
-greaterThan(QT_MAJOR_VERSION,4):translationDeploy.files += $$[QT_INSTALL_TRANSLATIONS]/qtbase_de.qm		# Qt5 has German translation split into subcomponents
 
 ###############################################################################
 
@@ -643,13 +663,8 @@ macx {
 
 		QMAKE_BUNDLE_DATA += nibDeploy dbDeploy fontDeploy docDeploy examplesDeploy licDeploy
 		!isEmpty(TRANSLATIONS) {
-# Temporary change for Release Preview Build since we don't have all translations yet:
-#			translationDeploy.path = /Contents/Resources/translations
-#			QMAKE_BUNDLE_DATA += translationDeploy
-
-			translationDeployMac.files += ../../KJVCanOpener/translations/kjpbs.en.qm
-			translationDeployMac.path = /Contents/Resources/translations
-			QMAKE_BUNDLE_DATA += translationDeployMac
+			translationDeploy.path = /Contents/Resources/translations
+			QMAKE_BUNDLE_DATA += translationDeploy
 		}
 
 		greaterThan(QT_MAJOR_VERSION,4):shared:qt_framework {

@@ -58,12 +58,21 @@ CTranslator::CTranslator(const QString &strLangName, const QString &strTranslati
 {
 	m_bLoaded = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
 	if (m_bLoaded) {
-		if (!m_translatorQt.load(m_locale, "qt", "_", g_strTranslationsPath, constrTranslationFilenameSuffix)) {
-			// Note: Qt5 is moving toward using individual component translations.  They have the primary qt file, like
-			//		"qt_de.qm", but it doesn't have any data.  Instead, it delegates to "qtbase_de.qm", for example.
-			//		So if the primary doesn't load, try the base.  This of course makes the deployment more difficult:
-			m_translatorQt.load(m_locale, "qtbase", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
-		}
+		// Note: Qt5 is moving toward using individual component translations with a main qt_XX.qm file that delegates
+		//		to the submodules.  However, they have only done this migration for DE, not ES or FR.  Also, we don't
+		//		really want to include all of the submodule translations since we aren't even using them (why ship
+		//		them), but if we don't, then the qt_XX.qm doesn't load.  Instead, we have to load qtbase_XX.qm.
+		//		BUT, it's much more worse than that!  They've apparently changed the translation namespace for the
+		//		dialog buttons from QDialogButtonBox to QPlatformTheme.  This means that the individual qt_XX.qm
+		//		translation files won't even work on Qt5, which is all they have for ES and FR...
+		// SO... I have hacked the qt_XX verions for ES and FR to the correct namespace and made them qtbase_XX to
+		//		match the new Qt5 naming convention for use with Qt5.  And we have the old qt_XX for the Qt4 builds.
+		//		That means that here we must load qt_XX.qm for Qt4 and qtbase_XX.qm for Qt5...  (ugh!)
+#if QT_VERSION < 0x050000
+		m_translatorQt.load(m_locale, "qt", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+#else
+		m_translatorQt.load(m_locale, "qtbase", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+#endif
 	}
 }
 
