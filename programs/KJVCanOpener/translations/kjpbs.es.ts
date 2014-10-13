@@ -27,7 +27,7 @@
         <location filename="../BibleDBListModel.cpp" line="114"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>BibleDBStatus</comment>
-        <translation>Cargado - Selectione como Base de Datos inicial</translation>
+        <translation>Cargado - Selectione como Base de Datos Inicial</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="116"/>
@@ -109,7 +109,7 @@
         <location filename="../KJVConfiguration.cpp" line="1866"/>
         <source>None</source>
         <comment>ScrollbarModes</comment>
-        <translation>Nada</translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1867"/>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../ConfigCopyOptions.ui" line="182"/>
         <source>Add &amp;Quotes Around Verse/Passage</source>
-        <translation>Añadir &amp;Cotizaciones Alrededor de el Texto/Versículo</translation>
+        <translation>Añadir &amp;Cotizaciones Alrededor del texto de Versículo/Pasaje</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="222"/>
@@ -331,7 +331,7 @@
         <location filename="../KJVConfiguration.cpp" line="2127"/>
         <source>No Delimiters</source>
         <comment>Delimiters</comment>
-        <translation>Sin delimitadores</translation>
+        <translation>Sin Delimitadores</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2106"/>
@@ -376,7 +376,7 @@
         <location filename="../KJVConfiguration.cpp" line="2150"/>
         <source>No Marking</source>
         <comment>Delimiters</comment>
-        <translation>Sin marcación</translation>
+        <translation>Sin Marcación</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2151"/>
@@ -523,7 +523,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="101"/>
         <source>&amp;Hide &quot;Not Found In&quot; Statistics</source>
-        <translation>&amp;Esconder las Estadísticas de &quot;que no encontraste en&quot;</translation>
+        <translation>&amp;Ocultar las Estadísticas de &quot;que no encontraste en&quot;</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="110"/>
@@ -533,7 +533,7 @@
     <message>
         <location filename="../ConfigSearchOptions.ui" line="132"/>
         <source>Hide &amp;Matching Words/Phrases Lists</source>
-        <translation>Esconder las &amp;Listas de Palabras/Frases Coincidentes</translation>
+        <translation>Ocultar las &amp;Listas de Palabras/Frases Coincidentes</translation>
     </message>
     <message>
         <location filename="../ConfigSearchOptions.ui" line="94"/>
@@ -564,7 +564,7 @@
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="36"/>
         <source>Dictionary Database Information</source>
-        <translation>Información de base de datos de diccionario</translation>
+        <translation>Información de base de datos de Diccionario</translation>
     </message>
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="57"/>
@@ -584,7 +584,7 @@
         <location filename="../DictDBListModel.cpp" line="117"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>DictDBStatus</comment>
-        <translation>Cargado - Selectione como Base de Datos inicial</translation>
+        <translation>Cargado - Selectione como Base de Datos Inicial</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="119"/>
@@ -610,7 +610,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="34"/>
         <source>Form</source>
-        <translation>Forma</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="66"/>
@@ -626,7 +626,7 @@
         <location filename="../DictionaryWidget.ui" line="88"/>
         <location filename="../DictionaryWidget.ui" line="91"/>
         <source>Clear Word</source>
-        <translation>Borre Palabra</translation>
+        <translation>Borrar Palabra</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="102"/>
@@ -641,7 +641,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="116"/>
         <source>Word History Forward</source>
-        <translation>Avanze de Historia de Palabras</translation>
+        <translation>Avanzar de Historia de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="119"/>
@@ -732,7 +732,7 @@
         <location filename="../DictionaryWidget.cpp" line="258"/>
         <source>Dictionary Definition Text Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Definición de Diccionario  de Operaciones de Editar</translation>
+        <translation>Operaciones de Edición de Texto de Definición de Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="261"/>
@@ -756,7 +756,7 @@
         <location filename="../DictionaryWidget.cpp" line="274"/>
         <source>Select dictionary to use in this Search Window</source>
         <comment>MainMenu</comment>
-        <translation>Seleccionar el diccionario para usar en esta ventana de búsqueda</translation>
+        <translation>Seleccionar el diccionario para usar en esta Ventana de Búsqueda</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="275"/>
@@ -770,12 +770,12 @@
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="28"/>
         <source>Enter WWW Hyperlink</source>
-        <translation>Entrar WWW Hipervínculo</translation>
+        <translation>Introducir WWW Hipervínculo</translation>
     </message>
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="34"/>
         <source>Enter WWW &amp;Hyperlink:</source>
-        <translation>Ingrese &amp;hipervínculo WWW:</translation>
+        <translation>Introduce &amp;hipervínculo WWW:</translation>
     </message>
 </context>
 <context>
@@ -802,7 +802,7 @@
         <location filename="../Highlighter.cpp" line="444"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
-        <translation>Ctrl+Clic, para resaltar sólo el texto de los resultados de búsqueda</translation>
+        <translation>Ctrl+Clic, para resaltar sólo el texto de los Resultados de Búsqueda</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="448"/>
@@ -920,7 +920,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
         <source>List of available Bible Databases</source>
-        <translation>Lista de bases de datos disponibles de la Biblia</translation>
+        <translation>Lista de Bases de datos disponibles de la Biblia</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
@@ -940,7 +940,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
         <source>Options for Selected Database:</source>
-        <translation>Opciones para la Base de Datos Seleccionadas:</translation>
+        <translation>Opciones para la Base de datos Seleccionadas:</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="118"/>
@@ -950,7 +950,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="121"/>
         <source>&amp;Hide Hyphens in Words</source>
-        <translation>&amp;Esconder Guinoes en Palabras</translation>
+        <translation>&amp;Ocultar Guinoes en Palabras</translation>
     </message>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="155"/>
@@ -970,7 +970,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBibleDatabaseConfig.ui" line="184"/>
         <source>Details of Changes to Database Word Rendering</source>
-        <translation>Detalles de Cambios a la Base de Datos en la representación palabra</translation>
+        <translation>Detalles de Cambios a la Base de datos en la representación palabra</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1070"/>
@@ -1070,7 +1070,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="313"/>
         <source>Add/Edit/Remove Note to current verse or passage</source>
         <comment>MainMenu</comment>
-        <translation>Añadir/Editar/Eliminar la Nota al versículo o pasaje corriente</translation>
+        <translation>Añadir/Editar/Eliminar la Nota al versículo o pasaje actual</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="319"/>
@@ -1115,7 +1115,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="423"/>
         <source>Load Search Phrases from a previously saved King James Search File</source>
         <comment>MainMenu</comment>
-        <translation>Cargar Frases de Búsqueda guardados previamente de King James Búsqueda-Archivo</translation>
+        <translation>Cargar Frases de Búsqueda guardados previamente de Archivo de King James Search</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="426"/>
@@ -1128,7 +1128,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="428"/>
         <source>Save current Search Phrases to a King James Search File</source>
         <comment>MainMenu</comment>
-        <translation>Guardar las Frases de Búsqueda corriente a un King James Búsqueda-Archivo</translation>
+        <translation>Guardar las Frases de Búsqueda actual a un Archivo de King James Search</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="435"/>
@@ -1202,7 +1202,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="481"/>
         <source>View S&amp;earch Results</source>
         <comment>MainMenu</comment>
-        <translation>Ver R&amp;esultados de la Búsqueda</translation>
+        <translation>Ver los R&amp;esultados de la Búsqueda</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="484"/>
@@ -1366,7 +1366,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="610"/>
         <source>Show Search Results as Rich Text Verse Preview</source>
         <comment>MainMenu</comment>
-        <translation>Ver Resultados de la Búsqueda como texto enriquecido versículo Prevista</translation>
+        <translation>Ver Resultados de la Búsqueda como Texto Enriquecido Versículo Prevista</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="625"/>
@@ -1632,7 +1632,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="795"/>
         <source>Open Search Window List</source>
         <comment>MainMenu</comment>
-        <translation></translation>
+        <translation>Lista de Ventanas de Búsqueda Abiertas</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="806"/>
@@ -1802,7 +1802,7 @@ Haga clic en &apos;Cancelar&apos; para volver a la King James Pure Bible Search.
         <location filename="../KJVCanOpener.cpp" line="1806"/>
         <source>KJV Search Files (*.kjs)</source>
         <comment>FileFilters</comment>
-        <translation>King James Search Archivo (*.kjs)</translation>
+        <translation>Archivo de King James Search (*.kjs)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1788"/>
@@ -1968,7 +1968,7 @@ Y comprobar la instalación de Manual Usuarios de King James Pure Bible Search a
 Click &apos;OK&apos; to discard the changes and close this configuration window.
 Click &apos;Cancel&apos; to stay here in the configuration window.</source>
         <comment>Errors</comment>
-        <translation>Usted todavía tiene cambios no aplicados. ¿Es usted desea deshacerse de estos cambios?
+        <translation>Usted todavía tiene cambios que no se han aplicado. ¿Es usted desea deshacerse de estos cambios?
 
 Haga clic en &quot;Aceptar&quot; para descartar los cambios y cerrar la ventana de configuración.
 Haga clic en &quot;Cancelar&quot; para quedarse aquí en la ventana de configuración.</translation>
@@ -2088,17 +2088,17 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="28"/>
         <source>Dictionary Database</source>
-        <translation>Base de Datos Diccionario</translation>
+        <translation>Base de datos Diccionario</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="39"/>
         <source>&amp;Dictionary Databases:</source>
-        <translation>Bases de Datos de &amp;Diccionario:</translation>
+        <translation>Bases de datos de &amp;Diccionario:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="55"/>
         <source>List of available Dictionary Databases</source>
-        <translation>Lista de las Bases de Datos de Diccionario disponibles</translation>
+        <translation>Lista de las Bases de datos de Diccionario disponibles</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="71"/>
@@ -2108,12 +2108,12 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="78"/>
         <source>I&amp;nitial Dictionary Database:</source>
-        <translation>Base de Datos de Diccionario I&amp;nicial:</translation>
+        <translation>Base de datos de Diccionario I&amp;nicial:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="88"/>
         <source>Select Main Dictionary Database to Load</source>
-        <translation>Seleccionar base de datos de Diccionario Principal para cargar</translation>
+        <translation>Seleccionar Base de datos de Diccionario Principal para cargar</translation>
     </message>
 </context>
 <context>
@@ -2193,7 +2193,7 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="106"/>
         <source>Insert Reference Link</source>
-        <translation>insertar una Referencia Enlace</translation>
+        <translation>Insertar una Referencia Enlace</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="109"/>
@@ -2204,7 +2204,7 @@ Do you wish to restart the app??</source>
         <location filename="../KJVNoteEditDlg.ui" line="249"/>
         <location filename="../KJVNoteEditDlg.ui" line="252"/>
         <source>Insert WWW Link</source>
-        <translation>Insertar enlace WWW</translation>
+        <translation>Insertar Enlace WWW</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.cpp" line="121"/>
@@ -2573,12 +2573,12 @@ Do you wish to set them as valid keywords for this note?</source>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="211"/>
         <source>Word or Phrase to find:</source>
-        <translation>Palabra o Frase para buscar:</translation>
+        <translation>Palabra o Frase para Buscar:</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; width=&quot;240&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Enter Search Phrase to find. &lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Use: &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;| for OR operator &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td width=&quot;50&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td width=&quot;240&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: James | John&lt;br/&gt;(matches either &amp;quot;James&amp;quot; or &amp;quot;John&amp;quot;)&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;[] to specify character set &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba[dk]e&lt;br/&gt;(matches &amp;quot;bade&amp;quot; or &amp;quot;bake&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;* to find any of zero or more characters &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: baptiz*&lt;br/&gt;(matches words starting with &amp;quot;baptiz&amp;quot;) &lt;/p&gt;&lt;p&gt;example: *ology&lt;br/&gt;(matches words ending with &amp;quot;ology&amp;quot;) &lt;/p&gt;&lt;p&gt;example: an*er&lt;br/&gt;(matches words starting with &amp;quot;an&amp;quot;,&lt;br/&gt;and ending with &amp;quot;er&amp;quot;) &lt;/p&gt;&lt;p&gt;example: fruit of * doings&lt;br/&gt;(matches any word in that position,&lt;br/&gt;such as: &amp;quot;fruit of their doings&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;? to find any of exactly one character &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba?e&lt;br/&gt;(matches any character for the 3rd&lt;br/&gt;character, such as babe. bade, bake,&lt;br/&gt;bare, etc, but will &lt;span style=&quot; text-decoration: underline;&quot;&gt;not&lt;/span&gt; match: bathe) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; width=&quot;240&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Introducir la frase de búsqueda para buscar. &lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Uso: &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;| para &apos;O&apos; operador &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td width=&quot;50&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td width=&quot;240&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: James | John&lt;br/&gt;(Coincide con cualquiera de &amp;quot;James&amp;quot; o &amp;quot;John&amp;quot;)&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;[] para especificar el conjunto de caracteres &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: ba[dk]e&lt;br/&gt;(Coincide de &amp;quot;bade&amp;quot; o &amp;quot;bake&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;* encontrar alguno de cero o más caracteres &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: baptiz*&lt;br/&gt;(coincide con palabras que comienzan con &amp;quot;baptiz&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: *ology&lt;br/&gt;(que coincide con las palabras que terminan con &amp;quot;ology&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: an*er&lt;br/&gt;(coincide con palabras que comienzan con &amp;quot;an&amp;quot;,&lt;br/&gt;y terminan con &amp;quot;er&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: fruit of * doings&lt;br/&gt;(coincide con alguna palabra en esa posición,&lt;br/&gt;tal como: &amp;quot;fruit of their doings&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;? encontrar alguno de exactamente un carácter &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: ba?e&lt;br/&gt;(coincide con cualquier carácter para el 3ª&lt;br/&gt;carácter, tal como babe. bade, bake,&lt;br/&gt;bare, etc, pero &lt;span style=&quot; text-decoration: underline;&quot;&gt;no&lt;/span&gt; coincidirá: bathe) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; width=&quot;240&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Introducir la frase de búsqueda para buscar. &lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Uso: &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;| para &apos;O&apos; operador &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td width=&quot;50&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td width=&quot;240&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: James | John&lt;br/&gt;(Coincide con cualquiera de&lt;br/&gt;&amp;quot;James&amp;quot; o &amp;quot;John&amp;quot;)&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;[] para especificar el conjunto de caracteres &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: ba[dk]e&lt;br/&gt;(Coincide de &amp;quot;bade&amp;quot; o &amp;quot;bake&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;* encontrar alguno de cero o más caracteres &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: baptiz*&lt;br/&gt;(coincide con palabras que&lt;br/&gt;comienzan con &amp;quot;baptiz&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: *ology&lt;br/&gt;(que coincide con las palabras que&lt;br/&gt;terminan con &amp;quot;ology&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: an*er&lt;br/&gt;(coincide con palabras que&lt;br/&gt;comienzan con &amp;quot;an&amp;quot;,&lt;br/&gt;y terminan con &amp;quot;er&amp;quot;) &lt;/p&gt;&lt;p&gt;ejemplo: fruit of * doings&lt;br/&gt;(coincide con alguna palabra en esa posición,&lt;br/&gt;tal como: &amp;quot;fruit of their doings&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;? encontrar alguno de exactamente un carácter &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;ejemplo: ba?e&lt;br/&gt;(coincide con cualquier carácter para el 3ª&lt;br/&gt;carácter, tal como babe. bade, bake,&lt;br/&gt;bare, etc, pero &lt;span style=&quot; text-decoration: underline;&quot;&gt;no&lt;/span&gt; coincidirá: bathe) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="242"/>
@@ -2643,7 +2643,7 @@ Do you wish to set them as valid keywords for this note?</source>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="395"/>
         <source>Disable this Search Phrase</source>
-        <translation>Desactive esta Frase de Búsqueda</translation>
+        <translation>Desactivar esta Frase de Búsqueda</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="398"/>
@@ -2658,7 +2658,7 @@ Do you wish to set them as valid keywords for this note?</source>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="420"/>
         <source>Show Matching Words/Phrases</source>
-        <translation>Mostrar las palabras/frases coincidentes</translation>
+        <translation>Mostrar las Palabras/Frases Coincidentes</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="758"/>
@@ -2677,8 +2677,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>%n Matching Words/Phrases</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Palabra/Frase coincidente</numerusform>
-            <numerusform>%n Palabras/Frases coincidentes</numerusform>
+            <numerusform>%n Palabra/Frase Coincidente</numerusform>
+            <numerusform>%n Palabras/Frases Coincidentes</numerusform>
         </translation>
     </message>
 </context>
@@ -2789,8 +2789,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra del todo en %n versículo de la Biblia</numerusform>
-            <numerusform>No encuentra del todo en %n versículos de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Versículo de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Versículos de la Biblia</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2798,8 +2798,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Chapter(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra del todo en %n capítulo de la Biblia</numerusform>
-            <numerusform>No encuentra del todo en %n capítulos de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Capítulo de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Capítulos de la Biblia</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2807,8 +2807,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra del todo en %n libro de la Biblia</numerusform>
-            <numerusform>No encuentra del todo en %n libros de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Libro de la Biblia</numerusform>
+            <numerusform>No encuentra del todo en %n Libros de la Biblia</numerusform>
         </translation>
     </message>
     <message>
@@ -2834,8 +2834,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found%1at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra%1del todo en %n versículo de la Biblia</numerusform>
-            <numerusform>No encuentra%1del todo en %n versículos de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Versículo de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Versículos de la Biblia</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2843,8 +2843,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found%1at all in %n Chapter(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra%1del todo en %n capítulo de la Biblia</numerusform>
-            <numerusform>No encuentra%1del todo en %n capítulos de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Capítulo de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Capítulos de la Biblia</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2852,8 +2852,8 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Not found%1at all in %n Book(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>No encuentra%1del todo en %n libro de la Biblia</numerusform>
-            <numerusform>No encuentra%1del todo en %n libros de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Libro de la Biblia</numerusform>
+            <numerusform>No encuentra%1del todo en %n Libros de la Biblia</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3027,7 +3027,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <location filename="../KJVSearchSpec.cpp" line="533"/>
         <source>(%1 = Excluding Results From)</source>
         <comment>Statistics</comment>
-        <translation>(%1 = Excluyendo los resultados de)</translation>
+        <translation>(%1 = Excluyendo los Resultados de)</translation>
     </message>
 </context>
 <context>
@@ -3115,7 +3115,7 @@ Do you wish to set them as valid keywords for this note?</source>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="188"/>
         <source>Set to Desired Font Name for the Dictionary Window</source>
-        <translation>Establecer el Nombre deseado de la fuente de la ventana Diccionario</translation>
+        <translation>Establecer el Nombre deseado de la fuente de la Ventana Diccionario</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="195"/>
@@ -3297,7 +3297,7 @@ Así que en vez, ¿te gustaría que desactivarlo para que el texto resaltado con
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
-        <translation>A&amp;signar el Archivo Principal de Notas (carga)...</translation>
+        <translation>A&amp;signar el Archivo Principal de Notas (cargar)...</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
@@ -3677,7 +3677,7 @@ Verificar la Instalación!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="57"/>
         <source>Passage Reference Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation>Operaciones de edición de referencia de pasaje</translation>
+        <translation>Operaciones de Edición de Referencia de Pasaje</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="59"/>
@@ -3776,7 +3776,7 @@ Verificar la Instalación!</translation>
         <location filename="../KJVSearchPhraseEdit.cpp" line="102"/>
         <source>Search Phrase Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation>Operaciones de edición Frase de Buscar</translation>
+        <translation>Operaciones de Edición Frase de Buscar</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="118"/>
@@ -3980,7 +3980,7 @@ Verificar la Instalación!</translation>
         <location filename="../KJVSearchResult.cpp" line="262"/>
         <source>Search Results Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Resultados de la búsqueda operaciones de edición</translation>
+        <translation>Operaciones de Edición de los Resultados de la Búsqueda</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="264"/>
@@ -5513,7 +5513,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../myApplication.cpp" line="126"/>
         <source>King James Pure Bible Search Initialization</source>
         <comment>Errors</comment>
-        <translation>King James Pure Bible Search Initializatioin</translation>
+        <translation>King James Pure Bible Search Inicialización</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="186"/>
@@ -5579,7 +5579,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="149"/>
         <source>Scripture Text Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Operaciones de edición del Texto de la Escritura</translation>
+        <translation>Operaciones de Edición del Texto de la Escritura</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="150"/>
@@ -5717,7 +5717,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="191"/>
         <source>Find &amp;Next</source>
         <comment>MainMenu</comment>
-        <translation>Enco&amp;ntrar tras</translation>
+        <translation>Enco&amp;ntrar Tras</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="192"/>

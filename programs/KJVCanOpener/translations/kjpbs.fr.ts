@@ -7,12 +7,12 @@
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="36"/>
         <source>Bible Database Information</source>
-        <translation>Information de base de données de la Bible</translation>
+        <translation>Information de Base de données de la Bible</translation>
     </message>
     <message>
         <location filename="../BibleDatabaseInfoDlg.ui" line="57"/>
         <source>Bible Database Name</source>
-        <translation>Nom de base de données de la Bible</translation>
+        <translation>Nom de Base de données de la Bible</translation>
     </message>
 </context>
 <context>
@@ -27,7 +27,7 @@
         <location filename="../BibleDBListModel.cpp" line="114"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>BibleDBStatus</comment>
-        <translation>Chargé - Sélectionné comme Base de Données initiale</translation>
+        <translation>Chargé - Sélectionné comme Base de Données Initiale</translation>
     </message>
     <message>
         <location filename="../BibleDBListModel.cpp" line="116"/>
@@ -182,7 +182,7 @@
         <location filename="../ConfigCopyOptions.ui" line="71"/>
         <location filename="../ConfigCopyOptions.ui" line="146"/>
         <source>Use &amp;Abbreviated Book Names</source>
-        <translation>Utiliser &amp;Abrégées Livre des Noms</translation>
+        <translation>Utiliser &amp;Abrégées Noms de Livre</translation>
     </message>
     <message>
         <location filename="../ConfigCopyOptions.ui" line="78"/>
@@ -477,7 +477,7 @@
     <message>
         <location filename="../ConfigDictionaryOptions.ui" line="36"/>
         <source>Dictionary &amp;Completer Mode:</source>
-        <translation>Mode &amp;Complèteur Dictionnaire:</translation>
+        <translation>Mode &amp;Complèteur de Dictionnaire:</translation>
     </message>
     <message>
         <location filename="../ConfigDictionaryOptions.ui" line="66"/>
@@ -500,7 +500,7 @@
         <location filename="../KJVConfiguration.cpp" line="2025"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
-        <translation>Non filtré</translation>
+        <translation>Non Filtré</translation>
     </message>
 </context>
 <context>
@@ -556,7 +556,7 @@
         <location filename="../KJVConfiguration.cpp" line="1747"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
-        <translation>Non filtré</translation>
+        <translation>Non Filtré</translation>
     </message>
 </context>
 <context>
@@ -564,12 +564,12 @@
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="36"/>
         <source>Dictionary Database Information</source>
-        <translation>Information de base de données dictionnaire</translation>
+        <translation>Information de Base de données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../DictDatabaseInfoDlg.ui" line="57"/>
         <source>Dictionary Database Name</source>
-        <translation>Nom de base de données dictionnaire</translation>
+        <translation>Nom de Base de données Dictionnaire</translation>
     </message>
 </context>
 <context>
@@ -584,7 +584,7 @@
         <location filename="../DictDBListModel.cpp" line="117"/>
         <source>Loaded - Selected as Initial Database</source>
         <comment>DictDBStatus</comment>
-        <translation>Chargé - Sélectionné comme Base de Données initiale</translation>
+        <translation>Chargé - Sélectionné comme Base de Données Initiale</translation>
     </message>
     <message>
         <location filename="../DictDBListModel.cpp" line="119"/>
@@ -610,7 +610,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="34"/>
         <source>Form</source>
-        <translation>Forme</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="66"/>
@@ -664,7 +664,7 @@
         <location filename="../DictionaryWidget.cpp" line="213"/>
         <source>Dictionary Word Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation>Opérations Dictionnaire Mot Éditeur</translation>
+        <translation>Opérations d&apos;édition de Dictionnaire Mot</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="230"/>
@@ -732,7 +732,7 @@
         <location filename="../DictionaryWidget.cpp" line="258"/>
         <source>Dictionary Definition Text Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Opérations d&apos;édition de texte de Définition Dictionnaire</translation>
+        <translation>Opérations d&apos;édition de Texte de Définition Dictionnaire</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="261"/>
@@ -802,7 +802,7 @@
         <location filename="../Highlighter.cpp" line="444"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
-        <translation>Ctrl+Clic, pour mettre en surbrillance seulement le texte de résultats de recherche</translation>
+        <translation>Ctrl+Clic, pour mettre en surbrillance seulement le Texte de Résultats de Recherche</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="448"/>
@@ -823,7 +823,7 @@
         <location filename="../KJVConfiguration.cpp" line="194"/>
         <source>Enable/Disable this highlighter</source>
         <comment>MainMenu</comment>
-        <translation>Activer / désactiver ce surligneur</translation>
+        <translation>Activer / Désactiver ce surligneur</translation>
     </message>
 </context>
 <context>
@@ -1076,14 +1076,14 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="319"/>
         <source>Add/Edit/Remove Cross Reference...</source>
         <comment>MainMenu</comment>
-        <translation>Ajouter / Modifier / Supprimer des Références Croisées...</translation>
+        <translation>Ajouter / Modifier / Supprimer des Références-Croisées...</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="321"/>
         <location filename="../KJVCanOpener.cpp" line="322"/>
         <source>Add/Edit/Remove Cross Reference to link this verse or passage with another</source>
         <comment>MainMenu</comment>
-        <translation>Ajouter / Modifier / Supprimer des Références Croisées de lier ce verset ou un passage avec un autre</translation>
+        <translation>Ajouter / Modifier / Supprimer des Références-Croisées de lier ce verset ou un passage avec un autre</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="413"/>
@@ -1250,13 +1250,13 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="514"/>
         <source>View Cross Re&amp;ferences</source>
         <comment>MainMenu</comment>
-        <translation>Afficher les Ré&amp;férences Croisées</translation>
+        <translation>Afficher les Ré&amp;férences-Croisées</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="517"/>
         <source>View Cross References</source>
         <comment>MainMenu</comment>
-        <translation>Afficher les Références Croisées</translation>
+        <translation>Afficher les Références-Croisées</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="531"/>
@@ -1469,7 +1469,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="2416"/>
         <source>Go Backward in Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Reculer dans l&apos;historique de navigation</translation>
+        <translation>Reculer dans l&apos;Historique de Navigation</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="666"/>
@@ -1482,7 +1482,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="2424"/>
         <source>Go Forward in Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Aller à la suivant dans l&apos;historique de navigation</translation>
+        <translation>Aller à la suivant dans l&apos;Historique de Navigation</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="676"/>
@@ -1500,7 +1500,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="681"/>
         <source>&amp;Clear Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Supprimer l&apos;historique de navigation</translation>
+        <translation>&amp;Supprimer l&apos;Historique de Navigation</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="683"/>
@@ -1626,13 +1626,13 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="794"/>
         <source>List of Open Search Windows</source>
         <comment>MainMenu</comment>
-        <translation>Liste des Fenêtres de Recherche Ouvertes</translation>
+        <translation>Liste des Fenêtres Ouvertes de Recherche</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="795"/>
         <source>Open Search Window List</source>
         <comment>MainMenu</comment>
-        <translation>Liste des fenêtres ouvertes de recherche</translation>
+        <translation>Liste des Fenêtres Ouvertes de Recherche</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="806"/>
@@ -1731,7 +1731,7 @@ Nom du fichier: &quot;%1&quot;</translation>
 
 Filename: &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation>Attention: Le fichier King James Notes en cours de chargement a été créé sur une nouvelle version de King James Pure Bible Search. Il peut contenir des données ou des paramétrages pour des choses pas pris en charge sur cette version de King James Pure Bible Search. Si c&apos;est le cas, ces nouvelles choses seront perdues la prochaine fois que vos Fichiers Notes est enregistré. Si vous souhaitez conserver une copie de votre fichier de notes d&apos;origine et ne pas risquer de perdre des données qu&apos;il contient, vous devez enregistrer manuellement une copie de votre fichier AVANT que vous continuiez!
+        <translation>Attention: Le fichier de King James Notes en cours de chargement a été créé sur une nouvelle version de King James Pure Bible Search. Il peut contenir des données ou des paramétrages pour des choses pas pris en charge sur cette version de King James Pure Bible Search. Si c&apos;est le cas, ces nouvelles choses seront perdues la prochaine fois que vos Fichiers Notes est enregistré. Si vous souhaitez conserver une copie de votre fichier de notes d&apos;origine et ne pas risquer de perdre des données qu&apos;il contient, vous devez enregistrer manuellement une copie de votre fichier AVANT que vous continuiez!
 
 Nom du fichier: &quot;%1&quot;</translation>
     </message>
@@ -1775,7 +1775,7 @@ Cliquez sur «Annuler» pour revenir à King James Pure Bible Search...</transla
         <location filename="../KJVCanOpener.cpp" line="1656"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>King James Notes Fichiers (*.kjn)</translation>
+        <translation>Fichiers de King James Notes (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1668"/>
@@ -1785,7 +1785,7 @@ Click &apos;Yes&apos; to try again, or
 Click &apos;No&apos; to lose your changes and exit, or
 Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <comment>Errors</comment>
-        <translation>Impossible d&apos;enregistrer le fichier King James Notes!
+        <translation>Impossible d&apos;enregistrer le fichier de King James Notes!
 
 Cliquez sur «Oui» pour réessayer, ou
 Cliquez sur «Non» à perdre vos modifications et quitter, ou
@@ -1802,13 +1802,13 @@ Cliquez sur «Annuler» pour revenir à King James Pure Bible Search...</transla
         <location filename="../KJVCanOpener.cpp" line="1806"/>
         <source>KJV Search Files (*.kjs)</source>
         <comment>FileFilters</comment>
-        <translation>King James Search Fichiers (*.kjs)</translation>
+        <translation>Fichiers de King James Search (*.kjs)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1788"/>
         <source>KJV Search File Open Failed</source>
         <comment>Errors</comment>
-        <translation>King James Search Fichier ouvert échec</translation>
+        <translation>Fichier de King James Search ouvert échec</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1788"/>
@@ -1909,7 +1909,7 @@ Et vérifier l&apos;installation de Manuel de l&apos;utilisateur de King James P
 
 %1</source>
         <comment>Errors</comment>
-        <translation>Impossible d&apos;ouvrir un navigateur Web du système pour
+        <translation>Impossible d&apos;ouvrir un Navigateur Web du système pour
 
 %1</translation>
     </message>
@@ -1947,7 +1947,7 @@ http://www.PureBibleSearch.com/</translation>
         <location filename="../KJVConfiguration.cpp" line="2839"/>
         <source>Notes File Settings</source>
         <comment>MainMenu</comment>
-        <translation>Fichier Notes</translation>
+        <translation>Fichier de Notes</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2841"/>
@@ -1959,7 +1959,7 @@ http://www.PureBibleSearch.com/</translation>
         <location filename="../KJVConfiguration.cpp" line="2842"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
-        <translation>Base de Données Dictionnaire</translation>
+        <translation>Base de données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2843"/>
@@ -2012,7 +2012,7 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVCrossRefEditDlg.ui" line="36"/>
         <source>King James Pure Bible Search Cross Reference Editor</source>
-        <translation>King James Pure Bible Search -  Éditeur de Références Croisées</translation>
+        <translation>King James Pure Bible Search -  Éditeur de Références-Croisées</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.ui" line="52"/>
@@ -2027,7 +2027,7 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVCrossRefEditDlg.ui" line="124"/>
         <source>&amp;Cross References:</source>
-        <translation>Références &amp;Croisées:</translation>
+        <translation>Références-&amp;Croisées:</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.ui" line="137"/>
@@ -2059,13 +2059,13 @@ Voulez-vous redémarrer l&apos;application??</translation>
         <location filename="../KJVCrossRefEditDlg.cpp" line="128"/>
         <source>Cross Reference Passages Linked to the Source Reference</source>
         <comment>MainMenu</comment>
-        <translation>Passages de Références Croisées liées à la Référence de Source</translation>
+        <translation>Passages de Références-Croisées liées à la Référence de Source</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.cpp" line="233"/>
         <source>You have made changes to this Cross Reference.  Do you wish to discard them??</source>
         <comment>Errors</comment>
-        <translation>Vous avez apporté des modifications à ce Référence Croisée. Voulez-vous les jeter?</translation>
+        <translation>Vous avez apporté des modifications à ce Référence-Croisée. Voulez-vous les jeter?</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.cpp" line="287"/>
@@ -2077,19 +2077,19 @@ Voulez-vous redémarrer l&apos;application??</translation>
         <location filename="../KJVCrossRefEditDlg.cpp" line="305"/>
         <source>You have made changes to this Cross Reference.  Save them??</source>
         <comment>Errors</comment>
-        <translation>Vous avez apporté des modifications à ce Référence Croisée. Enregistrez-les??</translation>
+        <translation>Vous avez apporté des modifications à ce Référence-Croisée. Enregistrez-les??</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.cpp" line="327"/>
         <source>You can&apos;t set a cross-reference to reference itself.</source>
         <comment>Errors</comment>
-        <translation>Vous ne pouvez pas définir une Référence Croisée à lui-même.</translation>
+        <translation>Vous ne pouvez pas définir une Référence-Croisée à lui-même.</translation>
     </message>
     <message>
         <location filename="../KJVCrossRefEditDlg.cpp" line="329"/>
         <source>That cross-reference already exists.</source>
         <comment>Errors</comment>
-        <translation>Ce Référence Croisée existe déjà.</translation>
+        <translation>Ce Référence-Croisée existe déjà.</translation>
     </message>
 </context>
 <context>
@@ -2097,17 +2097,17 @@ Voulez-vous redémarrer l&apos;application??</translation>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="28"/>
         <source>Dictionary Database</source>
-        <translation>Base de Données Dictionnaire</translation>
+        <translation>Base de données Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="39"/>
         <source>&amp;Dictionary Databases:</source>
-        <translation>Bases de Données de &amp;Dictionnaire:</translation>
+        <translation>Bases de données de &amp;Dictionnaire:</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="55"/>
         <source>List of available Dictionary Databases</source>
-        <translation>Liste des Bases de Données de Dictionnaire disponibles</translation>
+        <translation>Liste des Bases de données de Dictionnaire disponibles</translation>
     </message>
     <message>
         <location filename="../KJVDictDatabaseConfig.ui" line="71"/>
@@ -2560,7 +2560,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
-        <translation>Compte Occurrence pour cette phrase: Contribuer / Texte Sélectionné / Tout Bible</translation>
+        <translation>Compte Occurrence pour cette phrase: Contribuer / Texte Sélectionné / Tout la Bible</translation>
     </message>
     <message>
         <source>Number of Occurrences: 00000/00000/00000</source>
@@ -2569,7 +2569,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
         <source>Number of Occurrences: 000000/000000/000000</source>
-        <translation>Nombre d&apos;occurrences: 000000/000000/000000</translation>
+        <translation>Nombre d&apos;Occurrences: 000000/000000/000000</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="125"/>
@@ -2599,7 +2599,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="192"/>
         <source>Clear this Phrase Text</source>
-        <translation>Supprimer ce texte de Phrase</translation>
+        <translation>Supprimer ce Texte de Phrase</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="211"/>
@@ -2629,12 +2629,12 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="325"/>
         <source>Enable Case Sensitivity on Matching</source>
-        <translation>Activer Sensibilité à la casse sur correspondants</translation>
+        <translation>Activer sensibilité à la casse sur correspondants</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="328"/>
         <source>Enable Case Sensitivity when Matching this Search Phrase</source>
-        <translation>Activer Sensibilité à la casse lors de l&apos;appariement cette Recherche Phrase</translation>
+        <translation>Activer sensibilité à la casse lors de l&apos;appariement cette Recherche Phrase</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="331"/>
@@ -2695,7 +2695,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchPhraseEdit.cpp" line="758"/>
         <source>Number of Occurrences:</source>
         <comment>Statistics</comment>
-        <translation>Nombre d&apos;occurrences:</translation>
+        <translation>Nombre d&apos;Occurrences:</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="760"/>
@@ -2768,7 +2768,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchResult.cpp" line="1461"/>
         <source>Cross References</source>
         <comment>MainMenu</comment>
-        <translation>Références Croisées</translation>
+        <translation>Références-Croisées</translation>
     </message>
     <message numerus="yes">
         <location filename="../KJVSearchResult.cpp" line="1555"/>
@@ -3058,7 +3058,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchSpec.cpp" line="533"/>
         <source>(%1 = Excluding Results From)</source>
         <comment>Statistics</comment>
-        <translation>(%1 = Excluant les résultats de)</translation>
+        <translation>(%1 = Excluant les Résultats de)</translation>
     </message>
 </context>
 <context>
@@ -3146,12 +3146,12 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="188"/>
         <source>Set to Desired Font Name for the Dictionary Window</source>
-        <translation>Régler le Nom désiré de la police pour la fenêtre Dictionnaire</translation>
+        <translation>Régler le Nom désiré de la police pour la Fenêtre Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="195"/>
         <source>Di&amp;ctionary Window Font:</source>
-        <translation>La police de la fenêtre Di&amp;ctionnaire:</translation>
+        <translation>La police de la Fenêtre Di&amp;ctionnaire:</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="236"/>
@@ -3234,7 +3234,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVConfiguration.cpp" line="368"/>
         <source>Dictionary Window Preview</source>
         <comment>MainMenu</comment>
-        <translation>Dictionnaire fenêtre Aperçu</translation>
+        <translation>Dictionnaire Fenêtre Aperçu</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="392"/>
@@ -3312,40 +3312,40 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="64"/>
         <source>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</source>
-        <translation>Notes / Surligneurs / Références-croisées Nom du fichier primaire (lecture / écriture)</translation>
+        <translation>Notes / Surligneurs / Références-Croisées Nom du fichier primaire (lecture / écriture)</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="67"/>
         <source>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</source>
-        <translation>Notes / Surligneurs / Références-croisées Fichier Primaire Sélectionnée (lecture / écriture)</translation>
+        <translation>Notes / Surligneurs / Références-Croisées Fichier Primaire Sélectionnée (lecture / écriture)</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="77"/>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="80"/>
         <source>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</source>
-        <translation>Cliquez sur Parcourir et Sélectionner Notes / Surligneurs / Références-croisées Fichier Primaire</translation>
+        <translation>Cliquez sur Parcourir et Sélectionner Notes / Surligneurs / Références-Croisées Fichier Primaire</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
-        <translation>&amp;Définir le fichier Notes Primaires (Charge)...</translation>
+        <translation>&amp;Définir le fichier Notes Primaires (Charger)...</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
-        <translation>Fermer le fichier Notes actuel primaires et de commencer une nouvelle fichier Notes vides</translation>
+        <translation>Fermer le Fichier de Notes actuel primaires et de commencer une nouvelle Fichier de Notes vides</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
         <source>Start New Notes File</source>
-        <translation>Commencer nouveaux fichier Notes</translation>
+        <translation>Commencer nouveaux Fichier de Notes</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="107"/>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="110"/>
         <source>Enable to automatically create Notes Backup File</source>
-        <translation>Permettre de créer automatiquement des fichier Notes de sauvegarde</translation>
+        <translation>Permettre de créer automatiquement des fichier de Notes de sauvegarde</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="116"/>
@@ -3360,12 +3360,12 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="152"/>
         <source>Extension to add to Notes File Backups</source>
-        <translation>Extension à ajouter aux sauvegardes fichier Notes</translation>
+        <translation>Extension à ajouter aux sauvegardes Fichier de Notes</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
-        <translation>Entrer l&apos;extension à ajouter aux sauvegardes de fichiers Notes</translation>
+        <translation>Entrer l&apos;extension à ajouter aux sauvegardes de Fichiers de Notes</translation>
     </message>
     <message>
         <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
@@ -3429,7 +3429,7 @@ Cliquez sur «Annuler» pour revenir à King James Pure Bible Search...</transla
         <location filename="../KJVConfiguration.cpp" line="1565"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>King James Notes Fichiers (*.kjn)</translation>
+        <translation>Fichiers de King James Notes (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1576"/>
@@ -3457,20 +3457,20 @@ Cliquez sur «Annuler» pour revenir à King James Pure Bible Search...</transla
         <location filename="../KJVConfiguration.cpp" line="1607"/>
         <source>Load King James Notes File</source>
         <comment>FileFilters</comment>
-        <translation>Chargement King James Notes fichier</translation>
+        <translation>Chargement Fichier de King James Notes</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1607"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>King James Notes Fichiers (*.kjn)</translation>
+        <translation>Fichiers de King James Notes (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1634"/>
         <location filename="../KJVConfiguration.cpp" line="1639"/>
         <source>Loading King James Notes File</source>
         <comment>Errors</comment>
-        <translation>Chargement King James Notes fichier</translation>
+        <translation>Chargement Fichier de King James Notes</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1634"/>
@@ -3578,7 +3578,7 @@ Vérification de l&apos;installation!</translation>
 %1
 Check Installation!</source>
         <comment>Errors</comment>
-        <translation>Impossible de lire et de valider la base de données dictionnaire!
+        <translation>Impossible de lire et de valider la base de données Dictionnaire!
 %1
 Vérification de l&apos;installation!</translation>
     </message>
@@ -3708,7 +3708,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="57"/>
         <source>Passage Reference Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation>Opérations de l&apos;éditeur de référence de passage</translation>
+        <translation>Opérations d&apos;édition de Référence de Passage</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="59"/>
@@ -3720,7 +3720,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="60"/>
         <source>Undo last operation to the Passage Reference Editor</source>
         <comment>MainMenu</comment>
-        <translation>Annuler la dernière opération à l&apos;éditeur de référence de passage</translation>
+        <translation>Annuler la dernière opération à l&apos;éditeur de Référence de Passage</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="63"/>
@@ -3732,7 +3732,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="64"/>
         <source>Redo last operation on the Passage Reference Editor</source>
         <comment>MainMenu</comment>
-        <translation>Rétablir la dernière opération sur l&apos;éditeur de référence de passage</translation>
+        <translation>Rétablir la dernière opération sur l&apos;éditeur de Référence de Passage</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="68"/>
@@ -3744,7 +3744,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="69"/>
         <source>Cut selected text from the Passage Reference Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Couper le texte sélectionné à partir de l&apos;éditeur de référence de passage au presse-papiers</translation>
+        <translation>Couper le texte sélectionné à partir de l&apos;éditeur de Référence de Passage au presse-papiers</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="72"/>
@@ -3756,7 +3756,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="73"/>
         <source>Copy selected text from the Passage Reference Editor to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le texte sélectionné à partir de l&apos;éditeur de référence de passage au presse-papiers</translation>
+        <translation>Copier le texte sélectionné à partir de l&apos;éditeur de Référence de Passage au presse-papiers</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="76"/>
@@ -3768,7 +3768,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="77"/>
         <source>Paste text on clipboard into the Passage Reference Editor</source>
         <comment>MainMenu</comment>
-        <translation>Coller du texte sur le presse-papiers dans l&apos;éditeur de référence de passage</translation>
+        <translation>Coller du texte sur le presse-papiers dans l&apos;éditeur de Référence de Passage</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="80"/>
@@ -3780,7 +3780,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="81"/>
         <source>Delete selected text from the Passage Reference Editor</source>
         <comment>MainMenu</comment>
-        <translation>Supprimer le texte sélectionné dans l&apos;éditeur de référence de passage</translation>
+        <translation>Supprimer le texte sélectionné dans l&apos;éditeur de Référence de Passage</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.cpp" line="85"/>
@@ -3792,7 +3792,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../PassageReferenceWidget.cpp" line="86"/>
         <source>Select All Text in the Passage Reference Editor</source>
         <comment>MainMenu</comment>
-        <translation>Sélectionner tout le texte dans l&apos;éditeur de référence de passage</translation>
+        <translation>Sélectionner tout le texte dans l&apos;éditeur de Référence de Passage</translation>
     </message>
 </context>
 <context>
@@ -3857,7 +3857,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchPhraseEdit.cpp" line="102"/>
         <source>Search Phrase Editor Operations</source>
         <comment>MainMenu</comment>
-        <translation>Opérations de l&apos;éditeur de Recherche Phrase</translation>
+        <translation>Opérations d&apos;édition de Recherche Phrase</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="118"/>
@@ -4061,7 +4061,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchResult.cpp" line="262"/>
         <source>Search Results Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Résultats de la Recherche d&apos;opérations d&apos;édition</translation>
+        <translation>Opérations d&apos;édition de Résultats de la Recherche</translation>
     </message>
     <message>
         <location filename="../KJVSearchResult.cpp" line="264"/>
@@ -4234,8 +4234,8 @@ Voulez-vous mettre hors surbrillance tous à la place??</translation>
         <source>%n Cross-Reference(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Référence Croisée Sélectionné</numerusform>
-            <numerusform>%n Références Croisées Sélectionnés</numerusform>
+            <numerusform>%n Référence-Croisée Sélectionné</numerusform>
+            <numerusform>%n Références-Croisées Sélectionnés</numerusform>
         </translation>
     </message>
 </context>
@@ -4465,13 +4465,13 @@ ils sont habituellement trouvés dans le livre des Psaumes.</translation>
         <location filename="../UserNotesDatabase.cpp" line="666"/>
         <source>Failed to read and parse King James User Notes Database File!</source>
         <comment>KJNErrors</comment>
-        <translation>Impossible de lire et d&apos;analyser King James Notes fichier!</translation>
+        <translation>Impossible de lire et d&apos;analyser fichier de King James Notes!</translation>
     </message>
     <message>
         <location filename="../UserNotesDatabase.cpp" line="691"/>
         <source>User Notes File Path Name not set</source>
         <comment>KJNErrors</comment>
-        <translation>Nom du chemin de la Fichier Notes pas établi</translation>
+        <translation>Nom du chemin de la Fichier de Notes pas établi</translation>
     </message>
     <message>
         <location filename="../UserNotesDatabase.cpp" line="706"/>
@@ -4489,7 +4489,7 @@ ils sont habituellement trouvés dans le livre des Psaumes.</translation>
         <location filename="../UserNotesDatabase.cpp" line="717"/>
         <source>Failed to write King James Notes File &quot;%1&quot;.</source>
         <comment>KJNErrors</comment>
-        <translation>Impossible d&apos;écrire King James Notes fichier &quot;%1&quot;.</translation>
+        <translation>Impossible d&apos;écrire fichier de King James Notes &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../UserNotesDatabase.cpp" line="735"/>
@@ -4593,7 +4593,7 @@ faites-les glisser au surligneur désiré, et déposez-les.</translation>
         <location filename="../VerseListModel.cpp" line="1357"/>
         <source>Moving Highlighter Tags</source>
         <comment>Errors</comment>
-        <translation>Déménagement balises surligneur</translation>
+        <translation>Déménagement Balises Surligneur</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="1358"/>
@@ -4627,7 +4627,7 @@ Etes-vous sûr que vous voulez déplacer le verset surlignage sélectionné pour
         <location filename="../VerseListModel.h" line="688"/>
         <source>Cross References</source>
         <comment>MainMenu</comment>
-        <translation>Références Croisées</translation>
+        <translation>Références-Croisées</translation>
     </message>
 </context>
 <context>
@@ -4677,12 +4677,12 @@ Etes-vous sûr que vous voulez déplacer le verset surlignage sélectionné pour
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="71"/>
         <source>&amp;Down</source>
-        <translation>vers le &amp;bas</translation>
+        <translation>Vers le &amp;bas</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="81"/>
         <source>&amp;Up</source>
-        <translation>vers le &amp;haut</translation>
+        <translation>Vers le &amp;haut</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="91"/>
@@ -5616,7 +5616,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../main.cpp" line="193"/>
         <source>Unrecognized Dictionary Database Index &quot;%1&quot;</source>
         <comment>Errors</comment>
-        <translation>Non reconnu indice de base de données dictionnaire &quot;%1&quot;</translation>
+        <translation>Non reconnu indice de base de données Dictionnaire &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="198"/>
@@ -5670,7 +5670,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="149"/>
         <source>Scripture Text Edit Operations</source>
         <comment>MainMenu</comment>
-        <translation>Opérations d&apos;édition de texte de l&apos;Écriture</translation>
+        <translation>Opérations d&apos;édition de Texte de l&apos;Écriture</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="150"/>
@@ -5961,7 +5961,7 @@ Vérifiez l&apos;installation!</translation>
 %1
 Check Installation!</source>
         <comment>Errors</comment>
-        <translation>Impossible de lire et de valider la base de données dictionnaire!
+        <translation>Impossible de lire et de valider la base de données Dictionnaire!
 %1
 Vérifiez l&apos;installation!</translation>
     </message>
