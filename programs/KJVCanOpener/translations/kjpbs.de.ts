@@ -610,7 +610,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="34"/>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="66"/>
@@ -1002,7 +1002,7 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
     <message>
         <location filename="../KJVBrowser.ui" line="28"/>
         <source>KJVBrowserForm</source>
-        <translation>KJVBrowserFormular</translation>
+        <translation>KJVBrowserForm</translation>
     </message>
     <message>
         <location filename="../KJVBrowser.ui" line="61"/>
@@ -1482,8 +1482,7 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="2424"/>
         <source>Go Forward in Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Gehe im Navigationsverlauf vorwärts
-</translation>
+        <translation>Gehe im Navigationsverlauf vorwärts</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="676"/>
@@ -1777,7 +1776,7 @@ wählen sie &apos;Abbrechen&apos; um zur King James Pure Bible Search zurückzuk
         <location filename="../KJVCanOpener.cpp" line="1656"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>King Jams Notizdateien (*.kjn)</translation>
+        <translation>King James Notizdateien (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1668"/>
@@ -2269,7 +2268,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVPassageNavigator.ui" line="28"/>
         <source>PassageNavigatorForm</source>
-        <translation>Passagennavigationsformular</translation>
+        <translation>PassageNavigatorForm</translation>
     </message>
     <message>
         <location filename="../KJVPassageNavigator.ui" line="41"/>
@@ -2467,7 +2466,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchCriteria.ui" line="28"/>
         <source>SearchCriteriaForm</source>
-        <translation>SuchkriterienFormular</translation>
+        <translation>SearchCriteriaForm</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.ui" line="82"/>
@@ -2557,12 +2556,12 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="34"/>
         <source>PhraseEditForm</source>
-        <translation>PhrasenänderungsFormular</translation>
+        <translation>PhraseEditForm</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
-        <translation>Gefundene Anzahl für diese Phrase: in Suchziel/in ausgewähltem Text/in ganzer Bibel </translation>
+        <translation>Gefundene Anzahl für diese Phrase: in Suchziel/in ausgewähltem Text/in ganzer Bibel</translation>
     </message>
     <message>
         <source>Number of Occurrences: 00000/00000/00000</source>
@@ -2943,7 +2942,7 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
     <message>
         <location filename="../KJVSearchSpec.ui" line="28"/>
         <source>KJVSearchSpecForm</source>
-        <translation>KJVSearchSpecFormular</translation>
+        <translation>KJVSearchSpecForm</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="74"/>
@@ -3638,7 +3637,7 @@ Check Installation!</source>
     <message>
         <location filename="../NoteKeywordWidget.ui" line="28"/>
         <source>NoteKeywordWidget</source>
-        <translation>NotizSchlüsselwortWidget</translation>
+        <translation>NoteKeywordWidget</translation>
     </message>
     <message>
         <location filename="../NoteKeywordWidget.ui" line="40"/>
@@ -3693,7 +3692,7 @@ Check Installation!</source>
     <message>
         <location filename="../PassageReferenceWidget.ui" line="28"/>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../PassageReferenceWidget.ui" line="37"/>
@@ -4654,7 +4653,7 @@ Sind sie sicher das sie die ausgewählte Hervorhebung zur Hervorhebung &quot;%1&
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="14"/>
         <source>Form</source>
-        <translation>Fortmular</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="26"/>
@@ -4669,7 +4668,7 @@ Sind sie sicher das sie die ausgewählte Hervorhebung zur Hervorhebung &quot;%1&
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="56"/>
         <source>errorLabel</source>
-        <translation></translation>
+        <translation>errorLabel</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="65"/>
