@@ -60,7 +60,7 @@
         <location filename="../BibleWordDiffListModel.cpp" line="117"/>
         <source>Rendered Word</source>
         <comment>CBibleWordDiffListModel</comment>
-        <translation>Rendu Parole</translation>
+        <translation>Rendu-Parole</translation>
     </message>
 </context>
 <context>
@@ -1070,7 +1070,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="313"/>
         <source>Add/Edit/Remove Note to current verse or passage</source>
         <comment>MainMenu</comment>
-        <translation>Ajouter / Modifier / Supprimer Note aux verset ou un passage de courant</translation>
+        <translation>Ajouter / Modifier / Supprimer Note aux verset ou un passage actuel</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="319"/>
@@ -1128,7 +1128,7 @@ Contact: http://www.dewtronics.com/
         <location filename="../KJVCanOpener.cpp" line="428"/>
         <source>Save current Search Phrases to a King James Search File</source>
         <comment>MainMenu</comment>
-        <translation>Enregistrer Expressions de Recherche actuels à un King James Recherche Fichier</translation>
+        <translation>Enregistrer Expressions de Recherche actuelles à un King James Recherche Fichier</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="435"/>
@@ -1953,13 +1953,13 @@ http://www.PureBibleSearch.com/</translation>
         <location filename="../KJVConfiguration.cpp" line="2841"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
-        <translation>Base de données Bible</translation>
+        <translation>Base de Données Bible</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2842"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
-        <translation>Base de données Dictionnaire</translation>
+        <translation>Dictionnaire</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2843"/>
@@ -2820,8 +2820,8 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <source>Not found at all in %n Verse(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Pas trouvé du tout dans %n verset de la Bible</numerusform>
-            <numerusform>Pas trouvé du tout dans %n versets de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Verset de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Versets de la Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2829,8 +2829,8 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <source>Not found at all in %n Chapter(s) of the Bible</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Pas trouvé du tout dans %n chapitre de la Bible</numerusform>
-            <numerusform>Pas trouvé du tout dans %n chapitres de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Chapitre de la Bible</numerusform>
+            <numerusform>Pas trouvé du tout dans %n Chapitres de la Bible</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3038,8 +3038,8 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Supprimée %n exclusion correspondant de portée</numerusform>
-            <numerusform>Suppression de %n exclusions correspondants de portée</numerusform>
+            <numerusform>Supprimé de %n exclusion correspondant de portée</numerusform>
+            <numerusform>Supprimé des %n exclusions correspondants de portée</numerusform>
         </translation>
     </message>
     <message>
@@ -3166,7 +3166,7 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="276"/>
         <source>Enter Custom Text Highlighter Name</source>
-        <translation>Entrer le texte fait surligneur personnalisée Nom</translation>
+        <translation>Entrer le texte fait surligneur personnalisée nom</translation>
     </message>
     <message>
         <location filename="../KJVTextFormatConfig.ui" line="289"/>
@@ -3929,7 +3929,7 @@ Vérification de l&apos;installation!</translation>
         <location filename="../KJVSearchPhraseEdit.cpp" line="164"/>
         <source>Show List of Common Phrases and User Phrases from Database</source>
         <comment>MainMenu</comment>
-        <translation>Afficher la liste de phrases courantes et phrases utilisateur de base de données</translation>
+        <translation>Afficher la liste de phrases actuels et phrases utilisateur de base de données</translation>
     </message>
 </context>
 <context>
@@ -4207,7 +4207,7 @@ Voulez-vous mettre hors surbrillance tous à la place??</translation>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>%n Résultat de Recherche exclus Sélectionné</numerusform>
+            <numerusform>%n Résultat de Recherche Exclus Sélectionné</numerusform>
             <numerusform>%n Résultats de Recherche Exclus Sélectionnés</numerusform>
         </translation>
     </message>
@@ -4575,13 +4575,13 @@ faites-les glisser au surligneur désiré, et déposez-les.</translation>
         <location filename="../VerseListModel.cpp" line="836"/>
         <source>Search Scope is: %1 within %2</source>
         <comment>Statistics</comment>
-        <translation>Portée de la recherche est: %1 dans %2</translation>
+        <translation>Portée de la Recherche est: %1 dans %2</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="838"/>
         <source>Search Scope is: anywhere within %1</source>
         <comment>Statistics</comment>
-        <translation>Portée de la recherche est: n&apos;importe où dans %1</translation>
+        <translation>Portée de la Recherche est: n&apos;importe où dans %1</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="844"/>
@@ -5730,7 +5730,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="169"/>
         <source>Copy selected passage browser text as Formatted Verses to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le passage du texte du navigateur sélectionné comme formatés Versets au presse-papiers</translation>
+        <translation>Copier le passage du texte du navigateur sélectionné comme Formatés Versets au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="172"/>
@@ -5742,7 +5742,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="173"/>
         <source>Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copier le passage du texte du navigateur sélectionné comme formatés versets, mais sans les couleurs et les polices, au presse-papiers</translation>
+        <translation>Copier le passage du texte du navigateur sélectionné comme Formatés Versets, mais sans les couleurs et les polices, au presse-papiers</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="177"/>
