@@ -1536,19 +1536,19 @@ Written and Developed for Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="711"/>
         <source>Goto Ran&amp;dom Passage</source>
         <comment>MainMenu</comment>
-        <translation>Goto Ran&amp;dom Passage</translation>
+        <translation>Go to Ran&amp;dom Passage</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="712"/>
         <source>Goto a Random Bible Passage</source>
         <comment>MainMenu</comment>
-        <translation>Goto a Random Bible Passage</translation>
+        <translation>Go to a Random Bible Passage</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="713"/>
         <source>Goto Random Passage</source>
         <comment>MainMenu</comment>
-        <translation>Goto Random Passage</translation>
+        <translation>Go to Random Passage</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="722"/>
@@ -3468,7 +3468,7 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</translati
         <location filename="../KJVConfiguration.cpp" line="1607"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>King James Notes File (*.kjn)</translation>
+        <translation>King James Notes Files (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1634"/>
