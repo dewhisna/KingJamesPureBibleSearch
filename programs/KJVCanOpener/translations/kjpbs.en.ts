@@ -286,10 +286,6 @@
         <translation>References List:</translation>
     </message>
     <message>
-        <source>Search Results References:</source>
-        <translation type="obsolete">Search Results References:</translation>
-    </message>
-    <message>
         <location filename="../ConfigCopyOptions.ui" line="486"/>
         <source>Occurrence Counts:</source>
         <translation>Occurrence Counts:</translation>
@@ -1913,15 +1909,6 @@ And check installation of King James Pure Bible Search User Manual at:
 
 %1</translation>
     </message>
-    <message>
-        <source>Unable to open a System Web Browser for
-
-http://www.PureBibleSearch.com/</source>
-        <comment>Errors</comment>
-        <translation type="obsolete">Unable to open a System Web Browser for
-
-http://www.PureBibleSearch.com/</translation>
-    </message>
 </context>
 <context>
     <name>CKJVConfiguration</name>
@@ -2478,24 +2465,6 @@ Do you wish to set them as valid keywords for this note?</translation>
         <translation>Search &amp;Scope:</translation>
     </message>
     <message>
-        <source>&amp;Copy Search Phrase Summary to Clipboard</source>
-        <translation type="obsolete">&amp;Copy Search Phrase Summary to Clipboard</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="obsolete">Ctrl+P</translation>
-    </message>
-    <message>
-        <source>Add Phrase to Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="obsolete">Add Phrase to Search Criteria</translation>
-    </message>
-    <message>
-        <source>Add another Phrase to the current Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="obsolete">Add another Phrase to the current Search Criteria</translation>
-    </message>
-    <message>
         <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
@@ -2561,10 +2530,6 @@ Do you wish to set them as valid keywords for this note?</translation>
         <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
         <translation>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</translation>
-    </message>
-    <message>
-        <source>Number of Occurrences: 00000/00000/00000</source>
-        <translation type="obsolete">Number of Occurrences: 00000/00000/00000</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
@@ -2948,11 +2913,6 @@ Do you wish to set them as valid keywords for this note?</translation>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation>Add Phrase to Search Criteria</translation>
-    </message>
-    <message>
-        <source>&amp;Add Phrase to Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="obsolete">&amp;Add Phrase to Search Criteria</translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="78"/>
@@ -3801,56 +3761,6 @@ Check Installation!</translation>
     </message>
 </context>
 <context>
-    <name>CPhraseEditNavigator</name>
-    <message>
-        <source>Word:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">Word:</translation>
-    </message>
-    <message>
-        <source>Phrase:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">Phrase:</translation>
-    </message>
-    <message>
-        <source>contains:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">contains:</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Chapter(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Chapter</numerusform>
-            <numerusform>%n Chapters</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Verse(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Verse</numerusform>
-            <numerusform>%n Verses</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Word(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Word</numerusform>
-            <numerusform>%n Words</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Word(s) Selected</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Word Selected</numerusform>
-            <numerusform>%n Words Selected</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>CPhraseLineEdit</name>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="101"/>
@@ -4302,25 +4212,25 @@ they are usually found in the Book of Psalms.</translation>
 <context>
     <name>CTranslator</name>
     <message>
-        <location filename="../Translator.cpp" line="90"/>
+        <location filename="../Translator.cpp" line="99"/>
         <source>English</source>
         <comment>languageNames</comment>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="92"/>
+        <location filename="../Translator.cpp" line="101"/>
         <source>French</source>
         <comment>languageNames</comment>
         <translation>French</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="94"/>
+        <location filename="../Translator.cpp" line="103"/>
         <source>Spanish</source>
         <comment>languageNames</comment>
         <translation>Spanish</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="96"/>
+        <location filename="../Translator.cpp" line="105"/>
         <source>German</source>
         <comment>languageNames</comment>
         <translation>German</translation>
@@ -5631,20 +5541,10 @@ Normal-&gt;Relative-&gt;Normal:
         <translation>Superscription</translation>
     </message>
     <message>
-        <source>%1 of %2 of %3 %4</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">%1 of %2 of %3 %4</translation>
-    </message>
-    <message>
         <location filename="../dbstruct.cpp" line="935"/>
         <source>Word/Phrase:</source>
         <comment>Statistics</comment>
         <translation>Word/Phrase:</translation>
-    </message>
-    <message>
-        <source>%1 of %2 of %3 %4:%5</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">%1 of %2 of %3 %4:%5</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="961"/>

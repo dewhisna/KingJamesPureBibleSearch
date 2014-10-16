@@ -286,10 +286,6 @@
         <translation>Referenzenliste:</translation>
     </message>
     <message>
-        <source>Search Results References:</source>
-        <translation type="obsolete">Suchergebnis Referenzen:</translation>
-    </message>
-    <message>
         <location filename="../ConfigCopyOptions.ui" line="486"/>
         <source>Occurrence Counts:</source>
         <translation>Häufigkeitszähler:</translation>
@@ -1914,15 +1910,6 @@ And check installation of King James Pure Bible Search User Manual at:
 
 %1</translation>
     </message>
-    <message>
-        <source>Unable to open a System Web Browser for
-
-http://www.PureBibleSearch.com/</source>
-        <comment>Errors</comment>
-        <translation type="obsolete">Es war nicht möglich im Web Browser die nachstehende Seite zu öffnen
-
-http://www.PureBibleSearch.com/</translation>
-    </message>
 </context>
 <context>
     <name>CKJVConfiguration</name>
@@ -2479,24 +2466,6 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <translation>&amp;Suchziel:</translation>
     </message>
     <message>
-        <source>&amp;Copy Search Phrase Summary to Clipboard</source>
-        <translation type="obsolete">&amp;Kopiere Suchphrase in die Zwischenablage</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="obsolete">Strg+P</translation>
-    </message>
-    <message>
-        <source>Add Phrase to Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="obsolete">Füge Phrase zu Schukriterien hinzu</translation>
-    </message>
-    <message>
-        <source>Add another Phrase to the current Search Criteria</source>
-        <comment>MainMenu</comment>
-        <translation type="obsolete">Füge eine weitere Phrase zu dem aktuellen Suchkriterien</translation>
-    </message>
-    <message>
         <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
@@ -2562,10 +2531,6 @@ Wollen sie den Text als Schlüsselworte für diese Notiz übernehmen?</translati
         <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
         <translation>Gefundene Anzahl für diese Phrase: in Suchziel/in ausgewähltem Text/in ganzer Bibel</translation>
-    </message>
-    <message>
-        <source>Number of Occurrences: 00000/00000/00000</source>
-        <translation type="obsolete">Gefundene Anzahl: 00000/00000/00000</translation>
     </message>
     <message>
         <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
@@ -3797,56 +3762,6 @@ Check Installation!</source>
     </message>
 </context>
 <context>
-    <name>CPhraseEditNavigator</name>
-    <message>
-        <source>Word:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">Wort:</translation>
-    </message>
-    <message>
-        <source>Phrase:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">Phrase:</translation>
-    </message>
-    <message>
-        <source>contains:</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">beinhaltet:</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Chapter(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Kapitel</numerusform>
-            <numerusform>%n Kapitel</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Verse(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Vers</numerusform>
-            <numerusform>%n Verse</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Word(s)</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Wort</numerusform>
-            <numerusform>%n Worte</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n Word(s) Selected</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">
-            <numerusform>%n Wort ausgewählt</numerusform>
-            <numerusform>%n Worte ausgewäht</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>CPhraseLineEdit</name>
     <message>
         <location filename="../KJVSearchPhraseEdit.cpp" line="101"/>
@@ -4298,25 +4213,25 @@ man sie gewöhnlich in den Psalmen.</translation>
 <context>
     <name>CTranslator</name>
     <message>
-        <location filename="../Translator.cpp" line="90"/>
+        <location filename="../Translator.cpp" line="99"/>
         <source>English</source>
         <comment>languageNames</comment>
         <translation>Englisch</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="92"/>
+        <location filename="../Translator.cpp" line="101"/>
         <source>French</source>
         <comment>languageNames</comment>
         <translation>Französisch</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="94"/>
+        <location filename="../Translator.cpp" line="103"/>
         <source>Spanish</source>
         <comment>languageNames</comment>
         <translation>Spanisch</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="96"/>
+        <location filename="../Translator.cpp" line="105"/>
         <source>German</source>
         <comment>languageNames</comment>
         <translation>Deutsch</translation>
@@ -5571,20 +5486,10 @@ Normal-&gt;Relative-&gt;Normal:
         <translation>Superscription</translation>
     </message>
     <message>
-        <source>%1 of %2 of %3 %4</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">%1 von %2 von %3 %4</translation>
-    </message>
-    <message>
         <location filename="../dbstruct.cpp" line="935"/>
         <source>Word/Phrase:</source>
         <comment>Statistics</comment>
         <translation>Wort/Phrase:</translation>
-    </message>
-    <message>
-        <source>%1 of %2 of %3 %4:%5</source>
-        <comment>Statistics</comment>
-        <translation type="obsolete">%1 von %2 von %3 %4:%5</translation>
     </message>
     <message>
         <location filename="../dbstruct.cpp" line="961"/>

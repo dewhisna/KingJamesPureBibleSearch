@@ -286,10 +286,6 @@
         <translation>Lista de Referencias:</translation>
     </message>
     <message>
-        <source>Search Results References:</source>
-        <translation type="obsolete">Resultados de la Búsqueda Referencias:</translation>
-    </message>
-    <message>
         <location filename="../ConfigCopyOptions.ui" line="486"/>
         <source>Occurrence Counts:</source>
         <translation>Conde de ocurrencias:</translation>
@@ -4217,25 +4213,25 @@ el libro de los Salmos.</translation>
 <context>
     <name>CTranslator</name>
     <message>
-        <location filename="../Translator.cpp" line="90"/>
+        <location filename="../Translator.cpp" line="99"/>
         <source>English</source>
         <comment>languageNames</comment>
         <translation>Inglés</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="92"/>
+        <location filename="../Translator.cpp" line="101"/>
         <source>French</source>
         <comment>languageNames</comment>
         <translation>Francés</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="94"/>
+        <location filename="../Translator.cpp" line="103"/>
         <source>Spanish</source>
         <comment>languageNames</comment>
         <translation>Español</translation>
     </message>
     <message>
-        <location filename="../Translator.cpp" line="96"/>
+        <location filename="../Translator.cpp" line="105"/>
         <source>German</source>
         <comment>languageNames</comment>
         <translation>Alemán</translation>
@@ -5048,7 +5044,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../BuildDB.cpp" line="1232"/>
         <source>Exclude</source>
         <comment>BuildDB</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Excluir</translation>
     </message>
     <message>
         <location filename="../BuildDB.cpp" line="1232"/>
