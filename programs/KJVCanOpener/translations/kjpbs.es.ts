@@ -636,7 +636,7 @@
     <message>
         <location filename="../DictionaryWidget.ui" line="105"/>
         <source>Go Backward in the Word History</source>
-        <translation>Ir hacia atrás en la historia de Palabras</translation>
+        <translation>Ir hacia atrás en la Historia de Palabras</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.ui" line="116"/>
@@ -744,7 +744,7 @@
         <location filename="../DictionaryWidget.cpp" line="267"/>
         <source>Select All Text in the Dictionary Definition</source>
         <comment>MainMenu</comment>
-        <translation>Seleccionar todo el texto en la  Definición del Diccionario</translation>
+        <translation>Seleccionar todo el texto en la Definición del Diccionario</translation>
     </message>
     <message>
         <location filename="../DictionaryWidget.cpp" line="273"/>
@@ -775,7 +775,7 @@
     <message>
         <location filename="../EditWWWLinkDlg.ui" line="34"/>
         <source>Enter WWW &amp;Hyperlink:</source>
-        <translation>Introduce &amp;hipervínculo WWW:</translation>
+        <translation>Introduce &amp;Hipervínculo WWW:</translation>
     </message>
 </context>
 <context>
@@ -784,13 +784,13 @@
         <location filename="../Highlighter.cpp" line="433"/>
         <source>&amp;Highlight/Unhighlight Verse (Search Results) with Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Resaltar Versos (Resultados de la Búsqueda) con la herramienta #%1</translation>
+        <translation>&amp;Resaltar Versos (Resultados de la Búsqueda) con la Herramienta #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="435"/>
         <source>&amp;Highlight/Unhighlight Passage with Tool #%1</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Resaltar pasaje con la herramienta de Resaltador #%1</translation>
+        <translation>&amp;Resaltar pasaje con la Herramienta Resaltador #%1</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="442"/>
@@ -802,7 +802,7 @@
         <location filename="../Highlighter.cpp" line="444"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
-        <translation>Ctrl+Clic, para resaltar sólo el texto de los Resultados de Búsqueda</translation>
+        <translation>Ctrl+Clic, para resaltar sólo el Texto de los Resultados de Búsqueda</translation>
     </message>
     <message>
         <location filename="../Highlighter.cpp" line="448"/>
@@ -1311,7 +1311,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="573"/>
         <source>Show Missing Books and/or Chapters in the Tree (ones that had no matching Search Results)</source>
         <comment>MainMenu</comment>
-        <translation>Mostrar Faltan libros y / o capítulos en el árbol (los que no tenían que coinciden Resultados de la Búsqueda)</translation>
+        <translation>Mostrar Faltan Libros y / o Capítulos en el árbol (los que no tenían que coinciden Resultados de la Búsqueda)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="579"/>
@@ -1396,7 +1396,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="635"/>
         <source>Goto the very Beginning of the Bible</source>
         <comment>MainMenu</comment>
-        <translation>Ir al comienzo de la Biblia</translation>
+        <translation>Ir al Comienzo de la Biblia</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="637"/>
@@ -1408,7 +1408,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="638"/>
         <source>Goto the very End of the Bible</source>
         <comment>MainMenu</comment>
-        <translation>Ir a la final de la Biblia</translation>
+        <translation>Ir a la Final de la Biblia</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="640"/>
@@ -1450,7 +1450,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="649"/>
         <source>Chapter Forward</source>
         <comment>MainMenu</comment>
-        <translation>Siguiente capítulo</translation>
+        <translation>Siguiente Capítulo</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="650"/>
@@ -1469,7 +1469,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="2416"/>
         <source>Go Backward in Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Ir hacia atrás en el historial de navegación</translation>
+        <translation>Ir hacia atrás en el Historia de Navegación</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="666"/>
@@ -1482,7 +1482,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="2424"/>
         <source>Go Forward in Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Ir avanzando en la historia de navegación</translation>
+        <translation>Ir avanzando en la Historia de Navegación</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="676"/>
@@ -1500,13 +1500,13 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="681"/>
         <source>&amp;Clear Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Borrar el historial de navegación</translation>
+        <translation>&amp;Borrar el Historia de Navegación</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="683"/>
         <source>Clear All Passage Navigation History</source>
         <comment>MainMenu</comment>
-        <translation>Borrar todo Historial de Pasajes de Navegación</translation>
+        <translation>Borrar todo Historia de Pasajes de Navegación</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="695"/>
@@ -1706,7 +1706,7 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
         <location filename="../KJVCanOpener.cpp" line="1287"/>
         <source>Check File existence and Program Settings!</source>
         <comment>Errors</comment>
-        <translation>Verificar la existencia del archivo y de la configuración de la programa!</translation>
+        <translation>Verifique la existencia del archivo y de la configuración de la programa!</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1297"/>
@@ -1775,7 +1775,7 @@ Haga clic en &quot;Cancelar&quot; para volver a la King James Pure Bible Search.
         <location filename="../KJVCanOpener.cpp" line="1656"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>Archivo de King James Notas (*.kjn)</translation>
+        <translation>Archivos de King James Notas (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1668"/>
@@ -1802,7 +1802,7 @@ Haga clic en &apos;Cancelar&apos; para volver a la King James Pure Bible Search.
         <location filename="../KJVCanOpener.cpp" line="1806"/>
         <source>KJV Search Files (*.kjs)</source>
         <comment>FileFilters</comment>
-        <translation>Archivo de King James Search (*.kjs)</translation>
+        <translation>Archivos de King James Search (*.kjs)</translation>
     </message>
     <message>
         <location filename="../KJVCanOpener.cpp" line="1788"/>
@@ -2149,7 +2149,7 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVLocaleConfig.ui" line="39"/>
         <source>Application &amp;Language:</source>
-        <translation>&amp;Idioma de la aplicación:</translation>
+        <translation>&amp;Idioma de la Aplicación:</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2753"/>
@@ -2193,18 +2193,18 @@ Do you wish to restart the app??</source>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="106"/>
         <source>Insert Reference Link</source>
-        <translation>Insertar una Referencia Enlace</translation>
+        <translation>Insertar una Referencia Hipervínculo</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="109"/>
         <source>Insert Scripture Reference Link</source>
-        <translation>Insertar Enlace Referencia Escrituras</translation>
+        <translation>Insertar Hipervínculo Referencia Escrituras</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.ui" line="249"/>
         <location filename="../KJVNoteEditDlg.ui" line="252"/>
         <source>Insert WWW Link</source>
-        <translation>Insertar Enlace WWW</translation>
+        <translation>Insertar Hipervínculo WWW</translation>
     </message>
     <message>
         <location filename="../KJVNoteEditDlg.cpp" line="121"/>
@@ -2818,7 +2818,7 @@ Do you wish to set them as valid keywords for this note?</source>
         <location filename="../KJVSearchResult.cpp" line="1627"/>
         <source>within</source>
         <comment>Statistics</comment>
-        <translation>dentro</translation>
+        <translation>dentro de</translation>
     </message>
     <message numerus="yes">
         <location filename="../KJVSearchResult.cpp" line="1581"/>
@@ -2941,15 +2941,15 @@ Do you wish to set them as valid keywords for this note?</source>
         <source>Search of %n Phrase(s) %1 within %2</source>
         <comment>Statistics</comment>
         <translation>
-            <numerusform>Búsqueda de %n Frase %1 dentro %2</numerusform>
-            <numerusform>Búsqueda de %n Frases %1 dentro %2</numerusform>
+            <numerusform>Búsqueda de %n Frase %1 dentro de %2</numerusform>
+            <numerusform>Búsqueda de %n Frases %1 dentro de %2</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../KJVSearchSpec.cpp" line="483"/>
         <source>Search within %1 of:</source>
         <comment>Statistics</comment>
-        <translation>Búsqueda dentro %1 de:</translation>
+        <translation>Búsqueda dentro de %1 de:</translation>
     </message>
     <message numerus="yes">
         <location filename="../KJVSearchSpec.cpp" line="487"/>
@@ -3398,7 +3398,7 @@ Haga clic en &quot;Cancelar&quot; para volver a la King James Pure Bible Search.
         <location filename="../KJVConfiguration.cpp" line="1565"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>Archivo de King James Notas (*.kjn)</translation>
+        <translation>Archivos de King James Notas (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1576"/>
@@ -3432,7 +3432,7 @@ Haga clic en &quot;Cancelar&quot; para volver a la King James Pure Bible Search.
         <location filename="../KJVConfiguration.cpp" line="1607"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
-        <translation>Archivo de King James Notas (*.kjn)</translation>
+        <translation>Archivos de King James Notas (*.kjn)</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="1634"/>
@@ -3549,7 +3549,7 @@ Check Installation!</source>
         <comment>Errors</comment>
         <translation>Error al Leer y Validar la base de datos Diccionario!
 %1
-Verificar la Instalación!</translation>
+Verifique la Instalación!</translation>
     </message>
 </context>
 <context>
@@ -4495,7 +4495,7 @@ arrástrelos al resaltador que desee y soltarlos.</translation>
         <location filename="../VerseListModel.cpp" line="836"/>
         <source>Search Scope is: %1 within %2</source>
         <comment>Statistics</comment>
-        <translation>Ámbito de Búsqueda es: %1 dentro %2</translation>
+        <translation>Ámbito de Búsqueda es: %1 dentro de %2</translation>
     </message>
     <message>
         <location filename="../VerseListModel.cpp" line="838"/>
@@ -4556,7 +4556,7 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
         <location filename="../QtFindReplaceDialog/dialogs/finddialog.cpp" line="13"/>
         <source>Find</source>
         <comment>FindDialog</comment>
-        <translation>Encontrar</translation>
+        <translation>Buscar</translation>
     </message>
 </context>
 <context>
@@ -4564,7 +4564,7 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplacedialog.ui" line="14"/>
         <source>Find/Replace</source>
-        <translation>Encontrar/Reemplazar</translation>
+        <translation>Buscar/Reemplazar</translation>
     </message>
 </context>
 <context>
@@ -4577,7 +4577,7 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="26"/>
         <source>Fi&amp;nd:</source>
-        <translation>E&amp;ncontrar:</translation>
+        <translation>Busca&amp;r:</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="39"/>
@@ -4597,12 +4597,12 @@ Are you sure you wish to move the selected verse highlighting to &quot;%1&quot;?
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="71"/>
         <source>&amp;Down</source>
-        <translation>A&amp;bajo</translation>
+        <translation>A&amp;nterior</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="81"/>
         <source>&amp;Up</source>
-        <translation>&amp;Hacia Arriba</translation>
+        <translation>Si&amp;guiente</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="91"/>
@@ -4646,7 +4646,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="143"/>
         <source>&amp;Find</source>
-        <translation>&amp;Encontrar</translation>
+        <translation>&amp;Buscar</translation>
     </message>
     <message>
         <location filename="../QtFindReplaceDialog/dialogs/findreplaceform.ui" line="150"/>
@@ -5663,7 +5663,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="178"/>
         <source>Copy the Word/Phrase Reference Details in the passage browser to the clipboard</source>
         <comment>MainMenu</comment>
-        <translation>Copiar la palabra / frase Detalles de Referencia del texto en el navegador pasaje en el portapapeles</translation>
+        <translation>Copiar la Palabra / Frase Detalles de Referencia del texto en el navegador pasaje en el portapapeles</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="179"/>
@@ -5699,13 +5699,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="185"/>
         <source>Select all current passage browser text</source>
         <comment>MainMenu</comment>
-        <translation>Selecciona todo el texto actual del navegador pasaje</translation>
+        <translation>Seleccionar todo el texto actual del navegador pasaje</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="188"/>
         <source>&amp;Find...</source>
         <comment>MainMenu</comment>
-        <translation>&amp;Encontrar...</translation>
+        <translation>&amp;Buscar...</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="189"/>
@@ -5717,7 +5717,7 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="191"/>
         <source>Find &amp;Next</source>
         <comment>MainMenu</comment>
-        <translation>Enco&amp;ntrar Tras</translation>
+        <translation>Buscar Si&amp;guiente</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="192"/>
@@ -5729,13 +5729,13 @@ Normal-&gt;Relative-&gt;Normal:
         <location filename="../ScriptureEdit.cpp" line="194"/>
         <source>Find &amp;Previous</source>
         <comment>MainMenu</comment>
-        <translation>Encontrar &amp;Previa</translation>
+        <translation>Buscar &amp;Anterior</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="195"/>
         <source>Find previous occurrence of text within the passage browser</source>
         <comment>MainMenu</comment>
-        <translation>Encontrar ocurrencia previa de este texto en el navegador pasaje</translation>
+        <translation>Buscar ocurrencia previa de este texto en el navegador pasaje</translation>
     </message>
     <message>
         <location filename="../ScriptureEdit.cpp" line="211"/>
@@ -5872,7 +5872,7 @@ Check Installation!</source>
         <comment>Errors</comment>
         <translation>Error al Leer y Validar la base de datos Diccionario!
 %1
-Verificar la Instalación!</translation>
+Verifique la Instalación!</translation>
     </message>
 </context>
 <context>
