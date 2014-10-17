@@ -680,6 +680,8 @@ macx {
 			} else {
 				error("Can't deploy Qt Framework bundle!")
 			}
+
+			# Copy in the Info.plist files to the Resources folders
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtCore.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtGui.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtNetwork.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources/$$escape_expand(\\n\\t))
@@ -688,6 +690,47 @@ macx {
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtWidgets.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtXml.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources/$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/wwwidgets4.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources/$$escape_expand(\\n\\t))
+
+			# Now, move the Resources folders to the correct location
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Versions/1/$$escape_expand(\\n\\t))
+
+			# Now, create symbolic links for the "Current" version:
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s $${QT_MAJOR_VERSION} KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Versions/Current$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s 1 KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Versions/Current$$escape_expand(\\n\\t))
+
+			# Create the top level symbolic links for "Resources":
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources$$escape_expand(\\n\\t))
+
+			# Create the top level symbolic links for Framework Executables:
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtCore KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/QtCore$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtGui KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/QtGui$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtNetwork KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/QtNetwork$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtPrintSupport KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/QtPrintSupport$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtSql KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/QtSql$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtWidgets KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/QtWidgets$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtXml KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/QtXml$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/wwwidgets4 KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/wwwidgets4$$escape_expand(\\n\\t))
+
 			QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle$$escape_expand(\\n\\t))
 		}
 	}

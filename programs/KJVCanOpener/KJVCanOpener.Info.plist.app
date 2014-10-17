@@ -17,7 +17,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.education</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>3.0.0</string>
 	<key>CFBundleShortVersionString</key>
 	<string>3.0.0</string>
 	<key>CFBundleIdentifier</key>
