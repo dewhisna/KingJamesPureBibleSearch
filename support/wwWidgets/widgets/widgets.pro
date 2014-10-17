@@ -67,7 +67,12 @@ DISTFILES += ../TODO
 CONFIG += precompile_header
 PRECOMPILED_HEADER = stable.h
 
-TRANSLATIONS = ../translations/wwwidgets_pl.ts
+TRANSLATIONS = ../translations/wwwidgets_pl.ts \
+				../translations/wwwidgets_en.ts \
+				../translations/wwwidgets_fr.ts \
+				../translations/wwwidgets_es.ts \
+				../translations/wwwidgets_de.ts
+
 DISTFILES += ../translations/*.qm
 
 

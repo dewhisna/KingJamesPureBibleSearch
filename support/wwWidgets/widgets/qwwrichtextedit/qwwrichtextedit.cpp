@@ -85,25 +85,25 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
     foreach(int s, QFontDatabase::standardSizes())
     fsp->addItem(QString::number(s));
 
-	m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(rsrcPath + "/textbold.png")), "Bold", this);
+	m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(rsrcPath + "/textbold.png")), tr("Bold"), this);
     m_actions[BoldAction]->setCheckable(true);
     tb->addAction(m_actions[BoldAction]);
     connect(m_actions[BoldAction], SIGNAL(triggered(bool)), this, SLOT(setBold(bool)));
-	m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QIcon(rsrcPath + "/textitalic.png")), "Italic", this);
+	m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QIcon(rsrcPath + "/textitalic.png")), tr("Italic"), this);
     m_actions[ItalicAction]->setCheckable(true);
     tb->addAction(m_actions[ItalicAction]);
 
     connect(m_actions[ItalicAction], SIGNAL(triggered(bool)), this, SLOT(setItalic(bool)));
-	m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QIcon(rsrcPath + "/textunder.png")), "Underline", this);
+	m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QIcon(rsrcPath + "/textunder.png")), tr("Underline"), this);
     m_actions[UnderlineAction]->setCheckable(true);
     tb->addAction(m_actions[UnderlineAction]);
 
     cB = tb->addSeparator();
     connect(m_actions[UnderlineAction], SIGNAL(triggered(bool)), this, SLOT(setUnderline(bool)));
-	al = new QAction(wwWidgets::icon("format-justify-left", QIcon(rsrcPath + "/textleft.png")), "Align left", this);
-	ar = new QAction(wwWidgets::icon("format-justify-right", QIcon(rsrcPath + "/textright.png")), "Align right", this);
-	ac = new QAction(wwWidgets::icon("format-justify-center", QIcon(rsrcPath + "/textcenter.png")), "Center", this);
-	aj = new QAction(wwWidgets::icon("format-justify-fill", QIcon(rsrcPath + "/textjustify.png")), "Justify", this);
+	al = new QAction(wwWidgets::icon("format-justify-left", QIcon(rsrcPath + "/textleft.png")), tr("Align left"), this);
+	ar = new QAction(wwWidgets::icon("format-justify-right", QIcon(rsrcPath + "/textright.png")), tr("Align right"), this);
+	ac = new QAction(wwWidgets::icon("format-justify-center", QIcon(rsrcPath + "/textcenter.png")), tr("Center"), this);
+	aj = new QAction(wwWidgets::icon("format-justify-fill", QIcon(rsrcPath + "/textjustify.png")), tr("Justify"), this);
     QActionGroup *alignmentGroup = new QActionGroup(this);
     al->setCheckable(true);
     ar->setCheckable(true);
@@ -121,7 +121,7 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
 
     connect(alignmentGroup, SIGNAL(triggered(QAction *)), this, SLOT(changeAlignment(QAction*)));
 
-	li = new QAction(wwWidgets::icon("format-list-unordered", QIcon(rsrcPath + "/list-unordered.png")), "List", this);
+	li = new QAction(wwWidgets::icon("format-list-unordered", QIcon(rsrcPath + "/list-unordered.png")), tr("List"), this);
     tb->addAction(li);
     li->setCheckable(true);
     connect(li, SIGNAL(toggled(bool)), this, SLOT(setList(bool)));
