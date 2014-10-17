@@ -58,6 +58,8 @@ CTranslator::CTranslator(const QString &strLangName, const QString &strTranslati
 {
 	m_bLoaded = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
 	if (m_bLoaded) {
+		m_translatorwwWidgets.load(m_locale, "wwwidgets", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+
 		// Note: Qt5 is moving toward using individual component translations with a main qt_XX.qm file that delegates
 		//		to the submodules.  However, they have only done this migration for DE, not ES or FR.  Also, we don't
 		//		really want to include all of the submodule translations since we aren't even using them (why ship
@@ -148,6 +150,7 @@ bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 {
 	if (!m_pCurrentTranslator.isNull()) {
 		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorApp());
+		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorwwWidgets());
 		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorQt());
 	}
 
@@ -160,6 +163,7 @@ bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 	if (m_pCurrentTranslator.isNull()) return false;
 
 	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorQt());
+	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorwwWidgets());
 	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorApp());
 	return true;
 }

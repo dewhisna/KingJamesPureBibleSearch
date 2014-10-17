@@ -266,6 +266,15 @@ greaterThan(QT_MAJOR_VERSION,4) {
 		# English is native and doesn't have a separate translation file
 }
 
+# wwWidgets Translation Files:
+# Define these in a new name so that lupdate, etc, won't pick them up, since they
+#	aren't part of this project (they are built via the wwWidgets4 project):
+	TRANSLATIONS_WWWIDGETS4_QM += \
+		$$[QT_INSTALL_TRANSLATIONS]/wwwidgets_en.qm \
+		$$[QT_INSTALL_TRANSLATIONS]/wwwidgets_fr.qm \
+		$$[QT_INSTALL_TRANSLATIONS]/wwwidgets_es.qm \
+		$$[QT_INSTALL_TRANSLATIONS]/wwwidgets_de.qm
+
 
 SOURCES += \
 	main.cpp \
@@ -470,6 +479,9 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		for(f, TRANSLATIONS_QT):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
 		for(f, TRANSLATIONS_QT):translation_source.files += $$quote($${PWD}/$$f)
 	}
+	!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
+		translationDeploy.files += $$TRANSLATIONS_WWWIDGETS4_QM
+	}
 	exists($$[QT_INSTALL_BINS]/lrelease) {
 		translation_build.output = $$translationDeploy.files
 		translation_build.target = $$translationDeploy.files
@@ -483,6 +495,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		POST_TARGETDEPS +=  $$translation_source.files
 #		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
 		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		for(f, TRANSLATIONS_WWWIDGETS4_QM):QMAKE_POST_LINK += $$quote(cp $$f ../../KJVCanOpener/translations/$$basename(f) $$escape_expand(\\n\\t))
 	} else {
 		message("Can't build translations!  Using previously built translations if possible")
 	}
@@ -491,7 +504,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 #		QMAKE_POST_LINK += $$quote(cp $$translationDeploy.files $$translationDeploy.path$$escape_expand(\\n\\t))
 	}
 	#INSTALLS += translationDeploy
-	message("Deploying translations:" $$TRANSLATIONS$$TRANSLATIONS_QT$$escape_expand(\\n))
+	message("Deploying translations:" $$TRANSLATIONS$$TRANSLATIONS_QT$$TRANSLATIONS_WWWIDGETS4_QM$$escape_expand(\\n))
 }
 
 ###############################################################################

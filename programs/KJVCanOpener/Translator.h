@@ -51,6 +51,7 @@ public:
 	QString nativeLanguageName() const;							// Translated name for translator in currently selected local (via TR)
 
 	QTranslator &translatorApp() { return m_translatorApp; }
+	QTranslator &translatorwwWidgets() { return m_translatorwwWidgets; }
 	QTranslator &translatorQt() { return m_translatorQt; }
 	QLocale &locale() { return m_locale; }
 	bool isLoaded() const { return m_bLoaded; }
@@ -58,6 +59,7 @@ public:
 private:
 	QString m_strLangName;
 	QTranslator m_translatorApp;
+	QTranslator m_translatorwwWidgets;
 	QTranslator m_translatorQt;
 	QLocale m_locale;
 	bool m_bLoaded;
