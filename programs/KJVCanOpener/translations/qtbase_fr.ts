@@ -1380,8 +1380,18 @@ en
         <translation>Canal a&amp;lpha : </translation>
     </message>
     <message>
+        <source>Cursor at %1, %2, color: %3
+Press ESC to cancel</source>
+        <translation>Curseur à %1, %2, couleur: %3
+Appuyez sur ESC pour annuler</translation>
+    </message>
+    <message>
         <source>Select Color</source>
         <translation>Sélectionner une couleur</translation>
+    </message>
+    <message>
+        <source>Pick Screen Color</source>
+        <translation>Choisir une Couleur de l&apos;Écran</translation>
     </message>
     <message>
         <source>&amp;Basic colors</source>
@@ -2587,14 +2597,14 @@ en
     </message>
 </context>
 <context>
-	<name>QDialogButtonBox</name>
-	<message>
-		<source>OK</source>
-		<translation>OK</translation>
-	</message>
+    <name>QDialogButtonBox</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
 </context>
 <context>
-	<name>QPlatformTheme</name>
+    <name>QPlatformTheme</name>
     <message>
         <source>OK</source>
         <translation>OK</translation>

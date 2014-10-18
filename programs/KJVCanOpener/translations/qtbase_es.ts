@@ -1037,9 +1037,19 @@ a
         <translation>Canal a&amp;lfa:</translation>
     </message>
     <message>
+        <source>Cursor at %1, %2, color: %3
+Press ESC to cancel</source>
+        <translation>Cursor en %1, %2, color: %3
+Pulse ESC para cancelar</translation>
+    </message>
+    <message>
         <location line="+101"/>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar Color</translation>
+    </message>
+    <message>
+        <source>Pick Screen Color</source>
+        <translation>Escoger un Color de la Pantalla</translation>
     </message>
     <message>
         <location line="+137"/>
@@ -1230,14 +1240,14 @@ a
     </message>
 </context>
 <context>
-	<name>QDialogButtonBox</name>
-	<message>
-		<source>OK</source>
-		<translation>OK</translation>
-	</message>
+    <name>QDialogButtonBox</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
 </context>
 <context>
-	<name>QPlatformTheme</name>
+    <name>QPlatformTheme</name>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.cpp" line="+1866"/>
         <location line="+464"/>
@@ -6357,7 +6367,6 @@ Elija un nombre de fichero diferente.</translation>
         <comment>number of chosen file</comment>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -7281,14 +7290,12 @@ Elija un nombre de fichero diferente.</translation>
         <source>%1 takes at most %n argument(s). %2 is therefore invalid.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+11"/>
         <source>%1 requires at least %n argument(s). %2 is therefore invalid.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
