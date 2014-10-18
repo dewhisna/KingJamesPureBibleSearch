@@ -21,7 +21,7 @@
 ;**
 ;****************************************************************************
 
-#define EXTRAVERSION "Preview2"
+;#define EXTRAVERSION "Preview2"
 #include "..\InnoSetup\version.iss"
 
 [Languages]
@@ -178,10 +178,16 @@ Source: ".\winbuild\KJVCanOpener\translations\kjpbs.en.qm"; DestDir: "{app}\KJVC
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\kjpbs.de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: ".\winbuild\KJVCanOpener\translations\qt_es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: ".\winbuild\KJVCanOpener\translations\qt_fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
-Source: ".\winbuild\KJVCanOpener\translations\qt_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: ".\winbuild\KJVCanOpener\translations\qt_es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: ".\winbuild\KJVCanOpener\translations\qt_fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+;Source: ".\winbuild\KJVCanOpener\translations\qt_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\qtbase_es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\qtbase_fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\translations\qtbase_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\wwwidgets_en.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\wwwidgets_es.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\wwwidgets_fr.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\translations\wwwidgets_de.qm"; DestDir: "{app}\KJVCanOpener\translations"; Flags: ignoreversion;
 
 [Registry]
 Root: HKCR; Subkey: ".kjs"; ValueType: string; ValueName: ""; ValueData: "KJVCanOpener"; Flags: uninsdeletevalue;
