@@ -29,6 +29,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QDesktopWidget>
+#include <QPointer>
 #include "colormodel.h"
 
 /**
@@ -159,7 +160,7 @@ public:
         return QSize(fit*16+margin+scExt+1, 16*12+margin+30);
 
     }
-    QwwColorPopup *popup;
+	QPointer<QwwColorPopup> popup;
     ColorModel *model;
     bool showName;
     QColor curCol;
@@ -170,22 +171,22 @@ public:
 
     void _q_clicked() {
         Q_Q(QwwColorButton);
-        if (!popup) {
+		if (popup.isNull()) {
             popup = new QwwColorPopup(model, q);
             q->connect(popup->colorView(), SIGNAL(clicked(const QModelIndex&)), q, SLOT(_q_activated(const QModelIndex&)));
-        }
-        QPoint p = q->rect().bottomLeft();
-        p = q->mapToGlobal(p);
-        QRect avail = QDesktopWidget().availableGeometry();
-        int hei = avail.height()-p.y();
-        popup->move(p);
-        QSize hint = sizeHint();
-        if(hint.height()>hei)
-            hint.setHeight(hei);
-        popup->setFixedSize(hint);
+			QPoint p = q->rect().bottomLeft();
+			p = q->mapToGlobal(p);
+			QRect avail = QDesktopWidget().availableGeometry();
+			int hei = avail.height()-p.y();
+			popup->move(p);
+			QSize hint = sizeHint();
+			if ((hint.height()>hei) && (hei > 0))
+				hint.setHeight(hei);
+			popup->setFixedSize(hint);
+		}
 #if !defined(QT_NO_EFFECTS)
         if(qApp->isEffectEnabled(Qt::UI_AnimateCombo))
-            qScrollEffect(popup, QEffects::DownScroll);
+			qScrollEffect(popup.data(), QEffects::DownScroll);
         else
 #endif
             popup->show();
@@ -194,7 +195,7 @@ public:
 
     void _q_activated(const QModelIndex &ind) {
         Q_Q(QwwColorButton);
-        if (popup)
+		if (!popup.isNull())
             popup->hide();
         QColor c = qvariant_cast<QColor>(ind.data(Qt::DecorationRole));
         curCol = c;
@@ -208,7 +209,7 @@ public:
             q->setText(ind.data(Qt::ToolTipRole).toString());
         if(c.isValid())
             emit q->colorPicked(c);
-        if(popup)
+		if(!popup.isNull())
             popup->colorView()->setCurrentIndex(ind);
     }
 
@@ -226,8 +227,9 @@ public:
     }
 
     void _q_setCurrentIndex(const QModelIndex &index) {
-
-        popup->colorView()->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+		if (!popup.isNull()) {
+			popup->colorView()->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+		}
     }
 };
 
