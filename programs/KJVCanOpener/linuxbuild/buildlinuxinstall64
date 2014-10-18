@@ -97,9 +97,19 @@ makeit: clean
 	cp $(BASE)/articles/kjv_stats.xls $(RPMPKGROOT)/$(INST)/KJVCanOpener/doc/
 	cp $(BASE)/examples/*.kjs $(RPMPKGROOT)/$(INST)/KJVCanOpener/examples/
 #	cp $(BASE)/translations/*.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/kjpbs.de.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
 	cp $(BASE)/translations/kjpbs.en.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/kjpbs.es.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/kjpbs.fr.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/qt_de.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/qt_es.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/qt_fr.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/wwwidgets_de.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/wwwidgets_en.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/wwwidgets_es.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
+	cp $(BASE)/translations/wwwidgets_fr.qm $(RPMPKGROOT)/$(INST)/KJVCanOpener/translations/
 	cp $(BASE)/db/bbl-kjv1769.ccdb $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
-	cp $(BASE)/db/bbl-rvg2010.ccdb $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
+	cp $(BASE)/db/bbl-rvg2010-20140705.ccdb $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/db/dct-web1828.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/db/dct-web1913.s3db $(RPMPKGROOT)/$(INST)/KJVCanOpener/db/
 	cp $(BASE)/gpl-3.0.txt $(RPMPKGROOT)/$(INST)/KJVCanOpener/license/

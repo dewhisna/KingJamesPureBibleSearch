@@ -621,7 +621,7 @@ macx {
 		nibDeploy.files += $$[QT_INSTALL_PREFIX]/src/gui/mac/qt_menu.nib/keyedobjects.nib
 		nibDeploy.path = /Contents/Resources/qt_menu.nib
 		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
-		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
+		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010-20140705.ccdb
 		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
 		dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1913.s3db
 		dbDeploy.path = /Contents/Resources/db
@@ -761,7 +761,7 @@ win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 	WINBUILD = $${PWD}/winbuild
 
 	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
-	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010.ccdb
+	dbDeploy.files +=  ../../KJVCanOpener/db/bbl-rvg2010-20140705.ccdb
 	dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1828.s3db
 	dbDeploy.files +=  ../../KJVCanOpener/db/dct-web1913.s3db
 	dbDeploy.path = $${WINBUILD}/KJVCanOpener/db

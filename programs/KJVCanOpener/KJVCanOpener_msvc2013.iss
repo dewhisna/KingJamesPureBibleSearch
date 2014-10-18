@@ -59,6 +59,8 @@ Name: quicklaunchicon; Description: {cm:CreateQuickLaunchIcon}; GroupDescription
 Type: files; Name: "{app}\KJVCanOpener\app\KJVCanOpener.exe";
 ; Remove obsolete kjvuser database:
 Type: files; Name: "{app}\KJVCanOpener\db\kjvuser.s3db";
+; Remove obsolete rvg2010 database (as they are now replaced by date-coded ones):
+Type: files; Name: "{app}\KJVCanOpener\db\bbl-rvg2010.ccdb";
 
 [Files]
 ; app
@@ -142,7 +144,7 @@ Source: ".\winbuild\KJVCanOpener\plugins\styles\qplastiquestyle.dll"; DestDir: "
 
 ; db
 Source: ".\winbuild\KJVCanOpener\db\bbl-kjv1769.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
-Source: ".\winbuild\KJVCanOpener\db\bbl-rvg2010.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
+Source: ".\winbuild\KJVCanOpener\db\bbl-rvg2010-20140705.ccdb"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\db\dct-web1828.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 Source: ".\winbuild\KJVCanOpener\db\dct-web1913.s3db"; DestDir: "{app}\KJVCanOpener\db"; Flags: ignoreversion;
 
