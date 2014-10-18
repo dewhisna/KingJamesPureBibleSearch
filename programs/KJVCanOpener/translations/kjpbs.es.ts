@@ -5889,7 +5889,7 @@ Verifique la Instalación!</translation>
         <location filename="../dbDescriptors.cpp" line="173"/>
         <source>Apocrypha/Deuterocanon</source>
         <comment>testament_names</comment>
-        <translation>Apócrifos/Deuterocanon</translation>
+        <translation>Apócrifos/Deuterocanónicos</translation>
     </message>
 </context>
 </TS>
