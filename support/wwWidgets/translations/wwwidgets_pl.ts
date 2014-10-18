@@ -90,13 +90,6 @@
     </message>
 </context>
 <context>
-    <name>QwwClearLineEdit</name>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Wyczyść</translation>
-    </message>
-</context>
-<context>
     <name>QwwClearLineEditPrivate</name>
     <message>
         <location filename="../widgets/qwwclearlineedit/qwwclearlineedit.cpp" line="33"/>
@@ -107,17 +100,19 @@
 <context>
     <name>QwwColorButton</name>
     <message>
-        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="357"/>
-        <source>Custom color</source>
-        <translation>Inny kolor</translation>
+        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="124"/>
+        <source>Other</source>
+        <translation type="unfinished">Inny</translation>
     </message>
-</context>
-<context>
-    <name>QwwColorButtonPrivate</name>
     <message>
         <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="219"/>
         <source>Choose color</source>
-        <translation>Wybierz kolor</translation>
+        <translation type="unfinished">Wybierz kolor</translation>
+    </message>
+    <message>
+        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="357"/>
+        <source>Custom color</source>
+        <translation>Inny kolor</translation>
     </message>
 </context>
 <context>
@@ -168,14 +163,6 @@
     </message>
 </context>
 <context>
-    <name>QwwColorPopup</name>
-    <message>
-        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="124"/>
-        <source>Other</source>
-        <translation>Inny</translation>
-    </message>
-</context>
-<context>
     <name>QwwFileChooser</name>
     <message>
         <location filename="../widgets/qwwfilechooser/qwwfilechooser.cpp" line="220"/>
@@ -194,29 +181,6 @@
         <location filename="../widgets/qwwfilechooser/qwwfilechooser.cpp" line="235"/>
         <source>Choose files</source>
         <translation>Wybierz pliki</translation>
-    </message>
-</context>
-<context>
-    <name>QwwListNavigator</name>
-    <message>
-        <source>First</source>
-        <translation type="obsolete">Pierwszy</translation>
-    </message>
-    <message>
-        <source>Go to first</source>
-        <translation type="obsolete">Idź do pierwszego</translation>
-    </message>
-    <message>
-        <source>Go to previous</source>
-        <translation type="obsolete">Idź do poprzedniego</translation>
-    </message>
-    <message>
-        <source>Go to next</source>
-        <translation type="obsolete">Idź do następnego</translation>
-    </message>
-    <message>
-        <source>Go to last</source>
-        <translation type="obsolete">Idź do ostatniego</translation>
     </message>
 </context>
 <context>
@@ -260,13 +224,6 @@
         <location filename="../widgets/qwwlistnavigator/qwwlistnavigator.cpp" line="76"/>
         <source>Go to last</source>
         <translation type="unfinished">Idź do ostatniego</translation>
-    </message>
-</context>
-<context>
-    <name>QwwResetLineEdit</name>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Przywróć domyślne</translation>
     </message>
 </context>
 <context>

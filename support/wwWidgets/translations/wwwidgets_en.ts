@@ -100,17 +100,19 @@
 <context>
     <name>QwwColorButton</name>
     <message>
-        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="357"/>
-        <source>Custom color</source>
-        <translation>Custom color</translation>
+        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="124"/>
+        <source>Other</source>
+        <translation>Other</translation>
     </message>
-</context>
-<context>
-    <name>QwwColorButtonPrivate</name>
     <message>
         <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="219"/>
         <source>Choose color</source>
         <translation>Choose color</translation>
+    </message>
+    <message>
+        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="357"/>
+        <source>Custom color</source>
+        <translation>Custom color</translation>
     </message>
 </context>
 <context>
@@ -158,14 +160,6 @@
         <location filename="../plugin/qwwcolorcomboboxiface.cpp" line="53"/>
         <source>Edit colors...</source>
         <translation>Edit colors...</translation>
-    </message>
-</context>
-<context>
-    <name>QwwColorPopup</name>
-    <message>
-        <location filename="../widgets/qwwcolorbutton/qwwcolorbutton.cpp" line="124"/>
-        <source>Other</source>
-        <translation>Other</translation>
     </message>
 </context>
 <context>

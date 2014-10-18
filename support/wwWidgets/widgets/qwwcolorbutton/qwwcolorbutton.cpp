@@ -121,7 +121,7 @@ public:
         QWidget::changeEvent(e);
     }
     void retranslateUi() {
-        button->setText(tr("Other"));
+		button->setText(QwwColorButton::tr("Other"));
     }
 
 private:
@@ -216,7 +216,7 @@ public:
     void _q_colorDialogRequested() {
         Q_Q(QwwColorButton);
 #if QT_VERSION >= 0x040500
-        QColor c = QColorDialog::getColor(q->currentColor(), q, q->tr("Choose color"), QColorDialog::ShowAlphaChannel);
+		QColor c = QColorDialog::getColor(q->currentColor(), q, QwwColorButton::tr("Choose color"), QColorDialog::ShowAlphaChannel);
 #else
         QColor c = QColorDialog::getColor(q->currentColor(), q);
 #endif
@@ -354,7 +354,7 @@ void QwwColorButton::setCurrentColor(const QColor & c) {
     QModelIndex ind = d->model->contains(c);
     if (!ind.isValid()) {
         QString stdName = wwFindStandardColorName(c);
-        addColor(c, stdName.isEmpty() ? tr("Custom color") : stdName);
+		addColor(c, stdName.isEmpty() ? QwwColorButton::tr("Custom color") : stdName);
         ind = d->model->index(d->model->rowCount()-1, 0);
     }
     d->_q_activated(ind);
