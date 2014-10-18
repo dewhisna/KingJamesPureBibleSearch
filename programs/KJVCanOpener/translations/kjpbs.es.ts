@@ -2468,13 +2468,13 @@ Do you wish to set them as valid keywords for this note?</source>
         <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
-        <translation>En cualquier parte del texto de Búsqueda Seleccionado (sin ámbito)</translation>
+        <translation>En cualquier parte del Texto Seleccionado (sin ámbito)</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="507"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
-        <translation>Juntos en el texto de Búsqueda Seleccionado</translation>
+        <translation>Juntos en el Texto Seleccionado</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="508"/>

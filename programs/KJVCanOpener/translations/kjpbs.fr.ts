@@ -2468,13 +2468,13 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
         <location filename="../KJVSearchCriteria.cpp" line="506"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
-        <translation>Partout dans la Sélection Recherche Texte (non-portée)</translation>
+        <translation>Partout dans le Texte Sélectionné (non-portée)</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="507"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
-        <translation>Ensemble, dans la Sélection Recherche Texte</translation>
+        <translation>Ensemble, dans le Texte Sélectionné</translation>
     </message>
     <message>
         <location filename="../KJVSearchCriteria.cpp" line="508"/>
