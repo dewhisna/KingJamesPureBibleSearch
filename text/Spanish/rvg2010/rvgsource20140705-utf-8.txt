@@ -1675,7 +1675,7 @@ Y los hijos de Coat: Amram, e Izhar, y Hebrón, y Uziel. Y los años de la vida 
 Y los hijos de Merari: Mahali y Musi: éstas son las familias de Leví por sus linajes.
 Y Amram tomó por esposa a Jocabed su tía, la cual le dio a luz a Aarón y a Moisés. Y los años de la vida de Amram fueron ciento treinta y siete años.
 Y los hijos de Izhar: Coré, y Nefeg y Zicri.
-Y los hijos de Uziel: Misael, B1757Elizafán y Zitri.
+Y los hijos de Uziel: Misael, y Elizafán y Zitri.
 Y tomó Aarón por esposa a Elisabet, hija de Aminadab, hermana de Naasón; la cual le dio a luz a Nadab, y a Abiú, y a Eleazar, y a Itamar.
 Y los hijos de Coré: Asir, y Elcana y Abiasaf; éstas son las familias de los coreítas.
 Y Eleazar, hijo de Aarón, tomó para sí esposa de las hijas de Futiel, la cual le dio a luz a Finees: Y éstas son las cabezas de los padres de los levitas por sus familias.
@@ -3042,7 +3042,7 @@ No os hagáis abominables con ningún animal que se arrastra, ni os contaminéis
 Pues que yo soy Jehová vuestro Dios, vosotros por tanto os santificaréis, y seréis santos, porque yo soy santo: así que no os contaminéis con ningún animal que se arrastra sobre la tierra.
 Porque yo soy Jehová, que os hago subir de la tierra de Egipto para ser vuestro Dios; seréis, pues, santos, porque yo soy santo.
 Ésta es la ley de los animales y de las aves, y de toda criatura que tiene vida que se mueve en las aguas; y de todo animal que se arrastra sobre la tierra;
-para hacer diferencia entre lo inmundo y lo limpio, y entre los animales que se pueden comer y los animales que no se pueden comer.B3348
+para hacer diferencia entre lo inmundo y lo limpio, y entre los animales que se pueden comer y los animales que no se pueden comer.
 Y Jehová habló a Moisés, diciendo:
 Habla a los hijos de Israel, diciendo: La mujer cuando concibiere y diere a luz a varón, será inmunda siete días; conforme a los días que está separada por su menstruación será inmunda.
 Y al octavo día se circuncidará la carne del prepucio del niño.
@@ -4287,7 +4287,7 @@ Así ofreceréis también vosotros ofrenda a Jehová de todos vuestros diezmos q
 De todos vuestros dones ofreceréis toda ofrenda a Jehová; de todo lo mejor de ellos ofreceréis la porción que ha de ser consagrada.
 Y les dirás: Cuando ofreciereis lo mejor de ellos, será contado a los levitas por fruto de la era, y como fruto del lagar.
 Y lo comeréis en cualquier lugar, vosotros y vuestra familia; pues es vuestra remuneración por vuestro ministerio en el tabernáculo de la congregación.
-Y cuando vosotros hubiereis ofrecido lo mejor de ello, no llevaréis pecado B4796por ello: y no habéis de contaminar las cosas santas de los hijos de Israel, y no moriréis.
+Y cuando vosotros hubiereis ofrecido lo mejor de ello, no llevaréis pecado por ello: y no habéis de contaminar las cosas santas de los hijos de Israel, y no moriréis.
 Y Jehová habló a Moisés y a Aarón, diciendo:
 Ésta es la ordenanza de la ley que Jehová ha prescrito, diciendo: Di a los hijos de Israel que te traigan una vaca alazana, perfecta, en la cual no haya falta, sobre la cual no se haya puesto yugo:
 Y la daréis a Eleazar el sacerdote, y él la sacará fuera del campamento, y la hará degollar en su presencia.
@@ -4926,7 +4926,7 @@ y aun con esto no creísteis a Jehová vuestro Dios,
 quien iba delante de vosotros por el camino, para buscaros el lugar donde habíais de acampar, con fuego de noche para mostraros el camino por donde debíais andar, y con nube de día.
 Y oyó Jehová la voz de vuestras palabras, y se enojó, y juró diciendo:
 Ciertamente ninguno de los hombres de esta mala generación, verá la buena tierra que juré daría a vuestros padres,
-excepto Caleb,B5221 hijo de Jefone; él la verá, y a él le daré la tierra que ha pisado, y a sus hijos; porque él ha seguido fielmente a Jehová.
+excepto Caleb, hijo de Jefone; él la verá, y a él le daré la tierra que ha pisado, y a sus hijos; porque él ha seguido fielmente a Jehová.
 También contra mí se enojó Jehová por causa de vosotros, y me dijo: Tampoco tú entrarás allá.
 Josué hijo de Nun, que está delante de ti, él entrará allá: anímale; porque él la hará heredar a Israel.
 Y vuestros chiquitos, de los cuales dijisteis serían por presa, y vuestros hijos que en aquel tiempo no sabían entre el bien y el mal, ellos entrarán allá, y a ellos la daré, y ellos la poseerán.
@@ -5019,7 +5019,7 @@ Y Él os anunció su pacto, el cual os mandó poner por obra, los diez mandamien
 A mí también me mandó Jehová en aquel tiempo a enseñaros los estatutos y derechos, para que los pusieseis por obra en la tierra a la cual pasáis para poseerla.
 Guardad, pues, mucho vuestras almas; pues ninguna figura visteis el día que Jehová habló con vosotros de en medio del fuego;
 para que no os corrompáis, y hagáis para vosotros escultura, imagen de figura alguna, efigie de varón o hembra,
-figura de algún animal que está en la tierra, figura de alguna ave alada que vuela+B5890 por el aire,
+figura de algún animal que está en la tierra, figura de alguna ave alada que vuela por el aire,
 figura de ningún [animal] que se arrastra sobre la tierra, figura de pez alguno que hay en el agua debajo de la tierra.
 No sea que alzando tus ojos al cielo, y viendo el sol y la luna y las estrellas, y todo el ejército del cielo, seas incitado, y te inclines a ellos, y les sirvas; porque Jehová tu Dios los ha concedido a todos los pueblos debajo de todos los cielos.
 Mas a vosotros Jehová os tomó, y os ha sacado del horno de hierro, de Egipto, para que le seáis por pueblo, por heredad, como en este día.
@@ -6208,7 +6208,7 @@ De allí pasaba a Asmón, y salía al arroyo de Egipto; y sale este término al 
 El término del oriente [es] el Mar Salado hasta el fin del Jordán. Y el término de la parte del norte, desde la bahía del mar, desde el fin del Jordán:
 y sube este término por Bet-hogla, y pasa del norte a Bet-araba, y de aquí sube este término a la piedra de Bohán, hijo de Rubén.
 Y torna a subir este término a Debir desde el valle de Acor; y al norte mira sobre Gilgal, que [está] delante de la subida de Adumín, la cual está al sur del arroyo; y pasa este término a las aguas de Ensemes, y sale a la fuente de Rogel:
-Y sube este término por el valle del hijo de Hinom al lado sur del jebuseo; ésta [es] Jerusalén. Luego sube este término por la cumbre del mo+B6944nte que [está] delante del valle de Hinom hacia el occidente, el cual [está] en el extremo del valle de los gigantes hacia el norte.
+Y sube este término por el valle del hijo de Hinom al lado sur del jebuseo; ésta [es] Jerusalén. Luego sube este término por la cumbre del monte que [está] delante del valle de Hinom hacia el occidente, el cual [está] en el extremo del valle de los gigantes hacia el norte.
 Y rodea este término desde la cumbre del monte hasta la fuente de las aguas de Neftoa, y sale a las ciudades del monte de Efrón, rodeando luego el mismo término a Baala, la cual [es] Quiriat-jearim.
 Y este límite rodeaba desde Baala hacia el occidente al monte de Seir; y pasa al lado del monte de Jearim hacia el norte, ésta [es] Quesalón, y desciende a Bet-semes, y pasa a Timna.
 Sale luego este límite al lado de Ecrón hacia el norte; y rodea el mismo término a Sicrón, y pasa por el monte de Baala, y sale a Jabneel; y sale este término al mar.
@@ -8595,7 +8595,7 @@ E hizo llevar de allí los huesos de Saúl y los huesos de Jonatán su hijo; y r
 Y sepultaron los huesos de Saúl y los de su hijo Jonatán en tierra de Benjamín, en Sela, en el sepulcro de Cis su padre; e hicieron todo lo que el rey había mandado. Y Dios fue benévolo con la tierra después de esto.
 Y como los filisteos volvieron a hacer guerra contra Israel, descendió David y sus siervos con él, y pelearon con los filisteos, y David se cansó.
 E Isbibenob, que [era] de los hijos del gigante, y cuya lanza pesaba trescientos [siclos] de bronce, y que estaba ceñido de una [espada] nueva, trató de matar a David;
-pero Abisai, hijo de Sarvia,B8879 le socorrió, e hirió al filisteo y lo mató. Entonces los hombres de David le juraron, diciendo: Nunca más de aquí en adelante saldrás con nosotros a la batalla, no sea que apagues la lámpara de Israel.
+pero Abisai, hijo de Sarvia, le socorrió, e hirió al filisteo y lo mató. Entonces los hombres de David le juraron, diciendo: Nunca más de aquí en adelante saldrás con nosotros a la batalla, no sea que apagues la lámpara de Israel.
 Y sucedió después de esto que hubo otra vez guerra en Gob contra los filisteos; entonces Sibecai husatita mató a Saf, que [era] de los hijos del gigante.
 Y hubo guerra otra vez en Gob contra los filisteos, en la cual Elhanán, hijo de Jaare-oregim de Belén, mató [al hermano de] Goliat geteo, el asta de cuya lanza [era] como un rodillo de telar.
 Después hubo otra guerra en Gat, donde hubo un hombre de [gran] estatura, el cual tenía doce dedos en las manos, y otros doce en los pies, veinticuatro por todos; y también era de los hijos del gigante.
@@ -18248,7 +18248,7 @@ Vosotros tendréis canción, como en noche en que se celebra pascua; y alegría 
 Y Jehová hará oír su voz gloriosa, y hará ver el descargar de su brazo, con la indignación de [su] ira, y llama de fuego consumidor; con tormenta, tempestad y piedra de granizo.
 Porque Asiria que hirió con vara, con la voz de Jehová será quebrantado.
 Y en todo lugar por donde pase la vara que Jehová descargará sobre él, será con panderos y con arpas, y en batalla de agitación peleará contra ellos.
-Porque Tofet ya de tiempo [está] dispuesta y preparada para el rey.B18643 Él la hizo profunda y ancha; su pira es de fuego y mucha leña; el soplo de Jehová, como torrente de azufre, la enciende.
+Porque Tofet ya de tiempo [está] dispuesta y preparada para el rey. Él la hizo profunda y ancha; su pira es de fuego y mucha leña; el soplo de Jehová, como torrente de azufre, la enciende.
 ¡Ay de los que descienden a Egipto por ayuda, y confían en caballos; y ponen su esperanza en carros, porque [son] muchos, y en caballeros, porque son valientes; y no miraron al Santo de Israel, ni buscaron a Jehová!
 Mas Él también [es] sabio, y traerá el mal, y no retirará sus palabras. Se levantará, pues, contra la casa de los malignos, y contra el auxilio de los obradores de iniquidad.
 Y los egipcios hombres [son], y no Dios; y sus caballos carne, y no espíritu; de manera que al extender Jehová su mano, caerá el ayudador, y caerá el ayudado, y todos ellos desfallecerán a una.
@@ -19221,7 +19221,7 @@ Porque así dice Jehová: He aquí que esta vez arrojaré con honda los moradore
 ¡Ay de mí, por mi quebrantamiento! mi llaga es muy dolorosa. Pero yo dije: Ciertamente enfermedad mía es ésta, y debo sufrirla.
 Mi tienda es destruida, y todas mis cuerdas están rotas; mis hijos se han ido de mí, y perecieron. No hay ya quien levante mi tienda, ni quien ponga mis cortinas.
 Porque los pastores se infatuaron, y no buscaron a Jehová; por tanto, no prosperaron, y todo su rebaño será dispersado.
-He aquí que voz de rumor viene+B19367, y alboroto grande de la tierra del norte, para tornar en soledad todas las ciudades de Judá, en guarida de dragones.
+He aquí que voz de rumor viene, y alboroto grande de la tierra del norte, para tornar en soledad todas las ciudades de Judá, en guarida de dragones.
 Conozco, oh Jehová, que el hombre no [es] señor de su camino, ni del hombre que camina el ordenar sus pasos.
 Castígame, oh Jehová, mas con juicio; no con tu furor, para que no me aniquiles.
 Derrama tu enojo sobre las gentes que no te conocen, y sobre las naciones que no invocan tu nombre; porque se comieron a Jacob, le devoraron, le han consumido, y han asolado su morada.
@@ -21991,7 +21991,7 @@ En el año primero de Darío hijo de Asuero, de la nación de los medos, el cual
 en el año primero de su reinado, yo Daniel miré atentamente en los libros el número de los años, de los cuales vino palabra de Jehová al profeta Jeremías, que había de concluir la asolación de Jerusalén en setenta años.
 Y volví mi rostro al Señor Dios, buscándole en oración y ruego, en ayuno, y cilicio y ceniza.
 Y oré a Jehová mi Dios, y confesé, y dije: Oh Señor, Dios grande y digno de ser temido, que guardas el pacto y la misericordia con los que te aman y guardan tus mandamientos;
-Hemos pecado, hemos+B22106 hecho iniquidad, hemos obrado impíamente, hemos sido rebeldes y nos hemos apartado de tus mandamientos y de tus juicios.
+Hemos pecado, hemos hecho iniquidad, hemos obrado impíamente, hemos sido rebeldes y nos hemos apartado de tus mandamientos y de tus juicios.
 No hemos obedecido a tus siervos los profetas, que en tu nombre hablaron a nuestros reyes, y a nuestros príncipes, a nuestros padres y a todo el pueblo de la tierra.
 Tuya es, Señor, la justicia, y nuestra la confusión de rostro, como [sucede] en el día de hoy a todo hombre de Judá, y a los moradores de Jerusalén, y a todo Israel, a los de cerca y a los de lejos, en todas las tierras a donde los has echado a causa de su rebelión con que contra ti se rebelaron.
 Oh Jehová, nuestra es la confusión de rostro, de nuestros reyes, de nuestros príncipes, y de nuestros padres; porque contra ti pecamos.
@@ -28361,7 +28361,7 @@ Os saluda Gayo, hospedador mío y de toda la iglesia. Os saluda Erasto, tesorero
 La gracia de nuestro Señor Jesucristo [sea] con todos vosotros. Amén.
 Y al que tiene poder para confirmaros según mi evangelio y la predicación de Jesucristo, según la revelación del misterio encubierto desde tiempos eternos,
 pero ahora es hecho manifiesto, y por las Escrituras de los profetas, según el mandamiento del Dios eterno, dado a conocer a todas las naciones para obediencia de la fe.
-Al solo Dios sabio, sea gloria por Jesucristo para siempre. Amén. [Epístola del apóstol Pablo a los romanos. Escrita desde Corinto por mano de Tercio, y enviada con Febe, sierva de la iglesia en Cencrea].
+Al solo Dios sabio, sea gloria por Jesucristo para siempre. Amén. «Epístola del apóstol Pablo a los romanos. Escrita desde Corinto por mano de Tercio, y enviada con Febe, sierva de la iglesia en Cencrea.»
 Pablo, llamado a ser apóstol de Jesucristo por la voluntad de Dios, y [nuestro] hermano Sóstenes,
 a la iglesia de Dios que está en Corinto, a los santificados en Cristo Jesús, llamados [a ser] santos, con todos los que en todo lugar invocan el nombre de nuestro Señor Jesucristo, [Señor] de ellos y nuestro.
 Gracia y paz [sean] a vosotros, de Dios nuestro Padre, y del Señor Jesucristo.
@@ -29359,7 +29359,7 @@ por el cual soy embajador en cadenas; para que en ellas hable osadamente, como d
 Y para que también vosotros sepáis mis asuntos, [y] lo que hago; todo os lo hará saber Tíquico, hermano amado y fiel ministro en el Señor,
 el cual envié a vosotros para esto mismo, para que sepáis lo tocante a nosotros, y que consuele vuestros corazones.
 Paz [sea] a los hermanos, y amor con fe, de Dios el Padre, y del Señor Jesucristo.
-La gracia [sea] con todos los que aman a nuestro Señor Jesucristo en sinceridad. Amén. [(A los efesios escrita desde Roma, enviada con Tíquico.)]
+La gracia [sea] con todos los que aman a nuestro Señor Jesucristo en sinceridad. Amén. «(A los efesios escrita desde Roma, enviada con Tíquico.)»
 Pablo y Timoteo, siervos de Jesucristo, a todos los santos en Cristo Jesús que están en Filipos, con los obispos y diáconos.
 Gracia [sea] a vosotros, y paz de Dios nuestro Padre y del Señor Jesucristo.
 Doy gracias a mi Dios siempre que me acuerdo de vosotros,
@@ -29558,7 +29558,7 @@ Os saluda Lucas, el médico amado, y Demas.
 Saludad a los hermanos que están en Laodicea, y a Ninfas, y a la iglesia que está en su casa.
 Y cuando esta epístola haya sido leída entre vosotros, haced que también se lea en la iglesia de los laodicenses; y que la [epístola] de Laodicea la leáis también vosotros.
 Y decid a Arquipo: Mira que cumplas el ministerio que recibiste en el Señor.
-Las salutaciones de mi mano, de Pablo. Acordaos de mis prisiones. La gracia [sea] con vosotros. Amén. [Escrita desde Roma, y enviada con Tíquico y Onésimo].
+Las salutaciones de mi mano, de Pablo. Acordaos de mis prisiones. La gracia [sea] con vosotros. Amén. «Escrita desde Roma, y enviada con Tíquico y Onésimo.»
 Pablo, y Silvano, y Timoteo, a la iglesia de los tesalonicenses que es en Dios Padre y en el Señor Jesucristo: Gracia y paz [sean] a vosotros, de Dios nuestro Padre y del Señor Jesucristo.
 Damos siempre gracias a Dios por todos vosotros, haciendo mención de vosotros en nuestras oraciones;
 recordando sin cesar vuestra obra de fe, y trabajo de amor y paciencia en la esperanza en nuestro Señor Jesucristo, delante del Dios y Padre nuestro.
@@ -29647,7 +29647,7 @@ Fiel es el que os llama; el cual también lo hará.
 Hermanos, orad por nosotros.
 Saludad a todos los hermanos con ósculo santo.
 Os conjuro por el Señor, que esta carta sea leída a todos los santos hermanos.
-La gracia de nuestro Señor Jesucristo [sea] con vosotros. Amén. [La primera epístola a los tesalonicenses fue escrita de Atenas].
+La gracia de nuestro Señor Jesucristo [sea] con vosotros. Amén. «La primera epístola a los tesalonicenses fue escrita de Atenas.»
 Pablo, y Silvano, y Timoteo, a la iglesia de los tesalonicenses en Dios nuestro Padre y en el Señor Jesucristo:
 Gracia y paz a vosotros, de Dios nuestro Padre y del Señor Jesucristo.
 Debemos siempre dar gracias a Dios por vosotros, hermanos, como es digno, por cuanto vuestra fe va creciendo sobremanera, y el amor de cada uno de vosotros, abunda más y más de unos para con otros;
@@ -29694,7 +29694,7 @@ Y si alguno no obedeciere a nuestra palabra por esta epístola, señalad al tal,
 Mas no lo tengáis como a enemigo, sino amonestadle como a hermano.
 Y el mismo Señor de paz os dé siempre paz en toda manera. El Señor sea con todos vosotros.
 La salutación de mi propia mano, de Pablo, que es mi signo en toda epístola: Así escribo.
-La gracia de nuestro Señor Jesucristo [sea] con todos vosotros. Amén. [Epístola a los tesalonicenses. Escrita de Atenas por el apóstol Pablo].
+La gracia de nuestro Señor Jesucristo [sea] con todos vosotros. Amén. «Epístola a los tesalonicenses. Escrita de Atenas por el apóstol Pablo.»
 Pablo, apóstol de Jesucristo por mandato de Dios nuestro Salvador, y del Señor Jesucristo, nuestra esperanza,
 a Timoteo, [mi] verdadero hijo en la fe: Gracia, misericordia y paz, de Dios nuestro Padre y de Cristo Jesús nuestro Señor.
 Como te rogué que te quedases en Éfeso, cuando partí para Macedonia, para que exhortases a algunos que no enseñen diferente doctrina,
@@ -29807,7 +29807,7 @@ A los ricos de este mundo manda que no sean altivos, ni pongan la esperanza en l
 Que hagan bien, que sean ricos en buenas obras, generosos, que con facilidad comuniquen;
 atesorando para sí buen fundamento para lo por venir; que echen mano de la vida eterna.
 Oh Timoteo, guarda lo que se te ha encomendado, evitando las profanas y vanas discusiones, y los argumentos de la falsamente llamada ciencia;
-la cual profesando algunos, han errado en cuanto a la fe. La gracia [sea] contigo. Amén. [Epístola a Timoteo: Fue escrita de Laodicea, que es metrópoli de la Frigia Pacatiana].
+la cual profesando algunos, han errado en cuanto a la fe. La gracia [sea] contigo. Amén. «Epístola a Timoteo: Fue escrita de Laodicea, que es metrópoli de la Frigia Pacatiana.»
 Pablo, apóstol de Jesucristo por la voluntad de Dios, según la promesa de la vida que es en Cristo Jesús;
 a Timoteo, [mi] amado hijo: Gracia, misericordia, y paz de Dios el Padre y de Jesucristo nuestro Señor.
 Doy gracias a Dios, a quien sirvo desde [mis] mayores con limpia conciencia, de que sin cesar me acuerdo de ti en mis oraciones noche y día;
@@ -29890,7 +29890,7 @@ Y el Señor me librará de toda obra mala, y [me] preservará para su reino cele
 Saluda a Prisca y a Aquila, y a la casa de Onesíforo.
 Erasto se quedó en Corinto; y a Trófimo dejé en Mileto enfermo.
 Procura venir antes del invierno. Eubulo te saluda, y Pudente, y Lino, y Claudia, y todos los hermanos.
-El Señor Jesucristo [sea] con tu espíritu. La gracia [sea] con vosotros. Amén. [Epístola a Timoteo, el cual fue el primer obispo ordenado en Efeso, fue escrita de Roma, cuando Pablo fue presentado la segunda vez a César Nerón].
+El Señor Jesucristo [sea] con tu espíritu. La gracia [sea] con vosotros. Amén. «Epístola a Timoteo, el cual fue el primer obispo ordenado en Efeso, fue escrita de Roma, cuando Pablo fue presentado la segunda vez a César Nerón.»
 Pablo, siervo de Dios, y apóstol de Jesucristo, conforme a la fe de los escogidos de Dios y el conocimiento de la verdad que es según la piedad,
 en la esperanza de la vida eterna, la cual Dios, que no puede mentir, prometió desde antes del principio de los siglos,
 y manifestó a sus tiempos su palabra por medio de la predicación que me es encomendada por mandamiento de Dios nuestro Salvador,
@@ -29936,7 +29936,7 @@ sabiendo que el tal se ha pervertido, y peca, siendo condenado por su propio jui
 Cuando enviare a ti a Artemas o a Tíquico, apresúrate a venir a mí a Nicópolis; porque allí he determinado pasar el invierno.
 A Zenas doctor de la ley, y a Apolos, encamínales con solicitud, de modo que nada les falte.
 Y aprendan también los nuestros a ocuparse en buenas obras para los casos de necesidad, para que no sean sin fruto.
-Todos los que están conmigo te saludan. Saluda a los que nos aman en la fe. La gracia [sea] con todos vosotros. Amén. [A Tito, escrita de Nicópolis de Macedonia].
+Todos los que están conmigo te saludan. Saluda a los que nos aman en la fe. La gracia [sea] con todos vosotros. Amén. «A Tito, escrita de Nicópolis de Macedonia.»
 Pablo, prisionero de Jesucristo, y [nuestro] hermano Timoteo, a Filemón, amado, y colaborador nuestro,
 y a [nuestra] amada Apia, y a Arquipo, nuestro compañero de milicia, y a la iglesia que está en tu casa.
 Gracia a vosotros, y paz de Dios nuestro Padre y del Señor Jesucristo.
@@ -30264,7 +30264,7 @@ os haga perfectos para toda obra buena para que hagáis su voluntad, haciendo É
 Y os ruego, hermanos, que soportéis la palabra de exhortación; pues os he escrito brevemente.
 Sabed que nuestro hermano Timoteo ha sido puesto en libertad; con el cual, si viniere pronto, iré a veros.
 Saludad a todos vuestros pastores, y a todos los santos. Los de Italia os saludan.
-La gracia [sea] con todos vosotros. Amén. [Escrita de Italia, traída por Timoteo].
+La gracia [sea] con todos vosotros. Amén. «Escrita de Italia, traída por Timoteo.»
 Jacobo, siervo de Dios y del Señor Jesucristo, a las doce tribus que están esparcidas, salud.
 Hermanos míos, tened por sumo gozo cuando cayereis en diversas pruebas;
 sabiendo que la prueba de vuestra fe produce paciencia.
