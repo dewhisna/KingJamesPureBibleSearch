@@ -7590,7 +7590,7 @@ Veuillez choisir un nom de fichier différent.</translation>
     </message>
 </context>
 <context>
-    <name>QTextControl</name>
+    <name>QWidgetTextControl</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Annuler</translation>

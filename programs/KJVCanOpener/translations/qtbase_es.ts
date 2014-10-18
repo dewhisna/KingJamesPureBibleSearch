@@ -5790,7 +5790,7 @@ Elija un nombre de fichero diferente.</translation>
     </message>
 </context>
 <context>
-    <name>QTextControl</name>
+    <name>QWidgetTextControl</name>
     <message>
         <location filename="../src/gui/text/qtextcontrol.cpp" line="+1973"/>
         <source>&amp;Undo</source>
