@@ -39,7 +39,7 @@
 #define SPECIAL_BUILD				1
 #else
 #define VER_SPECIALVERSION_STR		"Release-Preview Version\0"
-#define SPECIAL_BUILD				1
+#define SPECIAL_BUILD				0
 #endif
 #define VER_BUILD_DATE_STR			__DATE__
 #define VER_BUILD_TIME_STR			__TIME__
