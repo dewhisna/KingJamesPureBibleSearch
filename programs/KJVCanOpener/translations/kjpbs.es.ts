@@ -1946,7 +1946,7 @@ Y comprobar la instalación de Manual Usuarios de King James Pure Bible Search a
         <location filename="../KJVConfiguration.cpp" line="2842"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
-        <translation>Base de Datos Diccionario</translation>
+        <translation>Diccionario</translation>
     </message>
     <message>
         <location filename="../KJVConfiguration.cpp" line="2843"/>
