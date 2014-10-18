@@ -49,7 +49,7 @@ namespace {
 	// ------------------------------------
 	const char *constUUID_SPECIAL_TEST =		"00000000-0000-11E3-8FFD-0800200C9A66";
 	const char *constUUID_KJV =					"85D8A6B0-E670-11E2-A28F-0800200C9A66";
-	const char *constUUID_RVG2010 =				"9233CB60-141A-11E3-8FFD-0800200C9A66";
+	const char *constUUID_RVG2010_20140126 =	"9233CB60-141A-11E3-8FFD-0800200C9A66";
 	const char *constUUID_KJF2006 =				"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
 	const char *constUUID_KJVPCE =				"C9BA8970-A114-11E3-A5E2-0800200C9A66";
 	const char *constUUID_KJVA =				"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
@@ -61,6 +61,15 @@ namespace {
 	const char *constUUID_GERSCH2000 =			"D326F220-CFFC-11E3-9C1A-0800200C9A66";
 	const char *constUUID_KJV1611A =			"8BFE29A0-D014-11E3-9C1A-0800200C9A66";
 	const char *constUUID_KJV1611 =				"8D999FF0-D650-11E3-9C1A-0800200C9A66";
+	const char *constUUID_RVG2010_20140705 =	"92EF65E0-56F0-11E4-8ED6-0800200C9A66";
+
+	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
+	//		though they technically aren't compatible, since we've already released the
+	//		preview edition with the 20140126 database, people may already have done some
+	//		highlighting in their Spanish Bible.  SO, we'll adopt it as the highlighter
+	//		UUID for the 20140705 and subsequent releases.  This is what happens when
+	//		"The Word" keeps changing (ugh!):
+	const char *constUUID_RVG2010 = constUUID_RVG2010_20140126;
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -68,8 +77,8 @@ namespace {
 		{ false, "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
 		// KJV:
 		{ true, "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
-		// RVG2010:
-		{ false, "RVG2010", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140126)"), constUUID_RVG2010, "bbl-rvg2010.s3db", "bbl-rvg2010.ccdb", constUUID_RVG2010 },
+		// RVG2010-20140126:
+		{ false, "RVG2010-20140126", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140126)"), constUUID_RVG2010_20140126, "bbl-rvg2010-20140126.s3db", "bbl-rvg2010-20140126.ccdb", constUUID_RVG2010 },
 		// KJF2006:
 		{ false, "KJF2006", "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", constUUID_KJF2006 },
 		// KJVPureCambridge:
@@ -91,7 +100,9 @@ namespace {
 		// KJV1611 (1611 w/o Apocrypha)
 		{ false, "KJV1611", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611"), constUUID_KJV1611, "bbl-kjv1611.s3db", "bbl-kjv1611.ccdb", constUUID_KJV1611 },
 		// RV1865-sbv20140622 (Reina-Valera 1865, from Jeff McArdle, Sociedad Bíblica Valera 2014-06-22 Release)
-		{ false, "RV1865-sbv20140622", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Sociedad Bíblica Valera (20140622)"), constUUID_RV1865sbv20140622, "bbl-rv1865sbv20140622.s3db", "bbl-rv1865sbv20140622.ccdb", constUUID_RV1865sbv20140622 }
+		{ false, "RV1865-sbv20140622", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Sociedad Bíblica Valera (20140622)"), constUUID_RV1865sbv20140622, "bbl-rv1865sbv20140622.s3db", "bbl-rv1865sbv20140622.ccdb", constUUID_RV1865sbv20140622 },
+		// RVG2010-20140705:
+		{ false, "RVG2010-20140705", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140705)"), constUUID_RVG2010_20140705, "bbl-rvg2010-20140705.s3db", "bbl-rvg2010-20140705.ccdb", constUUID_RVG2010 }
 	};
 
 	//////////////////////////////////////////////////////////////////////
