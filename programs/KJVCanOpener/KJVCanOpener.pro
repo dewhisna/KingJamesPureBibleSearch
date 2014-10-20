@@ -182,6 +182,15 @@ DEFINES += USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY							# Enable to delay searc
 DEFINES += USE_MULTITHREADED_SEARCH_RESULTS									# Enable to spawn separate thread to handle calculation of Scoped Search Results for the VerseListModel
 DEFINES += INVERT_MULTITHREADED_LOGIC										# Invert the defaults of single vs. multi threaded when USE_MULTITHREADED_SEARCH_RESULTS is enabled (with this Single is default without command-line option instead of Multi)
 
+# Enable Sandboxing on Mac:
+macx {
+# TODO : Enable this once we figure out a mechanism of calling the
+#		sandbox interaction functions to keep the NS Keys for our
+#		notes files:
+#	DEFINES += IN_MAC_SANDBOX
+#	CONFIG += sandboxed
+}
+
 lessThan(QT_MAJOR_VERSION,5):macx:CONFIG += x86 x86_64
 greaterThan(QT_MAJOR_VERSION,4):macx:static:CONFIG += x86
 greaterThan(QT_MAJOR_VERSION,4):macx:!static:CONFIG += x86_64
@@ -695,14 +704,23 @@ macx {
 			}
 
 			# Copy in the Info.plist files to the Resources folders
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtCore.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtGui.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtNetwork.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtPrintSupport.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtSql.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtWidgets.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtXml.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources/$$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/wwwidgets4.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtCore.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtGui.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtNetwork.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtPrintSupport.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtSql.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtWidgets.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/QtXml.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources/$$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(cp $$[QT_INSTALL_LIBS]/wwwidgets4.framework/Contents/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources/$$escape_expand(\\n\\t))
+
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtCore/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtGui/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtNetwork/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtPrintSupport/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtSql/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtWidgets/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/QtXml/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/Resources/$$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(cp ../../KJVCanOpener/macxsign_qt5_plists/wwwidgets4/Info.plist KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/Resources/$$escape_expand(\\n\\t))
 
 			# Now, move the Resources folders to the correct location
 			QMAKE_POST_LINK += $$quote(mv KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Resources KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework/Versions/$${QT_MAJOR_VERSION}/$$escape_expand(\\n\\t))
@@ -744,7 +762,14 @@ macx {
 			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtXml KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/QtXml$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/wwwidgets4 KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/wwwidgets4$$escape_expand(\\n\\t))
 
-			QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle$$escape_expand(\\n\\t))
+			# Keep unsigned version so we have one we can distribute to people that doesn't leave signature footprints:
+			QMAKE_POST_LINK += $$quote(cp -R KingJamesPureBibleSearch.app KingJamesPureBibleSearch_unsigned.app$$escape_expand(\\n\\t))
+
+			sandboxed {
+				QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_sandboxed$$escape_expand(\\n\\t))
+			} else {
+				QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_unsandboxed$$escape_expand(\\n\\t))
+			}
 		}
 	}
 }

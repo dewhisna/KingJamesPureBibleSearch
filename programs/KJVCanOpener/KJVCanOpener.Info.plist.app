@@ -12,6 +12,8 @@
 	<string>Copyright(c)2012-2014 Donna Whisnant, a.k.a. Dewtronics</string>
 	<key>CFBundleSignature</key>
 	<string>@TYPEINFO@</string>
+	<key>CFBundleName</key>
+	<string>@EXECUTABLE@</string>
 	<key>CFBundleExecutable</key>
 	<string>@EXECUTABLE@</string>
 	<key>LSApplicationCategoryType</key>

@@ -1,0 +1,51 @@
+#! /bin/bash
+
+echo --signing frameworks--
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtCore.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtGui.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtNetwork.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtPrintSupport.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtSql.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtWidgets.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework 2>&1
+codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework 2>&1
+
+#echo --signing plugins--
+#echo accessibility:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/accessible/libqtaccessiblewidgets.dylib 2>&1
+#echo imageformats:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqdds.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqgif.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqicns.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqico.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqjp2.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqjpeg.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqmng.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqtga.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqtiff.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqwbmp.dylib 2>&1
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/imageformats/libqwebp.dylib 2>&1
+#echo platforms:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/platforms/libqcocoa.dylib 2>&1
+#echo printsupport:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/printsupport/libcocoaprintersupport.dylib 2>&1
+#echo sqldrivers:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/sqldrivers/libqsqlite.dylib 2>&1
+#echo styles:
+#codesign --force --verify --verbose --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app/Contents/PlugIns/styles/libqplastiquestyle.dylib 2>&1
+
+#echo --signing app--
+#codesign --force --verify --verbose -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app
+
+echo --signing app--
+codesign --force --deep --verify -i com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Application: Donna Whisnant" KingJamesPureBibleSearch.app
+
+echo --verifying--
+codesign -vvv -d KingJamesPureBibleSearch.app
+
+#echo --Building Package--
+# TODO : Call pkgbuild and then productbuild with packages and distribution.xml
+# http://stackoverflow.com/questions/11487596/making-os-x-installer-packages-like-a-pro-xcode4-developer-id-mountain-lion-re
+# https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/DistributionDefinitionRef/Chapters/Introduction.html#//apple_ref/doc/uid/TP40005370-CH1-DontLinkElementID_16
+#productbuild --identifier com.dewtronics.KingJamesPureBibleSearch --sign "Developer ID Installer: Donna Whisnant" --component KingJamesPureBibleSearch.app /Applications KingJamesPureBibleSearch.pkg
+
