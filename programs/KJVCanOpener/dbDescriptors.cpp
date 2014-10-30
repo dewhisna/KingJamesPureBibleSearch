@@ -109,18 +109,36 @@ namespace {
 
 	// Dictionary Database Descriptor Constants:
 	// -----------------------------------------
+	const char *constUUID_DCT_SPECIAL_TEST =	"00000000-0000-11E3-8224-0800200C9A66";
+	const char *constUUID_DCT_WEB1828 =			"6A94E150-1E6C-11E3-8224-0800200C9A66";
+	const char *constUUID_DCT_WEB1913 =			"70C95C30-3893-11E4-916C-0800200C9A66";
+	const char *constUUID_DCT_WEB1806 =			"8d71d7c0-3d4a-11e4-916c-0800200c9a66";
+	const char *constUUID_DCT_USSHER =			"92f1c570-3d4a-11e4-916c-0800200c9a66";
+	const char *constUUID_DCT_NAVE =			"160E7960-5FEE-11E4-9803-0800200C9A66";
+	const char *constUUID_DCT_THOMPSON =		"356898E0-5FEE-11E4-9803-0800200C9A66";
+	const char *constUUID_DCT_TOPICAL =			"48A64970-5FEE-11E4-9803-0800200C9A66";
+	const char *constUUID_DCT_TORREY =			"53A8BCE0-5FEE-11E4-9803-0800200C9A66";
+
 	const TDictionaryDescriptor constDictionaryDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), "00000000-0000-11E3-8224-0800200C9A66", "dct-specTest.s3db", "dct-specTest.ccdb" },
+		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), constUUID_DCT_SPECIAL_TEST, "dct-specTest.s3db", "dct-specTest.ccdb" },
 		// Webster 1828:
-		{ false, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), "6A94E150-1E6C-11E3-8224-0800200C9A66", "dct-web1828.s3db", "dct-web1828.ccdb" },
+		{ false, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), constUUID_DCT_WEB1828, "dct-web1828.s3db", "dct-web1828.ccdb" },
 		// Webster 1913:
-		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), "70C95C30-3893-11E4-916C-0800200C9A66", "dct-web1913.s3db", "dct-web1913.ccdb" },
+		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), constUUID_DCT_WEB1913, "dct-web1913.s3db", "dct-web1913.ccdb" },
 		// Webster 1806:
-		{ false, "en", QString::fromUtf8("Webster 1806"), QString::fromUtf8("Webster's Compendious Dictionary, 1806"), "8d71d7c0-3d4a-11e4-916c-0800200c9a66", "dct-web1806.s3db", "dct-web1806.ccdb" },
+		{ false, "en", QString::fromUtf8("Webster 1806"), QString::fromUtf8("Webster's Compendious Dictionary, 1806"), constUUID_DCT_WEB1806, "dct-web1806.s3db", "dct-web1806.ccdb" },
 		// Ussher's Annals of the World, 1654:
-		{ false, "en", QString::fromUtf8("Ussher"), QString::fromUtf8("Ussher's Annals of the World, 1654"), "92f1c570-3d4a-11e4-916c-0800200c9a66", "dct-ussher.s3db", "dct-ussher.ccdb" }
+		{ false, "en", QString::fromUtf8("Ussher"), QString::fromUtf8("Ussher's Annals of the World, 1654"), constUUID_DCT_USSHER, "dct-ussher.s3db", "dct-ussher.ccdb" },
+		// Nave's Topical Bible Dictionary:
+		{ false, "en", QString::fromUtf8("Nave's Topical Bible"), QString::fromUtf8("Nave's Topical Bible Dictionary"), constUUID_DCT_NAVE, "dct-t-nave.s3db", "dct-t-nave.ccdb" },
+		// Thompson Chain References:
+		{ false, "en", QString::fromUtf8("Thompson Chain References"), QString::fromUtf8("Thompson Chain References"), constUUID_DCT_THOMPSON, "dct-t-thompson.s3db", "dct-t-thompson.ccdb" },
+		// Topical Study Dictionary:
+		{ false, "en", QString::fromUtf8("Topical Study"), QString::fromUtf8("Topical Study Dictionary"), constUUID_DCT_TOPICAL, "dct-t-topical.s3db", "dct-t-topical.ccdb" },
+		// Torrey's New Topical Textbook:
+		{ false, "en", QString::fromUtf8("Torrey's New Topical Textbook"), QString::fromUtf8("Torrey's New Topical Textbook"), constUUID_DCT_TORREY, "dct-t-torrey.s3db", "dct-t-torrey.ccdb" }
 	};
 
 }	// namespace
