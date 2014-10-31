@@ -197,7 +197,8 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 		m_pEditMenuDictWord(NULL),
 		m_pActionDictDatabasesList(NULL),
 		m_bDoingUpdate(false),
-		m_bIgnoreNextWordChange(false)
+		m_bIgnoreNextWordChange(false),
+		m_bHaveURLLastWord(false)
 {
 	assert(!m_pDictionaryDatabase.isNull());
 
@@ -365,7 +366,8 @@ void CDictionaryWidget::en_wordChanged()
 	//		click on a particular passage.  Unless the dictionary being used has
 	//		changed, in which case we need to trigger an update to display the
 	//		definition for the new dictionary:
-	if (strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord) &&
+	if (m_bHaveURLLastWord &&
+		strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord) &&
 		(m_pDictionaryDatabase->compatibilityUUID() == m_strLastWordDictionaryUUID)) return;
 
 	m_strLastWordDictionaryUUID = m_pDictionaryDatabase->compatibilityUUID();
@@ -373,7 +375,10 @@ void CDictionaryWidget::en_wordChanged()
 	if (m_pDictionaryDatabase->wordExists(strWord)) {
 		m_bDoingUpdate = true;
 		ui.definitionBrowser->setSource(QUrl(QString("#%1").arg(strWord)));
+		m_bHaveURLLastWord = true;
 		m_bDoingUpdate = false;
+	} else {
+		m_bHaveURLLastWord = false;
 	}
 }
 
