@@ -85,7 +85,7 @@ class CDictionaryWidget : public QWidget
 	Q_OBJECT
 	
 public:
-	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);
+	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const QString &strLanguage, QWidget *parent = 0);
 	~CDictionaryWidget();
 
 	CDictionaryDatabasePtr dictionaryDatabase() const { return m_pDictionaryDatabase; }

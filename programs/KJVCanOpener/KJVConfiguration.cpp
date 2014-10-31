@@ -358,7 +358,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	if (ndx == -1) return;
 
 	if (!pDictionary.isNull()) {
-		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, this);
+		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, pBibleDatabase->language(), this);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		aSizePolicyDictionary.setHorizontalStretch(20);

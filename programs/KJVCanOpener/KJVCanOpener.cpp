@@ -361,7 +361,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #ifndef EMSCRIPTEN
 	CDictionaryDatabasePtr pDictionary = TDictionaryDatabaseList::locateAndLoadDictionary(m_pBibleDatabase->language(), this);
 	if (!pDictionary.isNull()) {
-		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, m_pSplitterDictionary);
+		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, m_pBibleDatabase->language(), m_pSplitterDictionary);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("DictionaryWidget"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		aSizePolicyDictionary.setHorizontalStretch(20);

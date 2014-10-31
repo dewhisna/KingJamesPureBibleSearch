@@ -189,9 +189,10 @@ void CDictionaryLineEdit::insertCompletion(const QString &strWord)
 
 // ============================================================================
 
-CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget *parent)
+CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const QString &strLanguage, QWidget *parent)
 	:	QWidget(parent),
 		m_pDictionaryDatabase(pDictionary),
+		m_strLanguage(strLanguage),
 		m_bDoingPopup(false),
 		m_pEditMenuDictionary(NULL),
 		m_pEditMenuDictWord(NULL),
@@ -201,8 +202,6 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, QWidget
 		m_bHaveURLLastWord(false)
 {
 	assert(!m_pDictionaryDatabase.isNull());
-
-	m_strLanguage = m_pDictionaryDatabase->language();			// Used the passed dictionary's language as the default language for our list
 
 	ui.setupUi(this);
 
@@ -485,7 +484,8 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 #ifdef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 	for (int ndx = 0; ndx < TDictionaryDatabaseList::instance()->size(); ++ndx) {
 		if (TDictionaryDatabaseList::instance()->at(ndx).isNull()) continue;
-		if ((!m_strLanguage.isEmpty()) && (TDictionaryDatabaseList::instance()->at(ndx)->language().compare(m_strLanguage, Qt::CaseInsensitive) != 0)) continue;
+		if ((!m_strLanguage.isEmpty()) && (TDictionaryDatabaseList::instance()->at(ndx)->language().compare(m_strLanguage, Qt::CaseInsensitive) != 0) &&
+			(!(TDictionaryDatabaseList::instance()->at(ndx)->flags() & DTO_IgnoreLang))) continue;
 		QAction *pAction = new QAction(TDictionaryDatabaseList::instance()->at(ndx)->description(), m_pActionGroupDictDatabasesList);
 		pAction->setData(TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID());
 		pAction->setCheckable(true);
@@ -500,7 +500,8 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
 
 		if (!pDictDatabase.isNull()) {
-			if ((m_strLanguage.isEmpty()) || (pDictDatabase->language().compare(m_strLanguage, Qt::CaseInsensitive) == 0)) {
+			if ((m_strLanguage.isEmpty()) || (pDictDatabase->language().compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
+				(pDictDatabase->flags() & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(pDictDatabase->description(), m_pActionGroupDictDatabasesList);
 				pAction->setData(pDictDatabase->compatibilityUUID());
 				pAction->setCheckable(true);
@@ -513,7 +514,8 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 			DICTIONARY_DESCRIPTOR_ENUM nDDE = dictionaryDescriptorFromUUID(lstAvailableDatabases.at(ndx));
 			assert(nDDE != DDE_UNKNOWN);
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDDE);
-			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0)) {
+			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
+				(dctDesc.m_dtoFlags & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(dctDesc.m_strDBDesc, m_pActionGroupDictDatabasesList);
 				pAction->setData(dctDesc.m_strUUID);
 				pAction->setCheckable(true);
