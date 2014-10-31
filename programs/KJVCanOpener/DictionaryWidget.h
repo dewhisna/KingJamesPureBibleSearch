@@ -101,7 +101,7 @@ signals:
 	void gotoPassageReference(const QString &strPassageReference);
 
 public slots:
-	void setWord(const QString &strWord);
+	void setWord(const QString &strWord, bool bIsTracking = true);		// Tracking defaults to true so that a connection to wordUnderCursorChanged() signal can trigger a tracking change
 
 	void setFont(const QFont& aFont);
 	void setTextBrightness(bool bInvert, int nBrightness);

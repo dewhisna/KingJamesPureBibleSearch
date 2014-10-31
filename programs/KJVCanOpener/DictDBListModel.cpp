@@ -101,8 +101,8 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 			return dctDesc.m_strDBDesc;
 
 		if (role == Qt::CheckStateRole) {
-			bool bIsCurrentlyChecked = (bLoadOnStart || dctDesc.m_bAutoLoad);
-//			bool bIsCurrentlyChecked = (bLoadOnStart || dctDesc.m_bAutoLoad ||
+			bool bIsCurrentlyChecked = (bLoadOnStart || (dctDesc.m_dtoFlags & DTO_AutoLoad));
+//			bool bIsCurrentlyChecked = (bLoadOnStart || (dctDesc.m_dtoFlags & DTO_AutoLoad) ||
 //										((TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase()) &&
 //										  (TDictionaryDatabaseList::instance()->mainDictionaryDatabase()->compatibilityUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0)));
 			return (bIsCurrentlyChecked ? Qt::Checked : Qt::Unchecked);
@@ -111,7 +111,7 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 		if ((role == Qt::DisplayRole) ||
 			(role == Qt::EditRole)) {
 			DICTIONARY_DESCRIPTOR_ENUM ddeMainDB = dictionaryDescriptorFromUUID(CPersistentSettings::instance()->mainDictDatabaseUUID());
-			if (dctDesc.m_bAutoLoad) {
+			if (dctDesc.m_dtoFlags & DTO_AutoLoad) {
 				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded", "DictDBStatus"));
 			} else if (ddeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
 				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "DictDBStatus"));
@@ -164,7 +164,7 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 			DICTIONARY_DESCRIPTOR_ENUM ddeMainDB = dictionaryDescriptorFromUUID(CPersistentSettings::instance()->mainDictDatabaseUUID());
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB));
 			int nDictDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);		// Get mapping if it's really loaded
-			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart() || dctDesc.m_bAutoLoad);
+			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart() || (dctDesc.m_dtoFlags & DTO_AutoLoad));
 			bool bIsDBLoaded = (nDictDB != -1);
 			bool bNewCheck = value.toBool();
 
@@ -176,7 +176,7 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 				CPersistentSettings::instance()->setDictionaryDatabaseSettings(dctDesc.m_strUUID, dctDBaseSettings);
 			} else {
 				// "unload" it by unmapping it (unless it's a special autoLoad or our selected initial database):
-				if (!dctDesc.m_bAutoLoad) {
+				if (!(dctDesc.m_dtoFlags & DTO_AutoLoad)) {
 					TDictionaryDatabaseSettings dctDBaseSettings = CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID);
 					dctDBaseSettings.setLoadOnStart(false);
 					CPersistentSettings::instance()->setDictionaryDatabaseSettings(dctDesc.m_strUUID, dctDBaseSettings);
@@ -224,7 +224,7 @@ Qt::ItemFlags CDictDatabaseListModel::flags(const QModelIndex &index) const
 
 	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size()));
 
-	bool bCheckable = (!dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_bAutoLoad);
+	bool bCheckable = (!(dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_dtoFlags & DTO_AutoLoad));
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bCheckable ? Qt::ItemIsUserCheckable : Qt::NoItemFlags) | Qt::ItemIsSelectable;
 }
 

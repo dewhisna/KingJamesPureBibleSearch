@@ -74,35 +74,35 @@ namespace {
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
+		{ BibleTypeOptionsFlags(BTO_SpecialTest), "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
 		// KJV:
-		{ true, "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
+		{ BibleTypeOptionsFlags(BTO_AutoLoad), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
 		// RVG2010-20140126:
-		{ false, "RVG2010-20140126", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140126)"), constUUID_RVG2010_20140126, "bbl-rvg2010-20140126.s3db", "bbl-rvg2010-20140126.ccdb", constUUID_RVG2010 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RVG2010-20140126", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140126)"), constUUID_RVG2010_20140126, "bbl-rvg2010-20140126.s3db", "bbl-rvg2010-20140126.ccdb", constUUID_RVG2010 },
 		// KJF2006:
-		{ false, "KJF2006", "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", constUUID_KJF2006 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJF2006", "fr", QString::fromUtf8("King James Française 2006"), QString::fromUtf8("la Bible King James Française, édition 2006"), constUUID_KJF2006, "bbl-kjf2006.s3db", "bbl-kjf2006.ccdb", constUUID_KJF2006 },
 		// KJVPureCambridge:
-		{ false, "KJVPCE", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", constUUID_KJV },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJVPCE", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Pure Cambridge Edition"), constUUID_KJVPCE, "bbl-kjvpce.s3db", "bbl-kjvpce.ccdb", constUUID_KJV },
 		// KJVA (KJV 1769 with Apocrypha):
-		{ false, "KJVA", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJVA", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Apocrypha"), constUUID_KJVA, "bbl-kjva.s3db", "bbl-kjva.ccdb", constUUID_KJV },
 		// UKJV (Updated King James Version):
-		{ false, "UKJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "UKJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("Updated King James Version"), constUUID_UKJV, "bbl-ukjv.s3db", "bbl-ukjv.ccdb", constUUID_UKJV },
 		// GERLUT1545 (German Luther 1545):
-		{ false, "GERLUT1545", "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "GERLUT1545", "de", QString::fromUtf8("1545 Luther Bibelübersetzung"), QString::fromUtf8("German Unrevidierte Luther Übersetzung von 1545"), constUUID_GERLUT1545, "bbl-gerlut1545.s3db", "bbl-gerlut1545.ccdb", constUUID_GERLUT1545 },
 		// RV1865-lcbp20100713 (Reina-Valera 1865, Local Church Bible Publishers 2010-07-13 Release)
-		{ false, "RV1865-lcbp20100713", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Local Church Bible Publishers (20100713)"), constUUID_RV1865lcbp20100713, "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-lcbp20100713", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Local Church Bible Publishers (20100713)"), constUUID_RV1865lcbp20100713, "bbl-rv1865lcbp20100713.s3db", "bbl-rv1865lcbp20100713.ccdb", constUUID_RV1865lcbp20100713 },
 		// RV1602P (Reina-Valera 1602 Purificada)
-		{ false, "RV1602P-rrb20110825", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada (20110825)"), constUUID_RV1602Prrb20110825, "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602Prrb20110825 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1602P-rrb20110825", "es", QString::fromUtf8("Reina-Valera 1602 Purificada"), QString::fromUtf8("Reina-Valera 1602 Purificada (20110825)"), constUUID_RV1602Prrb20110825, "bbl-rv1602p.s3db", "bbl-rv1602p.ccdb", constUUID_RV1602Prrb20110825 },
 		// GERSCH2000 (German Schlachter 2000)
-		{ false, "GERSCH2000", "de", QString::fromUtf8("Schlachter 2000"), QString::fromUtf8("German Schlachter 2000"), constUUID_GERSCH2000, "bbl-gersch2000.s3db", "bbl-gersch2000.ccdb", constUUID_GERSCH2000 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "GERSCH2000", "de", QString::fromUtf8("Schlachter 2000"), QString::fromUtf8("German Schlachter 2000"), constUUID_GERSCH2000, "bbl-gersch2000.s3db", "bbl-gersch2000.ccdb", constUUID_GERSCH2000 },
 		// KJV1611A (1611 with Apocrypha)
-		{ false, "KJV1611A", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611 w/Apocrypha"), constUUID_KJV1611A, "bbl-kjv1611a.s3db", "bbl-kjv1611a.ccdb", constUUID_KJV1611 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJV1611A", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611 w/Apocrypha"), constUUID_KJV1611A, "bbl-kjv1611a.s3db", "bbl-kjv1611a.ccdb", constUUID_KJV1611 },
 		// KJV1611 (1611 w/o Apocrypha)
-		{ false, "KJV1611", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611"), constUUID_KJV1611, "bbl-kjv1611.s3db", "bbl-kjv1611.ccdb", constUUID_KJV1611 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJV1611", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James 1611"), constUUID_KJV1611, "bbl-kjv1611.s3db", "bbl-kjv1611.ccdb", constUUID_KJV1611 },
 		// RV1865-sbv20140622 (Reina-Valera 1865, from Jeff McArdle, Sociedad Bíblica Valera 2014-06-22 Release)
-		{ false, "RV1865-sbv20140622", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Sociedad Bíblica Valera (20140622)"), constUUID_RV1865sbv20140622, "bbl-rv1865sbv20140622.s3db", "bbl-rv1865sbv20140622.ccdb", constUUID_RV1865sbv20140622 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-sbv20140622", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Sociedad Bíblica Valera (20140622)"), constUUID_RV1865sbv20140622, "bbl-rv1865sbv20140622.s3db", "bbl-rv1865sbv20140622.ccdb", constUUID_RV1865sbv20140622 },
 		// RVG2010-20140705:
-		{ false, "RVG2010-20140705", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140705)"), constUUID_RVG2010_20140705, "bbl-rvg2010-20140705.s3db", "bbl-rvg2010-20140705.ccdb", constUUID_RVG2010 }
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RVG2010-20140705", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140705)"), constUUID_RVG2010_20140705, "bbl-rvg2010-20140705.s3db", "bbl-rvg2010-20140705.ccdb", constUUID_RVG2010 }
 	};
 
 	//////////////////////////////////////////////////////////////////////
@@ -122,23 +122,23 @@ namespace {
 	const TDictionaryDescriptor constDictionaryDescriptors[] =
 	{
 		// Special Test Value:
-		{ false, "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), constUUID_DCT_SPECIAL_TEST, "dct-specTest.s3db", "dct-specTest.ccdb" },
+		{ DictionaryTypeOptionsFlags(DTO_SpecialTest), "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Dictionary Database"), constUUID_DCT_SPECIAL_TEST, "dct-specTest.s3db", "dct-specTest.ccdb" },
 		// Webster 1828:
-		{ false, "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), constUUID_DCT_WEB1828, "dct-web1828.s3db", "dct-web1828.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultDictionaryTypeFlags), "en", QString::fromUtf8("Webster 1828"), QString::fromUtf8("Webster's Unabridged Dictionary, 1828"), constUUID_DCT_WEB1828, "dct-web1828.s3db", "dct-web1828.ccdb" },
 		// Webster 1913:
-		{ false, "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), constUUID_DCT_WEB1913, "dct-web1913.s3db", "dct-web1913.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultDictionaryTypeFlags), "en", QString::fromUtf8("Webster 1913"), QString::fromUtf8("Webster's Unabridged Dictionary, 1913"), constUUID_DCT_WEB1913, "dct-web1913.s3db", "dct-web1913.ccdb" },
 		// Webster 1806:
-		{ false, "en", QString::fromUtf8("Webster 1806"), QString::fromUtf8("Webster's Compendious Dictionary, 1806"), constUUID_DCT_WEB1806, "dct-web1806.s3db", "dct-web1806.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultDictionaryTypeFlags), "en", QString::fromUtf8("Webster 1806"), QString::fromUtf8("Webster's Compendious Dictionary, 1806"), constUUID_DCT_WEB1806, "dct-web1806.s3db", "dct-web1806.ccdb" },
 		// Ussher's Annals of the World, 1654:
-		{ false, "en", QString::fromUtf8("Ussher"), QString::fromUtf8("Ussher's Annals of the World, 1654"), constUUID_DCT_USSHER, "dct-ussher.s3db", "dct-ussher.ccdb" },
+		{ DictionaryTypeOptionsFlags(DTO_TimeLineDictionary), "en", QString::fromUtf8("Ussher"), QString::fromUtf8("Ussher's Annals of the World, 1654"), constUUID_DCT_USSHER, "dct-ussher.s3db", "dct-ussher.ccdb" },
 		// Nave's Topical Bible Dictionary:
-		{ false, "en", QString::fromUtf8("Nave's Topical Bible"), QString::fromUtf8("Nave's Topical Bible Dictionary"), constUUID_DCT_NAVE, "dct-t-nave.s3db", "dct-t-nave.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Nave's Topical Bible"), QString::fromUtf8("Nave's Topical Bible Dictionary"), constUUID_DCT_NAVE, "dct-t-nave.s3db", "dct-t-nave.ccdb" },
 		// Thompson Chain References:
-		{ false, "en", QString::fromUtf8("Thompson Chain References"), QString::fromUtf8("Thompson Chain References"), constUUID_DCT_THOMPSON, "dct-t-thompson.s3db", "dct-t-thompson.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Thompson Chain References"), QString::fromUtf8("Thompson Chain References"), constUUID_DCT_THOMPSON, "dct-t-thompson.s3db", "dct-t-thompson.ccdb" },
 		// Topical Study Dictionary:
-		{ false, "en", QString::fromUtf8("Topical Study"), QString::fromUtf8("Topical Study Dictionary"), constUUID_DCT_TOPICAL, "dct-t-topical.s3db", "dct-t-topical.ccdb" },
+		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Topical Study"), QString::fromUtf8("Topical Study Dictionary"), constUUID_DCT_TOPICAL, "dct-t-topical.s3db", "dct-t-topical.ccdb" },
 		// Torrey's New Topical Textbook:
-		{ false, "en", QString::fromUtf8("Torrey's New Topical Textbook"), QString::fromUtf8("Torrey's New Topical Textbook"), constUUID_DCT_TORREY, "dct-t-torrey.s3db", "dct-t-torrey.ccdb" }
+		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Torrey's New Topical Textbook"), QString::fromUtf8("Torrey's New Topical Textbook"), constUUID_DCT_TORREY, "dct-t-torrey.s3db", "dct-t-torrey.ccdb" }
 	};
 
 }	// namespace

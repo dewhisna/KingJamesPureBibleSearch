@@ -1424,7 +1424,7 @@ int CMyApplication::execute(bool bBuildDB)
 		QList<BIBLE_DESCRIPTOR_ENUM> lstAvailableBDEs = TBibleDatabaseList::instance()->availableBibleDatabases();
 		for (int ndx = 0; ndx < lstAvailableBDEs.size(); ++ndx) {
 			const TBibleDescriptor &bblDesc = bibleDescriptor(lstAvailableBDEs.at(ndx));
-			if ((!bblDesc.m_bAutoLoad) &&
+			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
 				(m_nSelectedMainBibleDB != lstAvailableBDEs.at(ndx)) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
@@ -1451,7 +1451,7 @@ int CMyApplication::execute(bool bBuildDB)
 		QList<DICTIONARY_DESCRIPTOR_ENUM> lstAvailableDDEs = TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
 			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(lstAvailableDDEs.at(ndx));
-			if ((!dctDesc.m_bAutoLoad) &&
+			if ((!(dctDesc.m_dtoFlags & DTO_AutoLoad)) &&
 				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) &&
 				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart())) continue;
 			bool bHaveLanguageMatch = false;

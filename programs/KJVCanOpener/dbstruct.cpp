@@ -273,7 +273,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	// Try Loaded Main Dictionary first:
 	CDictionaryDatabasePtr pMainDictDatabase = TDictionaryDatabaseList::instance()->mainDictionaryDatabase();
 	if (!pMainDictDatabase.isNull()) {
-		if ((strLanguage.isEmpty()) || (pMainDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0)) return pMainDictDatabase;
+		if ((strLanguage.isEmpty()) || (pMainDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+			(pMainDictDatabase->flags() & DTO_IgnoreLang)) return pMainDictDatabase;
 	}
 
 	// Try Selected Main Dictionary second (if it isn't the same as main):
@@ -283,7 +284,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		if ((pMainDictDatabase.isNull()) ||
 			((!pMainDictDatabase.isNull()) && (pMainDictDatabase->compatibilityUUID().compare(strUUIDSelMain, Qt::CaseInsensitive) != 0))) {
 			if ((strLanguage.isEmpty()) ||
-				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_strUUID.compare(strLanguage, Qt::CaseInsensitive) == 0)) {
+				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_dtoFlags & DTO_IgnoreLang)) {
 				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
 				if (!pDictDatabase.isNull()) {
 					return pDictDatabase;
@@ -306,7 +308,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
 		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
 		if (!pDictDatabase.isNull()) {
-			if ((strLanguage.isEmpty()) || (pDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0)) return pDictDatabase;
+			if ((strLanguage.isEmpty()) || (pDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+				(pDictDatabase->flags() & DTO_IgnoreLang)) return pDictDatabase;
 		}
 	}
 
@@ -315,7 +318,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
 		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx)).isNull()) continue;
 		if ((strLanguage.isEmpty()) ||
-			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_strUUID.compare(strLanguage, Qt::CaseInsensitive) == 0)) {
+			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_dtoFlags & DTO_IgnoreLang)) {
 			if (TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableUUIDs.at(ndx), false, pParentWidget)) {
 				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
 				assert(!pDictDatabase.isNull());
@@ -1504,7 +1508,7 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	if (bblDesc.m_strUUID.compare(bibleDescriptor(BDE_SPECIAL_TEST).m_strUUID, Qt::CaseInsensitive) != 0) {
 		// If this database is setup for auto-loading, preload the corresponding autoLoad flag in the persistent settings to match (i.e. force on):
 		//	Note: This has to use the TBibleDescriptor object because the other data hasn't been set yet!
-		if (bblDesc.m_bAutoLoad) {
+		if (bblDesc.m_btoFlags & BTO_AutoLoad) {
 			TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
 			bblDBaseSettings.setLoadOnStart(true);
 			CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
@@ -1515,6 +1519,8 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 	//		we are the current the one to determine cross-database compatibility.  Perhaps this would
 	//		best be kept in the database as well, but it's almost a toss-up.
 	m_strHighlighterUUID = bblDesc.m_strHighlighterUUID;
+
+	m_btoFlags = bblDesc.m_btoFlags;
 }
 
 CBibleDatabase::~CBibleDatabase()
@@ -1769,7 +1775,8 @@ CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord)
 // ============================================================================
 
 CDictionaryDatabase::CDictionaryDatabase(const TDictionaryDescriptor &dctDesc)
-	:	m_strName(dctDesc.m_strDBName),
+	:	m_dtoFlags(dctDesc.m_dtoFlags),
+		m_strName(dctDesc.m_strDBName),
 		m_strDescription(dctDesc.m_strDBDesc),
 		m_strCompatibilityUUID(dctDesc.m_strUUID)
 {

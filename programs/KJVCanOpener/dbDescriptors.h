@@ -28,11 +28,21 @@
 #include <QString>
 #include <QStringList>
 #include <QObject>
+#include <QFlags>
 
 // ============================================================================
 
+enum BibleTypeOptions {
+	BTO_None = 0x0,						// Default for no options
+	BTO_SpecialTest = 0x1,				// Is Special Test Database entry
+	BTO_AutoLoad = 0x2					// AutoLoad database at app start
+};
+Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
+
+#define defaultBibleTypeFlags			(BTO_None)
+
 typedef struct {
-	bool m_bAutoLoad;					// If true, the database will be autoloaded at application startup
+	BibleTypeOptionsFlags m_btoFlags;	// Bible database flags
 	QString m_strWorkID;				// OSIS Work Identifier
 	QString m_strLanguage;				// Two-Character international language ID
 	QString m_strDBName;				// Short Database Name
@@ -64,8 +74,24 @@ enum BIBLE_DESCRIPTOR_ENUM {
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
+// ============================================================================
+
+enum DictionaryTypeOptions {
+	DTO_None = 0x0,						// Default for no options
+	DTO_SpecialTest = 0x1,				// Is Special Test Database entry
+	DTO_AutoLoad = 0x2,					// AutoLoad database at app start
+	DTO_IgnoreLang = 0x4,				// Ignore language code (causes the language check to be ignored allowing the dictionary to be used with Bible databases of unmatching languages)
+	DTO_DisableTracking = 0x8,			// Disable auto tracking of Bible text work in the dictionary
+	DTO_Topical = 0x10,					// Dictionary is a Topical Index/Dictionary
+	DTO_TimeLineDictionary = 0x20		// Timeline dictionary, such as Ussher's Annals of the World
+};
+Q_DECLARE_FLAGS(DictionaryTypeOptionsFlags, DictionaryTypeOptions)
+
+#define defaultDictionaryTypeFlags		(DTO_None)
+#define defaultTopicalDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Topical)
+
 typedef struct {
-	bool m_bAutoLoad;					// If true, the database will be autoloaded at application startup
+	DictionaryTypeOptionsFlags m_dtoFlags;
 	QString m_strLanguage;
 	QString m_strDBName;
 	QString m_strDBDesc;
@@ -88,6 +114,8 @@ enum DICTIONARY_DESCRIPTOR_ENUM {
 	DDE_T_TORREY = 8
 };
 Q_DECLARE_METATYPE(DICTIONARY_DESCRIPTOR_ENUM)
+
+// ============================================================================
 
 extern QString g_strBibleDatabasePath;
 extern QString g_strDictionaryDatabasePath;

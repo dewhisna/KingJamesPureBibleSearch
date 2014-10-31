@@ -339,8 +339,10 @@ bool CDictionaryWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 	return QWidget::eventFilter(pObject, pEvent);
 }
 
-void CDictionaryWidget::setWord(const QString &strWord)
+void CDictionaryWidget::setWord(const QString &strWord, bool bIsTracking)
 {
+	if ((bIsTracking) && (m_pDictionaryDatabase->flags() & DTO_DisableTracking)) return;
+
 	ui.editDictionaryWord->processPendingUpdateCompleter();
 	ui.editDictionaryWord->insertCompletion(strWord);
 }
@@ -355,7 +357,7 @@ void CDictionaryWidget::en_wordChanged()
 		m_bIgnoreNextWordChange = false;
 		m_bDoingUpdate = true;
 		// Restore last word:
-		if (strURLLastWord.hasFragment()) setWord(strURLLastWord.fragment());
+		if (strURLLastWord.hasFragment()) setWord(strURLLastWord.fragment(), false);
 		m_bDoingUpdate = false;
 		return;
 	}
@@ -388,7 +390,7 @@ void CDictionaryWidget::en_sourceChanged(const QUrl &src)
 
 	QString strURL = src.toString();		// Internal URLs are in the form of "#nnnnnnnn" as anchors
 	int nPos = strURL.indexOf('#');
-	if (nPos > -1) setWord(strURL.mid(nPos+1));
+	if (nPos > -1) setWord(strURL.mid(nPos+1), false);
 }
 
 void CDictionaryWidget::en_anchorClicked(const QUrl &link)
@@ -415,13 +417,15 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 
 	if (urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) {
 		if (ndxDblSlash != -1) {
-			setWord(strValue);
+			setWord(strValue, false);
 		} else {
-			setWord(urlResolved.host());
+			setWord(urlResolved.host(), false);
 		}
 	} else if (urlResolved.scheme().compare("bible", Qt::CaseInsensitive) == 0) {
 		if (ndxDblSlash != -1) {
-			m_bIgnoreNextWordChange = true;					// Ignore automatic word selection from the new passage, as it's annoying
+			if (!(m_pDictionaryDatabase->flags() & DTO_DisableTracking)) {
+				m_bIgnoreNextWordChange = true;					// Ignore automatic word selection from the new passage, as it's annoying
+			}
 			emit gotoPassageReference(strValue);
 		}
 	}

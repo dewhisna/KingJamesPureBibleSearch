@@ -101,14 +101,14 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 			return bblDesc.m_strDBDesc;
 
 		if (role == Qt::CheckStateRole) {
-			bool bIsCurrentlyChecked = (bLoadOnStart || bblDesc.m_bAutoLoad);
+			bool bIsCurrentlyChecked = (bLoadOnStart || (bblDesc.m_btoFlags & BTO_AutoLoad));
 			return (bIsCurrentlyChecked ? Qt::Checked : Qt::Unchecked);
 		}
 	} else if (index.column() == 1) {
 		if ((role == Qt::DisplayRole) ||
 			(role == Qt::EditRole)) {
 			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
-			if (bblDesc.m_bAutoLoad) {
+			if (bblDesc.m_btoFlags & BTO_AutoLoad) {
 				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded", "BibleDBStatus"));
 			} else if (bdeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
 				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "BibleDBStatus"));
@@ -161,7 +161,7 @@ bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &
 			BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
 			const TBibleDescriptor &bblDesc = bibleDescriptor(m_lstAvailableDatabases.at(ndxDB));
 			int nBibleDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);		// Get mapping if it's really loaded
-			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || bblDesc.m_bAutoLoad);
+			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart() || (bblDesc.m_btoFlags & BTO_AutoLoad));
 			bool bIsDBLoaded = (nBibleDB != -1);
 			bool bNewCheck = value.toBool();
 
@@ -174,7 +174,7 @@ bool CBibleDatabaseListModel::setData(const QModelIndex &index, const QVariant &
 				locateLoadedDatabase(ndxDB);
 			} else {
 				// "unload" it by unmapping it (unless it's a special autoLoad or our selected initial database):
-				if ((!bblDesc.m_bAutoLoad) && (bdeMainDB != m_lstAvailableDatabases.at(ndxDB))) {
+				if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) && (bdeMainDB != m_lstAvailableDatabases.at(ndxDB))) {
 					TBibleDatabaseSettings bblDBaseSettings = CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID);
 					bblDBaseSettings.setLoadOnStart(false);
 					CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
@@ -222,7 +222,7 @@ Qt::ItemFlags CBibleDatabaseListModel::flags(const QModelIndex &index) const
 	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size()));
 
 	BIBLE_DESCRIPTOR_ENUM bdeMainDB = bibleDescriptorFromUUID(CPersistentSettings::instance()->mainBibleDatabaseUUID());
-	bool bCheckable = ((bdeMainDB != m_lstAvailableDatabases.at(ndxDB)) && (!bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_bAutoLoad));
+	bool bCheckable = ((bdeMainDB != m_lstAvailableDatabases.at(ndxDB)) && (!(bibleDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_btoFlags & BTO_AutoLoad)));
 
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bCheckable ? Qt::ItemIsUserCheckable : Qt::NoItemFlags) | Qt::ItemIsSelectable;
 }
