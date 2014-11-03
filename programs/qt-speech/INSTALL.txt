@@ -1,0 +1,44 @@
+Introduction
+============
+
+QtSpeech uses qmake to build itself as static library.
+qmake is part of a Qt distribution. For Unix Festival
+is required as TTS engine.
+
+Building QtSpeech
+==========================
+
+A) Unix
+--------
+
+sh get-festival.sh
+qmake QtSpeech.pro
+make
+
+B) Win32/MSVC
+--------
+
+Install Speech SDK (Windows XP - Speech SDK 5.1).
+Unfortunately fixes in header files are required.
+Maybe due to outdated version of SDK for Windows XP.
+
+sphelper.h:
+line 769:
+-    const ulLenVendorPreferred = wcslen(pszVendorPreferred);
++    const ULONG ulLenVendorPreferred = wcslen(pszVendorPreferred);
+line 1418:
+-    static CoMemCopyWFEX(const WAVEFORMATEX * pSrc, WAVEFORMATEX ** ppCoMemWFEX)
++    static int CoMemCopyWFEX(const WAVEFORMATEX * pSrc, WAVEFORMATEX ** ppCoMemWFEX)
+line 2372:
+-        for (const WCHAR * psz = (const WCHAR *)lParam; *psz; psz++) {}
++        const WCHAR * psz; for (psz = (const WCHAR *)lParam; *psz; psz++) {}
+
+As alternative to avoid building process you can use already built
+QtSpeech.vs2005.lib, but still you will need sapi.lib on linking stage.
+
+B) Mac OS X
+--------
+
+qmake QtSpeech.pro
+make
+
