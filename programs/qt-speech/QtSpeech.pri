@@ -45,9 +45,9 @@ unix:!mac {
     INCLUDEPATH += $$PWD/festival/speech_tools/include
     INCLUDEPATH += $$PWD/festival/festival/src/include
 
-    LIBS += -lncurses
     LIBS += -L$$PWD/festival/festival/src/lib -lFestival
     LIBS += -L$$PWD/festival/speech_tools/lib -lestools -lestbase -leststring
+    LIBS += -lncurses
 
     # Linux: use asound 
     LIBS += -lasound
