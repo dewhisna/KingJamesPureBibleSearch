@@ -1,0 +1,77 @@
+
+
+        The Festival Speech Synthesis System version 2.1
+         and Edinburgh Speech Tools Library version 2.1
+                        November 2010
+
+Surprisingly we have a new release.  Please give feedback for
+installation issues so they can be fixed in a 2.1 release.
+
+Festival offers a general framework for building speech synthesis
+systems as well as including examples of various modules.  As a whole
+it offers full text to speech through a number APIs: from shell level,
+though a Scheme command interpreter, as a C++ library, from Java, and
+an Emacs interface.  Festival is multi-lingual (currently English
+(British and American), and Spanish) though English is the most
+advanced.  Other groups release new languages for the system.  And
+full tools and documentation for build new voices are available
+through Carnegie Mellon's FestVox project (http://festvox.org).  This
+version also supports voices built with the latest version of Nagoya
+Institute of Technologies' HTS system (http://hts.sp.nitech.ac.jp)
+
+The system is written in C++ and uses the Edinburgh Speech Tools
+Library for low level architecture and has a Scheme (SIOD) based
+command interpreter for control.  Documentation is given in the FSF
+texinfo format which can generate, a printed manual, info files and
+HTML.
+
+Festival is free software.  Festival and the speech tools are
+distributed under an X11-type licence allowing unrestricted commercial
+and non-commercial use alike.
+
+This distribution includes:
+   * Full English (British and American English) text to speech
+   * Full C++ source for modules, SIOD interpreter, and Scheme library
+   * Lexicon based on CMULEX and OALD (OALD is restricted to non-commercial
+     use only)
+   * Edinburgh Speech Tools, low level C++ library
+   * rab_diphone: British English Male residual LPC, diphone
+   * kal_diphone: American English Male residual LPC diphone
+   * cmu_us_slt_arctic_hts: American Female, HTS
+   * cmu_us_rms_cg: American Male using  clustergen
+   * cmu_us_awb_cg: Scottish English Male (with US frontend) clustergen
+   * Full documentation (html, postscript and GNU info format)
+
+Note there are some licence restrictions on the voices themselves.
+The US English voices have the same restrictions as Festival.  
+
+The UK lexicon (OALD) is restricted to non-commercial use.
+
+Addition voices are also available.
+
+Festival version 2.1 sources, voices
+
+In Europe:
+    http://www.cstr.ed.ac.uk/downloads/festival/
+In North America:
+    http://festvox.org/festival
+
+Requirements
+
+To run Festival you need:
+   * A Unix-like environment, e.g Linux, FreeBSD, OSX, cygwin under Windows.
+   * A C++ compiler: we have used GCC  versions. 2.x upto 4.5
+   * GNU Make any recent version
+
+New in 2.1
+   * Support for the new versions of C++ that have been released
+   * Integrated and updated support for HTS, Clustergen, Multisyn and Clunits
+     voices
+   * "Building Voices in Festival" document describing process of building
+     new voices in the system
+       http://festvox.org/
+
+Alan W Black (CMU)
+Rob Clark (Edinburgh)
+Junichi Yamagishi (Edinburgh)
+Keiichiro Oura (Nagoya)
