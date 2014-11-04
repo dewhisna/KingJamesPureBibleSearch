@@ -41,6 +41,10 @@
 #include <QActionGroup>
 #include <QUrl>
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 // ============================================================================
 
 // Forward declarations:
@@ -123,6 +127,11 @@ protected:
 
 //protected slots:
 protected:
+#ifdef USING_QT_SPEECH
+	virtual void en_readSelection();
+	virtual void en_readFromCursor();
+#endif
+
 	virtual void en_findParentCanOpener();
 	virtual void en_findDialog();
 
@@ -162,6 +171,9 @@ private:
 	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
 
 private:
+#ifdef USING_QT_SPEECH
+	QtSpeech m_speech;
+#endif
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
@@ -237,6 +249,11 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
+#ifdef USING_QT_SPEECH
+	virtual void en_readSelection() = 0;
+	virtual void en_readFromCursor() = 0;
+#endif
+
 	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
 
@@ -290,6 +307,11 @@ signals:
 	void copyVersesAvailable(bool bAvailable);
 
 protected slots:
+#ifdef USING_QT_SPEECH
+	virtual void en_readSelection() = 0;
+	virtual void en_readFromCursor() = 0;
+#endif
+
 	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
 

@@ -212,6 +212,22 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_pStatusAction = new QAction(this);
 
+#ifdef USING_QT_SPEECH
+	QAction *pSpeechAction;
+
+#ifndef Q_OS_MAC
+	pSpeechAction = new QAction("readSelection", this);
+	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
+	T::addAction(pSpeechAction);
+	T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readSelection()));
+	pSpeechAction = new QAction("readFromCursor", this);
+	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
+	T::addAction(pSpeechAction);
+	T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
+#endif
+
+#endif
+
 #ifdef TOUCH_GESTURE_PROCESSING
 	T::grabGesture(Qt::TapGesture);
 	T::grabGesture(Qt::TapAndHoldGesture);
@@ -392,6 +408,33 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 		if (m_pFindDialog != NULL) m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
 	}
 }
+
+// ----------------------------------------------------------------------------
+
+#ifdef USING_QT_SPEECH
+template<class T, class U>
+void CScriptureText<T,U>::en_readSelection()
+{
+	if (!haveSelection()) return;
+
+	// The speech buffer has a limited size, so break into individual sentences at a period.
+	//		This will combine questions and exclamations, joining them with adjacent statements,
+	//		but there isn't likely to be a ton of them run together, which will achieve the
+	//		goal of not overflowing the buffer:
+	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(QChar('.'));
+	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
+		if (!lstSentences.at(ndx).isEmpty()) {
+			m_speech.say(lstSentences.at(ndx));
+		}
+	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_readFromCursor()
+{
+}
+
+#endif
 
 // ----------------------------------------------------------------------------
 

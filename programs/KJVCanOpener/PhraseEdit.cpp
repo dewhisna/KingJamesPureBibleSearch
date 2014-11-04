@@ -172,6 +172,15 @@ QString CSubPhrase::phraseRaw() const
 	return phraseWordsRaw().join(" ");
 }
 
+QString CSubPhrase::phraseToSpeak() const
+{
+	static const CVerseTextPlainRichifierTags tagsRichifier;
+	QString strPhrase = phraseWords().join(" ");
+	strPhrase.remove(tagsRichifier.transChangeAddedBegin());
+	strPhrase.remove(tagsRichifier.transChangeAddedEnd());
+	return strPhrase;
+}
+
 int CSubPhrase::phraseSize() const
 {
 	return phraseWords().size();
@@ -180,6 +189,11 @@ int CSubPhrase::phraseSize() const
 int CSubPhrase::phraseRawSize() const
 {
 	return phraseWordsRaw().size();
+}
+
+int CSubPhrase::phraseToSpeakSize() const
+{
+	return phraseWordsToSpeak().size();
 }
 
 QStringList CSubPhrase::phraseWords() const
@@ -217,6 +231,23 @@ QStringList CSubPhrase::phraseWordsRaw() const
 		} else {
 			strPhraseWords[ndx] = strTemp;
 		}
+	}
+	return strPhraseWords;
+}
+
+QStringList CSubPhrase::phraseWordsToSpeak() const
+{
+	static const CVerseTextPlainRichifierTags tagsRichifier;
+
+	QStringList strPhraseWords;
+
+	strPhraseWords.reserve(m_lstWords.size());
+
+	for (int ndx = 0; ndx < m_lstWords.size(); ++ndx) {
+		QString strWord = m_lstWords.at(ndx);
+		strWord.remove(tagsRichifier.transChangeAddedBegin());
+		strWord.remove(tagsRichifier.transChangeAddedEnd());
+		if (!strWord.isEmpty()) strPhraseWords.append(strWord);
 	}
 	return strPhraseWords;
 }
@@ -495,6 +526,18 @@ QString CParsedPhrase::phraseRaw() const
 	return lstPhrases.join(" | ");
 }
 
+QString CParsedPhrase::phraseToSpeak() const
+{
+	QStringList lstPhrases;
+
+	lstPhrases.reserve(m_lstSubPhrases.size());
+	for (int ndx = 0; ndx < m_lstSubPhrases.size(); ++ndx) {
+		lstPhrases.append(m_lstSubPhrases.at(ndx)->phraseToSpeak());
+	}
+
+	return lstPhrases.join(" ");
+}
+
 const QStringList CParsedPhrase::phraseWords() const
 {
 	return phrase().split(QRegExp("\\s+"), QString::SkipEmptyParts);
@@ -503,6 +546,11 @@ const QStringList CParsedPhrase::phraseWords() const
 const QStringList CParsedPhrase::phraseWordsRaw() const
 {
 	return phraseRaw().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+}
+
+const QStringList CParsedPhrase::phraseWordsToSpeak() const
+{
+	return phraseToSpeak().split(QRegExp("\\s+"), QString::SkipEmptyParts);
 }
 
 void CParsedPhrase::clearCache() const
@@ -2633,7 +2681,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 			if ((ndxRel.verse() == 0) && (ndxRel.word() == 0)) ndxRel.setVerse(1);
 		}
 		if (nCount == 0) nCount = 1;
-		CVerseTextPlainRichifierTags tagsRichifier;
+		static const CVerseTextPlainRichifierTags tagsRichifier;
 		while ((nCount > 0) && (ndxRel.isSet())) {
 			const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxRel);
 			assert(pVerse != NULL);

@@ -64,10 +64,13 @@ public:
 	int GetCursorWordPos() const;
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
+	QString phraseToSpeak() const;				// Return reconstituted phrase to speak (i.e. no TransChangeAdded symbols)
 	int phraseSize() const;						// Return number of words in reconstituted phrase
 	int phraseRawSize() const;					// Return number of words in reconstituted raw phrase
+	int phraseToSpeakSize() const;				// Return number of words in reconstituted phrase to speak
 	QStringList phraseWords() const;			// Return reconstituted phrase words
 	QStringList phraseWordsRaw() const;			// Return reconstituted raw phrase words
+	QStringList phraseWordsToSpeak() const;		// Return reconstituted phrase to speak words
 
 	bool isCompleteMatch() const;
 	unsigned int GetNumberOfMatches() const;
@@ -146,8 +149,10 @@ public:
 	int GetCursorWordPos() const;				// CursorWordPos for entire composite of all subPhrases -- includes tail insertion point for each subPhrase at each '|'
 	QString phrase() const;						// Return reconstituted phrase
 	QString phraseRaw() const;					// Return reconstituted phrase without punctuation or regexp symbols
+	QString phraseToSpeak() const;				// Return reconstituted phrase to speak (i.e. no TransChangeAdded symbols)
 	const QStringList phraseWords() const;		// Return reconstituted phrase words
 	const QStringList phraseWordsRaw() const;	// Return reconstituted raw phrase words
+	const QStringList phraseWordsToSpeak() const;	// Return reconstituted phrase to speak words
 
 	int subPhraseCount() const { return m_lstSubPhrases.size(); }
 	int currentSubPhrase() const { return m_nActiveSubPhrase; }
@@ -408,6 +413,16 @@ public:
 			default:
 				return lstPhrases.join(" ");
 		}
+	}
+
+	QString phraseToSpeak() const																// Combined phrase to speak of all selected phrases
+	{
+		QStringList lstPhrases;
+		for (int ndx = 0; ndx < size(); ++ndx) {
+			if (!at(ndx).tag().haveSelection()) continue;
+			lstPhrases.append(at(ndx).phrase().phraseToSpeak());
+		}
+		return lstPhrases.join(" ");
 	}
 };
 
