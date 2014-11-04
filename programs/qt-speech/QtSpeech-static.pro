@@ -18,6 +18,7 @@
 
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += qtspeech_libbuild
 DEFINES += QTSPEECH_STATIC
 CONFIG(debug, debug|release) {
     TARGET = QtSpeechd

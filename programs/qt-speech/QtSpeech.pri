@@ -16,42 +16,63 @@
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301 USA
 
+!contains( included_modules, qt-speech/QtSpeech.pri) {
+		included_modules += qt-speech/QtSpeech.pri
+
 DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    QtSpeech \
-    QtSpeech.h \
+	$$PWD/QtSpeech \
+	$$PWD/QtSpeech.h \
+
+!qtspeech_libbuild {
+	CONFIG(debug, debug|release) {
+		LIBS += -lQtSpeechd
+	}
+	CONFIG(release, debug|release) {
+		LIBS += -lQtSpeech
+	}
+}
 
 macx {
-    SOURCES += QtSpeech_mac.cpp
-    LIBS *= -framework AppKit
+	qtspeech_libbuild{
+		SOURCES += $$PWD/QtSpeech_mac.cpp
+	}
+
+	LIBS *= -framework AppKit
 }
 
 win32 {
-    SOURCES += QtSpeech_win.cpp
+	qtspeech_libbuild {
+		SOURCES += $$PWD/QtSpeech_win.cpp
+	}
 
-    INCLUDEPATH += "C:/Program Files/PSDK/Include"
-    INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
-    INCLUDEPATH += "C:/Program Files/Microsoft Speech SDK 5.1/Include"
+	INCLUDEPATH += "C:/Program Files/PSDK/Include"
+	INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
+	INCLUDEPATH += "C:/Program Files/Microsoft Speech SDK 5.1/Include"
 
-    LIBS += -L"C:/Program Files/Microsoft Speech SDK 5.1/Lib/i386"
+	LIBS += -L"C:/Program Files/Microsoft Speech SDK 5.1/Lib/i386"
 }
 
 unix:!mac {
-    HEADERS += QtSpeech_unx.h
-    SOURCES += QtSpeech_unx.cpp
+	qtspeech_libbuild {
+		HEADERS += $$PWD/QtSpeech_unx.h
+		SOURCES += $$PWD/QtSpeech_unx.cpp
+	}
 
-    INCLUDEPATH += $$PWD/festival/speech_tools/include
-    INCLUDEPATH += $$PWD/festival/festival/src/include
+	INCLUDEPATH += $$PWD/festival/speech_tools/include
+	INCLUDEPATH += $$PWD/festival/festival/src/include
 
-    LIBS += -L$$PWD/festival/festival/src/lib -lFestival
-    LIBS += -L$$PWD/festival/speech_tools/lib -lestools -lestbase -leststring
-    LIBS += -lncurses
+	LIBS += -L$$PWD/festival/festival/src/lib -lFestival
+	LIBS += -L$$PWD/festival/speech_tools/lib -lestools -lestbase -leststring
+	LIBS += -lncurses
 
-    # Linux: use asound 
-    LIBS += -lasound
-    
-    # Mac: use system Frameworks
-    #LIBS += -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework Carbon
+	# Linux: use asound
+	LIBS += -lasound
+
+	# Mac: use system Frameworks
+	#LIBS += -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework Carbon
+}
+
 }

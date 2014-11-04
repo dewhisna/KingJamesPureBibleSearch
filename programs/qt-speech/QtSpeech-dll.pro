@@ -18,6 +18,7 @@
 
 TEMPLATE = lib
 CONFIG += dll
+CONFIG += qtspeech_libbuild
 DEFINES += QTSPEECH_LIBRARY
 CONFIG(debug, debug|release) {
     TARGET = QtSpeechd

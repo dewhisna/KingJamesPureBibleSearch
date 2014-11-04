@@ -54,6 +54,8 @@ exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
 if(android | ios):DEFINES += IS_MOBILE_APP
 
+!android:!ios:!emscripten:!vnc:CONFIG += QtSpeech			# Enable Text-To-Speech support
+
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
@@ -90,6 +92,12 @@ include(../grantlee/textdocument/textdocument.pri)
 	}
 }
 vnc:QT += network
+
+QtSpeech {
+	DEFINES += USING_QT_SPEECH
+	include(../qt-speech/QtSpeech.pri)
+}
+
 
 # Add the Plastique Style:
 # In Qt4, Plastique is built-in to Qt itself:
