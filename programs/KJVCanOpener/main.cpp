@@ -314,6 +314,9 @@ int main(int argc, char *argv[])
 
 	delete pApp;
 #else
+#ifdef USING_QT_SPEECH
+#error "Can't use Qt Speech with Emscripten!"
+#endif
 	if (pSplash != NULL) {
 		nRetVal = pApp->exec();
 		QTimer::singleShot(2000, pApp, SLOT(execute()));

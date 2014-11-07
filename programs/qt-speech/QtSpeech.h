@@ -63,12 +63,11 @@ public:
 	static bool serverAvailable();								// True if QtSpeech library compiled with server support
 	static bool serverRunning();								// True if Festival Server currently running
 	static bool startServer(int nPort = 1314);					// Start Festival Server
-	static bool stopServer();									// Stop Festival Server
+	static void stopServer();									// Stop Festival Server
 
 public slots:
     void say(QString) const;                                    //!< Say something, synchronous
     void tell(QString) const;                                   //!< Tell something, asynchronous
-    void tell(QString, QObject * obj, const char * slot) const; //!< Tell something, invoke slot at end
 
 signals:
     void finished();

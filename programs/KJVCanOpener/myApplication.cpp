@@ -37,6 +37,10 @@
 #include <singleapplication.h>
 #endif
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 #ifdef SHOW_SPLASH_SCREEN
 #include <QPixmap>
 #include <QSplashScreen>
@@ -614,6 +618,10 @@ CMyApplication::~CMyApplication()
 	TBibleDatabaseList::instance()->clear();
 	TDictionaryDatabaseList::instance()->clear();
 	g_pUserNotesDatabase.clear();
+
+#ifdef USING_QT_SPEECH
+	if (QtSpeech::serverAvailable()) QtSpeech::stopServer();
+#endif
 
 #ifdef LOAD_APPLICATION_FONTS
 #ifndef WORKAROUND_QTBUG_34490
@@ -1303,6 +1311,17 @@ int CMyApplication::execute(bool bBuildDB)
 
 	qRegisterMetaType<TBibleDatabaseSettings>("TBibleDatabaseSettings");			// Needed to do queued connection of the CPersistentSettings::changedBibleDatabaseSettings()
 
+	// Setup Text-To-Speech:
+#ifdef USING_QT_SPEECH
+	// TODO : Add reading/setting of Speech Server Port:
+	if (QtSpeech::serverAvailable()) {
+		if (!QtSpeech::startServer()) {
+			displayWarning(m_pSplash, g_constrInitialization, tr("Failed to start Text-To-Speech Server!", "Errors"));
+		}
+	}
+#endif
+
+	// Setup Bible Databases:
 	QString strMainBibleDatabaseUUID;
 	QString strMainDictDatabaseUUID;
 

@@ -25,7 +25,7 @@
 #include <QString>
 #include <QStringList>
 
-//#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
+#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
 #include <QTimer>
@@ -51,7 +51,7 @@ public slots:
 	void doInit();
 	void say(QString text);
 #ifdef USE_FESTIVAL_SERVER
-	void startServer();
+	void startServer(int nPort);
 	void stopServer();
 #endif
 
@@ -79,20 +79,22 @@ class QtSpeech_asyncServerIO : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_asyncServerIO(int nPortNumber = 1314, QObject *pParent = 0L);
+	QtSpeech_asyncServerIO(int nPortNumber, QObject *pParent = 0L);
 	virtual ~QtSpeech_asyncServerIO();
 
 signals:
-	void readFailed();
-	void readComplete();
+	void operationFailed();
+	void operationSucceeded();
+	void operationComplete();
 
 public slots:
-	bool connectToServer(int nPortNumber = -1);
+	void asyncReadVoices();
+	void say(const QString &strText);
+
+protected slots:
+	bool connectToServer();
 	void disconnectFromServer();
 	QStringList sendCommand(const QString &strCommand);
-
-private slots:
-	void asyncReadVoices();
 
 private:
 	QTcpSocket m_sockFestival;
