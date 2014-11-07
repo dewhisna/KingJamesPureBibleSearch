@@ -31,8 +31,10 @@
 
 namespace QtSpeech_v1 { // API v1.0
 
-class QTSPEECH_API QtSpeech : public QObject {
-Q_OBJECT
+class QTSPEECH_API QtSpeech : public QObject
+{
+	Q_OBJECT
+
 public:
     // exceptions
     struct Error { QString msg; Error(QString s):msg(s) {} };
@@ -41,17 +43,29 @@ public:
     struct CloseError : Error { CloseError(QString s):Error(s) {} };
 
     // types
-    struct VoiceName { QString id; QString name; };
+	struct VoiceName {
+		QString id;
+		QString name;
+		QString lang;
+
+		bool isEmpty() const { return id.isEmpty(); }
+	};
     typedef QList<VoiceName> VoiceNames;
 
     // api
     QtSpeech(QObject * parent);
-    QtSpeech(VoiceName n = VoiceName(), QObject * parent =0L);
+	QtSpeech(VoiceName aVoiceName = VoiceName(), QObject * parent = 0L);
     virtual ~QtSpeech();
 
-    const VoiceName & name() const; //!< Name of current voice
+	const VoiceName & name() const; //!< Name of current voice
     static VoiceNames voices();     //!< List of available voices in system
 
+	static bool serverAvailable();								// True if QtSpeech library compiled with server support
+	static bool serverRunning();								// True if Festival Server currently running
+	static bool startServer(int nPort = 1314);					// Start Festival Server
+	static bool stopServer();									// Stop Festival Server
+
+public slots:
     void say(QString) const;                                    //!< Say something, synchronous
     void tell(QString) const;                                   //!< Tell something, asynchronous
     void tell(QString, QObject * obj, const char * slot) const; //!< Tell something, invoke slot at end
@@ -63,10 +77,13 @@ protected:
     virtual void timerEvent(QTimerEvent *);
 
 private:
-    class Private;
+	friend class QtSpeech_th;
+	friend class QtSpeech_asyncServerIO;
+
+	class Private;
     Private * d;
 };
 
-}; // namespace QtSpeech_v1
+} // namespace QtSpeech_v1
 #endif // QtSpeech_H
 

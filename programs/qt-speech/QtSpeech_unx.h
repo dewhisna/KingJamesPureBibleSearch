@@ -22,28 +22,85 @@
 #include <QObject>
 #include <QtSpeech>
 
+#include <QString>
+#include <QStringList>
+
+//#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
+#ifdef USE_FESTIVAL_SERVER
+#include <QTcpSocket>
+#include <QTimer>
+#endif
+
 namespace QtSpeech_v1 { // API v1.0
 
-class QtSpeech_th : public QObject {
-Q_OBJECT
+class QtSpeech_th : public QObject
+{
+	Q_OBJECT
+
 public:
-    QtSpeech_th(QObject * p =0L):QObject(p),has_error(false),err("") {}
-    virtual ~QtSpeech_th() {}
+	QtSpeech_th(const QtSpeech::VoiceName &aVoiceName, QObject * p =0L)
+		:	QObject(p),
+			err(""),
+			has_error(false),
+			selectedVoiceName(aVoiceName)
+	{}
+	virtual ~QtSpeech_th()
+	{}
 
 public slots:
-    void say(QString text);
+	void doInit();
+	void say(QString text);
+#ifdef USE_FESTIVAL_SERVER
+	void startServer();
+	void stopServer();
+#endif
 
 signals:
     void logicError(QtSpeech::LogicError);
     void finished();
+#ifdef USE_FESTIVAL_SERVER
+	void serverStarted();
+	void serverStopped();
+#endif
 
 private:
     friend class QtSpeech;
     QtSpeech::LogicError err;
     bool has_error;
-    static bool init;
+	QtSpeech::VoiceName selectedVoiceName;
+	static bool init;
+	static bool haveSelectedVoice;
 };
 
-}; // namespace QtSpeech_v1
+
+#ifdef USE_FESTIVAL_SERVER
+class QtSpeech_asyncServerIO : public QObject
+{
+	Q_OBJECT
+
+public:
+	QtSpeech_asyncServerIO(int nPortNumber = 1314, QObject *pParent = 0L);
+	virtual ~QtSpeech_asyncServerIO();
+
+signals:
+	void readFailed();
+	void readComplete();
+
+public slots:
+	bool connectToServer(int nPortNumber = -1);
+	void disconnectFromServer();
+	QStringList sendCommand(const QString &strCommand);
+
+private slots:
+	void asyncReadVoices();
+
+private:
+	QTcpSocket m_sockFestival;
+	QTimer m_tmrAutoDisconnect;
+	int m_nPortNumber;
+};
+#endif
+
+}	// namespace QtSpeech_v1
 #endif // QtSpeech_unx_H
 

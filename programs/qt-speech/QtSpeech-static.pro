@@ -17,6 +17,12 @@
 # Boston, MA 02110-1301 USA
 
 TEMPLATE = lib
+
+useserver {
+	QT += network
+	DEFINES += USE_FESTIVAL_SERVER
+}
+
 CONFIG += staticlib
 CONFIG += qtspeech_libbuild
 DEFINES += QTSPEECH_STATIC
