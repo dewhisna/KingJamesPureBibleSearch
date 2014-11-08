@@ -36,11 +36,11 @@ class QTSPEECH_API QtSpeech : public QObject
 	Q_OBJECT
 
 public:
-    // exceptions
-    struct Error { QString msg; Error(QString s):msg(s) {} };
-    struct InitError : Error { InitError(QString s):Error(s) {} };
-    struct LogicError : Error { LogicError(QString s):Error(s) {} };
-    struct CloseError : Error { CloseError(QString s):Error(s) {} };
+	// exceptions
+	struct Error { QString msg; Error(QString s):msg(s) {} };
+	struct InitError : Error { InitError(QString s):Error(s) {} };
+	struct LogicError : Error { LogicError(QString s):Error(s) {} };
+	struct CloseError : Error { CloseError(QString s):Error(s) {} };
 
     // types
 	struct VoiceName {
@@ -61,15 +61,15 @@ public:
 		}
 
 	};
-    typedef QList<VoiceName> VoiceNames;
+	typedef QList<VoiceName> VoiceNames;
 
-    // api
-    QtSpeech(QObject * parent);
+	// api
+	QtSpeech(QObject * parent);
 	QtSpeech(VoiceName aVoiceName = VoiceName(), QObject * parent = 0L);
-    virtual ~QtSpeech();
+	virtual ~QtSpeech();
 
 	const VoiceName & name() const; //!< Name of current voice
-    static VoiceNames voices();     //!< List of available voices in system
+	static VoiceNames voices();     //!< List of available voices in system
 
 	static bool serverSupported();								// True if QtSpeech library compiled with server support
 	static bool serverConnected();								// True if currently connected to a speech server
@@ -77,11 +77,11 @@ public:
 	static void disconnectFromServer();
 
 public slots:
-    void say(QString) const;                                    //!< Say something, synchronous
-    void tell(QString) const;                                   //!< Tell something, asynchronous
+	void say(QString strText) const;							//!< Say something, synchronous
+	void tell(QString strText) const;							//!< Tell something, asynchronous
 
 signals:
-    void finished();
+	void finished();
 
 protected:
 	void setVoice(const VoiceName &aVoice = VoiceName()) const;
@@ -90,7 +90,7 @@ protected:
 
 private:
 	class Private;
-    Private * d;
+	Private * d;
 };
 
 } // namespace QtSpeech_v1

@@ -86,7 +86,7 @@ public slots:
 protected slots:
 	bool connectToServer();
 	void disconnectFromServer();
-	QStringList sendCommand(const QString &strCommand);
+	QStringList sendCommand(const QString &strCommand, bool bWaitForReply = true);
 
 private:
 	QTcpSocket m_sockFestival;

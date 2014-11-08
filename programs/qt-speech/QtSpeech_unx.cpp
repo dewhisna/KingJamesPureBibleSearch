@@ -27,19 +27,16 @@ namespace QtSpeech_v1 { // API v1.0
 
 // ============================================================================
 
-#ifdef QT_DEBUG
-#define DEBUG_SERVER_IO
-#endif
+//#define DEBUG_SERVER_IO
 #define SERVER_IO_TIMEOUT 3000				// Timeout in msec for read, write, connect, etc
 #define SERVER_IO_BLOCK_MAX 65536l			// Maximum number of read/write bytes per transfer
-#define SERVER_AUTO_DISCONNECT_TIME 60000	// TCP Auto Disconnect time from server in msec
 
 // ============================================================================
 
 namespace {
 	const QString constr_VoiceId = QString("(voice_%1)");
 
-	const QtSpeech::VoiceName convn_DefaultVoiceName = { "cmu_us_slt_arctic_hts", "English (Male)", "en" };
+	const QtSpeech::VoiceName convn_DefaultVoiceName = { "rab_diphone", "English (Male)", "en" };
 
 	const QtSpeech::VoiceName convnarr_commonVoiceNames[] =
 	{
@@ -158,8 +155,9 @@ void QtSpeech_th::eval(QString strExpr)
 QtSpeech::QtSpeech(QObject * parent)
     :QObject(parent), d(new Private)
 {
-	if (convn_DefaultVoiceName.isEmpty())
-        throw InitError(Where+"No default voice in system");
+	if (convn_DefaultVoiceName.isEmpty()) {
+		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
+	}
 
 	d->m_vnRequestedVoiceName = convn_DefaultVoiceName;
 }
@@ -171,8 +169,9 @@ QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
 		aVoiceName = convn_DefaultVoiceName;
     }
 
-	if (aVoiceName.isEmpty())
-        throw InitError(Where+"No default voice in system");
+	if (aVoiceName.isEmpty()) {
+		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
+	}
 
 	d->m_vnRequestedVoiceName = aVoiceName;
 }
@@ -255,15 +254,17 @@ void QtSpeech::disconnectFromServer()
 
 // ----------------------------------------------------------------------------
 
-void QtSpeech::tell(QString text) const
+void QtSpeech::tell(QString strText) const
 {
 	setVoice();
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
-		g_QtSpeechGlobal.g_pAsyncServerIO->say(text);
+		g_QtSpeechGlobal.g_pAsyncServerIO->say(strText);
+		return;
 	}
-#else
+#endif
+
 	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
 		g_QtSpeechGlobal.m_pSpeechThread->start();
@@ -273,11 +274,10 @@ void QtSpeech::tell(QString text) const
 	th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
 	connect(th, SIGNAL(finished()), this, SIGNAL(finished()), Qt::QueuedConnection);
 	connect(th, SIGNAL(finished()), th, SLOT(deleteLater()), Qt::QueuedConnection);
-	QMetaObject::invokeMethod(th, "say", Qt::QueuedConnection, Q_ARG(QString,text));
-#endif
+	QMetaObject::invokeMethod(th, "say", Qt::QueuedConnection, Q_ARG(QString, strText));
 }
 
-void QtSpeech::say(QString text) const
+void QtSpeech::say(QString strText) const
 {
 	setVoice();
 
@@ -285,10 +285,11 @@ void QtSpeech::say(QString text) const
 	if (serverConnected()) {
 		QEventLoop el;
 		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
-		g_QtSpeechGlobal.g_pAsyncServerIO->say(text);
+		g_QtSpeechGlobal.g_pAsyncServerIO->say(strText);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 	}
-#else
+#endif
+
 	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
 		g_QtSpeechGlobal.m_pSpeechThread->start();
@@ -298,11 +299,12 @@ void QtSpeech::say(QString text) const
 	QtSpeech_th th;
 	th.moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
 	connect(&th, SIGNAL(finished()), &el, SLOT(quit()), Qt::QueuedConnection);
-	QMetaObject::invokeMethod(&th, "say", Qt::QueuedConnection, Q_ARG(QString,text));
+	QMetaObject::invokeMethod(&th, "say", Qt::QueuedConnection, Q_ARG(QString, strText));
 	el.exec(QEventLoop::ExcludeUserInputEvents);
 
-	if (th.has_error) qDebug("%s", th.err.msg.toUtf8().data());
-#endif
+	if (th.has_error) {
+		qDebug("%s", th.err.msg.toUtf8().data());
+	}
 }
 
 void QtSpeech::setVoice(const VoiceName &aVoice) const
@@ -322,7 +324,8 @@ void QtSpeech::setVoice(const VoiceName &aVoice) const
 		g_QtSpeechGlobal.g_pAsyncServerIO->setVoice(theVoice);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 	}
-#else
+#endif
+
 	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
 		g_QtSpeechGlobal.m_pSpeechThread->start();
@@ -335,8 +338,9 @@ void QtSpeech::setVoice(const VoiceName &aVoice) const
 	QMetaObject::invokeMethod(&th, "eval", Qt::QueuedConnection, Q_ARG(QString, constr_VoiceId.arg(theVoice.id)));
 	el.exec(QEventLoop::ExcludeUserInputEvents);
 
-	if (th.has_error) qDebug("%s", th.err.msg.toUtf8().data());
-#endif
+	if (th.has_error) {
+		qDebug("%s", th.err.msg.toUtf8().data());
+	}
 }
 
 void QtSpeech::timerEvent(QTimerEvent * te)
@@ -399,7 +403,7 @@ void QtSpeech_asyncServerIO::disconnectFromServer()
 	m_sockFestival.close();
 }
 
-QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand)
+QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool bWaitForReply)
 {
 	if (!isConnected()) return QStringList();
 
@@ -411,7 +415,9 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand)
 
 	QStringList lstResultLines;
 
-	if (m_sockFestival.waitForBytesWritten(SERVER_IO_TIMEOUT) && m_sockFestival.waitForReadyRead(SERVER_IO_TIMEOUT)) {
+	if (m_sockFestival.waitForBytesWritten(SERVER_IO_TIMEOUT) &&
+		((m_sockFestival.bytesAvailable() != 0) ||
+		 (bWaitForReply && m_sockFestival.waitForReadyRead(SERVER_IO_TIMEOUT)))) {
 
 #ifdef DEBUG_SERVER_IO
 		qDebug("Read Ready... Data:");
@@ -420,7 +426,9 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand)
 		QString strResult;
 		do {
 			strResult += QString::fromUtf8(m_sockFestival.read(SERVER_IO_BLOCK_MAX));
-		} while ((!strResult.contains(QLatin1String("ft_StUfF_key"))) && (m_sockFestival.waitForReadyRead(SERVER_IO_TIMEOUT)));
+		} while ((!strResult.contains(QLatin1String("ft_StUfF_key"))) &&
+				 ((m_sockFestival.bytesAvailable() != 0) ||
+				  (bWaitForReply && m_sockFestival.waitForReadyRead(SERVER_IO_TIMEOUT))));
 
 #ifdef DEBUG_SERVER_IO
 		qDebug("%s", strResult.toUtf8().data());
@@ -477,7 +485,7 @@ void QtSpeech_asyncServerIO::say(const QString &strText)
 	if (connectToServer()) {
 		QString strEscText = strText;
 		strEscText.remove(QChar('\"'));
-		sendCommand(QString("(SayText \"%1\")").arg(strEscText));
+		sendCommand(QString("(SayText \"%1\")").arg(strEscText), false);
 		emit operationSucceeded();
 	} else {
 		emit operationFailed();

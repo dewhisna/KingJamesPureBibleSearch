@@ -38,6 +38,8 @@
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 
+#include "SearchCompleter.h"
+
 #include <assert.h>
 
 #include <QApplication>
@@ -424,7 +426,10 @@ void CScriptureText<T,U>::en_readSelection()
 	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(QChar('.'));
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		if (!lstSentences.at(ndx).isEmpty()) {
-			m_speech.say(lstSentences.at(ndx));
+			// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
+			//		some special characters (like specialized apostrophes) mess up the
+			//		speech synthesis:
+			m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx), true), true).normalized(QString::NormalizationForm_KC));
 		}
 	}
 }
