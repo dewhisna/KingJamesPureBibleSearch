@@ -38,25 +38,13 @@ namespace {
 
 	const QtSpeech::VoiceName convn_DefaultVoiceName = { "rab_diphone", "English (Male)", "en" };
 
-	const QtSpeech::VoiceName convnarr_commonVoiceNames[] =
+	const QtSpeech::VoiceName convnarr_internalVoiceNames[] =
 	{
 		{ "cmu_us_awb_cg", "English (male)", "en" },
 		{ "cmu_us_slt_arctic_hts", "English (female)", "en" },
 		{ "cmu_us_rms_cg", "English (male)", "en" },
-		{ "cmu_us_clb_artic_clunits", "English (female)", "en" },
-		{ "ked_diphone", "English (male)", "en" },
-		{ "cmu_us_jmk_arctic_clunits", "English (male)", "en" },
-		{ "cmu_us_rms_arctic_clunits", "English (male)", "en" },
-		{ "en1_mbrola", "English (male)", "en" },
 		{ "kal_diphone", "English (male)", "en" },
-		{ "don_diphone", "English (male)", "en" },
 		{ "rab_diphone", "English (male)", "en" },
-		{ "us2_mbrola", "English (male)", "en" },
-		{ "us3_mbrola", "English (male)", "en" },
-		{ "cmu_us_awb_arctic_clunits", "English (male)", "en" },
-		{ "us1_mbrola", "English (male)", "en" },
-		{ "cmu_us_bdl_arctic_clunits", "English (male)", "en" },
-		{ "el_diphone", "Spanish (male)", "es" },
 		{ "", "", "" }
 	};
 }
@@ -206,8 +194,8 @@ QtSpeech::VoiceNames QtSpeech::voices()
 
 	// Set default in case we fail to setup client/server or aren't using the server:
 	g_QtSpeechGlobal.m_lstVoiceNames.clear();
-	for (int ndxCommonVoice = 0; (!convnarr_commonVoiceNames[ndxCommonVoice].isEmpty()); ++ndxCommonVoice) {
-		g_QtSpeechGlobal.m_lstVoiceNames << convnarr_commonVoiceNames[ndxCommonVoice];
+	for (int ndxInternalVoice = 0; (!convnarr_internalVoiceNames[ndxInternalVoice].isEmpty()); ++ndxInternalVoice) {
+		g_QtSpeechGlobal.m_lstVoiceNames << convnarr_internalVoiceNames[ndxInternalVoice];
 	}
 
 #ifdef USE_FESTIVAL_SERVER
@@ -514,11 +502,11 @@ void QtSpeech_asyncServerIO::readVoices()
 			for (int ndx = 0; ndx < lstVoices.size(); ++ndx) {
 				QtSpeech::VoiceName aVoice = { lstVoices.at(ndx), "Unknown", "" };
 				int nFoundNdx = -1;
-				for (int ndxCommonVoice = 0; ((nFoundNdx == -1) && (!convnarr_commonVoiceNames[ndxCommonVoice].isEmpty())); ++ndxCommonVoice) {
-					if (aVoice.id.compare(convnarr_commonVoiceNames[ndxCommonVoice].id) == 0) nFoundNdx = ndxCommonVoice;
+				for (int ndxInternalVoice = 0; ((nFoundNdx == -1) && (!convnarr_internalVoiceNames[ndxInternalVoice].isEmpty())); ++ndxInternalVoice) {
+					if (aVoice.id.compare(convnarr_internalVoiceNames[ndxInternalVoice].id) == 0) nFoundNdx = ndxInternalVoice;
 				}
 				if (nFoundNdx != -1) {
-					g_QtSpeechGlobal.m_lstVoiceNames << convnarr_commonVoiceNames[nFoundNdx];
+					g_QtSpeechGlobal.m_lstVoiceNames << convnarr_internalVoiceNames[nFoundNdx];
 				} else {
 					g_QtSpeechGlobal.m_lstVoiceNames << aVoice;
 				}

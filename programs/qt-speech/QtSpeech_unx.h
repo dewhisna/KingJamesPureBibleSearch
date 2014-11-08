@@ -25,7 +25,6 @@
 #include <QString>
 #include <QStringList>
 
-//#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
 #endif
