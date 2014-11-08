@@ -78,6 +78,8 @@ signals:
 	void operationSucceeded();
 	void operationComplete();
 
+	void doneTalking();
+
 public slots:
 	void readVoices();
 	void say(const QString &strText);
@@ -87,11 +89,13 @@ protected slots:
 	bool connectToServer();
 	void disconnectFromServer();
 	QStringList sendCommand(const QString &strCommand, bool bWaitForReply = true);
+	void en_readyRead();
 
 private:
 	QTcpSocket m_sockFestival;
 	QString m_strHostname;
 	int m_nPortNumber;
+	bool m_bAmTalking;
 };
 #endif
 

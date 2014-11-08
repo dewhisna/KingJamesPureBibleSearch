@@ -261,6 +261,7 @@ void QtSpeech::tell(QString strText) const
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		g_QtSpeechGlobal.g_pAsyncServerIO->say(strText);
+		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()));
 		return;
 	}
 #endif
@@ -284,9 +285,11 @@ void QtSpeech::say(QString strText) const
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		QEventLoop el;
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
+//		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
+		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(doneTalking()), &el, SLOT(quit()), Qt::QueuedConnection);
 		g_QtSpeechGlobal.g_pAsyncServerIO->say(strText);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
+		return;
 	}
 #endif
 
@@ -323,6 +326,7 @@ void QtSpeech::setVoice(const VoiceName &aVoice) const
 		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
 		g_QtSpeechGlobal.g_pAsyncServerIO->setVoice(theVoice);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
+		return;
 	}
 #endif
 
@@ -352,22 +356,24 @@ void QtSpeech::timerEvent(QTimerEvent * te)
 
 #ifdef USE_FESTIVAL_SERVER
 
-bool QtSpeech_asyncServerIO::isConnected()
-{
-	return (m_sockFestival.state() == QAbstractSocket::ConnectedState);
-}
-
 QtSpeech_asyncServerIO::QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent)
 	:	QObject(pParent),
 		m_strHostname(strHostname),
-		m_nPortNumber(nPortNumber)
+		m_nPortNumber(nPortNumber),
+		m_bAmTalking(false)
 {
+	connect(&m_sockFestival, SIGNAL(readyRead()), this, SLOT(en_readyRead()));
 	connectToServer();
 }
 
 QtSpeech_asyncServerIO::~QtSpeech_asyncServerIO()
 {
 	disconnectFromServer();
+}
+
+bool QtSpeech_asyncServerIO::isConnected()
+{
+	return (m_sockFestival.state() == QAbstractSocket::ConnectedState);
 }
 
 bool QtSpeech_asyncServerIO::connectToServer()
@@ -407,6 +413,7 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool 
 {
 	if (!isConnected()) return QStringList();
 
+	m_sockFestival.readAll();			// Flush incoming
 	m_sockFestival.write(QString("%1\n").arg(strCommand).toUtf8());
 
 #ifdef DEBUG_SERVER_IO
@@ -438,6 +445,21 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool 
 	}
 
 	return lstResultLines;
+}
+
+void QtSpeech_asyncServerIO::en_readyRead()
+{
+	if (m_bAmTalking) {
+		QString strData = QString::fromUtf8(m_sockFestival.readAll());
+#ifdef DEBUG_SERVER_IO
+		qDebug("%s", strData.toUtf8().data());
+#else
+		Q_UNUSED(strData);
+#endif
+
+		emit doneTalking();
+		m_bAmTalking = false;
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -483,8 +505,10 @@ void QtSpeech_asyncServerIO::readVoices()
 void QtSpeech_asyncServerIO::say(const QString &strText)
 {
 	if (connectToServer()) {
+		m_sockFestival.readAll();			// Flush incoming
 		QString strEscText = strText;
 		strEscText.remove(QChar('\"'));
+		m_bAmTalking = true;				// Set flag to announce doneTalking
 		sendCommand(QString("(SayText \"%1\")").arg(strEscText), false);
 		emit operationSucceeded();
 	} else {

@@ -423,7 +423,8 @@ void CScriptureText<T,U>::en_readSelection()
 	//		This will combine questions and exclamations, joining them with adjacent statements,
 	//		but there isn't likely to be a ton of them run together, which will achieve the
 	//		goal of not overflowing the buffer:
-	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(QChar('.'));
+	static const QRegExp regexpSentence("[;.:]");
+	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence);
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		if (!lstSentences.at(ndx).isEmpty()) {
 			// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
