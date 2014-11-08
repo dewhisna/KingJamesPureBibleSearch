@@ -25,10 +25,9 @@
 #include <QString>
 #include <QStringList>
 
-#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
+//#define USE_FESTIVAL_SERVER			// TODO : REMOVE this line
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
-#include <QTimer>
 #endif
 
 namespace QtSpeech_v1 { // API v1.0
@@ -38,38 +37,28 @@ class QtSpeech_th : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_th(const QtSpeech::VoiceName &aVoiceName, QObject * p =0L)
+	QtSpeech_th(QObject * p =0L)
 		:	QObject(p),
 			err(""),
-			has_error(false),
-			selectedVoiceName(aVoiceName)
+			has_error(false)
 	{}
 	virtual ~QtSpeech_th()
 	{}
 
 public slots:
 	void doInit();
-	void say(QString text);
-#ifdef USE_FESTIVAL_SERVER
-	void startServer(int nPort);
-	void stopServer();
-#endif
+	void say(QString strText);
+	void eval(QString strExpr);
 
 signals:
     void logicError(QtSpeech::LogicError);
     void finished();
-#ifdef USE_FESTIVAL_SERVER
-	void serverStarted();
-	void serverStopped();
-#endif
 
 private:
     friend class QtSpeech;
     QtSpeech::LogicError err;
     bool has_error;
-	QtSpeech::VoiceName selectedVoiceName;
 	static bool init;
-	static bool haveSelectedVoice;
 };
 
 
@@ -79,8 +68,10 @@ class QtSpeech_asyncServerIO : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_asyncServerIO(int nPortNumber, QObject *pParent = 0L);
+	QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent = 0L);
 	virtual ~QtSpeech_asyncServerIO();
+
+	bool isConnected();
 
 signals:
 	void operationFailed();
@@ -88,8 +79,9 @@ signals:
 	void operationComplete();
 
 public slots:
-	void asyncReadVoices();
+	void readVoices();
 	void say(const QString &strText);
+	void setVoice(const QtSpeech::VoiceName &aVoice);
 
 protected slots:
 	bool connectToServer();
@@ -98,7 +90,7 @@ protected slots:
 
 private:
 	QTcpSocket m_sockFestival;
-	QTimer m_tmrAutoDisconnect;
+	QString m_strHostname;
 	int m_nPortNumber;
 };
 #endif

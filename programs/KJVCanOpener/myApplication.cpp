@@ -620,7 +620,7 @@ CMyApplication::~CMyApplication()
 	g_pUserNotesDatabase.clear();
 
 #ifdef USING_QT_SPEECH
-	if (QtSpeech::serverAvailable()) QtSpeech::stopServer();
+	if (QtSpeech::serverSupported()) QtSpeech::disconnectFromServer();
 #endif
 
 #ifdef LOAD_APPLICATION_FONTS
@@ -1314,9 +1314,9 @@ int CMyApplication::execute(bool bBuildDB)
 	// Setup Text-To-Speech:
 #ifdef USING_QT_SPEECH
 	// TODO : Add reading/setting of Speech Server Port:
-	if (QtSpeech::serverAvailable()) {
-		if (!QtSpeech::startServer()) {
-			displayWarning(m_pSplash, g_constrInitialization, tr("Failed to start Text-To-Speech Server!", "Errors"));
+	if (QtSpeech::serverSupported()) {
+		if (!QtSpeech::connectToServer()) {
+			displayWarning(m_pSplash, g_constrInitialization, tr("Failed to connect to Text-To-Speech Server!", "Errors"));
 		}
 	}
 #endif

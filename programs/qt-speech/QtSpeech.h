@@ -48,7 +48,18 @@ public:
 		QString name;
 		QString lang;
 
-		bool isEmpty() const { return id.isEmpty(); }
+		inline void clear()
+		{
+			id.clear();
+			name.clear();
+			lang.clear();
+		}
+		inline bool isEmpty() const { return id.isEmpty(); }
+		inline bool operator==(const VoiceName &other) const
+		{
+			return (id == other.id);
+		}
+
 	};
     typedef QList<VoiceName> VoiceNames;
 
@@ -60,10 +71,10 @@ public:
 	const VoiceName & name() const; //!< Name of current voice
     static VoiceNames voices();     //!< List of available voices in system
 
-	static bool serverAvailable();								// True if QtSpeech library compiled with server support
-	static bool serverRunning();								// True if Festival Server currently running
-	static bool startServer(int nPort = 1314);					// Start Festival Server
-	static void stopServer();									// Stop Festival Server
+	static bool serverSupported();								// True if QtSpeech library compiled with server support
+	static bool serverConnected();								// True if currently connected to a speech server
+	static bool connectToServer(const QString &strHostname = "localhost", int nPortNumber = 1314);
+	static void disconnectFromServer();
 
 public slots:
     void say(QString) const;                                    //!< Say something, synchronous
@@ -73,12 +84,11 @@ signals:
     void finished();
 
 protected:
-    virtual void timerEvent(QTimerEvent *);
+	void setVoice(const VoiceName &aVoice = VoiceName()) const;
+
+	virtual void timerEvent(QTimerEvent *);
 
 private:
-	friend class QtSpeech_th;
-	friend class QtSpeech_asyncServerIO;
-
 	class Private;
     Private * d;
 };
