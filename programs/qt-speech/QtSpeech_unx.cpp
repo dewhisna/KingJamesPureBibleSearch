@@ -67,7 +67,6 @@ class QtSpeech::Private
 public:
 	Private() {}
 
-	VoiceName m_vnRequestedVoiceName;
 };
 
 // global data
@@ -86,6 +85,7 @@ public:
 
 	QPointer<QThread> m_pSpeechThread;
 	QtSpeech::VoiceName m_vnSelectedVoiceName;
+	QtSpeech::VoiceName m_vnRequestedVoiceName;
 	QtSpeech::VoiceNames m_lstVoiceNames;
 
 #ifdef USE_FESTIVAL_SERVER
@@ -159,7 +159,13 @@ QtSpeech::QtSpeech(QObject * parent)
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
 	}
 
-	d->m_vnRequestedVoiceName = convn_DefaultVoiceName;
+	g_QtSpeechGlobal.m_vnRequestedVoiceName = convn_DefaultVoiceName;
+
+#ifdef USE_FESTIVAL_SERVER
+	if (serverConnected()) {
+		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
+	}
+#endif
 }
 
 QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
@@ -173,7 +179,13 @@ QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
 	}
 
-	d->m_vnRequestedVoiceName = aVoiceName;
+	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
+
+#ifdef USE_FESTIVAL_SERVER
+	if (serverConnected()) {
+		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
+	}
+#endif
 }
 
 QtSpeech::~QtSpeech()
@@ -252,6 +264,23 @@ void QtSpeech::disconnectFromServer()
 #endif
 }
 
+void QtSpeech::en_lostServer()
+{
+#ifdef USE_FESTIVAL_SERVER
+	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {			// May be null if we have multiple outstanding QtSpeech objects
+#ifdef DEBUG_SERVER_IO
+		qDebug("Lost connection to Festival Server... switching to internal Festival");
+#endif
+		disconnectFromServer();									// Delete our connectivity object
+		// If we lose the server that we were using, we need reselect the last request voice on the internal festival:
+		if (g_QtSpeechGlobal.m_vnRequestedVoiceName.isEmpty()) {
+			g_QtSpeechGlobal.m_vnRequestedVoiceName = g_QtSpeechGlobal.m_vnSelectedVoiceName;
+			g_QtSpeechGlobal.m_vnSelectedVoiceName.clear();
+		}
+	}
+#endif
+}
+
 // ----------------------------------------------------------------------------
 
 void QtSpeech::tell(QString strText) const
@@ -312,8 +341,8 @@ void QtSpeech::say(QString strText) const
 
 void QtSpeech::setVoice(const VoiceName &aVoice) const
 {
-	VoiceName theVoice = (!aVoice.isEmpty() ? aVoice : d->m_vnRequestedVoiceName);
-	d->m_vnRequestedVoiceName.clear();
+	VoiceName theVoice = (!aVoice.isEmpty() ? aVoice : g_QtSpeechGlobal.m_vnRequestedVoiceName);
+	g_QtSpeechGlobal.m_vnRequestedVoiceName.clear();
 
 	if (theVoice.isEmpty()) return;
 	if (g_QtSpeechGlobal.m_vnSelectedVoiceName == theVoice) return;
@@ -363,6 +392,7 @@ QtSpeech_asyncServerIO::QtSpeech_asyncServerIO(const QString &strHostname, int n
 		m_bAmTalking(false)
 {
 	connect(&m_sockFestival, SIGNAL(readyRead()), this, SLOT(en_readyRead()));
+	connect(&m_sockFestival, SIGNAL(disconnected()), this, SIGNAL(lostServer()));
 	connectToServer();
 }
 

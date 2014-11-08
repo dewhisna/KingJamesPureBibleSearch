@@ -74,6 +74,7 @@ public:
 	bool isConnected();
 
 signals:
+	void lostServer();
 	void operationFailed();
 	void operationSucceeded();
 	void operationComplete();
